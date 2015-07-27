@@ -2638,6 +2638,19 @@
 			<CannotBeChosen>true</CannotBeChosen>
 		</Row>
 		<Row>
+			<Type>PROMOTION_ICE_BREAKERS</Type>
+			<Description>TXT_KEY_PROMOTION_ICE_BREAKERS</Description>
+			<Help>TXT_KEY_PROMOTION_ICE_BREAKERS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>43</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<TechPrereq>TECH_BALLISTICS</TechPrereq>
+			<CanMoveImpassable>true</CanMoveImpassable>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ICE_BREAKERS</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
 			<Type>PROMOTION_RECON_EXPERIENCE</Type>
 			<Description>TXT_KEY_PROMOTION_RECON_EXPERIENCE</Description>
 			<Help>TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP</Help>
@@ -2872,6 +2885,10 @@
 			<PromotionType>PROMOTION_FALLOUT_IMMUNITY</PromotionType>
 			<UnitType>UNIT_WORKER</UnitType>
 		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ICE_BREAKERS</PromotionType>
+			<UnitType>UNIT_WORKBOAT</UnitType>
+		</Row>
 	</UnitPromotions_CivilianUnitType>
 	<UnitPromotions_UnitCombatMods>
 		<Row>
@@ -2981,6 +2998,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_IMMUNITY_HELP">
 			<Text>Ignores damage from Fallout.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS">
+			<Text>Ice Breakers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS_HELP">
+			<Text>Allows Workboats to move through Ice tiles.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE">

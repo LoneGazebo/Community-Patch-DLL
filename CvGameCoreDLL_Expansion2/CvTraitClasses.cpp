@@ -3407,9 +3407,10 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 }
 #if defined(MOD_BALANCE_CORE)
 /// Should unique luxuries appear around this tile?
-void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
+bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 {
 	// Still have more of these cities to award?
+	bool bResult = false;
 	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
 	{
 		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
@@ -3428,6 +3429,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
 				{
 					iRandomFlavor /= m_pPlayer->getNumResourceTotal(eResource, false);
+					iRandomFlavor += 1;
 				}
 				if(iRandomFlavor > iBestFlavor)
 				{
@@ -3451,7 +3453,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 				{
-					if(pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
+					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
 						pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 						pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -3460,6 +3462,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 						{
 							break;
 						}
+						bResult = true;
 					}
 				}
 			}
@@ -3472,9 +3475,9 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 				{
 					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-					if(pLoopPlot != NULL && !pLoopPlot->isCity() && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
-						if(pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
+						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -3483,6 +3486,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 							{
 								break;
 							}
+							bResult = true;
 						}
 					}
 				}
@@ -3491,9 +3495,11 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			{
 				pCity->plot()->setResourceType(NO_RESOURCE, 0, false);
 				pCity->plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
+				bResult = true;
 			}
 		}
 	}
+	return bResult;
 }
 #endif
 /// Should unique luxuries appear beneath this tile?

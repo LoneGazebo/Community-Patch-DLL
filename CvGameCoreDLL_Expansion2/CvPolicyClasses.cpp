@@ -84,6 +84,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
 	m_piGoldenAgeYieldMod(NULL),
+	m_bOrderCorporation(false),
+	m_bAutocracyCorporation(false),
+	m_bFreedomCorporation(false),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -419,6 +422,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
+	m_bOrderCorporation = kResults.GetBool("OrderCorporation");
+	m_bAutocracyCorporation = kResults.GetBool("AutocracyCorporation");
+	m_bFreedomCorporation = kResults.GetBool("FreedomCorporation");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1441,6 +1447,19 @@ EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
 int CvPolicyEntry::GetIdeologyPoint() const
 {
 	return m_iIdeologyPoint;
+}
+
+bool CvPolicyEntry::IsOrderCorp() const
+{
+	return m_bOrderCorporation;
+}
+bool CvPolicyEntry::IsAutocracyCorp() const
+{
+	return m_bAutocracyCorporation;
+}
+bool CvPolicyEntry::IsFreedomCorp() const
+{
+	return m_bFreedomCorporation;
 }
 #endif
 /// Happiness from each connected Luxury Resource

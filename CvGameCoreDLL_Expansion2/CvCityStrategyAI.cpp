@@ -3496,11 +3496,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 						{
 							iNumUnimprovedWaterResources++;
 #if defined(MOD_BALANCE_CORE)
-							ResourceTypes eResource = pLoopPlot->getResourceType();
-							CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
-							if(pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
+							if(eResource != NO_RESOURCE)
 							{
-								iNumUnimprovedWaterResources *= 5;
+								CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
+								if(pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								{
+									iNumUnimprovedWaterResources *= 5;
+								}
 							}
 #endif
 

@@ -1411,7 +1411,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 						{
 							continue;
 						}
-						iDefense = pPlot->GetDefenseBuildValue();
+						iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 						if(iDefense > iScore)
 						{
 							iScore = iDefense;
@@ -1424,7 +1424,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			{
 				if(pPlot->getImprovementType() == eFort)
 				{
-					iDefense = pPlot->GetDefenseBuildValue();
+					iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 				}
 				if(iDefense > iScore)
 				{
@@ -2838,6 +2838,23 @@ int CvBuilderTaskingAI::ScorePlot()
 		iScore *= 2;
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Plots with resources on them need emphasis, especially if they offer happiness.
+	if(m_pTargetPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
+	{
+		iScore *= 2;
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(m_pTargetPlot->getResourceType(pCity->getTeam()));
+		if(pkResourceInfo)
+		{
+			if(pkResourceInfo->getHappiness() > 0)
+			{
+				iScore *= 2;
+			}
+			if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				iScore *= 2;
+			}
+		}
+	}
 	}
 #endif
 	return iScore;

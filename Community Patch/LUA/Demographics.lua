@@ -292,7 +292,7 @@ end
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function GetArmyValue( iPlayer )
-    return math.sqrt( Players[iPlayer]:GetMilitaryMight() ) * 10000;
+    return math.sqrt( Players[iPlayer]:GetMilitaryMight() ) * 5000;
 end
 
 

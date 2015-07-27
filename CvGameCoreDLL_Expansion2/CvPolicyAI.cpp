@@ -168,13 +168,8 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 			iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
 #if defined(MOD_BALANCE_CORE)
-			//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
-			if((m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() <= 0)&& m_pCurrentPolicies->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType()) > 0)
-			{
-				iWeight *= (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType()) + 1);
-			}
 			//If this is an ideology policy, let's snap those up.
-			else if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
+			if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
 			{
 				iWeight *= (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() + 1);
 			}
@@ -185,11 +180,19 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
 				if(pkPolicyBranchInfo)
 				{
-					int iPolicyEra = pkPolicyBranchInfo->GetEraPrereq();
-					int iPlayerEra = pPlayer->GetCurrentEra();
-					if(iPolicyEra < iPlayerEra)
+					//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
+					if(m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) > 0)
 					{
-						iWeight /= max(1, (iPlayerEra - iPolicyEra));
+						iWeight *= (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) + 2);
+					}
+					else
+					{
+						int iPolicyEra = pkPolicyBranchInfo->GetEraPrereq();
+						int iPlayerEra = pPlayer->GetCurrentEra();
+						if(iPolicyEra < iPlayerEra)
+						{
+							iWeight /= max(1, (iPlayerEra - iPolicyEra));
+						}
 					}
 				}
 				if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PIETY", true))
@@ -203,6 +206,10 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					if(!bBuildingReligion)
 					{
 						iWeight = 0;
+					}
+					else
+					{
+						iWeight *= 5;
 					}
 				}
 			}

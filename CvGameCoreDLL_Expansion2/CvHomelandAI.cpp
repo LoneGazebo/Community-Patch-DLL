@@ -831,7 +831,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 				else
 				{
-					int iWeight = pLoopPlot->GetDefenseBuildValue();
+					int iWeight = pLoopPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 					if(iWeight > 0)
 					{
 						if(pLoopPlot->getResourceType(eTeam) != NO_RESOURCE)
@@ -3375,7 +3375,11 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					}
 				}
 
+#if defined(AUI_BINOM_RNG) 
 				int iRandom = GC.getGame().getJonRandNumBinom(50,"explore target tiebreak");
+#else
+				int iRandom = GC.getGame().getJonRandNum(50,"explore target tiebreak");
+#endif
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 #if defined(AUI_DANGER_PLOTS_REMADE)
@@ -5744,6 +5748,14 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			int iValue = 0;
+#if defined(MOD_BALANCE_CORE)
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Great General considering a Citadel, Current Location: X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit.pointer(), iValue);
 #else

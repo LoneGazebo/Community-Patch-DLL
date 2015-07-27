@@ -15,6 +15,10 @@
 			<TechType>TECH_NANOTECHNOLOGY</TechType>
 			<PromotionType>PROMOTION_FALLOUT_IMMUNITY</PromotionType>
 		</Row>
+		<Row>
+			<TechType>TECH_BALLISTICS</TechType>
+			<PromotionType>PROMOTION_ICE_BREAKERS</PromotionType>
+		</Row>
 	</Technology_FreePromotions>
 	<Route_TechMovementChanges>
 		<Row>

@@ -1635,7 +1635,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				{
 					iHappinessFromResource = 1;
 				}
-				iItemValue += (2 * iResourceQuantity * iHappinessFromResource * (iNumTurns + (GC.getGame().getCurrentEra())));	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
+				iItemValue += (2 * iResourceQuantity * iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
 			}
 			else
 			{
@@ -6829,10 +6829,10 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 20 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
-	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
+	int iIdealValue = 30 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
 	{
-		iIdealValue *= 3;
+		iIdealValue *= 5;
 	}
 	bool bDontChangeTheirExistingItems = false;
 	int iDealDuration = GC.getGame().GetDealDuration();
@@ -6841,17 +6841,17 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	int iAmountOverWeWillRequest = 0;
 	iTotalValueToMe = (iIdealValue * -1);
 	DoAddResourceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iDealDuration, bUseEvenValue);
-	if(iValueTheyreOffering >= iIdealValue)
+	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}
 	DoAddGPTToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iDealDuration, bUseEvenValue);
-	if(iValueTheyreOffering >= iIdealValue)
+	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}
 	DoAddGoldToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
-	if(iValueTheyreOffering >= iIdealValue)
+	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}
@@ -6859,29 +6859,24 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		// AI would rather offer human resources/open borders than techs/maps
 		DoAddTechToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-		if(iValueTheyreOffering >= iIdealValue)
+		if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 		{
 			return true;
 		}
 		DoAddMapsToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-		if(iValueTheyreOffering >= iIdealValue)
+		if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 		{
 			return true;
 		}
 	}
 #endif
 	DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-	if(iValueTheyreOffering >= iIdealValue)
+	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}
 	DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-	if(iValueTheyreOffering >= iIdealValue)
-	{
-		return true;
-	}
-	// Make sure we haven't removed everything from the deal!
-	if(pDeal->m_TradedItems.size() > 0)
+	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}

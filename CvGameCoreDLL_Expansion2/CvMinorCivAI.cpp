@@ -1490,7 +1490,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		//Let's issue an attack request.
 		if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
 		{
-			pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eMostRecentBully);
+			if(pAssignedPlayer->GetMilitaryAI()->GetSneakAttackOperation(eMostRecentBully) == NULL)
+			{
+				pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eMostRecentBully);
+			}
 		}
 	}
 	// Find a City State
@@ -1608,7 +1611,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				{
 					if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(eConquerorTeam), pAssignedPlayer->GetID())
 					{
-						pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eTeamPlayer);
+						if(pAssignedPlayer->GetMilitaryAI()->GetSneakAttackOperation(eTeamPlayer) == NULL)
+						{
+							pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eTeamPlayer);
+						}
 					}
 				}
 			}
@@ -11297,6 +11303,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
+
 	float fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
 	int iLocalPowerScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
@@ -11421,7 +11428,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	iLimit /= 100;
 	if(iDuration <= iLimit)
 	{
-		iBaseReluctanceScore *= 3;
+		iBaseReluctanceScore *= 5;
 	}
 #endif
 	iScore += iBaseReluctanceScore;
@@ -11467,9 +11474,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
 			{
-				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer) + 30 >= GC.getGame().getGameTurn())
+				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer) + 20 >= GC.getGame().getGameTurn())
 				{
-					iLastBullyTurn += 10;
+					iLastBullyTurn += 20;
 				}
 			}
 		}
@@ -12190,6 +12197,9 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 	// In case we have quests that bullying makes obsolete, check now
 	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+#if defined(MOD_BALANCE_CORE_MINORS)
+	DoChangeProtectionFromMajor(eBully, false, true);
+#endif
 
 	// Inform alive majors who have met the bully
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)

@@ -1155,7 +1155,7 @@ public:
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
 #if defined(MOD_BALANCE_CORE)
-	void AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource);
+	bool AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource);
 #endif
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);

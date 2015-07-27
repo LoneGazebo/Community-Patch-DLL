@@ -36,7 +36,7 @@
 
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
-
+#if defined(MOD_BALANCE_CORE)
 CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
@@ -44,7 +44,7 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 
 	return m_aTeams[eTeam];
 }
-
+#endif
 //	--------------------------------------------------------------------------------
 void CvTeam::initStatics()
 {
@@ -8221,7 +8221,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		}
 		
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv())
+		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
 			CvCity* pLoopCity;
 			int iLoop;

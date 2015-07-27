@@ -9143,48 +9143,51 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getFeatureType() == NO_FEATURE)
+		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
 		{
-			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-			if(iBonus > 0)
+			if((getFeatureType() == NO_FEATURE) && (getOwner() == kPlayer.GetID()))
 			{
-				bool bTrade = false;
-				if(IsTradeRoute())
+				int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+				if(iBonus > 0)
 				{
-					bTrade = true;
-				}
-				if(!bTrade)
-				{
-					CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-					for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+					bool bTrade = false;
+					if(IsTradeRoute())
 					{
-						TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
-						if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+						bTrade = true;
+					}
+					if(!bTrade)
+					{
+						CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+						for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
 						{
-							continue;
-						}
-						for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-						{
-							if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+							TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+							if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 							{
-								bTrade = true;
-								break;
+								continue;
+							}
+							for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+							{
+								if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+								{
+									bTrade = true;
+									break;
+								}
 							}
 						}
 					}
-				}
-				if(bTrade)
-				{
-					int iScale = 0;
-					int iEra = (GC.getGame().getCurrentEra() + 1);
-
-					iScale = ((iBonus * iEra) / 4);
-
-					if(iScale <= 0)
+					if(bTrade)
 					{
-						iScale = 1;
+						int iScale = 0;
+						int iEra = (GC.getGame().getCurrentEra() + 1);
+
+						iScale = ((iBonus * iEra) / 4);
+
+						if(iScale <= 0)
+						{
+							iScale = 1;
+						}
+						iYield += iScale;
 					}
-					iYield += iScale;
 				}
 			}
 		}
@@ -9408,15 +9411,18 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 #endif
 		}
 #if defined(MOD_BALANCE_CORE)
-		//Non-hill, non-freshwater city plots should make one extra gold
-		if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
+		if(pCity->plot() == this)
 		{
-			iYield += 1;
-		}
-		//Non-hill, freshwater plots should make one extra food
-		if(eYield == YIELD_FOOD && !isHills() && isFreshWater())
-		{
-			iYield += 1;
+			//Non-hill, non-freshwater city plots should make one extra gold
+			if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
+			{
+				iYield += 1;
+			}
+			//Non-hill, freshwater plots should make one extra food
+			if(eYield == YIELD_FOOD && !isHills() && isFreshWater())
+			{
+				iYield += 1;
+			}
 		}
 #endif
 		// Capital Mod
@@ -13396,23 +13402,30 @@ bool CvPlot::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
-int CvPlot::GetDefenseBuildValue()
+int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 {
-	TeamTypes eTeam = getTeam();
+	TeamTypes eTeam = GET_PLAYER(eOwner).getTeam();
 	if(eTeam == NO_TEAM)
 	{
 		return 0;
 	}
+
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 	
+	if((eFort == NO_IMPROVEMENT) || (eCitadel == NO_IMPROVEMENT))
+	{
+		return 0;
+	}
+
 	PlayerTypes pNeighborAdjacent = NO_PLAYER;
 	PlayerTypes pNeighborNearby = NO_PLAYER;
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
 	int iAdjacentOwned = 0;
-	int iAdjacentForts = 0;
+	int iAdjacentWeOwn = 0;
+	int iNearbyForts = 0;
 	int iNearbyOwned = 0;
 	int iBadNearby = 0;
 	int iBadAdjacent = 0;
@@ -13424,6 +13437,15 @@ int CvPlot::GetDefenseBuildValue()
 		//Don't want them adjacent to cities, but we do want to check for plot ownership.
 		if (pLoopAdjacentPlot != NULL)
 		{	
+			//Let's check for adjacent plots and forts, but only ones we own.
+			if(pLoopAdjacentPlot->getOwner() == eOwner)
+			{
+				iAdjacentWeOwn++;
+				if((pLoopAdjacentPlot->getImprovementType() == eFort) || (pLoopAdjacentPlot->getImprovementType() == eCitadel))
+				{
+					return 0;
+				}
+			}
 			if(pLoopAdjacentPlot->isCity())
 			{
 				//Adjacent to city? Break!
@@ -13438,31 +13460,34 @@ int CvPlot::GetDefenseBuildValue()
 			{
 				iAdjacentUnowned++;
 			}
-			else if(pLoopAdjacentPlot->getOwner() != getOwner() && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
+			else if(pLoopAdjacentPlot->getOwner() != eOwner && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
 				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
 				if(pNeighborAdjacent != NULL)
 				{
-					if(GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) < MAJOR_CIV_OPINION_NEUTRAL)
+					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
 					{
 						iBadAdjacent++;
 					}
 				}
 			}
-			//Let's check for adjacent forts as well
-			if(eFort != NO_IMPROVEMENT)
+			else if(pLoopAdjacentPlot->getOwner() != eOwner && (GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
-				if((pLoopAdjacentPlot->getImprovementType() == eFort) || (pLoopAdjacentPlot->getImprovementType() == eCitadel))
+				iAdjacentOwned++;
+				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+				if(pNeighborAdjacent != NULL)
 				{
-					iAdjacentForts++;
+					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
+					{
+						iBadAdjacent++;
+					}
 				}
 			}
 		}
 	}
-
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if( (iAdjacentUnowned > 3) || (iAdjacentOwned < 5) )
+	if(iAdjacentWeOwn < 6 && ((iAdjacentUnowned > 2) || (iBadAdjacent > 0) || (iAdjacentOwned > 3)) )
 	{
 		//check the wider area for enemy tiles. may also be on another landmass
 		for(int iX = -iRange; iX <= iRange; iX++)
@@ -13474,27 +13499,36 @@ int CvPlot::GetDefenseBuildValue()
 				//Don't want them adjacent to cities, but we do want to check for plot ownership.
 				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam) && (this != pLoopNearbyPlot))
 				{
-					if((pLoopNearbyPlot->getOwner() != getOwner()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+					if((pLoopNearbyPlot->getOwner() != eOwner) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
 					{
 						iNearbyOwned++;
 						pNeighborNearby = pLoopNearbyPlot->getOwner();
 						if(pNeighborNearby != NULL)
 						{
-							if(GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_NEUTRAL)
+							if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) <= MAJOR_CIV_OPINION_NEUTRAL)
 							{
 								iBadNearby++;
 							}
 						}
 					}
-					if ((eFort != NO_IMPROVEMENT) && (eCitadel != NO_IMPROVEMENT))
+					else if((pLoopNearbyPlot->getOwner() != eOwner) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
 					{
-						//Let's check for nearby forts as well
-						if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && (pLoopNearbyPlot->getOwner() == getOwner()))
+						iNearbyOwned++;
+						pNeighborNearby = pLoopNearbyPlot->getOwner();
+						if(pNeighborNearby != NULL)
 						{
-							if((eFort == pLoopNearbyPlot->getImprovementType()) || (eCitadel == pLoopNearbyPlot->getImprovementType()))
+							if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborNearby) >= MINOR_CIV_APPROACH_CONQUEST)
 							{
-								iAdjacentForts++;
+								iBadNearby++;
 							}
+						}
+					}
+					//Let's check for owned nearby forts as well
+					if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && (pLoopNearbyPlot->getOwner() == eOwner))
+					{
+						if((eFort == pLoopNearbyPlot->getImprovementType()) || (eCitadel == pLoopNearbyPlot->getImprovementType()))
+						{
+							iNearbyForts++;
 						}
 					}
 				}
@@ -13502,24 +13536,24 @@ int CvPlot::GetDefenseBuildValue()
 		}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-		if (iNearbyOwned == 0 || (iAdjacentForts > 2))
+		if (iBadNearby == 0 || (iNearbyForts > 2))
 		{
 			return 0;
 		}
 
 		// Get score for this sentry point (defense and danger)
-		int iScore = GET_PLAYER(getOwner()).GetPlotDanger(*this);
+		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
 
 		iScore += defenseModifier(eTeam, true);
 
 		//Bonus for nearby owned tiles
-		iScore += iNearbyOwned * 5;
+		iScore += (iNearbyOwned * 5);
 		
 		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwned * 20);
+		iScore += (iAdjacentOwned * 5);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadAdjacent * 20);
+		iScore += (iBadAdjacent * 15);
 
 		//Big Bonus if adjacent to enemy territory.
 		iScore += (iBadNearby * 10);
@@ -13527,11 +13561,11 @@ int CvPlot::GetDefenseBuildValue()
 		//Big bonus if chokepoint
 		if(IsChokePoint())
 		{
-			iScore += 50;
+			iScore *= 25;
 		}
 		if(IsLandbridge(12,54))
 		{
-			iScore += 150;
+			iScore *= 25;
 		}
 		return iScore;
 	}

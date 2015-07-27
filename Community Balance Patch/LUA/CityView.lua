@@ -489,30 +489,29 @@ function AddBuildingButton( pCity, building )
 			local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
 			if (iCultureFromSpecialist > 0) then
 				--CBP
-				local extraYield = pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE)
-				if(iCultureFromSpecialist > 0) then
-					iCultureFromSpecialist = (iCultureFromSpecialist + extraYield)
-				end
+				local extraYield = (pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange(YieldTypes.YIELD_CULTURE, iSpecialistID))
+				iCultureFromSpecialist = (iCultureFromSpecialist + extraYield)
 				-- END
 				ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
 			end
 			-- Yield
 			for pYieldInfo in GameInfo.Yields() do
 				local iYieldID = pYieldInfo.ID;
-				local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
-
+				if(iYieldID ~= YieldTypes.YIELD_CULTURE) then
+					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 -- CBP
-				local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
-				if(iYieldAmount > 0) then
-					iYieldAmount = (iYieldAmount + iExtraYield);
-				end
+					if(iYieldAmount > 0) then
+						local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
+						iYieldAmount = (iYieldAmount + iExtraYield);
+					end
 -- End
 				
-				--Specialist Yield included in pCity:GetSpecialistYield();
-				--iYieldAmount = iYieldAmount + Players[pCity:GetOwner()]:GetSpecialistExtraYield(iSpecialistID, iYieldID);
+					--Specialist Yield included in pCity:GetSpecialistYield();
+					--iYieldAmount = iYieldAmount + Players[pCity:GetOwner()]:GetSpecialistExtraYield(iSpecialistID, iYieldID);
 				
-				if (iYieldAmount > 0) then
-					ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
+					if (iYieldAmount > 0) then
+						ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
+					end
 				end
 			end
 			if pSpecialistInfo.GreatPeopleRateChange > 0 then
@@ -621,23 +620,28 @@ function AddBuildingButton( pCity, building )
 				-- Culture
 				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
 				if (iCultureFromSpecialist > 0) then
+-- CBP
+					local iExtraYield = pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE);
+					iCultureFromSpecialist = (iCultureFromSpecialist + iExtraYield);
+-- End
 					table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
 				end
 				
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
-					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
-
+					if(iYieldID ~= YieldTypes.YIELD_CULTURE)then
+						local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 -- CBP
-					local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
-					if(iYieldAmount > 0) then
-						iYieldAmount = (iYieldAmount + iExtraYield);
-					end
+						if(iYieldAmount > 0) then
+							local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
+							iYieldAmount = (iYieldAmount + iExtraYield);
+						end
 -- End
 					
-					if (iYieldAmount > 0) then
-						table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
+						if (iYieldAmount > 0) then
+							table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
+						end
 					end
 				end
 				
@@ -1397,18 +1401,27 @@ function OnCityViewUpdate()
 				-- Culture
 				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
 				if (iCultureFromSpecialist > 0) then
+					--CBP
+					local extraYield = (pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange(YieldTypes.YIELD_CULTURE, iSpecialistID))
+					iCultureFromSpecialist = (iCultureFromSpecialist + extraYield)
+					-- END
 					ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
 				end
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
-					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
+					if(iYieldID ~= YieldTypes.YIELD_CULTURE) then
+						local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);					
+						--Specialist Yield included in pCity:GetSpecialistYield();
+						--iYieldAmount = iYieldAmount + pPlayer:GetSpecialistExtraYield(iSpecialistID, iYieldID);
 					
-					--Specialist Yield included in pCity:GetSpecialistYield();
-					--iYieldAmount = iYieldAmount + pPlayer:GetSpecialistExtraYield(iSpecialistID, iYieldID);
-					
-					if (iYieldAmount > 0) then
-						ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
+						if (iYieldAmount > 0) then
+							--CBP
+							local extraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
+							iYieldAmount = (iYieldAmount + extraYield);
+							-- END
+							ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
+						end
 					end
 				end
 				if pSpecialistInfo.GreatPeopleRateChange > 0 then

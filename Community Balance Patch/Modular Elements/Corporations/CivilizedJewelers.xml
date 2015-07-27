@@ -66,7 +66,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<FreeBuildingTradeTargetCity>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</FreeBuildingTradeTargetCity>
 			<CorporationID>6</CorporationID>
-			<GreatPeopleRateModifier>5</GreatPeopleRateModifier>
+			<GreatPeopleRateModifier>10</GreatPeopleRateModifier>
 			<CorporationGPChange>5</CorporationGPChange>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
@@ -174,7 +174,7 @@
 		<Row>
 			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Building_CorporationYieldModTrade>
 	<Building_Flavors>
@@ -214,7 +214,7 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS">
-			<Text>Resource Bonus: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, and [ICON_RES_PEARLS] Pearls gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +5%.</Text>
+			<Text>Resource Bonus: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, and [ICON_RES_PEARLS] Pearls gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
@@ -237,10 +237,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
-			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +5% [ICON_GREAT_PEOPLE] Great Person rate for every Civilized Jeweler's Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +5%.</Text>
+			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +5% [ICON_GREAT_PEOPLE] Great Person rate for every Civilized Jeweler's Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

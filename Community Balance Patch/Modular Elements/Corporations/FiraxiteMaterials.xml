@@ -184,9 +184,16 @@
 		<Row>
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Building_CorporationTradeRouteMod>
+	<Building_CorporationYield>
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_CorporationYield>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
@@ -214,7 +221,7 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, or [ICON_RES_COPPER] Copper. [NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS">
-			<Text>Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, and [ICON_RES_COPPER] Copper gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RESEARCH] Science for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% [ICON_RESEARCH] Science.</Text>
+			<Text>Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, and [ICON_RES_COPPER] Copper gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
@@ -237,10 +244,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +1.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +3.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +1 [ICON_RESEARCH] Science for every Firaxite Materials Franchise.[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% more [ICON_RESEARCH] Science than normal.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +3 [ICON_RESEARCH] Science for every Firaxite Materials Franchise.[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

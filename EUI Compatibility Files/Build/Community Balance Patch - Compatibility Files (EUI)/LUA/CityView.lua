@@ -434,25 +434,27 @@ local function GetSpecialistYields( city, specialist )
 	if city then
 		-- Culture
 		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
-		--CBP
-		local extraYield = city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE)
+		-- Total
 		if(cultureFromSpecialist > 0) then
+			--CBP
+			-- Policies/Buildings/Techs/
+			local extraYield = (city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE) + city:GetSpecialistYield( specialistID, YieldTypes.YIELD_CULTURE ))
+			-- END
 			cultureFromSpecialist = (cultureFromSpecialist + extraYield)
 		end
 		--END
 		-- Yield
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-			local specialistYield = city:GetSpecialistYield( specialistID, yieldID )
-			-- COMMUNITY PATCH BEGINS
-				local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
-				if(specialistYield > 0) then
-					specialistYield = (specialistYield + extraYield)
-				end
-			-- COMMUNITY PATCH ENDS
-			if specialistYield > 0 then
-				yieldTips:insert( specialistYield .. (YieldIcons[yieldID] or "") )
-				if yieldID == YieldTypes.YIELD_CULTURE then
-					cultureFromSpecialist = 0
+			if(yieldID ~= YieldTypes.YIELD_CULTURE) then
+				local specialistYield = city:GetSpecialistYield( specialistID, yieldID )
+				-- COMMUNITY PATCH BEGINS
+					if(specialistYield > 0) then
+						local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
+						specialistYield = (specialistYield + extraYield)
+					end
+				-- COMMUNITY PATCH ENDS
+				if specialistYield > 0 then
+					yieldTips:insert( specialistYield .. (YieldIcons[yieldID] or "") )
 				end
 			end
 		end

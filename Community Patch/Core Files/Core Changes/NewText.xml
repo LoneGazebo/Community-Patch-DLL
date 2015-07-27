@@ -384,7 +384,7 @@
 			<Text>This action cancels your current Declaration of Friendship and breaks your Defensive Pact (if you have one). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
-			<Text>{1_CivName:textkey} and {2_CivName:textkey} have made [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
+			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_S_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>

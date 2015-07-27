@@ -260,6 +260,12 @@ void CvCityCitizens::DoTurn()
 			SetForcedAvoidGrowth(false);
 #if defined(MOD_UI_CITY_PRODUCTION)
 		}
+		if(!thisPlayer.isHuman())
+		{
+			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+			SetNoAutoAssignSpecialists(false);
+			SetForcedAvoidGrowth(false);
+		}
 #endif
 	}
 	else if(m_pCity->IsRazing() || m_pCity->IsResistance())
@@ -276,9 +282,6 @@ void CvCityCitizens::DoTurn()
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
-#if !defined(MOD_BALANCE_CORE)
-			SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-#endif
 		}
 		else if(pkUnitInfo != NULL && pkUnitInfo->IsFound()) // we want production for settlers
 		{
@@ -286,7 +289,7 @@ void CvCityCitizens::DoTurn()
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
 		}
-		else if(m_pCity->getPopulation() <= 10)  // we want a balanced growth
+		else if(m_pCity->getPopulation() <= 10 && !m_pCity->isCapital())  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(true);
@@ -370,7 +373,7 @@ void CvCityCitizens::DoTurn()
 				if(eGoodGP != NO_AICITYSTRATEGY)
 				{
 					bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
-					bGPCity = GET_PLAYER(m_pCity->getOwner()).GetDiplomacyAI()->IsGoingForCultureVictory();
+					bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 				}
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
@@ -426,9 +429,42 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
-	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && (GetCity()->getPopulation() > 25))
+	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy())
 	{
-		SetForcedAvoidGrowth(true);
+		int iMostUnhappy = 0;
+		CvCity* pLoopCity;
+		CvCity* pWorstCity = NULL;
+		int iLoop = 0;
+		for(pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				// Start with population
+				int iUnhappiness = pLoopCity->getPopulation();
+				iUnhappiness += pLoopCity->getUnhappinessFromStarving();
+				iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
+				iUnhappiness += pLoopCity->getUnhappinessFromGold();
+				iUnhappiness += pLoopCity->getUnhappinessFromDefense();
+				iUnhappiness += pLoopCity->getUnhappinessFromConnection();
+				iUnhappiness += pLoopCity->getUnhappinessFromMinority();
+				iUnhappiness += pLoopCity->getUnhappinessFromScience();
+				iUnhappiness += pLoopCity->getUnhappinessFromCulture();
+
+				// Subtract off local unhappiness
+				iUnhappiness -= pLoopCity->GetLocalHappiness(); 
+
+				if(iUnhappiness > iMostUnhappy)
+				{
+					pWorstCity = pLoopCity;
+					iMostUnhappy = iUnhappiness;
+				}
+			}
+
+		}
+		if(pWorstCity != NULL && pWorstCity->GetID() == m_pCity->GetID())
+		{
+			SetForcedAvoidGrowth(true);
+		}
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
@@ -615,18 +651,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 #endif
 	bool bAvoidGrowth = IsAvoidGrowth();
-#if defined(MOD_BALANCE_CORE)
-	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
-	int iRemainder = 0;
-	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 6), 1));
-	iFoodYieldValue *= iRemainder;
 
-	if(IsForcedWorkingPlot(pPlot))
-	{
-		return 1000000;
-	}
-		
-#endif
 	// City Focus
 	CityAIFocusTypes eFocus = GetFocusType();
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
@@ -680,7 +705,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
 		iFaithYieldValue *= 2;
-		iCultureYieldValue *= 3;
+		iCultureYieldValue *= 2;
 	}
 #endif
 
@@ -691,10 +716,43 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iFoodYieldValue = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
+	if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 	{
-		iFoodYieldValue *= 2;
-		iFoodYieldValue /= 3;
+		int iFoodT100NeededFor0 = -iExcessFoodTimes100;
+
+		if(iFoodT100NeededFor0 > 0)
+		{
+			iFoodYieldValue *= 8;
+		}
+		else
+		{
+			iFoodYieldValue /= 2;
+		}
+	}
+	// If our surplus is not at least 2, really emphasize food plots
+	else if(!bAvoidGrowth)
+	{
+		int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
+
+		if(iFoodT100NeededFor2 > 0)
+		{
+			iFoodYieldValue *= 8;
+		}
+		else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
+		{
+			iFoodYieldValue /= 2;
+		}
+	}
+	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+	int iRemainder = 0;
+	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 8), 1));
+	if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+	{
+		iFoodYieldValue *= iRemainder;
+	}
+	else
+	{
+		iFoodYieldValue *= (iRemainder / 4);
 	}
 #else
 	// We want to grow here
@@ -1262,12 +1320,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 #endif
 	// How much surplus food are we making?
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#if defined(MOD_BALANCE_CORE)
-	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
-	int iRemainder = 0;
-	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 6), 1));
-	iFoodYieldValue *= iRemainder;
-#endif
 	bool bAvoidGrowth = IsAvoidGrowth();
 
 	// City Focus
@@ -1342,10 +1394,43 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	// We want to grow here
 #if defined(MOD_BALANCE_CORE)
-	if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
+	if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 	{
-		iFoodYieldValue *= 2;
-		iFoodYieldValue /= 3;
+		int iFoodT100NeededFor0 = -iExcessFoodTimes100;
+
+		if(iFoodT100NeededFor0 > 0)
+		{
+			iFoodYieldValue *= 8;
+		}
+		else
+		{
+			iFoodYieldValue /= 2;
+		}
+	}
+	// If our surplus is not at least 2, really emphasize food plots
+	else if(!bAvoidGrowth)
+	{
+		int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
+
+		if(iFoodT100NeededFor2 > 0)
+		{
+			iFoodYieldValue *= 8;
+		}
+		else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
+		{
+			iFoodYieldValue /= 2;
+		}
+	}
+	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+	int iRemainder = 0;
+	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
+	if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+	{
+		iFoodYieldValue *= iRemainder;
+	}
+	else
+	{
+		iFoodYieldValue *= (iRemainder / 4);
 	}
 #else
 	else
@@ -1540,8 +1625,9 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	//THREE STAGE SETUP:
-	//FIRST WE FEED OURSELVES!
+	//FOUR STAGE SETUP:
+
+	//FIRST, WE FEED OURSELVES!
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
 	if(iPotentialExcessTimes100 <= 0 || (IsAvoidGrowth() && iPotentialExcessTimes100 < 0))
 	{
@@ -1554,7 +1640,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 			return true;
 		}
 	}
-	//NOW THAT WE ARE FED, WE CHECK SPECIALISTS!
+	//SECOND, WE CHECK SPECIALISTS!
 	else
 	{
 		int iSpecialistValue = 0;
@@ -1581,13 +1667,13 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 				return true;
 			}
 		}
-		//IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD WRECK US
+		//THIRD, IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD WRECK US
 		else if(eBestSpecialistBuilding != NO_BUILDING && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy() && iPotentialExcessTimes100 >= 0)
 		{
 			DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
 			return true;
 		}
-		//MANUAL LABOR FOREVER
+		//FOURTH, MANUAL LABOR FOREVER
 		else
 		{
 			CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
@@ -1719,6 +1805,21 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 
 	if(pWorstPlot != NULL)
 	{
+#if defined(MOD_BALANCE_CORE)
+		// If we were force-working this Plot, turn it off
+		if(bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
+		{
+			SetWorkingPlot(pWorstPlot, false);
+			SetForcedWorkingPlot(pWorstPlot, false);
+
+			return true;
+		}
+		else if(!IsForcedWorkingPlot(pWorstPlot))
+		{
+			SetWorkingPlot(pWorstPlot, false);
+			return true;
+		}
+#else
 		SetWorkingPlot(pWorstPlot, false);
 
 		// If we were force-working this Plot, turn it off
@@ -1731,6 +1832,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 		}
 
 		return true;
+#endif
 	}
 	// Have to resort to pulling away a good Specialist
 	else
@@ -1782,7 +1884,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						if(bWantWorked || IsCanWork(pLoopPlot))
 						{
 #if defined(MOD_BALANCE_CORE)
-							iValue = GetPlotValue(pLoopPlot, true, iExcessFoodTimes100);
+							iValue = GetPlotValue(pLoopPlot, bWantBest, iExcessFoodTimes100);
 #else
 							iValue = GetPlotValue(pLoopPlot, bWantBest);
 #endif
@@ -1794,17 +1896,13 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
 								if(bWantBest && !bWantWorked)
 								{
-#if defined(MOD_BALANCE_CORE)
-									iValue += 100000;
-#else
 									iValue += 10000;
-#endif
 								}
 								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
 								if(!bWantBest && bWantWorked)
 								{
 #if defined(MOD_BALANCE_CORE)
-									iValue += 100000;
+									continue;
 #else
 									iValue += 10000;
 #endif
@@ -2083,24 +2181,13 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					else
 					{
 						// Working Plot
-#if defined(MOD_BALANCE_CORE)
-						if(DoRemoveWorstCitizen(false))
-#else
 						if(DoRemoveWorstCitizen(true))
-#endif
 						{
 							SetWorkingPlot(pPlot, true);
 							SetForcedWorkingPlot(pPlot, true);
 							//ChangeNumUnassignedCitizens(-1);
 						}
-#if defined(MOD_BALANCE_CORE)
-						else if(DoRemoveWorstCitizen(true))
-						{
-							SetWorkingPlot(pPlot, true);
-							SetForcedWorkingPlot(pPlot, true);
-							//ChangeNumUnassignedCitizens(-1);
-						}
-#endif
+
 						// Good Specialist
 						else
 						{
@@ -2228,7 +2315,7 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 				if(IsForcedWorkingPlot(pLoopPlot))
 				{
 #if defined(MOD_BALANCE_CORE)
-					iValue = GetPlotValue(pLoopPlot, true, iExcessFoodTimes100);
+					iValue = GetPlotValue(pLoopPlot, false, iExcessFoodTimes100);
 #else
 					iValue = GetPlotValue(pLoopPlot, false);
 #endif

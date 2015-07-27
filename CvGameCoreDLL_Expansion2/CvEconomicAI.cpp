@@ -2017,10 +2017,13 @@ void CvEconomicAI::DoHurry()
 												if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
 												{	
 													//Log it
-													CvString strLogString;
-													strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
-														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													if(GC.getLogging() && GC.getAILogging())
+													{
+														CvString strLogString;
+														strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+															pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													}
 
 													//take the money...
 													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
@@ -2071,14 +2074,17 @@ void CvEconomicAI::DoHurry()
 									if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
 									{
 										//Log it
-										CvString strLogString;
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+											strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
 #else
-										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+											strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
 #endif
-										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+											pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+											m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+										}
 					
 										//take the money...
 										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
@@ -2134,10 +2140,13 @@ void CvEconomicAI::DoHurry()
 												if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
 												{	
 													//Log it
-													CvString strLogString;
-													strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
-													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													if(GC.getLogging() && GC.getAILogging())
+													{
+														CvString strLogString;
+														strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													}
 
 													//take the money...
 													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
@@ -2297,7 +2306,7 @@ void CvEconomicAI::DoPlotPurchases()
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 #if defined(MOD_BALANCE_CORE)
-	int iCityCount = 0;
+	int iBestCost = 0;
 #endif
 	// Let's always invest any money we have in plot purchases
 	//  (LATER -- save up money to spend at newly settled cities)
@@ -2312,21 +2321,28 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(pLoopCity->CanBuyAnyPlot())
 			{
-#if defined(MOD_BALANCE_CORE)
-				iCityCount++;
-#endif
 				iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
+
 #if defined(MOD_BALANCE_CORE)
-				//Should encourage spending in newer cities.
-				iScore *= iCityCount;
+				int iCost = pLoopCity->GetBuyPlotCost(iTempX, iTempY);
+
+				if(CanWithdrawMoneyForPurchase(PURCHASE_TYPE_TILE, iCost, iScore))
+				{
 #endif
+
 				if(iScore > iBestScore)
 				{
 					pBestCity = pLoopCity;
 					iBestScore = iScore;
 					iBestX = iTempX;
 					iBestY = iTempY;
+#if defined(MOD_BALANCE_CORE)
+					iBestCost = iCost;
+#endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 
@@ -2334,6 +2350,16 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(iBestX != -1 && iBestY != -1)
 			{
+#if defined(MOD_BALANCE_CORE)
+				pBestCity->BuyPlot(iBestX, iBestY);
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Buying plot, X: %d, Y: %d, Cost: %d, Balance (before buy): %d, Priority: %d", iBestX, iBestY,
+						                iBestCost, m_pPlayer->GetTreasury()->GetGold(), iBestScore);
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+#else
 				int iCost = pBestCity->GetBuyPlotCost(iBestX, iBestY);
 
 				if(CanWithdrawMoneyForPurchase(PURCHASE_TYPE_TILE, iCost, iBestScore))
@@ -2347,6 +2373,7 @@ void CvEconomicAI::DoPlotPurchases()
 					}
 					pBestCity->BuyPlot(iBestX, iBestY);
 				}
+#endif
 			}
 		}
 	}
@@ -3109,7 +3136,7 @@ void CvEconomicAI::UpdatePlots()
 	m_vPlotsToExploreSea.clear();
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = MOD_BALANCE_CORE_MILITARY_LOGGING && GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
 	CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
 #endif
@@ -3132,7 +3159,7 @@ void CvEconomicAI::UpdatePlots()
 				int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-				if (bLogging && pLog) 
+				if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
 				{
 					CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 						pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3151,7 +3178,7 @@ void CvEconomicAI::UpdatePlots()
 			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-			if (bLogging && pLog) 
+			if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
 			{
 				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3167,7 +3194,7 @@ void CvEconomicAI::UpdatePlots()
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (pLog)
+	if (MOD_BALANCE_CORE_MILITARY_LOGGING && pLog)
 		pLog->Close();
 #endif
 

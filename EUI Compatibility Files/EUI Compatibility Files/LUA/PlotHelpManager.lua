@@ -351,6 +351,9 @@ local function UpdatePlotHelp( timeChange )
 						or ( building.Water and not owningCity:IsCoastal( civ5_mode and building.MinAreaSize ) )
 						or ( building.River and not owningCityPlot:IsRiver())
 						or ( building.FreshWater and not owningCityPlot:IsFreshWater() )
+-- CP
+						or ( building.IsNoWater and owningCityPlot:IsFreshWater() )
+-- END
 						or ( building.Hill and not owningCityPlot:IsHills() )
 						or ( building.Flat and owningCityPlot:IsHills() )
 						or ( building.ProhibitedCityTerrain and owningCityPlot:GetTerrainType() == GameInfoTypes[building.ProhibitedCityTerrain] )
@@ -1065,7 +1068,14 @@ local function UpdatePlotHelp( timeChange )
 				insertYieldChanges( tips, "[ICON_BULLET]", "[COLOR_MAGENTA]", "PolicyType", PolicyFilter, GameInfoPolicies,
 					plotCity and GameInfo.Policy_CityYieldChanges(),
 					plotCity and plotCity:IsCoastal() and GameInfo.Policy_CoastalCityYieldChanges(),
-					plotCity and plotCity:IsCapital() and plotOwner == activePlayer and GameInfo.Policy_CapitalYieldChanges() )
+					plotCity and plotCity:IsCapital() and plotOwner == activePlayer and GameInfo.Policy_CapitalYieldChanges(),
+-- CP
+					feature and plotOwner == activePlayer and GameInfo.Policy_FeatureYieldChanges{ FeatureType = feature.Type },
+					feature and plotOwner == activePlayer and GameInfo.Policy_UnimprovedFeatureYieldChanges{ FeatureType = feature.Type },
+					feature and feature.NaturalWonder and plotOwner == activePlayer and GameInfo.Policy_YieldChangesNaturalWonder(),
+					resource and plotOwner == activePlayer and GameInfo.Policy_ResourceYieldChanges{ ResourceType = resource.Type },
+					plotOwner == activePlayer and GameInfo.Policy_TerrainYieldChanges{ TerrainType = terrain.Type } )
+-- END
 --TODO modifiers	Policy_CapitalYieldModifiers
 			end
 			if g_isReligionEnabled then
@@ -1073,6 +1083,13 @@ local function UpdatePlotHelp( timeChange )
 					plotCity and GameInfo.Belief_CityYieldChanges(),
 					plotCity and plotCity:IsHolyCityAnyReligion() and GameInfo.Belief_HolyCityYieldChanges(),
 					feature and GameInfo.Belief_FeatureYieldChanges{ FeatureType = feature.Type },
+-- CP
+					plot:IsLake() and GameInfo.Belief_LakePlotYield(),
+					feature and plotOwner == activePlayer and GameInfo.Belief_UnimprovedFeatureYieldChanges{ FeatureType = feature.Type },
+					feature and plotOwner == activePlayer and GameInfo.Belief_CityYieldFromUnimprovedFeature{ FeatureType = feature.Type },
+					plotCity and plotCity:IsCoastal() and GameInfo.Belief_CoastalCityYieldChanges(),
+					plotCity and plotCity:IsCapital() and plotOwner == activePlayer and GameInfo.Belief_CapitalYieldChanges(),					
+-- END
 					resource  and GameInfo.Belief_ResourceYieldChanges{ ResourceType = resource.Type },
 					not isFeatureReplacesTerrain and GameInfo.Belief_TerrainYieldChanges{ TerrainType = terrain.Type },
 					civ5_mode and feature and feature.NaturalWonder and GameInfo.Belief_YieldChangeNaturalWonder() )

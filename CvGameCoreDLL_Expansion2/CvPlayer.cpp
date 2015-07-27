@@ -180,6 +180,9 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
+	, m_bOrderCorp("CvPlayer::m_bOrderCorp", m_syncArchive)
+	, m_bAutocracyCorp("CvPlayer::m_bAutocracyCorp", m_syncArchive)
+	, m_bFreedomCorp("CvPlayer::m_bFreedomCorp", m_syncArchive)
 #endif
 	, m_iHappinessFromLeagues("CvPlayer::m_iHappinessFromLeagues", m_syncArchive)
 	, m_iEspionageModifier("CvPlayer::m_iEspionageModifier", m_syncArchive)
@@ -1109,6 +1112,9 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
+	m_bOrderCorp = 0;
+	m_bAutocracyCorp = 0;
+	m_bFreedomCorp = 0;
 #endif
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
@@ -16589,6 +16595,40 @@ void CvPlayer::ChangeIdeologyPoint(int iChange)
 {
 	SetIdeologyPoint(m_iIdeologyPoint + iChange);
 }
+
+void CvPlayer::SetOrderCorp(bool bValue)
+{
+	if(m_bOrderCorp != bValue)
+	{
+		m_bOrderCorp = bValue;
+	}
+}
+void CvPlayer::SetAutocracyCorp(bool bValue)
+{
+	if(m_bAutocracyCorp != bValue)
+	{
+		m_bAutocracyCorp = bValue;
+	}
+}
+void CvPlayer::SetFreedomCorp(bool bValue)
+{
+	if(m_bFreedomCorp != bValue)
+	{
+		m_bFreedomCorp = bValue;
+	}
+}
+bool CvPlayer::IsOrderCorp()
+{
+	return m_bOrderCorp;
+}
+bool CvPlayer::IsAutocracyCorp()
+{
+	 return m_bAutocracyCorp; 
+}
+bool CvPlayer::IsFreedomCorp()
+{
+	return m_bFreedomCorp;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Happiness from Minors
@@ -20994,25 +21034,209 @@ void CvPlayer::SetCorporateFounderID(int iChange)
 void CvPlayer::CalculateCorporateFranchisesWorldwide()
 {
 	int iFranchises = 0;
-	for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+	if(IsOrderCorp())
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			CvCity* pLoopCity;
-			int iLoop;
-			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			if(pLoopCity != NULL)
 			{
-				if(pLoopCity != NULL)
+				if(pLoopCity->HasOffice())
 				{
-					if(pLoopCity->IsFranchised(GetID()))
+					iFranchises++;
+				}
+			}
+		}
+	}
+	else if(IsAutocracyCorp())
+	{
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+			{
+				CvCity* pLoopCity;
+				int iLoop;
+				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL)
 					{
-						iFranchises++;
+						if(pLoopCity->IsFranchised(GetID()))
+						{
+							iFranchises++;
+
+							if (GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+							{
+								iFranchises++;
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+	else if(IsFreedomCorp())
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		BuildingTypes eFreeBuilding = NO_BUILDING;
+
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				if(pLoopCity->GetFreeBuildingTradeTargetCity() > 0)
+				{
+					BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pLoopCity->GetFreeBuildingTradeTargetCity();
+					CvCivilizationInfo& thisCiv = getCivilizationInfo();
+					BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
+
+					if (eBuildingDestCity != NO_BUILDING)
+					{
+						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+						if(pBuildingInfo)
+						{
+							if(pBuildingInfo->GetCorporationID() == GetCorporateFounderID())
+							{
+								eFreeBuilding = eBuildingDestCity;
+								CvString strLogString;
+								strLogString.Format("Found Corporate Building to seed to Freedom Function");
+								GetHomelandAI()->LogHomelandMessage(strLogString);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		CvCity* pBestCity = 0;
+		int iBestScore = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+			{
+				CvCity* pLoopCity;
+				int iLoop;
+				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL)
+					{
+						if(!pLoopCity->IsFranchised(GetID()))
+						{
+							int iScore = GC.getGame().getJonRandNum(100, "Random Corp Spread");
+							if(GetTrade()->IsConnectedToPlayer(pLoopCity->getOwner()))
+							{
+								iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
+							}
+							if(iScore > iBestScore)
+							{
+								iBestScore = iScore;
+								pBestCity = pLoopCity;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
+		{
+			int iSpreadChance = GC.getGame().getJonRandNum((200 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
+			if(iSpreadChance <= GetTrade()->GetNumTradeRoutesUsed(true))
+			{
+				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
+					if(pBuildingInfo)
+					{
+						pBestCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
+						pBestCity->SetFranchised(GetID(), true);
+						// send notification to owner player and target player
+						CvNotifications* pNotifications = GetNotifications();
+						if(pNotifications && GetID() == GC.getGame().getActivePlayer())
+						{
+							Localization::String strSummary;
+							Localization::String strMessage;
+
+							strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY");
+							strSummary << pBuildingInfo->GetTextKey();
+							strSummary << pBestCity->getNameKey();
+							strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM");
+							strMessage << pBestCity->getNameKey();
+							strMessage << pBuildingInfo->GetTextKey();
+							pNotifications->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), eFreeBuilding, pBestCity->getOwner());
+						}
+						else
+						{
+							CvNotifications* pNotifications2 = GET_PLAYER(pBestCity->getOwner()).GetNotifications();
+							if(pNotifications2 && pBestCity->getOwner() == GC.getGame().getActivePlayer())
+							{
+								Localization::String strSummary;
+								Localization::String strMessage;
+
+								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY");
+								strSummary << pBuildingInfo->GetTextKey();
+								strSummary << pBestCity->getNameKey();
+								strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM");
+								strMessage << pBestCity->getNameKey();
+								strMessage << pBuildingInfo->GetTextKey();
+								strMessage << getCivilizationShortDescriptionKey();
+								pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), eFreeBuilding, GetID());
+							}
+						}
+						CalculateCorporateFranchisesWorldwide();
+
+						CvString strLogString;
+						strLogString.Format("Spread Corporate Building via Freedom Function. City: %s.", pBestCity->getNameKey());
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+			}
+		}
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+			{
+				CvCity* pLoopCity;
+				int iLoop;
+				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL)
+					{
+						if(pLoopCity->IsFranchised(GetID()))
+						{
+							iFranchises++;
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+			{
+				CvCity* pLoopCity;
+				int iLoop;
+				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL)
+					{
+						if(pLoopCity->IsFranchised(GetID()))
+						{
+							iFranchises++;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	SetCorporateFranchisesWorldwide(iFranchises);
 }
 //	--------------------------------------------------------------------------------
@@ -29864,6 +30088,22 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
+	
+	if(pPolicy->IsOrderCorp())
+	{
+		SetOrderCorp(true);
+		CalculateCorporateFranchisesWorldwide();
+	}
+	if(pPolicy->IsAutocracyCorp())
+	{
+		SetAutocracyCorp(true);
+		CalculateCorporateFranchisesWorldwide();
+	}
+	if(pPolicy->IsFreedomCorp())
+	{
+		SetFreedomCorp(true);
+		CalculateCorporateFranchisesWorldwide();
+	}
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -31159,6 +31399,9 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	MOD_SERIALIZE_READ(66, kStream, m_iHappinessPerXPopulationGlobal, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iIdeologyPoint, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_bOrderCorp, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bAutocracyCorp, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bFreedomCorp, false);
 #endif
 	kStream >> m_iHappinessPerXPolicies;
 	if (uiVersion >= 8)
@@ -31929,6 +32172,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	MOD_SERIALIZE_WRITE(kStream, m_iHappinessPerXPopulationGlobal);
 	MOD_SERIALIZE_WRITE(kStream, m_iIdeologyPoint);
+	MOD_SERIALIZE_WRITE(kStream, m_bOrderCorp);
+	MOD_SERIALIZE_WRITE(kStream, m_bAutocracyCorp);
+	MOD_SERIALIZE_WRITE(kStream, m_bFreedomCorp);
 #endif
 	kStream << m_iHappinessPerXPolicies;
 	kStream << m_iHappinessFromLeagues;
