@@ -2089,6 +2089,7 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	m_CurrentMoveUnits.setCurrentTacticalMove(move);
 	m_CurrentMoveHighPriorityUnits.setCurrentTacticalMove(move);
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS])
 	{
@@ -15636,7 +15637,7 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 		if (unit.GetID()==g_currentUnitToTrack)
 		{
 			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
-			OutputDebugString( CvString::format("turn %03d: using %s %s %d for move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
+			OutputDebugString( CvString::format("turn %03d: using %s %s %d for tactical move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
 				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentUnitToTrack,
 				pUnit->isBarbarian() ? barbarianMoveNames[m_currentTacticalMove.m_eMoveType] : GC.getTacticalMoveInfo(m_currentTacticalMove.m_eMoveType)->GetType(), 
 				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), owner.GetPlotDanger(*(pUnit->plot()),pUnit) ) );

@@ -1097,6 +1097,7 @@ namespace TacticalAIHelpers
 }
 
 extern const char* barbarianMoveNames[];
+
 #else
 namespace TacticalAIHelpers
 {

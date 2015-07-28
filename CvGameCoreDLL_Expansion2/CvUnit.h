@@ -1502,6 +1502,11 @@ public:
 	void DumpDangerInNeighborhood();
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void setHomelandMove(AIHomelandMove eMove);
+	AIHomelandMove getHomelandMove() const;
+#endif
+
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasPromotion(PromotionTypes iPromotionType) const;
@@ -1834,6 +1839,8 @@ private:
 	// for debugging
 	CvString m_strMissionInfoString;
 	int m_iTactMoveSetTurn;
+	int m_iHomelandMoveSetTurn;
+	AIHomelandMove m_eHomelandMove;
 #endif
 };
 

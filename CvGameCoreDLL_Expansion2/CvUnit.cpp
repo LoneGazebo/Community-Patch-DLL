@@ -7108,10 +7108,19 @@ bool CvUnit::isUnderTacticalControl() const
 void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 {
 	VALIDATE_OBJECT
-	m_eTacticalMove = eMove;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	m_iTactMoveSetTurn = GC.getGame().getGameTurn();
+
+	//clear homeland move, can't have both ...
+	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+	
+	if (m_eTacticalMove != eMove)
+	{
+		m_iTactMoveSetTurn = GC.getGame().getGameTurn();
+		m_eTacticalMove = eMove;
+	}
+#else
+	m_eTacticalMove = eMove;
 #endif
 }
 
@@ -7161,6 +7170,30 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 
 	return pPlot;
 }
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//	--------------------------------------------------------------------------------
+void CvUnit::setHomelandMove(AIHomelandMove eMove)
+{
+	VALIDATE_OBJECT
+
+	//clear tactical move, can't have both ...
+	m_eTacticalMove = NO_TACTICAL_MOVE;
+
+	if (m_eHomelandMove != eMove)
+	{
+		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+		m_eHomelandMove = eMove;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+AIHomelandMove CvUnit::getHomelandMove() const
+{
+	VALIDATE_OBJECT
+	return m_eHomelandMove;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Logs information about when a worker begins and finishes construction of an improvement
@@ -26403,12 +26436,24 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 const char* CvUnit::GetMissionInfo()
 {
-	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? 
-		"no tactical move" : 
-		(isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
+	if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
+		m_strMissionInfoString = "no tactical move / no homeland move";
+	else
+	{
+		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+		{
+			m_strMissionInfoString =  (isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
+			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+			m_strMissionInfoString += strTemp0;
+		}
 
-	CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
-	m_strMissionInfoString += strTemp0;
+		if (m_eTacticalMove==NO_TACTICAL_MOVE)
+		{
+			m_strMissionInfoString =  homelandMoveNames[m_eHomelandMove];
+			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
+			m_strMissionInfoString += strTemp0;
+		}
+	}
 
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
