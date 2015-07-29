@@ -2636,6 +2636,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+	m_iHomelandMoveSetTurn = 0;
+#endif
+
 	m_eOwner = eOwner;
 	m_eOriginalOwner = eOwner;
 	m_eCapturingPlayer = NO_PLAYER;
@@ -7179,6 +7184,12 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = NO_TACTICAL_MOVE;
+
+	if (eMove >= NUM_AI_HOMELAND_MOVES)
+	{
+		m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+		return;
+	}
 
 	if (m_eHomelandMove != eMove)
 	{

@@ -29,6 +29,10 @@ public:
 
 	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	static const std::vector<CvPlot*>& GetBarbCampPlots() { return m_vPlotsWithCamp; } 
+#endif
+
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();
 
@@ -57,6 +61,11 @@ private:
 #endif
 	static short* m_aiPlotBarbCampNumUnitsSpawned;
 	static FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> m_aeValidBarbSpawnDirections;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	static std::vector<CvPlot*> m_vPlotsWithCamp;
+#endif
+
 };
 
 #endif // CVBARBARIANS_H

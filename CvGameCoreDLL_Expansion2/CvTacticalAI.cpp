@@ -17,6 +17,7 @@
 #include "CvTypes.h"
 #if defined(MOD_BALANCE_CORE_MILITARY)
 #include "CvDiplomacyAI.h"
+#include "CvBarbarians.h"
 #endif
 
 #include "LintFree.h"
@@ -13471,8 +13472,13 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 			// Loop through their cities
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				// Cities can't move, revealed is good enough
+				if(pLoopCity->plot()->isRevealed(m_pPlayer->getTeam()))
+#else
 				// Make sure this tile is visible to us
 				if(pLoopCity->plot()->isVisible(m_pPlayer->getTeam()))
+#endif
 				{
 					// Check distance
 					if(plotDistance(pLoopCity->getX(), pLoopCity->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -13483,6 +13489,23 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//also check barbarian camps!
+	const std::vector<CvPlot*>& vCamps = CvBarbarians::GetBarbCampPlots();
+	for (std::vector<CvPlot*>::const_iterator it=vCamps.begin(); it!=vCamps.end(); ++it)
+	{
+		if ((*it)->isRevealed(m_pPlayer->getTeam()))
+		{
+			if(plotDistance((*it)->getX(), (*it)->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				return true;
+			}
+		}
+	}
+
+#endif
+
 	return false;
 }
 
@@ -14260,7 +14283,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 									{
 										CvString strMsg;
 										strMsg.Format("Deploying %s %d to assist troops near excellent plot, To X: %d, To Y: %d, At X: %d, At Y: %d, Value: %d",
-														pGeneral->getName().GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY(),
+														pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
 														pGeneral->getX(), pGeneral->getY(), iHighestDanger);
 										LogTacticalMessage(strMsg);
 									}
