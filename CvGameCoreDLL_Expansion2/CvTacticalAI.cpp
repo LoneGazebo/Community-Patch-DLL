@@ -8311,7 +8311,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #endif
 
 #if defined(MOD_AI_SMART_MELEE_TACTICS)
-	if (MOD_AI_SMART_MELEE_TACTICS && (!m_pPlayer->isBarbarian()))
+	if (MOD_AI_SMART_MELEE_TACTICS)
 	{
 		// Loop for melee units just to reposition.
 		for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -8397,12 +8397,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #endif
 
 	// First loop is ranged units only
-#if defined(MOD_AI_SMART_MELEE_TACTICS)
-	int iHpLimit = (MOD_AI_SMART_MELEE_TACTICS) ? 1 : 0;
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size() && iDamageRemaining > iHpLimit; iI++)
-#else
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size() && iDamageRemaining > 0; iI++)
-#endif
 	{
 		if(!bInflictWhatWeTake || m_CurrentMoveUnits[iI].GetExpectedTargetDamage() >= m_CurrentMoveUnits[iI].GetExpectedSelfDamage())
 		{
@@ -8453,6 +8448,34 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 										}
 									}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+									// Can we hit it with a ranged attack?  If so, that gets first priority
+									// some units (cho-ko-nu) might have multiple ranged attacks
+									bool bQueuedAttack = false;
+									while (pUnit->canMove() && pUnit->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+									{
+										// Queue up this attack
+										if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
+										{
+											pFirstAttacker = (void*)pUnit.pointer();
+											bFirstAttackRanged = true;
+										}
+
+										bQueuedAttack = true;
+
+										// Subtract off expected damage
+										iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
+										// Are we done yet?
+										if (iDamageRemaining<1)
+											break;
+									}
+
+									if (bQueuedAttack)
+									{
+										pUnit->SetTacticalAIPlot(NULL);
+										UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+									}
+#else
 									// Can we hit it with a ranged attack?  If so, that gets first priority
 									if(pUnit->canMove() && pUnit->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
 									{
@@ -8468,6 +8491,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 										// Subtract off expected damage
 										iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
 									}
+#endif
 								}
 							}
 						}
@@ -10043,6 +10067,12 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 	std::vector<CvTacticalUnit>::iterator currMoveIt;
 	for(currMoveIt = m_CurrentMoveUnits.begin(); currMoveIt != m_CurrentMoveUnits.end(); ++currMoveIt)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		UnitHandle pUnit = m_pPlayer->getUnit(currMoveIt->GetID());
+		if (!pUnit->isOutOfAttacks() || pUnit->canMove())
+			continue;
+#endif
+
 		UnitProcessed(currMoveIt->GetID());
 	}
 
@@ -12778,7 +12808,9 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 #if defined(MOD_BALANCE_CORE)
 	if (pBestPlot)
 	{
-		return MoveToUsingSafeEmbark(pUnit, pBestPlot, false);
+		bool bResult = MoveToUsingSafeEmbark(pUnit, pBestPlot, false);
+		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer());
+		return bResult;
 	}
 #endif
 

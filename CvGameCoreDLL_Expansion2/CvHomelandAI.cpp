@@ -8440,7 +8440,6 @@ int g_currentHomelandUnitToTrack = 0;
 
 const char* homelandMoveNames[] =
 {
-	"AI_HOMELAND_MOVE_NONE",
 	"AI_HOMELAND_MOVE_UNASSIGNED",
 	"AI_HOMELAND_MOVE_EXPLORE",
 	"AI_HOMELAND_MOVE_EXPLORE_SEA",
