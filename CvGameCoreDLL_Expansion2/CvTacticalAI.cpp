@@ -1532,10 +1532,10 @@ void CvTacticalAI::EstablishTacticalPriorities()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Debugging: Check order of tactical moves ... this is independent of the player
-	//if (GC.getAILogging() && m_pPlayer->GetID()==1)
-	//	for (size_t i=0; i<m_MovePriorityList.size(); i++)
-	//		OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d\n", 
-	//			GC.getGame().getGameTurn(), m_pPlayer->GetID(), GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), m_MovePriorityList[i].m_iPriority).c_str() );
+	if (GC.getAILogging() && m_pPlayer->GetID()==1 && GC.getGame().getGameTurn()==1)
+		for (size_t i=0; i<m_MovePriorityList.size(); i++)
+			OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d\n", 
+				GC.getGame().getGameTurn(), m_pPlayer->GetID(), GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), m_MovePriorityList[i].m_iPriority).c_str() );
 #endif
 
 }
@@ -1642,10 +1642,10 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Debugging: Check order of tactical moves ...
-	//if (GC.getAILogging())
-	//	for (size_t i=0; i<m_MovePriorityList.size(); i++)
-	//		OutputDebugString( CvString::format("Turn %03d - Barbarian Move %s - Prio %d\n", 
-	//			GC.getGame().getGameTurn(), barbarianMoveNames[m_MovePriorityList[i].m_eMoveType], m_MovePriorityList[i].m_iPriority).c_str() );
+	if (GC.getAILogging() && GC.getGame().getGameTurn()==1)
+		for (size_t i=0; i<m_MovePriorityList.size(); i++)
+			OutputDebugString( CvString::format("Turn %03d - Barbarian Move %s - Prio %d\n", 
+				GC.getGame().getGameTurn(), barbarianMoveNames[m_MovePriorityList[i].m_eMoveType], m_MovePriorityList[i].m_iPriority).c_str() );
 #endif
 }
 
@@ -8451,8 +8451,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #if defined(MOD_BALANCE_CORE_MILITARY)
 									// Can we hit it with a ranged attack?  If so, that gets first priority
 									// some units (cho-ko-nu) might have multiple ranged attacks
-									bool bQueuedAttack = false;
-									while (pUnit->canMove() && pUnit->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+									while (iDamageRemaining>0 && pUnit->canMove() && pUnit->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
 									{
 										// Queue up this attack
 										if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
@@ -8461,16 +8460,12 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 											bFirstAttackRanged = true;
 										}
 
-										bQueuedAttack = true;
-
 										// Subtract off expected damage
 										iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
-										// Are we done yet?
-										if (iDamageRemaining<1)
-											break;
 									}
 
-									if (bQueuedAttack)
+									//might still be good for other targets ...
+									if(!pUnit->canMove() || pUnit->isOutOfAttacks())
 									{
 										pUnit->SetTacticalAIPlot(NULL);
 										UnitProcessed(m_CurrentMoveUnits[iI].GetID());
