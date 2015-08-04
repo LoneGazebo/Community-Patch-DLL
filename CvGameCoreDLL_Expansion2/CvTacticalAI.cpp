@@ -8451,7 +8451,12 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #if defined(MOD_BALANCE_CORE_MILITARY)
 									// Can we hit it with a ranged attack?  If so, that gets first priority
 									// some units (cho-ko-nu) might have multiple ranged attacks
-									while (iDamageRemaining>0 && pUnit->canMove() && pUnit->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+									// we have to keep track of them ourselves, since attacks are just queued here, not executed yet
+									int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
+									int iMovesLeft = pUnit->getMoves();
+									// in a perfect world we would update this after each attack, but it's good enough
+									int iExpectedDamage = m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
+									while (iDamageRemaining>0 && iMovesLeft>0 && iAttacksLeft>0)
 									{
 										// Queue up this attack
 										if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
@@ -8460,12 +8465,14 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 											bFirstAttackRanged = true;
 										}
 
-										// Subtract off expected damage
-										iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
+										// Subtract off expected damage etc
+										iDamageRemaining -= iExpectedDamage;
+										iMovesLeft -= GC.getMOVE_DENOMINATOR();
+										iAttacksLeft -= 1;
 									}
 
-									//might still be good for other targets ...
-									if(!pUnit->canMove() || pUnit->isOutOfAttacks())
+									//might still be good for other targets ... or not
+									if(iMovesLeft<1 || iAttacksLeft<1)
 									{
 										pUnit->SetTacticalAIPlot(NULL);
 										UnitProcessed(m_CurrentMoveUnits[iI].GetID());

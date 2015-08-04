@@ -7182,6 +7182,11 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 {
 	VALIDATE_OBJECT
 
+	//if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
+	//{
+	//	OutputDebugString("Warning: Unit with current tactical move used for homeland AI\n");
+	//}
+
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = NO_TACTICAL_MOVE;
 
@@ -21499,10 +21504,15 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 
 #ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
 //	--------------------------------------------------------------------------------
-int CvUnit::getNumAttacks()
+int CvUnit::getNumAttacks() const
 {
 	VALIDATE_OBJECT
-		return m_iNumAttacks;
+	return m_iNumAttacks;
+}
+int CvUnit::getNumAttacksMadeThisTurn() const
+{
+	VALIDATE_OBJECT
+	return m_iAttacksMade;
 }
 #endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 

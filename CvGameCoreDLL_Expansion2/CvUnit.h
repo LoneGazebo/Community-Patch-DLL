@@ -1040,7 +1040,8 @@ public:
 	void changeExtraRoughDefensePercent(int iChange);
 
 #ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
-	int getNumAttacks();
+	int getNumAttacks() const;
+	int getNumAttacksMadeThisTurn() const;
 #endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 	void changeExtraAttacks(int iChange);
 
