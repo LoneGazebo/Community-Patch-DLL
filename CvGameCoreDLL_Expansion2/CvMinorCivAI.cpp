@@ -7250,6 +7250,12 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pkBuildingInfo->GetCorporationID() > 0)
+		{
+			continue;
+		}
+#endif
 
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done (25% by default)
 		for(iWorldPlayerLoop = 0; iWorldPlayerLoop < MAX_MAJOR_CIVS; iWorldPlayerLoop++)
@@ -7326,7 +7332,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationHQID() > 0)
+		if(pkBuildingInfo->GetCorporationID() > 0)
 		{
 			continue;
 		}
@@ -8538,8 +8544,10 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				if(!bCannotWar)
 				{
-#endif
+					kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
+#else
 				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				}
 #endif
@@ -11474,9 +11482,10 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
 			{
-				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer) + 20 >= GC.getGame().getGameTurn())
+				int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
+				if(iOtherLastBullyTurn >= iLastBullyTurn)
 				{
-					iLastBullyTurn += 20;
+					iLastBullyTurn = iOtherLastBullyTurn;
 				}
 			}
 		}
@@ -11838,19 +11847,19 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	switch(eYield)
 	{
 		case YIELD_CULTURE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE);
 			break;
 		case YIELD_FAITH:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH);
 			break;
 		case YIELD_SCIENCE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE);
 			break;
 		case YIELD_PRODUCTION:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION);
 			break;
 		case YIELD_FOOD:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD);
 			break;
 	}
 	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
@@ -12792,7 +12801,21 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	pPlot->SetImprovementPillaged(false);
 #endif
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI < pPlot->getNumUnits(); iI++)
+	{
+		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
+		if(pLoopUnit != NULL)
+		{
+			if(pLoopUnit->getBuildType() != NO_BUILD)
+			{
+				pLoopUnit->SetAutomateType(NO_AUTOMATE);
+				pLoopUnit->ClearMissionQueue();
+				pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+			}
+		}
+	}
+#endif
 	// VFX
 	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 	gDLL->GameplayDoFX(pDllPlot.get());

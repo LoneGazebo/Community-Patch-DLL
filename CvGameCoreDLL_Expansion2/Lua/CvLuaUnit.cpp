@@ -5192,7 +5192,7 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 	CvUnit* pUnit = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
 	int iArmyID = pUnit->getArmyID();
-	if (ePlayer!=NO_PLAYER && iArmyID!=-1)
+	if (ePlayer!=NO_PLAYER && iArmyID!=FFreeList::INVALID_INDEX)
 	{
 		CvArmyAI* pArmy = CvPlayerAI::getPlayer(ePlayer).getArmyAI(iArmyID);
 		if (pArmy)
@@ -5203,6 +5203,16 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 				lua_pushstring(L, pAIOp->GetInfoString());
 				return 1;
 			}
+			else
+			{
+				lua_pushstring(L, "warning: army without operation!");
+				return 1;
+			}
+		}
+		else
+		{
+			lua_pushstring(L, "warning: invalid army ID!");
+			return 1;
 		}
 	}
 

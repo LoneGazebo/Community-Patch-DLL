@@ -292,9 +292,13 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 			CvPlot* attackPlot = kAttacker.plot();
 
-			if (attackPlot->isCity() || attackPlot->getImprovementType() == eImprovementFort || attackPlot->getImprovementType() == eImprovementCitadel) {
-				CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
-				bAdvance = false;
+			if (attackPlot->isCity() || (attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) || (attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()))
+			{
+				if(attackPlot->getOwner() == kAttacker.GetID())
+				{
+					CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
+					bAdvance = false;
+				}
 			}
 		}
 #endif

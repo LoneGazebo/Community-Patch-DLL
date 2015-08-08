@@ -57,6 +57,32 @@
 		<Row Tag="TXT_KEY_DUDE_25">
 			<Text>Nennius</Text>
 		</Row>
+
+<!-- Text for GPs -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT">
+			<Text>The great wealth brought back by your {1_UnitType} has led your empire to celebrate 'We Love the King Day' for [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Turns!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT_SUMMARY">
+			<Text>Your {1_UnitType} traded successfully!</Text> 
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE">
+			<Text>Your {1_UnitType} journeyed to a far-off land and discovered [COLOR_POSITIVE_TEXT]{2_ResourceNames}[ENDCOLOR]! Two copies of this Resource were given to you in honor of your patronage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE_SUMMARY">
+			<Text>Voyage of your {1_UnitType} completed!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT">
+			<Text>Your {1_UnitType} increased your Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced the Influence of all Major Civilizations known to the City-State by the same amount!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY">
+			<Text>Mission of your {1_UnitType} completed!</Text>
+		</Row>
+		<!-- Promise Duration -->
+		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
+			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Turns. If you violate this Promise during this time, this player will feel betrayed!</Text>
+		</Row>
 <!-- Maya Prophet Lock -->
 		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
 			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion[ENDCOLOR]</Text>

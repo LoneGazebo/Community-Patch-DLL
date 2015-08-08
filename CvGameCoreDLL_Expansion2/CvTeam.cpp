@@ -36,7 +36,7 @@
 
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
-#if defined(MOD_BALANCE_CORE)
+
 CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
@@ -44,7 +44,7 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 
 	return m_aTeams[eTeam];
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 void CvTeam::initStatics()
 {
@@ -259,7 +259,8 @@ void CvTeam::uninit()
 
 #if defined(MOD_BALANCE_CORE)
 	m_members.clear();
-	m_bIsMinorCiv = false;
+	m_bIsMinorTeam = false;
+	m_bIsObserverTeam = false;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1197,7 +1198,12 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	{
 		return false;
 	}
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
+	{
+		return false;
+	}
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) {
@@ -1558,7 +1564,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #else
 								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam);
 #endif
-
 								if(!bDefensivePact)
 								{
 									// Major declaring war on Minor
@@ -2616,19 +2621,7 @@ bool CvTeam::isHuman() const
 	return false;
 }
 
-//	--------------------------------------------------------------------------------
-bool CvTeam::isObserver() const
-{
-	int iI;
-	for(iI = 0; iI < MAX_PLAYERS; iI++){
-		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
-		if(player.getTeam() == GetID() && player.isObserver()){
-			return true;
-		}
-	}
-	return false;
-}
-
+#if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
@@ -2636,53 +2629,38 @@ bool CvTeam::isBarbarian() const
 	return (m_eID == BARBARIAN_TEAM);
 }
 
-#if defined(MOD_BALANCE_CORE)
-
 bool CvTeam::isMinorCiv() const
 {
-	return m_bIsMinorCiv;
+	return m_bIsMinorTeam;
 }
 
-void CvTeam::updateMinorCiv()
+bool CvTeam::isObserver() const
 {
-	m_bIsMinorCiv = false;
+	return m_bIsObserverTeam;
+}
+
+void CvTeam::updateTeamStatus()
+{
+	m_bIsMinorTeam = false;
+	m_bIsObserverTeam = true;
+
+	//the first alive player determines the result
 	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
-		//the first alive player determines the result
 		if(kPlayer.isAlive())
 		{
-			m_bIsMinorCiv = kPlayer.isMinorCiv();
+			m_bIsMinorTeam = kPlayer.isMinorCiv();
 			break;
 		}
 	}
 
-	//compare with old algorithm
-	bool bOldResult = false;
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	//the first member determines the result
+	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
-		{
-			if(kPlayer.getTeam() == GetID())
-			{
-				if(kPlayer.isMinorCiv())
-				{
-					bOldResult = true;
-					break;
-				}
-				else
-				{
-					bOldResult = false;
-					break;
-				}
-			}
-		}
-	}
-
-	if (bOldResult!=m_bIsMinorCiv)
-	{
-		OutputDebugString("inconsistent state for minor team in CvTeam()\n");
+		CvPlayer& kPlayer = GET_PLAYER(*iI);
+		m_bIsObserverTeam = kPlayer.isObserver();
+		break;
 	}
 
 	//make sure team membership is correct
@@ -2704,6 +2682,26 @@ void CvTeam::updateMinorCiv()
 }
 
 #else
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isObserver() const
+{
+	int iI;
+	for(iI = 0; iI < MAX_PLAYERS; iI++){
+		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
+		if(player.getTeam() == GetID() && player.isObserver()){
+			return true;
+		}
+	}
+	return false;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isBarbarian() const
+{
+	return (m_eID == BARBARIAN_TEAM);
+}
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isMinorCiv() const
@@ -3039,7 +3037,7 @@ void CvTeam::addPlayer(PlayerTypes eID)
 	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
 		m_members.push_back(eID);
 
-	updateMinorCiv();
+	updateTeamStatus();
 }
 
 void CvTeam::removePlayer(PlayerTypes eID)
@@ -3048,7 +3046,7 @@ void CvTeam::removePlayer(PlayerTypes eID)
 	if ( pos != m_members.end() )
 		m_members.erase(pos);
 
-	updateMinorCiv();
+	updateTeamStatus();
 }
 
 const std::vector<PlayerTypes>& CvTeam::getPlayers()
@@ -3921,11 +3919,7 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
-void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver)
-#else
 void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
-#endif
 {
 	int iI;
 
@@ -3939,19 +3933,6 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
 
 		updateTechShare();
-
-#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
-		if (bForObserver)
-		{
-			if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
-			{
-				DLLUI->setDirty(Score_DIRTY_BIT, true);
-			}
-			// Report event
-			gDLL->GameplayMetTeam(GetID(), eIndex);
-			return;
-		}
-#endif
 
 		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		{
@@ -8219,7 +8200,9 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
 		}
-		
+#if defined(MOD_BALANCE_CORE)
+		updateYield();
+#endif
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
@@ -8247,11 +8230,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 20);
-					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 20);
-					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 10);
+					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 25);
+					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 25);
+					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 15);
 
-					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra()));
+					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra() + 10));
 						
 					if(iBeakersBonus > 0)
 					{
@@ -8269,8 +8252,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						if(pLoopCity != NULL)
 						{
-							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 10);
-							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 5);
+							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 20);
+							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 10);
 						}
 					}
 				}

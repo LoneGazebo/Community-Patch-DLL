@@ -2855,6 +2855,14 @@ int CvBuilderTaskingAI::ScorePlot()
 			}
 		}
 	}
+	if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());
+		if(pkImprovementInfo && (pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
+		{
+			iScore /= 10;
+		}
+	}
 	}
 #endif
 	return iScore;

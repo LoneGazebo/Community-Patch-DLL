@@ -361,7 +361,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iProduction = iProduction + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_PRODUCTION )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
 			if(corporatechange > 0) then
 				iProduction = iProduction + corporatechange;
 			end

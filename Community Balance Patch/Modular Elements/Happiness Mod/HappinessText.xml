@@ -149,7 +149,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MINORITY_AVERAGE_MODIFIER">
-			<Text>[ICON_RELIGION] Minority Population reduction: {1_num}%</Text>
+			<Text>[ICON_RELIGION] Minority Population [ICON_HAPPINESS_3] reduction: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_POVERTY_GLOBAL_AVERAGE_MODIFIER">

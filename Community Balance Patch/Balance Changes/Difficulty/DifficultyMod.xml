@@ -94,7 +94,7 @@
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<AIWorkRateModifier>5</AIWorkRateModifier>
+			<AIWorkRateModifier>10</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>100</AITrainPercent>
@@ -103,8 +103,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>100</AIBuildingCostPercent>
-			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIBuildingCostPercent>95</AIBuildingCostPercent>
+			<AIUnitCostPercent>95</AIUnitCostPercent>
 			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -151,7 +151,7 @@
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<AIWorkRateModifier>10</AIWorkRateModifier>
+			<AIWorkRateModifier>20</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>100</AITrainPercent>
@@ -160,8 +160,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>100</AIBuildingCostPercent>
-			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIBuildingCostPercent>90</AIBuildingCostPercent>
+			<AIUnitCostPercent>90</AIUnitCostPercent>
 			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -206,10 +206,9 @@
 			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
-			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
-			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
-			<AIWorkRateModifier>20</AIWorkRateModifier>
+			<AIWorkRateModifier>30</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>95</AIGrowthPercent>
 			<AITrainPercent>95</AITrainPercent>
@@ -218,8 +217,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>95</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>95</AIBuildingCostPercent>
-			<AIUnitCostPercent>95</AIUnitCostPercent>
+			<AIBuildingCostPercent>85</AIBuildingCostPercent>
+			<AIUnitCostPercent>85</AIUnitCostPercent>
 			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>95</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -265,10 +264,10 @@
 			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
-			<AIStartingExploreUnits>2</AIStartingExploreUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
-			<AIWorkRateModifier>30</AIWorkRateModifier>
-			<AIUnhappinessPercent>100</AIUnhappinessPercent>
+			<AIWorkRateModifier>40</AIWorkRateModifier>
+			<AIUnhappinessPercent>90</AIUnhappinessPercent>
 			<AIGrowthPercent>90</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -276,8 +275,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>90</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>90</AIBuildingCostPercent>
-			<AIUnitCostPercent>90</AIUnitCostPercent>
+			<AIBuildingCostPercent>80</AIBuildingCostPercent>
+			<AIUnitCostPercent>80</AIUnitCostPercent>
 			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -321,12 +320,12 @@
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>10</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>24</BarbarianSeaTargetRange>
-			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
-			<AIWorkRateModifier>40</AIWorkRateModifier>
-			<AIUnhappinessPercent>100</AIUnhappinessPercent>
+			<AIWorkRateModifier>50</AIWorkRateModifier>
+			<AIUnhappinessPercent>80</AIUnhappinessPercent>
 			<AIGrowthPercent>90</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -334,8 +333,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>90</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>90</AIBuildingCostPercent>
-			<AIUnitCostPercent>90</AIUnitCostPercent>
+			<AIBuildingCostPercent>75</AIBuildingCostPercent>
+			<AIUnitCostPercent>75</AIUnitCostPercent>
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -379,13 +378,12 @@
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>11</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>26</BarbarianSeaTargetRange>
-			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
 			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
-			<AIWorkRateModifier>45</AIWorkRateModifier>
-			<AIUnhappinessPercent>95</AIUnhappinessPercent>
+			<AIWorkRateModifier>60</AIWorkRateModifier>
+			<AIUnhappinessPercent>70</AIUnhappinessPercent>
 			<AIGrowthPercent>85</AIGrowthPercent>
 			<AITrainPercent>85</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -393,8 +391,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>85</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>85</AIBuildingCostPercent>
-			<AIUnitCostPercent>85</AIUnitCostPercent>
+			<AIBuildingCostPercent>70</AIBuildingCostPercent>
+			<AIUnitCostPercent>70</AIUnitCostPercent>
 			<AIUnitSupplyPercent>40</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>85</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -439,12 +437,12 @@
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
 			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
-			<AIStartingDefenseUnits>4</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
-			<AIStartingExploreUnits>3</AIStartingExploreUnits>
+			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
-			<AIWorkRateModifier>50</AIWorkRateModifier>
-			<AIUnhappinessPercent>90</AIUnhappinessPercent>
+			<AIWorkRateModifier>70</AIWorkRateModifier>
+			<AIUnhappinessPercent>70</AIUnhappinessPercent>
 			<AIGrowthPercent>75</AIGrowthPercent>
 			<AITrainPercent>75</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -452,8 +450,8 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>75</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>75</AIBuildingCostPercent>
-			<AIUnitCostPercent>75</AIUnitCostPercent>
+			<AIBuildingCostPercent>65</AIBuildingCostPercent>
+			<AIUnitCostPercent>65</AIUnitCostPercent>
 			<AIUnitSupplyPercent>50</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>75</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
@@ -505,7 +503,7 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIBuildingCostPercent>80</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>

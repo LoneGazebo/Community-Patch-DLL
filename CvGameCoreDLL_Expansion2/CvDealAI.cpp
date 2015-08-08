@@ -1630,8 +1630,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			if(MOD_BALANCE_CORE_DEALS_ADVANCED)
 			{
 				//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
-				iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness();
-				if(iHappinessFromResource <= 1)
+				iHappinessFromResource = (GetPlayer()->GetBaseLuxuryHappiness() / max(1, /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE()));
+				if(iHappinessFromResource < 1)
 				{
 					iHappinessFromResource = 1;
 				}
@@ -1683,8 +1683,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 							//Will we get a WLTKD from this? We want it a bit more, please.
 							if(eResourceDemanded == eResource)
 							{
-								iItemValue *= 3;
-								iItemValue /= 2;
+								iItemValue *= 11;
+								iItemValue /= 10;
 								break;
 							}
 						}
@@ -1725,11 +1725,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 					{
 						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 110;
+							iItemValue *= 105;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 105;
+							iItemValue *= 103;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
@@ -1760,11 +1760,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 					{
 						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 90;
+							iItemValue *= 95;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 95;
+							iItemValue *= 98;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
@@ -1799,15 +1799,15 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 					{
 						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 115;
+							iItemValue *= 105;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 110;
+							iItemValue *= 103;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 105;
+							iItemValue *= 103;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_NEUTRAL:
@@ -1834,11 +1834,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 					{
 						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 90;
+							iItemValue *= 95;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 95;
+							iItemValue *= 98;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
@@ -1898,27 +1898,27 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//This would give us a huge excess.
 				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 5) / 100);	
 				}
 				//This would give us a mild excess.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
 				}
 				//This would give us a little extra
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 15) / 100);	
 				}
 				//This would give us enough to meet our needs.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
 				}
 				//This would give us almost enough to meet our needs.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
 				}
 			}
 			//We have it via trade but we aren't using it.
@@ -1934,36 +1934,36 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//We don't have any, trade or not, and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
 			}
 			//We don't have any at home and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 15) / 100);	
 			}
 			//Unaccounted for situation?
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);
 			}
 			// Opinion also matters
 			int iModifier = 0;
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
 			case MAJOR_CIV_OPINION_ALLY:
-				iModifier += 115;
+				iModifier += 105;
 				break;
 			case MAJOR_CIV_OPINION_FRIEND:
-				iModifier += 105;
+				iModifier += 103;
 				break;
 			case MAJOR_CIV_OPINION_FAVORABLE:
 				iModifier += 100;
 				break;
 			case MAJOR_CIV_OPINION_NEUTRAL:
-				iModifier += 100;
+				iModifier += 98;
 				break;
 			case MAJOR_CIV_OPINION_COMPETITOR:
-				iModifier += 85;
+				iModifier += 80;
 				break;
 			case MAJOR_CIV_OPINION_ENEMY:
 				iModifier += 60;
@@ -1989,7 +1989,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iModifier += 100;	// Not forced value
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iModifier += 110;	// Not forced value
+				iModifier += 105;	// Not forced value
 				break;
 			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iModifier += 100;
@@ -2000,7 +2000,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				break;
 			}
 			//Lets use our DoF willingness to determine these values - introduce some variability.
-			iModifier += (GetPlayer()->GetDiplomacyAI()->GetDoFWillingness() / 2);
+			iModifier += (GetPlayer()->GetDiplomacyAI()->GetDoFWillingness() / 4);
 			iItemValue *= iModifier;
 			iItemValue /= 200;	// 200 because we've added two mods together
 #else
@@ -2012,7 +2012,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				if(pkResourceInfo->getAITradeModifier() > 0)
 				{
 					iItemValue *= pkResourceInfo->getAITradeModifier();
-					iItemValue /= 15;
+					iItemValue /= 20;
 				}
 				//If they're stronger than us, strategic resources are valuable.
 				if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
@@ -2035,8 +2035,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 						if(eResource == eAluminumResource)
 						{
-							iItemValue *= 3;
-							iItemValue /= 2;
+							iItemValue *= 11;
+							iItemValue /= 10;
 						}
 					}
 				}
@@ -2060,43 +2060,43 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//We would still have a huge domestic excess after losing this.
 				if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 				}
 				//We would only have a mild domestic reserve after losing this
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 60) / 100);
 				}
 				//We would only have a little domestic reserve after losing this.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 60) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 80) / 100);
 				}
 				//We would be under our need that we can provide for ourselves, which is really bad.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 80) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 400) / 100);
 				}
 				//We would be way under our need that we can provide for ourselves, which is terrible
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 100) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 800) / 100);	
 				}
 			}
 			//We have it, via trade or domestic, but we aren't using it (be careful about trading this, as we don't want to wind up with nothing).
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);
 			}
 			//We have it domestically, but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, false)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 			}
 			//Unaccounted for situation? Flat value.
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
 			}
 		}
 		else
@@ -2143,10 +2143,10 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
 			case MAJOR_CIV_OPINION_ALLY:
-				iModifier += 90;
+				iModifier += 98;
 				break;
 			case MAJOR_CIV_OPINION_FRIEND:
-				iModifier += 95;
+				iModifier += 100;
 				break;
 			case MAJOR_CIV_OPINION_FAVORABLE:
 				iModifier += 100;
@@ -2215,7 +2215,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
 		{
-			iModifier += 125;	// Not forced value
+			iModifier += 115;	// Not forced value
 		}
 #else
 			iModifier = 200;	// Forced value
@@ -2225,7 +2225,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
 		{
-			iModifier += 110;	// Not forced value
+			iModifier += 105;	// Not forced value
 		}
 #else
 			iModifier = 200;	// Forced value
@@ -2877,10 +2877,10 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue = 20;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue = 50;
+			iItemValue = 40;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue = 75;
+			iItemValue = 50;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3012,19 +3012,19 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(eApproach)
 		{
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue = 10;
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue = 15;
 			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			iItemValue = 25;
+			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue = 20;
+			iItemValue = 25;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue = 30;
+			iItemValue = 40;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue = 50;
+			iItemValue = 30;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3035,16 +3035,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
 		case PLAYER_PROXIMITY_DISTANT:
-			iItemValue -= 20;
-			break;
-		case PLAYER_PROXIMITY_FAR:
 			iItemValue -= 10;
 			break;
+		case PLAYER_PROXIMITY_FAR:
+			iItemValue -= 5;
+			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iItemValue += 10;
+			iItemValue += 5;
 			break;
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			iItemValue += 20;
+			iItemValue += 10;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3157,16 +3157,14 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				iItemValue /= 100;
 			}
 		}
+		CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+		if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 		{
-			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
 			{
-				if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 				{
-					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
-					{
-						iItemValue = 100000;
-					}
+					iItemValue = 100000;
 				}
 			}
 		}
@@ -8115,6 +8113,9 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	iItemValue = iTurnsLeft * /*30*/ GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier();
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra + 1)), (double) /*0.7*/ GC.getTECH_COST_ERA_EXPONENT() ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
+
+	//And reduce it.
+	iItemValue /= 2;
 
 	// Apply the Modifier
 	iItemValue *= (100 + iTechMod);

@@ -2003,10 +2003,11 @@
 			<Description>TXT_KEY_PROMOTION_MEDIC_GENERAL</Description>
 			<Help>TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<EnemyHealChange>2</EnemyHealChange>
-			<NeutralHealChange>2</NeutralHealChange>
-			<FriendlyHealChange>2</FriendlyHealChange>
-			<AdjacentTileHealChange>2</AdjacentTileHealChange>
+			<EnemyHealChange>10</EnemyHealChange>
+			<NeutralHealChange>10</NeutralHealChange>
+			<FriendlyHealChange>10</FriendlyHealChange>
+			<SameTileHealChange>10</SameTileHealChange>
+			<AdjacentTileHealChange>10</AdjacentTileHealChange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>

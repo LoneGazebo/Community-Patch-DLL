@@ -181,9 +181,9 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 				if(pkPolicyBranchInfo)
 				{
 					//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
-					if(m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) > 0)
+					if(m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) > 0 || m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 					{
-						iWeight *= (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) + 2);
+						iWeight *= (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) + 1);
 					}
 					else
 					{
@@ -275,6 +275,28 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					continue;
 				}
 
+#if defined(MOD_BALANCE_CORE)
+				bool bNeedToFinish = false;
+				for(int iBranchLoop2 = 0; iBranchLoop2 < GC.getNumPolicyBranchInfos(); iBranchLoop2++)
+				{
+					const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
+					CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
+					//Do we already have a different policy branch unlocked?
+					if(pkPolicyBranchInfo2 && ePolicyBranch2 != ePolicyBranch && pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch2))
+					{
+						//Have we not finished it yet? If so, let's not open a new one.
+						if(!pPlayer->GetPlayerPolicies()->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()))
+						{
+							bNeedToFinish = true;
+							break;
+						}
+					}
+				}
+				if(bNeedToFinish)
+				{
+					continue;
+				}
+#endif
 				if(pPlayer->GetPlayerPolicies()->CanUnlockPolicyBranch(ePolicyBranch) && !pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 				{
 					int iBranchWeight = 0;

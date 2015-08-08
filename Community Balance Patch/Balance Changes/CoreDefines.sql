@@ -1,12 +1,7 @@
--- Unit and Building Maintenance Modifiers	
-	
+-- Trade Route value reduction
 	UPDATE Defines
-	SET Value = '7'
-	WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
-
-	UPDATE Defines
-	SET Value = '8'
-	WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
+	SET Value = '50'
+	WHERE Name = 'INTERNATIONAL_TRADE_CITY_GPT_DIVISOR';
 
 -- Deal Durations
 	UPDATE GameSpeeds
@@ -27,7 +22,7 @@
 
 -- Trade Route Stuff
 	UPDATE Defines
-	SET Value = '50'
+	SET Value = '33'
 	WHERE Name = 'TRADE_ROUTE_RIVER_CITY_MODIFIER';
 
 -- City Growth Defines
@@ -85,7 +80,7 @@
 	WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 	UPDATE Defines
-	SET Value = '0.1'
+	SET Value = '0.2'
 	WHERE Name = 'UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA';
 
 	-- Barbarian Experience Cap raised to 45

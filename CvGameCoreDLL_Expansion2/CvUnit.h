@@ -333,6 +333,11 @@ public:
 	bool canCreateGreatWork(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	bool createGreatWork();
 
+#if defined(MOD_BALANCE_CORE)
+	bool canGetFreeLuxury() const;
+	bool createFreeLuxury();
+#endif
+
 	int getNumExoticGoods() const;
 	void setNumExoticGoods(int iValue);
 	void changeNumExoticGoods(int iChange);
@@ -1040,7 +1045,8 @@ public:
 	void changeExtraRoughDefensePercent(int iChange);
 
 #ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
-	int getNumAttacks();
+	int getNumAttacks() const;
+	int getNumAttacksMadeThisTurn() const;
 #endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 	void changeExtraAttacks(int iChange);
 
@@ -1502,6 +1508,11 @@ public:
 	void DumpDangerInNeighborhood();
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void setHomelandMove(AIHomelandMove eMove);
+	AIHomelandMove getHomelandMove() const;
+#endif
+
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasPromotion(PromotionTypes iPromotionType) const;
@@ -1833,6 +1844,9 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
+	int m_iTactMoveSetTurn;
+	int m_iHomelandMoveSetTurn;
+	AIHomelandMove m_eHomelandMove;
 #endif
 };
 

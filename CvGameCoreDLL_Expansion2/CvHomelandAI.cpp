@@ -64,6 +64,12 @@ void CvHomelandAI::Init(CvPlayer* pPlayer)
 	m_iDefensiveMoveTurns = GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS();
 	m_iUpgradeMoveTurns = GC.getAI_HOMELAND_MAX_UPGRADE_MOVE_TURNS();
 	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//needed for better debugging - can't use ID here because it's not set yet!
+	m_CurrentMoveHighPriorityUnits.setPlayer(pPlayer);
+	m_CurrentMoveUnits.setPlayer(pPlayer);
+#endif
 }
 
 /// Deallocate memory created in initialize
@@ -173,11 +179,11 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 
-	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
+	const std::vector<SPlotWithScore>& vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
 	if (vExplorePlots.empty())
 		return NULL;
 
-	int iBestPlotScore = 1000;
+	int iBestPlotScore = 100; //limits initial search range to 10 turns
 	CvPlot* pBestPlot = NULL;
 
 	//sort by distance to capital or to unit
@@ -992,24 +998,15 @@ void CvHomelandAI::AssignHomelandMoves()
 {
 	FStaticVector< CvHomelandMove, 64, true, c_eCiv5GameplayDLL >::iterator it;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// debugging
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->IsCombatUnit())
-		{
-			CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
-			//OutputDebugString( CvString::format( "%s combat unit %s used for homeland ai (last move %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), missionInfo.c_str() ).c_str() ); 
-		}
-	}
-
-#endif
-
 	// Proceed in priority order
 	for(it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)
 	{
 		CvHomelandMove move = *it;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		m_CurrentMoveUnits.setCurrentHomelandMove(move.m_eMoveType);
+		m_CurrentMoveHighPriorityUnits.setCurrentHomelandMove(move.m_eMoveType);
+#endif
 
 		AI_PERF_FORMAT("AI-perf-tact.csv", ("Homeland Move: %d, Turn %03d, %s", (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
@@ -1553,7 +1550,7 @@ void CvHomelandAI::PlotSentryMoves()
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(GetBestUnitToReachTarget(pTarget, 5))
+				if(GetBestUnitToReachTarget(pTarget, 4))
 #else
 				if(GetBestUnitToReachTarget(pTarget, MAX_INT))
 #endif
@@ -1638,7 +1635,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		CvMap& kMap = GC.getMap();
 		TeamTypes eUnitTeam = m_pPlayer->getTeam();
 
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator settlerUnitIt;
+		MoveUnitsArray::iterator settlerUnitIt;
 		for (settlerUnitIt = PossibleSettlerUnits.begin(); settlerUnitIt != PossibleSettlerUnits.end(); ++settlerUnitIt) {
 			UnitHandle pUnit = m_pPlayer->getUnit(settlerUnitIt->GetID());
 			int iArea = pUnit->getArea();
@@ -1760,7 +1757,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 		}
 	}
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator moveUnitIt;
+	MoveUnitsArray::iterator moveUnitIt;
 	for(moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
@@ -1913,7 +1910,7 @@ void CvHomelandAI::PlotPatrolMoves()
 /// Find units that we can upgrade
 void CvHomelandAI::PlotUpgradeMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator moveUnitIt;
+	MoveUnitsArray::iterator moveUnitIt;
 	ResourceTypes eResource;
 	int iNumResource;
 	int iNumResourceInUnit;
@@ -3077,7 +3074,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3228,7 +3225,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 {
 	bool bFoundNearbyExplorePlot = false;
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3488,54 +3485,45 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			}
 			else
 			{
-				// If this is a land explorer and there is no ignore unit path to a friendly city, then disband him
-				if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+				// go home or disband
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						strLogString.Format("UnitID: %s Explorer (AI) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					CvCity* pLoopCity;
-					int iLoop;
-					bool bFoundPath = false;
-					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-					{
-						if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
-						{
-							bFoundPath = true;
-							break;
-						}
-					}
-					if(!bFoundPath)
-					{
-						CvString strLogString;
-						strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-
-						UnitProcessed(pUnit->GetID());
-						pUnit->kill(true);
-						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
-					}
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-					continue;
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("UnitID: %s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
-				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+
+				CvCity* pLoopCity;
+				int iLoop;
+				bool bFoundWayHome = false;
+				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
 					{
-						CvString strLogString;
-						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
+						bFoundWayHome = true;
+						break;
 					}
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-					continue;
 				}
+
+				if(bFoundWayHome)
+				{
+					pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopCity->getX(), pLoopCity->getY());
+				}
+				else
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+
+					UnitProcessed(pUnit->GetID());
+					pUnit->kill(true);
+					m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
+				}
+
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 		if(bSecondPass)
@@ -3563,7 +3551,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #endif
 
 	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4024,7 +4012,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 {
 	CvString strLogString;
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4174,7 +4162,7 @@ bool CvHomelandAI::ExecuteWorkerSeaMoves(CvHomelandTarget target, CvPlot* pTarge
 /// Heal chosen units
 void CvHomelandAI::ExecuteHeals()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4364,7 +4352,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 /// Patrol with chosen units
 void CvHomelandAI::ExecutePatrolMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4603,7 +4591,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 /// Great writer moves
 void CvHomelandAI::ExecuteWriterMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4755,7 +4743,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 /// Expends an artist to start a golden age
 void CvHomelandAI::ExecuteArtistMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4906,7 +4894,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 /// Expends an artist to start a golden age
 void CvHomelandAI::ExecuteMusicianMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5056,7 +5044,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 /// Expends a scientist to gain a free tech
 void CvHomelandAI::ExecuteScientistMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5097,7 +5085,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 	CvCity* pWonderCity;
 	int iTurnsToTarget;
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5120,7 +5108,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 			// Do we want to build any wonder?
 			int iNextWonderWeight;
 			CvCity* pCityToBuildAt = 0;
-			BuildingTypes eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonderForGreatEngineer(false, iNextWonderWeight, pCityToBuildAt);
+			BuildingTypes eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonderForGreatEngineer(iNextWonderWeight, pCityToBuildAt);
 
 			// No?  Just move to safety...
 			if(eNextWonderDesired == NO_BUILDING)
@@ -5276,7 +5264,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 void CvHomelandAI::ExecuteDiplomatMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5372,7 +5360,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 }
 void CvHomelandAI::ExecuteMessengerMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5468,7 +5456,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 
 void CvHomelandAI::ExecuteMerchantMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5503,7 +5491,7 @@ void CvHomelandAI::ExecuteMerchantMoves()
 
 void CvHomelandAI::ExecuteProphetMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5696,7 +5684,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	CvPlot* pHolyCityPlot = NULL;
 	CvCity* pHolyCity = NULL;
 
@@ -6097,7 +6085,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 /// Moves a great admiral into an important coastal city to aid its defense
 void CvHomelandAI::ExecuteAdmiralMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	CvPlot* pHolyCityPlot = NULL;
 	CvCity* pHolyCity = NULL;
 	// Do we have an Apollo program to stay clear of?
@@ -6150,12 +6138,85 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			continue;
 		}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		//if he's a commander but not in an army, put him up in a city for a while
+		
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
-			UnitProcessed(pUnit->GetID());
-			continue;
+			if(pUnit->canGetFreeLuxury())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FREE_LUXURY());
+				UnitProcessed(pUnit->GetID());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s got a free luxury for this civ, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				continue;
+			}
+			else
+			{
+				CvCity* pLoopCity;
+				int iLoopCity = 0;
+				CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
+				for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+				{
+					if (!pLoopCity->isCoastal())
+					{
+						continue;
+					}
+
+					int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+					int iWeight = pLoopCity->plot()->GetSizeLargestAdjacentWater();
+
+					// If this city is damaged, divide weight by the damage level
+					if (pLoopCity->getDamage() > 0)
+					{
+						iWeight /= pLoopCity->getDamage();
+					}
+
+					// Subtract off turns to reach
+					if (iTurns != MAX_INT)
+					{
+						iWeight -= iTurns;
+					}
+
+					weightedCityList.push_back(pLoopCity, iWeight);
+				}
+
+				weightedCityList.SortItems();
+				if (weightedCityList.size() > 0)
+				{
+					CvCity *pChosenCity = weightedCityList.GetElement(0);
+				
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY());
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+					continue;
+				}
+				else
+				{
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+					continue;
+				}
+			}
+
 		}
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -6412,7 +6473,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 // Get a missionary to the best city, then spread the word
 void CvHomelandAI::ExecuteMissionaryMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -6479,7 +6540,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -6570,7 +6631,7 @@ void CvHomelandAI::ExecuteSSPartMoves()
 
 	if(pCapitalCity != NULL)
 	{
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+		MoveUnitsArray::iterator it;
 		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -6615,7 +6676,7 @@ void CvHomelandAI::ExecuteSSPartAdds()
 
 	if(pCapitalCity != NULL)
 	{
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+		MoveUnitsArray::iterator it;
 		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -6676,7 +6737,7 @@ void CvHomelandAI::ExecuteTreasureMoves()
 
 	if(pCapitalCity != NULL)
 	{
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+		MoveUnitsArray::iterator it;
 		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -6705,7 +6766,7 @@ void CvHomelandAI::ExecuteTreasureMoves()
 // Similar to interception moves on tacticalAI, grant some interceptions based on number of enemies
 void CvHomelandAI::ExecuteAircraftInterceptions()
 {
-	FStaticVector<CvHomelandUnit, 64, true, c_eCiv5GameplayDLL>::iterator it;
+	MoveUnitsArray::iterator it;
 	std::vector<CvPlot*> checkedPlotList;
 
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -6755,7 +6816,7 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 /// Moves an aircraft into an important city near the front to aid its defense (or offense)
 void CvHomelandAI::ExecuteAircraftMoves()
 {
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -7158,7 +7219,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	static TradeConnectionList aTradeConnections; // slewis - added static to work around the stack limit
 	pkTradeAI->PrioritizeTradeRoutes(aTradeConnections);
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -7250,7 +7311,7 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 	int iUnassignedArchaeologists = 0;
 #endif
 
-	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -7612,8 +7673,8 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 	// Second time through, just make sure all units are still in list of current units to process
 	else
 	{
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL > tempList;
-		FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+		MoveUnitsArray tempList;
+		MoveUnitsArray::iterator it;
 		std::list<int>::iterator it2;
 
 		// Normal priority units
@@ -7762,7 +7823,11 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
 {
 	CvUnit* pBestUnit = NULL;
+#ifdef AUI_ASTAR_TURN_LIMITER
+	int iMinTurns = iMaxTurns;
+#else
 	int iMinTurns = MAX_INT;
+#endif
 	MoveUnitsArray::iterator it;
 
 	int iFailedPaths = 0;
@@ -8442,6 +8507,71 @@ void CvHomelandAI::ClearCurrentMoveHighPriorityUnits()
 //	---------------------------------------------------------------------------
 CvUnit* m_CurrentBestHighPriorityMoveUnit;
 int m_iCurrentBestHighPriorityMoveUnitTurns;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+int g_currentHomelandUnitToTrack = 0;
+
+const char* homelandMoveNames[] =
+{
+	"AI_HOMELAND_MOVE_UNASSIGNED",
+	"AI_HOMELAND_MOVE_EXPLORE",
+	"AI_HOMELAND_MOVE_EXPLORE_SEA",
+	"AI_HOMELAND_MOVE_SETTLE",
+	"AI_HOMELAND_MOVE_GARRISON",
+	"AI_HOMELAND_MOVE_HEAL",
+	"AI_HOMELAND_MOVE_TO_SAFETY",
+	"AI_HOMELAND_MOVE_MOBILE_RESERVE",
+	"AI_HOMELAND_MOVE_SENTRY",
+	"AI_HOMELAND_MOVE_WORKER",
+	"AI_HOMELAND_MOVE_WORKER_SEA",
+	"AI_HOMELAND_MOVE_PATROL",
+	"AI_HOMELAND_MOVE_UPGRADE",
+	"AI_HOMELAND_MOVE_ANCIENT_RUINS",
+	"AI_HOMELAND_MOVE_GARRISON_CITY_STATE",
+	"AI_HOMELAND_MOVE_WRITER",
+	"AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE",
+	"AI_HOMELAND_MOVE_MUSICIAN",
+	"AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH",
+	"AI_HOMELAND_MOVE_MERCHANT_TRADE",
+	"AI_HOMELAND_MOVE_ENGINEER_HURRY",
+	"AI_HOMELAND_MOVE_GENERAL_GARRISON",
+	"AI_HOMELAND_MOVE_ADMIRAL_GARRISON",
+	"AI_HOMELAND_MOVE_SPACESHIP_PART",
+	"AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT",
+	"AI_HOMELAND_MOVE_TREASURE",
+	"AI_HOMELAND_MOVE_PROPHET_RELIGION",
+	"AI_HOMELAND_MOVE_MISSIONARY",
+	"AI_HOMELAND_MOVE_INQUISITOR",
+	"AI_HOMELAND_MOVE_TRADE_UNIT",
+	"AI_HOMELAND_MOVE_ARCHAEOLOGIST",
+	"AI_HOMELAND_MOVE_ADD_SPACESHIP_PART",
+	"AI_HOMELAND_MOVE_AIRLIFT",
+	"AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY",
+	"AI_HOMELAND_MOVE_MESSENGER",
+};
+
+void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)
+{
+	m_vec.push_back(unit);
+
+	CvUnit* pUnit = m_owner ? m_owner->getUnit( unit.GetID() ) : NULL;
+
+	if (pUnit)
+	{
+		//not a nice design to use a global variable here, but it's easier than modifying the code in 30 places
+		pUnit->setHomelandMove( m_currentHomelandMove );
+
+		if (unit.GetID()==g_currentHomelandUnitToTrack)
+		{
+			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
+			OutputDebugString( CvString::format("turn %03d: using %s %s %d for homeland move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
+				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentHomelandUnitToTrack,
+				homelandMoveNames[(int)m_currentHomelandMove+1], 
+				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), owner.GetPlotDanger(*(pUnit->plot()),pUnit) ) );
+		}
+	}
+}
+#endif
 
 // HELPER FUNCTIONS
 

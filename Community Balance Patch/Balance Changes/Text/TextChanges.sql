@@ -113,14 +113,6 @@
 	SET Text = 'I am glad you agreed to stop spying on my people.'
 	WHERE Tag = 'TXT_KEY_GENERIC_HUMAN_CAUGHT_YOUR_SPY_GOOD_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
-	UPDATE Language_en_US
-	SET Text = 'Someone gave you tribute very recently'
-	WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Someone gave you tribute recently'
-	WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
-
 -- CS Text Change
 	UPDATE Language_en_US
 	SET Text = 'Giving Heavy Tribute'

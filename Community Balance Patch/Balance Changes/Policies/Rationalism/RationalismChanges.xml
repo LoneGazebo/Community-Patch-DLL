@@ -6,12 +6,12 @@
 		<Row>
 			<PolicyType>POLICY_HUMANISM</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>10</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HUMANISM</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Policy_GoldenAgeYieldMod>
 	<!--Empiricism-->

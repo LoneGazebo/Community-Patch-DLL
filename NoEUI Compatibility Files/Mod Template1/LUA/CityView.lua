@@ -625,19 +625,19 @@ function AddBuildingButton( pCity, building )
 				local yields = {};
 				
 				-- Culture
-				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-				if (iCultureFromSpecialist > 0) then
--- CBP
-					local iExtraYield = pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE);
-					iCultureFromSpecialist = (iCultureFromSpecialist + iExtraYield);
--- End
-					table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
-				end
+				local iCultureFromSpecialist = 0; 
 				
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
-					if(iYieldID ~= YieldTypes.YIELD_CULTURE)then
+-- CBP
+					if(iYieldID == YieldTypes.YIELD_CULTURE)then
+						iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID) + pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE);
+						if(iCultureFromSpecialist > 0) then
+							table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
+						end
+--END
+					elseif(iYieldID ~= YieldTypes.YIELD_CULTURE)then
 						local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 -- CBP
 						if(iYieldAmount > 0) then

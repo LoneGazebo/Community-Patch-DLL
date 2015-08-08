@@ -4654,7 +4654,7 @@ void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-			if (iI == OBSERVER_TEAM || (GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI)
+			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
 #else
 			if(GET_TEAM((TeamTypes)iI).isAlive() && GC.getGame().getActiveTeam() == (TeamTypes)iI)
 #endif
@@ -6032,7 +6032,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			for(iI = 0; iI < MAX_TEAMS; ++iI)
 			{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-				if (iI == OBSERVER_TEAM || GET_TEAM((TeamTypes)iI).isAlive())
+				if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
 #else
 				if(GET_TEAM((TeamTypes)iI).isAlive())
 #endif
@@ -7154,7 +7154,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		for(iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-			if (iI == OBSERVER_TEAM || GET_TEAM((TeamTypes)iI).isAlive())
+			if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
 #else
 			if(GET_TEAM((TeamTypes)iI).isAlive())
 #endif
@@ -7789,7 +7789,7 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 		for(iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-			if (iI == OBSERVER_TEAM || GET_TEAM((TeamTypes)iI).isAlive())
+			if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
 #else
 			if(GET_TEAM((TeamTypes)iI).isAlive())
 #endif
@@ -7829,7 +7829,7 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-			if (iI == OBSERVER_TEAM || (GET_TEAM((TeamTypes)iI).isAlive() && GC.getGame().getActiveTeam() == (TeamTypes)iI))
+			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
 #else
 			if(GET_TEAM((TeamTypes)iI).isAlive() && GC.getGame().getActiveTeam() == (TeamTypes)iI)
 #endif
@@ -8414,7 +8414,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					if(getImprovementType() != NO_IMPROVEMENT)
 					{
 						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-						if(bRequiresResource && getResourceType() == NO_RESOURCE)
+						if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 						{
 							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 						}
@@ -8422,7 +8422,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				}
 				else if(bRequiresResource)
 				{
-					if(getResourceType() != NO_RESOURCE)
+					if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 					{
 						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 						if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
@@ -8470,7 +8470,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 						if(getImprovementType() != NO_IMPROVEMENT)
 						{
 							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-							if(bRequiresResource && getResourceType() == NO_RESOURCE)
+							if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 							{
 								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							}
@@ -8478,7 +8478,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					}
 					else if(bRequiresResource)
 					{
-						if(getResourceType() != NO_RESOURCE)
+						if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 						{
 							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
@@ -8710,7 +8710,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 		{
 			iYield += GC.getResourceInfo(eResource)->getYieldChange(eYield);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasLuxuryMonopoly(eResource))
+			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasGlobalMonopoly(eResource))
 			{
 				iYield += GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
 			}
@@ -8996,29 +8996,6 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	CvCity* pWorkingCity = getWorkingCity();
 	if(pWorkingCity)
 	{
-#if defined(MOD_BALANCE_CORE)
-		//Encourage yields we need in the city.
-		if(eYield == YIELD_GOLD && pWorkingCity->getUnhappinessFromGold() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromGold() / 2);
-		}
-		else if(eYield == YIELD_CULTURE && pWorkingCity->getUnhappinessFromCulture() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_FAITH && pWorkingCity->getUnhappinessFromMinority() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_SCIENCE && pWorkingCity->getUnhappinessFromScience() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_FOOD && pWorkingCity->getUnhappinessFromStarving() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-#endif
 		ReligionTypes eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{
@@ -10293,7 +10270,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 					{
 						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 #ifdef AUI_PLOT_OBSERVER_NO_NW_POPUPS
-						if (eTeam == OBSERVER_TEAM)
+						if ( GET_TEAM((TeamTypes)iI).isObserver() )
 							bDontShowRewardPopup = true;
 #endif
 						// Popup (no MP)

@@ -2636,6 +2636,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+	m_iHomelandMoveSetTurn = 0;
+#endif
+
 	m_eOwner = eOwner;
 	m_eOriginalOwner = eOwner;
 	m_eCapturingPlayer = NO_PLAYER;
@@ -2687,6 +2692,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
 	m_iLastGameTurnAtFullHealth = -1;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_strMissionInfoString = "";
+	m_iTactMoveSetTurn = 0;
+#endif
 
 	if(!bConstructorCall)
 	{
@@ -3652,12 +3662,6 @@ void CvUnit::doTurn()
 	if(IsFortifiedThisTurn())
 	{
 		changeFortifyTurns(1);
-#if defined(MOD_BALANCE_CORE)
-		if(canHeal(plot()))
-		{
-			doHeal();
-		}
-#endif
 	}
 
 	// Recon unit? If so, he sees what's around him
@@ -5185,10 +5189,18 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				//If city, and player has disembark to city at reduced cost...
 				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
 				{
+					if(movesLeft() > (baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR()))
+					{
+						setMoves(baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR());
+					}
 				}
-				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+				else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
 				{
 					changeMoves(-iMoveCost);
+				}
+				else
+				{
+					finishMoves();
 				}
 #endif
 			}
@@ -5208,6 +5220,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				//If city, and player has disembark to city at reduced cost...
 				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
 				{
+					if(movesLeft() > (baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR()))
+					{
+						setMoves(baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR());
+					}
 				}
 				else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
 				{
@@ -7103,7 +7119,20 @@ bool CvUnit::isUnderTacticalControl() const
 void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+	//clear homeland move, can't have both ...
+	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+	
+	if (m_eTacticalMove != eMove)
+	{
+		m_iTactMoveSetTurn = GC.getGame().getGameTurn();
+		m_eTacticalMove = eMove;
+	}
+#else
 	m_eTacticalMove = eMove;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7152,6 +7181,41 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 
 	return pPlot;
 }
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//	--------------------------------------------------------------------------------
+void CvUnit::setHomelandMove(AIHomelandMove eMove)
+{
+	VALIDATE_OBJECT
+
+	//if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
+	//{
+	//	OutputDebugString("Warning: Unit with current tactical move used for homeland AI\n");
+	//}
+
+	//clear tactical move, can't have both ...
+	m_eTacticalMove = NO_TACTICAL_MOVE;
+
+	if (eMove >= NUM_AI_HOMELAND_MOVES)
+	{
+		m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
+		return;
+	}
+
+	if (m_eHomelandMove != eMove)
+	{
+		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+		m_eHomelandMove = eMove;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+AIHomelandMove CvUnit::getHomelandMove() const
+{
+	VALIDATE_OBJECT
+	return m_eHomelandMove;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Logs information about when a worker begins and finishes construction of an improvement
@@ -8876,7 +8940,121 @@ bool CvUnit::createGreatWork()
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvUnit::canGetFreeLuxury() const
+{
+	if(plot()->getOwner() == getOwner())
+	{
+		if(m_pUnitInfo->GetNumFreeLux() > 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+bool CvUnit::createFreeLuxury()
+{
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux();
+	bool bResult = false;
+	if(iNumLuxuries > 0)
+	{
+		// Loop through all resources and see if we can find this many unique ones
+		ResourceTypes eResourceToGive = NO_RESOURCE;
+		int iBestFlavor = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				if(GC.getMap().getNumResources(eResource) <= 0)
+				{
+					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive != NO_RESOURCE)
+		{
+			GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceToGive, iNumLuxuries);
+			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			if(kOwner.isHuman())
+			{
+				CvNotifications* pNotifications = kOwner.GetNotifications();
+				if(pNotifications)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceToGive);
+					if (pInfo)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE");
+						strText <<  getNameKey() << pInfo->GetTextKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE_SUMMARY");
+						strSummary << getNameKey();
+						pNotifications->Add(NOTIFICATION_DISCOVERED_LUXURY_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceToGive);
+					}
+				}
+			}
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
+			kOwner.DoGreatPersonExpended(getUnitType(), this);
+#else
+			kOwner.DoGreatPersonExpended(getUnitType());
+#endif
+			kill(true);
+			bResult = true;
+		}
+	}
 
+	return bResult;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getNumExoticGoods() const
 {
@@ -9714,7 +9892,20 @@ bool CvUnit::found()
 		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int iMaxRange = 3;
+	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	{
+		for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+		{
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
+			if(pLoopPlot && pLoopPlot->getOwner() == getOwner())
+			{
+				pLoopPlot->verifyUnitValidPlot();
+			}
+		}
+	}
+#endif
 		
 #if defined(MOD_EVENTS_UNIT_FOUNDED)
 	if (MOD_EVENTS_UNIT_FOUNDED) {
@@ -11195,11 +11386,66 @@ bool CvUnit::trade()
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_DIPLOMACY_CITYSTATES_QUESTS) {
 		//Added Influence Quest Bonus
-		if(GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
+		if(eMinor != NO_PLAYER && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
 		{	
 			int iBoostPercentage = GC.getINFLUENCE_MINOR_QUEST_BOOST();
 			iFriendship *= 100 + iBoostPercentage;
 			iFriendship /= 100;
+		}
+	}
+	if(MOD_DIPLOMACY_CITYSTATES)
+	{
+		if (eMinor != NO_PLAYER && (m_pUnitInfo->GetNumInfPerEra() > 0))
+		{
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+				{
+					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
+				}
+			}
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT");
+				strText <<  getNameKey() << iFriendship << GET_PLAYER(eMinor).getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY");
+				strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
+				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
+			}
+		}
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
+		{
+			CvCity* pLoopCity;
+			int iCityLoop;
+
+			// Loop through owner's cities.
+			for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iTradeGold / 75);
+				}
+			}
+			if(GET_PLAYER(getOwner()).isHuman())
+			{
+				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT");
+					strText <<  getNameKey() << (iTradeGold / 75);
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT_SUMMARY");
+					strSummary << getNameKey();
+					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
+				}
+			}
 		}
 	}
 #endif
@@ -11675,77 +11921,95 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				{
 					iEra = 1;
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) > 0)
+				int iGold = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra;
+				iGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGold /= 100;
+				if(iGold > 0)
 				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) > 0)
+				int iFaith = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra;
+				iFaith *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iFaith /= 100;
+				if(iFaith > 0)
 				{
-					GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+					GET_PLAYER(getOwner()).ChangeFaith(iFaith);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) > 0)
+				int iCulture = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra;
+				iCulture *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iCulture /= 100;
+				if(iCulture > 0)
 				{
-					GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+					GET_PLAYER(getOwner()).changeJONSCulture(iCulture);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				int iGAP = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+				iGAP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGAP /= 100;
+				if(iGAP > 0)
 				{
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iGAP);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGAP);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) > 0)
+				int iScience = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra;
+				iScience *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iScience /= 100;
+				if(iScience > 0)
 				{
 					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
 					if(eCurrentTech == NO_TECH)
 					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+						GET_PLAYER(getOwner()).changeOverflowResearch(iScience);
 					}
 					else
 					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra, getOwner());
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, getOwner());
 					}
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
-				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) > 0)
+				int iGGP = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra;
+				iGGP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGGP /= 100;
+				if(iGGP > 0)
 				{
-					GET_PLAYER(getOwner()).changeCombatExperience(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+					GET_PLAYER(getOwner()).changeCombatExperience(iGGP);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iGGP);
 						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
 					}
 				}
@@ -13488,7 +13752,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
+	if(!IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
 	{
 		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
 	}
@@ -21446,10 +21710,15 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 
 #ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
 //	--------------------------------------------------------------------------------
-int CvUnit::getNumAttacks()
+int CvUnit::getNumAttacks() const
 {
 	VALIDATE_OBJECT
-		return m_iNumAttacks;
+	return m_iNumAttacks;
+}
+int CvUnit::getNumAttacksMadeThisTurn() const
+{
+	VALIDATE_OBJECT
+	return m_iAttacksMade;
 }
 #endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 
@@ -26394,9 +26663,24 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 const char* CvUnit::GetMissionInfo()
 {
-	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? 
-		"no tactical move" : 
-		(isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
+	if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
+		m_strMissionInfoString = "no tactical move / no homeland move";
+	else
+	{
+		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+		{
+			m_strMissionInfoString =  (isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
+			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+			m_strMissionInfoString += strTemp0;
+		}
+
+		if (m_eTacticalMove==NO_TACTICAL_MOVE)
+		{
+			m_strMissionInfoString =  homelandMoveNames[m_eHomelandMove];
+			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
+			m_strMissionInfoString += strTemp0;
+		}
+	}
 
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
@@ -26462,8 +26746,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
 		if (pPlot)
 		{
-			CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
-				GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
+			CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
+				GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
 				pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
 			FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 			pLog->Msg( info.c_str() );

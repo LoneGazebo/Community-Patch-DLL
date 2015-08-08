@@ -511,6 +511,26 @@ bool CvAIOperation::FinishedBuilding(OperationSlot thisOperationSlot)
 }
 
 /// Assigns available units to our operation. Returns true if all needed units assigned.
+#if defined(MOD_BALANCE_CORE)
+void CvAIOperation::FillWithUnitsFromTheReserves(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot)
+{
+	if(pThisArmy && pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+	{
+		int iThisFormationIndex = pThisArmy->GetFormationIndex();
+		if(iThisFormationIndex != NO_MUFORMATION)
+		{
+			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
+			if(thisFormation)
+			{
+				for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
+				{
+					FindBestFitRecruitUnit(pThisArmy, iThisSlotIndex, pMusterPlot, pTargetPlot);	
+				}
+			}
+		}
+	}
+}
+#endif
 bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot)
 {
 	bool rtnValue = true;
@@ -600,70 +620,7 @@ bool CvAIOperation::CheckOnTarget()
 #if defined(MOD_BALANCE_CORE)
 			if(pThisArmy && pThisArmy->GetGoalPlot() != NULL && pThisArmy->Plot() != NULL)
 			{
-				if(!GrabUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot()))
-				{
-					CvCity* pCity = pThisArmy->Plot()->getWorkingCity();
-
-					if(!m_viListOfUnitsWeStillNeedToBuild.empty() && pCity != NULL && pCity->getOwner() == m_eOwner)
-					{
-						OperationSlot thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
-						CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
-
-						UnitTypes eUnitForOperation = pCity->GetUnitForOperation();
-						if(eUnitForOperation != NO_UNIT)
-						{
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitForOperation);
-							if(pkUnitInfo)
-							{
-								if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitForOperation, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-								{
-									int iGoldCost = pCity->GetPurchaseCost(eUnitForOperation);
-									//Log it
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("MOD - Buying unit for settler escort: %s in %s.",
-											pkUnitInfo->GetDescription(), pCity->getName().c_str());
-										GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-
-									//take the money...
-									GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
-
-									//and train it!
-									UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
-									int iResult = pCity->CreateUnit(eUnitForOperation, eUnitAI, false);
-									CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-									if (iResult != FFreeList::INVALID_INDEX)
-									{
-										CvUnit* pUnit =GET_PLAYER(pCity->getOwner()).getUnit(iResult);
-										if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-										{
-											pUnit->setMoves(0);
-										}
-										pCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
-										pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID);
-										m_viListOfUnitsWeStillNeedToBuild.pop_back();
-										if (m_viListOfUnitsWeStillNeedToBuild.size() == 0 && m_viListOfUnitsCitiesHaveCommittedToBuild.size() == 0 && m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
-										{
-											m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-											for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
-											{
-												CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-												if(pThisArmy)
-												{
-													pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-												}
-											}
-										}
-									}
-
-									pCity->CleanUpQueue();
-								}
-							} 
-						}
-					}
-				}
+				FillWithUnitsFromTheReserves(pThisArmy, pThisArmy->Plot(), pThisArmy->GetGoalPlot());
 			}
 #endif
 			if(pThisArmy->GetNumSlotsFilled() >= 1)
@@ -728,7 +685,7 @@ bool CvAIOperation::CheckOnTarget()
 #if defined(MOD_BALANCE_CORE)
 			if(pThisArmy && pThisArmy->GetGoalPlot() != NULL && pThisArmy->Plot() != NULL)
 			{
-				GrabUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot());
+				FillWithUnitsFromTheReserves(pThisArmy, pThisArmy->Plot(), pThisArmy->GetGoalPlot());
 			}
 #endif
 			CvPlot* pCenterOfMass;
@@ -789,7 +746,7 @@ bool CvAIOperation::CheckOnTarget()
 #if defined(MOD_BALANCE_CORE)
 			if(pThisArmy && pThisArmy->GetGoalPlot() != NULL && pThisArmy->Plot() != NULL)
 			{
-				GrabUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot());
+				FillWithUnitsFromTheReserves(pThisArmy, pThisArmy->Plot(), pThisArmy->GetGoalPlot());
 			}
 #endif
 			CvPlot* pCenterOfMass;
@@ -839,7 +796,7 @@ bool CvAIOperation::CheckOnTarget()
 #endif
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 						pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-						if(pCenterOfMass &&
+						if(pCenterOfMass && GetMusterPlot() &&
 							plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
 							pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3))
 						{
@@ -2182,6 +2139,602 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 }
 
 /// Find a unit from our reserves that could serve in this operation
+#if defined(MOD_BALANCE_CORE)
+bool CvAIOperation::FindBestFitRecruitUnit(CvArmyAI* pThisArmy, int iSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot)
+{
+	CvUnit* pBestUnit = NULL;
+	if(m_eOwner == NO_PLAYER)
+	{
+		return false;
+	}
+	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
+	CvString strMsg;
+
+	CvOperationSearchUnitList kSearchList;
+
+	if(pTargetPlot == NULL || pMusterPlot == NULL)
+	{
+		return false;
+	}
+	CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iSlot);
+	if(pSlot->GetUnitID() != NO_UNIT)
+	{
+		UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
+		if(pUnit && pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
+		{
+			strMsg.Format("Existing army slot already full for muster of x=%d y=%d, target of x=%d y=%d. Unit is: %s", pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString());
+			LogOperationSpecialMessage(strMsg);
+		}
+		return false;
+	}
+	int iThisFormationIndex = pThisArmy->GetFormationIndex();
+	if(iThisFormationIndex != NO_MUFORMATION)
+	{
+		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
+		if(thisFormation)
+		{
+			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iSlot);
+			if(thisSlotEntry.m_requiredSlot)
+			{
+				bool bMustBeDeepWaterNaval = GET_TEAM(ownerPlayer.getTeam()).canEmbarkAllWaterPassage() && thisFormation->IsRequiresNavalUnitConsistency();
+
+				int iLoop = 0;
+				for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
+				{
+					// Make sure he's not needed by the tactical AI or already in an army
+					if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					{
+						// Is this unit one of the requested types?
+						CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+						if(unitInfo == NULL)
+							continue;
+
+						// PRIMARY UNIT TYPE (ONLY)
+						if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
+						{
+							//Sanity check for AI sending CS to non-CS operations
+							if(pLoopUnit->IsCityAttackOnly() && !pTargetPlot->isCity())
+							{
+								continue;
+							}
+							//NONCOMBAT LAND UNITS
+							if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{	
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								if(IsMixedLandNavalOperation() && !pLoopUnit->CanEverEmbark())
+								{
+									continue;
+								}
+								// Get raw distance to the muster point or target
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+
+								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+								{
+									iDistance *= 2;
+								}
+								if(iDistance == -1)
+								{
+									CvAssertMsg(0, "No muster or target!");
+									iDistance = MAX_INT;
+								}
+
+								kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+							}
+							//NONCOMBAT SEA UNITS
+							else if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
+							{
+								if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+								{
+									continue;
+								}
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								CvPlot* pNavalTarget = NULL;
+								// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+								if(pTargetPlot != NULL && !pTargetPlot->isWater())
+								{
+									pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+									if(pNavalTarget == NULL)
+									{
+										continue;
+									}
+								}
+								else
+								{
+									pNavalTarget = pTargetPlot;
+								}
+								if(pNavalTarget != NULL)
+								{				
+									// Get raw distance to the muster point or target.
+									CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+									if(pkLoopUnitPlot != NULL)
+									{
+										int iDistance = -1;
+										if(pMusterPlot->isWater())
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										//No valid muster? Pick based on distance from target.
+										else
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										if(iDistance == -1)
+										{
+											CvAssertMsg(0, "No muster or target!");
+											iDistance = MAX_INT;
+										}
+										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+									}
+								}
+							}
+							//COMBAT LAND UNITS
+							else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								if(IsMixedLandNavalOperation() && !pLoopUnit->CanEverEmbark())
+								{
+									continue;
+								}
+								if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+								{
+									continue;
+								}
+								// Get raw distance to the muster point or target
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pkLoopUnitPlot != NULL)
+								{
+									if( pMusterPlot != NULL)
+									{
+										iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+										// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+										if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+										{
+											iDistance *= 2;
+										}
+									}
+									//Fallback for capital - not great, and possibly draws bad units, but at least gets the muster going more quickly).
+									else if(pkLoopUnitPlot != NULL && GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+									{
+										pMusterPlot = GET_PLAYER(m_eOwner).getCapitalCity()->plot();
+										iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), GET_PLAYER(m_eOwner).getCapitalCity()->getX(), GET_PLAYER(m_eOwner).getCapitalCity()->getY());
+										// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+										if(pkLoopUnitPlot->getArea() != GET_PLAYER(m_eOwner).getCapitalCity()->getArea() && pLoopUnit->getDropRange() == 0)
+										{
+											iDistance *= 2;
+										}	
+									}
+									if(iDistance == -1)
+									{
+										CvAssertMsg(0, "No muster or target!");
+										iDistance = MAX_INT;
+									}
+
+									kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+								}
+							}
+							//COMBAT SEA UNITS
+							else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
+							{
+								if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+								{
+									continue;
+								}
+								if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+								{
+									continue;
+								}
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								CvPlot* pNavalTarget = NULL;
+								// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+								if(pTargetPlot != NULL && !pTargetPlot->isWater())
+								{
+									pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+									if(pNavalTarget == NULL)
+									{
+										continue;
+									}
+								}
+								else
+								{
+									pNavalTarget = pTargetPlot;
+								}
+								if(pNavalTarget != NULL)
+								{				
+									// Get raw distance to the muster point or target.
+									CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+									if(pkLoopUnitPlot != NULL)
+									{
+										int iDistance = -1;
+										if(pMusterPlot->isWater())
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										//No valid muster? Pick based on distance from target.
+										else
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										if(iDistance == -1)
+										{
+											CvAssertMsg(0, "No muster or target!");
+											iDistance = MAX_INT;
+										}
+										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+									}
+								}
+							}
+						}
+					}
+				}
+				if(pTargetPlot != NULL && pMusterPlot != NULL)
+				{
+					pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pTargetPlot, NeedToCheckPathToTarget());
+				}
+
+				// Did we find one?
+				if(pBestUnit != NULL)
+				{
+					if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_primaryUnitType)
+					{
+						pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
+					}
+					pThisArmy->AddUnit(pBestUnit->GetID(), iSlot);
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
+						{
+							strMsg.Format("Recruited %s (primary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+							LogOperationSpecialMessage(strMsg);
+						}
+					}
+					return true;
+				}
+
+				kSearchList.clear();
+
+				iLoop = 0;
+				for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
+				{
+					// Make sure he's not needed by the tactical AI or already in an army
+					if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					{
+						// Is this unit one of the requested types?
+						CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+						if(unitInfo == NULL)
+							continue;
+
+						// PRIMARY UNIT TYPE (ONLY)
+						if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+						{
+							//Sanity check for AI sending CS to non-CS operations
+							if(pLoopUnit->IsCityAttackOnly() && !pTargetPlot->isCity())
+							{
+								continue;
+							}
+							//NONCOMBAT LAND UNITS
+							if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{	
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								if(IsMixedLandNavalOperation() && !pLoopUnit->CanEverEmbark())
+								{
+									continue;
+								}
+								// Get raw distance to the muster point or target
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pkLoopUnitPlot != NULL)
+								{
+									if(pMusterPlot != NULL)
+									{
+										iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+
+										// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+										if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+										{
+											iDistance *= 2;
+										}
+									}
+									if(iDistance == -1)
+									{
+										CvAssertMsg(0, "No muster or target!");
+										iDistance = MAX_INT;
+									}
+
+									kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+								}
+							}
+							//NONCOMBAT SEA UNITS
+							else if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
+							{
+								if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+								{
+									continue;
+								}
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								CvPlot* pNavalTarget = NULL;
+								// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+								if(pTargetPlot != NULL && !pTargetPlot->isWater())
+								{
+									pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+									if(pNavalTarget == NULL)
+									{
+										continue;
+									}
+								}
+								else
+								{
+									pNavalTarget = pTargetPlot;
+								}
+								if(pNavalTarget != NULL)
+								{				
+									// Get raw distance to the muster point or target.
+									CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+									if(pkLoopUnitPlot != NULL)
+									{
+										int iDistance = -1;
+										if(pMusterPlot->isWater())
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										//No valid muster? Pick based on distance from target.
+										else
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										if(iDistance == -1)
+										{
+											CvAssertMsg(0, "No muster or target!");
+											iDistance = MAX_INT;
+										}
+										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+									}
+								}
+							}
+							//COMBAT LAND UNITS
+							else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								if(IsMixedLandNavalOperation() && !pLoopUnit->CanEverEmbark())
+								{
+									continue;
+								}
+								if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+								{
+									continue;
+								}
+								// Get raw distance to the muster point or target
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pkLoopUnitPlot != NULL)
+								{
+									if(pMusterPlot != NULL)
+									{
+										iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+										// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+										if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+										{
+											iDistance *= 2;
+										}
+									}
+									//Fallback for capital - not great, and possibly draws bad units, but at least gets the muster going more quickly).
+									else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+									{
+										pMusterPlot = GET_PLAYER(m_eOwner).getCapitalCity()->plot();
+										iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), GET_PLAYER(m_eOwner).getCapitalCity()->getX(), GET_PLAYER(m_eOwner).getCapitalCity()->getY());
+										// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+										if(pkLoopUnitPlot->getArea() != GET_PLAYER(m_eOwner).getCapitalCity()->getArea() && pLoopUnit->getDropRange() == 0)
+										{
+											iDistance *= 2;
+										}	
+									}
+									if(iDistance == -1)
+									{
+										CvAssertMsg(0, "No muster or target!");
+										iDistance = MAX_INT;
+									}
+
+									kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+								}
+							}
+							//COMBAT SEA UNITS
+							else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
+							{
+								if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+								{
+									continue;
+								}
+								if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+								{
+									continue;
+								}
+								// Not finishing up an operation?
+								if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+								{
+									continue;
+								}
+
+								if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+								{
+									continue;
+								}
+								CvPlot* pNavalTarget = NULL;
+								// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+								if(pTargetPlot != NULL && !pTargetPlot->isWater())
+								{
+									pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+									if(pNavalTarget == NULL)
+									{
+										continue;
+									}
+								}
+								else
+								{
+									pNavalTarget = pTargetPlot;
+								}
+								if(pNavalTarget != NULL)
+								{				
+									// Get raw distance to the muster point or target.
+									CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+									if(pkLoopUnitPlot != NULL)
+									{
+										int iDistance = -1;
+										if(pMusterPlot->isWater())
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										//No valid muster? Pick based on distance from target.
+										else
+										{
+											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+											{
+												iDistance *= 2;
+											}
+										}
+										if(iDistance == -1)
+										{
+											CvAssertMsg(0, "No muster or target!");
+											iDistance = MAX_INT;
+										}
+										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
+									}
+								}
+							}
+						}
+					}
+				}
+				if(pTargetPlot != NULL && pMusterPlot != NULL)
+				{
+					pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pTargetPlot, NeedToCheckPathToTarget());
+				}
+
+				// Did we find one?
+				if(pBestUnit != NULL)
+				{
+					if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_secondaryUnitType)
+					{
+						pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType);
+					}
+					pThisArmy->AddUnit(pBestUnit->GetID(), iSlot);
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
+						{
+							strMsg.Format("Recruited %s (secondary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+							LogOperationSpecialMessage(strMsg);
+						}
+					}
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+#endif
 bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired)
 {
 #if defined(MOD_BALANCE_CORE)
@@ -2191,9 +2744,12 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 	CvString strMsg;
 
 	CvOperationSearchUnitList kSearchList;
-	CvPlot* pOperationTargetPlot = NULL;
 	*bRequired = true;
 
+	if(pTargetPlot == NULL || pMusterPlot == NULL)
+	{
+		return false;
+	}
 	int iThisFormationIndex = pThisArmy->GetFormationIndex();
 	if(iThisFormationIndex != NO_MUFORMATION)
 	{
@@ -2206,12 +2762,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			int iLoop = 0;
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
-				CvPlot* pTargetToUse = pTargetPlot;
-				if(pTargetToUse == NULL)
-				{
-					return false;
-				}
-
 				// Make sure he's not needed by the tactical AI or already in an army
 				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
@@ -2224,7 +2774,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
 					{
 						//Sanity check for AI sending CS to non-CS operations
-						if(pLoopUnit->IsCityAttackOnly() && !pTargetToUse->isCity())
+						if(pLoopUnit->IsCityAttackOnly() && !pTargetPlot->isCity())
 						{
 							continue;
 						}
@@ -2248,25 +2798,12 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							// Get raw distance to the muster point or target
 							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
 							int iDistance = -1;
-							if(pMusterPlot != NULL)
+
+							iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+							// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+							if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-								{
-									iDistance *= 2;
-								}
-							}
-							//Fallback for capital - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
-							{
-								pMusterPlot = GET_PLAYER(m_eOwner).getCapitalCity()->plot();
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), GET_PLAYER(m_eOwner).getCapitalCity()->getX(), GET_PLAYER(m_eOwner).getCapitalCity()->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != GET_PLAYER(m_eOwner).getCapitalCity()->getArea() && pLoopUnit->getDropRange() == 0)
-								{
-									iDistance *= 2;
-								}	
+								iDistance *= 2;
 							}
 							if(iDistance == -1)
 							{
@@ -2279,18 +2816,9 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						//NONCOMBAT SEA UNITS
 						else if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
-							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
-							if (pTargetToUse != NULL)
+							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
 							{
-								if(!pTargetToUse->isWater())
-								{
-									pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
-									if(pTargetToUse == NULL)
-									{
-										pTargetToUse = pTargetPlot;
-										continue;
-									}
-								}
+								continue;
 							}
 							// Not finishing up an operation?
 							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
@@ -2302,59 +2830,51 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							{
 								continue;
 							}
-							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							CvPlot* pNavalTarget = NULL;
+							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+							if(!pTargetPlot->isWater())
 							{
-								continue;
-							}
-							// Get raw distance to the muster point or target
-							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
-							int iDistance = -1;
-							if(pMusterPlot != NULL)
-							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+								pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+								if(pNavalTarget == NULL)
 								{
-									iDistance *= 2;
+									continue;
 								}
 							}
-							//Fallback for naval units without a muster - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+							else
 							{
-								CvCity* pLoopCity;
-								int iCityLoop;
-								// Loop through each of our cities
-								for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
+								pNavalTarget = pTargetPlot;
+							}
+							if(pNavalTarget != NULL)
+							{				
+								// Get raw distance to the muster point or target.
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pMusterPlot->isWater())
 								{
-									if(pLoopCity != NULL && pLoopCity->isCoastal())
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 									{
-										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
-										if(pMusterPlot != NULL)
-										{
-											CvAStarNode* pPathfinderNode;
-											// Adjust value based on proximity to our start location
-											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
-											if(bPathfinderSuccess)
-											{
-												iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-												// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-												if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-												{
-													iDistance *= 2;
-												}
-												break;
-											}
-										}
+										iDistance *= 2;
 									}
 								}
+								//No valid muster? Pick based on distance from target.
+								else
+								{
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+									{
+										iDistance *= 2;
+									}
+								}
+								if(iDistance == -1)
+								{
+									CvAssertMsg(0, "No muster or target!");
+									iDistance = MAX_INT;
+								}
+								kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 							}
-							if(iDistance == -1)
-							{
-								CvAssertMsg(0, "No muster or target!");
-								iDistance = MAX_INT;
-							}
-
-							kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 						}
 						//COMBAT LAND UNITS
 						else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
@@ -2411,15 +2931,13 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						//COMBAT SEA UNITS
 						else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
-							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
-							if(!pTargetToUse->isWater())
+							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
 							{
-								pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
-								if(pTargetToUse == NULL)
-								{
-									pTargetToUse = pTargetPlot;
-									continue;
-								}
+								continue;
+							}
+							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							{
+								continue;
 							}
 							// Not finishing up an operation?
 							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
@@ -2431,71 +2949,58 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							{
 								continue;
 							}
-							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							CvPlot* pNavalTarget = NULL;
+							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+							if(!pTargetPlot->isWater())
 							{
-								continue;
-							}
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							// Get raw distance to the muster point or target
-							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
-							int iDistance = -1;
-							if(pMusterPlot != NULL)
-							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+								pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+								if(pNavalTarget == NULL)
 								{
-									iDistance *= 2;
+									continue;
 								}
 							}
-							//Fallback for naval units without a muster - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+							else
 							{
-								CvCity* pLoopCity;
-								int iCityLoop;
-								// Loop through each of our cities
-								for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
+								pNavalTarget = pTargetPlot;
+							}
+							if(pNavalTarget != NULL)
+							{				
+								// Get raw distance to the muster point or target.
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pMusterPlot->isWater())
 								{
-									if(pLoopCity != NULL && pLoopCity->isCoastal())
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 									{
-										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
-										if(pMusterPlot != NULL)
-										{
-											CvAStarNode* pPathfinderNode;
-											// Adjust value based on proximity to our start location
-											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
-											if(bPathfinderSuccess)
-											{
-												iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-												// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-												if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-												{
-													iDistance *= 2;
-												}
-												break;
-											}
-										}
+										iDistance *= 2;
 									}
 								}
+								//No valid muster? Pick based on distance from target.
+								else
+								{
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+									{
+										iDistance *= 2;
+									}
+								}
+								if(iDistance == -1)
+								{
+									CvAssertMsg(0, "No muster or target!");
+									iDistance = MAX_INT;
+								}
+								kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 							}
-							if(iDistance == -1)
-							{
-								CvAssertMsg(0, "No muster or target!");
-								iDistance = MAX_INT;
-							}
-
-							kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 						}
 					}
-					pOperationTargetPlot = pTargetToUse;
 				}
 			}
-			if(pOperationTargetPlot != NULL && pMusterPlot != NULL)
+			if(pTargetPlot != NULL && pMusterPlot != NULL)
 			{
-				pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pOperationTargetPlot, NeedToCheckPathToTarget());
+				pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pTargetPlot, NeedToCheckPathToTarget());
 			}
 
 			// Did we find one?
@@ -2506,19 +3011,15 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
 				}
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-				return true;
-			}
-			else
-			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					pOperationTargetPlot = pTargetPlot;
-					if(pMusterPlot != NULL && pOperationTargetPlot != NULL)
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
 					{
-						strMsg.Format("Could not recruit from primary units for muster at x=%d y=%d, target of x=%d y=%d", (pMusterPlot)?pMusterPlot->getX():-1, (pMusterPlot)?pMusterPlot->getY():-1, (pOperationTargetPlot)?pOperationTargetPlot->getX():-1, (pOperationTargetPlot)?pOperationTargetPlot->getY():-1);
+						strMsg.Format("Recruited %s (primary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
 					}
 				}
+				return true;
 			}
 
 			kSearchList.clear();
@@ -2526,12 +3027,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			iLoop = 0;
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
-				CvPlot* pTargetToUse = pTargetPlot;
-				if(pTargetToUse == NULL)
-				{
-					return false;
-				}
-
 				// Make sure he's not needed by the tactical AI or already in an army
 				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
@@ -2544,7 +3039,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
 					{
 						//Sanity check for AI sending CS to non-CS operations
-						if(pLoopUnit->IsCityAttackOnly() && !pTargetToUse->isCity())
+						if(pLoopUnit->IsCityAttackOnly() && !pTargetPlot->isCity())
 						{
 							continue;
 						}
@@ -2568,25 +3063,12 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							// Get raw distance to the muster point or target
 							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
 							int iDistance = -1;
-							if(pMusterPlot != NULL)
+
+							iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+							// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+							if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-								{
-									iDistance *= 2;
-								}
-							}
-							//Fallback for capital - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
-							{
-								pMusterPlot = GET_PLAYER(m_eOwner).getCapitalCity()->plot();
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), GET_PLAYER(m_eOwner).getCapitalCity()->getX(), GET_PLAYER(m_eOwner).getCapitalCity()->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != GET_PLAYER(m_eOwner).getCapitalCity()->getArea() && pLoopUnit->getDropRange() == 0)
-								{
-									iDistance *= 2;
-								}	
+								iDistance *= 2;
 							}
 							if(iDistance == -1)
 							{
@@ -2599,14 +3081,9 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						//NONCOMBAT SEA UNITS
 						else if(!pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
-							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
-							if (!pTargetToUse->isWater())
+							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
 							{
-								pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
-								if(pTargetToUse == NULL)
-								{
-									continue;
-								}
+								continue;
 							}
 							// Not finishing up an operation?
 							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
@@ -2618,59 +3095,51 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							{
 								continue;
 							}
-							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							CvPlot* pNavalTarget = NULL;
+							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+							if(!pTargetPlot->isWater())
 							{
-								continue;
-							}
-							// Get raw distance to the muster point or target
-							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
-							int iDistance = -1;
-							if(pMusterPlot != NULL)
-							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+								pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+								if(pNavalTarget == NULL)
 								{
-									iDistance *= 2;
+									continue;
 								}
 							}
-							//Fallback for naval units without a muster - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+							else
 							{
-								CvCity* pLoopCity;
-								int iCityLoop;
-								// Loop through each of our cities
-								for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
+								pNavalTarget = pTargetPlot;
+							}
+							if(pNavalTarget != NULL)
+							{				
+								// Get raw distance to the muster point or target.
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pMusterPlot->isWater())
 								{
-									if(pLoopCity != NULL && pLoopCity->isCoastal())
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 									{
-										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
-										if(pMusterPlot != NULL)
-										{
-											CvAStarNode* pPathfinderNode;
-											// Adjust value based on proximity to our start location
-											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
-											if(bPathfinderSuccess)
-											{
-												iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-												// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-												if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-												{
-													iDistance *= 2;
-												}
-												break;
-											}
-										}
+										iDistance *= 2;
 									}
 								}
+								//No valid muster? Pick based on distance from target.
+								else
+								{
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+									{
+										iDistance *= 2;
+									}
+								}
+								if(iDistance == -1)
+								{
+									CvAssertMsg(0, "No muster or target!");
+									iDistance = MAX_INT;
+								}
+								kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 							}
-							if(iDistance == -1)
-							{
-								CvAssertMsg(0, "No muster or target!");
-								iDistance = MAX_INT;
-							}
-
-							kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 						}
 						//COMBAT LAND UNITS
 						else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
@@ -2727,14 +3196,13 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						//COMBAT SEA UNITS
 						else if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
-							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
-							if (!pTargetToUse->isWater())
+							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
 							{
-								pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
-								if(pTargetToUse == NULL)
-								{
-									continue;
-								}
+								continue;
+							}
+							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							{
+								continue;
 							}
 							// Not finishing up an operation?
 							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
@@ -2746,71 +3214,58 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 							{
 								continue;
 							}
-							if(!IsMixedLandNavalOperation() && !IsAllNavalOperation())
+							CvPlot* pNavalTarget = NULL;
+							// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+							if(!pTargetPlot->isWater())
 							{
-								continue;
-							}
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							// Get raw distance to the muster point or target
-							CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
-							int iDistance = -1;
-							if(pMusterPlot != NULL)
-							{
-								iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-								// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-								if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+								pNavalTarget = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, pThisArmy);
+								if(pNavalTarget == NULL)
 								{
-									iDistance *= 2;
+									continue;
 								}
 							}
-							//Fallback for naval units without a muster - not great, and possibly draws bad units, but at least gets the muster going more quickly).
-							else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+							else
 							{
-								CvCity* pLoopCity;
-								int iCityLoop;
-								// Loop through each of our cities
-								for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
+								pNavalTarget = pTargetPlot;
+							}
+							if(pNavalTarget != NULL)
+							{				
+								// Get raw distance to the muster point or target.
+								CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
+								int iDistance = -1;
+								if(pMusterPlot->isWater())
 								{
-									if(pLoopCity != NULL && pLoopCity->isCoastal())
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
 									{
-										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
-										if(pMusterPlot != NULL)
-										{
-											CvAStarNode* pPathfinderNode;
-											// Adjust value based on proximity to our start location
-											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
-											if(bPathfinderSuccess)
-											{
-												iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-												// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
-												if(pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
-												{
-													iDistance *= 2;
-												}
-												break;
-											}
-										}
+										iDistance *= 2;
 									}
 								}
+								//No valid muster? Pick based on distance from target.
+								else
+								{
+									iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+									// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+									if(pkLoopUnitPlot->getArea() != pNavalTarget->getArea() && pLoopUnit->getDropRange() == 0)
+									{
+										iDistance *= 2;
+									}
+								}
+								if(iDistance == -1)
+								{
+									CvAssertMsg(0, "No muster or target!");
+									iDistance = MAX_INT;
+								}
+								kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 							}
-							if(iDistance == -1)
-							{
-								CvAssertMsg(0, "No muster or target!");
-								iDistance = MAX_INT;
-							}
-
-							kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
 						}
 					}
-					pOperationTargetPlot = pTargetToUse;
 				}
 			}
-			if(pOperationTargetPlot != NULL && pMusterPlot != NULL)
+			if(pTargetPlot != NULL && pMusterPlot != NULL)
 			{
-				pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pOperationTargetPlot, NeedToCheckPathToTarget());
+				pBestUnit = GetClosestUnit(kSearchList, pMusterPlot, pTargetPlot, NeedToCheckPathToTarget());
 			}
 
 			// Did we find one?
@@ -2821,16 +3276,15 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType);
 				}
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-				return true;
-			}
-			else
-			{
-				pOperationTargetPlot = pTargetPlot;
-					if(pMusterPlot != NULL && pOperationTargetPlot != NULL)
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
 					{
-						strMsg.Format("Could not recruit from secondary units for muster at x=%d y=%d, target of x=%d y=%d", (pMusterPlot)?pMusterPlot->getX():-1, (pMusterPlot)?pMusterPlot->getY():-1, (pOperationTargetPlot)?pOperationTargetPlot->getX():-1, (pOperationTargetPlot)?pOperationTargetPlot->getY():-1);
+						strMsg.Format("Recruited %s (secondary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
 					}
+				}
+				return true;
 			}
 
 			// If not required, let our calling routine know that
@@ -4737,21 +5191,28 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 
 				int iLoopCity = 0;
 				CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
+				if(kPlayer.getNumCities() == 1 && kPlayer.getCapitalCity() != NULL)
 				{
-					if(kPlayer.getNumCities() > 1 && kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
+					pBestMusterPlot = kPlayer.getCapitalCity()->plot();
+				}
+				else
+				{
+					for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
 					{
-						continue;
-					}
+						if(kPlayer.getNumCities() > 1 && kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
+						{
+							continue;
+						}
 
-					//todo: check if the city is in danger first?
-					bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
+						//todo: check if the city is in danger first?
+						bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
 
-					int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
-					if(iTurns < iBestTurns)
-					{
-						iBestTurns = iTurns;
-						pBestMusterPlot = pLoopCity->plot();
+						int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
+						if(iTurns < iBestTurns)
+						{
+							iBestTurns = iTurns;
+							pBestMusterPlot = pLoopCity->plot();
+						}
 					}
 				}
 
@@ -7800,7 +8261,11 @@ void CvAIOperationRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 				BuildListOfUnitsWeStillNeedToBuild();
 
 				// Try to get as many units as possible from existing units that are waiting around
+#if defined(MOD_BALANCE_CORE)
+				if(GrabUnitsFromTheReserves(GetMusterPlot(), GetMusterPlot()))
+#else
 				if(GrabUnitsFromTheReserves(GetMusterPlot(), NULL))
+#endif
 				{
 					pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 					m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;

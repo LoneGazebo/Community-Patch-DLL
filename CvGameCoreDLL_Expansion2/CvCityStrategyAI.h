@@ -188,7 +188,7 @@ public:
 #endif
 
 	// City AI methods
-	void ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
+	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	CvCityBuildable ChooseHurry();
 #endif

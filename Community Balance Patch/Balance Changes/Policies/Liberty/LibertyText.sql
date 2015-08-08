@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_CIV5_POLICY_COLLECTIVERULE_TEXT' AND EXISTS (SELECT * FROM 
 
 -- Citizenship
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Citizenship[ENDCOLOR][NEWLINE]A Worker appears near the [ICON_CAPITAL] Capital.[NEWLINE] +1 [ICON_MOVES] Movement for Workers and Settlers.'
+SET Text = '[COLOR_POSITIVE_TEXT]Citizenship[ENDCOLOR][NEWLINE]A Worker appears near the [ICON_CAPITAL] Capital.[NEWLINE] +1 [ICON_MOVES] Movement for all Civilian Units.'
 WHERE Tag = 'TXT_KEY_POLICY_CITIZENSHIP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Republic (Now Civil Engineers)

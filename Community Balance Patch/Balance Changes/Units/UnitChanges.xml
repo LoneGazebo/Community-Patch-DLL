@@ -231,4 +231,42 @@
 			<UnitType/>
 		</Row>
 	</Civilization_UnitClassOverrides>
+	<Missions>
+		<Row>
+			<Type>MISSION_FREE_LUXURY</Type>
+			<Description>TXT_KEY_MISSION_FREE_LUXURY</Description>
+			<Help>TXT_KEY_MISSION_FREE_LUXURY_HELP</Help>
+			<DisabledHelp>TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED</DisabledHelp>
+			<EntityEventType>ENTITY_EVENT_GREAT_EVENT</EntityEventType>
+			<Time>20</Time>
+			<Target>0</Target>
+			<Build>0</Build>
+			<Sound>0</Sound>
+			<HotKey/>
+			<AltDown>0</AltDown>
+			<ShiftDown>0</ShiftDown>
+			<CtrlDown>0</CtrlDown>
+			<HotKeyPriority>0</HotKeyPriority>
+			<HotKeyAlt/>
+			<AltDownAlt>0</AltDownAlt>
+			<ShiftDownAlt>0</ShiftDownAlt>
+			<CtrlDownAlt>0</CtrlDownAlt>
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt>
+			<OrderPriority>199</OrderPriority>
+			<Visible>1</Visible>
+			<IconIndex>16</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</Missions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY">
+			<Text>Voyage of Discovery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP">
+			<Text>If the unit is in owned territory, this order will expend the unit, granting you two free copies of a Luxury Resource not available on this map. These Resources will not appear on the map, but can be traded to other civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
+			<Text>Unit must be in owned territory to use this ability.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

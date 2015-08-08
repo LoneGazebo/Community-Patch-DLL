@@ -796,9 +796,8 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 }
 
 /// Pick the next build for a city (unit, building or wonder)
-void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgnoreBldg /* = NO_BUILDING */, UnitTypes eIgnoreUnit/*  = NO_UNIT */)
+void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDING */, UnitTypes eIgnoreUnit/*  = NO_UNIT */)
 {
-	RandomNumberDelegate fcn;
 	int iBldgLoop, iUnitLoop, iProjectLoop, iProcessLoop, iTempWeight;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
@@ -813,15 +812,8 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 #if defined(MOD_BALANCE_CORE)
 	iTempWeight = 0;
 #endif
-	// Use the asynchronous random number generate if "no random" is set
-	if(bUseAsyncRandom)
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-	}
-	else
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	}
+
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -1544,8 +1536,6 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 /// Pick the next build for a city (unit, building)
 CvCityBuildable CvCityStrategyAI::ChooseHurry()
 {
-	RandomNumberDelegate fcn;
-	bool bUseAsyncRandom = true;
 	int iBldgLoop, iUnitLoop, iTempWeight;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
@@ -1556,15 +1546,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	// Use the asynchronous random number generate if "no random" is set
-	if(bUseAsyncRandom)
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-	}
-	else
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	}
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();

@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
 -- Policy Changes
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patronage[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] [ICON_INFLUENCE] Influence with City-States degrades 25% slower than normal. [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence resting point with City-States. [NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Every Patronage policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +3 [ICON_INFLUENCE] Influence resting point with City-States.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence with all known City-States every time you expend a [ICON_GREAT_PEOPLE] Great Person. [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People.[NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Patronage[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] [ICON_INFLUENCE] Influence with City-States degrades 10% slower than normal. [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence resting point with City-States. [NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Every Patronage policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +2 [ICON_INFLUENCE] Influence resting point with City-States.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence with all known City-States every time you expend a [ICON_GREAT_PEOPLE] Great Person. [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People.[NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP';
 
 UPDATE Language_en_US
@@ -163,31 +163,31 @@ WHERE Type = 'BUILDING_EHRENHALLE';
 -- Pop Requirement
 
 UPDATE Buildings
-SET NumCityCostMod = '35'
+SET NumCityCostMod = '15'
 WHERE Type = 'BUILDING_PRINTING_PRESS';
 
 -- Pop Requirement
 
 UPDATE Buildings
-SET NumCityCostMod = '35'
+SET NumCityCostMod = '15'
 WHERE Type = 'BUILDING_FOREIGN_OFFICE';
 
 -- Pop Requirement
 
 UPDATE Buildings
-SET NumCityCostMod = '35'
+SET NumCityCostMod = '15'
 WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
 
 -- Pop Requirement
 
 UPDATE Buildings
-SET NumCityCostMod = '35'
+SET NumCityCostMod = '15'
 WHERE Type = 'BUILDING_FINANCE_CENTER';
 
 -- Pop Requirement
 
 UPDATE Buildings
-SET NumCityCostMod = '35'
+SET NumCityCostMod = '15'
 WHERE Type = 'BUILDING_EHRENHALLE';
 
 -- TEXT CHANGES

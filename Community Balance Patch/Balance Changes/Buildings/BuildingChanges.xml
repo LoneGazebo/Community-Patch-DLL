@@ -150,6 +150,26 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_BuildingClassLocalYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_ARMORY</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Building_BuildingClassLocalYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_THEATRE</BuildingType>

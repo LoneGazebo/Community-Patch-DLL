@@ -18,7 +18,13 @@ short* CvBarbarians::m_aiPlotBarbCampNumUnitsSpawned = NULL;
 short* CvBarbarians::m_aiPlotBarbCitySpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCityNumUnitsSpawned = NULL;
 #endif
+
 FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> CvBarbarians::m_aeValidBarbSpawnDirections;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+std::vector<CvPlot*> CvBarbarians::m_vPlotsWithCamp;
+#endif
+
 
 //	---------------------------------------------------------------------------
 bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
@@ -61,7 +67,15 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = -16;
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector<CvPlot*>::iterator it = std::find(m_vPlotsWithCamp.begin(),m_vPlotsWithCamp.end(),pPlot);
+	if (it!=m_vPlotsWithCamp.end())
+		m_vPlotsWithCamp.erase(it);
+#endif
+
 }
+
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 /// Barbarian city captured, so reset counter
@@ -70,6 +84,7 @@ void CvBarbarians::DoBarbCityCleared(CvPlot* pPlot)
 	m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()] = -16;
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 /// What turn are we now allowed to Spawn Barbarians on?
 bool CvBarbarians::CanBarbariansSpawn()
@@ -434,6 +449,10 @@ void CvBarbarians::DoCamps()
 
 	bool bAlwaysRevealedBarbCamp = false;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	 m_vPlotsWithCamp.clear();
+#endif
+
 	// Is there an appropriate Improvement to place as a Barb Camp?
 	if(eCamp != NO_IMPROVEMENT)
 	{
@@ -670,6 +689,28 @@ void CvBarbarians::DoCamps()
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	 m_vPlotsWithCamp.clear();
+
+	// Is there an appropriate Improvement to place as a Barb Camp?
+	if(eCamp != NO_IMPROVEMENT)
+	{
+		CvMap& kMap = GC.getMap();
+		// Figure out how many Nonvisible tiles we have to base # of camps to spawn on
+		for(int iI = 0; iI < kMap.numPlots(); iI++)
+		{
+			pLoopPlot = kMap.plotByIndexUnchecked(iI);
+
+			// See how many camps we already have
+			if(pLoopPlot->getImprovementType() == eCamp)
+			{
+				m_vPlotsWithCamp.push_back(pLoopPlot);
+			}
+		}
+	}
+#endif
+
 
 	if(bAlwaysRevealedBarbCamp)
 		GC.getMap().updateDeferredFog();

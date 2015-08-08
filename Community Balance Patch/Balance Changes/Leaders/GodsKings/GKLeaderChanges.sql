@@ -214,11 +214,15 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith in Cities with an adjacent unimproved Forest, or +4 [ICON_PEACE] Faith with 3+ adjacent unimproved Forest tiles. +50% tile yields from Natural Wonders.'
+SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET NaturalWonderYieldModifier = '50'
+SET UniqueBeliefsOnly = 'true'
+WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET FaithFromUnimprovedForest = 'false'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Dido -- Delete African Forest Elephant, remove mountain bonus (given to incans)

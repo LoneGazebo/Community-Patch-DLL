@@ -1387,7 +1387,7 @@ int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 			PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).isHasMet(pkPlayer->getTeam()) && (GET_PLAYER(ePlayerLoop).GetID() != pkPlayer->GetID()))
 			{
-				if(GET_PLAYER(ePlayerLoop).HasLuxuryMonopoly(eResource))
+				if(GET_PLAYER(ePlayerLoop).HasGlobalMonopoly(eResource))
 				{
 					ePlayer = ePlayerLoop;
 					break;
@@ -11056,25 +11056,28 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
-		if (iValue > 0)
+		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			CvString str;
+			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
+			if (iValue > 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				CvString str;
 			
-			if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) <= AGGRESSIVE_POSTURE_MEDIUM)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
-			}
-			else if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) >= AGGRESSIVE_POSTURE_HIGH)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
-			}
+				if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) <= AGGRESSIVE_POSTURE_MEDIUM)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+				}
+				else if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) >= AGGRESSIVE_POSTURE_HIGH)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
+				}
 
-			kOpinion.m_str = str;
+				kOpinion.m_str = str;
 
-			aOpinions.push_back(kOpinion);
+				aOpinions.push_back(kOpinion);
+			}
 		}
 #endif
 		// warmonger dispute

@@ -57,6 +57,7 @@
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_SALT" />
+		<Delete ResourceType="RESOURCE_BANANA" />
 		<Delete ResourceType="RESOURCE_TRUFFLES" />
 		<Delete ResourceType="RESOURCE_CITRUS" />
 		<Row>
@@ -90,6 +91,12 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_BANANA</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_BANANA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		
@@ -310,6 +317,12 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<TechType>TECH_STEAM_POWER</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<TechType>TECH_MACHINERY</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>

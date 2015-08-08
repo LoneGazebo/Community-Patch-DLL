@@ -130,7 +130,7 @@ public:
 	void removePlayer(PlayerTypes eID);
 	const std::vector<PlayerTypes>& getPlayers();
 	bool isMember(PlayerTypes eID) const;
-	void updateMinorCiv();
+	void updateTeamStatus();
 	void ClearWarDeclarationCache();
 #endif
 
@@ -267,11 +267,7 @@ public:
 	void ChangeNumNaturalWondersDiscovered(int iChange);
 
 	bool isHasMet(TeamTypes eIndex) const;
-#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
-	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver = false);
-#else
 	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages);
-#endif
 
 	int GetTurnsSinceMeetingTeam(TeamTypes eTeam) const;
 	int GetTurnTeamMet(TeamTypes eTeam) const;
@@ -515,7 +511,8 @@ protected:
 	//we care about iteration speed, so use a vector over a set
 	std::vector<PlayerTypes> m_members;
 	std::map<std::pair<TeamTypes,PlayerTypes>,bool> m_cacheCanDeclareWar;
-	bool m_bIsMinorCiv;
+	bool m_bIsMinorTeam;
+	bool m_bIsObserverTeam;
 #endif
 
 	int m_iNumMembers;

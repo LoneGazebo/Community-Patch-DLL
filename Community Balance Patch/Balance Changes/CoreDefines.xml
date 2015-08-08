@@ -86,7 +86,7 @@
 	<Defines>
 		<Update>
 			<Where Name="FLAVOR_RANDOMIZATION_RANGE"/>
-			<Set Value="0"/>
+			<Set Value="1"/>
 		</Update>
 		<!-- Related to Policies-->
 		<Update>
@@ -125,7 +125,7 @@
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
-			<Set Value="0.65"/>
+			<Set Value="0.67"/>
 			<!-- 0.75 -->
 		</Update>
 		<Update>
@@ -135,12 +135,12 @@
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER"/>
-			<Set Value="10"/>
+			<Set Value="8"/>
 			<!-- 15 -->
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER"/>
-			<Set Value="80"/>
+			<Set Value="60"/>
 			<!-- 110 -->
 		</Update>
 		<Update>
@@ -182,7 +182,7 @@
 -->
 		<Update>
 			<Where Name="NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER" />
-			<Set Value="80" />
+			<Set Value="100" />
 			<!-- 40 -->
 		</Update>
 		<Update>

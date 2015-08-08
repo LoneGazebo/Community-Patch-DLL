@@ -105,12 +105,12 @@
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 	<UnitPromotions_UnitCombats>
@@ -124,7 +124,7 @@
 		<Row>
 			<PolicyType>POLICY_MILITARISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_AIRPORT</BuildingClassType>
-			<Count>100</Count>
+			<Count>200</Count>
 		</Row>
 	</Policy_FreeBuilding>
 	<!-- Police State -->
@@ -223,22 +223,22 @@
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_CapitalYieldChanges>
 </GameData>

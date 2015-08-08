@@ -23,7 +23,7 @@
 	<Route_TechMovementChanges>
 		<Row>
 			<RouteType>ROUTE_ROAD</RouteType>
-			<TechType>TECH_IRON_WORKING</TechType>
+			<TechType>TECH_CONSTRUCTION</TechType>
 			<MovementChange>-10</MovementChange>
 		</Row>
 		<Row>

@@ -26,7 +26,7 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '5';
+	SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '2';
 
 -- REALLY IMPORTANT VALUE
 -- % Increase of luxury pop needed as you research technologies. Set upper/lower limits on the % increase here.

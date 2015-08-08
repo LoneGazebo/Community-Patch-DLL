@@ -245,9 +245,28 @@ void CvCityCitizens::DoTurn()
 #if defined(MOD_BALANCE_CORE)
 	const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
 	CvUnitEntry* pkUnitInfo = NULL;
+	CvBuildingClassInfo* pkBuildingClassInfo = NULL;
+	bool bWonder = false;
 	if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
 	{
 		pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
+	}
+	else if (pOrderNode != NULL && pOrderNode->eOrderType == ORDER_CONSTRUCT)
+	{
+		CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
+
+		if(pkOrderBuildingInfo)
+		{
+			const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
+			if(eOrderBuildingClass != NO_BUILDINGCLASS)
+			{
+				pkBuildingClassInfo = GC.getBuildingClassInfo(eOrderBuildingClass);
+				if(pkBuildingClassInfo && pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+				{
+					bWonder = true;
+				}
+			}
+		}
 	}
 	if(m_pCity->IsPuppet())
 	{
@@ -268,16 +287,11 @@ void CvCityCitizens::DoTurn()
 		}
 #endif
 	}
-	else if(m_pCity->IsRazing() || m_pCity->IsResistance())
-	{
-		SetNoAutoAssignSpecialists(true);
-		SetForcedAvoidGrowth(true);
-	}
 	else if(!thisPlayer.isHuman())
 	{
 		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
 
-		if(m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType)
+		if((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) || bWonder)
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 			SetNoAutoAssignSpecialists(false);
@@ -289,7 +303,7 @@ void CvCityCitizens::DoTurn()
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
 		}
-		else if(m_pCity->getPopulation() <= 10 && !m_pCity->isCapital())  // we want a balanced growth
+		else if(m_pCity->getPopulation() < 8 && !m_pCity->isCapital())  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(true);
@@ -657,9 +671,17 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 		iFoodYieldValue *= 4;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
+#if defined(MOD_BALANCE_CORE)
+		iProductionYieldValue *= 6;
+#else
 		iProductionYieldValue *= 3;
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
+#if defined(MOD_BALANCE_CORE)
+		iGoldYieldValue *= 5;
+#else
 		iGoldYieldValue *= 3;
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 		iScienceYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
@@ -906,7 +928,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 	int iSurplusFood = iFoodPerTurn - iFoodEatenPerTurn;
 
 	CityAIFocusTypes eFocusType = GetFocusType();
-
 	// Don't want specialists until we've met our food needs
 	if(iSurplusFood < 0)
 	{
@@ -1327,9 +1348,17 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 		iFoodYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
+#if defined(MOD_BALANCE_CORE)
+		iProductionYieldValue *= 5;
+#else
 		iProductionYieldValue *= 3;
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
+#if defined(MOD_BALANCE_CORE)
+		iGoldYieldValue *= 4;
+#else
 		iGoldYieldValue *= 3;
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 		iScienceYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
@@ -1835,7 +1864,11 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 #endif
 	}
 	// Have to resort to pulling away a good Specialist
+#if defined(MOD_BALANCE_CORE)
+	else if(bRemoveForcedStatus)
+#else
 	else
+#endif
 	{
 		if(DoRemoveWorstSpecialist(eDontChangeSpecialist))
 		{
@@ -2730,6 +2763,13 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
+
+#if defined(MOD_BALANCE_CORE)
+	if(m_pCity->IsResistance() || m_pCity->IsRazing())
+	{
+		return false;
+	}
+#endif
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 

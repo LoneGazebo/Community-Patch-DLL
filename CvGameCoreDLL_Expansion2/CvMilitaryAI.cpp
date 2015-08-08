@@ -1423,7 +1423,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				{
 					CvPlot* pPlot = pFriendlyCity->plot();
 					//If there aren't at least 12 non-occupied plots around this city, abort.
-					if(pPlot != NULL && !m_pPlayer->GetTacticalAI()->ScoreDeploymentPlotsHelper(pPlot, 12, 3))
+					if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 12, 3))
 					{
 						continue;
 					}
@@ -1464,7 +1464,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				{
 					CvPlot* pPlot = pEnemyCity->plot();
 					//If there aren't at least 12 non-occupied plots around this city, abort.
-					if(pPlot != NULL && !m_pPlayer->GetTacticalAI()->ScoreDeploymentPlotsHelper(pPlot, 12, 3))
+					if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 12, 3))
 					{
 						continue;
 					}

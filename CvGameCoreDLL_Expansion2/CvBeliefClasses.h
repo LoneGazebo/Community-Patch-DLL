@@ -109,6 +109,9 @@ public:
 	int GetExtraVotes() const;
 	int GetMaxYieldPerFollower(int i) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	CivilizationTypes GetRequiredCivilization() const;
+#endif
 
 	EraTypes GetObsoleteEra() const;
 	ResourceTypes GetResourceRevealed() const;
@@ -304,6 +307,9 @@ protected:
 	int m_iMissionaryInfluenceCS;
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CivilizationTypes m_eRequiredCivilization;
 #endif
 
 private:
@@ -618,7 +624,9 @@ private:
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	CivilizationTypes m_eRequiredCivilization;
+#endif
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
 	TechTypes m_eSpreadModifierDoublingTech;

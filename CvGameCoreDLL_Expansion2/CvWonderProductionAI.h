@@ -45,8 +45,8 @@ public:
 	int GetWeight(BuildingTypes eBuilding);
 
 	// Recommend highest-weighted wonder
-	BuildingTypes ChooseWonder(bool bUseAsyncRandom, bool bAdjustForOtherPlayers, int& iWonderWeight);
-	BuildingTypes ChooseWonderForGreatEngineer(bool bUseAsyncRandom, int& iWonderWeight, CvCity*& pCityToBuildAt);
+	BuildingTypes ChooseWonder(bool bAdjustForOtherPlayers, int& iWonderWeight);
+	BuildingTypes ChooseWonderForGreatEngineer(int& iWonderWeight, CvCity*& pCityToBuildAt);
 
 	// Logging
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);

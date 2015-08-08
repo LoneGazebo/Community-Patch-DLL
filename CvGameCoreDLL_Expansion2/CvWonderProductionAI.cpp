@@ -197,25 +197,16 @@ int CvWonderProductionAI::GetWeight(BuildingTypes eBldg)
 }
 
 /// Recommend highest-weighted wonder, also return total weight of all buildable wonders
-BuildingTypes CvWonderProductionAI::ChooseWonder(bool bUseAsyncRandom, bool bAdjustForOtherPlayers, int& iWonderWeight)
+BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, int& iWonderWeight)
 {
 	int iBldgLoop;
 	int iWeight;
 	int iTurnsRequired;
 	int iEstimatedProductionPerTurn;
 	int iCityLoop;
-	RandomNumberDelegate fcn;
 	BuildingTypes eSelection;
 
-	// Use the asynchronous random number generate if "no random" is set
-	if(bUseAsyncRandom)
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-	}
-	else
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	}
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();
@@ -353,26 +344,17 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bUseAsyncRandom, bool bAdj
 
 
 /// Recommend highest-weighted wonder and what city to build it at
-BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(bool bUseAsyncRandom, int& iWonderWeight, CvCity*& pCityToBuildAt)
+BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWeight, CvCity*& pCityToBuildAt)
 {
 	int iBldgLoop;
 	int iWeight;
 	int iCityLoop;
-	RandomNumberDelegate fcn;
 	BuildingTypes eSelection;
 
 	pCityToBuildAt = 0;
 	iWonderWeight = 0;
 
-	// Use the asynchronous random number generate if "no random" is set
-	if (bUseAsyncRandom)
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-	}
-	else
-	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	}
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();

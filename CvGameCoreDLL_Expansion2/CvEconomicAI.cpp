@@ -2401,6 +2401,25 @@ void CvEconomicAI::DoReconState()
 		{
 			m_eReconState = RECON_STATE_ENOUGH;
 			m_eNavalReconState = RECON_STATE_ENOUGH;
+#if defined(MOD_BALANCE_CORE)
+			// Return all/most scouts to normal unit AI since have enough recon
+			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+			{
+				if(pLoopUnit != NULL)
+				{
+					if((pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE) || (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA))
+					{
+						pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Assigning explorers back to attack AI because of WAR. %s, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+					}
+				}
+			}
+#endif
 			return;
 		}
 	}
@@ -2425,7 +2444,7 @@ void CvEconomicAI::DoReconState()
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality
-	int iPlotsPerExplorer = 25 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = 50 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	//there is a slight hysteresis here to avoid unit AI flipping back and forth
@@ -2818,7 +2837,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	}
 
 	//Don't disband during the early game.
-	if(iNumCities <= 4)
+	if(iNumCities <= 4 && (GC.getGame().getGameTurn() <= 150))
 	{
 		return;
 	}
@@ -2884,7 +2903,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		}
 	}
 	//Don't disband during the early game.
-	if(m_pPlayer->GetNumCitiesFounded() < 4)
+	if(m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 150))
 	{
 		return;
 	}
@@ -3197,6 +3216,8 @@ void CvEconomicAI::UpdatePlots()
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && pLog)
 		pLog->Close();
 #endif
+
+
 
 	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
 	std::sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
@@ -4477,13 +4498,13 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	CvUnit* pFirstSettler = 0;
 #if !defined(MOD_BALANCE_CORE_SETTLER)
 	int iLooseSettler = 0;
-#endif
 	//int iStrategyWeight = 0;
 	int iFirstSettlerArea = -1;
+	int iArea = -1;
+#endif
 	int iBestArea;
 	int iSecondBestArea;
 	int iNumAreas;
-	int iArea = -1;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
@@ -4515,17 +4536,22 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 					{
 #if defined(MOD_BALANCE_CORE)
-						iFirstSettlerArea = pLoopUnit->getArea();
+						int iInitialSettlerArea = pLoopUnit->getArea();
 						pFirstSettler = pLoopUnit;
 						bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-						iArea = iBestArea;
-						if(iArea == -1)
+						
+						int iFirstAreaToCheck = iBestArea;
+						int iSecondAreaToCheck = iSecondBestArea;
+
+						if(iFirstAreaToCheck == -1)
 						{
-							iArea = iSecondBestArea;
+							iFirstAreaToCheck = iSecondBestArea;
+							iSecondAreaToCheck = iInitialSettlerArea;
 						}
-						if(iArea == -1)
+						if(iFirstAreaToCheck == -1)
 						{
-							iArea  = iFirstSettlerArea;
+							iFirstAreaToCheck  = iInitialSettlerArea;
+							iSecondAreaToCheck = -1;
 						}
 						CvArea* pCapitalArea = NULL;
 						if(pPlayer->getCapitalCity() != NULL)
@@ -4534,22 +4560,41 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 						}
 						else
 						{
-							pCapitalArea = GC.getMap().getArea(iFirstSettlerArea);
+							pCapitalArea = GC.getMap().getArea(iInitialSettlerArea);
 						}
 						
 						// CASE 1: we can go offshore
 						if (bCanEmbark)
 						{				
 							//Going overseas? Good luck!
-							if(iArea != -1 && pCapitalArea != NULL && pCapitalArea->GetID() != iArea)
+							if(iFirstAreaToCheck != -1 && pCapitalArea != NULL && pCapitalArea->GetID() != iFirstAreaToCheck)
 							{
-								bool bWantEscort = false;
-								if(!IsAreaSafeForQuickColony(iArea, pPlayer))
+								int iFinalArea = iFirstAreaToCheck;
+
+								bool bWantEscort = !IsAreaSafeForQuickColony(iFirstAreaToCheck, pPlayer);
+								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iFirstAreaToCheck);
+
+								if(bBestSettle == NULL)
 								{
-									bWantEscort = true;
+									//second chance
+									bWantEscort = !IsAreaSafeForQuickColony(iSecondAreaToCheck, pPlayer);
+									bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iSecondAreaToCheck);
+									iFinalArea = iSecondAreaToCheck;
+
+									if(bBestSettle == NULL)
+									{
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("We have settlers, but no good areas to settle!");
+											pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+										}
+										return false;
+									}
 								}
+
 								bool bIsOccupied = false;
-								CvArea* pArea = GC.getMap().getArea(iBestArea);
+								CvArea* pArea = (iFinalArea!=-1) ? GC.getMap().getArea(iFinalArea) : NULL;
 								if(pArea != NULL)
 								{
 									if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
@@ -4557,45 +4602,35 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 										bIsOccupied = true;
 									}
 								}
-								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iArea);
-								if(bBestSettle == NULL)
-								{
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("We have settlers, but no good areas to settle!");
-										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-									return false;
-								}
+
 								if(!bIsOccupied)
 								{
 									if (!bWantEscort)
 									{
-										pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
+										pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
 										return true;
 									}
 									else
 									{
-										pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iArea);
+										pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iFinalArea);
 										return true;
 									}
 								}
 								else
 								{
-									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
 									return true;
 								}
 							}
 							else
 							{
-								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFirstAreaToCheck);
 								return true;
 							}
 						}
 						else // we can't embark yet
 						{
-							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, false, iArea);
+							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, false, iInitialSettlerArea);
 							if(bBestSettle == NULL)
 							{
 								if(GC.getLogging() && GC.getAILogging())
@@ -4606,7 +4641,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 								}
 								return false;
 							}
-							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
 							return true;
 						}
 					}

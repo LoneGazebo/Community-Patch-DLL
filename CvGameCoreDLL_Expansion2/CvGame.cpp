@@ -534,7 +534,6 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 	// Update some cached values
 	GC.getMap().updateAdjacency();
 
-#ifndef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	// Set all the observer teams to be able to see all the plots
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -546,15 +545,9 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			if (eTeam != NO_TEAM)
 			{
 				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
-#endif
 				for (int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
 				{
 					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
-
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-					pLoopPlot->setRevealed(OBSERVER_TEAM, true, false);
-					pLoopPlot->changeVisibilityCount(OBSERVER_TEAM, pLoopPlot->getVisibilityCount(OBSERVER_TEAM) + 1, NO_INVISIBLE, true, true);
-#else
 					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
 
 					for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
@@ -563,20 +556,10 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 					}
 
 					pLoopPlot->setRevealed(eTeam, true, false);
-#endif
 				}
-
-#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
-				for (int iJ = 0; iJ < MAX_TEAMS; iJ++)
-				{
-					GET_TEAM(OBSERVER_TEAM).makeHasMet(static_cast<TeamTypes>(iJ), true, true);
-				}
-#endif
-#ifndef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 			}
 		}
 	}
-#endif
 
 	return true;
 }
@@ -693,10 +676,14 @@ void CvGame::InitPlayers()
 			{
 				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
 			}
+#if defined(MOD_BALANCE_CORE)
+			//don't use a special observer team
+#else
 			else if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
 			{//make all observers be on the observer team.
 				CvPreGame::setTeamType((PlayerTypes)iI, OBSERVER_TEAM);
 			}
+#endif
 		}
 		// Minor civs
 		else if(iI < MAX_CIV_PLAYERS)

@@ -129,6 +129,32 @@ private:
 	CvPlot* m_pTarget;
 };
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
+class CHomelandUnitArray
+{
+public:
+	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
+	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
+	std::vector<CvHomelandUnit>::size_type size() const { return m_vec.size(); }
+	bool empty() { return m_vec.empty(); }
+	std::vector<CvHomelandUnit>::reference operator[](std::vector<CvHomelandUnit>::size_type _Pos) { return m_vec[_Pos]; }
+	std::vector<CvHomelandUnit>::iterator erase(std::vector<CvHomelandUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
+	void push_back(const CvHomelandUnit& unit);
+	void clear() { m_vec.clear(); }
+	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
+	void setCurrentHomelandMove(AIHomelandMove move) { m_currentHomelandMove=move; }
+
+	typedef std::vector<CvHomelandUnit>::iterator iterator; 
+
+private:
+	std::vector<CvHomelandUnit> m_vec;
+	CvPlayer* m_owner;
+	AIHomelandMove m_currentHomelandMove;
+};
+
+#endif
+
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvHomelandTarget
@@ -264,7 +290,11 @@ public:
 
 private:
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	typedef CHomelandUnitArray MoveUnitsArray;
+#else
 	typedef FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL > MoveUnitsArray;
+#endif
 
 	// Internal turn update routines - commandeered unit processing
 	void EstablishHomelandPriorities();
@@ -416,6 +446,10 @@ private:
 	int m_iUpgradeMoveTurns;
 	double m_fFlavorDampening;
 };
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+extern const char* homelandMoveNames[];
+#endif
 
 namespace HomelandAIHelpers
 {
