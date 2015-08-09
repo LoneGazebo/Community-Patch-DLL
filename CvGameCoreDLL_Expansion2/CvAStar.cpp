@@ -117,6 +117,11 @@ CvAStar::CvAStar()
 
 	m_bIsMPCacheSafe = false;
 	m_bDataChangeInvalidatesCache = false;
+
+#if defined(MOD_BALANCE_CORE)
+	//for debugging
+	m_strName = "AStar";
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -328,6 +333,28 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 			udUninitializeFunc(m_pData, this);
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//debugging!
+	if (GC.getGame().getGameTurn()>100)
+	{
+		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
+		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			pLog->Msg( CvString::format("%s from %d,%d to %d,%d\n", GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest ).c_str() );
+
+			CvAStarNode* pCurrent = m_pBest;
+			while (pCurrent!=NULL)
+			{
+				pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
+				pCurrent = pCurrent->m_pParent;
+			}
+
+			//pLog->Close();
+		}
+	}
+#endif
 
 	if (udUninitializeFunc)
 		udUninitializeFunc(m_pData, this);
@@ -3065,6 +3092,11 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 {
 	CvAStar::CvAStar();
 	m_ppaaPartialMoveNodes = NULL;
+
+#if defined(MOD_BALANCE_CORE)
+	//for debugging
+	m_strName = "TwoLayerAStar";
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -2537,6 +2537,22 @@ void CvGlobals::init()
 	SetInternationalTradeRouteLandFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetInternationalTradeRouteWaterFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetTacticalAnalysisMapFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
+
+#if defined(MOD_BALANCE_CORE)
+	getPathFinder().SetName("generic pf");
+	getInterfacePathFinder().SetName("iface pf");
+	getIgnoreUnitsPathFinder().SetName("ignore units pf");
+	getStepFinder().SetName("stepfinder");
+	getRouteFinder().SetName("routefinder");
+	GetWaterRouteFinder().SetName("water routefinder");
+	getAreaFinder().SetName("area finder");
+	getInfluenceFinder().SetName("influence finder");
+	GetBuildRouteFinder().SetName("build route finder");
+	GetInternationalTradeRouteLandFinder().SetName("tr land finder");
+	GetInternationalTradeRouteWaterFinder().SetName("tr water finder");
+	GetTacticalAnalysisMapFinder().SetName("tactmap finder");
+#endif
+
 }
 
 //

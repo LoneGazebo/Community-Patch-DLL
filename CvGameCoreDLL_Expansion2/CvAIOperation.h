@@ -558,7 +558,9 @@ public:
 	bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 #if defined(MOD_BALANCE_CORE)
 	virtual bool IsEscorted();
+	virtual void SetEscorted(bool bValue);
 #endif
+
 protected:
 	bool m_bEscorted;
 	UnitAITypes m_eCivilianType;

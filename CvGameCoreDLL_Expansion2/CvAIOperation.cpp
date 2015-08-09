@@ -688,7 +688,7 @@ bool CvAIOperation::CheckOnTarget()
 					ArmyInPosition(pThisArmy);
 					return true;
 				}
-				else if(m_eCurrentState == AI_OPERATION_STATE_GATHERING_FORCES)
+				else if(m_eCurrentState == AI_OPERATION_STATE_GATHERING_FORCES || m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
 				{
 					if(pThisArmy->GetNumSlotsFilled() == 1)
 					{
@@ -700,14 +700,19 @@ bool CvAIOperation::CheckOnTarget()
 #ifdef MOD_BALANCE_CORE_SETTLER
 						pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
 						if (pEscort && pCivilianPlot == pEscort->plot())
+						{
+							m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+							pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+							return true;
+						}
 #else
 						pEscortPlot = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID())->plot();
 						if(pCivilianPlot == pEscortPlot)
-#endif
 						{
 							ArmyInPosition(pThisArmy);
 							return true;
 						}
+#endif
 					}
 				}
 			}
@@ -4558,10 +4563,6 @@ void CvAIEscortedOperation::Write(FDataStream& kStream) const
 /// Always abort if settler is removed
 void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GetOperationType() == AI_OPERATION_COLONIZE || GetOperationType() == AI_OPERATION_QUICK_COLONIZE || GetOperationType() == AI_OPERATION_FOUND_CITY)
-	{
-#endif
 	if(iSlotID == 0)
 	{
 		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
@@ -4571,9 +4572,6 @@ void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 	{
 		m_bEscorted = false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 }
 
 /// Find the civilian we want to use
@@ -5029,6 +5027,15 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				}
 			}
 		}
+		break;
+
+		// In all other cases use base class version
+	case AI_OPERATION_STATE_RECRUITING_UNITS:
+	case AI_OPERATION_STATE_ABORTED:
+		return CvAIOperation::ArmyInPosition(pArmy);
+		break;
+	};
+
 #else
 			if((GetTargetPlot()->getOwner() != NO_PLAYER && GetTargetPlot()->getOwner() != m_eOwner) || GetTargetPlot()->IsAdjacentOwnedByOtherTeam(pSettler->getTeam()))
 			{
@@ -5085,7 +5092,6 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				}
 			}
 		}
-#endif
 		break;
 
 		// In all other cases use base class version
@@ -5094,20 +5100,23 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 		return CvAIOperation::ArmyInPosition(pArmy);
 		break;
 	};
+#endif
 
 	return bStateChanged;
 }
 
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
+void CvAIEscortedOperation::SetEscorted(bool bValue)
+{
+	m_bEscorted = bValue;
+}
+
 bool CvAIEscortedOperation::IsEscorted()
 {
-	if(!m_bEscorted)
-	{
-		return false;
-	}
-	return true;
+	return m_bEscorted;
 }
+
 CvPlot* CvAIOperationFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	//todo: better options

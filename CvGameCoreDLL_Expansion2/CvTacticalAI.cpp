@@ -4582,6 +4582,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 	{
 		return;
 	}
+
 	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
 	iUnitID = pThisArmy->GetFirstUnitID();
 	if(iUnitID != -1)
@@ -4596,6 +4597,10 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 
 	//may be null!
 	pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
+
+	//consistency check
+	if (pEscort)
+		pOperation->SetEscorted(true);
 
 	// ESCORT AND CIVILIAN MEETING UP
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
@@ -4977,8 +4982,8 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		// Check to make sure escort can get to civilian
 		if(pEscort->GeneratePath(pCivilian->plot()))
 		{
-		// He can, so have civilian remain in place
-		ExecuteMoveToPlot(pCivilian, pCivilian->plot());
+			// He can, so have civilian remain in place
+			ExecuteMoveToPlot(pCivilian, pCivilian->plot());
 		
 			if(pThisArmy->GetNumSlotsFilled() > 1)
 			{
@@ -4998,7 +5003,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			}
 		}
 		// Find a new place to meet up, look at all hexes adjacent to civilian
-		if(bNeedNewPlot)
+		else
 		{
 			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
@@ -8410,7 +8415,11 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 					if (MOD_AI_SMART_RANGED_UNITS)
 					{
 						// Are we a ranged unit
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(pUnit->IsCanAttackRanged() && m_CurrentMoveUnits[iI].GetExpectedTargetDamage()>0)
+#else
 						if(pUnit->IsCanAttackRanged())
+#endif
 						{
 							bool bQueueTryRangedAttack = false;
 
@@ -9318,6 +9327,23 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 				if(pUnit->getDomainType() == DOMAIN_LAND)
 				{
 					AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Land Move, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
+
+#if defined(MOD_BALANCE_CORE)
+					CvPlot* pPlot = pUnit->plot();
+					if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+						pUnit->finishMoves();
+						UnitProcessed(pUnit->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Pinning %s to camp/city at X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+							LogTacticalMessage(strLogString);
+						}
+						continue;
+					}
+#endif
 
 #if defined(AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY)
 					if(bAggressive && pUnit->IsCanDefend())
@@ -12714,40 +12740,6 @@ bool CvTacticalAI::IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPl
 bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand)
 {
 	CvPlot* pLoopPlot;
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit->isBarbarian() && (pUnit->plot() != NULL) && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-	{
-		if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
-		{
-			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-		}
-		pUnit->finishMoves();
-		UnitProcessed(pUnit->GetID());
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("%s wanted to move to empty space, but was asked to stay in camp. Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-			LogTacticalMessage(strLogString);
-		}
-		return false;
-	}
-	else if(pUnit->isBarbarian() && (pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
-	{
-		if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
-		{
-			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-		}
-		pUnit->finishMoves();
-		UnitProcessed(pUnit->GetID());
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("%s wanted to move to empty space, but was asked to stay in conquered city. Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-			LogTacticalMessage(strLogString);
-		}
-		return false;
-	}	
-#endif
 
 	// Look at spaces adjacent to target
 #if defined(MOD_BALANCE_CORE)

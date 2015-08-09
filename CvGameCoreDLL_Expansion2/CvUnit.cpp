@@ -7182,10 +7182,11 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 {
 	VALIDATE_OBJECT
 
-	//if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
-	//{
-	//	OutputDebugString("Warning: Unit with current tactical move used for homeland AI\n");
-	//}
+	if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
+	{
+		OutputDebugString( CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+								GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] ).c_str() );
+	}
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = NO_TACTICAL_MOVE;
