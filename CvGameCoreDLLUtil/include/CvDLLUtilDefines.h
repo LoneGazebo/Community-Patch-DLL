@@ -21,7 +21,12 @@
 #define REALLY_MAX_PLAYERS (80)
 #define REALLY_MAX_TEAMS (80)
 
+#ifdef MOD_BARB_ENHANCED									// Paz - Add Animal player & team
+#define MAX_CIV_PLAYERS										(63 - MOD_NUM_NEW_BARBS)
+#else
 #define MAX_CIV_PLAYERS										(63)
+#endif
+
 #define MAX_CIV_TEAMS										(MAX_CIV_PLAYERS)
 
 #if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
@@ -32,10 +37,46 @@
 #endif
 #define MAX_MINOR_CIVS										(MAX_CIV_PLAYERS - MAX_MAJOR_CIVS)
 
+#ifdef MOD_BARB_ENHANCED
+#define MAX_PLAYERS											(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS + 1)
+#else
 #define MAX_PLAYERS											(MAX_CIV_PLAYERS + 1)
+#endif
+
 #define MAX_TEAMS											(MAX_PLAYERS)
+
+#ifdef MOD_BARB_ENHANCED
+#define BARBARIAN_PLAYER									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS))
+#define BARBARIAN_TEAM										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS))
+#define ANIMAL_PLAYER										((PlayerTypes)MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 1)
+#define ANIMAL_TEAM											((TeamTypes)MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 1)
+#define BARBARIAN_PLAYER2									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 2))
+#define BARBARIAN_TEAM2										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 2))
+#define BARBARIAN_PLAYER3									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 3))
+#define BARBARIAN_TEAM3										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 3))
+#define BARBARIAN_PLAYER4									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 4))
+#define BARBARIAN_TEAM4										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 4))
+#define BARBARIAN_PLAYER5									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 5))
+#define BARBARIAN_TEAM5										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 5))
+#define BARBARIAN_PLAYER6									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 6))
+#define BARBARIAN_TEAM6										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 6))
+#define BARBARIAN_PLAYER7									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 7))
+#define BARBARIAN_TEAM7										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 7))
+#define BARBARIAN_PLAYER8									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 8))
+#define BARBARIAN_TEAM8										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 8))
+#define BARBARIAN_PLAYER9									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 9))
+#define BARBARIAN_TEAM9										((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 9))
+#define BARBARIAN_PLAYER10									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 10))
+#define BARBARIAN_TEAM10									((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 10))
+#define BARBARIAN_PLAYER11									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 11))
+#define BARBARIAN_TEAM11									((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 11))
+#define BARBARIAN_PLAYER12									((PlayerTypes)(MAX_CIV_PLAYERS + MOD_NUM_NEW_BARBS - 12))
+#define BARBARIAN_TEAM12									((TeamTypes)(MAX_CIV_TEAMS + MOD_NUM_NEW_BARBS - 12))
+#else
 #define BARBARIAN_PLAYER									((PlayerTypes)MAX_CIV_PLAYERS)
 #define BARBARIAN_TEAM										((TeamTypes)MAX_CIV_TEAMS)
+#endif
+
 #define OBSERVER_TEAM											((TeamTypes)(MAX_MAJOR_CIVS-1))		//This only works because observer mode is multiplayer/debug only																																		//and multiplayer only supports 12 max players 																																	//(due to map player restrictions)
 
 #define MAX_DAMAGE_MEMBER_COUNT								32

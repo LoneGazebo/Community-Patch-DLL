@@ -3686,7 +3686,11 @@ bool CvPlot::isOwned() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBarbarian() const
 {
+#ifdef MOD_BARB_ENHANCED
+	return (getOwner() == BARBARIAN_PLAYER || getOwner() == ANIMAL_PLAYER || getOwner() == BARBARIAN_PLAYER2 || getOwner() == BARBARIAN_PLAYER3 || getOwner() == BARBARIAN_PLAYER4 || getOwner() == BARBARIAN_PLAYER5 || getOwner() == BARBARIAN_PLAYER6 || getOwner() == BARBARIAN_PLAYER7 || getOwner() == BARBARIAN_PLAYER8 || getOwner() == BARBARIAN_PLAYER9 || getOwner() == BARBARIAN_PLAYER10 || getOwner() == BARBARIAN_PLAYER11 || getOwner() == BARBARIAN_PLAYER12);
+#else
 	return (getOwner() == BARBARIAN_PLAYER);
+#endif
 }
 
 

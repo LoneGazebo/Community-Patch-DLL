@@ -2700,7 +2700,11 @@ bool CvTeam::isObserver() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
 {
+#ifdef MOD_BARB_ENHANCED
+	return (m_eID == BARBARIAN_TEAM || m_eID == ANIMAL_TEAM || m_eID == BARBARIAN_TEAM2 || m_eID == BARBARIAN_TEAM3 || m_eID == BARBARIAN_TEAM4 || m_eID == BARBARIAN_TEAM5 || m_eID == BARBARIAN_TEAM6 || m_eID == BARBARIAN_TEAM7 || m_eID == BARBARIAN_TEAM8 || m_eID == BARBARIAN_TEAM9 || m_eID == BARBARIAN_TEAM10 || m_eID == BARBARIAN_TEAM11 || m_eID == BARBARIAN_TEAM12);
+#else
 	return (m_eID == BARBARIAN_TEAM);
+#endif
 }
 
 //	--------------------------------------------------------------------------------

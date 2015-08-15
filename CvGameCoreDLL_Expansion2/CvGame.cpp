@@ -599,6 +599,20 @@ void CvGame::InitPlayers()
 	}
 
 	CivilizationTypes eBarbCiv = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION();
+#ifdef MOD_BARB_ENHANCED
+	CivilizationTypes eAnimalCiv = (CivilizationTypes)GC.getANIMAL_CIVILIZATION();
+	CivilizationTypes eBarbCiv2 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION2();
+	CivilizationTypes eBarbCiv3 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION3();
+	CivilizationTypes eBarbCiv4 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION4();
+	CivilizationTypes eBarbCiv5 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION5();
+	CivilizationTypes eBarbCiv6 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION6();
+	CivilizationTypes eBarbCiv7 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION7();
+	CivilizationTypes eBarbCiv8 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION8();
+	CivilizationTypes eBarbCiv9 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION9();
+	CivilizationTypes eBarbCiv10 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION10();
+	CivilizationTypes eBarbCiv11 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION11();
+	CivilizationTypes eBarbCiv12 = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION12();
+#endif
 	CivilizationTypes eMinorCiv = (CivilizationTypes)GC.getMINOR_CIVILIZATION();
 
 	CvCivilizationInfo* pBarbarianCivilizationInfo = GC.getCivilizationInfo(eBarbCiv);
@@ -611,7 +625,11 @@ void CvGame::InitPlayers()
 		{
 			for(iJ = 0; iJ < iI; iJ++)
 			{
-				if(aePlayerColors[iI] == aePlayerColors[iJ])
+#ifdef MOD_ALLOW_REDUNDANT_BARB_PLAYER_COLOR		// Paz - Allow multiple players to use barb color (still needed with MOD_ANIMAL_PLAYER?)
+				if (aePlayerColors[iI] == aePlayerColors[iJ] && aePlayerColors[iI] != barbarianPlayerColor)
+#else
+				if (aePlayerColors[iI] == aePlayerColors[iJ])
+#endif
 				{
 					for(iK = 0; iK < iNumPlayerColorInfos; iK++)
 					{
@@ -667,6 +685,108 @@ void CvGame::InitPlayers()
 			CvPreGame::setPlayerColor(BARBARIAN_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
 			CvPreGame::setMinorCiv(BARBARIAN_PLAYER, false);
 		}
+		// Paz - init Animal slot
+#ifdef MOD_BARB_ENHANCED
+		else if (iI == ANIMAL_PLAYER)
+		{
+			CvPreGame::setTeamType(ANIMAL_PLAYER, ANIMAL_TEAM);
+			CvPreGame::setSlotStatus(ANIMAL_PLAYER, SS_COMPUTER);
+			CvPreGame::setNetID(ANIMAL_PLAYER, -1);
+			CvPreGame::setHandicap(ANIMAL_PLAYER, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(ANIMAL_PLAYER, eAnimalCiv);
+			CvPreGame::setLeaderHead(ANIMAL_PLAYER, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(ANIMAL_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(ANIMAL_PLAYER, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER2, BARBARIAN_TEAM2);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER2, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER2, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER2, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER2, eBarbCiv2);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER2, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER2, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER2, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER3, BARBARIAN_TEAM3);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER3, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER3, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER3, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER3, eBarbCiv3);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER3, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER3, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER3, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER4, BARBARIAN_TEAM4);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER4, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER4, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER4, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER4, eBarbCiv4);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER4, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER4, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER4, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER5, BARBARIAN_TEAM5);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER5, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER5, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER5, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER5, eBarbCiv5);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER5, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER5, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER5, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER6, BARBARIAN_TEAM6);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER6, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER6, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER6, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER2, eBarbCiv6);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER6, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER6, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER6, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER7, BARBARIAN_TEAM7);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER7, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER7, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER7, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER7, eBarbCiv7);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER7, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER7, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER7, false);
+		}
+		else if (iI == BARBARIAN_PLAYER2)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER8, BARBARIAN_TEAM8);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER8, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER8, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER8, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER8, eBarbCiv8);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER8, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER8, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER8, false);
+		}
+		else if (iI == BARBARIAN_PLAYER9)
+		{
+			CvPreGame::setTeamType(BARBARIAN_PLAYER9, BARBARIAN_TEAM9);
+			CvPreGame::setSlotStatus(BARBARIAN_PLAYER9, SS_COMPUTER);
+			CvPreGame::setNetID(BARBARIAN_PLAYER9, -1);
+			CvPreGame::setHandicap(BARBARIAN_PLAYER9, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(BARBARIAN_PLAYER9, eBarbCiv9);
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER9, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER9, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(BARBARIAN_PLAYER9, false);
+		}
+#endif
 		// Major Civs
 		else if(iI < MAX_MAJOR_CIVS)
 		{
@@ -10376,6 +10496,9 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 {
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
 	CvCivilizationInfo* pkBarbarianCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GC.getBARBARIAN_CIVILIZATION()));
+#ifdef MOD_BARB_ENHANCED
+	//	CvCivilizationInfo* pkAnimalCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GC.getANIMAL_CIVILIZATION()));
+#endif
 
 	if(pkCivilizationInfo == NULL || pkBarbarianCivInfo == NULL)
 	{

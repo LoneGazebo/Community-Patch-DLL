@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DEFECTS><DEFECT><SFA><FILEPATH>c:\users\nutty\documents\github\civ5-barbenhanced-dll\cvgamecoredll\</FILEPATH><FILENAME>cvmap.cpp</FILENAME><LINE>455</LINE><COLUMN>13</COLUMN></SFA><DEFECTCODE>6031</DEFECTCODE><DESCRIPTION>Return value ignored: 'CoCreateGuid'.</DESCRIPTION><FUNCTION>CvMap::reset</FUNCTION><DECORATED>?reset@CvMap@@QAEXPAUCvMapInitData@@@Z</DECORATED><FUNCLINE>410</FUNCLINE><PATH/></DEFECT></DEFECTS>
