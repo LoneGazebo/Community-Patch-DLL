@@ -496,6 +496,15 @@ void CvTacticalAI::CommandeerUnits()
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(*it);
+		CvString msg = CvString::format("current turn tactical unit %s %d at %d,%d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY() );
+		LogTacticalMessage( msg );
+	}
+#endif
 }
 
 /// Set up for a turn of tactical moves
@@ -5251,7 +5260,6 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
-	m_ParatroopersToMove.clear();
 	pThisArmy->UpdateCheckpointTurns();
 
 	// RECRUITING
@@ -5385,7 +5393,7 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 				}
 			}
 		}
-			ExecuteGatherMoves(pThisArmy);
+		ExecuteGatherMoves(pThisArmy);
 	}
 
 	// MOVING TO TARGET
@@ -5445,11 +5453,6 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 			}
 		}
 		ExecuteFormationMoves(pThisArmy, pClosestCurrentCOMonPath);
-	}
-
-	if(m_ParatroopersToMove.size() > 0)
-	{
-		//MoveParatroopers(pThisArmy);
 	}
 
 	if(m_GeneralsToMove.size() > 0)
@@ -7509,6 +7512,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	{
 		return;
 	}
+
 	int iNavalUnits = 0;
 	int iEscortedUnits = 0;
 	for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
@@ -8947,7 +8951,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 			for (TacticalAIHelpers::ReachablePlotSet::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 			{
 				{
-					CvPlot* pPlot = it->first;
+					CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
 #else
 			CvMap& kMap = GC.getMap();
 			int iUnitX = pUnit->getX();
@@ -11246,20 +11250,22 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 	bool bIsRanged = pUnit->canRangeStrike();
 	for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
 	{
-		if (moveTile->first == pUnit->plot())
+		CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+
+		if (pMoveTile == pUnit->plot())
 			continue;
 
 		int iCurrentAttack = 0;
 		if (bIsRanged)
-			iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, moveTile->first);
+			iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, pMoveTile);
 		else
-			iCurrentAttack = pUnit->GetMaxAttackStrength(moveTile->first, plotTarget, pTargetUnit);
+			iCurrentAttack = pUnit->GetMaxAttackStrength(pMoveTile, plotTarget, pTargetUnit);
 
-		int iCurrentDanger = m_pPlayer->GetPlotDanger(*(moveTile->first), pUnit.pointer());
+		int iCurrentDanger = m_pPlayer->GetPlotDanger(*pMoveTile, pUnit.pointer());
 
 		if (iCurrentDanger<=iAcceptableDanger)
 		{
-			vStats.push_back( SPlotWithTwoScores(moveTile->first,iCurrentAttack,iCurrentDanger) );
+			vStats.push_back( SPlotWithTwoScores(pMoveTile,iCurrentAttack,iCurrentDanger) );
 
 			iHighestAttack = max( iHighestAttack, iCurrentAttack );
 			iLowestDanger = min( iLowestDanger, iCurrentDanger );
@@ -12373,7 +12379,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 	{
 		return false;
 	}
-	std::vector< std::pair<int,CvUnit*> > vUnitsByDistance;
+	std::vector< std::pair<int,int> > vUnitsByDistance;
 #endif
 
 	// Loop through all units available to operation
@@ -12406,19 +12412,28 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 			if (bValidUnit)
 			{
 				int iDistance = plotDistance( pTarget->getX(), pTarget->getY(), pLoopUnit->getX(), pLoopUnit->getY() );
-				vUnitsByDistance.push_back( std::make_pair(iDistance,pLoopUnit.pointer()) );
+				vUnitsByDistance.push_back( std::make_pair(iDistance,pLoopUnit->GetID() ) );
 			}
 		}
 	}
 
-	//default sort is by ascending first member of the pair
-	std::sort( vUnitsByDistance.begin(), vUnitsByDistance.end() );
+	//default sort is by ascending first member of the pair, then by the second - important we don't store pointers here!
+	std::stable_sort( vUnitsByDistance.begin(), vUnitsByDistance.end() );
 
-	for (std::vector< std::pair<int,CvUnit*> >::iterator it = vUnitsByDistance.begin(); it != vUnitsByDistance.end(); ++it)
+	for (std::vector< std::pair<int,int> >::iterator it = vUnitsByDistance.begin(); it != vUnitsByDistance.end(); ++it)
 	{
 		{
 			{
-				CvUnit* pLoopUnit = it->second;
+				CvUnit* pLoopUnit = m_pPlayer->getUnit( it->second );
+
+				//sanity check - unexpected units showing up here sometimes
+				std::list<int>::iterator ctu = std::find( m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID() );
+				if (ctu==m_CurrentTurnUnits.end())
+				{
+					CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d. mission info %s", 
+										 pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
+					LogTacticalMessage( msg );
+				}
 
 #else
 			else if(!bSafeForRanged && pLoopUnit->IsCanAttackRanged())
@@ -15505,7 +15520,7 @@ int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, Rea
 	for (std::map<CvPlot*,int>::iterator it=remainingMoves.begin(); it!=remainingMoves.end(); ++it)
 	{
 		//is there a more efficient way?
-		resultSet.insert( std::make_pair(it->first,it->second) );
+		resultSet.insert( std::make_pair(it->first->GetPlotIndex(),it->second) );
 
 		//OutputDebugString( CvString::format("%s %s %d can reach %d,%d with %d movement left\n", 
 		//	GET_PLAYER(pUnit->getOwner()).getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->GetID(), it->first->getX(), it->first->getY(), it->second ).c_str() );
@@ -15514,7 +15529,7 @@ int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, Rea
 	return (int)resultSet.size();
 }
 
-int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet)
+int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<int>& resultSet)
 {
 	if (!pUnit || !pBasePlot)
 		return false;
@@ -15528,14 +15543,14 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBas
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
 			if (pLoopPlot && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
-				resultSet.insert(pLoopPlot);
+				resultSet.insert(pLoopPlot->GetPlotIndex());
 		}
 	}
 
 	return (int)resultSet.size();
 }
 
-int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet)
+int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet)
 {
 	if (!pUnit || !pUnit->IsCanAttackRanged())
 		return false;
@@ -15545,7 +15560,7 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlo
 
 	for (ReachablePlotSet::iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
 	{
-		CvPlot* pBasePlot = base->first;
+		CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked( base->first );
 		int iPlotMoves = base->second;
 
 		if (pUnit->isMustSetUpToRangedAttack())
@@ -15563,11 +15578,11 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlo
 
 				//if the plot is already know to be attackable, don't check again
 				//the reverse is not true: from another base plot the attack might work!
-				if (!pLoopPlot || resultSet.find(pLoopPlot)!=resultSet.end())
+				if (!pLoopPlot || resultSet.find(pLoopPlot->GetPlotIndex())!=resultSet.end())
 					continue;
 
 				if (pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
-					resultSet.insert(pLoopPlot);
+					resultSet.insert(pLoopPlot->GetPlotIndex());
 			}
 		}
 	}

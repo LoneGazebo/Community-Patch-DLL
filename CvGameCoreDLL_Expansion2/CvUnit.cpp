@@ -7178,14 +7178,20 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 //	--------------------------------------------------------------------------------
+bool CvUnit::hasCurrentTacticalMove() const
+{ 
+	return ( m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
+}
+
 void CvUnit::setHomelandMove(AIHomelandMove eMove)
 {
 	VALIDATE_OBJECT
 
-	if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
+	if (hasCurrentTacticalMove())
 	{
-		OutputDebugString( CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
-								GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] ).c_str() );
+		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+						GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] );
+		GET_PLAYER( m_eOwner ).GetHomelandAI()->LogHomelandMessage( msg );
 	}
 
 	//clear tactical move, can't have both ...

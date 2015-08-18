@@ -22370,7 +22370,7 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
 	{
-		rtnValue /= max(1, getNumCities());
+		rtnValue /= int( max(1.f, sqrt((float)getNumCities())));
 	}
 #endif
 
@@ -22383,33 +22383,28 @@ int CvPlayer::calculateMilitaryMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateEconomicMight() const
 {
-	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
-	int iEconomicMight = 5;
-
-	iEconomicMight += getTotalPopulation();
 #if defined(MOD_BALANCE_CORE)
-	iEconomicMight -= GetUnhappiness();
+	int iEconomicMight = 0;
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
 	if(IsEmpireUnhappy())
 	{
-		iEconomicMight -= GetUnhappiness();
+		iEconomicMight -= GetSetUnhappiness();
 	}
 	else if(IsEmpireVeryUnhappy())
 	{
-		iEconomicMight -= (GetUnhappiness() * 2);
+		iEconomicMight -= (GetSetUnhappiness() * 2);
 	}
 	else if(IsEmpireSuperUnhappy())
 	{
-		iEconomicMight -= (GetUnhappiness() * 4);
-	}
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	{
-		iEconomicMight /= max(1, getNumCities());
+		iEconomicMight -= (GetSetUnhappiness() * 4);
 	}
 #else
+	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
+	int iEconomicMight = 5;
+	iEconomicMight += getTotalPopulation();
 	// todo: add weights to these in an xml
 	//iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);

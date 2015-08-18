@@ -17038,6 +17038,17 @@ bool CvCity::CanBuyAnyPlot(void)
 			// Check the result.
 			if(bResult == false)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+					CvString strPlayerName = kOwner.getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+					CvString strBaseString = CvString::format("%03d, %s, %s, CanBuyAnyPlot failed in lua hook", 
+						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString() );
+					pLog->Msg(strBaseString);
+				}
+#endif
 				return false;
 			}
 		}

@@ -1411,9 +1411,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	CvCity* pFriendlyCity;
 	CvCity* pEnemyCity;
 	CvUnit* pLoopUnit;
-	static CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> weightedTargetList;
+	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> weightedTargetList;
 	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	PlayerTypes eLoopPlayer;
 	//Let's loop through all valid cities in the world
@@ -1422,15 +1423,15 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			bool bIsMinor = false;
+			bool bIsFriendlyMinor = false;
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
 				{
-					bIsMinor = true;
+					bIsFriendlyMinor = true;
 				}
 			}
-			if(eLoopPlayer != eEnemy && (bIsMinor || GET_PLAYER(eLoopPlayer).GetID() == m_pPlayer->GetID() || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+			if(eLoopPlayer != eEnemy && (bIsFriendlyMinor || eLoopPlayer == m_pPlayer->GetID() || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
 				// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
 				for (pFriendlyCity = GET_PLAYER(eLoopPlayer).firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = GET_PLAYER(eLoopPlayer).nextCity(&iFriendlyLoop))
@@ -1519,22 +1520,21 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 	}
 	// Build a list of all the possible start city/target city pairs
-	static CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
-	prelimWeightedTargetList.clear();
+	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			bool bIsMinor = false;
+			bool bIsFriendlyMinor = false;
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
 				{
-					bIsMinor = true;
+					bIsFriendlyMinor = true;
 				}
 			}
-			if(eLoopPlayer != eEnemy && (bIsMinor || GET_PLAYER(eLoopPlayer).GetID() == m_pPlayer->GetID() || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+			if(eLoopPlayer != eEnemy && (bIsFriendlyMinor || eLoopPlayer == m_pPlayer->GetID() || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
 				for(pFriendlyCity = GET_PLAYER(eLoopPlayer).firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = GET_PLAYER(eLoopPlayer).nextCity(&iFriendlyLoop))
 				{
@@ -1574,6 +1574,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 								}
 								if(!bSuccess)
 								{
+									CvString msg = CvString::format("cannot find water path from %s to %s", 
+										target.m_pMusterCity ? target.m_pMusterCity->getName().c_str() : "unknown",
+										target.m_pTargetCity ? target.m_pTargetCity->getName().c_str() : "unknown" );
+									LogMilitarySummaryMessage(msg);
 									continue;
 								}
 							}
@@ -1582,6 +1586,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 								ShouldAttackBySea(eEnemy, target);
 								if (!pFriendlyCity->isCoastal() && target.m_bAttackBySea)
 								{
+									CvString msg = CvString::format("target %s should be attacked from sea but muster %s is landlocked", 
+										target.m_pTargetCity ? target.m_pTargetCity->getName().c_str() : "unknown",
+										target.m_pMusterCity ? target.m_pMusterCity->getName().c_str() : "unknown" );
+									LogMilitarySummaryMessage(msg);
 									continue;
 								}
 							}
@@ -1597,7 +1605,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 	}
 	// Let's score the 10 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
-	prelimWeightedTargetList.SortItems();
+	prelimWeightedTargetList.StableSortItems();
 	weightedTargetList.clear();
 	int iTargetsConsidered = 0;
 	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 10; iI++)
@@ -1611,7 +1619,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		{
 			if (weightedTargetList.GetElement( weightedTargetList.size()-1 ) == target)
 			{
-				OutputDebugString("repeated target! why??");
+				CvString msg = CvString::format("repeated target: %s", target.m_pTargetCity ? target.m_pTargetCity->getName().c_str() : "invalid" );
+				LogMilitarySummaryMessage(msg);
 			}
 
 			weightedTargetList.push_back(target, iWeight);
@@ -1630,15 +1639,13 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		return chosenTarget;
 	}
 
-	weightedTargetList.SortItems();
+	weightedTargetList.StableSortItems();
 	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
 	//just take the best one
 	chosenTarget = weightedTargetList.GetElement(0);
 	if (piWinningScore)
-	{
-		*piWinningScore = ScoreTarget(chosenTarget, eAIOperationType);
-	}
+		*piWinningScore = weightedTargetList.GetWeight(0);
 
 	return chosenTarget;
 }
@@ -1809,13 +1816,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	weightedTargetList.SortItems();
 	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//just take the best one
-	chosenTarget = weightedTargetList.GetElement(0);
-	if (piWinningScore)
-		*piWinningScore = ScoreTarget(chosenTarget, eAIOperationType);
-#else
-
 	if(weightedTargetList.GetTotalWeight() > 0)
 	{
 		RandomNumberDelegate fcn;
@@ -1837,11 +1837,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			*piWinningScore = -1;
 		}
 	}
-#endif
 
 	return chosenTarget;
 }
 #endif
+
 /// Is it better to attack this target by sea?
 void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target)
 {
@@ -2945,7 +2945,7 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
 	}
 
-	std::sort(vCities.begin(), vCities.end(), sort_pred());
+	std::stable_sort(vCities.begin(), vCities.end(), sort_pred());
 	if (iOrder<0 || iOrder>=(int)vCities.size()) 
 		return NULL;
 	else

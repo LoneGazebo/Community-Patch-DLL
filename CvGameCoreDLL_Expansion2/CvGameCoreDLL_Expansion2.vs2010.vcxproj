@@ -155,6 +155,9 @@
     <ClCompile Include="CvDistanceMap.cpp" />
     <ClCompile Include="CvGreatPersonInfo.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
+    <ClCompile Include="stackwalker\StackWalker.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="_precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">Create</PrecompiledHeader>
     </ClCompile>

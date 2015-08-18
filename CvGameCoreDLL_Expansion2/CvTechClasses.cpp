@@ -1588,7 +1588,7 @@ int CvPlayerTechs::GetMedianTechResearch() const
 	int iNumEntries = aiTechCosts.size();
 	if(iNumEntries > 0)
 	{
-		std::sort(aiTechCosts.begin(), aiTechCosts.end());
+		std::stable_sort(aiTechCosts.begin(), aiTechCosts.end());
 
 		// Odd number, take middle?
 		if((iNumEntries / 2) * 2 != iNumEntries)

@@ -3201,8 +3201,8 @@ void CvEconomicAI::UpdatePlots()
 
 
 	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
-	std::sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
-	std::sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
+	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
+	std::stable_sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
 
 	m_bExplorationPlotsDirty = false;
 }

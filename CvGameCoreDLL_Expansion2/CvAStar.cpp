@@ -85,6 +85,36 @@ static void PrefetchRegionCvAStar(const char* pHead, const uint uiSize)
 //#define PATH_FINDER_LOGGING
 #endif
 
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+
+	#include "Stackwalker/Stackwalker.h"
+
+	class MyStackWalker : public StackWalker
+	{
+	public:
+		MyStackWalker() : m_pLog(NULL), StackWalker() {}
+		void SetLog(FILogFile* pLog) { m_pLog=pLog; }
+	protected:
+		virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
+		FILogFile* m_pLog;
+	};
+
+	MyStackWalker gStackWalker;
+
+	//cannot use GC.getGame().getActivePlayer() in observer mode
+	PlayerTypes GetCurrentPlayer()
+	{
+		for(int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER( (PlayerTypes)i );
+			if (kPlayer.isTurnActive())
+				return (PlayerTypes)i;
+		}
+		return NO_PLAYER;
+	}
+
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
@@ -334,24 +364,25 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
-	if (GC.getGame().getGameTurn()>100)
+	if (false)
 	{
 		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
 		if (pLog)
 		{
-			pLog->Msg( CvString::format("%s from %d,%d to %d,%d\n", GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest ).c_str() );
+			pLog->Msg( CvString::format("%s from %d,%d to %d,%d for player %d\n", GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,GetCurrentPlayer() ).c_str() );
 
-			CvAStarNode* pCurrent = m_pBest;
-			while (pCurrent!=NULL)
-			{
-				pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
-				pCurrent = pCurrent->m_pParent;
-			}
+			gStackWalker.SetLog(pLog);
+			gStackWalker.ShowCallstack();
 
-			//pLog->Close();
+			//CvAStarNode* pCurrent = m_pBest;
+			//while (pCurrent!=NULL)
+			//{
+			//	pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
+			//	pCurrent = pCurrent->m_pParent;
+			//}
 		}
 	}
 #endif

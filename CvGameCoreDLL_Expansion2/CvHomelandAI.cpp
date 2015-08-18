@@ -123,6 +123,17 @@ void CvHomelandAI::RecruitUnits()
 		// Never want immobile/dead units or ones that have already moved
 		if(!pLoopUnit->TurnProcessed() && !pLoopUnit->isDelayedDeath() && pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN && pLoopUnit->canMove())
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//don't use units which were assigned a tactical move this turn!
+			if ( pLoopUnit->hasCurrentTacticalMove() )
+			{
+				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d. mission info %s)", 
+										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
+				LogHomelandMessage( msg );
+				continue;
+			}
+#endif
+
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 	}
@@ -224,7 +235,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	}
 
 	//sorts by the first element of the iterator ... which is our distance. nice.
-	std::sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
+	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
 	for (size_t idx=0; idx<vPlotsByDistance.size(); idx++)
 	{
@@ -3308,7 +3319,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
 		for (TacticalAIHelpers::ReachablePlotSet::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
-			CvPlot* pEvalPlot = tile->first;
+			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->first);
 
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
@@ -6891,7 +6902,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 	{
 		{
-			CvPlot* pLoopPlot = it->first;
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
 
 #else
@@ -7062,7 +7073,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 				{
 					{
-						CvPlot* pLoopPlot = it->first;
+						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 						if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7773,8 +7784,9 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			int iDistance = it->GetMovesToTarget();	// Raw distance
 			if (iDistance == MAX_INT)
 				continue;
-
+			
 #ifdef AUI_ASTAR_TURN_LIMITER
+			//LogHomelandMessage( CvString::format("GetClosestUnitByTurnsToTarget: target %d,%d; trying %d", pTarget->getX(), pTarget->getY(), pLoopUnit->GetID() ) );
 			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget, false, false, false, iMinTurns);
 #else
 			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget);

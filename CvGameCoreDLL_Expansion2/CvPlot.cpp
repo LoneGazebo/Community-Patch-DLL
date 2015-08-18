@@ -59,16 +59,18 @@ const int g_CurrentCvPlotVersion = 7;
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
-std::set<CvPlot*> plotsToCheck;
+
+std::set<int> plotsToCheck;
+
 void SyncPlots()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
-		std::set<CvPlot*>::const_iterator i;
+		std::set<int>::const_iterator i;
 		for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 		{
-			const CvPlot* plot = *i;
+			const CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
 
 			if(plot)
 			{
@@ -88,10 +90,10 @@ void SyncPlots()
 // clears ALL deltas for ALL plots
 void ClearPlotDeltas()
 {
-	std::set<CvPlot*>::iterator i;
+	std::set<int>::iterator i;
 	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 	{
-		CvPlot* plot = *i;
+		CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
 
 		if(plot)
 		{
@@ -153,7 +155,7 @@ CvPlot::CvPlot() :
 	m_syncArchive(*this)
 	, m_eFeatureType("CvPlot::m_eFeatureType", m_syncArchive, true)
 {
-	FSerialization::plotsToCheck.insert(this);
+	FSerialization::plotsToCheck.insert(m_iPlotIndex);
 	m_paiBuildProgress = NULL;
 
 	m_szScriptData = NULL;
@@ -172,7 +174,7 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-	FSerialization::plotsToCheck.erase(this);
+	FSerialization::plotsToCheck.erase(m_iPlotIndex);
 	uninit();
 }
 
@@ -218,6 +220,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_iX = iX;
 	m_iY = iY;
+
+#if defined(MOD_BALANCE_CORE)
+	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
+#endif
+
 	m_iArea = FFreeList::INVALID_INDEX;
 	m_iLandmass = FFreeList::INVALID_INDEX;
 	m_iFeatureVariety = 0;
@@ -11519,6 +11526,10 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iLandmass;
 	kStream >> m_uiTradeRouteBitFlags;
 
+#if defined(MOD_BALANCE_CORE)
+	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
+#endif
+
 	// the following members specify bit packing and do not resolve to
 	// any serializable type.
 	bool bitPackWorkaround;
@@ -12688,7 +12699,11 @@ void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
 //	--------------------------------------------------------------------------------
 int CvPlot::GetPlotIndex() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return m_iPlotIndex;
+#else
 	return GC.getMap().plotNum(getX(),getY());
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -1506,6 +1506,7 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void setHomelandMove(AIHomelandMove eMove);
 	AIHomelandMove getHomelandMove() const;
+	bool hasCurrentTacticalMove() const;
 #endif
 
 #if defined(MOD_API_EXTENSIONS)
