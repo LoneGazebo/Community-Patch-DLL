@@ -1574,7 +1574,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 								}
 								if(!bSuccess)
 								{
-									CvString msg = CvString::format("cannot find water path from %s to %s", 
+									CvString msg = CvString::format("FindBestAttackTarget: cannot find water path from %s to %s", 
 										target.m_pMusterCity ? target.m_pMusterCity->getName().c_str() : "unknown",
 										target.m_pTargetCity ? target.m_pTargetCity->getName().c_str() : "unknown" );
 									LogMilitarySummaryMessage(msg);
@@ -1586,7 +1586,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 								ShouldAttackBySea(eEnemy, target);
 								if (!pFriendlyCity->isCoastal() && target.m_bAttackBySea)
 								{
-									CvString msg = CvString::format("target %s should be attacked from sea but muster %s is landlocked", 
+									CvString msg = CvString::format("FindBestAttackTarget: target %s should be attacked from sea but muster %s is landlocked", 
 										target.m_pTargetCity ? target.m_pTargetCity->getName().c_str() : "unknown",
 										target.m_pMusterCity ? target.m_pMusterCity->getName().c_str() : "unknown" );
 									LogMilitarySummaryMessage(msg);
