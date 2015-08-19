@@ -130,6 +130,10 @@ void CvHomelandAI::RecruitUnits()
 				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d. mission info %s)", 
 										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
 				LogHomelandMessage( msg );
+
+				//important - else AI turn will never end! (in fact it does for some reason end after a while ...)
+				pLoopUnit->finishMoves();
+				pLoopUnit->SetTurnProcessed(true);
 				continue;
 			}
 #endif
@@ -2851,7 +2855,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -2885,7 +2889,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
-								strLogString.Format("Unassigned %s wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+								strLogString.Format("Unassigned %s %d wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
 							continue;
@@ -2910,7 +2914,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
-								strLogString.Format("Unassigned %s stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+								strLogString.Format("Unassigned %s %d stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
 							continue;
@@ -2946,7 +2950,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s wandering home, at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -2962,7 +2966,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d stuck abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -3000,14 +3004,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					{
 						strTemp = pkUnitInfo->GetDescription();
 						CvString strLogString;
-						strLogString.Format("Unassigned %s at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Unassigned %s %d at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 					continue;
 				}
 				else
 				{
-					//We really need to do something with this unit - let's bring it home if we can.
 					//We really need to do something with this unit - let's bring it home if we can.
 					CvCity* pBestCity = NULL;
 					CvCity* pSaveCity;
@@ -3039,7 +3042,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s wandering home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d wandering abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -3055,7 +3058,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s stuck, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d stuck abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -5747,14 +5750,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			int iValue = 0;
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Great General considering a Citadel, Current Location: X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
-			}
-#endif
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit.pointer(), iValue);
 #else

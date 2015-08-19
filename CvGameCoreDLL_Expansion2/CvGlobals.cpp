@@ -2223,6 +2223,24 @@ CvGlobals::~CvGlobals()
 {
 }
 
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+
+MyStackWalker gStackWalker;
+
+//cannot use GC.getGame().getActivePlayer() in observer mode
+PlayerTypes GetCurrentPlayer()
+{
+	for(int i = 0; i < MAX_PLAYERS; ++i)
+	{
+		CvPlayerAI& kPlayer = GET_PLAYER( (PlayerTypes)i );
+		if (kPlayer.isTurnActive())
+			return (PlayerTypes)i;
+	}
+	return NO_PLAYER;
+}
+
+#endif
+
 #if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
 /* MINIDUMP_MOD                           04/10/11                                terkhen       */
@@ -2235,6 +2253,18 @@ CvGlobals::~CvGlobals()
 #pragma comment (lib, "dbghelp.lib")
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	/* Try to log the callstack */
+	FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
+	if (pLog)
+	{
+		gStackWalker.SetLog(pLog);	
+		gStackWalker.ShowCallstack();
+		pLog->Close();
+	}
+#endif
+
 	/* Open a file to store the minidump. */
 	HANDLE hFile = CreateFile(_T("CvMiniDump.dmp"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {

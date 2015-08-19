@@ -85,36 +85,6 @@ static void PrefetchRegionCvAStar(const char* pHead, const uint uiSize)
 //#define PATH_FINDER_LOGGING
 #endif
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-
-	#include "Stackwalker/Stackwalker.h"
-
-	class MyStackWalker : public StackWalker
-	{
-	public:
-		MyStackWalker() : m_pLog(NULL), StackWalker() {}
-		void SetLog(FILogFile* pLog) { m_pLog=pLog; }
-	protected:
-		virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
-		FILogFile* m_pLog;
-	};
-
-	MyStackWalker gStackWalker;
-
-	//cannot use GC.getGame().getActivePlayer() in observer mode
-	PlayerTypes GetCurrentPlayer()
-	{
-		for(int i = 0; i < MAX_PLAYERS; ++i)
-		{
-			CvPlayerAI& kPlayer = GET_PLAYER( (PlayerTypes)i );
-			if (kPlayer.isTurnActive())
-				return (PlayerTypes)i;
-		}
-		return NO_PLAYER;
-	}
-
-#endif
-
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()

@@ -12428,7 +12428,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 
 				//sanity check - unexpected units showing up here sometimes
 				std::list<int>::iterator ctu = std::find( m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID() );
-				if (ctu==m_CurrentTurnUnits.end())
+				if (ctu==m_CurrentTurnUnits.end() && pLoopUnit->getArmyID()==FFreeList::INVALID_INDEX )
 				{
 					CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d. mission info %s", 
 										 pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );

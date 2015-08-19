@@ -2831,13 +2831,6 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			//Defense build yield.
 			iScore += iDefenseScore * 2;
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Great General considering a Citadel, Location: X: %d, Y: %d. SCORE: %d", pAdjacentPlot->getX(), pAdjacentPlot->getY(), iScore);
-				GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
 		}
 
 		//require a certain minimum score ...
@@ -2869,6 +2862,13 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				{
 					//don't even keep it if it's much worse than the current best
 					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Great General considering a Citadel, Location: X: %d, Y: %d. SCORE: %d", pPlot->getX(), pPlot->getY(), iScore);
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}
