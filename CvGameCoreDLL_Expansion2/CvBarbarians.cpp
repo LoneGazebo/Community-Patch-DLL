@@ -895,7 +895,7 @@ void CvBarbarians::DoUnits()
 				if(pCity != NULL && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Unit spawned in barbarian city of %d. City grows by 2. X: %d, Y: %d", pCity->getName().c_str(), pLoopPlot->getX(), pLoopPlot->getY());
+					strLogString.Format("Unit spawned in barbarian city of %s. City grows by 2. X: %d, Y: %d", pCity->getName().c_str(), pLoopPlot->getX(), pLoopPlot->getY());
 					if(GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
 					{
 						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
