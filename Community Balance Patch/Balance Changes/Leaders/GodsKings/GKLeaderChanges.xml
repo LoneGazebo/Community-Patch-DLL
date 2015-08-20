@@ -50,22 +50,22 @@
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>8</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>8</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>5</Yield>
+			<Yield>8</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +5 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand</Text>
+			<Text>Receive +8 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>

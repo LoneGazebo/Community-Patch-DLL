@@ -50,11 +50,6 @@
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_FINE_ARTS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
-			<Happiness>1</Happiness>
-		</Row>
 	</Policy_BuildingClassHappiness>
 	<!-- Artistic Genius -->
 	<Policy_ImprovementCultureChanges>
@@ -88,7 +83,7 @@
 		<Row>
 			<PolicyType>POLICY_FLOURISHING_OF_ARTS</PolicyType>
 			<YieldType>YIELD_TOURISM</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_YieldChangeWorldWonder>
 </GameData>

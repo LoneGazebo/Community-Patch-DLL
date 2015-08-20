@@ -190,7 +190,7 @@ SET Yield = '3'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '0'
+SET Happiness = '1'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -374,7 +374,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP' AND EXISTS (SELECT * FROM CO
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
 UPDATE Language_en_US
-SET Text = 'Can use [ICON_GOLD] Gold to arrange Marriages with allied City-States. Marriages grant +1 Delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person generation in your [ICON_CAPITAL] Capital, and your [ICON_INFLUENCE] Influence over the City-State no longer decays.'
+SET Text = 'Can use [ICON_GOLD] Gold to arrange Marriages with allied City-States. While not at war, Marriages grant +1 Delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person generation in your [ICON_CAPITAL] Capital, and your [ICON_INFLUENCE] Influence over the City-State no longer decays.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

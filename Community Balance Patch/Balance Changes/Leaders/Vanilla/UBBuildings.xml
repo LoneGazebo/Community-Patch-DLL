@@ -489,7 +489,7 @@
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Cost>550</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>

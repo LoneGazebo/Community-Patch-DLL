@@ -133,17 +133,23 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if (pLoopUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
-		std::set<CvPlot*> attackableTiles;
+		std::set<int> attackableTiles;
 		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachableTiles,attackableTiles);
 
-		for (std::set<CvPlot*>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
-			AssignUnitDangerValue(pLoopUnit, *attackTile);
+		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
+		{
+			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
+			AssignUnitDangerValue(pLoopUnit, pAttackTile);
+		}
 	}
 	else
 	{
 		//for melee every tile we can move into can be attacked
 		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
-			AssignUnitDangerValue(pLoopUnit, moveTile->first);
+		{
+			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+			AssignUnitDangerValue(pLoopUnit, pMoveTile);
+		}
 	}
 
 	return true;

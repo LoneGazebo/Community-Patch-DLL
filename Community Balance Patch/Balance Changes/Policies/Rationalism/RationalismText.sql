@@ -29,7 +29,7 @@ SET Text = 'Academics'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Academics[ENDCOLOR][NEWLINE]+2 [ICON_RESEARCH] Science and +1 [ICON_GOLD] Gold from every Specialist.'
+SET Text = '[COLOR_POSITIVE_TEXT]Academics[ENDCOLOR][NEWLINE]+1 [ICON_RESEARCH] Science and +1 [ICON_GOLD] Gold from every Specialist.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -39,7 +39,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY
 -- Sovereignty
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital. Receive 50 [ICON_GOLD] Gold every time you research a Technology, scaling with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every two [ICON_CONNECTED] City Connections with the [ICON_CAPITAL] Capital. Receive 50 [ICON_GOLD] Gold every time you research a Technology, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

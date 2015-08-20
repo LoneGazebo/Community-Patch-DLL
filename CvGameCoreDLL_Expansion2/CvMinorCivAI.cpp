@@ -5274,6 +5274,9 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
 
+		if(eMostRecentBully == NO_PLAYER)
+			return false;
+
 		// This player must not be the ally
 		if(eMostRecentBully == GetAlly())
 			return false;
@@ -8009,12 +8012,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
-	{
-		return iChangeThisTurn;
-	}
-#endif
+
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
 	int iReligionMod = 0;
@@ -8030,6 +8028,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		{
+			return iChangeThisTurn;
+		}
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
@@ -11257,7 +11261,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// +0 ~ +125
 	// **************************
+#if defined(MOD_BALANCE_CORE)
+	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 15, 4);
+#else
 	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 10, 5);
+#endif
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if(pMinorCapital == NULL)
 		return iFailScore;
@@ -11417,7 +11425,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -175;
+	int iBaseReluctanceScore = -150;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif
@@ -11570,7 +11578,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -50;
+		int iAllyScore = -75;
 #else
 		int iAllyScore = -10;
 #endif
@@ -11596,7 +11604,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -10;
+			iProtectionScore += -25;
 #else
 			iProtectionScore += -20;
 #endif
@@ -11863,7 +11871,7 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 			break;
 	}
 	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
-	iValue *= ((iNumTurns / 2) + 100);
+	iValue *= (iNumTurns + 100);
 	iValue /= 100;
 	return iValue;
 }

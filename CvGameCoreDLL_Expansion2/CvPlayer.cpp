@@ -2516,7 +2516,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iValue *= 3;
 				iValue /= 2;
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(pOldCity->getNumWorldWonders() > 0)
+			{
+				iValue += (pOldCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			}
+#endif
 			// My viewpoint
 			GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pOldCity->getOwner(), GetID(), iValue);
 			// Bad guy's viewpoint
@@ -3666,6 +3671,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	}
 	// Free Buildings from Policies
 	if(MOD_BALANCE_CORE)
 	{
@@ -3805,9 +3811,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 	for(std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
 	{
 		pNewCity->GetCityBuildings()->SetBuildingYieldChange((*it).eBuildingClass, (*it).eYield, (*it).iChange);
@@ -3960,6 +3963,39 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
 			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv())
 			{
+				if(GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(ePlayer) > 0)
+				{
+					// Must have capital to actually spawn unit
+					CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
+					if(pCapital)
+					{
+						if(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer) != NO_UNIT)
+						{
+							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer), pCapital->getX(), pCapital->getY());
+							CvAssert(pNewUnit);
+							if (pNewUnit)
+							{
+								if(pNewUnit->getDomainType() != DOMAIN_AIR)
+								{
+									if (!pNewUnit->jumpToNearestValidPlot())
+									{
+										pNewUnit->kill(false);
+									}
+								}
+								CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+								if(pNotifications && ePlayer == GC.getGame().getActivePlayer())
+								{
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+									strSummary <<  GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
+									Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+									strNotification <<  GET_PLAYER(eOldOwner).getNameKey();
+									strNotification <<  pNewUnit->getNameKey();
+									pNotifications->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
+								}
+							}
+						}
+					}
+				}
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetIsJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), false);
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), 0);
 			}
@@ -13985,14 +14021,21 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 {
 #if defined(MOD_BALANCE_CORE)
-	int iEra = GetCurrentEra();
-	if(iEra < 1)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		iEra = 1;
+		int iEra = GetCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
+		return (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners());
 	}
-	return (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners());
-#else
+	else
+	{
+#endif
 	return GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners();
+#if defined(MOD_BALANCE_CORE)
+	}
 #endif
 }
 #endif
@@ -15550,7 +15593,7 @@ int CvPlayer::getPopNeededForLux() const
 	}
 	int iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
 		
-	iInflation *= (100 + getCurrentTotalPop() + (iTotalCities * 2));
+	iInflation *= (100 + getCurrentTotalPop() + iTotalCities);
 	iInflation /= 100;
 
 	int iBaseHappiness = 1;
@@ -22497,7 +22540,7 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
 	{
-		rtnValue /= max(1, getNumCities());
+		rtnValue /= int( max(1.f, sqrt((float)getNumCities())));
 	}
 #endif
 
@@ -22510,23 +22553,19 @@ int CvPlayer::calculateMilitaryMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateEconomicMight() const
 {
-	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
-	int iEconomicMight = 5;
-
-	iEconomicMight += getTotalPopulation();
 #if defined(MOD_BALANCE_CORE)
-	iEconomicMight -= GetUnhappiness();
+	int iEconomicMight = 0;
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
 	if(IsEmpireUnhappy())
 	{
-		iEconomicMight -= GetUnhappiness();
+		iEconomicMight -= GetSetUnhappiness();
 	}
 	else if(IsEmpireVeryUnhappy())
 	{
-		iEconomicMight -= (GetUnhappiness() * 2);
+		iEconomicMight -= (GetSetUnhappiness() * 2);
 	}
 	else if(IsEmpireSuperUnhappy())
 	{
@@ -22537,6 +22576,9 @@ int CvPlayer::calculateEconomicMight() const
 		iEconomicMight /= max(1, getNumCities());
 	}
 #else
+	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
+	int iEconomicMight = 5;
+	iEconomicMight += getTotalPopulation();
 	// todo: add weights to these in an xml
 	//iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
@@ -24952,18 +24994,6 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 			iScience += iScienceFromPlayer;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
-	{
-		int iEra = GetCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		int iTradeScience = (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_SCIENCE) * GetTrade()->GetNumDifferentTradingPartners());
-		iScience += (iTradeScience * 100);
-	}
-#endif
 	return iScience;
 }
 
@@ -26093,9 +26123,12 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-
 	if(iChange < 0 && !bIgnoreResourceWarning)
+#if !defined(MOD_BALANCE_CORE)
+	{
 		DoTestOverResourceNotification(eIndex);
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -26410,7 +26443,11 @@ void CvPlayer::UpdateResourcesSiphoned()
 /// Are we over our resource limit? If so, give out a notification
 void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 {
+#if defined(MOD_BALANCE_CORE)
+	if((getNumResourceAvailable(eIndex, true) < 0) && (getNumResourceUsed(eIndex) > 0))
+#else
 	if(getNumResourceAvailable(eIndex, true) < 0)
+#endif
 	{
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 		if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)

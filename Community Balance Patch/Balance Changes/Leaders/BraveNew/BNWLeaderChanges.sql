@@ -283,7 +283,7 @@ SET Modifier = '25'
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Unique Polish Stable replacement. +25% [ICON_PRODUCTION] Production and  +15 XP for Mounted Units.[NEWLINE][NEWLINE]Each Pasture worked by this City produces +2 [ICON_PRODUCTION] Production and +2 [ICON_GOLD] Gold, and the City itself produces +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Unique Polish Stable replacement. +25% [ICON_PRODUCTION] Production and  +15 XP for Mounted Units.[NEWLINE][NEWLINE]Each Pasture worked by this City produces +3 [ICON_PRODUCTION] Production and +3 [ICON_GOLD] Gold, and the City itself produces +3 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Pedro -- Improve Brazilwood Camp, increase all GP production during GA

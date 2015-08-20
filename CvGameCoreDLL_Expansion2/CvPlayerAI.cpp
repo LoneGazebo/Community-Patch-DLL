@@ -181,8 +181,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 {
-	//speed optimization: do this only if we want to expand
-	//any other safe checks we could do?
 	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
 	if (isMinorCiv() || isBarbarian() || bVenice)
 	{
@@ -210,13 +208,6 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pLoopPlot->isRevealed(eTeam))
-		{
-			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
-			
-			//cache the result
-			pLoopPlot->setFoundValue(eID, iValue);
-		}
-		else if(getCapitalCity() != NULL && pLoopPlot->getArea() == getCapitalCity()->getArea())
 		{
 			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
 			
@@ -2665,7 +2656,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		return NULL;
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
-	std::set<CvPlot*> setCandidates;
+	std::set<int> setCandidates;
 	
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	CvBuildInfo* pkBuildInfoCitadel = GC.getBuildInfo(eCitadel);
@@ -2695,7 +2686,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 			continue;
 
 		bool bGoodCandidate = true;
-		std::vector<CvPlot*> vPossibleCitadelTiles;
+		std::vector<int> vPossibleCitadelTiles;
 
 		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself
 		//we need to include it as it may belong to us or the enemy
@@ -2758,7 +2749,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				}
 			}
 
-			vPossibleCitadelTiles.push_back(pAdjacentPlot);
+			vPossibleCitadelTiles.push_back(pAdjacentPlot->GetPlotIndex());
 		}
 
 		if (bGoodCandidate)
@@ -2768,9 +2759,9 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 	std::priority_queue<SPlotWithScore> goodPlots;
 
 	//now that we have a number of possible plots, score each
-	for (std::set<CvPlot*>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
+	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
-		CvPlot* pPlot = *it;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
 		int iScore = 0;
 
 		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself

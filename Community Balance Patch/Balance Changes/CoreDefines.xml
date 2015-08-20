@@ -91,7 +91,7 @@
 		<!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.95"/>
+			<Set Value="1.96"/>
 			<!-- 2.01 -->
 		</Update>
 		<Update>

@@ -117,6 +117,11 @@ CvAStar::CvAStar()
 
 	m_bIsMPCacheSafe = false;
 	m_bDataChangeInvalidatesCache = false;
+
+#if defined(MOD_BALANCE_CORE)
+	//for debugging
+	m_strName = "AStar";
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -328,6 +333,29 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 			udUninitializeFunc(m_pData, this);
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	//debugging!
+	if (false)
+	{
+		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
+		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			pLog->Msg( CvString::format("%s from %d,%d to %d,%d for player %d\n", GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,GetCurrentPlayer() ).c_str() );
+
+			gStackWalker.SetLog(pLog);
+			gStackWalker.ShowCallstack();
+
+			//CvAStarNode* pCurrent = m_pBest;
+			//while (pCurrent!=NULL)
+			//{
+			//	pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
+			//	pCurrent = pCurrent->m_pParent;
+			//}
+		}
+	}
+#endif
 
 	if (udUninitializeFunc)
 		udUninitializeFunc(m_pData, this);
@@ -2665,23 +2693,26 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 	if(pNewPlot->IsRoutePillaged())
 		eRouteType = NO_ROUTE;
 
-	//what else can count as road depends on the player type
-	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
+	if (eRouteType==NO_ROUTE)
 	{
-		if(eRouteType==NO_ROUTE && pNewPlot->isRiver())
-			eRouteType = ROUTE_ROAD;
-	}
-	if(kPlayer.GetPlayerTraits()->IsMountainPass())
-	{
-		if(pNewPlot->getOwner() == ePlayer && eRouteType==NO_ROUTE)
-			if(pNewPlot->isMountain())
+		//what else can count as road depends on the player type
+		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
+		{
+			if(pNewPlot->isRiver())
 				eRouteType = ROUTE_ROAD;
-	}
-	if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
-	{
-		if(pNewPlot->getOwner() == ePlayer && eRouteType==NO_ROUTE)
-			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
-				eRouteType = ROUTE_ROAD;
+		}
+		if(kPlayer.GetPlayerTraits()->IsMountainPass())
+		{
+			if(pNewPlot->getOwner() == ePlayer)
+				if(pNewPlot->isMountain())
+					eRouteType = ROUTE_ROAD;
+		}
+		if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+		{
+			if(pNewPlot->getOwner() == ePlayer)
+				if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+					eRouteType = ROUTE_ROAD;
+		}
 	}
 
 #else
@@ -3065,6 +3096,11 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 {
 	CvAStar::CvAStar();
 	m_ppaaPartialMoveNodes = NULL;
+
+#if defined(MOD_BALANCE_CORE)
+	//for debugging
+	m_strName = "TwoLayerAStar";
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -715,6 +715,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPopNeededForLux);
 	Method(GetCurrentTotalPop);
 	Method(GetBaseLuxuryHappiness);
+	Method(GetLuxuryBonusPlusOne);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -7748,6 +7749,35 @@ int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->GetBaseLuxuryHappiness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetLuxuryBonusPlusOne();
+int CvLuaPlayer::lGetLuxuryBonusPlusOne(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iHappiness = pkPlayer->GetBaseLuxuryHappiness();
+	const int iIncrease = lua_tointeger(L, 2);
+	int iExtraHappiness = 0;
+	int iNumHappinessResources = 0;
+	ResourceTypes eResource;
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		eResource = (ResourceTypes) iResourceLoop;
+
+		if(eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
+		{
+			iNumHappinessResources++;
+		}
+	}
+	int iNumLux = iNumHappinessResources + iIncrease;
+	if(iNumLux > 0)
+	{
+		iExtraHappiness = ((iNumLux * iHappiness * 100) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+	}
+
+	const int iResult = iExtraHappiness;
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -992,6 +992,10 @@ protected:
 	short /*RouteTypes*/ *m_aeRevealedRouteType;
 	bool* m_abNoSettling;
 
+#if defined(MOD_BALANCE_CORE)
+	int m_iPlotIndex;
+#endif
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool* m_abAvoidMovement;
 #endif

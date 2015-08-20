@@ -111,7 +111,18 @@
 	SET Value = '33'
 	WHERE Name = 'ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT';
 
-	-- Reduction of Pop from conquest reduced to 20% (was 50%)
+	-- Reduction of Pop from conquest reduced to 10% (was 50%)
 	UPDATE Defines
-	SET Value = '80'
+	SET Value = '90'
 	WHERE Name = 'CITY_CAPTURE_POPULATION_PERCENT';
+
+	-- Unit Costs
+	UPDATE Defines
+	SET Value = '10'
+	WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
+
+	UPDATE Defines
+	SET Value = '6'
+	WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
+
+	

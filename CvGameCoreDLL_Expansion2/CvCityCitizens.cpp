@@ -2703,7 +2703,7 @@ void CvCityCitizens::DoSpecialists()
 
 							if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 							{
-								if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+								if (GetPlayer()->IsDiplomaticMarriage() && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(GetPlayer()->getTeam()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 								{
 									iNumMarried++;
 								}

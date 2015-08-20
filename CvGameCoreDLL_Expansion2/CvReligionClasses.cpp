@@ -2220,6 +2220,10 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs()
 					{
 						bAvailable = false;
 					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
 				}
 #endif
 				if (bAvailable) {
@@ -2301,6 +2305,10 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs()
 				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
 				{
 					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
 					{
 						bAvailable = false;
 					}
@@ -2388,6 +2396,10 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs()
 					{
 						bAvailable = false;
 					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
 				}
 #endif
 				if (bAvailable) {
@@ -2469,6 +2481,10 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs()
 				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
 				{
 					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
 					{
 						bAvailable = false;
 					}
@@ -2813,7 +2829,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		{
 			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion))
 			{
-				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
+				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 15);
 				if (iPopReligionModifer != 0)
 				{
 					iPressure *= 100 + iPopReligionModifer;

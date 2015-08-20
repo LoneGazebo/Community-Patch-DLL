@@ -7,7 +7,7 @@
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POPULATION_DIVISOR', '20'
+	SELECT 'BALANCE_HAPPINESS_POPULATION_DIVISOR', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
 
 -- Maximum bonus from luxuries.
@@ -26,7 +26,7 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '2';
+	SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '3';
 
 -- REALLY IMPORTANT VALUE
 -- % Increase of luxury pop needed as you research technologies. Set upper/lower limits on the % increase here.

@@ -11,7 +11,7 @@ WHERE PolicyType = 'POLICY_COMMERCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Wagon Trains (now Turnpikes)
 UPDATE Policies
-SET LandTradeRouteGoldChange = '400'
+SET LandTradeRouteGoldChange = '200'
 WHERE Type = 'POLICY_CARAVANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies

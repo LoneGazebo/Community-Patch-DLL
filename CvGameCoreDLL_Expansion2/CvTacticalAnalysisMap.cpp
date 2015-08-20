@@ -337,7 +337,9 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
-			int iPlotIndex = GC.getMap().plotNum(moveTile->first->getX(),moveTile->first->getY());
+			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+
+			int iPlotIndex = GC.getMap().plotNum(pMoveTile->getX(),pMoveTile->getY());
 			int iPlotMoves = moveTile->second;
 
 			if (pUnit->IsCanAttackRanged())
@@ -349,13 +351,12 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 				if (iPlotMoves>0)
 				{
 					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
-					std::set<CvPlot*> rangedPlots;
+					std::set<int> rangedPlots;
 					//this generates some overlap, but preventing that is about as bad as ignoring it
-					TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,moveTile->first,rangedPlots);
-					for (std::set<CvPlot*>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
+					TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots);
+					for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
 					{
-						int iPlotIndex2 = GC.getMap().plotNum((*attackTile)->getX(),(*attackTile)->getY());
-						m_pPlots[iPlotIndex2].SetSubjectToAttack(true);
+						m_pPlots[*attackTile].SetSubjectToAttack(true);
 					}
 				}
 			}

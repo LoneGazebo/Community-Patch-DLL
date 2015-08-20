@@ -390,6 +390,10 @@ void CvBarbarians::Uninit()
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCityNumUnitsSpawned);
 	}
 #endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	 m_vPlotsWithCamp.clear();
+#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -448,10 +452,6 @@ void CvBarbarians::DoCamps()
 	ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
 	bool bAlwaysRevealedBarbCamp = false;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	 m_vPlotsWithCamp.clear();
-#endif
 
 	// Is there an appropriate Improvement to place as a Barb Camp?
 	if(eCamp != NO_IMPROVEMENT)

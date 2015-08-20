@@ -1079,7 +1079,6 @@ private:
 	// Operational AI support data
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_OperationUnits;
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_GeneralsToMove;
-	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_ParatroopersToMove;
 
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
@@ -1088,10 +1087,10 @@ private:
 namespace TacticalAIHelpers
 {
 	bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
-	typedef std::set<std::pair<CvPlot*,int>> ReachablePlotSet;
+	typedef std::set<std::pair<int,int>> ReachablePlotSet; //don't store pointers in a set, the ordering is unpredictable
 	int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false);
-	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
-	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
+	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<int>& resultSet);
+	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
 	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
 }

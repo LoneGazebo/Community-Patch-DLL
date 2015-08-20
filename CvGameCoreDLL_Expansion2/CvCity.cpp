@@ -283,6 +283,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abFranchised("CvCity::m_abFranchised", m_syncArchive)
 	, m_bHasOffice("CvCity::m_bHasOffice", m_syncArchive)
+	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 #endif
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
@@ -1363,6 +1364,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBlockGold = 0;
 	m_iCorporationGPChange = 0;
 	m_bHasOffice = false;
+	m_iExtraBuildingMaintenance = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -2257,6 +2259,68 @@ void CvCity::doTurn()
 	if(isCapital() && IsPuppet())
 	{
 		SetPuppet(false);
+	}
+	int iBad = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if (eResourceLoop != NO_RESOURCE)
+		{
+			if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
+			{
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+				if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+				
+					// See if there are any BuildingClass requirements
+					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+					{
+						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if(!pkBuildingClassInfo)
+						{
+							continue;
+						}
+
+						const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+						if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
+						{
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
+							if(pkBuildingInfo)
+							{
+								if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+								{
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if(pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
+										strText << pkResourceInfo->GetTextKey();
+										strText << getNameKey();
+										strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
+										strSummary << pkResourceInfo->GetTextKey();
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+									}
+									iBad += (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(iBad > 0)
+	{
+		SetExtraBuildingMaintenance(iBad);
+	}
+	else
+	{
+		SetExtraBuildingMaintenance(0);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -4189,6 +4253,21 @@ void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTyp
 
 		updateYield();
 	}
+}
+
+/// Extra yield for a building this city is lacking resources for?
+int CvCity::GetExtraBuildingMaintenance() const
+{
+	VALIDATE_OBJECT
+	return m_iExtraBuildingMaintenance;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetExtraBuildingMaintenance(int iChange)
+{
+	VALIDATE_OBJECT
+	
+	m_iExtraBuildingMaintenance = iChange;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -9519,8 +9598,8 @@ void CvCity::CheckForOperationUnits()
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
-	if(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 		iSpecialists += iExtra;
@@ -9565,7 +9644,7 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		iNum -= iFoodReduction;
 	}
 	return iNum;
-#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	}
 #endif
 }
@@ -10851,6 +10930,14 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 								{
 									continue;
 								}
+								if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+								{
+									int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
+									if(iChance < 50)
+									{
+										continue;
+									}
+								}
 								bool bBad = false;
 								ResourceTypes eResource;
 								for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -11118,7 +11205,7 @@ int CvCity::getGreatPeopleRateModifier() const
 
 			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(getTeam()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
 				{
 					iNumMarried++;
 				}
@@ -13504,20 +13591,17 @@ int CvCity::getHappinessDelta() const
 //	--------------------------------------------------------------------------------
 int CvCity::getThresholdAdditions() const
 {
-	int iModifier = 0;
+	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100);
+	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= max(1, ((int)(GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER())));
+	iTech /= max(1, GC.getNumTechInfos());
 	
 	iModifier += iTech;
 
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	iModifier += (GET_PLAYER(getOwner()).getNumCities() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
-
-	//Increase threshold based on # of 'normal' citizens. Is slight, but makes larger non-specialist cities more and more difficult to maintain.
-	iModifier += ((getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()) / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
+	iModifier += (getPopulation() / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
 
 	if(isCapital())
 	{
@@ -13687,29 +13771,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		}
 		int iDamage = getDamage() / 10;
 		iModifier += iDamage;
-		CvPlot* pLoopPlot;
-		int iEnemyUnits = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
-		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getOwner() == getOwner())
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
-					{
-						iEnemyUnits++;
-					}
-				}
-			}
-		}
-		iModifier += iEnemyUnits;	
 	}
 	return iModifier;
 }
@@ -17599,6 +17660,17 @@ bool CvCity::CanBuyAnyPlot(void)
 			// Check the result.
 			if(bResult == false)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+					CvString strPlayerName = kOwner.getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+					CvString strBaseString = CvString::format("%03d, %s, %s, CanBuyAnyPlot failed in lua hook", 
+						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString() );
+					pLog->Msg(strBaseString);
+				}
+#endif
 				return false;
 			}
 		}
@@ -21455,6 +21527,7 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_abFranchised;
 	kStream >> m_bHasOffice;
+	kStream >> m_iExtraBuildingMaintenance;
 #endif
 	kStream >> m_abRevealed;
 
@@ -21874,6 +21947,7 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_abFranchised;
 	kStream << m_bHasOffice;
+	kStream << m_iExtraBuildingMaintenance;
 #endif
 	kStream << m_abRevealed;
 

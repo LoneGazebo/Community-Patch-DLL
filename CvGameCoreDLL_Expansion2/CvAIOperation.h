@@ -250,7 +250,7 @@ public:
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 #if defined(MOD_BALANCE_CORE)
-	virtual void FillWithUnitsFromTheReserves(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	virtual bool FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 #endif
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
@@ -282,7 +282,7 @@ protected:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitRecruitUnit(CvArmyAI* pThisArmy, int iSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #endif
 
 	std::vector<int> m_viArmyIDs;
@@ -564,7 +564,9 @@ public:
 	bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 #if defined(MOD_BALANCE_CORE)
 	virtual bool IsEscorted();
+	virtual void SetEscorted(bool bValue);
 #endif
+
 protected:
 	bool m_bEscorted;
 	UnitAITypes m_eCivilianType;

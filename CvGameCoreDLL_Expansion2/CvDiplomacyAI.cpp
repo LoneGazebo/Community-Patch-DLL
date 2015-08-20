@@ -5951,7 +5951,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
-						iWillingToOfferScore += GetPlayer()->GetCulture()->GetWarWeariness();
+						iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() * 2);
 						iWillingToAcceptScore += GET_PLAYER(eLoopPlayer).GetCulture()->GetWarWeariness();
 					}
 #endif
@@ -6163,7 +6163,11 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 6);
+		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3);
+		if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+		{
+			bWillMakePeace = true;
+		}
 #endif
 
 		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
@@ -6905,6 +6909,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						// If nearly defeated in any war, overall state should be defensive
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+					{
+						iStateAllWars -= 1;
+					}
+#endif
 				}
 			}
 			// Not at war
@@ -10635,6 +10645,12 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 			iCurrentValue *= 3;
 			iCurrentValue /= 2;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopCity->getNumWorldWonders() > 0)
+		{
+			iCurrentValue += (pLoopCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		}
+#endif
 	}
 
 	// Unit value
@@ -17317,7 +17333,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		if((GetPlayerNumTurnsAtWar(ePlayer) > 5 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway) || (GetPlayerNumTurnsAtWar(ePlayer) > 5 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 6))
+		if((GetPlayerNumTurnsAtWar(ePlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS)) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3)))
 #else
 		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
 #endif
@@ -19817,6 +19833,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// Changed some logic around so player can see the special declared war on vassal logic
 		if(!(MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer)))
+		{
 #endif
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
@@ -19832,12 +19849,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		}
 		if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer))
+		{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(eFromTeam).declareWar(GetTeam(), false, eFromPlayer);
 #else
 			GET_TEAM(eFromTeam).declareWar(GetTeam());
 #endif
+		}
 #endif
 
 		break;
@@ -20723,11 +20743,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 				}
 			}
-		}
-		else
-		{
-			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
-			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 		}
 		break;
 	}
@@ -22498,6 +22513,10 @@ const char* CvDiplomacyAI::GetDenounceMessageValue(int iValue)
 	else if(iValue == 22)
 	{
 		strText = GetDiploTextFromTag("RESPONSE_DENOUNCE_VICTORY_BLOCK");
+	}
+	else
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_AGAINST_SOMEONE");
 	}
 
 	return strText;

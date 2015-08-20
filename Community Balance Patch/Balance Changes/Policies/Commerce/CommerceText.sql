@@ -18,25 +18,29 @@ WHERE Tag = 'TXT_KEY_POLICY_COMMERCE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercenary Army
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from Windmills, Workshops, and Factories. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 15%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from Windmills, Workshops, and Factories. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 15%.'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'There are a variety of legal types of organisations, including corporations, governments, non-governmental organizations, international organizations, armed forces, charities, not-for-profit corporations, partnerships, cooperatives, universities, and various types of political organizations. A hybrid organization is a body that operates in both the public sector and the private sector simultaneously, fulfilling public duties and developing commercial market activities. A voluntary association is an organization consisting of volunteers. Such organizations may be able to operate without legal formalities, depending on jurisdiction, including informal clubs. Organizations may also operate in secret and/or illegally in the case of secret societies, criminal organizations and resistance movements.'
+SET Text = 'The division of labour is the specialization of cooperating individuals who perform specific tasks and roles. Because of the large amount of labour saved by giving workers specialized tasks in Industrial Revolution-era factories, some classical economists as well as some mechanical engineers such as Charles Babbage were proponents of division of labour. Also, having workers perform single or limited tasks eliminated the long training period required to train craftsmen, who were replaced with lesser paid but more productive unskilled workers. Historically, an increasingly complex division of labour is associated with the growth of total output and trade, the rise of capitalism, and of the complexity of industrialised processes.'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Division of Labor'
+WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Wagon Trains (now called Turnpikes)
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Turnpikes[ENDCOLOR][NEWLINE]+4 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Poverty Threshold reduced by 20% in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Trade[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Poverty Threshold reduced by 20% in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Turnpikes'
+SET Text = 'Free Trade'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A toll road, also known as a turnpike or tollway, is a public or private roadway for which a fee (or toll) is assessed for passage. It is a form of road pricing typically implemented to help recuperate the cost of road construction and maintenance, which (on public roads) amounts to a form of taxation. Toll roads in some form have existed since antiquity, collecting their fees from passing travelers on foot, wagon or horseback; but their prominence increased with the rise of the automobile, and many modern tollways charge fees for motor vehicles exclusively. The amount of the toll usually varies by vehicle type, weight, or number of axles, with freight trucks often charged higher rates than cars.'
+SET Text = 'Free trade is a policy followed by some international markets in which governments do not restrict imports from or exports to other countries. Free trade is exemplified by the European Economic Area and the North American Free Trade Agreement, which have established open markets. Most nations are today members of the World Trade Organization (WTO) multilateral trade agreements. However, most governments still impose some protectionist policies that are intended to support local employment, such as applying tariffs to imports or subsidies to exports. Governments may also restrict free trade to limit exports of natural resources. Other barriers that may hinder trade include import quotas, taxes, and non-tariff barriers, such as regulatory legislation.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mercantilism

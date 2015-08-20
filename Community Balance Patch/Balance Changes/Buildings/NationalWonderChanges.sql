@@ -98,6 +98,11 @@ UPDATE Building_YieldChanges
 SET Yield = '3'
 WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
+-- Spy Agency
+UPDATE Buildings
+SET EspionageModifier = '-15'
+WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
 -- Building Requirement
 
 UPDATE Building_PrereqBuildingClasses
@@ -241,7 +246,7 @@ WHERE Type = 'BUILDING_TOURIST_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 -- Strategy Text
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder gives all units built in this city the "Morale" promotion, increasing their combat strength by +10%. It also provides +1 [ICON_CULTURE] Culture. The Heroic Epic can be constructed when a city has a barracks. Requires a national population of at least 25 before it can be constructed.'
+SET Text = 'This National Wonder gives all land units built in this city the "Morale" promotion, increasing their combat strength by +10%. It also provides +1 [ICON_CULTURE] Culture. The Heroic Epic can be constructed when a city has a barracks. Requires a national population of at least 25 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -287,7 +292,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_STRATEGY' AND EXISTS (SELECT * FROM
 -- Help Text
 
 UPDATE Language_en_US
-SET Text = 'All newly-trained non-air Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city.[NEWLINE][NEWLINE]Requires a national population of at least 25 before it can be constructed.'
+SET Text = 'All newly-trained land Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city.[NEWLINE][NEWLINE]Requires a national population of at least 25 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

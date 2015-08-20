@@ -288,6 +288,10 @@ UPDATE Buildings
 SET FaithToVotes = '6'
 WHERE Type = 'BUILDING_GRAND_OSSUARY';
 
+UPDATE Buildings
+SET FaithToVotes = '6'
+WHERE Type = 'BUILDING_APOSTOLIC_PALACE';
+
 -- Building Prereq Techs
 
 UPDATE Buildings

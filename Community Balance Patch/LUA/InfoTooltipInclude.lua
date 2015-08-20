@@ -332,7 +332,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iScience = iScience + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_SCIENCE )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_SCIENCE)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_SCIENCE)
 			if(corporatechange > 0) then
 				iScience = iScience + corporatechange;
 			end
@@ -361,7 +361,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iProduction = iProduction + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_PRODUCTION )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
 			if(corporatechange > 0) then
 				iProduction = iProduction + corporatechange;
 			end
@@ -1202,22 +1202,22 @@ function GetCityHappinessTooltip(pCity)
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdSubtractionsGold);
 		end
 
-		if(iThresholdSubtractionsDefense ~= 0) then
+		if(iThresholdSubtractionsDefense > 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdSubtractionsDefense);
-		elseif(iThresholdSubtractionsGold < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdSubtractionsGold);
+		elseif(iThresholdSubtractionsDefense < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdSubtractionsDefense);
 		end
 
-		if(iThresholdSubtractionsScience ~= 0) then
+		if(iThresholdSubtractionsScience > 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdSubtractionsScience);
-		elseif(iThresholdSubtractionsGold < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdSubtractionsGold);
+		elseif(iThresholdSubtractionsScience < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdSubtractionsScience);
 		end
 
-		if(iThresholdSubtractionsCulture ~= 0) then
+		if(iThresholdSubtractionsCulture > 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdSubtractionsCulture);
-		elseif(iThresholdSubtractionsGold < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdSubtractionsGold);
+		elseif(iThresholdSubtractionsCulture < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdSubtractionsCulture);
 		end
 
 		if (not OptionsManager.IsNoBasicHelp()) then

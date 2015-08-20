@@ -276,6 +276,20 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- City Over Resource Need Notification -->
+		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} needs {1_Resource:textkey}!</Text>
+		</Row>
+		<!-- Notification for CS gift returned -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY">
+			<Text>{1_CivName:textkey} captured, Unit Gift returned!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED">
+			<Text>Because {1_CivName:textkey} was captured, your gifted {2_Unit} was returned to you.</Text>
+		</Row>
 		<!-- Lua for Trade Routes -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD">
 			<Text>Open Borders [ICON_GOLD] Gold Bonus: +{1_Num}%</Text>

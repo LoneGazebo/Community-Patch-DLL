@@ -340,8 +340,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if(eItem == TRADE_ITEM_GOLD)
 	{
 		// DoF has not been made with this player
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-		if (MOD_BALANCE_CORE_DEALS_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
+#if defined(MOD_BALANCE_CORE)
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
 #else
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 #endif

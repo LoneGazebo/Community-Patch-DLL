@@ -676,7 +676,7 @@ void CvGame::InitPlayers()
 			{
 				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
 			}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_OBSERVER_CHANGES)
 			//don't use a special observer team
 #else
 			else if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)

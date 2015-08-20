@@ -133,6 +133,9 @@ public:
 		else
 			return -1;
 	}
+
+	virtual const char* GetName() const { return m_strName.c_str(); }
+	virtual void SetName(const char* pName) { m_strName = pName; }
 #endif
 
 	inline bool IsPathStart(int iX, int iY)
@@ -429,6 +432,11 @@ protected:
 	void* m_pScratchPtr2;						// Will be cleared to NULL before each GeneratePath call
 
 	char  m_ScratchBuffer[SCRATCH_BUFFER_SIZE];	// Will NOT be modified directly by CvAStar
+
+#if defined(MOD_BALANCE_CORE)
+	//for debugging
+	CvString m_strName;
+#endif
 };
 
 
@@ -599,6 +607,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const;
 #endif
+
 };
 
 class CvIgnoreUnitsPathFinder: public CvAStar

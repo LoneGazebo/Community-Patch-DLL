@@ -573,7 +573,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	}	
 
 	//take into account only the best 70% of the plots - in the near term the city will not work all plots anyways
-	std::sort( workablePlots.begin(), workablePlots.end() );
+	std::stable_sort( workablePlots.begin(), workablePlots.end() );
 	size_t iIrrelevantPlots = workablePlots.size()*30/100;
 	for (size_t idx=iIrrelevantPlots; idx<workablePlots.size(); idx++)
 	{

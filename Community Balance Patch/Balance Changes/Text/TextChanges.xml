@@ -58,6 +58,10 @@
 			<Text>Nennius</Text>
 		</Row>
 
+<!-- Austria Text -->
+		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
+			<Text>[COLOR_POSITIVE_TEXT]MARRIED[ENDCOLOR]</Text>
+		</Row>
 <!-- Text for GPs -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT">
 			<Text>The great wealth brought back by your {1_UnitType} has led your empire to celebrate 'We Love the King Day' for [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Turns!</Text>
@@ -277,7 +281,7 @@
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
-			<Text>{1_Happiness} from Luxury Resource Population Bonus</Text>
+			<Text>{1_Happiness} from Luxuries (based on Population)</Text>
 		</Row>
 
 		<!-- Tooltips for EU Panel -->

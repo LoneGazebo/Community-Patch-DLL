@@ -7184,14 +7184,21 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 //	--------------------------------------------------------------------------------
+bool CvUnit::hasCurrentTacticalMove() const
+{ 
+	return ( m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
+}
+
 void CvUnit::setHomelandMove(AIHomelandMove eMove)
 {
 	VALIDATE_OBJECT
 
-	//if (m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn())
-	//{
-	//	OutputDebugString("Warning: Unit with current tactical move used for homeland AI\n");
-	//}
+	if (hasCurrentTacticalMove())
+	{
+		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+						GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] );
+		GET_PLAYER( m_eOwner ).GetHomelandAI()->LogHomelandMessage( msg );
+	}
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = NO_TACTICAL_MOVE;
@@ -9608,24 +9615,6 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 				}
 			}
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		// Special case: Embassy can be in a city-state's lands, don't allow pillaging unless at war with its owner
-		if(MOD_DIPLOMACY_CITYSTATES && pImprovementInfo->GetCityStateExtraVote() > 0)
-		{
-			PlayerTypes eOwner = pPlot->getOwner();
-			PlayerTypes eBuilder = pPlot->GetPlayerThatBuiltImprovement();
-			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).isMinorCiv())
-			{
-				if (eBuilder != NO_PLAYER && GET_PLAYER(eBuilder).isAlive())
-				{
-					if (!atWar(getTeam(), GET_PLAYER(eBuilder).getTeam()))
-					{
-						return false;
-					}
-				}
-			}
-		}
-#endif
 	}
 
 	// Either nothing to pillage or everything is pillaged to its max
@@ -11423,6 +11412,14 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
+			int iWLTKD = (iTradeGold / 100);
+			int iCap = 20;
+			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCap /= 100;
+			if(iWLTKD > iCap)
+			{
+				iWLTKD = iCap;
+			}
 			CvCity* pLoopCity;
 			int iCityLoop;
 
@@ -11431,7 +11428,7 @@ bool CvUnit::trade()
 			{
 				if(pLoopCity != NULL)
 				{
-					pLoopCity->ChangeWeLoveTheKingDayCounter(iTradeGold / 75);
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
 				}
 			}
 			if(GET_PLAYER(getOwner()).isHuman())
@@ -11440,7 +11437,7 @@ bool CvUnit::trade()
 				if(pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT");
-					strText <<  getNameKey() << (iTradeGold / 75);
+					strText <<  getNameKey() << iWLTKD;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT_SUMMARY");
 					strSummary << getNameKey();
 					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -19603,6 +19600,27 @@ if (!bDoEvade)
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+					else if(kPlayer.GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0)
+					{
+						if(MOD_BALANCE_CORE_POLICIES)
+						{
+							float fDelay = 0.5f;
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							{	
+								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								{
+									char text[256] = {0};
+									fDelay += 0.5f;
+									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+								}
+							}
+						}
+					}
+#endif
 				}
 			}
 		}
@@ -26739,20 +26757,20 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (GC.getLogging() && GC.getAILogging()) 
-	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		CvPlot* pPlot = plot();
-		CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
-		if (pPlot)
-		{
-			CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
-				GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
-				pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
-			FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
-			pLog->Msg( info.c_str() );
-		}
-	}
+	//if (GC.getLogging() && GC.getAILogging()) 
+	//{
+	//	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	//	CvPlot* pPlot = plot();
+	//	CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
+	//	if (pPlot)
+	//	{
+	//		CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
+	//			GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
+	//			pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
+	//		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+	//		pLog->Msg( info.c_str() );
+	//	}
+	//}
 #endif
 
 }

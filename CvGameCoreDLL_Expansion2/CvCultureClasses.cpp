@@ -3616,7 +3616,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	{
 		int iTotalPop = m_pPlayer->getTotalPopulation();
 	
-		int iChance = GC.getGame().getJonRandNum((iTotalPop * 4), "Roll for war weariness increase!");
+		int iChance = GC.getGame().getJonRandNum((iTotalPop * 5), "Roll for war weariness increase!");
 			
 		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
 		iChance /= 100;
@@ -3625,9 +3625,9 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			m_iWarWeariness += 1;
 		}
-		if(m_iWarWeariness >= (iTotalPop / 4))
+		if(m_iWarWeariness >= (iTotalPop / 5))
 		{
-			m_iWarWeariness = (iTotalPop / 4);
+			m_iWarWeariness = (iTotalPop / 5);
 		}
 		return m_iWarWeariness;
 	}

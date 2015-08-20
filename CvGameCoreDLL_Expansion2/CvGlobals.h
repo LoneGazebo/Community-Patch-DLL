@@ -11012,4 +11012,27 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 	return m_pGameDatabase;
 }
 
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+
+#include "Stackwalker/Stackwalker.h"
+
+class MyStackWalker : public StackWalker
+{
+public:
+	MyStackWalker() : m_pLog(NULL), StackWalker() {}
+	void SetLog(FILogFile* pLog) { m_pLog=pLog; }
+protected:
+	virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
+	FILogFile* m_pLog;
+};
+
+//cannot use GC.getGame().getActivePlayer() in observer mode
+PlayerTypes GetCurrentPlayer();
+
+extern MyStackWalker gStackWalker;
+
+#endif
+
+
 #endif
