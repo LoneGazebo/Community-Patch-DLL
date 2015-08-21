@@ -2260,7 +2260,7 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 	if (pLog)
 	{
 		gStackWalker.SetLog(pLog);	
-		gStackWalker.ShowCallstack();
+		gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
 		pLog->Close();
 	}
 #endif

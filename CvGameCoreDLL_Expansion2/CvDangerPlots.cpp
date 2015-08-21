@@ -213,9 +213,9 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
 #ifdef AUI_DANGER_PLOTS_REMADE
-			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility);
-			//store the units which are being aggregated
-			m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
+			if (UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility))
+				//store the units which are being aggregated
+				m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
 #else
 			if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 			{

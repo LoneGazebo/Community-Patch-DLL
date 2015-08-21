@@ -1309,7 +1309,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		plot()->getPlotCity()->updateStrengthValue();
 	}
 
-	m_iArmyId = FFreeList::INVALID_INDEX;
+	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
 
@@ -2392,7 +2392,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		plot()->getPlotCity()->updateStrengthValue();
 	}
 
-	m_iArmyId = FFreeList::INVALID_INDEX;
+	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
 
@@ -18007,7 +18007,7 @@ bool CvUnit::IsHasNoValidMove() const
 int CvUnit::getIndex() const
 {
 	VALIDATE_OBJECT
-	return (GetID() & FLTA_INDEX_MASK);
+	return GetID();
 }
 
 

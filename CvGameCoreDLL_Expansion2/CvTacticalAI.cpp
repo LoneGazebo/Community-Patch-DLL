@@ -389,7 +389,7 @@ void CvTacticalAI::CommandeerUnits()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//make sure there are no stale armies ...
 		int iArmyID = pLoopUnit->getArmyID();
-		if (iArmyID!=FFreeList::INVALID_INDEX)
+		if (iArmyID!=-1)
 		{
 			CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
 			if (pArmy)
@@ -459,7 +459,7 @@ void CvTacticalAI::CommandeerUnits()
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
 			const CvArmyAI* army = m_pPlayer->getArmyAI(iArmyID);
-			if(iArmyID != FFreeList::INVALID_INDEX && NULL != army && !army->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
+			if(iArmyID != -1 && NULL != army && !army->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
 			{
 				pLoopUnit->setTacticalMove(NO_TACTICAL_MOVE);
 			}
@@ -2883,7 +2883,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 						{
 							bAddUnit = false;
 						}
-						if(pUnit->getArmyID() != FFreeList::INVALID_INDEX)
+						if(pUnit->getArmyID() != -1)
 						{
 							bAddUnit = false;
 						}
@@ -9164,7 +9164,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					LogTacticalMessage(strLogString);
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(pUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pUnit->getArmyID() == -1)
 				{
 					if(pUnit->plot()->getOwner() != pUnit->getOwner())
 					{
@@ -12428,7 +12428,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 
 				//sanity check - unexpected units showing up here sometimes
 				std::list<int>::iterator ctu = std::find( m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID() );
-				if (ctu==m_CurrentTurnUnits.end() && pLoopUnit->getArmyID()==FFreeList::INVALID_INDEX )
+				if (ctu==m_CurrentTurnUnits.end() && pLoopUnit->getArmyID()==-1 )
 				{
 					CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d. mission info %s", 
 										 pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );

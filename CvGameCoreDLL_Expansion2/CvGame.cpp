@@ -68,6 +68,11 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+	int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
+#endif
+
 //------------------------------------------------------------------------------
 // CvGame Version History
 // Version 1 
@@ -171,11 +176,6 @@ void CvGame::init(HandicapTypes eHandicap)
 	//--------------------------------
 	// Init saved data
 	reset(eHandicap);
-
-	//--------------------------------
-	// Init containers
-	m_voteSelections.Init();
-	m_votesTriggered.Init();
 
 	if(!isGameMultiPlayer())
 	{
@@ -972,9 +972,6 @@ void CvGame::uninit()
 	m_aszDestroyedCities.clear();
 	m_aszGreatPeopleBorn.clear();
 
-	m_voteSelections.Uninit();
-	m_votesTriggered.Uninit();
-
 	m_mapRand.uninit();
 	m_jonRand.uninit();
 
@@ -1302,9 +1299,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pAdvisorRecommender = FNEW(CvAdvisorRecommender, c_eCiv5GameplayDLL, 0);
 	}
 
-	m_voteSelections.RemoveAll();
-	m_votesTriggered.RemoveAll();
-
 	m_mapRand.reset();
 	m_jonRand.reset();
 
@@ -1314,8 +1308,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	CvCityManager::Reset();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalCityCounter = 1; //0 is invalid
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	m_iGlobalAssetCounter = 1000; //0 is invalid
 #endif
 }
 
@@ -9889,8 +9883,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNoNukesCount;
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream >> m_iGlobalCityCounter;
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	kStream >> m_iGlobalAssetCounter;
 #endif
 	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
@@ -10010,8 +10004,6 @@ void CvGame::Read(FDataStream& kStream)
 
 	kStream >> m_aszDestroyedCities;
 	kStream >> m_aszGreatPeopleBorn;
-	kStream >> m_voteSelections;
-	kStream >> m_votesTriggered;
 
 	m_mapRand.read(kStream);
 	bool wasCallStackDebuggingEnabled = m_jonRand.callStackDebuggingEnabled();
@@ -10149,8 +10141,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNoNukesCount;
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream << m_iGlobalCityCounter;
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	kStream << m_iGlobalAssetCounter;
 #endif
 	kStream << m_iUnused1;
 	kStream << m_iUnused2;
@@ -10246,8 +10238,6 @@ void CvGame::Write(FDataStream& kStream) const
 
 	kStream << m_aszDestroyedCities;
 	kStream << m_aszGreatPeopleBorn;
-	kStream << m_voteSelections;
-	kStream << m_votesTriggered;
 
 	m_mapRand.write(kStream);
 	m_jonRand.write(kStream);

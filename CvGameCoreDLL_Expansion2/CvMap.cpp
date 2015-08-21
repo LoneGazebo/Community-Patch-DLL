@@ -381,8 +381,8 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 
 	//--------------------------------
 	// Init containers
-	m_areas.Init();
-	m_landmasses.Init();
+	m_areas.RemoveAll();
+	m_landmasses.RemoveAll();
 
 	//--------------------------------
 	// Init non-saved data
@@ -478,8 +478,6 @@ void CvMap::uninit()
 	m_iOwnedPlots = 0;
 	m_iNumNaturalWonders = 0;
 
-	m_areas.Uninit();
-	m_landmasses.Uninit();
 	m_kPlotManager.Uninit();
 }
 
@@ -1381,7 +1379,7 @@ int CvMap::getNumLandAreas()
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::getArea(int iID)
 {
-	return m_areas.GetAt(iID);
+	return m_areas.Get(iID);
 }
 
 
@@ -1395,21 +1393,29 @@ CvArea* CvMap::addArea()
 //	--------------------------------------------------------------------------------
 void CvMap::deleteArea(int iID)
 {
-	m_areas.RemoveAt(iID);
+	m_areas.Remove(iID);
 }
 
 
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::firstArea(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_areas.BeginIter(pIterIdx) : m_areas.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_areas.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_areas.GetAt(*pIterIdx);
 }
 
 
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::nextArea(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_areas.NextIter(pIterIdx) : m_areas.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_areas.GetAt(*pIterIdx);
 }
 
 
@@ -1421,7 +1427,7 @@ void CvMap::recalculateAreas()
 	int iNumPlots = numPlots();
 	for(iI = 0; iI < iNumPlots; iI++)
 	{
-		plotByIndexUnchecked(iI)->setArea(FFreeList::INVALID_INDEX);
+		plotByIndexUnchecked(iI)->setArea(-1);
 	}
 
 	m_areas.RemoveAll();
@@ -1612,7 +1618,7 @@ void CvMap::calculateAreas()
 
 		if(!pLoopPlot) continue;
 
-		if(pLoopPlot->getArea() == FFreeList::INVALID_INDEX)
+		if(pLoopPlot->getArea() == -1)
 		{
 			pArea = addArea();
 			pArea->init(pArea->GetID(), pLoopPlot->isWater());
@@ -2210,7 +2216,7 @@ int CvMap::getNumLandLandmasses()
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::getLandmass(int iID)
 {
-	return m_landmasses.GetAt(iID);
+	return m_landmasses.Get(iID);
 }
 
 
@@ -2224,21 +2230,29 @@ CvLandmass* CvMap::addLandmass()
 //	--------------------------------------------------------------------------------
 void CvMap::deleteLandmass(int iID)
 {
-	m_landmasses.RemoveAt(iID);
+	m_landmasses.Remove(iID);
 }
 
 
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::firstLandmass(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_landmasses.BeginIter(pIterIdx) : m_landmasses.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_landmasses.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_landmasses.GetAt(*pIterIdx);
 }
 
 
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::nextLandmass(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_landmasses.NextIter(pIterIdx) : m_landmasses.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_landmasses.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2247,7 +2261,7 @@ void CvMap::recalculateLandmasses()
 	int iNumPlots = numPlots();
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{
-		plotByIndexUnchecked(iI)->setLandmass(FFreeList::INVALID_INDEX);
+		plotByIndexUnchecked(iI)->setLandmass(-1);
 	}
 
 	m_landmasses.RemoveAll();
@@ -2271,7 +2285,7 @@ void CvMap::calculateLandmasses()
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		pLoopPlot = plotByIndexUnchecked(iI);
-		if(pLoopPlot->getLandmass() == FFreeList::INVALID_INDEX)
+		if(pLoopPlot->getLandmass() == -1)
 		{
 			pLandmass = addLandmass();
 			pLandmass->init(pLandmass->GetID(), pLoopPlot->isWater());

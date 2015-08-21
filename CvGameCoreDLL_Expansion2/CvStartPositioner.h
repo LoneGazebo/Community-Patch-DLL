@@ -26,7 +26,7 @@ public:
 		m_uiFertility = 0;
 		m_iRegionsAssigned = 0;
 		m_uiFertilityNextRegion = 0;
-		m_iAreaID = FFreeList::INVALID_INDEX;
+		m_iAreaID = -1;
 	}
 
 	CvContinent(const CvContinent& source)
@@ -98,7 +98,7 @@ public:
 	CvStartRegion()
 	{
 		m_uiFertility = 0;
-		m_iAreaID = FFreeList::INVALID_INDEX;
+		m_iAreaID = -1;
 		m_bLargeEnoughForMajorCiv = true;
 		m_iNumCivsPlaced = 0;
 	}

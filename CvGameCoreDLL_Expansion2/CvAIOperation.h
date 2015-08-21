@@ -98,7 +98,7 @@ struct OperationSlot
 	OperationSlot()
 	{
 		m_iOperationID = -1;
-		m_iArmyID = FFreeList::INVALID_INDEX;
+		m_iArmyID = -1;
 		m_iSlotID = -1;
 	}
 
@@ -109,13 +109,13 @@ struct OperationSlot
 
 	bool IsValid() const
 	{
-		return (m_iArmyID != FFreeList::INVALID_INDEX && m_iSlotID != -1 && m_iOperationID != -1);
+		return (m_iArmyID != -1 && m_iSlotID != -1 && m_iOperationID != -1);
 	}
 
 	void Invalidate()
 	{
 		m_iOperationID = -1;
-		m_iArmyID = FFreeList::INVALID_INDEX;
+		m_iArmyID = -1;
 		m_iSlotID = -1;
 	}
 

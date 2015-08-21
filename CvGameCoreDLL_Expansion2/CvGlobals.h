@@ -27,7 +27,6 @@ class CvIgnoreUnitsPathFinder;
 class CvTwoLayerPathFinder;
 class CvInterface;
 class CvEngine;
-class FVariableSystem;
 class CvMap;
 class CvPlayerAI;
 class CvTeam;

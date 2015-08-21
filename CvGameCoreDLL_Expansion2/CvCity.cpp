@@ -116,9 +116,6 @@ CvCity::CvCity() :
 	, m_iX("CvCity::m_iX", m_syncArchive)
 	, m_iY("CvCity::m_iY", m_syncArchive)
 	, m_iID("CvCity::m_iID", m_syncArchive)
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	, m_iGlobalID("CvCity::m_iGlobalID", m_syncArchive)
-#endif
 	, m_iRallyX("CvCity::m_iRallyX", m_syncArchive)
 	, m_iRallyY("CvCity::m_iRallyY", m_syncArchive)
 	, m_iGameTurnFounded("CvCity::m_iGameTurnFounded", m_syncArchive)
@@ -2922,50 +2919,7 @@ void CvCity::SetEspionageRanking(int iPotential)
 	{
 		iRank = ((iPotential * 100) / GC.getGame().m_iLargestBasePotential);
 		//Rank time - 10 is worst, 1 is best
-		if(iRank == 100)
-		{
-			iRank = 10;
-		}
-		else if(iRank >= 90)
-		{
-			iRank = 9;
-		}
-		else if(iRank >= 80)
-		{
-			iRank = 8;
-		}
-		else if(iRank >= 70)
-		{
-			iRank = 7;
-		}
-		else if(iRank >= 60)
-		{
-			iRank = 6;
-		}
-		else if(iRank >= 50)
-		{
-			iRank = 5;
-		}
-		else if(iRank >= 40)
-		{
-			iRank = 4;
-		}
-		else if(iRank >= 30)
-		{
-			iRank = 3;
-		}
-		else if(iRank >= 20)
-		{
-			iRank = 2;
-		}
-		else if(iRank > 10)
-		{
-			iRank = 1;
-		}
-		else
-		{
-			iRank = 0;
-		}
+		iRank /= 10;
 	}
 	//Seed rank warning and update rank.
 	DoRankIncreaseWarning(iRank);
@@ -9377,8 +9331,8 @@ void CvCity::CheckForOperationUnits()
 								//and train it!
 								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 								int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-								CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-								if (iResult != FFreeList::INVALID_INDEX)
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
 								{
 									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -9453,8 +9407,8 @@ void CvCity::CheckForOperationUnits()
 								//and train it!
 								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 								int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-								CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-								if (iResult != FFreeList::INVALID_INDEX)
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
 								{
 									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -10075,7 +10029,7 @@ bool CvCity::hasActiveWorldWonder() const
 int CvCity::getIndex() const
 {
 	VALIDATE_OBJECT
-	return (GetID() & FLTA_INDEX_MASK);
+	return GetID();
 }
 
 
@@ -18275,7 +18229,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		if(bFinish)
 		{
 			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit);
-			if(iResult != FFreeList::INVALID_INDEX)
+			if(iResult != -1)
 			{
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
@@ -18894,13 +18848,13 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
-		return FFreeList::INVALID_INDEX;
+		return -1;
 	}
 
 	if(pUnit->IsHasNoValidMove())
 	{
 		pUnit->kill(false);
-		return FFreeList::INVALID_INDEX;
+		return -1;
 	}
 
 	addProductionExperience(pUnit);
@@ -19694,8 +19648,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		if(eUnitType >= 0)
 		{
 			int iResult = CreateUnit(eUnitType);
-			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-			if (iResult != FFreeList::INVALID_INDEX)
+			CvAssertMsg(iResult != -1, "Unable to create unit");
+			if (iResult != -1)
 			{
 				CvUnit* pUnit = kPlayer.getUnit(iResult);
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -19814,8 +19768,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		if(eUnitType >= 0)
 		{
 			int iResult = CreateUnit(eUnitType);
-			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-			if (iResult == FFreeList::INVALID_INDEX)
+			CvAssertMsg(iResult != -1, "Unable to create unit");
+			if (iResult == -1)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
 			CvUnit* pUnit = kPlayer.getUnit(iResult);
@@ -20417,9 +20371,9 @@ void CvCity::doGrowth()
 					{
 						int iResult = CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
 
-						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+						CvAssertMsg(iResult != -1, "Unable to create unit");
 
-						if (iResult != FFreeList::INVALID_INDEX)
+						if (iResult != -1)
 						{
 							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit->jumpToNearestValidPlot())
@@ -20445,9 +20399,9 @@ void CvCity::doGrowth()
 						{
 							int iResult = CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
 
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+							CvAssertMsg(iResult != -1, "Unable to create unit");
 
-							if (iResult != FFreeList::INVALID_INDEX)
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->jumpToNearestValidPlot())
@@ -21090,11 +21044,6 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iID;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream >> m_iGlobalID;
-#endif
-
 	kStream >> m_iX;
 	kStream >> m_iY;
 	kStream >> m_iRallyX;
@@ -21544,11 +21493,6 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iID;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream << m_iGlobalID;
-#endif
-
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iRallyX;
@@ -23284,8 +23228,8 @@ bool CvCity::CommitToBuildingUnitForOperation()
 							//and train it!
 							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-							if (iResult != FFreeList::INVALID_INDEX)
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())

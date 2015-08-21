@@ -356,8 +356,8 @@ protected:
 	bool* m_pAvoidMovement;
 #endif
 
-	FFreeListTrashArray<CvArea> m_areas;
-	FFreeListTrashArray<CvLandmass> m_landmasses;
+	TContainer<CvArea> m_areas;
+	TContainer<CvLandmass> m_landmasses;
 
 	GUID m_guid;
 

@@ -371,7 +371,7 @@ inline CvUnit* GetPlayerUnit(IDInfo& unit)
 {
 	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
 	{
-		return (GET_PLAYER((PlayerTypes)unit.eOwner).m_units.GetAt(unit.iID));
+		return (GET_PLAYER((PlayerTypes)unit.eOwner).getUnit(unit.iID));
 	}
 
 	return NULL;
@@ -381,7 +381,7 @@ inline const CvUnit* GetPlayerUnit(const IDInfo& unit)
 {
 	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
 	{
-		return (GET_PLAYER((PlayerTypes)unit.eOwner).m_units.GetAt(unit.iID));
+		return (GET_PLAYER((PlayerTypes)unit.eOwner).getUnit(unit.iID));
 	}
 
 	return NULL;

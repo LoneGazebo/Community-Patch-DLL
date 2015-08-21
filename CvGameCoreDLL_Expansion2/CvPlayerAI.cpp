@@ -1298,7 +1298,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
 	// If headed on a concert tour, keep going
-	if (pGreatMusician->getArmyID() != FFreeList::INVALID_INDEX)
+	if (pGreatMusician->getArmyID() != -1)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
@@ -1417,7 +1417,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	// if the merchant is in an army, he's already marching to a destination, so don't evaluate him
-	if(pGreatMerchant->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatMerchant->getArmyID() != -1)
 	{
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
@@ -1539,7 +1539,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			iGreatGeneralCount++;
 		}
 	}
-	if(pGreatGeneral->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatGeneral->getArmyID() != -1)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1568,7 +1568,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
-	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX))
+	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1689,7 +1689,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
 	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
-	if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatAdmiral->getArmyID() != -1)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}

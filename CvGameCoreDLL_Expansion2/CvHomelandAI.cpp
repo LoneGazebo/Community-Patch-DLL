@@ -1234,7 +1234,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 		}
 
 		// If we find a settler that isn't in an operation, let's keep him in place
-		if(!bGoingToSettle && pUnit->isFound() && pUnit->getArmyID() == FFreeList::INVALID_INDEX)
+		if(!bGoingToSettle && pUnit->isFound() && pUnit->getArmyID() == -1)
 		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->finishMoves();
@@ -6792,7 +6792,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot);
 #endif
 
-			if (pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+			if (pLoopUnit->getArmyID() != -1)
 			{
 				iPlotDanger += 5000;
 			}

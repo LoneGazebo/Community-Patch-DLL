@@ -15,7 +15,6 @@
 #include "CvGrandStrategyAI.h"
 #include "CvCitySpecializationAI.h"
 #include "CvEspionageClasses.h"
-#include "Fireworks/FVariableSystem.h"
 #include "CvEnumSerialization.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"

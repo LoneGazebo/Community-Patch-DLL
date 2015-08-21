@@ -5192,7 +5192,7 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 	CvUnit* pUnit = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
 	int iArmyID = pUnit->getArmyID();
-	if (ePlayer!=NO_PLAYER && iArmyID!=FFreeList::INVALID_INDEX)
+	if (ePlayer!=NO_PLAYER && iArmyID!=-1)
 	{
 		CvArmyAI* pArmy = CvPlayerAI::getPlayer(ePlayer).getArmyAI(iArmyID);
 		if (pArmy)

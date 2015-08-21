@@ -14,7 +14,6 @@
 #include "CvMilitaryAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvCitySpecializationAI.h"
-#include "Fireworks/FVariableSystem.h"
 #include "cvStopWatch.h"
 
 // must be included after all other headers
@@ -1127,9 +1126,9 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
 					int iResult = pCity->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
 
-					CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+					CvAssertMsg(iResult != -1, "Unable to create unit");
 
-					if (iResult != FFreeList::INVALID_INDEX)
+					if (iResult != -1)
 					{
 						CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 						m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
@@ -1171,7 +1170,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 				// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
 				int iResult = pCity->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
 
-				CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+				CvAssertMsg(iResult != -1, "Unable to create unit");
 				CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -1218,7 +1217,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 						int iResult = pCity->CreateBuilding(eBldg);
 
 						DEBUG_VARIABLE(iResult);
-						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create building");
+						CvAssertMsg(iResult != -1, "Unable to create building");
 
 						CvString szMsg;
 						szMsg.Format("Emergency Building Purchased: %s, ", pkBuildingInfo->GetDescription());
@@ -1233,7 +1232,8 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 }
 
 // FINDING BEST CITIES TO TARGET
-#if defined(MOD_BALANCE_CORE_MILITARY) && defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
 CvCity* GetCityFromGlobalID(int iID)
 {
 	//the muster city for a given target can belong to any player, no only to ourselves
@@ -1242,7 +1242,7 @@ CvCity* GetCityFromGlobalID(int iID)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			CvCity* pCity = GET_PLAYER(eLoopPlayer).getCityByGlobalID(iID);
+			CvCity* pCity = GET_PLAYER(eLoopPlayer).getCity(iID);
 			if (pCity!=NULL)
 			{
 				//sanity check
@@ -1322,9 +1322,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 			{
 				if(new_target.m_pTargetCity)
 				{
-					cachedTarget.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
+					cachedTarget.iTargetCity = new_target.m_pTargetCity->GetID();
 					if (new_target.m_pMusterCity)
-						cachedTarget.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+						cachedTarget.iMusterCity = new_target.m_pMusterCity->GetID();
 					cachedTarget.bAttackBySea = new_target.m_bAttackBySea;
 					cachedTarget.iScore = iNewScore;
 					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();			
@@ -1371,9 +1371,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 		if (new_target.m_pTargetCity)
 		{
 			SCachedTarget memory;
-			memory.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
+			memory.iTargetCity = new_target.m_pTargetCity->GetID();
 			if (new_target.m_pMusterCity)
-				memory.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+				memory.iMusterCity = new_target.m_pMusterCity->GetID();
 			memory.bAttackBySea = new_target.m_bAttackBySea;
 			memory.iScore = iNewScore;
 			memory.iTurnChosen = GC.getGame().getGameTurn();
@@ -3411,7 +3411,7 @@ void CvMilitaryAI::UpdateBaseData()
 			{
 				m_iNumLandUnits++;
 
-				if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+				if(pLoopUnit->getArmyID() != -1)
 				{
 					m_iNumLandUnitsInArmies++;
 				}
@@ -3438,7 +3438,7 @@ void CvMilitaryAI::UpdateBaseData()
 			{
 				m_iNumNavalUnits++;
 
-				if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+				if(pLoopUnit->getArmyID() != -1)
 				{
 					m_iNumNavalUnitsInArmies++;
 				}
@@ -5635,7 +5635,7 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 				bStillNeeded = true;
 
 			// Is it in an army?
-			if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+			if(pLoopUnit->getArmyID() != -1)
 				bStillNeeded = true;
 
 			// Can I still build this unit? If so too new to scrap
@@ -5755,7 +5755,7 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 			}
 
 			// Is it in an army?
-			if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+			if(pLoopUnit->getArmyID() != -1)
 			{
 				continue;
 			}
@@ -6011,7 +6011,7 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 			continue;
 		}
 
-		if (pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+		if (pLoopUnit->getArmyID() == -1)
 		{
 			continue;
 		}
@@ -6040,7 +6040,7 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 			continue;
 		}
 
-		if (pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+		if (pLoopUnit->getArmyID() != -1)
 		{
 			continue;
 		}
@@ -7534,7 +7534,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 			// Don't count units that are damaged too heavily
 			if(pLoopUnit->GetCurrHitPoints() >= pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION() / 100)
 			{
-				if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
 					{
@@ -7617,7 +7617,7 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 			// Don't count units that are damaged too heavily
 			if(pLoopUnit->GetCurrHitPoints() >= pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION() / 100)
 			{
-				if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
 					{

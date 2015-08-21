@@ -35,8 +35,8 @@
 //#define MOD_BALANCE_CORE_SANE_IMPASSABILITY
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
-/// use globally unique ids for cities
-#define MOD_BALANCE_CORE_GLOBAL_CITY_IDS
+/// use globally unique ids for cities, units etc
+#define MOD_BALANCE_CORE_GLOBAL_IDS
 /// clean up defines for pathfinder
 #define MOD_BALANCE_CORE_PATHFINDER_FLAGS
 

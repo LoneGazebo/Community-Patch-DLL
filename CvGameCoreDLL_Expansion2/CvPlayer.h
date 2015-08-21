@@ -24,6 +24,7 @@
 #include "CvPreGame.h"
 #include "CvAchievementUnlocker.h"
 #include "CvUnitCycler.h"
+#include "TContainer.h"
 
 class CvPlayerPolicies;
 class CvEconomicAI;
@@ -1752,9 +1753,6 @@ public:
 	CvCity* addCity();
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* getCityByGlobalID(int iID);
-#endif
 
 	// unit iteration
 	int getNumUnits() const;
@@ -2694,17 +2692,11 @@ protected:
 	int  m_iEndTurnBlockingNotificationIndex;
 
 	CLinkList<TechTypes> m_researchQueue;
-
 	CLinkList<CvString> m_cityNames;
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	std::map<int,int> m_citiesByGlobalID;
-#endif
-	FFreeListTrashArray<CvCityAI> m_cities;
-
-	FFreeListTrashArray<CvUnit> m_units;
-
-	FFreeListTrashArray<CvArmyAI> m_armyAIs;
+	TContainer<CvCityAI> m_cities;
+	TContainer<CvUnit> m_units;
+	TContainer<CvArmyAI> m_armyAIs;
 
 	std::map<int, CvAIOperation*> m_AIOperations;
 	std::map<int, CvAIOperation*>::iterator m_CurrentOperation;
@@ -2814,8 +2806,6 @@ protected:
 	void doArmySize();
 
 	friend class CvPlayerManager;
-	friend CvUnit* GetPlayerUnit(IDInfo& unit);
-	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
 
