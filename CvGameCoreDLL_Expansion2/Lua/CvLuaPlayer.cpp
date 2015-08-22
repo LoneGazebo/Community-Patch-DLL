@@ -715,6 +715,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPopNeededForLux);
 	Method(GetCurrentTotalPop);
 	Method(GetBaseLuxuryHappiness);
+	Method(GetLuxuryBonusPlusOne);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -7751,6 +7752,35 @@ int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetLuxuryBonusPlusOne();
+int CvLuaPlayer::lGetLuxuryBonusPlusOne(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iHappiness = pkPlayer->GetBaseLuxuryHappiness();
+	const int iIncrease = lua_tointeger(L, 2);
+	int iExtraHappiness = 0;
+	int iNumHappinessResources = 0;
+	ResourceTypes eResource;
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		eResource = (ResourceTypes) iResourceLoop;
+
+		if(eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
+		{
+			iNumHappinessResources++;
+		}
+	}
+	int iNumLux = iNumHappinessResources + iIncrease;
+	if(iNumLux > 0)
+	{
+		iExtraHappiness = ((iNumLux * iHappiness * 100) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+	}
+
+	const int iResult = iExtraHappiness;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 //------------------------------------------------------------------------------
@@ -11056,25 +11086,28 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
-		if (iValue > 0)
+		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			CvString str;
+			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
+			if (iValue > 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				CvString str;
 			
-			if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) <= AGGRESSIVE_POSTURE_MEDIUM)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
-			}
-			else if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) >= AGGRESSIVE_POSTURE_HIGH)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
-			}
+				if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) <= AGGRESSIVE_POSTURE_MEDIUM)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+				}
+				else if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) >= AGGRESSIVE_POSTURE_HIGH)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
+				}
 
-			kOpinion.m_str = str;
+				kOpinion.m_str = str;
 
-			aOpinions.push_back(kOpinion);
+				aOpinions.push_back(kOpinion);
+			}
 		}
 #endif
 		// warmonger dispute

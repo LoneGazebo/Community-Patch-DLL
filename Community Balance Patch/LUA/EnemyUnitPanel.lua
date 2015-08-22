@@ -964,14 +964,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 
-			-- CBP (Monopoly)
-			iModifier = pMyUnit:GetMonopolyDefenseBonus();
-			if(iModifier ~= 0) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-			end
-
 			-- COMMUNITY (Resistance)
 			iModifier = pMyUnit:GetResistancePower(pTheirUnit);
 			if(iModifier ~= 0) then
@@ -1386,14 +1378,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
 					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
-				end
-
-				-- CBP (Monopoly)
-				iModifier = pTheirUnit:GetMonopolyAttackBonus();
-				if(iModifier ~= 0) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 
 				-- CBP (Monopoly)

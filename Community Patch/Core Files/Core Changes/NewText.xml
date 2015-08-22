@@ -276,6 +276,20 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- City Over Resource Need Notification -->
+		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} needs {1_Resource:textkey}!</Text>
+		</Row>
+		<!-- Notification for CS gift returned -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY">
+			<Text>{1_CivName:textkey} captured, Unit Gift returned!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED">
+			<Text>Because {1_CivName:textkey} was captured, your gifted {2_Unit} was returned to you.</Text>
+		</Row>
 		<!-- Lua for Trade Routes -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD">
 			<Text>Open Borders [ICON_GOLD] Gold Bonus: +{1_Num}%</Text>
@@ -440,34 +454,34 @@
 
 		<!-- Only made if the AI is competitive, and the player and the AI are advancing towards the same victory condition. -->
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST_1">
-			<Text>This world is not big enough for two would-be conquerors. Though I see that you are on the warpath, I do not fear you or your power. My armies will meet yours on the battlefield soon enough, a challenge that will forever decide the fate of humanity. I can only hope that such a conflict will not destroy us both. Prepare yourself!</Text>
+			<Text>This world is not big enough for two would-be conquerors. My armies will meet yours on the battlefield soon enough. Prepare yourself!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST_2">
-			<Text>Do you hear the footsteps of my armies? Fear me, and fear them, as there cannot be two world conquerors on this day. I seek a place in the sun, an empire that stretches around the world. Unfortunately for you, your army stands in my way. Not for long.</Text>
+			<Text>Do you hear the footsteps of my armies? Fear me, and fear them, as there cannot be two world conquerors on this day. Your army stands in my way, but not for long.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES_1">
-			<Text>You will soon bend your knee to my silver-tongued diplomats. I've watched your petty envoys and bureaucrats attempt to seize control of the World Congress for some time now, but I will tolerate it no longer. Global hegemony shall be mine!</Text>
+			<Text>You will soon bend your knee to my silver-tongued diplomats. Global hegemony shall be mine!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES_2">
-			<Text>You'll be happy to know that I've just finished revising my acceptance speech for the position of 'Supreme Leader of Earth.' I do hope you'll attend the reception, as I've reserved you a place at my side. I think.</Text>
+			<Text>You'll be happy to know that I've just finished revising my acceptance speech for the position of 'Supreme Leader of Earth.' I do hope you'll attend the reception.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE_1">
-			<Text>I received a shipment of your so-called 'cultural artifacts' the other day. How quaint. While you may have swayed a few lesser cultures to your side, you will all soon know the meaning of true culture. Prepare for an onslaught, not of firepower, but of my cultural superiority!</Text>
+			<Text>I received a shipment of your so-called 'cultural artifacts' the other day. How quaint. You will all soon know the meaning of true culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE_2">
-			<Text>I know you will agree that there are few sights as glorious as that of a foreign army conquering a city full of willing, passive citizens, especially when that army is composed of musicians, artists, and other cultural luminaries. Unfortunately for you, there is only room for one cultural conqueror on this planet. Prepare to be enlightened.</Text>
+			<Text>There is only room for one cultural conqueror on this planet. Prepare to be enlightened.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP_1">
-			<Text>Though we both stare into the night sky and dream of interstellar empire, historians will remember only one of us for being the first to accomplish such a great task: me. Do not fret, as our mutual love of science need not lead to war. In fact, how would you like a seat on our first spaceship? Being a footnote of history is better than not being remembered at all, right?</Text>
+			<Text>Though we both stare into the night sky and dream of interstellar empire, historians will remember only one of us for being the first to accomplish such a great task: me.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP_2">
-			<Text>We shall soon slip the surly bonds of Earth and pierce the heavens in our shiny new rockets. I'm sorry, by 'we' I meant my people, not yours. We shall be the first to Alpha Centauri, this I can promise you. If you insist on racing us, I'll give you this advice: make sure the pointy end of your rocket is facing upwards.</Text>
+			<Text>We shall soon slip the surly bonds of Earth and pierce the heavens in our shiny new rockets. I'm sorry, by 'we' I meant my people, not yours.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED_1">
-			<Text>I have no idea what you are up to, or what kind of mark you are trying to make on history, but know this: we're watching you, and we have our own plans. And they're probably better than yours. Maybe.</Text>
+			<Text>I have no idea what you are up to, or what kind of mark you are trying to make on history, but know this: we're watching you, and we have our own plans.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED_2">
-			<Text>One of my historians came by the other day to ask me about you and your impact on world history. Do you want to know what I told him? Nothing, and not for a lack of trying. What are you doing over there, anyway? Feeling a bit listless, maybe?</Text>
+			<Text>One of my historians came by the other day to ask me about you and your impact on world history. Do you want to know what I told him? Nothing, because you have done nothing of note.</Text>
 		</Row>
 		
 		<!-- Only made if AI is sure that a human player is headed towards a victory condition that isn't the AI's. -->
@@ -572,7 +586,7 @@
 			<Text>The recent tribute we exacted from {@1_MinorCivName} was not meant as a slight to you or your declaration of protection. I do hope we can move past this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SAME_POLICIES_FREEDOM_2">
-			<Text>Hail, citizen! The path of Freedom lies before us, and none shall stand in our path. Let the darkness of the world tremble before the lights of liberty, justice and equality!</Text>
+			<Text>Hail, citizen! The path of Freedom lies before us, and none shall stand in our path. Let the darkness of the world tremble before the light of liberty!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SAME_POLICIES_ORDER_2">
 			<Text>Let others tremble at our shared belief in Order. We have nothing to lose but our chains. We have a world to win. Workers of the world, unite!</Text>
@@ -2684,13 +2698,13 @@
 			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
-			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
-			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Attack City -->

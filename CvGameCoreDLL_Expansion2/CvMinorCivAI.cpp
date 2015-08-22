@@ -5274,6 +5274,9 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
 
+		if(eMostRecentBully == NO_PLAYER)
+			return false;
+
 		// This player must not be the ally
 		if(eMostRecentBully == GetAlly())
 			return false;
@@ -7250,6 +7253,12 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pkBuildingInfo->GetCorporationID() > 0)
+		{
+			continue;
+		}
+#endif
 
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done (25% by default)
 		for(iWorldPlayerLoop = 0; iWorldPlayerLoop < MAX_MAJOR_CIVS; iWorldPlayerLoop++)
@@ -7326,7 +7335,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationHQID() > 0)
+		if(pkBuildingInfo->GetCorporationID() > 0)
 		{
 			continue;
 		}
@@ -8003,12 +8012,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
-	{
-		return iChangeThisTurn;
-	}
-#endif
+
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
 	int iReligionMod = 0;
@@ -8024,6 +8028,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		{
+			return iChangeThisTurn;
+		}
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
@@ -8538,8 +8548,10 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				if(!bCannotWar)
 				{
-#endif
+					kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
+#else
 				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				}
 #endif
@@ -11249,7 +11261,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// +0 ~ +125
 	// **************************
+#if defined(MOD_BALANCE_CORE)
+	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 15, 4);
+#else
 	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 10, 5);
+#endif
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if(pMinorCapital == NULL)
 		return iFailScore;
@@ -11409,7 +11425,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -175;
+	int iBaseReluctanceScore = -150;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif
@@ -11474,9 +11490,10 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
 			{
-				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer) + 20 >= GC.getGame().getGameTurn())
+				int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
+				if(iOtherLastBullyTurn >= iLastBullyTurn)
 				{
-					iLastBullyTurn += 20;
+					iLastBullyTurn = iOtherLastBullyTurn;
 				}
 			}
 		}
@@ -11561,7 +11578,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -50;
+		int iAllyScore = -75;
 #else
 		int iAllyScore = -10;
 #endif
@@ -11587,7 +11604,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -10;
+			iProtectionScore += -25;
 #else
 			iProtectionScore += -20;
 #endif
@@ -11838,23 +11855,23 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	switch(eYield)
 	{
 		case YIELD_CULTURE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE);
 			break;
 		case YIELD_FAITH:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH);
 			break;
 		case YIELD_SCIENCE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE);
 			break;
 		case YIELD_PRODUCTION:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION);
 			break;
 		case YIELD_FOOD:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD) / 2;
+			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD);
 			break;
 	}
 	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
-	iValue *= ((iNumTurns / 2) + 100);
+	iValue *= (iNumTurns + 100);
 	iValue /= 100;
 	return iValue;
 }
@@ -12792,7 +12809,21 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	pPlot->SetImprovementPillaged(false);
 #endif
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI < pPlot->getNumUnits(); iI++)
+	{
+		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
+		if(pLoopUnit != NULL)
+		{
+			if(pLoopUnit->getBuildType() != NO_BUILD)
+			{
+				pLoopUnit->SetAutomateType(NO_AUTOMATE);
+				pLoopUnit->ClearMissionQueue();
+				pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+			}
+		}
+	}
+#endif
 	// VFX
 	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 	gDLL->GameplayDoFX(pDllPlot.get());

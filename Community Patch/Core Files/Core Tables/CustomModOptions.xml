@@ -99,11 +99,11 @@
     
     <!-- City States at war with each other but allied to the same major will declare peace (v39) -->
     <!-- See also: "Global - City States No Allied Skirmishes" -->
-    <Row Class="4" Name="GLOBAL_CS_NO_ALLIED_SKIRMISHES" Value="0"/>
+    <Row Class="4" Name="GLOBAL_CS_NO_ALLIED_SKIRMISHES" Value="1"/>
     
     <!-- Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22) -->
     <!-- See also: "Global - Venice Keeps Resources" -->
-    <Row Class="6" Name="GLOBAL_VENICE_KEEPS_RESOURCES" Value="0"/>
+    <Row Class="6" Name="GLOBAL_VENICE_KEEPS_RESOURCES" Value="1"/>
     
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
@@ -843,10 +843,10 @@
 	<Row Class="6" Name="BALANCE_CORE_PORTUGAL_CHANGE" Value="0"/>
 	<!-- CSs give different bullying bonuses -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_VARIABLE_BULLYING" Value="0"/>
-	<!-- Specialist food costs scale with era -->
-	<Row Class="6" Name="BALANCE_SPECIALIST_FOOD_SCALE_ERA" Value="0"/>
-	<!-- Doubled Boudica Buff -->
-	<Row Class="6" Name="BALANCE_CORE_BOUDICCA_BUFF" Value="0"/>
+	<!-- Yields scale with era -->
+	<Row Class="6" Name="MOD_BALANCE_YIELD_SCALE_ERA" Value="0"/>
+	<!-- Boost to GM and GD -->
+	<Row Class="6" Name="BALANCE_CORE_NEW_GP_ATTRIBUTES" Value="0"/>
 
   </CustomModOptions>
 

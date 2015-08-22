@@ -1808,7 +1808,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && pEntry2->IsPantheonBelief() && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -1830,7 +1848,26 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2125,7 +2162,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && pEntry2->IsFounderBelief() && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2147,7 +2202,30 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2172,7 +2250,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && pEntry2->IsFollowerBelief() && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2194,7 +2290,30 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2219,7 +2338,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && pEntry2->IsEnhancerBelief() && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2241,7 +2378,30 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2266,7 +2426,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && (pEntry2->IsEnhancerBelief() || pEntry2->IsFollowerBelief() || pEntry2->IsFounderBelief() || pEntry2->IsPantheonBelief()) && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2288,7 +2466,30 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+					if(ePlayer == NO_PLAYER)
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2313,7 +2514,25 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-
+#if defined(MOD_BALANCE_CORE)
+	bool bUniqueExists = false;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+	{
+		for(int iJ = 0; iJ < iNumBeleifs; iJ++)
+		{
+			const BeliefTypes eBelief2(static_cast<BeliefTypes>(iJ));
+			CvBeliefEntry* pEntry2 = pkBeliefs->GetEntry(eBelief2);
+			if(pEntry2 && pEntry2->IsReformationBelief() && pEntry2->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				if(GET_PLAYER(ePlayer).getCivilizationType() == pEntry2->GetRequiredCivilization())
+				{
+					bUniqueExists = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2335,7 +2554,26 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 						bAvailable = false;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if(bUniqueExists)
+					{
+						if(pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
 
+				if(pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+				}
+#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2572,16 +2810,16 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		int iModifier = pFromCity->GetCityReligions()->GetReligiousPressureModifier();
 #if defined(MOD_API_EXTENSIONS)
 		// Trust the modder if they set a negative mod
-		if (iLeaguesMod != 0)
+		if (iModifier != 0)
 #else
-		if (iLeaguesMod > 0)
+		if (iModifier > 0)
 #endif
 		{
 			iPressure *= (100 + iModifier);
 			iPressure /= 100;
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if(GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
+		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 		{
 			iPressure *= 2;
 		}
@@ -2591,7 +2829,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		{
 			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion))
 			{
-				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
+				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 15);
 				if (iPopReligionModifer != 0)
 				{
 					iPressure *= 100 + iPopReligionModifer;
@@ -3595,12 +3833,10 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace) const
 CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
 #if defined(MOD_BALANCE_CORE)
-	m_iReligiousPressureModifier(0),
 	m_pCity(NULL),
-	m_majorityReligion(NO_RELIGION)
-#else
-	m_iReligiousPressureModifier(0)
+	m_majorityReligion(NO_RELIGION),
 #endif
+	m_iReligiousPressureModifier(0)
 {
 	m_ReligionStatus.clear();
 }
@@ -6232,6 +6468,13 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 	{
 		return eRtnValue;
 	}
+#if defined(MOD_BALANCE_CORE)
+	eRtnValue = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	if(eRtnValue > RELIGION_PANTHEON)
+	{
+		return eRtnValue;
+	}
+#endif
 
 	return NO_RELIGION;
 }
@@ -6447,7 +6690,38 @@ void CvReligionAI::DoFaithPurchases()
 				return;
 			}
 		}
-		//FOURTH PRIORITY
+		// FOURTH PRIORITY - BUILDINGS IN GOOD CITIES
+		if((eReligion != NO_RELIGION) && (pCapital != NULL) && (eFaithBuilding != NO_BUILDINGCLASS))
+		{
+			BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFaithBuilding);
+			// FIRST SUB-PRIORITY
+			// Next priority is to establish our faith building in every non-puppet city
+			if(!AreAllOurCitiesHaveFaithBuilding(eReligion, false /*bIncludePuppets*/))
+			{
+				int iBuildingCost = pCapital->GetFaithPurchaseCost(eBuilding);
+				if (iBuildingCost <= kPlayer.GetFaith())
+				{
+					BuyFaithBuilding(eReligion, eFaithBuilding);
+
+					if(GC.getLogging())
+					{
+						strLogMsg += ", Bought a Faith Building, for a Non-Puppet City";
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+				}
+				else
+				{
+					if(GC.getLogging())
+					{
+						strLogMsg += ", Saving up for a Faith Building for a non-puppet city.";
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+					return;
+				}
+
+			}
+		}
+		//FIFTH PRIORITY
 		// Might as well convert puppet-cities to build our religious strength
 		if((eReligion != NO_RELIGION) && !AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/) && !bTooManyMissionaries && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 		{
@@ -6473,7 +6747,34 @@ void CvReligionAI::DoFaithPurchases()
 				return;
 			}
 		}
-		// FIFTH PRIORITY -- Only applicable if all main cities are converted.
+		// SIXTH PRIORITY - BUILDINGS IN OTHER CITIES
+		if((eReligion != NO_RELIGION) && (pCapital != NULL) && (eFaithBuilding != NO_BUILDINGCLASS))
+		{
+			// FIRST SUB-PRIORITY
+			// Try to build other buildings with Faith if we took that belief
+			if (CanBuyNonFaithBuilding() && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
+			{
+				BuyAnyAvailableNonFaithBuilding();
+				if(GC.getLogging())
+				{
+					strLogMsg += ", Focusing on non Faith Buildings, Have belief that allows this";
+					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+				}
+			}
+			// SECOND SUB-PRIORITY
+			// Next priority is to establish our faith building in every puppet city
+			if(!AreAllOurCitiesHaveFaithBuilding(eReligion, true /*bIncludePuppets*/))
+			{
+				BuyFaithBuilding(eReligion, eFaithBuilding);
+
+				if(GC.getLogging())
+				{
+					strLogMsg += ", Focusing on Faith Buildings, For Our Puppet Cities";
+					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+				}
+			}
+		}
+		// SEVENTH PRIORITY -- Only applicable if all main cities are converted.
 		// Try to build other units with Faith if we took that belief
 		if((eReligion != NO_RELIGION) && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/) && !bTooManyMissionaries)
 		{
@@ -6486,7 +6787,7 @@ void CvReligionAI::DoFaithPurchases()
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
 			}
-			// SIXTH PRIORITY
+			// FINAL PRIORITY
 			// Have cities Inquisitors can defend?
 			if(!HaveEnoughInquisitors(eReligion))
 			{
@@ -6497,60 +6798,6 @@ void CvReligionAI::DoFaithPurchases()
 					strLogMsg += ", Focusing on Inquisitors, Need to Defend Our Cities";
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-			}
-		}
-	}
-	// BUILDINGS
-	if((eReligion != NO_RELIGION) && (pCapital != NULL) && (eFaithBuilding != NO_BUILDINGCLASS))
-	{
-		BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFaithBuilding);
-		// FIRST PRIORITY
-		// Next priority is to establish our faith building in every non-puppet city
-		if(!AreAllOurCitiesHaveFaithBuilding(eReligion, false /*bIncludePuppets*/))
-		{
-			int iBuildingCost = pCapital->GetFaithPurchaseCost(eBuilding);
-			if (iBuildingCost <= kPlayer.GetFaith())
-			{
-				BuyFaithBuilding(eReligion, eFaithBuilding);
-
-				if(GC.getLogging())
-				{
-					strLogMsg += ", Bought a Faith Building, for a Non-Puppet City";
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-				}
-			}
-			else
-			{
-				if(GC.getLogging())
-				{
-					strLogMsg += ", Saving up for a Faith Building for a non-puppet city.";
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-				}
-				return;
-			}
-
-		}
-		// SECOND PRIORITY
-		// Try to build other buildings with Faith if we took that belief
-		if (CanBuyNonFaithBuilding() && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
-		{
-			BuyAnyAvailableNonFaithBuilding();
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Focusing on non Faith Buildings, Have belief that allows this";
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-			}
-		}
-		// THIRD PRIORITY
-		// Next priority is to establish our faith building in every puppet city
-		if(!AreAllOurCitiesHaveFaithBuilding(eReligion, true /*bIncludePuppets*/))
-		{
-			BuyFaithBuilding(eReligion, eFaithBuilding);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Focusing on Faith Buildings, For Our Puppet Cities";
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 			}
 		}
 	}
@@ -7579,11 +7826,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	//-----------------
 	// Unlocks a building
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-ReligionTypes eMyReligion = GetReligionToSpread();
-BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
-	if(eMyReligion != NO_RELIGION)
+	ReligionTypes eReligionFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
+	if(eReligionFounded != NO_RELIGION)
 	{
-		eFaithBuildingClass = FaithBuildingAvailable(eMyReligion);
+		eFaithBuildingClass = FaithBuildingAvailable(eReligionFounded);
 	}
 #endif
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -7606,23 +7853,30 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 					}
 					iRtnValue += iFlavorValue;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-					//Do we already have a faith building? Let's not double down.									
-					//If the byzantines, let's get two national wonders!
-					if(m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief())
+				}
+			}
+			if(pBuildingEntry)
+			{
+				//Do we already have a faith building? Let's not double down.									
+				//If the byzantines, let's get two national wonders!
+				if(m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief())
+				{
+					if(pBuildingEntry->IsReformation())
 					{
-						if(pBuildingEntry->IsReformation())
-						{
-							iRtnValue *= 5;
-						}
+						iRtnValue *= 20;
 					}
-					else if(eFaithBuildingClass != NO_BUILDINGCLASS)
+				}
+				else if(eFaithBuildingClass != NO_BUILDINGCLASS)
+				{
+					//Only penalize if we're considering getting a second faith building.
+					if (pBuildingEntry && pBuildingEntry->GetReligiousPressureModifier() > 0)
 					{
-						//Only penalize if we're considering getting a second faith building.
-						if (pBuildingEntry && pBuildingEntry->GetReligiousPressureModifier() > 0)
-						{
-							iRtnValue /= 5;
-						}
+						iRtnValue /= 5;
 					}
+				}
+				else
+				{
+					iRtnValue *= 10;
 #endif
 				}
 			}
@@ -8029,6 +8283,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 	if(bIndia && pEntry->ConvertsBarbarians())
 	{
 		iRtnValue = 0;
+	}
+	if((pEntry->GetRequiredCivilization() != NO_CIVILIZATION) && (pEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType()))
+	{
+		iRtnValue *= 10;
 	}
 #endif
 

@@ -86,7 +86,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -110,7 +110,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -134,7 +134,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -161,7 +161,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -185,7 +185,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -209,7 +209,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -233,7 +233,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -257,7 +257,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>
@@ -282,7 +282,7 @@
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
-			<NumCityCostMod>30</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>-1</FaithCost>

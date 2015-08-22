@@ -315,6 +315,7 @@ protected:
 	static int lGetMinorityHappinessChangeBuildingGlobal(lua_State* L);
 	static int lGetBuildingCorporateYieldChange(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
+	static int lGetPromiseDuration(lua_State* L);
 #endif
 
 	static int lGetWorldNumCitiesUnhappinessPercent(lua_State* L);

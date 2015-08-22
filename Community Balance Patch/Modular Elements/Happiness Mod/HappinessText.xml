@@ -124,7 +124,7 @@
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>To increase your Luxury Resource Population Bonus Multiplier from [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] to [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR], your Empire's Population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your current Population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
+			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your [ICON_CITIZEN] Population to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
@@ -133,43 +133,43 @@
 		
 		<!-- LUA for Buildings -->
 		<Row Tag="TXT_KEY_BUILDING_POVERTY_AVERAGE_MODIFIER">
-			<Text>[ICON_GOLD] Poverty Modifier: {1_num}%</Text>
+			<Text>[ICON_GOLD] Gold Need Modifier: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DEFENSE_AVERAGE_MODIFIER">
-			<Text>[ICON_STRENGTH] Crime Modifier: {1_num}%</Text>
+			<Text>[ICON_STRENGTH] Defense Need Modifier: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CULTURE_AVERAGE_MODIFIER">
-			<Text>[ICON_CULTURE] Boredom Modifier: {1_num}%</Text>
+			<Text>[ICON_CULTURE] Culture Need Modifier: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SCIENCE_AVERAGE_MODIFIER">
-			<Text>[ICON_RESEARCH] Illiteracy Modifier: {1_num}%</Text>
+			<Text>[ICON_RESEARCH] Science Need Modifier: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MINORITY_AVERAGE_MODIFIER">
-			<Text>[ICON_RELIGION] Minority Population reduction: {1_num}%</Text>
+			<Text>[ICON_RELIGION] Religious Need Modifier: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_POVERTY_GLOBAL_AVERAGE_MODIFIER">
-			<Text>[ICON_GOLD] Poverty Modifier in all Cities: {1_num}%</Text>
+			<Text>[ICON_GOLD] Gold Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DEFENSE_GLOBAL_AVERAGE_MODIFIER">
-			<Text>[ICON_STRENGTH] Crime Modifier in all Cities: {1_num}%</Text>
+			<Text>[ICON_STRENGTH] Defense Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CULTURE_GLOBAL_AVERAGE_MODIFIER">
-			<Text>[ICON_CULTURE] Boredom Modifier in all Cities: {1_num}%</Text>
+			<Text>[ICON_CULTURE] Culture Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SCIENCE_GLOBAL_AVERAGE_MODIFIER">
-			<Text>[ICON_RESEARCH] Illiteracy Modifier in all Cities: {1_num}%</Text>
+			<Text>[ICON_RESEARCH] Science Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER">
-			<Text>[ICON_RELIGION] Minority Population reduction in all Cities: {1_num}%</Text>
+			<Text>[ICON_RELIGION] Religious Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 		
 		<!-- More LUA! -->
@@ -192,33 +192,33 @@
 			<Text>[COLOR_POSITIVE_TEXT]Global Average (Need) Modifiers:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD">
-			<Text>[ICON_BULLET] [ICON_GOLD] Poverty Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Illiteracy Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE">
-			<Text>[ICON_BULLET] [ICON_STRENGTH] Crime Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_STRENGTH] Defense Need: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Boredom Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_GOLD] Poverty Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: +{1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Illiteracy Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: +{1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_STRENGTH] Crime Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_STRENGTH] Defense Need: +{1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Boredom Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: +{1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
-			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the number of cities owned, technologies researched, policies chosen, buildings constructed or civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted.)</Text>
+			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the size of the City, Technologies researched, Policies chosen, Buildings constructed or Civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted.)</Text>
 		</Row>
 
 	</Language_en_US>

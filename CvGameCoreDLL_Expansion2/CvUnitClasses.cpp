@@ -49,6 +49,9 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra(0),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNumFreeLux(0),
+#endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
 	m_iReligionSpreads(0),
@@ -240,6 +243,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (MOD_DIPLOMACY_CITYSTATES) {
 		m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
 #endif
 	m_bSpreadReligion = kResults.GetBool("SpreadReligion");
 	m_bRemoveHeresy = kResults.GetBool("RemoveHeresy");
@@ -720,7 +726,13 @@ int CvUnitEntry::GetNumInfPerEra() const
 	return m_iNumInfPerEra;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+/// Free Luxuries in Capital (for great people)
+int CvUnitEntry::GetNumFreeLux() const
+{
+	return m_iNumFreeLux;
+}
+#endif
 /// Can this Unit Spread Religion to a City?
 bool CvUnitEntry::IsSpreadReligion() const
 {

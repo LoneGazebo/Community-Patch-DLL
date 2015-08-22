@@ -280,6 +280,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abFranchised("CvCity::m_abFranchised", m_syncArchive)
 	, m_bHasOffice("CvCity::m_bHasOffice", m_syncArchive)
+	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 #endif
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
@@ -1360,6 +1361,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBlockGold = 0;
 	m_iCorporationGPChange = 0;
 	m_bHasOffice = false;
+	m_iExtraBuildingMaintenance = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -2247,7 +2249,76 @@ void CvCity::doTurn()
 	{
 		ChangePurchaseCooldown(-1);
 	}
-	CheckForOperationUnits();
+	if(!GET_PLAYER(getOwner()).isHuman())
+	{
+		CheckForOperationUnits();
+	}
+	if(isCapital() && IsPuppet())
+	{
+		SetPuppet(false);
+	}
+	int iBad = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if (eResourceLoop != NO_RESOURCE)
+		{
+			if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
+			{
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+				if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+				
+					// See if there are any BuildingClass requirements
+					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+					{
+						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if(!pkBuildingClassInfo)
+						{
+							continue;
+						}
+
+						const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+						if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
+						{
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
+							if(pkBuildingInfo)
+							{
+								if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+								{
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if(pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
+										strText << pkResourceInfo->GetTextKey();
+										strText << getNameKey();
+										strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
+										strSummary << pkResourceInfo->GetTextKey();
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+									}
+									iBad += (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(iBad > 0)
+	{
+		SetExtraBuildingMaintenance(iBad);
+	}
+	else
+	{
+		SetExtraBuildingMaintenance(0);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE)
@@ -4137,6 +4208,21 @@ void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTyp
 		updateYield();
 	}
 }
+
+/// Extra yield for a building this city is lacking resources for?
+int CvCity::GetExtraBuildingMaintenance() const
+{
+	VALIDATE_OBJECT
+	return m_iExtraBuildingMaintenance;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetExtraBuildingMaintenance(int iChange)
+{
+	VALIDATE_OBJECT
+	
+	m_iExtraBuildingMaintenance = iChange;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -4488,8 +4574,11 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			if(iOwnedNumResource > 0)
 			{
 				int iTotalNumResource = GC.getMap().getNumResources(eResource);
-				int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+				if(iTotalNumResource > 0)
+				{
+					int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+				}
 			}
 			return false;
 		}
@@ -4519,8 +4608,11 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		if(iOwnedNumResource > 0)
 		{
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
-			int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+			if(iTotalNumResource > 0)
+			{
+				int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+			}
 		}
 
 		// Increment counter for OR we don't have
@@ -6615,6 +6707,19 @@ void CvCity::changeProduction(int iChange)
 	{
 		changeSpecialistProduction(getProductionSpecialist(), iChange);
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		changeOverflowProduction(iChange);
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("MOD - overflow production from policy/belief/trait/ruin/etc added: %d in %s.",
+				iChange, getName().GetCString());
+			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+	}
+#endif
 }
 
 
@@ -8274,9 +8379,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeReligiousTradeModifier(pBuildingInfo->GetTradeReligionModifier() * iChange);
 		}
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GetFreeBuildingTradeTargetCity() > 0))
+		if(MOD_BALANCE_CORE && (pBuildingInfo->GetFreeBuildingTradeTargetCity() >= 0))
 		{
-			ChangeFreeBuildingTradeTargetCity(pBuildingInfo->GetFreeBuildingTradeTargetCity() * iChange);
+			SetFreeBuildingTradeTargetCity(pBuildingInfo->GetFreeBuildingTradeTargetCity());
 		}
 		if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationGPChange() > 0))
 		{
@@ -9256,6 +9361,10 @@ void CvCity::CheckForOperationUnits()
 	VALIDATE_OBJECT
 	UnitTypes eBestUnit;
 	UnitAITypes eUnitAI;
+	if(IsPuppet() || IsRazing())
+	{
+		return;
+	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -9307,43 +9416,40 @@ void CvCity::CheckForOperationUnits()
 
 				if(eBestUnit != NO_UNIT)
 				{
-					if(getProductionTurnsLeft(eBestUnit, 0) >= 8)
+					if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
 					{
 						return;
 					}
 					else
 					{
-						if(IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+						int iGoldCost = GetPurchaseCost(eBestUnit);
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-							int iGoldCost = GetPurchaseCost(eBestUnit);
-							if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
-							{	
-								//Log it
-								CvString strLogString;
-								strLogString.Format("MOD - Buying unit for active operation from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-									pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+							//Log it
+							CvString strLogString;
+							strLogString.Format("MOD - Buying unit for active operation from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 
-								//take the money...
-								kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+							//take the money...
+							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-								//and train it!
-								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+							//and train it!
+							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
+							{
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 								{
-									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-									{
-										pUnit->setMoves(0);
-									}
-									pThisArmy->AddUnit(pUnit->GetID(), thisOperationSlot.m_iSlotID);
-									CleanUpQueue();
-									kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
-									return;
+									pUnit->setMoves(0);
 								}
+								pThisArmy->AddUnit(pUnit->GetID(), thisOperationSlot.m_iSlotID);
+								CleanUpQueue();
+								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
+								return;
 							}
 						}
 						else
@@ -9378,46 +9484,43 @@ void CvCity::CheckForOperationUnits()
 
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 		{
-			if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+			if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer) || bAppend)
 			{
 				eBestUnit = kPlayer.GetMilitaryAI()->GetUnitForArmy(this);
 				if(eBestUnit != NO_UNIT)
 				{
-					if(getProductionTurnsLeft(eBestUnit, 0) >= 8)
+					if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
 					{
 						return;
 					}
 					else
 					{
-						if(IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-							int iGoldCost = GetPurchaseCost(eBestUnit);
-							if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
-							{	
-								//Log it
-								CvString strLogString;
-								strLogString.Format("MOD - Buying unit for sneak attack from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-									pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+						int iGoldCost = GetPurchaseCost(eBestUnit);
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+						{	
+							//Log it
+							CvString strLogString;
+							strLogString.Format("MOD - Buying unit for sneak attack (or at war) from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 
-								//take the money...
-								kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+							//take the money...
+							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-								//and train it!
-								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+							//and train it!
+							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
+							{
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 								{
-									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-									{
-										pUnit->setMoves(0);
-									}
-									CleanUpQueue();
-									return;
+									pUnit->setMoves(0);
 								}
+								CleanUpQueue();
+								return;
 							}
 						}
 						else
@@ -9430,7 +9533,7 @@ void CvCity::CheckForOperationUnits()
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
-									strLogString.Format("MOD - Building unit for sneak attack from City root function: %s in %s. Turns: %d",
+									strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
 										pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
 									kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 								}
@@ -9449,8 +9552,8 @@ void CvCity::CheckForOperationUnits()
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
-	if(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 		iSpecialists += iExtra;
@@ -9495,7 +9598,7 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		iNum -= iFoodReduction;
 	}
 	return iNum;
-#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	}
 #endif
 }
@@ -10410,6 +10513,449 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				}
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			float fDelay = 0.0f;
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			
+			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
+			if(pReligion && (getPopulation() >= getHighestPopulation()))
+			{
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					changeFood(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					changeProduction(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+					ChangeJONSCultureStored(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).ChangeFaith(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(MOD_BALANCE_CORE_POLICIES)
+			{
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					changeFood(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					changeProduction(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+					ChangeJONSCultureStored(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).ChangeFaith(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(isCapital())
+				{
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeFood(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeProduction(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+						}
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+						ChangeJONSCultureStored(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeFaith(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) > 0)
+					{
+						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+				}
+			}
+
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0)
+			{
+				int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
+				if(iRemainder == 0)
+				{
+					UnitTypes eBestUnit = NO_UNIT;
+					int iStrengthBest = 0;
+					// Loop through adding the available units
+					for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+					{
+						UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
+						if(eLoopUnit != NO_UNIT)
+						{
+							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+							if(pkUnitEntry)
+							{
+								if(!canTrain(eLoopUnit))
+								{
+									continue;
+								}
+								if(pkUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+								{
+									int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
+									if(iChance < 50)
+									{
+										continue;
+									}
+								}
+								bool bBad = false;
+								ResourceTypes eResource;
+								for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									eResource = (ResourceTypes) iResourceLoop;
+									int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
+									if (iNumResource > 0)
+									{
+										bBad = true;
+										break;
+									}
+								}
+								if(bBad)
+								{
+									continue;
+								}
+								int iCombatStrength = pkUnitEntry->GetCombat();
+								if(iCombatStrength > iStrengthBest)
+								{
+									iStrengthBest = iCombatStrength;
+									eBestUnit = eLoopUnit;
+								}
+							}
+						}
+					}
+					if(eBestUnit != NO_UNIT)
+					{
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+						if(pkUnitEntry)
+						{
+							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							int iResult = CreateUnit(eBestUnit, eUnitAI);
+
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+
+							if (iResult != -1)
+							{
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->jumpToNearestValidPlot())
+								{
+									pUnit->kill(false);	// Could not find a valid spot!
+								}
+								pUnit->setMoves(0);
+								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+								if(pUnit && pNotifications)
+								{
+									Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+									localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
+									Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+									localizedSummary << getNameKey() << pUnit->getNameKey();
+									pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
+								}
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), getName().GetCString(), getPopulation());
+									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 
 		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
@@ -10613,7 +11159,7 @@ int CvCity::getGreatPeopleRateModifier() const
 
 			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(getTeam()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
 				{
 					iNumMarried++;
 				}
@@ -10839,8 +11385,6 @@ void CvCity::DoJONSCultureLevelIncrease()
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if(MOD_BALANCE_CORE_BELIEFS && eMajority != NO_RELIGION)
 		{
-			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-
 			const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
@@ -10849,25 +11393,124 @@ void CvCity::DoJONSCultureLevelIncrease()
 				{
 					iEra = 1;
 				}
-				if(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) > 0)
+				
+				int iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FOOD) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
 				{
-					GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+					changeFood(iYield);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				if (eSecondaryPantheon != NO_BELIEF && GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH))
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_PRODUCTION) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
 				{
-					GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH);
+					changeProduction(iYield);
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLD) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeFaith(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_CULTURE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_SCIENCE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+					}
+				}
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				if(iYield > 0)
+				{
+					GET_PLAYER(getOwner()).changeCombatExperience(iYield);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYield);
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
@@ -10880,99 +11523,123 @@ void CvCity::DoJONSCultureLevelIncrease()
 		{
 			iEra = 1;
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) > 0)
+		int iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			changeFood(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+			changeFood(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			changeProduction(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+			changeProduction(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+			GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+			GET_PLAYER(getOwner()).ChangeFaith(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+			GET_PLAYER(getOwner()).changeJONSCulture(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+			GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
 			TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
-				GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+				GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
 			}
 			else
 			{
-				GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra, getOwner());
+				GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
 			}
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
-		if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) > 0)
+		iYield = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra;
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		if(iYield > 0)
 		{
-			GET_PLAYER(getOwner()).changeCombatExperience(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+			GET_PLAYER(getOwner()).changeCombatExperience(iYield);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYield);
 				DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 			}
 		}
@@ -11593,33 +12260,14 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 						iAdjacentFeatures++;
 					}
 				}
-#if defined(MOD_BALANCE_CORE_BOUDICCA_BUFF)
-				//Buff Boudica
-				if(MOD_BALANCE_CORE_BOUDICCA_BUFF && kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
+				if (iAdjacentFeatures > 2)
 				{
-					if (iAdjacentFeatures > 2)
-					{
-						iYield += iBaseYield * 4;
-					}
-					else if (iAdjacentFeatures > 0)
-					{
-						iYield += iBaseYield * 2;
-					}
+					iYield += iBaseYield * 2;
 				}
-				else
+				else if (iAdjacentFeatures > 0)
 				{
-#endif
-					if (iAdjacentFeatures > 2)
-					{
-						iYield += iBaseYield * 2;
-					}
-					else if (iAdjacentFeatures > 0)
-					{
-						iYield += iBaseYield;
-					}
-#if defined(MOD_BALANCE_CORE_BOUDICCA_BUFF)
-				}		
-#endif
+					iYield += iBaseYield;
+				}
 			}
 		}
 	}
@@ -12897,20 +13545,17 @@ int CvCity::getHappinessDelta() const
 //	--------------------------------------------------------------------------------
 int CvCity::getThresholdAdditions() const
 {
-	int iModifier = 0;
+	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100);
+	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= max(1, ((int)(GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER())));
+	iTech /= max(1, GC.getNumTechInfos());
 	
 	iModifier += iTech;
 
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	iModifier += (GET_PLAYER(getOwner()).getNumCities() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
-
-	//Increase threshold based on # of 'normal' citizens. Is slight, but makes larger non-specialist cities more and more difficult to maintain.
-	iModifier += ((getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()) / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
+	iModifier += (getPopulation() / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
 
 	if(isCapital())
 	{
@@ -13080,29 +13725,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		}
 		int iDamage = getDamage() / 10;
 		iModifier += iDamage;
-		CvPlot* pLoopPlot;
-		int iEnemyUnits = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
-		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getOwner() == getOwner())
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
-					{
-						iEnemyUnits++;
-					}
-				}
-			}
-		}
-		iModifier += iEnemyUnits;	
 	}
 	return iModifier;
 }
@@ -18859,6 +19481,13 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 
 	addProductionExperience(pUnit);
 
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit)
+	{
+		pUnit->setMoves(pUnit->maxMoves());
+	}
+#endif
+
 	CvPlot* pRallyPlot = getRallyPlot();
 	if(pRallyPlot != NULL)
 	{
@@ -19983,7 +20612,13 @@ void CvCity::doGrowth()
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//No growth or starvation if in resistance
+	if(IsResistance())
+	{
+		return;
+	}
+#endif
 	int iDiff = foodDifferenceTimes100();
 
 	if(iDiff < 0)
@@ -20013,417 +20648,6 @@ void CvCity::doGrowth()
 		}
 		else
 		{
-#if defined(MOD_BALANCE_CORE)
-			float fDelay = 0.0f;
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if(iEra < 1)
-			{
-				iEra = 1;
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			
-			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
-			if(pReligion && (getPopulation() >= getHighestPopulation()))
-			{
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeFood(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeProduction(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
-					}
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
-					ChangeJONSCultureStored(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeFaith(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			if((getPopulation() >= getHighestPopulation()))
-			{
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeFood(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeProduction(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
-					}
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
-					ChangeJONSCultureStored(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeFaith(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
-				{
-					int iYield = GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(isCapital())
-				{
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						changeFood(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						changeProduction(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
-						{
-							GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
-						}
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						GET_PLAYER(getOwner()).changeJONSCulture(iYield);
-						ChangeJONSCultureStored(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						GET_PLAYER(getOwner()).ChangeFaith(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) > 0)
-					{
-						int iYield = GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) * iEra;
-						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iYield /= 100;
-						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-						}
-					}
-				}
-			}
-
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			if(getPopulation() >= getHighestPopulation() && MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0)
-			{
-				int iRemainder = ((getPopulation() + 1) % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
-				if(iRemainder == 0)
-				{
-					int iRandomFlavor = GC.getGame().getJonRandNum(2, "Unit Choice");
-					UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, false, NULL);
-					if(eType != NO_UNIT && iRandomFlavor > 1)
-					{
-						int iResult = CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
-
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-
-						if (iResult != -1)
-						{
-							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-							if (!pUnit->jumpToNearestValidPlot())
-							{
-								pUnit->kill(false);	// Could not find a valid spot!
-							}
-							pUnit->setMoves(0);	
-							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-							if(pUnit && pNotifications)
-							{
-								Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-								localizedText << getNameKey() << (getPopulation() + 1) << pUnit->getNameKey();
-								Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-								localizedSummary << getNameKey() << pUnit->getNameKey();
-								pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eType);
-							}
-						}
-					}
-					else
-					{
-						UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, false, NULL);
-						if(eType != NO_UNIT)
-						{
-							int iResult = CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
-
-							CvAssertMsg(iResult != -1, "Unable to create unit");
-
-							if (iResult != -1)
-							{
-								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-								if (!pUnit->jumpToNearestValidPlot())
-								{
-									pUnit->kill(false);	// Could not find a valid spot!
-								}
-								pUnit->setMoves(0);
-								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-								if(pUnit && pNotifications)
-								{
-									Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-									localizedText << getNameKey() << (getPopulation() + 1) << pUnit->getNameKey();
-									Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-									localizedSummary << getNameKey() << pUnit->getNameKey();
-									pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eType);
-								}
-							}
-						}
-					}
-				}
-			}
-#endif
 			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
 
@@ -21252,6 +21476,7 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_abFranchised;
 	kStream >> m_bHasOffice;
+	kStream >> m_iExtraBuildingMaintenance;
 #endif
 	kStream >> m_abRevealed;
 
@@ -21666,6 +21891,7 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_abFranchised;
 	kStream << m_bHasOffice;
+	kStream << m_iExtraBuildingMaintenance;
 #endif
 	kStream << m_abRevealed;
 

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2641,7 +2641,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										{
 											CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-											if(pCityPlot != NULL)
+											if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
 											{
 												ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
 												ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
@@ -8421,7 +8421,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					if(getImprovementType() != NO_IMPROVEMENT)
 					{
 						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-						if(bRequiresResource && getResourceType() == NO_RESOURCE)
+						if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 						{
 							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 						}
@@ -8429,7 +8429,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				}
 				else if(bRequiresResource)
 				{
-					if(getResourceType() != NO_RESOURCE)
+					if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 					{
 						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 						if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
@@ -8477,7 +8477,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 						if(getImprovementType() != NO_IMPROVEMENT)
 						{
 							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-							if(bRequiresResource && getResourceType() == NO_RESOURCE)
+							if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 							{
 								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							}
@@ -8485,7 +8485,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					}
 					else if(bRequiresResource)
 					{
-						if(getResourceType() != NO_RESOURCE)
+						if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 						{
 							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
@@ -9003,29 +9003,6 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	CvCity* pWorkingCity = getWorkingCity();
 	if(pWorkingCity)
 	{
-#if defined(MOD_BALANCE_CORE)
-		//Encourage yields we need in the city.
-		if(eYield == YIELD_GOLD && pWorkingCity->getUnhappinessFromGold() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromGold() / 2);
-		}
-		else if(eYield == YIELD_CULTURE && pWorkingCity->getUnhappinessFromCulture() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_FAITH && pWorkingCity->getUnhappinessFromMinority() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_SCIENCE && pWorkingCity->getUnhappinessFromScience() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-		else if(eYield == YIELD_FOOD && pWorkingCity->getUnhappinessFromStarving() > 0)
-		{
-			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
-		}
-#endif
 		ReligionTypes eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{

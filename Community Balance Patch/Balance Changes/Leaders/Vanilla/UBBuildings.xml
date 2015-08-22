@@ -397,8 +397,6 @@
 			<Help>TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP</Help>
 			<CityConnectionTradeRouteModifier>2</CityConnectionTradeRouteModifier>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
-			<TechEnhancedTourism>1</TechEnhancedTourism>
-			<EnhancedYieldTech>TECH_CONSTRUCTION</EnhancedYieldTech>
 			<MinAreaSize>-1</MinAreaSize>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -449,7 +447,26 @@
 			<Yield>5</Yield>
 		</Row>
 	</Building_YieldFromVictory>
-	
+	<Building_BuildingClassLocalYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_ARMORY</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Building_BuildingClassLocalYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM">
 			<Text>Arena</Text>
@@ -460,7 +477,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. Provides +2 [ICON_TOURISM] Tourism. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
+			<Text>Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
@@ -472,7 +489,7 @@
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Cost>550</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>
@@ -683,7 +700,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<NukeImmune>true</NukeImmune>
-			<NumCityCostMod>35</NumCityCostMod>
+			<NumCityCostMod>15</NumCityCostMod>
 			<NationalPopRequired>65</NationalPopRequired>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<CultureRateModifier>25</CultureRateModifier>

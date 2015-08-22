@@ -45,7 +45,7 @@
 	<Builds>
 		<Row>
 			<Type>BUILD_LUMBERMILL_JUNGLE</Type>
-			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<Time>800</Time>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
 			<Description>TXT_KEY_BUILD_LUMBERMILL_JUNGLE</Description>

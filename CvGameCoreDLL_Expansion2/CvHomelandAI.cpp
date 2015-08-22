@@ -6148,9 +6148,82 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
-			UnitProcessed(pUnit->GetID());
-			continue;
+			if(pUnit->canGetFreeLuxury())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FREE_LUXURY());
+				UnitProcessed(pUnit->GetID());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s got a free luxury for this civ, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				continue;
+			}
+			else
+			{
+				CvCity* pLoopCity;
+				int iLoopCity = 0;
+				CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
+				for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+				{
+					if (!pLoopCity->isCoastal())
+					{
+						continue;
+					}
+
+					int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+					int iWeight = pLoopCity->plot()->GetSizeLargestAdjacentWater();
+
+					// If this city is damaged, divide weight by the damage level
+					if (pLoopCity->getDamage() > 0)
+					{
+						iWeight /= pLoopCity->getDamage();
+					}
+
+					// Subtract off turns to reach
+					if (iTurns != MAX_INT)
+					{
+						iWeight -= iTurns;
+					}
+
+					weightedCityList.push_back(pLoopCity, iWeight);
+				}
+
+				weightedCityList.SortItems();
+				if (weightedCityList.size() > 0)
+				{
+					CvCity *pChosenCity = weightedCityList.GetElement(0);
+				
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY());
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+					continue;
+				}
+				else
+				{
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+					continue;
+				}
+			}
+
 		}
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)

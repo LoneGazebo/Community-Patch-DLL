@@ -666,7 +666,8 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 
 #if defined(MOD_UI_CITY_EXPANSION)
 			case NOTIFICATION_CITY_TILE:
-				if (MOD_UI_CITY_EXPANSION) {
+				if (MOD_UI_CITY_EXPANSION) 
+				{
 					eBlockingType = ENDTURN_BLOCKING_CITY_TILE;
 					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 					return true;

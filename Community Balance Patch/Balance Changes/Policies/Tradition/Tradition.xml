@@ -53,7 +53,7 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<Happiness>3</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>

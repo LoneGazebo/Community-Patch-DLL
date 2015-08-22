@@ -78,7 +78,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Religious Settlements
 UPDATE Language_en_US
-SET Text = '+10% faster border growth, and gain 5 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
+SET Text = '+20% faster border growth, and gain 5 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals
@@ -88,7 +88,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Oral Tradition
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Plantations, and +2 [ICON_CULTURE] Culture from Markets'
+SET Text = '+2 [ICON_PEACE] Faith from Plantations, and +2 [ICON_CULTURE] Culture from Markets'
 WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Ancestor Worship
@@ -148,5 +148,5 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sun God
 UPDATE Language_en_US
-SET Text = '+2 [ICON_FOOD] Food from Granaries and Farms on improved resources. +2 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
+SET Text = '+2 [ICON_CULTURE] Culture from Granaries and +3 [ICON_PEACE] Faith from Farms on improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

@@ -177,6 +177,15 @@ ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' INTEGER DEFAULT 0;
 
+-- New Traits -- Can Only Select from beliefs unique to the civ
+ALTER TABLE Traits ADD COLUMN 'UniqueBeliefsOnly' BOOLEAN DEFAULT 0;
+
+-- New Traits -- Combat Boost from nearby owned NWs. Requires distance value from improvementdistancerange XML
+ALTER TABLE Traits ADD COLUMN 'CombatBoostNearNaturalWonder' BOOLEAN DEFAULT 0;
+
+-- New Belief Element -- Assign Belief to Specific Civ only
+ALTER TABLE Beliefs ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
+
 -- New Traits - Free Great Work(s) on Conquest (or Culture Boost if no great works/slots)
 
 ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' BOOLEAN DEFAULT 0;
@@ -376,6 +385,9 @@ ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
 -- Tech Additions
 ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
 ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
+
+--Units
+ALTER TABLE Units ADD 'NumFreeLux' INTEGER DEFAULT 0;
 
 -- Promotions
 

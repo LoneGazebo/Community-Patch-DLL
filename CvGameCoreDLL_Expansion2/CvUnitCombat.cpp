@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -286,15 +286,20 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
-		if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES) {
+		if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+		{
 			// If the attacker is in a city, fort or citadel, don't advance
 			static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 			static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 			CvPlot* attackPlot = kAttacker.plot();
 
-			if (attackPlot->isCity() || attackPlot->getImprovementType() == eImprovementFort || attackPlot->getImprovementType() == eImprovementCitadel) {
-				//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
-				bAdvance = false;
+			if (attackPlot->isCity() || (attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) || (attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()))
+			{
+				if(attackPlot->getOwner() == kAttacker.getOwner())
+				{
+					//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
+					bAdvance = false;
+				}
 			}
 		}
 #endif

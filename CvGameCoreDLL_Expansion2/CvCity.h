@@ -150,6 +150,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
+
+	int GetExtraBuildingMaintenance() const;
+	void SetExtraBuildingMaintenance(int iChange);
 #endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -1389,6 +1392,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
 	FAutoVariable<bool, CvCity> m_bHasOffice;
+	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 #endif
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
 

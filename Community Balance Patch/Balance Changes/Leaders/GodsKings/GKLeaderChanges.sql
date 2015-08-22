@@ -190,7 +190,7 @@ SET Yield = '3'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '0'
+SET Happiness = '1'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -214,11 +214,15 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith in Cities with an adjacent unimproved Forest, or +4 [ICON_PEACE] Faith with 3+ adjacent unimproved Forest tiles. +50% tile yields from Natural Wonders.'
+SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET NaturalWonderYieldModifier = '50'
+SET UniqueBeliefsOnly = 'true'
+WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET FaithFromUnimprovedForest = 'false'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Dido -- Delete African Forest Elephant, remove mountain bonus (given to incans)
@@ -370,7 +374,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP' AND EXISTS (SELECT * FROM CO
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
 UPDATE Language_en_US
-SET Text = 'Can use [ICON_GOLD] Gold to arrange Marriages with allied City-States. Marriages grant +1 Delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person generation in your [ICON_CAPITAL] Capital, and your [ICON_INFLUENCE] Influence over the City-State no longer decays.'
+SET Text = 'Can use [ICON_GOLD] Gold to arrange Marriages with allied City-States. While not at war, Marriages grant +1 Delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person generation in your [ICON_CAPITAL] Capital, and your [ICON_INFLUENCE] Influence over the City-State no longer decays.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

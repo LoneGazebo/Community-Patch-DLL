@@ -1134,11 +1134,11 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			}
 			else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY)
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-			}
-			else if(pZone->GetFriendlyStrength() > pZone->GetEnemyStrength())
-			{
 				eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			}
+			else if(pZone->GetFriendlyUnitCount() > pZone->GetEnemyUnitCount())
+			{
+				eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
 			}
 			else
 			{
@@ -4845,72 +4845,116 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 
 		// if we're there already, we don't have work to do (CheckOnTarget() will finish operation for us)
 		if(pCivilian->plot() == pOperation->GetTargetPlot())
-			return;
+		{
+			if(pCivilian->getMoves() > 0 && pCivilian->canFound(pCivilian->plot()))
+			{
+				pCivilian->PushMission(CvTypes::getMISSION_FOUND());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("City founded, At X=%d, At Y=%d", pCivilian->plot()->getX(), pCivilian->plot()->getY());
+					pOperation->LogOperationSpecialMessage(strMsg);
+				}
+				pOperation->SetToAbort(AI_ABORT_SUCCESS);
+				// Notify tactical AI to focus on this area
+				CvTemporaryZone zone;
+				zone.SetX(pOperation->GetTargetPlot()->getX());
+				zone.SetY(pOperation->GetTargetPlot()->getY());
+				zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+				zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
+				AddTemporaryZone(zone);
+				if(pEscort)
+				{
+					pEscort->finishMoves();
+					UnitProcessed(pEscort->GetID());
+				}
+			}
+		}
 
 		// the escort leads the way
 		bool bHavePathEscort = false;
+		bool bPathFound = false;
 		if(pEscort)
 		{
 			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), MOVE_UNITS_IGNORE_DANGER);
-		}
-		
-		// if the escort can reach the target, see where it can go without losing the escort
-		if (pEscort)
-		{
 			if(bHavePathEscort)
 			{
-				int iTurns = INT_MAX;
-				bool bHavePathCivilian = pCivilian->GeneratePath(pEscort->GetPathEndTurnPlot(), MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
-				bool bSaveMoves = (pEscort->GetPathEndTurnPlot() == pOperation->GetTargetPlot());
-				if (bHavePathCivilian && iTurns <= 1)
+				CvPlot* pCommonPlot = pEscort->GetPathEndTurnPlot();
+				if(pCommonPlot != NULL)
 				{
-					CvPlot* pCommonPlot = pEscort->GetPathEndTurnPlot();
-					if (pCommonPlot != NULL)
+					int iTurns = INT_MAX;
+					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
+					bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+					if (bHavePathCivilian && iTurns <= 1)
 					{
 						//nice, both can move to the same plot
+						bPathFound = true;
 						ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
 						ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
-						strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. escort leading.", 
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. escort leading.", 
 							pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
 							pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
-					}
-				}
-				else
-				{
-					//try it the other way around
-					bHavePathEscort = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags, false, &iTurns);
-					bHavePathCivilian = pEscort->GeneratePath(pCivilian->GetPathEndTurnPlot(), iFlags, false, &iTurns);
+						}
+						if(pCivilian->getMoves() > 0 && pCivilian->plot() == pOperation->GetTargetPlot())
+						{
+							if(pCivilian->canFound(pCivilian->plot()))
+							{
+								pCivilian->PushMission(CvTypes::getMISSION_FOUND());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strMsg;
+									strMsg.Format("City founded, At X=%d, At Y=%d", pCivilian->plot()->getX(), pCivilian->plot()->getY());
+									pOperation->LogOperationSpecialMessage(strMsg);
+								}
+								pOperation->SetToAbort(AI_ABORT_SUCCESS);
+								// Notify tactical AI to focus on this area
+								CvTemporaryZone zone;
+								zone.SetX(pOperation->GetTargetPlot()->getX());
+								zone.SetY(pOperation->GetTargetPlot()->getY());
+								zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+								zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
+								AddTemporaryZone(zone);
+								if(pEscort)
+								{
+									pEscort->finishMoves();
+									UnitProcessed(pEscort->GetID());
+								}
+							}
+						}
 
-					if (bHavePathEscort && bHavePathCivilian && iTurns <= 1)
-					{
-						CvPlot* pCommonPlot = pCivilian->GetPathEndTurnPlot();
-						bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
-						if (pCommonPlot != NULL)
-						{
-							ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
-							ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
-							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. civilian leading.", 
-								pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
-								pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
-						}
-					}
-					else
-					{
-						//we have a problem, apparently civilian and escort must split up
-						ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
-						//try to stay close
-						if (!MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked() ))
-						{
-							//if impossible, move independently
-							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot());
-						}
-						strLogString.Format("%s at (%d,%d) separated from escort %s at (%d,%d)", 
-							pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
-							pEscort->getName().c_str(), pEscort->getX(), pEscort->getY() );
 					}
 				}
 			}
 			else
+			{
+				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), MOVE_UNITS_IGNORE_DANGER);
+				if(bHavePathCivilian)
+				{
+					CvPlot* pCommonPlot = pCivilian->GetPathEndTurnPlot();
+					if(pCommonPlot != NULL)
+					{
+						int iTurns = INT_MAX;
+						bool bHavePathEscort = pEscort->GeneratePath(pCommonPlot, MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
+						bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+						if (bHavePathEscort && iTurns <= 1)
+						{
+							bPathFound = true;
+							//nice, both can move to the same plot
+							ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
+							ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.", 
+								pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+								pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
+							}
+						}
+					}
+				}
+			}
+			if(!bPathFound)
 			{
 				//we have a problem, apparently civilian and escort must split up
 				ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
@@ -4927,11 +4971,37 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		}
 		else
 		{
-			// no escort - civilian can move on it's own
-			ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
-			strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) without escort.", 
-				pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
-				pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+			if(pCivilian->plot() == pOperation->GetTargetPlot())
+			{
+				return;
+			}
+			else
+			{
+				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), MOVE_MINIMIZE_ENEMY_TERRITORY);
+				if(bHavePathCivilian)
+				{
+					CvPlot* pCommonPlot = pCivilian->GetPathEndTurnPlot();
+					if(pCommonPlot != NULL)
+					{
+						bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+						ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves); 
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+						}
+					}
+				}
+				else
+				{
+					MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot());
+					pCivilian->finishMoves();
+					UnitProcessed(pCivilian->GetID());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+					}
+				}
+			}
 		}
 
 		// now we're done
@@ -5545,9 +5615,9 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					// Move escort over
 					if(!pCivilian->isEmbarked())
 					{
-						if(pEscort->getDomainType() != pCivilian->getDomainType())
+						if(pEscort->getDomainType() == DOMAIN_SEA)
 						{
-							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
+							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
 						}
 						else
 						{
@@ -5566,13 +5636,13 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					}
 					else
 					{
-						if(pEscort->getDomainType() != pCivilian->getDomainType())
+						if(pEscort->getDomainType() == DOMAIN_SEA)
 						{
 							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
 						}
 						else
 						{
-							MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
+							ExecuteMoveToPlot(pEscort, pCivilian->plot());
 						}			
 						pEscort->finishMoves();
 						UnitProcessed(pEscort->GetID());
@@ -5622,11 +5692,25 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							// Move escort over
 							if(pCivilian->isEmbarked())
 							{
-								MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), false);
+								if(pCivilian->plot()->GetNumCombatUnits() > 0)
+								{
+									MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false);
+								}
+								else
+								{
+									ExecuteMoveToPlot(pUnit, pCivilian->plot());
+								}
 							}
 							else
 							{
-								MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), true);
+								if(pCivilian->plot()->GetNumCombatUnits() > 0)
+								{
+									MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true);
+								}
+								else
+								{
+									ExecuteMoveToPlot(pUnit, pCivilian->plot());
+								}
 							}
 							if(GC.getLogging() && GC.getAILogging())
 							{
@@ -5704,6 +5788,18 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 						pOperation->LogOperationSpecialMessage(strMsg);
 					}
 					pOperation->SetToAbort(AI_ABORT_SUCCESS);
+					// Notify tactical AI to focus on this area
+					CvTemporaryZone zone;
+					zone.SetX(pOperation->GetTargetPlot()->getX());
+					zone.SetY(pOperation->GetTargetPlot()->getY());
+					zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+					zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
+					AddTemporaryZone(zone);
+					if(pEscort)
+					{
+						pEscort->finishMoves();
+						UnitProcessed(pEscort->GetID());
+					}
 				}
 			}
 
@@ -5724,6 +5820,18 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							pOperation->LogOperationSpecialMessage(strMsg);
 						}
 						pOperation->SetToAbort(AI_ABORT_SUCCESS);
+						// Notify tactical AI to focus on this area
+						CvTemporaryZone zone;
+						zone.SetX(pOperation->GetTargetPlot()->getX());
+						zone.SetY(pOperation->GetTargetPlot()->getY());
+						zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+						zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
+						AddTemporaryZone(zone);
+						if(pEscort)
+						{
+							pEscort->finishMoves();
+							UnitProcessed(pEscort->GetID());
+						}
 						return;
 					}
 				}

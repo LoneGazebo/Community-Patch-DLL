@@ -114,6 +114,7 @@ public:
 	int GetTerrainClaimBoost() const;
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
+	bool IsUniqueBeliefsOnly() const;
 	int  GetGrowthBoon() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -235,6 +236,7 @@ public:
 	int GetGoldenAgeFromVictory() const;
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
+	bool IsCombatBoostNearNaturalWonder() const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -335,6 +337,7 @@ protected:
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
+	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -452,6 +455,7 @@ protected:
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bCombatBoostNearNaturalWonder;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
@@ -772,6 +776,10 @@ public:
 	bool IsMountainPass() const
 	{
 		return m_bMountainPass;
+	};
+	bool IsUniqueBeliefsOnly() const
+	{
+		return m_bUniqueBeliefsOnly;
 	};
 	int GetGrowthBoon() const
 	{
@@ -1103,6 +1111,10 @@ public:
 	{
 		return m_bPopulationBoostReligion;
 	}
+	bool IsCombatBoostNearNaturalWonder() const
+	{
+		return m_bCombatBoostNearNaturalWonder;
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1281,6 +1293,7 @@ private:
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
+	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1411,6 +1424,7 @@ private:
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bCombatBoostNearNaturalWonder;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

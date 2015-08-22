@@ -6832,7 +6832,7 @@ void CvCityEspionage::SetSpyResult(PlayerTypes eSpyOwner, int iResult)
 
 #if defined(MOD_EVENTS_ESPIONAGE)
 	if (MOD_EVENTS_ESPIONAGE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageState, (int) eSpyOwner, iSpyIndex, iResult, m_pCity->getX(), m_pCity->getY());
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageResult, (int) eSpyOwner, iSpyIndex, iResult, m_pCity->getX(), m_pCity->getY());
 	}
 #endif
 }

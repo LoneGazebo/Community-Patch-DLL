@@ -17,8 +17,8 @@
 		<Row>
 			<BeliefType>BELIEF_SUN_GOD</BeliefType>
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_ImprovementYieldChanges>
 	<Belief_CoastalCityYieldChanges>
@@ -81,7 +81,7 @@
 		<Row>
 			<BeliefType>BELIEF_SUN_GOD</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
@@ -153,12 +153,6 @@
 	<Belief_BuildingClassYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_TEARS_OF_GODS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_SUN_GOD</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>2</YieldChange>

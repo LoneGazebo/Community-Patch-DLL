@@ -98,6 +98,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iExtraVotes(0),
 	m_piMaxYieldPerFollower(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_eRequiredCivilization(NO_CIVILIZATION),
+#endif
 
 	m_eObsoleteEra(NO_ERA),
 	m_eResourceRevealed(NO_RESOURCE),
@@ -630,7 +633,13 @@ int CvBeliefEntry::GetExtraVotes() const
 	return m_iExtraVotes;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+CivilizationTypes CvBeliefEntry::GetRequiredCivilization() const
+{
+	return m_eRequiredCivilization;
+}
+#endif
 /// Accessor: era when wonder production modifier goes obsolete
 EraTypes CvBeliefEntry::GetObsoleteEra() const
 {
@@ -1041,6 +1050,10 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMissionaryInfluenceCS = kResults.GetInt("MissionaryInfluenceCS");
 	m_iHappinessPerPantheon = kResults.GetInt("HappinessPerPantheon");
 	m_iExtraVotes = kResults.GetInt("ExtraVotes");
+#endif
+#if defined(MOD_BALANCE_CORE)
+	const char* szCivilizationType = kResults.GetText("CivilizationType");
+	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
 #endif
 	//References
 	const char* szTextVal;
@@ -1506,6 +1519,9 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_iHappinessPerPantheon = source.m_iHappinessPerPantheon;
 	m_iExtraVotes = source.m_iExtraVotes;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_eRequiredCivilization = source.m_eRequiredCivilization;
+#endif
 
 	m_eObsoleteEra = source.m_eObsoleteEra;
 	m_eResourceRevealed = source.m_eResourceRevealed;
@@ -1568,6 +1584,9 @@ void CvReligionBeliefs::Reset()
 	m_iMissionaryInfluenceCS = 0;
 	m_iHappinessPerPantheon = 0;
 	m_iExtraVotes = 0;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_eRequiredCivilization = NO_CIVILIZATION;
 #endif
 
 	m_eObsoleteEra = NO_ERA;
@@ -1633,6 +1652,9 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iMissionaryInfluenceCS += belief->GetMissionaryInfluenceCS();
 	m_iHappinessPerPantheon += belief->GetHappinessPerPantheon();
 	m_iExtraVotes += belief->GetExtraVotes();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_eRequiredCivilization = belief->GetRequiredCivilization();
 #endif
 
 	m_eObsoleteEra = belief->GetObsoleteEra();
@@ -3075,6 +3097,9 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(60, kStream, m_iHappinessPerPantheon, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iExtraVotes, 0);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_eRequiredCivilization;
+#endif
 	if (uiVersion >= 2)
 	{
 		kStream >> m_iFaithBuildingTourism;
@@ -3142,6 +3167,9 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iMissionaryInfluenceCS);
 	MOD_SERIALIZE_WRITE(kStream, m_iHappinessPerPantheon);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraVotes);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_eRequiredCivilization;
 #endif
 	kStream << m_iFaithBuildingTourism;
 

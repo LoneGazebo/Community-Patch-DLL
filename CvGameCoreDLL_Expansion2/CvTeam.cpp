@@ -1109,61 +1109,6 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	PlayerTypes eOriginatingPlayer = NO_PLAYER;
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	std::pair<TeamTypes,PlayerTypes> args(eTeam,eOriginatingPlayer);
-	std::map<std::pair<TeamTypes,PlayerTypes>,bool>::iterator it = m_cacheCanDeclareWar.find(args);
-	if (it!=m_cacheCanDeclareWar.end())
-		return it->second;
-
-	bool bResult = true;
-	if(eTeam == GetID())
-		bResult = false;
-	else if(!(isAlive()) || !(GET_TEAM(eTeam).isAlive()))
-		bResult = false;
-	else if(isAtWar(eTeam))
-		bResult = false;
-	else if(!isHasMet(eTeam))
-		bResult = false;
-	else if(isForcePeace(eTeam))
-		bResult = false;
-	else if(!canChangeWarPeace(eTeam))
-		bResult = false;
-	else if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
-		bResult = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
-		bResult = false;
-	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
-		bResult = false;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	else if (MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
-		bResult = false;
-#endif
-	else
-	{
-		// First, obtain the Lua script system.
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			// Construct and push in some event arguments.
-			CvLuaArgsHandle luaArgs(2);
-			luaArgs->Push(GetID());
-			luaArgs->Push(eTeam);
-
-			// Attempt to execute the game events.
-			// Will return false if there are no registered listeners.
-			bool bLuaResult = false;
-			if(LuaSupport::CallTestAll(pkScriptSystem, "CanDeclareWar", luaArgs.get(), bLuaResult))
-				bResult = bLuaResult;
-		}
-	}
-
-	m_cacheCanDeclareWar[args] = bResult;
-	return bResult;
-
-#else
-
 	if(eTeam == GetID())
 	{
 		return false;
@@ -1198,9 +1143,15 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	{
 		return false;
 	}
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
+	{
+		return false;
+	}
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (MOD_EVENTS_WAR_AND_PEACE) {
+	if (MOD_EVENTS_WAR_AND_PEACE) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
@@ -1234,7 +1185,6 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	}
 
 	return true;
-#endif
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1346,6 +1296,10 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 
 		// Auto War for Defensive Pacts
+#if defined(MOD_BALANCE_CORE)
+		if(bAggressor)
+		{
+#endif
 		for(iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			if(GET_TEAM((TeamTypes)iI).isAlive())
@@ -1360,6 +1314,9 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES) {
@@ -1559,7 +1516,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #else
 								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam);
 #endif
-
 								if(!bDefensivePact)
 								{
 									// Major declaring war on Minor
@@ -1588,7 +1544,11 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 								// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
 								// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
 								//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
+#if defined(MOD_BALANCE_CORE)
+								if(!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
+#else
 								if(!isMinorCiv() && !bDefensivePact)
+#endif
 								{
 									ChangeNumMinorCivsAttacked(1);
 
@@ -1624,7 +1584,17 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 				if(GET_PLAYER(eMinor).isAlive())
 				{
 					if(bWar)
+#if defined(MOD_BALANCE_CORE)
+						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+						{
+							if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly()).getTeam()))
+							{
+#endif
 						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
+#if defined(MOD_BALANCE_CORE)
+							}
+						}
+#endif
 					else
 						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowPeaceWithTeam(eTeam);
 				}
@@ -1671,7 +1641,10 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 					{
 						// Match war state
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, false, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
+						if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+						{
+							GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, false, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
+						}
 #else
 						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 #endif
@@ -8196,7 +8169,9 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
 		}
-		
+#if defined(MOD_BALANCE_CORE)
+		updateYield();
+#endif
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
@@ -8224,11 +8199,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 20);
-					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 20);
-					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 10);
+					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 25);
+					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 25);
+					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 15);
 
-					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra()));
+					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra() + 10));
 						
 					if(iBeakersBonus > 0)
 					{
@@ -8246,8 +8221,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						if(pLoopCity != NULL)
 						{
-							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 10);
-							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 5);
+							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 20);
+							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 10);
 						}
 					}
 				}

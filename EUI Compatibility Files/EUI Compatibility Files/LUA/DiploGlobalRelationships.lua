@@ -299,7 +299,31 @@ function InitMajorCivList()
 					end
 				end
 				-- END
-				
+				-- Marriages (CBP)
+				for iThirdPlayer = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS - 1 do
+					if (iThirdPlayer ~= iOtherPlayer) then
+						local pThirdPlayer = Players[iThirdPlayer];
+						
+						if (pThirdPlayer ~= nil and pThirdPlayer:IsAlive()) then
+							local iThirdTeam  = pThirdPlayer:GetTeam();
+							
+							if (g_pUsTeam:IsHasMet(iThirdTeam) or iThirdPlayer == g_iUs) then
+								
+								-- Allied with Minor
+								if (pThirdPlayer:IsMarried(iOtherPlayer)) then
+									bHasEntry = true;
+									
+									thirdName = pThirdPlayer:GetCivilizationShortDescription();
+									
+									local textControls = {};
+									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_MARRIED_TO", thirdName);
+								end
+							end
+						end
+					end
+				end
+				-- END
 				-- Denouncements
 				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
 					if (iThirdPlayer ~= iOtherPlayer) then

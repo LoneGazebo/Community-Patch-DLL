@@ -76,6 +76,9 @@ const MissionTypes getMISSION_SELL_EXOTIC_GOODS();
 const MissionTypes getMISSION_GIVE_POLICIES();
 const MissionTypes getMISSION_ONE_SHOT_TOURISM();
 const MissionTypes getMISSION_CHANGE_ADMIRAL_PORT();
+#if defined(MOD_BALANCE_CORE)
+const MissionTypes getMISSION_FREE_LUXURY();
+#endif
 const unsigned int getNUM_MISSION_TYPES();
 
 const GreatWorkArtifactClass getARTIFACT_ANCIENT_RUIN();

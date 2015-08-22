@@ -2752,7 +2752,10 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += GetVictoryDisputeLevelScore(ePlayer);
 		iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
-		iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer)  * 3);
+		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
+		{
+			iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer)  * 3);
+		}
 	}
 #endif
 
@@ -5948,7 +5951,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
-						iWillingToOfferScore += GetPlayer()->GetCulture()->GetWarWeariness();
+						iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() * 2);
 						iWillingToAcceptScore += GET_PLAYER(eLoopPlayer).GetCulture()->GetWarWeariness();
 					}
 #endif
@@ -6160,7 +6163,11 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 6);
+		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3);
+		if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+		{
+			bWillMakePeace = true;
+		}
 #endif
 
 		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
@@ -6902,6 +6909,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						// If nearly defeated in any war, overall state should be defensive
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+					{
+						iStateAllWars -= 1;
+					}
+#endif
 				}
 			}
 			// Not at war
@@ -10632,6 +10645,12 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 			iCurrentValue *= 3;
 			iCurrentValue /= 2;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopCity->getNumWorldWonders() > 0)
+		{
+			iCurrentValue += (pLoopCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		}
+#endif
 	}
 
 	// Unit value
@@ -11447,9 +11466,16 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					// Did they attack a Minor we're protecting?
 					if(GET_PLAYER(eAttackedPlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 					{
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						if(!bDefensivePact)
+						{
+#endif
 						SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, 0);
 						SetOtherPlayerProtectedMinorAttacked(ePlayer, eAttackedPlayer);
 						ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						}
+#endif
 					}
 				}
 			}
@@ -12685,9 +12711,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if(IsFriendDenounceRefusalUnacceptable(ePlayer, eTarget))
 					{
 						DoDenouncePlayer(ePlayer);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetFriendDenouncedUs(GetPlayer()->GetID(), false);
-#endif
 						LogDenounce(ePlayer, /*bBackstab*/ false, /*bRefusal*/ true);
 					}
 				}
@@ -12839,7 +12862,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 			{
-				if (GC.getGame().getJonRandNum(100, "AI demand refusal war rand.") < (50 + (GetMeanness() * 2)))
+				if (GC.getGame().getJonRandNum(100, "AI demand refusal war rand.") < (40 + (GetMeanness() * 2)))
 				{
 					bValid = true;
 				}
@@ -17310,7 +17333,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		if((GetPlayerNumTurnsAtWar(ePlayer) > 5 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway) || (GetPlayerNumTurnsAtWar(ePlayer) > 5 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 6))
+		if((GetPlayerNumTurnsAtWar(ePlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS)) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3)))
 #else
 		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
 #endif
@@ -19810,6 +19833,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// Changed some logic around so player can see the special declared war on vassal logic
 		if(!(MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer)))
+		{
 #endif
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
@@ -19825,12 +19849,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		}
 		if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer))
+		{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(eFromTeam).declareWar(GetTeam(), false, eFromPlayer);
 #else
 			GET_TEAM(eFromTeam).declareWar(GetTeam());
 #endif
+		}
 #endif
 
 		break;
@@ -20674,21 +20701,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 #endif
 			{
-				if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (70 - GetMeanness() - GetBoldness()))
+				if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (80 - GetMeanness() - GetBoldness()))
 				{
 					bDeclareWar = true;
-				}
-				if(bDeclareWar)
-				{
-					int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eFromPlayer).getTeam());
-					if(iPeaceTreatyTurn != -1)
-					{
-						int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-						if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
-						{
-							bDeclareWar = false;
-						}
-					}
 				}
 			}
 			if(bDeclareWar)
@@ -20713,7 +20728,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				//If player is offended, AI should take note as penalty to assistance.
 				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 25));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
 			}
 			if(bActivePlayer)
 			{
@@ -20725,16 +20740,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_SO_BE_IT);
-					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 				}
 			}
 		}
-		else
-		{
-			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
-			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
-		}
-
 		break;
 	}
 #endif
@@ -22504,6 +22513,10 @@ const char* CvDiplomacyAI::GetDenounceMessageValue(int iValue)
 	else if(iValue == 22)
 	{
 		strText = GetDiploTextFromTag("RESPONSE_DENOUNCE_VICTORY_BLOCK");
+	}
+	else
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_AGAINST_SOMEONE");
 	}
 
 	return strText;
@@ -26634,6 +26647,10 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 	int iNumCivs = GetNumTimesIntrigueSharedBy(ePlayer);
 	if (iNumCivs > 0)
 	{
+		if(iNumCivs >= 3)
+		{
+			iNumCivs = 3;
+		}
 		// Full credit for first one
 		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
 		// Partial credit for any after first
@@ -33151,7 +33168,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	}
 
 	// If we've made it this far we'd like to offer, so figure out how much we want to offer
-	int iGoldToOffer = iOurGPT * GC.getGame().GetDealDuration() / 5;
+	int iGoldToOffer = iOurGPT * GC.getGame().GetDealDuration() / 20;
 	int iGPTToOffer = 0;
 
 	// Let's not offer the player more than double the amount of gold they have

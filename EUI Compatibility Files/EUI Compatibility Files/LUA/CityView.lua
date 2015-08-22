@@ -432,20 +432,13 @@ local function GetSpecialistYields( city, specialist )
 	local yieldTips = table()
 	local specialistID = specialist.ID
 	if city then
-		-- Culture
-		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
-		-- Total
-		if(cultureFromSpecialist > 0) then
-			--CBP
-			-- Policies/Buildings/Techs/
-			local extraYield = (city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE) + city:GetSpecialistYield( specialistID, YieldTypes.YIELD_CULTURE ))
-			-- END
-			cultureFromSpecialist = (cultureFromSpecialist + extraYield)
-		end
-		--END
+		-- Culture (moved down)
+		local cultureFromSpecialist = 0
 		-- Yield
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-			if(yieldID ~= YieldTypes.YIELD_CULTURE) then
+			if(yieldID == YieldTypes.YIELD_CULTURE) then
+				cultureFromSpecialist = (city:GetCultureFromSpecialist( specialistID ) + city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE) + city:GetSpecialistYield( specialistID, YieldTypes.YIELD_CULTURE ))
+			elseif(yieldID ~= YieldTypes.YIELD_CULTURE) then
 				local specialistYield = city:GetSpecialistYield( specialistID, yieldID )
 				-- COMMUNITY PATCH BEGINS
 					if(specialistYield > 0) then

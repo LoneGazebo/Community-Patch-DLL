@@ -20,7 +20,7 @@
 			<Help>TXT_KEY_PROMOTION_KILL_HEAL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<HPHealedIfDestroyEnemy>15</HPHealedIfDestroyEnemy>
+			<HPHealedIfDestroyEnemy>20</HPHealedIfDestroyEnemy>
 			<HealIfDestroyExcludesBarbarians>false</HealIfDestroyExcludesBarbarians>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -96,10 +96,6 @@
 		</Row>
 		<Row>
 			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
 			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 		</Row>
 		<Row>
@@ -117,30 +113,6 @@
 		<Row>
 			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
 			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_KILL_HEAL</PromotionType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
 </GameData>

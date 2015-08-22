@@ -404,7 +404,18 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 		else
 #endif
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE)
+			{
+				return true;
+			}
+			else if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
+			{
+				return true;
+			}
+#else
 			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE;
+#endif
 		}
 	}
 
@@ -430,14 +441,25 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
 #if defined(MOD_BALANCE_CORE)
-	int iEra = m_pPlayer->GetCurrentEra();
-	if(iEra < 1)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		iEra = 1;
+		int iEra = m_pPlayer->GetCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
+		return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
 	}
-	return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+	else
+	{
+#endif
+#if defined(MOD_BALANCE_CORE)
+	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
 #else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	}
 #endif
 }
 
@@ -849,6 +871,20 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 	// Start Era mod
 	iMaintenance *= GC.getGame().getStartEraInfo().getBuildingMaintenancePercent();
 	iMaintenance /= 100;
+
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pLoopCity;
+
+	int iLoop;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if(pLoopCity->GetExtraBuildingMaintenance() > 0)
+		{
+			iMaintenance *= (100 + pLoopCity->GetExtraBuildingMaintenance());
+			iMaintenance /= 100;
+		}
+	}
+#endif
 
 	return iMaintenance;
 }

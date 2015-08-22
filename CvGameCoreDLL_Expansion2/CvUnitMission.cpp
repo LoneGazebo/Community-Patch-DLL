@@ -847,6 +847,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					kMissionData.eMissionType == CvTypes::getMISSION_SELL_EXOTIC_GOODS() ||
 					kMissionData.eMissionType == CvTypes::getMISSION_GIVE_POLICIES() ||
 					kMissionData.eMissionType == CvTypes::getMISSION_ONE_SHOT_TOURISM() ||
+#if defined(MOD_BALANCE_CORE)
+					kMissionData.eMissionType == CvTypes::getMISSION_FREE_LUXURY() ||
+#endif
 					kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
 			{
 				bDone = true;
@@ -1357,6 +1360,15 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 			return true;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if (iMission == CvTypes::getMISSION_FREE_LUXURY())
+	{
+		if (hUnit->canGetFreeLuxury())
+		{
+			return true;
+		}
+	}
+#endif
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
 	else if (MOD_EVENTS_CUSTOM_MISSIONS) {
 		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionPossible, hUnit->getOwner(), hUnit->GetID(), iMission, iData1, iData2, 0, -1, pPlot->getX(), pPlot->getY(), bTestVisible) == GAMEEVENTRETURN_TRUE) {
@@ -1834,6 +1846,15 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					bAction = true;
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			else if (pkQueueData->eMissionType == CvTypes::getMISSION_FREE_LUXURY())
+			{
+				if(hUnit->createFreeLuxury())
+				{
+					bAction = true;
+				}
+			}
+#endif
 
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
 			else if (MOD_EVENTS_CUSTOM_MISSIONS) {

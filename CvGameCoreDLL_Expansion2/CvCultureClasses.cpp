@@ -3457,7 +3457,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 
 	// NEUTRAL MODIFIERS
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+	if (!GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
 #else
 	if (!kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 #endif
@@ -3616,7 +3616,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	{
 		int iTotalPop = m_pPlayer->getTotalPopulation();
 	
-		int iChance = GC.getGame().getJonRandNum((iTotalPop * 4), "Roll for war weariness increase!");
+		int iChance = GC.getGame().getJonRandNum((iTotalPop * 5), "Roll for war weariness increase!");
 			
 		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
 		iChance /= 100;
@@ -3625,9 +3625,9 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			m_iWarWeariness += 1;
 		}
-		if(m_iWarWeariness >= (iTotalPop / 4))
+		if(m_iWarWeariness >= (iTotalPop / 5))
 		{
-			m_iWarWeariness = (iTotalPop / 4);
+			m_iWarWeariness = (iTotalPop / 5);
 		}
 		return m_iWarWeariness;
 	}

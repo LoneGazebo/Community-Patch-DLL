@@ -42,7 +42,7 @@
 			<CorporationHelper>TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_CIVILIZED_JEWELERS</FreeBuildingThisCity>
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<TradeRouteTargetBonus>5</TradeRouteTargetBonus>
 			<NumTradeRouteBonus>1</NumTradeRouteBonus>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
@@ -66,7 +66,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<FreeBuildingTradeTargetCity>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</FreeBuildingTradeTargetCity>
 			<CorporationID>6</CorporationID>
-			<GreatPeopleRateModifier>10</GreatPeopleRateModifier>
+			<GreatPeopleRateModifier>5</GreatPeopleRateModifier>
 			<CorporationGPChange>5</CorporationGPChange>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
@@ -208,7 +208,7 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
-			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 5, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]All Markets, Banks, Mints, and Stock Exchanges produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
 			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>

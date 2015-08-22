@@ -412,13 +412,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 				bLiberate = true;
 			}
 #if defined(MOD_BALANCE_CORE)
-			if(IsEmpireUnhappy())
+			if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
 			{
 				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 				{
 					bLiberate = true;
 				}
-				if(GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_COMPETITOR)
+				if(GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) > MAJOR_CIV_OPINION_NEUTRAL)
 				{
 					bLiberate = true;
 				}
@@ -567,7 +567,16 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
 			{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
+				int iLandSea = GetMilitaryAI()->GetWarType();
+				if(iLandSea == 2)
+				{
+					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
+				}
+				else
+				{
+					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
+				}
+
 #else
 				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
 #endif
@@ -1534,7 +1543,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->IsGreatGeneral())
+		if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			iGreatGeneralCount++;
 		}
@@ -1718,6 +1727,20 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	//No war? Let's settle down.
+	int iGreatAdmiralCount = 0;
+
+	int iLoop;
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	{
+		if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		{
+			iGreatAdmiralCount++;
+		}
+	}
+	if(iGreatAdmiralCount > 1 && pGreatAdmiral->canGetFreeLuxury())
+	{
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }

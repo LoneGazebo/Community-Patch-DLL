@@ -64,6 +64,9 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetNumInfPerEra() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetNumFreeLux() const;
+#endif
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
 	int GetReligiousStrength() const;
@@ -237,6 +240,9 @@ private:
 	int m_iNumGoldPerEra;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iNumInfPerEra;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iNumFreeLux;
 #endif
 	bool m_bSpreadReligion;
 	int m_iReligionSpreads;

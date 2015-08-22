@@ -11022,6 +11022,8 @@ public:
 	MyStackWalker() : m_pLog(NULL), StackWalker() {}
 	void SetLog(FILogFile* pLog) { m_pLog=pLog; }
 protected:
+	virtual void OnSymInit(LPCSTR, DWORD, LPCSTR) { /*dummy*/ }
+	virtual void OnLoadModule(LPCSTR, LPCSTR, DWORD64, DWORD, DWORD, LPCSTR, LPCSTR, ULONGLONG) { /*dummy*/ }
 	virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
 	FILogFile* m_pLog;
 };

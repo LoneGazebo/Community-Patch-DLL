@@ -82,6 +82,9 @@ MissionTypes s_eMISSION_SELL_EXOTIC_GOODS = NO_MISSION;
 MissionTypes s_eMISSION_GIVE_POLICIES = NO_MISSION;
 MissionTypes s_eMISSION_ONE_SHOT_TOURISM = NO_MISSION;
 MissionTypes s_eMISSION_CHANGE_ADMIRAL_PORT = NO_MISSION;
+#if defined(MOD_BALANCE_CORE)
+MissionTypes s_eMISSION_FREE_LUXURY = NO_MISSION;
+#endif
 unsigned int s_uiNUM_MISSION_TYPES = 0;
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
@@ -238,6 +241,9 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_GIVE_POLICIES"), &s_eMISSION_GIVE_POLICIES));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ONE_SHOT_TOURISM"), &s_eMISSION_ONE_SHOT_TOURISM));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CHANGE_ADMIRAL_PORT"), &s_eMISSION_CHANGE_ADMIRAL_PORT));
+#if defined(MOD_BALANCE_CORE)
+		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_FREE_LUXURY"), &s_eMISSION_FREE_LUXURY));
+#endif
 
 		Database::Results kResults;
 		if(db.Execute(kResults, "SELECT Type, ID from Missions"))
@@ -566,4 +572,10 @@ const MissionTypes CvTypes::getMISSION_ONE_SHOT_TOURISM()
 {
 	return s_eMISSION_ONE_SHOT_TOURISM;
 }
+#if defined(MOD_BALANCE_CORE)
+const MissionTypes CvTypes::getMISSION_FREE_LUXURY()
+{
+	return s_eMISSION_FREE_LUXURY;
+}
+#endif
 //-------------------------------------------------------------------------

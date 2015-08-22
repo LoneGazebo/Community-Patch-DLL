@@ -45,7 +45,7 @@
 				<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowResources" String="TXT_KEY_MAP_OPTIONS_RESOURCE_ICONS" />
 				<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowYield" String="TXT_KEY_MAP_OPTIONS_YIELD_ICONS" />
 				<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowGrid" String="TXT_KEY_MAP_OPTIONS_HEX_GRID" />
-                <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowTrade" String="TXT_KEY_MAP_OPTIONS_TRADE_ROUTES" Hidden="1" />
+                <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowTrade" String="TXT_KEY_MAP_OPTIONS_TRADE_ROUTES"/>
 				<Box Anchor="C,T" Size="210,1" Color="0,0,0,0" />
 			</Stack>
 		</Grid>

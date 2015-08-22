@@ -4119,7 +4119,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 			if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(ePlayer).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer))
+				if (GET_PLAYER(ePlayer).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer) && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 				{
 					iNumMarried++;
 				}

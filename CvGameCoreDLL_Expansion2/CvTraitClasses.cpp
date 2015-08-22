@@ -84,6 +84,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bKeepConqueredBuildings(false),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
+	m_bUniqueBeliefsOnly(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -180,6 +181,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGoldenAgeFromVictory(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
+	m_bCombatBoostNearNaturalWonder(false),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -562,6 +564,10 @@ int CvTraitEntry::GetGrowthBoon() const
 {
 	return m_iGrowthBoon;
 }
+bool CvTraitEntry::IsUniqueBeliefsOnly() const
+{
+	return m_bUniqueBeliefsOnly;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvTraitEntry::GetInvestmentModifier() const
@@ -720,6 +726,10 @@ bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 bool CvTraitEntry::IsPopulationBoostReligion() const
 {
 	return m_bPopulationBoostReligion;
+}
+bool CvTraitEntry::IsCombatBoostNearNaturalWonder() const
+{
+	return m_bCombatBoostNearNaturalWonder;
 }
 #endif
 
@@ -1405,6 +1415,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bTradeRouteOnly						= kResults.GetBool("TradeRouteOnly");
 	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
 	m_bMountainPass							= kResults.GetBool("MountainPass");
+	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1781,7 +1792,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
-
+	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -2276,6 +2287,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bMountainPass = true;
 			}
+			if(trait->IsUniqueBeliefsOnly())
+			{
+				m_bUniqueBeliefsOnly = true;
+			}
 			m_iGrowthBoon += trait->GetGrowthBoon();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2498,6 +2513,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				if(trait->IsPopulationBoostReligion())
 				{
 					m_bPopulationBoostReligion = true;
+				}
+				if(trait->IsCombatBoostNearNaturalWonder())
+				{
+					m_bCombatBoostNearNaturalWonder= true;
 				}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -2756,6 +2775,7 @@ void CvPlayerTraits::Reset()
 	m_iTerrainClaimBoost = NO_TERRAIN;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
+	m_bUniqueBeliefsOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -2901,6 +2921,7 @@ void CvPlayerTraits::Reset()
 		m_iGoldenAgeFromVictory = 0;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
+		m_bCombatBoostNearNaturalWonder = false;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 		for(int iBuildingClass = 0; iBuildingClass < GC.getNumBuildingClassInfos(); iBuildingClass++)
@@ -3493,9 +3514,20 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			}
 			if(iNumResourceGiven < iNumResourceTotal)
 			{
-				pCity->plot()->setResourceType(NO_RESOURCE, 0, false);
-				pCity->plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
-				bResult = true;
+				if(pCity->plot()->getResourceType() == NO_RESOURCE)
+				{
+					pCity->plot()->setResourceType(NO_RESOURCE, 0, false);
+					pCity->plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
+					bResult = true;
+				}
+				else
+				{
+					if (eResourceToGive != NO_RESOURCE)
+					{
+						m_pPlayer->changeNumResourceTotal(eResourceToGive, iNumResource);
+						bResult = true;
+					}
+				}
 			}
 		}
 	}
@@ -4347,6 +4379,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iTerrainClaimBoost, NO_TERRAIN);
 	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -4679,6 +4712,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromCSAlly;
 	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bPopulationBoostReligion, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
 #endif
@@ -4815,6 +4849,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iTerrainClaimBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
+	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -4958,6 +4993,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
+	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
 #endif

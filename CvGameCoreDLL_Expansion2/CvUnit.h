@@ -333,6 +333,11 @@ public:
 	bool canCreateGreatWork(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	bool createGreatWork();
 
+#if defined(MOD_BALANCE_CORE)
+	bool canGetFreeLuxury() const;
+	bool createFreeLuxury();
+#endif
+
 	int getNumExoticGoods() const;
 	void setNumExoticGoods(int iValue);
 	void changeNumExoticGoods(int iChange);

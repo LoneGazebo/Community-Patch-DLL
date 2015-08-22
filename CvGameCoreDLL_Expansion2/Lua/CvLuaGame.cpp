@@ -320,6 +320,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetUnculturedHappinessChangeBuildingGlobal);
 	Method(GetIlliteracyHappinessChangeBuildingGlobal);
 	Method(GetMinorityHappinessChangeBuildingGlobal);
+	Method(GetPromiseDuration);
 #endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
@@ -2310,6 +2311,12 @@ int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 	}
 
 	lua_pushinteger(L, iYieldChange);
+	return 1;
+}
+int CvLuaGame::lGetPromiseDuration(lua_State* L)
+{
+	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	lua_pushinteger(L, iTimeOutTurns);
 	return 1;
 }
 #endif

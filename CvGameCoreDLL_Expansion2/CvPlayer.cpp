@@ -837,38 +837,60 @@ void CvPlayer::init(PlayerTypes eID)
 		}
 #endif
 		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
-		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
-		{
-			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-			if(pkUnitClassInfo != NULL)
-			{
-				const UnitTypes eUnit = ((UnitTypes)(playerCivilizationInfo.getCivilizationUnits(iI)));
-				if(NO_UNIT != eUnit)
-				{
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-					if(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+		if(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+		{
+			for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
+			{
+				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+				if(pkUnitClassInfo != NULL)
+				{
+					const UnitTypes eUnit = ((UnitTypes)(playerCivilizationInfo.getCivilizationUnits(iI)));
+					if(NO_UNIT != eUnit)
 					{
-						for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+						if(pkUnitInfo->IsFoodProduction() && (pkUnitInfo->IsFoundMid()))
 						{
-							const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
-							CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-							if(pkBuildingClassInfo)
+							for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
 							{
-								const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
-								if(NO_BUILDING != eBuilding)
+								const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(pkBuildingClassInfo)
 								{
-									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-									if(pkBuildingInfo)
+									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
+									if(NO_BUILDING != eBuilding)
 									{
-										if(pkUnitInfo->GetBuildOnFound(iJ) && pkUnitInfo->IsFoundMid())
+										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+										if(pkBuildingInfo)
 										{
-											iBuildingMid++;
+											if(pkUnitInfo->GetBuildOnFound(iJ))
+											{
+												iBuildingMid++;
+											}
 										}
-										if(pkUnitInfo->GetBuildOnFound(iJ) && pkUnitInfo->IsFoundLate())
+									}
+								}
+							}
+						}
+						if(pkUnitInfo->IsFoodProduction() && (pkUnitInfo->IsFoundLate()))
+						{
+							for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+							{
+								const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(pkBuildingClassInfo)
+								{
+									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
+									if(NO_BUILDING != eBuilding)
+									{
+										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+										if(pkBuildingInfo)
 										{
-											iBuildingLate++;
+											if(pkUnitInfo->GetBuildOnFound(iJ))
+											{
+												iBuildingLate++;
+											}
 										}
 									}
 								}
@@ -878,6 +900,7 @@ void CvPlayer::init(PlayerTypes eID)
 				}
 			}
 		}
+#endif
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
 		{
 			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -888,20 +911,19 @@ void CvPlayer::init(PlayerTypes eID)
 				if(NO_UNIT != eUnit)
 				{
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-#endif
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-					if(MOD_BALANCE_CORE_SETTLER_ADVANCED && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundMid() && pkUnitInfo->IsFoodProduction())
+					if(pkUnitInfo != NULL && pkUnitInfo->IsFoundLate())
 					{
-						if(iBuildingMid > 0)
-						{
-							setUnitExtraCost(eUnitClass, (40 * iBuildingMid));
-						}
-					}
-					else if(MOD_BALANCE_CORE_SETTLER_ADVANCED && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundLate() && pkUnitInfo->IsFoodProduction())
-					{
-						if(iBuildingLate > 0)
+						if(iBuildingMid > 0 && pkUnitInfo->IsFoodProduction())
 						{
 							setUnitExtraCost(eUnitClass, (40 * iBuildingLate));
+						}
+					}
+					else if(pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
+					{
+						if(iBuildingMid > 0 && pkUnitInfo->IsFoodProduction())
+						{
+							setUnitExtraCost(eUnitClass, (40 * iBuildingMid));
 						}
 					}
 					else
@@ -2482,7 +2504,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iValue *= 3;
 				iValue /= 2;
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(pOldCity->getNumWorldWonders() > 0)
+			{
+				iValue += (pOldCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			}
+#endif
 			// My viewpoint
 			GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pOldCity->getOwner(), GetID(), iValue);
 			// Bad guy's viewpoint
@@ -2689,25 +2716,81 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 				if(pReligion)
 				{
-					if(pReligion->m_Beliefs.GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) > 0)
+					int iYield = pReligion->m_Beliefs.GetYieldFromConquest(YIELD_FAITH) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					if(iYield > 0)
 					{	
-						ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						ChangeFaith(iYield);
 						if(GetID() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 							DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
 						}
 					}
-					if(pReligion->m_Beliefs.GetYieldFromConquest(YIELD_FAITH) > 0)
-					{	
-						ChangeFaith(pReligion->m_Beliefs.GetYieldFromConquest(YIELD_FAITH) * iEra);
+					iYield = pReligion->m_Beliefs.GetYieldFromConquest(YIELD_GOLD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					if(iYield > 0)
+					{
+						GetTreasury()->ChangeGold(iYield);
 						if(GetID() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromConquest(YIELD_FAITH) * iEra);
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+							DLLUI->AddPopupText(pOldCity->getX(), pOldCity->getY(), text, fDelay);
+						}
+					}
+					iYield = pReligion->m_Beliefs.GetYieldFromConquest(YIELD_CULTURE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					if(iYield > 0)
+					{
+						changeJONSCulture(iYield);
+						if(GetID() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+							DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
+						}
+					}
+					iYield = pReligion->m_Beliefs.GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					if(iYield > 0)
+					{
+						ChangeGoldenAgeProgressMeter(iYield);
+						if(GetID() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+							DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
+						}
+					}
+					iYield = pReligion->m_Beliefs.GetYieldFromConquest(YIELD_SCIENCE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					if(iYield > 0)
+					{
+						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							changeOverflowResearch(iYield);
+						}
+						else
+						{
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, GetID());
+						}
+						if(GetID() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 							DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
 						}
 					}
@@ -2727,75 +2810,81 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iEra = 1;
 			}
 			float fDelay = 3.0f;
-			if(GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) > 0)
+			int iYield = GetPlayerTraits()->GetYieldFromConquest(YIELD_FAITH) * iEra;
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
+			if(iYield > 0)
 			{	
-				int iGoldenAgePoints = (GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) * iEra);
-				ChangeGoldenAgeProgressMeter(iGoldenAgePoints);
+				ChangeFaith(iYield);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAgePoints);
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
 				}
 			}
-			if(GetPlayerTraits()->GetYieldFromConquest(YIELD_CULTURE) > 0)
-			{	
-				int iCulturePoints = (GetPlayerTraits()->GetYieldFromConquest(YIELD_CULTURE) * iEra);
-				changeJONSCulture(iCulturePoints);
-				if(getCapitalCity() != NULL)
-				{
-					getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
-				}
+			iYield = GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLD) * iEra;
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
+			if(iYield > 0)
+			{
+				GetTreasury()->ChangeGold(iYield);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+					DLLUI->AddPopupText(pOldCity->getX(), pOldCity->getY(), text, fDelay);
 				}
 			}
-			if(GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLD) > 0)
-			{	
-				int iGoldPoints = (GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLD) * iEra);
-				GetTreasury()->ChangeGold(iGoldPoints);
+			iYield = GetPlayerTraits()->GetYieldFromConquest(YIELD_CULTURE) * iEra;
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
+			if(iYield > 0)
+			{
+				changeJONSCulture(iYield);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldPoints);
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
 					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
 				}
 			}
-			if(GetPlayerTraits()->GetYieldFromConquest(YIELD_SCIENCE) > 0)
-			{	
-				int iSciencePoints = (GetPlayerTraits()->GetYieldFromConquest(YIELD_SCIENCE) * iEra);
+			iYield = GetPlayerTraits()->GetYieldFromConquest(YIELD_GOLDEN_AGE_POINTS) * iEra;
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
+			if(iYield > 0)
+			{
+				ChangeGoldenAgeProgressMeter(iYield);
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
+				}
+			}
+			iYield = GetPlayerTraits()->GetYieldFromConquest(YIELD_SCIENCE) * iEra;
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
+			if(iYield > 0)
+			{
 				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 				if(eCurrentTech == NO_TECH)
 				{
-					changeOverflowResearch(iSciencePoints);
+					changeOverflowResearch(iYield);
 				}
 				else
 				{
-					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iSciencePoints, GetID());
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, GetID());
 				}
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iSciencePoints);
-					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
-				}
-			}
-			if(GetPlayerTraits()->GetYieldFromConquest(YIELD_FAITH) > 0)
-			{	
-				int iFaithPoints = (GetPlayerTraits()->GetYieldFromConquest(YIELD_FAITH) * iEra);
-				ChangeFaith(iFaithPoints);
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaithPoints);
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 					DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
 				}
 			}
@@ -2836,6 +2925,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getConquerorYield(YIELD_GOLDEN_AGE_POINTS) > 0)
 			{	
 				int iGoldenAgePoints = (getConquerorYield(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				iGoldenAgePoints *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGoldenAgePoints /= 100;
 				if(pOldCity->isCapital())
 				{
 					iGoldenAgePoints *= 2;
@@ -2852,6 +2943,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getConquerorYield(YIELD_CULTURE) > 0)
 			{	
 				int iCulturePoints = (getConquerorYield(YIELD_CULTURE) * iEra);
+				iCulturePoints *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iCulturePoints /= 100;
 				if(pOldCity->isCapital())
 				{
 					iCulturePoints *= 2;
@@ -2872,6 +2965,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getConquerorYield(YIELD_GOLD) > 0)
 			{	
 				int iGoldPoints = (getConquerorYield(YIELD_GOLD) * iEra);
+				iGoldPoints *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGoldPoints /= 100;
 				if(pOldCity->isCapital())
 				{
 					iGoldPoints *= 2;
@@ -2888,6 +2983,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getConquerorYield(YIELD_SCIENCE) > 0)
 			{	
 				int iSciencePoints = (getConquerorYield(YIELD_SCIENCE) * iEra);
+				iSciencePoints *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iSciencePoints /= 100;
 				if(pOldCity->isCapital())
 				{
 					iSciencePoints *= 2;
@@ -2912,6 +3009,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getConquerorYield(YIELD_FAITH) > 0)
 			{	
 				int iFaithPoints = (getConquerorYield(YIELD_FAITH) * iEra);
+				iFaithPoints *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iFaithPoints /= 100;
 				if(pOldCity->isCapital())
 				{
 					iFaithPoints *= 2;
@@ -3550,6 +3649,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	}
 	// Free Buildings from Policies
 	if(MOD_BALANCE_CORE)
 	{
@@ -3612,6 +3712,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					eBuilding = eLoopBuilding;
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
+				{
+					eBuilding = eLoopBuilding;
+				}
+#endif
 				else
 				{
 					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
@@ -3627,27 +3733,16 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
+#if defined(MOD_BALANCE_CORE)
+								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+#else
 								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+#endif
 								{
 									iNum += paiNumRealBuilding[iI];
 								}
-#if defined(MOD_BALANCE_CORE)
-								else if(GetPlayerTraits()->IsKeepConqueredBuildings() && pkLoopBuildingInfo->GetCorporationID() <= 0)
-								{
-									iNum += paiNumRealBuilding[iI];
-								}
-#endif
 							}
 						}
-#if defined(MOD_BALANCE_CORE)
-						else if(GetPlayerTraits()->IsKeepConqueredBuildings())
-						{
-							if(pkLoopBuildingInfo->GetCorporationID() <= 0 && !isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
-							{
-								iNum += paiNumRealBuilding[iI];
-							}
-						}
-#endif
 
 #if !defined(NO_ACHIEVEMENTS)
 						// Check for Tomb Raider Achievement
@@ -3694,9 +3789,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 	for(std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
 	{
 		pNewCity->GetCityBuildings()->SetBuildingYieldChange((*it).eBuildingClass, (*it).eYield, (*it).iChange);
@@ -3849,6 +3941,39 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
 			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv())
 			{
+				if(GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(ePlayer) > 0)
+				{
+					// Must have capital to actually spawn unit
+					CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
+					if(pCapital)
+					{
+						if(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer) != NO_UNIT)
+						{
+							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer), pCapital->getX(), pCapital->getY());
+							CvAssert(pNewUnit);
+							if (pNewUnit)
+							{
+								if(pNewUnit->getDomainType() != DOMAIN_AIR)
+								{
+									if (!pNewUnit->jumpToNearestValidPlot())
+									{
+										pNewUnit->kill(false);
+									}
+								}
+								CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+								if(pNotifications && ePlayer == GC.getGame().getActivePlayer())
+								{
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY");
+									strSummary <<  GET_PLAYER(eOldOwner).getCivilizationShortDescriptionKey();
+									Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED");
+									strNotification <<  GET_PLAYER(eOldOwner).getNameKey();
+									strNotification <<  pNewUnit->getNameKey();
+									pNotifications->Add(NOTIFICATION_GENERIC, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
+								}
+							}
+						}
+					}
+				}
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetIsJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), false);
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), 0);
 			}
@@ -5805,6 +5930,16 @@ void CvPlayer::doTurn()
 	{
 		doTurnPostDiplomacy();
 	}
+#if defined(MOD_BALANCE_CORE)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if (eResourceLoop != NO_RESOURCE)
+		{
+			DoTestOverResourceNotification(eResourceLoop);
+		}
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -13864,14 +13999,21 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 {
 #if defined(MOD_BALANCE_CORE)
-	int iEra = GetCurrentEra();
-	if(iEra < 1)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		iEra = 1;
+		int iEra = GetCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
+		return (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners());
 	}
-	return (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners());
-#else
+	else
+	{
+#endif
 	return GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners();
+#if defined(MOD_BALANCE_CORE)
+	}
 #endif
 }
 #endif
@@ -15429,7 +15571,7 @@ int CvPlayer::getPopNeededForLux() const
 	}
 	int iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
 		
-	iInflation *= (100 + getCurrentTotalPop() + (iTotalCities * 2));
+	iInflation *= (100 + getCurrentTotalPop() + iTotalCities);
 	iInflation /= 100;
 
 	int iBaseHappiness = 1;
@@ -18980,6 +19122,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			iEra = 1;
 		}
 		int iGoldYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_GOLD);
+		iGoldYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iGoldYield /= 100;
 		if(iGoldYield > 0)
 		{
 			GetTreasury()->ChangeGold(iGoldYield * iEra);
@@ -18992,6 +19136,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			}
 		}
 		int iFaithYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_FAITH);
+		iFaithYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iFaithYield /= 100;
 		if(iFaithYield > 0)
 		{
 			ChangeFaith(iFaithYield * iEra);
@@ -19004,6 +19150,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			}
 		}
 		int iCultureYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_CULTURE);
+		iCultureYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iCultureYield /= 100;
 		if(iCultureYield > 0)
 		{
 			changeJONSCulture(iCultureYield * iEra);
@@ -19016,6 +19164,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			}
 		}
 		int iGAPYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_GOLDEN_AGE_POINTS);
+		iGAPYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iGAPYield /= 100;
 		if(iGAPYield > 0)
 		{
 			ChangeGoldenAgeProgressMeter(iGAPYield * iEra);
@@ -19028,6 +19178,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			}
 		}
 		int iScienceYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_SCIENCE);
+		iScienceYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iScienceYield /= 100;
 		if(iScienceYield > 0)
 		{
 			TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
@@ -19048,6 +19200,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			}
 		}
 		int iTourismYield = GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, YIELD_TOURISM);
+		iTourismYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iTourismYield /= 100;
 		if(iTourismYield > 0)
 		{
 			GetCulture()->AddTourismAllKnownCivs(iTourismYield * iEra);
@@ -19068,6 +19222,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				iEra = 1;
 			}
 			int iCulture = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_CULTURE) * iEra;
+			iCulture *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCulture /= 100;
 			if(iCulture > 0)
 			{
 				changeJONSCulture(iCulture);
@@ -19080,6 +19236,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 			int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
+			iFaith2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iFaith2 /= 100;
 			if(iFaith2 > 0)
 			{
 				ChangeFaith(iFaith2);
@@ -19092,6 +19250,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 			int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
+			iGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iGold /= 100;
 			if(iGold > 0)
 			{
 				GetTreasury()->ChangeGold(iGold);
@@ -19104,6 +19264,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 			int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
+			iScience *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iScience /= 100;
 			if(iScience > 0)
 			{
 				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
@@ -19124,6 +19286,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 			int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
+			iGA *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iGA /= 100;
 			if(iGA > 0)
 			{
 				ChangeGoldenAgeProgressMeter(iGA);
@@ -21078,9 +21242,12 @@ void CvPlayer::CalculateCorporateFranchisesWorldwide()
 							if(pBuildingInfo->GetCorporationID() == GetCorporateFounderID())
 							{
 								eFreeBuilding = eBuildingDestCity;
-								CvString strLogString;
-								strLogString.Format("Found Corporate Building to seed to Freedom Function");
-								GetHomelandAI()->LogHomelandMessage(strLogString);
+								if((GC.getLogging() && GC.getAILogging()))
+								{
+									CvString strLogString;
+									strLogString.Format("Found Corporate Building to seed to Freedom Function: %s", pBuildingInfo->GetTextKey());
+									GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
 								break;
 							}
 						}
@@ -21143,7 +21310,7 @@ void CvPlayer::CalculateCorporateFranchisesWorldwide()
 							strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM");
 							strMessage << pBestCity->getNameKey();
 							strMessage << pBuildingInfo->GetTextKey();
-							pNotifications->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), eFreeBuilding, pBestCity->getOwner());
+							pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
 						}
 						else
 						{
@@ -21160,14 +21327,17 @@ void CvPlayer::CalculateCorporateFranchisesWorldwide()
 								strMessage << pBestCity->getNameKey();
 								strMessage << pBuildingInfo->GetTextKey();
 								strMessage << getCivilizationShortDescriptionKey();
-								pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), eFreeBuilding, GetID());
+								pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
 							}
 						}
 						CalculateCorporateFranchisesWorldwide();
 
-						CvString strLogString;
-						strLogString.Format("Spread Corporate Building via Freedom Function. City: %s.", pBestCity->getNameKey());
-						GetHomelandAI()->LogHomelandMessage(strLogString);
+						if((GC.getLogging() && GC.getAILogging()))
+						{
+							CvString strLogString;
+							strLogString.Format("Spread Corporate Building via Freedom Function. City: %s. Building: %s.", pBestCity->getNameKey(), pBuildingInfo->GetTextKey());
+							GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 				}
 			}
@@ -24798,18 +24968,6 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 			iScience += iScienceFromPlayer;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
-	{
-		int iEra = GetCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		int iTradeScience = (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_SCIENCE) * GetTrade()->GetNumDifferentTradingPartners());
-		iScience += (iTradeScience * 100);
-	}
-#endif
 	return iScience;
 }
 
@@ -25794,25 +25952,14 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	{
 		m_paiNumResourceUsed.setAt(eIndex, m_paiNumResourceUsed[eIndex] + iChange);
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	if(iChange > 0)
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) 
-	{
-		//Don't announce for paper.
-		ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
-		if(eIndex != ePaperResource)
-		{
-#endif
 		DoTestOverResourceNotification(eIndex);
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
-#if defined(MOD_DIPLOMACY_CITYSTATES) 
-		}
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -25950,9 +26097,12 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-
 	if(iChange < 0 && !bIgnoreResourceWarning)
+#if !defined(MOD_BALANCE_CORE)
+	{
 		DoTestOverResourceNotification(eIndex);
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -26267,7 +26417,11 @@ void CvPlayer::UpdateResourcesSiphoned()
 /// Are we over our resource limit? If so, give out a notification
 void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 {
+#if defined(MOD_BALANCE_CORE)
+	if((getNumResourceAvailable(eIndex, true) < 0) && (getNumResourceUsed(eIndex) > 0))
+#else
 	if(getNumResourceAvailable(eIndex, true) < 0)
+#endif
 	{
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 		if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -33781,6 +33935,16 @@ void CvPlayer::UpdateAreaEffectUnits()
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 			if (pPlot && pPlot->getOwner()==GetID() && pPlot->getImprovementType()==iTraitImprovement )
+				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
+		}
+	}
+	//Looks for Natural Wonders
+	if(GetPlayerTraits()->IsCombatBoostNearNaturalWonder())
+	{
+		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder() )
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
 	}
