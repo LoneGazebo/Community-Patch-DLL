@@ -5318,6 +5318,14 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
+	if(m_pCity->getYieldRate(YIELD_TOURISM, false) > 0)
+	{
+		if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
+	}
 #endif
 
 	int iBuildingMod = 0;

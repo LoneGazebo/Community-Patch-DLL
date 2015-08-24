@@ -4065,19 +4065,9 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
-ReligionTypes CvCityReligions::GetReligiousMajority()
-{
-	return m_majorityReligion;
-}
-
-bool CvCityReligions::ComputeReligiousMajority()
-{
-#else
 /// Is there a religion that at least half of the population follows?
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
-#endif
 	int iTotalFollowers = 0;
 	int iMostFollowerPressure = 0;
 	int iMostFollowers = -1;
@@ -4096,25 +4086,14 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	//update local majority
-	m_majorityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
-	//update player majority - really only have to to this if the local majority changes ...
-	GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
-	return m_majorityReligion!=NO_RELIGION;
-#else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
-		m_majorityReligion = eMostFollowers;
-		return true;
+		return eMostFollowers;
 	}
 	else
 	{
-		m_majorityReligion = NO_RELIGION;
-		return false;
+		return NO_RELIGION;
 	}
-#endif
-
 }
 
 /// Just asked to simulate a conversion - who would be the majority religion?
@@ -4973,10 +4952,6 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	ComputeReligiousMajority();
-#endif
-
 	ReligionTypes eMajority = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eMajority);
 
@@ -5440,10 +5415,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
-	
-#if defined(MOD_BALANCE_CORE)
-	writeTo.ComputeReligiousMajority();
-#endif
 
 	return loadFrom;
 }

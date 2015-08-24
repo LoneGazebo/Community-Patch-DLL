@@ -13062,7 +13062,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #else
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+			if(bCantMatchOffer)
+			{
+				SetCantMatchDeal(ePlayer, true);
+			}
+			if(!IsCantMatchDeal(ePlayer))
+			{
+#endif
 			if(!bDealAcceptable)
 			{
 				if(iValueTheyreOffering > iValueImOffering)
@@ -13101,6 +13108,18 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+			{
+				CvDeal* pRenewDeal = GetDealToRenew();
+				if (pRenewDeal)
+				{
+					pRenewDeal->m_bCheckedForRenewal = true;
+				}
+				ClearDealToRenew();
+			}
+#endif
 		}
 		// Offer to an AI player
 		else if(!bHuman)
@@ -20919,7 +20938,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(iArg1 == 2)
 			{
 				ChangeRecentAssistValue(eFromPlayer, 200);
-				ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
+				ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -100);
@@ -33072,7 +33091,7 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 
 	// Physically see how much the deal will cost us. Only send request if it's in an acceptable range
 	int iMapValue = GetPlayer()->GetDealAI()->GetMapValue(false, ePlayer, false);
-	if(iMapValue > 20 && iMapValue < 500)
+	if(iMapValue > 100 && iMapValue < 750)
 	{
 		return true;
 	}

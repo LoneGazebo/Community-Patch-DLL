@@ -247,6 +247,9 @@ local function TechSelected( techID )
 			end
 		else
 			Network.SendResearch( techID, g_activePlayer:GetNumFreeTechs(), -1, UIManager:GetShift() )
+			if g_popupInfoType == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH then
+				CloseTechTree()
+			end
 		end
 	end
 end

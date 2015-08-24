@@ -1898,7 +1898,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
 #if defined(MOD_BALANCE_CORE_DEALS)
-			iItemValue = 10;
+			iItemValue = 20;
 			iResourceQuantity = min(max(10,GetPlayer()->getNumCities()), iResourceQuantity);
 			//We already have it and we use it.
 			if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
@@ -1906,62 +1906,62 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//This would give us a huge excess.
 				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 5);
+					iItemValue *= ((100 + iNumTurns) * (10 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//This would give us a mild excess.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+					iItemValue *= ((100 + iNumTurns) * (15 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//This would give us a little extra
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 15);
+					iItemValue *= ((100 + iNumTurns) * (20 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//This would give us enough to meet our needs.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 20);
+					iItemValue *= ((100 + iNumTurns) * (25 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//This would give us almost enough to meet our needs.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 25);
+					iItemValue *= ((100 + iNumTurns) * (30 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 			}
 			//We have it via trade but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 5);
+				iItemValue *= ((100 + iNumTurns) * (10 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//We have it at home but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, false) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+				iItemValue *= ((100 + iNumTurns) * (15 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//We don't have any, trade or not, and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 15);
+				iItemValue *= ((100 + iNumTurns) * (20 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//We don't have any at home and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 20);
+				iItemValue *= ((100 + iNumTurns) * (25 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//Unaccounted for situation?
 			else
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+				iItemValue *= ((100 + iNumTurns) * (10 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			// Opinion also matters
@@ -2072,57 +2072,57 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
-			iItemValue = 10;
+			iItemValue = 20;
 			//We have it (domestic and/or trade) and we use it.
 			if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 			{
 				//We would still have a huge domestic excess after losing this.
 				if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 5);
+					iItemValue *= ((100 + iNumTurns) * (10 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//We would only have a mild domestic reserve after losing this
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+					iItemValue *= ((100 + iNumTurns) * (15 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//We would only have a little domestic reserve after losing this.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 20);
+					iItemValue *= ((100 + iNumTurns) * (20 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//We would be under our need that we can provide for ourselves, which is really bad.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 50);
+					iItemValue *= ((100 + iNumTurns) * (25 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 				//We would be way under our need that we can provide for ourselves, which is terrible
 				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 100);
+					iItemValue *= ((100 + iNumTurns) * (30 + iResourceQuantity));
 					iItemValue /= 100;
 				}
 			}
 			//We have it, via trade or domestic, but we aren't using it (be careful about trading this, as we don't want to wind up with nothing).
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 20);
+				iItemValue *= ((100 + iNumTurns) * (20 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//We have it domestically, but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, false)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+				iItemValue *= ((100 + iNumTurns) * (15 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 			//Unaccounted for situation? Flat value.
 			else
 			{
-				iItemValue *= ((100 + iResourceQuantity + iNumTurns) * 10);
+				iItemValue *= ((100 + iNumTurns) * (10 + iResourceQuantity));
 				iItemValue /= 100;
 			}
 		}
@@ -2317,7 +2317,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of City with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 250 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 300 + GC.getGame().getGameTurn(); //just some base value
 
 	CvCity* pCity = GC.getMap().plot(iX, iY)->getPlotCity();
 
@@ -2350,7 +2350,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			}
 			//bring the value back down a bit.
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			iItemValue /= max(1, (pCity->GetNumWorkablePlots() / 6));
+			iItemValue /= max(1, (pCity->GetNumWorkablePlots() / 5));
 #else
 			iItemValue /= max((NUM_CITY_PLOTS / 6), 1);
 #endif
@@ -2364,22 +2364,22 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
 			{
 			case WAR_PROJECTION_DESTRUCTION:
-				iItemValue *= 125;
+				iItemValue *= 500;
 				break;
 			case WAR_PROJECTION_DEFEAT:
-				iItemValue *= 150;
+				iItemValue *= 400;
 				break;
 			case WAR_PROJECTION_STALEMATE:
-				iItemValue *= 200;
-				break;
-			case WAR_PROJECTION_UNKNOWN:
-				iItemValue *= 250;
-				break;
-			case WAR_PROJECTION_GOOD:
 				iItemValue *= 300;
 				break;
+			case WAR_PROJECTION_UNKNOWN:
+				iItemValue *= 200;
+				break;
+			case WAR_PROJECTION_GOOD:
+				iItemValue *= 150;
+				break;
 			case WAR_PROJECTION_VERY_GOOD:
-				iItemValue *= 500;
+				iItemValue *= 125;
 				break;
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2445,7 +2445,8 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 					iItemValue /= 100;
 					break;
 				case MAJOR_CIV_OPINION_NEUTRAL:
-					return 100000;
+					iItemValue *= 150;
+					iItemValue /= 100;
 					break;
 				case MAJOR_CIV_OPINION_COMPETITOR:
 					return 100000;
@@ -2558,14 +2559,14 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			}
 			//bring the value back down a bit.
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			iItemValue /= (pCity->GetNumWorkablePlots() / 7);
+			iItemValue /= (pCity->GetNumWorkablePlots() / 4);
 #else
 			iItemValue /= (NUM_CITY_PLOTS / 7);
 #endif
 			// check the city's yields and resources
 			iItemValue += pCity->getEconomicValue( GetPlayer()->GetID() );
 			//Divide pop to sanitize the value a bit - bigger cities also have more maintenance and unhappiness, so they may not always be 'better.'
-			iItemValue /= max(1, (pCity->getPopulation() / 4));
+			iItemValue /= max(1, (pCity->getPopulation() / 2));
 
 			// Adjust for how well a war against this player would go (or is going)
 			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
@@ -2611,7 +2612,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iDistance = 20;
 			}
-			iItemValue /= max(1, (iDistance / 2));
+			iItemValue /= max(1, (iDistance / 3));
 
 			// Opinion also matters
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
@@ -2625,11 +2626,12 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 					iItemValue /= 100;
 					break;
 				case MAJOR_CIV_OPINION_FAVORABLE:
-					iItemValue *= 100;
+					iItemValue *= 105;
 					iItemValue /= 100;
 					break;
 				case MAJOR_CIV_OPINION_NEUTRAL:
-					return 100000;
+					iItemValue *= 95;
+					iItemValue /= 100;
 					break;
 				case MAJOR_CIV_OPINION_COMPETITOR:
 					return 100000;

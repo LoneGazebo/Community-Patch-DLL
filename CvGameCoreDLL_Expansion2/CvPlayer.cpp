@@ -13690,65 +13690,64 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 {
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+	GreatWorkSlotType eMusicSlot = CvTypes::getGREAT_WORK_SLOT_MUSIC();
+	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 
-	int iOpenArt = 0;
-	int iArtStolen = 0;
+	int iOpenSlots = 0;
+	int iStuffStolen = 0;
+	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> artChoices;
 	const char* strTargetNameKey = pCity->getNameKey();
 	const CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iOpenArt += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eMusicSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eWritingSlot);
 	}
 	if(GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 	{
-		if(iOpenArt > 0)
+		if(iOpenSlots > 0)
 		{
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
-			int iGreatWorkIndex;
-			int ArtPlunder = GC.getGame().getJonRandNum(iOpenArt, "Art Plunder Value");
-			if(ArtPlunder <= 0)
+			int iGreatWorkIndex;	
+			for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				ArtPlunder = 1;
-			}
-			for(int iArtLoop = 0; iArtLoop < ArtPlunder; iArtLoop++)
-			{			
-				for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+				if(pPlayerCity != NULL && pPlayerCity != pCity)
 				{
-					for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+					int iDistance = plotDistance(pCity->getX(), pCity->getY(), pPlayerCity->getX(), pPlayerCity->getY());
+					if(iDistance > 0)
 					{
-						CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-						BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-						if (eBuilding != NO_BUILDING)
+						for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 						{
-							CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-							if (pkBuilding)
+							CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+							BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+							if (eBuilding != NO_BUILDING)
 							{
-								if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot)
+								CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+								if (pkBuilding)
 								{
-									int iNumSlots = pkBuilding->GetGreatWorkCount();
-									if(iNumSlots > 0)
+									if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
 									{
-										for (int iI = 0; iI < iNumSlots; iI++)
+										int iNumSlots = pkBuilding->GetGreatWorkCount();
+										if(iNumSlots > 0)
 										{
-											iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-											if (iGreatWorkIndex != -1 && !GetCulture()->ControlsGreatWork(iGreatWorkIndex))
+											for (int iI = 0; iI < iNumSlots; iI++)
 											{
-												// remove existing great works
-												pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
-												// and create great work at home
-												BuildingClassTypes eGWBuildingClass;
-												int iGWSlot;
-												CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eArtArtifactSlot, &eGWBuildingClass, &iGWSlot);
-												if (pArtCity)
+												iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+												if (iGreatWorkIndex != -1 && !GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 												{
-													pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
-													iArtStolen++;
-													if(GetID() == GC.getGame().getActivePlayer())
+													artChoices.push_back(iGreatWorkIndex, iDistance);
+													if((GC.getLogging() && GC.getAILogging()))
 													{
-														CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
-														GC.GetEngineUserInterface()->AddPopup(kPopup);
+														CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+														if(pCulture)
+														{
+															CvString strLogString;
+															strLogString.Format("Found Great Work for Conquest Plunder: %d, Distance: %d, Name: %s", iGreatWorkIndex, iDistance, pCulture->GetGreatWorkName(iGreatWorkIndex).GetCString());
+															GetHomelandAI()->LogHomelandMessage(strLogString);
+														}
 													}
 												}
 											}
@@ -13760,14 +13759,109 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					}
 				}
 			}
-			if(iArtStolen > 0)
+			artChoices.SortItems();
+			if(artChoices.size() > 0)
+			{
+				int iPlunder = GC.getGame().getJonRandNum(max(1, (pCity->getPopulation() / 10)), "Art Plunder Value");
+				if(iPlunder <= 0)
+				{
+					iPlunder = 1;
+				}
+				if((GC.getLogging() && GC.getAILogging()))
+				{
+					CvString strLogString;
+					strLogString.Format("Number of Great Works to steal for Conquest Plunder: %d", iPlunder);
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+				for(int iGrab = 0; iGrab < artChoices.size(); iGrab++)
+				{
+					if(iStuffStolen >= iPlunder)
+					{
+						break;
+					}
+					int iCityLoop;
+					CvCity* pPlayerCity = NULL;
+					int iGreatWorkIndex;	
+					for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+					{
+						if(iStuffStolen >= iPlunder)
+						{
+							break;
+						}
+						if(pPlayerCity != NULL && pPlayerCity != pCity)
+						{
+							for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+							{
+								if(iStuffStolen >= iPlunder)
+								{
+									break;
+								}
+								CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+								BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+								if (eBuilding != NO_BUILDING)
+								{
+									CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+									if (pkBuilding)
+									{
+										if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
+										{
+											int iNumSlots = pkBuilding->GetGreatWorkCount();
+											if(iNumSlots > 0)
+											{
+												for (int iI = 0; iI < iNumSlots; iI++)
+												{
+													if(iStuffStolen >= iPlunder)
+													{
+														break;
+													}
+													iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+													if (iGreatWorkIndex == artChoices.GetElement(iGrab))
+													{
+														// and create great work at home
+														BuildingClassTypes eGWBuildingClass;
+														int iGWSlot;
+														CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), pkBuilding->GetGreatWorkSlotType(), &eGWBuildingClass, &iGWSlot);
+														if (pArtCity)
+														{
+															// remove existing great works
+															pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
+															pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
+															iStuffStolen++;
+															if((GC.getLogging() && GC.getAILogging()))
+															{
+																CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+																if(pCulture)
+																{
+																	CvString strLogString;
+																	strLogString.Format("Great Work STOLEN for Conquest Plunder: %s. Number stolen: %d. Max to steal: %d", pCulture->GetGreatWorkName(iGreatWorkIndex).GetCString(), iStuffStolen, iPlunder);
+																	GetHomelandAI()->LogHomelandMessage(strLogString);
+																}
+															}															
+															if(GetID() == GC.getGame().getActivePlayer())
+															{
+																CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
+																GC.GetEngineUserInterface()->AddPopup(kPopup);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(iStuffStolen > 0)
 			{
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_ART_STOLEN");
-					strMessage << iArtStolen;
+					strMessage << iStuffStolen;
 					strMessage << strTargetNameKey;
 					strSummary = Localization::Lookup("TXT_KEY_ART_STOLEN_SUMMARY");
 
@@ -13782,7 +13876,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_ART_PLUNDERED");
-					strMessage << iArtStolen;
+					strMessage << iStuffStolen;
 					strMessage << strTargetNameKey;
 					strSummary = Localization::Lookup("TXT_KEY_ART_PLUNDERED_SUMMARY");
 
@@ -13811,6 +13905,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
 					}
 				}
+				if((GC.getLogging() && GC.getAILogging()))
+				{
+					CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+					if(pCulture)
+					{
+						CvString strLogString;
+						strLogString.Format("Tried to steal stuff for Conquest Plunder but couldn't for some reason.");
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
 			}
 		}
 		else
@@ -13831,6 +13935,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
 				}
 			}
+			if((GC.getLogging() && GC.getAILogging()))
+			{
+				CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+				if(pCulture)
+				{
+					CvString strLogString;
+					strLogString.Format("Tried to steal stuff for Conquest Plunder but no open slots.");
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+			}
 		}
 	}
 	else
@@ -13849,6 +13963,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			if(pNotification)
 			{
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+			}
+		}
+		if((GC.getLogging() && GC.getAILogging()))
+		{
+			CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+			if(pCulture)
+			{
+				CvString strLogString;
+				strLogString.Format("Tried to steal stuff for Conquest Plunder but invalid target.");
+				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
 	}

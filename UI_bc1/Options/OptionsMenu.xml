@@ -82,36 +82,66 @@
 
 		<!-- Game Options -->
 		<Container Size="971,500" Offset="0,44" ID="GamePanel" Hidden="1" >
-			<Stack Anchor="R,C" Offset="110,0" Padding="5" >
-				<Label String="" Anchor="C,T" ID="Tooltip1TimerLength" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_1_TIMER_LENGTH_TT" />
-				<Slider Length="300" Anchor="C,C" ID="Tooltip1TimerSlider" Style="Slider" WheelSteps="10" />
-				<Label String="" Anchor="C,T" ID="Tooltip2TimerLength" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_2_TIMER_LENGTH_TT" />
-				<Slider Length="300" Anchor="C,C" ID="Tooltip2TimerSlider" Style="Slider" WheelSteps="10" />
-				<PullDown Offset="0,25" Anchor="C,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="300,32" ID="TutorialPull" ToolTip="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL_TT" >
-					<Label Anchor="C,T" AnchorSide="i,o" Offset="0,3" String="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL" />
-				</PullDown>
 
+			<Stack Anchor="R,T" Offset="550,50" Padding="10" >
+				<CheckBox ID="SkipIntroVideoCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO" IsChecked="1" ToolTip="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO_TT" />
+				<Box Anchor="R,T" Size="54,30" Color="255,255,200,255" >
+					<Box Anchor="C,C" Size="52,28" Color="0,0,0,255" >
+						<EditBox ID="AutosaveTurnsEdit" EditMode="1" Size="50,24" Anchor="C,C" Font="TwCenMT24" NumberInput="1" MaxLength="3" />
+					</Box>
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES" ToolTip="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES_TT"/>
+				</Box>
+				<Box Anchor="R,T" Size="54,30" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="52,28" Color="0,0,0,255" >
+						<EditBox ID="AutosaveMaxEdit" EditMode="1" Size="50,24" Anchor="C,C" Font="TwCenMT24" NumberInput="1" MaxLength="3" />
+					</Box>
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT" ToolTip="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT_TT"/>
+				</Box>
+				<CheckBox ID="SinglePlayerAutoEndTurnCheckBox" Anchor="R,C" String="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN_TT" />
+				<CheckBox ID="MultiplayerAutoEndTurnCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN_TT" />
+				<CheckBox ID="SPQuickCombatCheckBox" Anchor="R,C" String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT_TT" />
+				<CheckBox ID="SPQuickMovementCheckBox" Anchor="R,C" String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT_TT" />
+				<CheckBox ID="MPQuickCombatCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT_TT" />
+				<CheckBox ID="MPQuickMovementCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT_TT" />
+				<CheckBox ID="QuickSelectionAdvCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE_TT" />
+				<CheckBox ID="AutoUnitCycleCheck" Anchor="R,C" String="TXT_KEY_AUTO_UNIT_CYCLE" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_AUTO_UNIT_CYCLE_TT" />
+			</Stack>
+
+			<Stack Anchor="R,T" Offset="50,50" Padding="10" >
+				<CheckBox ID="NoRewardPopupsCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS_TT" />
+				<CheckBox ID="AutoWorkersDontReplaceCB" Anchor="R,C" String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE_TT" />
+				<CheckBox ID="AutoWorkersDontRemoveFeaturesCB" Anchor="R,C" String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES_TT" />
+				<CheckBox ID="CivilianYieldsCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS_TT" />
+				<CheckBox ID="NoTileRecommendationsCheckbox" Anchor="R,C" String="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS_TT" />
 				<GridButton Offset="0,15" Anchor="C,B" Size="300,32" ID="ResetTutorialButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_RESET_TUTORIAL_TT">
 					<Label Anchor="C,C" String="TXT_KEY_OPSCREEN_RESET_TUTORIAL" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
 				</GridButton>
-				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SinglePlayerAutoEndTurnCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MultiplayerAutoEndTurnCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SPQuickCombatCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SPQuickMovementCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MPQuickCombatCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MPQuickMovementCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT_TT" />
+				<PullDown ID="TutorialPull" Anchor="R,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="300,32" ToolTip="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL_TT" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL" />
+				</PullDown>
+				<PullDown ID="SpokenLanguagePull" Anchor="R,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_SPOKEN_LANG" />
+				</PullDown>
+				<PullDown ID="LanguagePull" Anchor="R,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" Hidden="1" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_LANG" />
+				</PullDown>
 			</Stack>
 
-			<Stack Anchor="L,C" Offset="380,20" Padding="8" >
-				<CheckBox String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="AutoWorkersDontReplaceCB" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="AutoWorkersDontRemoveFeaturesCB" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoRewardPopupsCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoTileRecommendationsCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="CivilianYieldsCheckbox" ToolTip="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_NO_BASIC_HELP" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoBasicHelpCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_BASIC_HELP_TT" />
-				<CheckBox String="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="QuickSelectionAdvCheckbox" ToolTip="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE_TT" />
-				<CheckBox String="TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoCitizenWarningCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_CITIZEN_WARNING" />
-				<CheckBox Anchor="R,C" ID="CityAdvisorCheckbox" >
+		</Container>
+
+		<!-- Interface Options -->
+		<Container Size="971,500" Offset="0,44" ID="IFacePanel" Hidden="1">
+			<Stack Anchor="R,T" Offset="550,50" Padding="10" >
+				<CheckBox ID="AutoUIAssetsCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_AUTOSIZE_UI" IsChecked="1" ToolTip="TXT_KEY_OPSCREEN_AUTOSIZE_UI_TT" />
+				<CheckBox ID="SmallUIAssetsCheck" Anchor="R,C" Offset="0,-10" String="TXT_KEY_OPSCREEN_USE_SMALL_UI" Font="TwCenMT16" IsChecked="0" NoStateChange="1" Disabled="1" ToolTip="TXT_KEY_OPSCREEN_USE_SMALL_UI_TT" />
+				<CheckBox ID="PolicyInfo" Anchor="R,C" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
+				<CheckBox ID="ScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
+				<CheckBox ID="MPScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
+				<CheckBox ID="CivRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_OVERVIEW_BODY"/>
+				<CheckBox ID="CityRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_BODY"/>
+				<CheckBox ID="UnitRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_BODY"/>
+				<CheckBox ID="NoCitizenWarningCheckbox" Anchor="R,C" String="TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_NO_CITIZEN_WARNING" />
+				<CheckBox ID="CityAdvisorCheckbox" Anchor="R,C" >
 					<Stack Offset="30.0" Anchor="R,C" StackGrowth="L" >
 						<Image ID="ScienceRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_SCIENCE" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolScience.dds" >
 							<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskScience.dds"/>
@@ -139,64 +169,25 @@
 				<Image Anchor="R,C" Offset="30.0" Texture="TopPanelBar.dds" Size="100.32" >
 					<CheckBox ID="ClockCheckbox" String="12:34" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" Offset="-30.0"/>
 				</Image>
-				<CheckBox ID="CityRibbonCheckbox" String="TXT_KEY_IC_CITY" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" />
-				<CheckBox ID="UnitRibbonCheckbox" String="TXT_KEY_IC_UNIT" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" />
 			</Stack>
-		</Container>
 
-		<!-- Interface Options -->
-		<Container Size="971,500" Offset="0,44" ID="IFacePanel" Hidden="1">
-			<Stack ID="IFaceStack" Anchor="C,t" Padding="20" Offset="0,90" >
-			<Box Anchor="c,c" Size="400,120" Offset="100,0" Color="White,0" >
-				<Label Anchor="R,T" Offset="44,9" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES" ToolTip="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES_TT" >
-				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="34,24" Color="255,255,200,255" >
-					<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255" >
-					<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="AutosaveTurnsEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" />
-					</Box>
-				</Box>
-				</Label>
-				<Label Anchor="R,B" Offset="44,48" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT" ToolTip="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT_TT" >
-				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="34,24" Color="255,255,200,255" >
-					<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255" >
-					<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="AutosaveMaxEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" />
-					</Box>
-				</Box>
-				</Label>
-				<PullDown Offset="0,-5" Anchor="R,B" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="200,32" ID="BindMousePull" ToolTip="TXT_KEY_BIND_MOUSE_TT" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_BIND_MOUSE" />
+			<Stack Anchor="R,T" Offset="110,50" Padding="10" >
+				<CheckBox ID="NoBasicHelpCheckbox" String="TXT_KEY_OPSCREEN_NO_BASIC_HELP" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ToolTip="TXT_KEY_OPSCREEN_NO_BASIC_HELP_TT" />
+				<Label ID="Tooltip1TimerLength" Anchor="C,T" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_1_TIMER_LENGTH_TT" />
+				<Slider ID="Tooltip1TimerSlider" Length="300" Anchor="C,C" Style="Slider" WheelSteps="10" />
+				<Label ID="Tooltip2TimerLength" Anchor="C,T" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_2_TIMER_LENGTH_TT" />
+				<Slider ID="Tooltip2TimerSlider" Length="300" Anchor="C,C" Style="Slider" WheelSteps="10" />
+				<PullDown ID="BindMousePull" Anchor="R,T" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="200,32" ToolTip="TXT_KEY_BIND_MOUSE_TT" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_BIND_MOUSE" />
 				</PullDown>
-
-				<CheckBox Anchor="L,B" Offset="0,128" String="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM" IsChecked="0" ID="ZoomCheck" ToolTip="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM_TT" />
-				<CheckBox Anchor="L,B" Offset="0,96" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ID="PolicyInfo" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
-				<CheckBox Anchor="L,B" Offset="0,64" String="TXT_KEY_AUTO_UNIT_CYCLE" IsChecked="0" ID="AutoUnitCycleCheck" ToolTip="TXT_KEY_AUTO_UNIT_CYCLE_TT" />
-				<CheckBox Anchor="L,B" Offset="0,32" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ID="ScoreListCheck" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
-				<CheckBox Anchor="L,B" Offset="0,0" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ID="MPScoreListCheck" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
-			</Box>
-
-
-			<!--front end only interface options-->
-			<Container Size="800,300" Offset="0,30" >
-				<Stack ID="FrontEndInterfaceOptions" Anchor="R,T" Padding="8" Hidden="0" >
-				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA" IsChecked="1" ID="EnableMapInertiaCheck" ToolTip="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA_TT" />
-				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO" IsChecked="1" ID="SkipIntroVideoCheck" ToolTip="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO_TT" />
-				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_AUTOSIZE_UI" IsChecked="1" ID="AutoUIAssetsCheck" ToolTip="TXT_KEY_OPSCREEN_AUTOSIZE_UI_TT" />
-				<CheckBox Offset="0,-10" Anchor="R,C" String="TXT_KEY_OPSCREEN_USE_SMALL_UI" Font="TwCenMT16" IsChecked="0" ID="SmallUIAssetsCheck" NoStateChange="1" Disabled="1" ToolTip="TXT_KEY_OPSCREEN_USE_SMALL_UI_TT" />
-				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="LanguagePull" Hidden="1" >
-					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_LANG" />
-				</PullDown>
-				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="SpokenLanguagePull" >
-					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_SPOKEN_LANG" />
-				</PullDown>
-				</Stack>
-				<Stack ID="TabletInterfaceOptions" Anchor="L,T" Padding="5" Offset="0,-10" Hidden="0" >
-				<Container Size="1,20" />
-				<Label Anchor="C,C" Offset="0,0" ID="DragSpeedValue" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
-				<Slider Anchor="C,C" Length="300" Style="Slider" ID="DragSpeedSlider" WheelSteps="10" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
-				<Label Offset="0,20" Anchor="C,C" ID="PinchSpeedValue" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
-				<Slider Anchor="C,C" Length="300" Style="Slider" ID="PinchSpeedSlider" WheelSteps="10" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
-				</Stack>
-			</Container>
+				<CheckBox ID="EnableMapInertiaCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA" IsChecked="1" ToolTip="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA_TT" />
+				<Label ID="DragSpeedValue" Anchor="C,C" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
+				<Slider ID="DragSpeedSlider" Anchor="C,C" Length="300" Style="Slider" WheelSteps="10" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
+				<Label ID="PinchSpeedValue" Anchor="C,C" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
+				<Slider ID="PinchSpeedSlider" Anchor="C,C" Length="300" Style="Slider" WheelSteps="10" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
+				<CheckBox ID="ZoomCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM_TT" />
 			</Stack>
+
 		</Container>
 
 		<!-- Video Options -->
@@ -204,76 +195,74 @@
 
 			<!-- Resolution Options-->
 			<Grid Offset="40,100" Size="395,200" Color="White,128" Style="Grid9FrameButtons" >
-			<Stack Anchor ="R,T" Offset ="10,20">
-				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="FSResolutionPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
-				</PullDown>
-				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="WResolutionPull" Hidden="1" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
-				</PullDown>
-				<PullDown Style="GenericPullDown" Anchor="R,T" Offset="0,4" ScrollThreshold="200" SpaceForScroll="0" Size="130,32" ID="MSAAPull" Hidden="0" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_MSAA" />
-				</PullDown>
-				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_FULLSCREEN" IsChecked="0" ID="FullscreenCheck" />
-			</Stack>
-			<GridButton Anchor="C,B" Size="200,32" Offset="0,20" ID="ApplyResButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_APPLY_RESOLUTION_TT">
-				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPSCREEN_APPLY_RESOLUTION" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
-			</GridButton>
+				<Stack Anchor ="R,T" Offset ="10,20">
+					<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="FSResolutionPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
+					</PullDown>
+					<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="WResolutionPull" Hidden="1" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
+					</PullDown>
+					<PullDown Style="GenericPullDown" Anchor="R,T" Offset="0,4" ScrollThreshold="200" SpaceForScroll="0" Size="130,32" ID="MSAAPull" Hidden="0" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_MSAA" />
+					</PullDown>
+					<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_FULLSCREEN" IsChecked="0" ID="FullscreenCheck" />
+				</Stack>
+				<GridButton Anchor="C,B" Size="200,32" Offset="0,20" ID="ApplyResButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_APPLY_RESOLUTION_TT">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPSCREEN_APPLY_RESOLUTION" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				</GridButton>
 			</Grid>
 
 			<!-- Other Video Options-->
-			<Box Offset="40,320" Size="395,160" Color="0,0,0,0">
-			<Stack Offset="0,0" Anchor="R,C">
+			<Stack Offset="546,320" Anchor="R,T">
 				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_VSYNC" IsChecked="1" ID="VSyncCheck" ToolTip="TXT_KEY_OPSCREEN_RESTART_REQ_TT" />
 				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_HIGH_DETAIL_STRAT_VIEW" IsChecked="0" ID="HDStratCheck" ToolTip="TXT_KEY_OPSCREEN_HIGH_DETAIL_STRAT_VIEW_TT" />
 				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_GPU_TEXTURE_DECODE" IsChecked="0" ID="GPUDecodeCheck" ToolTip="TXT_KEY_OPSCREEN_GPU_TEXTURE_DECODE_TT" />
 				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_MINIMIZE_GRAY_TILES" IsChecked="0" ID="MinimizeGrayTilesCheck" ToolTip="TXT_KEY_OPSCREEN_MINIMIZE_GRAY_TILES_TT" Hidden="1"/>
 				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_FADE_SHADOWS" IsChecked="0" ID="FadeShadowsCheck" ToolTip="TXT_KEY_OPSCREEN_FADE_SHADOWS_TT" Hidden="1"/>
 			</Stack>
-			</Box>
 
 			<Stack Offset="700,100" Padding="10" >
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="LeaderPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_LEADER_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="LeaderPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_LEADER_QUALITY" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="OverlayPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_OVERLAY_DETAIL" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="OverlayPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_OVERLAY_DETAIL" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="ShadowPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_SHADOW_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="ShadowPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_SHADOW_QUALITY" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="FOWPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_FOW_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="FOWPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_FOW_QUALITY" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainDetailPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_DETAIL_LEVEL" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainDetailPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_DETAIL_LEVEL" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainTessPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_TESS_LEVEL" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainTessPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_TESS_LEVEL" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainShadowPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_SHADOW_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainShadowPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_SHADOW_QUALITY" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="WaterPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_WATER_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="WaterPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_WATER_QUALITY" />
+				</PullDown>
 
-			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TextureQualityPull" >
-				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TEXTURE_QUALITY" />
-			</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TextureQualityPull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TEXTURE_QUALITY" />
+				</PullDown>
 
-			<!--
-					&TerrainSettings::g_uCacheSize
-					&TerrainSettings::g_uTilesToCalcPerFrame
-					&TerrainSettings::g_uNumContinents
-					-->
+				<!--
+						&TerrainSettings::g_uCacheSize
+						&TerrainSettings::g_uTilesToCalcPerFrame
+						&TerrainSettings::g_uNumContinents
+						-->
 			</Stack>
 			<Box Offset="16,28" Size="928,460" Color="Black.200" ID="VideoPanelBlock" Hidden="1" ConsumeMouse="1" >
 			<Label Font="TwCenMT24" Offset="0,30" Anchor="C,T" String="TXT_KEY_OPSCREEN_VDOP_DISABLED" />

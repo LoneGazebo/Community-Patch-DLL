@@ -825,7 +825,11 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		}
 #endif
 		int iTotalHappinessImprovement = iPublicOpinionUnhappiness + iHappinessPreferredIdeology - iHappinessCurrentIdeology;
+#if defined(MOD_BALANCE_CORE)
+		if (iTotalHappinessImprovement >= 20)
+#else
 		if (iTotalHappinessImprovement >= 10)
+#endif
 		{
 			if (bDontSwitchFreedom && ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM())
 			{
@@ -841,7 +845,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 #if defined(MOD_BALANCE_CORE)
 			//Final sanity check - are we flip-flopping?
-			if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
+			if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 40)
 			{
 				return;
 			}

@@ -931,7 +931,8 @@ function PopulateGiftChoices()
 		end
 		Controls.UnitGift:SetText(buttonText)
 		Controls.UnitGiftButton:SetToolTipString(tooltipText)
-	elseif gk_mode then
+	end
+	if gk_mode then
 		SetButtonSize(Controls.UnitGift, Controls.UnitGiftButton, Controls.UnitGiftAnim, Controls.UnitGiftButtonHL)
 
 		-- Tile Improvement

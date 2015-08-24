@@ -328,7 +328,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and lev
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

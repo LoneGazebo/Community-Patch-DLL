@@ -823,14 +823,36 @@ void CvHomelandAI::FindHomelandTargets()
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... antiquity site?
+#if defined(MOD_BALANCE_CORE)
+			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			{
+				if(pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
+					{
+						newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+						newTarget.SetTargetX(pLoopPlot->getX());
+						newTarget.SetTargetY(pLoopPlot->getY());
+						newTarget.SetAuxData(pLoopPlot);
+						m_TargetedAntiquitySites.push_back(newTarget);
+					}
+				}
+				else
+				{
+
+#else
 			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()) && 
 				!(pLoopPlot->getOwner() != NO_PLAYER && m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner())))
 			{
+#endif
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
 				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAntiquitySites.push_back(newTarget);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?

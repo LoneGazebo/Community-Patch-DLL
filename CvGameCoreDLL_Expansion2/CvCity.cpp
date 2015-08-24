@@ -1087,16 +1087,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(owningPlayer.GetPlayerTraits()->IsReconquista())
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista())
 	{
-		ReligionTypes eReligion = owningPlayer.GetReligions()->GetReligionCreatedByPlayer(false);
+		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
 		if(eReligion != NO_RELIGION)
 		{
 			GetCityReligions()->AdoptReligionFully(eReligion);
 		}
 		else
 		{
-			eReligion = owningPlayer.GetReligions()->GetReligionInMostCities();
+			eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
 			if(eReligion != NO_RELIGION)
 			{
 				GetCityReligions()->AdoptReligionFully(eReligion);
@@ -2260,68 +2260,6 @@ void CvCity::doTurn()
 	{
 		SetPuppet(false);
 	}
-	int iBad = 0;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-		if (eResourceLoop != NO_RESOURCE)
-		{
-			if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
-			{
-				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
-				if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-				{
-				
-					// See if there are any BuildingClass requirements
-					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-					{
-						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-						if(!pkBuildingClassInfo)
-						{
-							continue;
-						}
-
-						const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-
-						if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
-						{
-							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
-							if(pkBuildingInfo)
-							{
-								if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
-								{
-									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-									if(pNotifications)
-									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
-										strText << pkResourceInfo->GetTextKey();
-										strText << getNameKey();
-										strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
-										strSummary << pkResourceInfo->GetTextKey();
-										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
-									}
-									iBad += (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 3);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	if(iBad > 0)
-	{
-		SetExtraBuildingMaintenance(iBad);
-	}
-	else
-	{
-		SetExtraBuildingMaintenance(0);
-	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE)
@@ -2347,6 +2285,59 @@ void CvCity::doTurn()
 			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 			{
 				SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if (eResourceLoop != NO_RESOURCE)
+		{
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+			if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
+				{				
+					// See if there are any BuildingClass requirements
+					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+					CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
+					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+					{
+						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if(!pkBuildingClassInfo)
+						{
+							continue;
+						}
+
+						const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+						if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
+						{
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
+							if(pkBuildingInfo)
+							{
+								if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+								{
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if(pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
+										strText << pkResourceInfo->GetTextKey();
+										strText << getNameKey();
+										strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 2);
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
+										strSummary << pkResourceInfo->GetTextKey();
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -15535,6 +15526,16 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(GetCorporationYieldChange(eIndex) > 0)
+	{
+		int iFranchises = GET_PLAYER(getOwner()).GetCorporateFranchisesWorldwide();
+		if(iFranchises > 0)
+		{
+			iValue += (iFranchises * GetCorporationYieldChange(eIndex));
+		}
+	}
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
@@ -15632,18 +15633,9 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-#if defined(MOD_BALANCE_CORE)
-	int iMod = 0;
-	if(GetCorporationYieldChange(eIndex) > 0)
-	{
-		int iFranchises = GET_PLAYER(getOwner()).GetCorporateFranchisesWorldwide();
-		if(iFranchises > 0)
-		{
-			iMod += (iFranchises * GetCorporationYieldChange(eIndex));
-		}
-	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int iMod = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
@@ -17535,6 +17527,12 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(getOwner() == NO_PLAYER)
+	{
+		return false;
+	}
+#endif
 
 	pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
 
@@ -18122,7 +18120,12 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(getOwner() == NO_PLAYER)
+	{
+		return;
+	}
+#endif
 	int iCost = GetBuyPlotCost(iPlotX, iPlotY);
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 	thisPlayer.GetTreasury()->LogExpenditure("", iCost, 1);
@@ -18164,21 +18167,28 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 				{
 					if(pNearbyCity->getOwner() != getOwner())
 					{
+#if defined(MOD_BALANCE_CORE)
+						int iDistance = plotDistance(pNearbyCity->getX(), pNearbyCity->getY(), pPlot->getX(), pPlot->getY());
+						if(iDistance <= GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT())
+						{
+							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
+						}
+#else
 						pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
+#endif
 #if defined(MOD_BALANCE_CORE)
 						//Did we buy this plot from someone? Oh no!
-						CvPlot* pBoughtPlot = GC.getMap().plot(iPlotX, iPlotY);
-						if(pBoughtPlot->getOwner() != NO_PLAYER)
+						if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER)
 						{
-							if(MOD_BALANCE_CORE && !GET_PLAYER(pBoughtPlot->getOwner()).isHuman() && (pPlot->getOwner() != getOwner()))
+							if(MOD_BALANCE_CORE && !GET_PLAYER(pPlot->getOwner()).isHuman() && (pPlot->getOwner() != getOwner()))
 							{
-								if(!GET_PLAYER(pBoughtPlot->getOwner()).isMinorCiv())
+								if(!GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 								{
-									GET_PLAYER(pBoughtPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+									GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
 								}
-								else if(GET_PLAYER(pBoughtPlot->getOwner()).isMinorCiv())
+								else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 								{
-									GET_PLAYER(pBoughtPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+									GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
 								}
 							}
 						}

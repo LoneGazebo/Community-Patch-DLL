@@ -7368,9 +7368,24 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(GetStrategicResourceCombatPenalty() > 0)
+
+	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+	// Loop through all resources
+	ResourceTypes eResource;
+	int iNumResourceInfos = GC.getNumResourceInfos();
+	for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 	{
-		return false;
+		eResource = (ResourceTypes) iResourceLoop;
+
+		if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+		{
+			int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+			if(iAvailable < 0)
+			{
+				return false;
+			}
+		}
 	}
 #endif
 	if(isWaiting())

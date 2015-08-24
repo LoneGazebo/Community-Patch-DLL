@@ -521,7 +521,7 @@ SET FreeGreatWorkOnConquest = 'true'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder additional [ICON_GREAT_WORK] Great Works of Art when you conquer a City. Receive a temporary [ICON_CULTURE] Culture boost if you cannot plunder.'
+SET Text = '[ICON_CAPITAL] Capital theming bonuses doubled. When you conquer an enemy City, plunder [ICON_GREAT_WORK] Great Works from their other Cities, or, if unable to plunder, gain a temporary [ICON_CULTURE] Culture boost.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -529,7 +529,7 @@ SET Text = 'Riches of Conquest'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Text, Tag)
-SELECT 'Napoleon stole {1_Num} [ICON_GREAT_WORK] Great Work(s) of Art from you when he conquered {2_City}!' , 'TXT_KEY_ART_PLUNDERED'
+SELECT 'Napoleon stole {1_Num} [ICON_GREAT_WORK] Great Work(s) from cities near {2_City} when he conquered it!' , 'TXT_KEY_ART_PLUNDERED'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Text, Tag)
@@ -537,7 +537,7 @@ SELECT 'Art stolen!' , 'TXT_KEY_ART_PLUNDERED_SUMMARY'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Text, Tag)
-SELECT 'You plundered {1_Num} [ICON_GREAT_WORK] Great Work(s) of Art from the conquest of {2_City}!' , 'TXT_KEY_ART_STOLEN'
+SELECT 'You plundered {1_Num} [ICON_GREAT_WORK] Great Work(s) from cities near {2_City} after you conquered it!' , 'TXT_KEY_ART_STOLEN'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Text, Tag)

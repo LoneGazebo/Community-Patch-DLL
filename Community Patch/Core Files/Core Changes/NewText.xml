@@ -276,6 +276,10 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Tourism Lua -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from Buildings</Text>
+		</Row>
 		<!-- City Over Resource Need Notification -->
 		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
 			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>

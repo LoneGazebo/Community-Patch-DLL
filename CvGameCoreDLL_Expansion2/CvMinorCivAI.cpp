@@ -8500,7 +8500,9 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	{
 		CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
 		CvTeam& kNewAllyTeam = GET_TEAM(kNewAlly.getTeam());
+#if !defined(MOD_BALANCE_CORE)
 		CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
+#endif
 
 		TeamTypes eLoopTeam;
 		for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -8546,9 +8548,9 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-				if(!bCannotWar)
+				if(!bCannotWar && eLoopTeam != NO_TEAM)
 				{
-					kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
+					GET_TEAM(eLoopTeam).declareWar(GetPlayer()->getTeam(), false);
 #else
 				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 #endif
@@ -11855,24 +11857,42 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	switch(eYield)
 	{
 		case YIELD_CULTURE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE);
+			if(pCapitalCity->getYieldRate(YIELD_CULTURE, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_CULTURE, false);
+			}
 			break;
 		case YIELD_FAITH:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH);
+			if(pCapitalCity->getYieldRate(YIELD_FAITH, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_FAITH, false);
+			}
 			break;
 		case YIELD_SCIENCE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE);
+			if(pCapitalCity->getYieldRate(YIELD_SCIENCE, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_SCIENCE, false);
+			}
 			break;
 		case YIELD_PRODUCTION:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION);
+			if(pCapitalCity->getYieldRate(YIELD_PRODUCTION, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_PRODUCTION, false);
+			}
 			break;
 		case YIELD_FOOD:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD);
+			if(pCapitalCity->getYieldRate(YIELD_FOOD, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_FOOD, false);
+			}
 			break;
 	}
-	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
-	iValue *= (iNumTurns + 100);
-	iValue /= 100;
+	int iNumTurns = max(600, GC.getGame().getMaxTurns()) - max(500, GC.getGame().getGameTurn());
+	if(iNumTurns > 0)
+	{
+		iValue *= (iNumTurns + 100);
+		iValue /= 100;
+	}
 	return iValue;
 }
 #endif

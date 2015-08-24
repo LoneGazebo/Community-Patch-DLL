@@ -1111,6 +1111,9 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		iWeight = CorrectWeight(iWeight);
 
 		iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+#if defined(MOD_BALANCE_CORE)
+		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 		iWeight = CorrectWeight(iWeight);
 
 		UpdateProjectedPlotYields(pPlot, eBuild);
@@ -1547,6 +1550,9 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
 		iWeight *= iScore;
+#if defined(MOD_BALANCE_CORE)
+		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 		//Improvement grants resource? Let's weight this based on flavors.
@@ -1773,10 +1779,15 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	}
 
 	// int iTurnsAway = FindTurnsAway(pUnit, pPlot);
+#if !defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false, iMoveTurnsAway);
 	iWeight *= pPlot->GetBuilderAIScratchPadValue();
+#if defined(MOD_BALANCE_CORE)
+	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 	iWeight = CorrectWeight(iWeight);
 
 	BuilderDirective directive;
@@ -1882,11 +1893,16 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 
 	int iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
 	//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
+#if !defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
 	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false, iMoveTurnsAway);
 	iWeight += iBuildTimeWeight;
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
+#if defined(MOD_BALANCE_CORE)
+	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 
 	int iYieldDifferenceWeight = 0;
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
@@ -2096,10 +2112,15 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 	{
 		int iWeight = GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT();
 		//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
+#if !defined(MOD_BALANCE_CORE)
 		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 		iWeight = GetBuildCostWeight(iWeight, pPlot, m_eFalloutRemove);
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false, iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
+#if defined(MOD_BALANCE_CORE)
+		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+#endif
 
 		BuilderDirective directive;
 		directive.m_eDirective = BuilderDirective::CHOP;

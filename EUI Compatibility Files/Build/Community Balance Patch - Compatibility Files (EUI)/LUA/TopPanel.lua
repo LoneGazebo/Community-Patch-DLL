@@ -157,7 +157,13 @@ local textTipControls = {}
 local tipControls = {}
 TTManager:GetTypeControlTable( "TooltipTypeTopPanel", textTipControls )
 TTManager:GetTypeControlTable( "EUI_TopPanelProgressTooltip", tipControls )
-
+local g_luxuries = table()
+for resource in GameInfo.Resources() do
+	if Game.GetResourceUsageType(resource.ID) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
+		g_luxuries:insert( resource )
+	end
+end
+g_luxuries:sort( function(a,b) return Locale.Compare( a.Description, b.Description ) == -1 end )
 -------------------------------
 -- Utilities
 -------------------------------
@@ -637,11 +643,8 @@ local function UpdateTopPanelNow()
 		-- International Trade Routes
 		-----------------------------
 		if bnw_mode then
-			Controls.InternationalTradeRoutes:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES",
-									g_activePlayer:GetNumInternationalTradeRoutesUsed(),
-									g_activePlayer:GetNumInternationalTradeRoutesAvailable()
-									)
-			Controls.TourismString:SetText( S( "%+g[ICON_TOURISM]", g_activePlayer:GetTourism() ) )
+			Controls.InternationalTradeRoutes:SetText( S( "%i/%i[ICON_INTERNATIONAL_TRADE]", g_activePlayer:GetNumInternationalTradeRoutesUsed(), g_activePlayer:GetNumInternationalTradeRoutesAvailable() ) )
+			Controls.TourismString:SetText( S( "%+i[ICON_TOURISM]", g_activePlayer:GetTourism() ) )
 		end
 	else
 		-----------------------------
@@ -954,6 +957,8 @@ g_toolTipHandler.SciencePerTurn = function( control )
 						else
 							tips:insert( "[ICON_BULLET][COLOR_WARNING_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
 						end
+					else
+						tips:insert( "[ICON_BULLET][COLOR_WARNING_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
 					end
 				end
 	
@@ -1265,31 +1270,29 @@ if civ5_mode then
 			local availableResources = ""
 			local missingResources = ""
 
-			for resource in GameInfo.Resources() do
+			for i, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 
-				if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-					local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
-					if numResourceAvailable > 0 then
-						local resourceHappiness = gk_mode and g_activePlayer:GetHappinessFromLuxury( resourceID ) or resource.Happiness	-- GetHappinessFromLuxury includes extra happiness
-						if resourceHappiness > 0 then
-							availableResources = availableResources
-								.. " [COLOR_POSITIVE_TEXT]"
-								.. numResourceAvailable
-								.. "[ENDCOLOR]"
-								.. resource.IconString
-							numHappinessResources = numHappinessResources + 1
-							baseHappinessFromResources = baseHappinessFromResources + resourceHappiness
-						end
-					elseif numResourceAvailable == 0 then
-						missingResources = missingResources .. resource.IconString
-					else
-						missingResources = missingResources
-							.. " [COLOR_WARNING_TEXT]"
+				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
+				if numResourceAvailable > 0 then
+					local resourceHappiness = gk_mode and g_activePlayer:GetHappinessFromLuxury( resourceID ) or resource.Happiness	-- GetHappinessFromLuxury includes extra happiness
+					if resourceHappiness > 0 then
+						availableResources = availableResources
+							.. " [COLOR_POSITIVE_TEXT]"
 							.. numResourceAvailable
 							.. "[ENDCOLOR]"
 							.. resource.IconString
+						numHappinessResources = numHappinessResources + 1
+						baseHappinessFromResources = baseHappinessFromResources + resourceHappiness
 					end
+				elseif numResourceAvailable == 0 then
+					missingResources = missingResources .. resource.IconString
+				else
+					missingResources = missingResources
+						.. " [COLOR_WARNING_TEXT]"
+						.. numResourceAvailable
+						.. "[ENDCOLOR]"
+						.. resource.IconString
 				end
 			end
 
@@ -1388,13 +1391,11 @@ if civ5_mode then
 			-- Local Resources in Cities
 			----------------------------
 			local tip = ""
-			for resource in GameInfo.Resources() do
+			for i, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-					local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
-					if quantity > 0 then
-						tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-					end
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
 			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
@@ -1417,7 +1418,7 @@ if civ5_mode then
 					end
 				end
 				local tip = ""
-				for resource in GameInfo.Resources() do
+				for i, resource in pairs( g_luxuries) do
 					local resourceID = resource.ID
 					if (numConnectedResource[resourceID] or 0) > 0 then
 						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
@@ -1477,13 +1478,11 @@ if civ5_mode then
 			-- Imports
 			----------------------------
 			local tip = ""
-			for resource in GameInfo.Resources() do
+			for i, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-					local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
-					if quantity > 0 then
-						tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-					end
+				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
 			if #tip > 0 then
@@ -1506,9 +1505,9 @@ if civ5_mode then
 					local minor = Players[ minorID ]
 					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
 						local tip = ""
-						for resource in GameInfo.Resources() do
+						for i, resource in pairs( g_luxuries) do
 							local quantity = minor:GetResourceExport(resource.ID)
-							if quantity > 0 and Game.GetResourceUsageType( resource.ID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
+							if quantity > 0 then
 								tip = tip .. " " .. quantity .. resource.IconString
 							end
 						end
@@ -1523,13 +1522,11 @@ if civ5_mode then
 			-- Exports
 			----------------------------
 			local tip = ""
-			for resource in GameInfo.Resources() do
+			for i, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-					local quantity = g_activePlayer:GetResourceExport( resourceID )
-					if quantity > 0 then
-						tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-					end
+				local quantity = g_activePlayer:GetResourceExport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
 			if #tip > 0 then
@@ -1559,32 +1556,32 @@ if civ5_mode then
 			----------------------------
 			-- Available for Import
 			----------------------------
-			for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
+			for i, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local resources = table()
+				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
 
-				local player = Players[playerID]
-				local isMinorCiv = player:IsMinorCiv()
+					local player = Players[playerID]
+					local isMinorCiv = player:IsMinorCiv()
 
-				-- Valid player? - Can't be us, has to be alive, and has to be met
-				if playerID ~= g_activePlayerID
-					and player:IsAlive()
-					and g_activeTeam:IsHasMet( player:GetTeam() )
-					and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
-				then
-					resources = ""
+					-- Valid player? - Can't be us, has to be alive and met, can't be allied city state
+					if playerID ~= g_activePlayerID
+						and player:IsAlive()
+						and g_activeTeam:IsHasMet( player:GetTeam() )
+						and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
+					then
 
-					for resource in GameInfo.Resources() do
-						local resourceID = resource.ID
 
-						local numResource = Game.GetResourceUsageType(resourceID) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
-							and ( ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
-							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) ) )
-						if numResource and numResource > 0 then
-							resources = resources .. " " .. numResource .. resource.IconString
+						local numResource = ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
+							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
+							or 0
+						if numResource > 0 then
+							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
 						end
 					end
-					if #resources > 0 then
-						tips:insert( "[ICON_BULLET]" .. player:GetCivilizationShortDescription() .. resources )
-					end
+				end
+				if #resources > 0 then
+					tips:insert( "[ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") )
 				end
 			end
 
@@ -2207,7 +2204,7 @@ local function ResourcesToolTip( control )
 							end
 							if totalResource > 0 then
 								tipIndex = tipIndex+1
-								tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. "  " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+								tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
 							else
 								tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
 							end
@@ -2382,7 +2379,7 @@ local function ResourcesToolTip( control )
 						end
 						if totalResource > 0 then
 							tipIndex = tipIndex+1
-							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. "  " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
 						else
 							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
 						end
@@ -2444,7 +2441,7 @@ local function ResourcesToolTip( control )
 						end
 						if totalResource > 0 then
 							tipIndex = tipIndex+1
-							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. "  " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
 						else
 							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
 						end

@@ -222,12 +222,12 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_POPULATION_CHANGE" />
-			<Set Value="25" />
+			<Set Value="30" />
 			<!-- 40 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="650" />
+			<Set Value="550" />
 			<!-- 500 -->
 		</Update>
 		<Update>
@@ -237,7 +237,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_EXPONENT" />
-			<Set Value="2.2" />
+			<Set Value="2.4" />
 			<!-- 2.8 -->
 		</Update>
 		<Update>
@@ -247,7 +247,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_HILL_CHANGE" />
-			<Set Value="250" />
+			<Set Value="300" />
 			<!-- 500 -->
 		</Update>
 		<Update>

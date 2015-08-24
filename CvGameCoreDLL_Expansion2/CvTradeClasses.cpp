@@ -2431,11 +2431,11 @@ void CvPlayerTrade::MoveUnits (void)
 
 												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
 												strSummary << pBuildingInfo->GetTextKey();
-												strSummary << pOriginCity->getNameKey();
+												strSummary << pDestCity->getNameKey();
 												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
-												strMessage << pOriginCity->getNameKey();
-												strMessage << pBuildingInfo->GetTextKey();
 												strMessage << pDestCity->getNameKey();
+												strMessage << pBuildingInfo->GetTextKey();
+												strMessage << pOriginCity->getNameKey();
 												pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
 											}
 										}

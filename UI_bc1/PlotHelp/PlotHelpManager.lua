@@ -82,7 +82,7 @@ local FeatureTypes = FeatureTypes
 --local LeaderheadAnimationTypes = LeaderheadAnimationTypes
 --local TradeableItems = TradeableItems
 --local EndTurnBlockingTypes = EndTurnBlockingTypes
---local ResourceUsageTypes = ResourceUsageTypes
+local ResourceUsageTypes = ResourceUsageTypes
 --local MajorCivApproachTypes = MajorCivApproachTypes
 --local MinorCivTraitTypes = MinorCivTraitTypes
 --local MinorCivPersonalityTypes = MinorCivPersonalityTypes
@@ -135,7 +135,7 @@ local g_mouseEventsMouseMove = MouseEvents.MouseMove
 local g_controlsTheBox = Controls.TheBox
 
 local g_maxTipLength = 7 * g_controlsTheBox:GetSizeY()
-local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isOptionDebugMode, g_isGameDebugMode, g_isNoob
+local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isOptionDebugMode, g_isNoob, g_isCivilianYields
 
 local g_tipTimer = 0
 local g_tipLevel = 0
@@ -158,6 +158,7 @@ local g_unitMouseOvers = table()
 local g_lastTips = {}
 local g_lastTip = false
 local g_cityWorkingRadius = GameDefines.CITY_PLOTS_RADIUS
+local g_moveDenominator = GameDefines.MOVE_DENOMINATOR
 local g_defaultWorkRate
 for row in GameInfo.Units() do
 	g_defaultWorkRate = math.max( g_defaultWorkRate or 0, row.WorkRate )
@@ -177,10 +178,9 @@ local function ClearOverlays()
 		Events.ClearHexHighlightStyle( "CityLimits" )
 		Events.ClearHexHighlightStyle( "OwnedFill" )
 		Events.ClearHexHighlightStyle( "OwnedOutline" )
-	end
-	if g_isCityYields then
-		g_isCityYields = false
-		Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
+		if g_isCivilianYields then
+			Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
+		end
 	end
 end
 
@@ -227,8 +227,7 @@ local function UpdatePlotHelp( timeChange )
 		g_tipTimer = g_tipTimer + timeChange
 		if IsGameCoreBusy() then
 			return
-		end
-		if g_tipTimer >= g_tipTimerThreshold2 then
+		elseif g_tipTimer >= g_tipTimerThreshold2 then
 			g_tipLevel = 2
 		elseif g_tipTimer >= g_tipTimerThreshold1 then
 			g_tipLevel = 1
@@ -266,34 +265,35 @@ local function UpdatePlotHelp( timeChange )
 	local activeCivilizationID = activePlayer:GetCivilizationType()
 	local activeCivilizationType = (GameInfo.Civilizations[ activeCivilizationID ] or {}).Type
 	local availableBeliefs = {}
-	local activePlayerIdeologyType = nil
+	local activePlayerIdeologyType
 	local plotOwner, workingCity, owningCity
 	local plotTechs = activeTeamTechs
 	local plotBeliefs = {}
 
 	local isExtraTips = g_tipLevel > 1
 	local isNoob = g_isNoob
+	local isGameDebugMode = Game.IsDebugMode()
 	local tips = table()
 
 	if g_isReligionEnabled then
 		if civ5_mode then
-			local activePlayerBeliefs = {}
+			local activePlayerBeliefs
 			if activePlayer:HasCreatedReligion() then
-				local religionID = activePlayer:GetReligionCreatedByPlayer()
-				if religionID > 0 then
-					activePlayerBeliefs = Game.GetBeliefsInReligion( religionID )
-				end
+				activePlayerBeliefs = Game.GetBeliefsInReligion( activePlayer:GetReligionCreatedByPlayer() )
 			elseif activePlayer:HasCreatedPantheon() then
 				activePlayerBeliefs = { activePlayer:GetBeliefInPantheon() }
+			elseif activePlayer:CanCreatePantheon() then
+				activePlayerBeliefs = {}
 			end
-
-			for i = 1, activePlayer:IsTraitBonusReligiousBelief() and 6 or 5 do
-				local beliefID = activePlayerBeliefs[i]
-				if beliefID and beliefID >= 0 then
-					availableBeliefs[beliefID] = true -- because active player already has this belief in "i" belief class
-				else
-					for _,beliefID in pairs( g_gameAvailableBeliefs[i]() ) do
-						availableBeliefs[beliefID] = true -- because available to active player in "i" belief class
+			if activePlayerBeliefs then
+				for i = 1, activePlayer:IsTraitBonusReligiousBelief() and 6 or 5 do
+					local beliefID = activePlayerBeliefs[i]
+					if beliefID and beliefID >= 0 then
+						availableBeliefs[beliefID] = true -- because active player already has this belief in "i" belief class
+					else
+						for _,beliefID in pairs( g_gameAvailableBeliefs[i]() ) do
+							availableBeliefs[beliefID] = true -- because available to active player in "i" belief class
+						end
 					end
 				end
 			end
@@ -549,11 +549,11 @@ local function UpdatePlotHelp( timeChange )
 	-- Plot Help
 	-------------------------------------------------
 
-	if plot and plot:IsRevealed( activeTeamID, g_isGameDebugMode ) then
+	if plot and plot:IsRevealed( activeTeamID, isGameDebugMode ) then
 
-		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, g_isGameDebugMode )
+		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, isGameDebugMode )
 		plotOwner = plotOwnerID and Players[plotOwnerID]
-		local plotTeamID = plot:GetRevealedTeam( activeTeamID, g_isGameDebugMode )
+		local plotTeamID = plot:GetRevealedTeam( activeTeamID, isGameDebugMode )
 		local plotTeam = plotTeamID and Teams[plotTeamID]
 		if plotTeam then
 			plotTechs = plotTeam:GetTeamTechs()
@@ -561,7 +561,7 @@ local function UpdatePlotHelp( timeChange )
 		workingCity = plot:GetWorkingCity()
 		owningCity =  workingCity or ( plot.GetCityPurchaseID and plotOwner and plotOwner:GetCityByID( plot:GetCityPurchaseID() ) )
 		plotCity = plot:GetPlotCity()
-		local buildInProgressID
+		local buildsInProgress = {}
 
 		if g_isReligionEnabled and workingCity then
 			if civ5_mode then
@@ -585,11 +585,10 @@ local function UpdatePlotHelp( timeChange )
 				end
 			end
 		end
-		local workRateNow = math.max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
-		local workRateAfter = workRateNow
+		local workRate = math.max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
 		--------
 		-- Units
-		if plot:IsVisible( activeTeamID, g_isGameDebugMode ) then
+		if plot:IsVisible( activeTeamID, isGameDebugMode ) then
 
 			local units = {}
 			-- Loop through all units in plot
@@ -605,7 +604,7 @@ local function UpdatePlotHelp( timeChange )
 			end
 			for i=1, #units do
 				local unit = units[i]
-				if unit and not unit:IsInvisible( activeTeamID, g_isGameDebugMode ) then
+				if unit and not unit:IsInvisible( activeTeamID, isGameDebugMode ) then
 
 					local unitOwnerID = unit:GetOwner()
 					local unitOwner = Players[unitOwnerID]
@@ -664,7 +663,7 @@ local function UpdatePlotHelp( timeChange )
 						else
 							unitMoves = unit:MaxMoves()
 						end
-						unitMoves = unitMoves / GameDefines.MOVE_DENOMINATOR
+						unitMoves = unitMoves / g_moveDenominator
 					end
 
 					-- In Orbit?
@@ -676,10 +675,12 @@ local function UpdatePlotHelp( timeChange )
 						g_unitMouseOvers:insert( unit )
 						Game.MouseoverUnit( unit, true )
 					else
+						-- Moves
 						if unitMoves > 0 then
-							unitTip = unitTip .. S(" %.3g[ICON_MOVES]", unitMoves )
+							unitTip = S("%s %.3g[ICON_MOVES]", unitTip, unitMoves )
 						end
 
+						-- Strength
 						if unitStrength > 0 then
 							local adjustedUnitStrength = (math.max(100 + unit:GetStrategicResourceCombatPenalty(), 10) * unitStrength) / 100
 							--todo other modifiers eg unhappy...
@@ -689,8 +690,20 @@ local function UpdatePlotHelp( timeChange )
 							unitTip = unitTip .. " " .. adjustedUnitStrength .. "[ICON_STRENGTH]"
 						end
 
+						-- Ranged Strength
 						if rangedStrength > 0 then
 							unitTip = unitTip .. " " .. rangedStrength .. "[ICON_RANGE_STRENGTH]"..unit:Range().." "
+						end
+
+						-- Religious Fervor
+						if gk_mode then
+							local spreadsLeft = unit:GetSpreadsLeft()
+							if spreadsLeft > 0 then
+								local icon = (GameInfo.Religions[unit:GetReligion()] or {}).IconString
+								if icon then
+									unitTip = unitTip .. " " .. spreadsLeft .. icon
+								end
+							end
 						end
 
 						-- Hit Points
@@ -706,19 +719,19 @@ local function UpdatePlotHelp( timeChange )
 
 					tips:insert( unitTip )
 					-- Can build something?
-					local unitWorkRate = unit:WorkRate(true)
-					if unitWorkRate > 0 then
-						workRateNow = unit:WorkRate()
-						workRateAfter = unitWorkRate
+					if unitOwnerID == activePlayerID then
+						local unitWorkRate = unit:WorkRate( true )
+						if unitWorkRate > workRate then
+							workRate = unitWorkRate
+						end
 					end
 
 					-- Building something?
 					local build = GameInfo.Builds[ unit:GetBuildType() ]
 					if build then
-						if build.Repair or build.ImprovementType then
-							buildInProgressID = build.ID
-						end
-						tips:insert( L( "TXT_KEY_WORKER_BUILD_PROGRESS", plot:GetBuildTurnsLeft( build.ID, unitOwnerID, 0, 0 ) +1, build.Description ) )
+						local buildTurnsLeft = plot:GetBuildTurnsLeft( build.ID, unitOwnerID, -unit:WorkRate() )
+						buildsInProgress[ build.ID ] = buildTurnsLeft
+						tips:insert( L( "TXT_KEY_WORKER_BUILD_PROGRESS", buildTurnsLeft, build.Description ) )
 					end
 				end
 			end
@@ -742,20 +755,20 @@ local function UpdatePlotHelp( timeChange )
 			isCombatUnitSelected = selectedUnit:IsCombatUnit()
 			if selectedUnit:CanFound( plot ) then
 				g_isCityLimits = true
-				local x, y = plot:GetX(), plot:GetY()
-				if not OptionsManager.IsCivilianYields() then
-					g_isCityYields = true
-					Events.RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, x, y )
+				if g_isCivilianYields then
+					Events.RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
 				end
 				for i=1, EUI.CountHexPlots( g_cityWorkingRadius ) do
 					local p = EUI.IndexPlot( plot, i )
-					local hex = ToHexFromGrid{ x=p:GetX(), y=p:GetY() }
-					Events.SerialEventHexHighlight( hex, true, nil, "CityLimits" )
-					local ownerID = p:GetOwner()
-					if ownerID >= 0 and ownerID ~= activePlayerID or p:IsPlayerCityRadius( activePlayerID ) then
---					if p:GetCityRadiusCount() > 0 then
-						Events.SerialEventHexHighlight( hex, true, nil, "OwnedFill" )
-						Events.SerialEventHexHighlight( hex, true, nil, "OwnedOutline" )
+					if p then
+						local hex = ToHexFromGrid{ x=p:GetX(), y=p:GetY() }
+						Events.SerialEventHexHighlight( hex, true, nil, "CityLimits" )
+						local ownerID = p:GetOwner()
+						if ownerID >= 0 and ownerID ~= activePlayerID or p:IsPlayerCityRadius( activePlayerID ) then
+--						if p:GetCityRadiusCount() > 0 then
+							Events.SerialEventHexHighlight( hex, true, nil, "OwnedFill" )
+							Events.SerialEventHexHighlight( hex, true, nil, "OwnedOutline" )
+						end
 					end
 				end
 			end
@@ -778,7 +791,7 @@ local function UpdatePlotHelp( timeChange )
 					strOwner = "[COLOR_YELLOW]"
 				end
 				-- Known city plot ?
-				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, g_isGameDebugMode ) then
+				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, isGameDebugMode ) then
 					strOwner = strOwner .. owningCity:GetName() .. "[ENDCOLOR]"
 					if isNoob then
 						strOwner = L( "TXT_KEY_CITY_OF", plotOwner:IsMinorCiv() and "" or plotOwner:GetCivilizationAdjectiveKey(), strOwner )
@@ -801,13 +814,20 @@ local function UpdatePlotHelp( timeChange )
 		-- Resources
 		local resourceTip = ""
 		local resourceID = plot:GetResourceType( activeTeamID )
-		local resource = nil
+		local resource, numResource, isResourceConnected, isResourceUsefull, resourceUsageType
+		local isPillaged = plot:IsImprovementPillaged()
+		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, isGameDebugMode )
+		local actualImprovementID = plot:GetImprovementType()
+		local revealedImprovement
 
 		if resourceID >= 0 then
 			resource = GameInfo.Resources[ resourceID ]
+			resourceUsageType = Game.GetResourceUsageType( resourceID )
+			isResourceUsefull = resourceUsageType ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS
+			isResourceConnected = plot:IsResourceConnectedByImprovement( revealedImprovementID ) and not isPillaged
+			numResource = plot:GetNumResource()
 
-			local numResource = plot:GetNumResource()
-			if numResource > 1 then
+			if resourceUsageType == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
 				resourceTip = resourceTip .. numResource
 			end
 			resourceTip = resourceTip .. resource.IconString .. L( resource.Description )
@@ -836,8 +856,7 @@ local function UpdatePlotHelp( timeChange )
 		------------------------
 		-- Terrain type, feature
 		local featureID = plot:GetFeatureType()
-		local feature = nil
-		local isFeatureReplacesTerrain = false
+		local feature, isFeatureReplacesTerrain
 		local terrain = GameInfo.Terrains[ plot:GetTerrainType() ]
 		local featureTips = table()
 
@@ -940,6 +959,9 @@ local function UpdatePlotHelp( timeChange )
 				yieldTips:insert( yieldChange .. "[ICON_CULTURE]" )
 			end
 		end
+		if resource and isResourceConnected and isResourceUsefull then
+			yieldTips:insert( numResource .. resource.IconString )
+		end
 
 		-- Defense
 		local defenseModifier = plot:DefenseModifier( activeTeamID, false, false )
@@ -964,10 +986,6 @@ local function UpdatePlotHelp( timeChange )
 		----------------------
 		-- Improvement & Route
 		local improvementTips = table()
-		local isPillaged = plot:IsImprovementPillaged()
-		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, g_isGameDebugMode )
-		local actualImprovementID = plot:GetImprovementType()
-		local revealedImprovement = nil
 
 		local function checkPillaged( row, flag )
 			if row then
@@ -994,7 +1012,7 @@ local function UpdatePlotHelp( timeChange )
 			improvementTips:insert( "[COLOR_POSITIVE_TEXT]" .. checkPillaged( revealedImprovement, isPillaged ) .. "[ENDCOLOR]" )
 		end
 
-		local routeID = plot:GetRevealedRouteType( activeTeamID, g_isGameDebugMode )
+		local routeID = plot:GetRevealedRouteType( activeTeamID, isGameDebugMode )
 		if routeID >= 0 then
 			improvementTips:insert( checkPillaged(GameInfo.Routes[routeID], plot:IsRoutePillaged()) )
 		end
@@ -1064,8 +1082,7 @@ local function UpdatePlotHelp( timeChange )
 				local isBasicBuild = true
 				local buildImprovement = build.ImprovementType and GameInfo.Improvements[ build.ImprovementType ]
 
-				local isBuildInProgress = buildInProgressID == buildID and 0
-				local turnsRemaining = plot:GetBuildTurnsLeft( buildID, activePlayerID, isBuildInProgress or workRateNow, isBuildInProgress or workRateAfter ) + 1
+				local buildInProgress = buildsInProgress[ buildID ]
 
 				if buildImprovement then
 					buildTip = L(buildImprovement.Description)
@@ -1085,7 +1102,7 @@ local function UpdatePlotHelp( timeChange )
 					-- it's not basic to create a GP improvement
 					if civ5_mode and buildImprovement.CreatedByGreatPerson then
 						canBuild = canBuild and selectedUnit and selectedUnit:CanBuild( plot, buildID, 1, 0 )
-						isBasicBuild = isBuildInProgress or canBuild
+						isBasicBuild = buildInProgress or canBuild
 					end
 				end
 
@@ -1115,6 +1132,7 @@ local function UpdatePlotHelp( timeChange )
 
 				-- does build require time to build ?
 				if plot:GetBuildTime(buildID) > 0 then
+					local turnsRemaining = buildInProgress or math.ceil( ( plot:GetBuildTime( buildID, g_activePlayerID ) - math.max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
 					if isNoob then
 						buildTip = buildTip .. " (" .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ) .. ")"
 					else
@@ -1130,7 +1148,7 @@ local function UpdatePlotHelp( timeChange )
 					canBuild = revealedImprovement
 				end
 
-				if canBuild or isBuildInProgress then
+				if canBuild or buildInProgress then
 					-- Determine yield changes from this build
 					canBuild = false
 					for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do -- GameInfo.Yields() iterator is broken by Communitas
@@ -1144,27 +1162,36 @@ local function UpdatePlotHelp( timeChange )
 
 						-- Positive or negative change?
 						if yieldChange > 0 then
-							buildTip = buildTip .. S(" [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
+							buildTip = S( "%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
 							canBuild = true
 						elseif yieldChange < 0 then
-							buildTip = buildTip .. S(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
+							buildTip = S( "%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
 						end
 					end
 					-- Maintenance
 					if buildImprovement then
 						if civ5_mode then
 							if (tonumber(buildImprovement.GoldMaintenance) or 0) > 0 then
-								buildTip = buildTip .. S(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_GOLD]", -buildImprovement.GoldMaintenance )
+								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_GOLD]", buildTip, -buildImprovement.GoldMaintenance )
 							end
 						else
 							if (tonumber(buildImprovement.Health) or 0) ~= 0 then
-								buildTip = buildTip .. S(" [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_1]", buildImprovement.Health )
+								buildTip = S("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_1]", buildTip, buildImprovement.Health )
 							end
 							if (tonumber(buildImprovement.EnergyMaintenance) or 0) ~= 0 then
-								buildTip = buildTip .. S(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_ENERGY]", -buildImprovement.EnergyMaintenance )
+								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_ENERGY]", buildTip, -buildImprovement.EnergyMaintenance )
 							end
 							if (tonumber(buildImprovement.Unhealth) or 0) ~= 0 then
-								buildTip = buildTip .. S(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_4]", -buildImprovement.Unhealth )
+								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_4]", buildTip, -buildImprovement.Unhealth )
+							end
+						end
+						if resource and isResourceUsefull then
+							if plot:IsResourceConnectedByImprovement( buildImprovement.ID ) then
+								if not isResourceConnected then
+									buildTip = S("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
+								end
+							elseif isResourceConnected then
+								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%-i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
 							end
 						end
 					end
@@ -1179,7 +1206,7 @@ local function UpdatePlotHelp( timeChange )
 					end
 				end
 
-				if isBuildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
+				if buildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
 					tips:insert( buildTip )
 				end
 			end
@@ -1231,13 +1258,12 @@ local function UpdateOptions()
 
 	g_tipTimerThreshold1 = OptionsManager.GetTooltip1Seconds() / 100
 	g_tipTimerThreshold2 = OptionsManager.GetTooltip2Seconds() / 100 + g_tipTimerThreshold1
-
+	g_isCivilianYields = not OptionsManager.IsCivilianYields()
 	g_isScienceEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)
 	g_isPoliciesEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 	g_isHappinessEnabled = civ5_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 	g_isReligionEnabled = civ5_mode and gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)
 	g_isOptionDebugMode = OptionsManager.IsDebugMode()
-	g_isGameDebugMode = Game.IsDebugMode()
 	g_isNoob = civ5_mode and not OptionsManager.IsNoBasicHelp()
 	ResetAll()
 end
@@ -1248,7 +1274,7 @@ UpdateOptions()
 ContextPtr:SetInputHandler(
 function( uiMsg ) --, wParam, lParam )
 	if uiMsg == g_mouseEventsMouseMove then
-		x, y = UIManager:GetMouseDelta()
+		local x, y = UIManager:GetMouseDelta()
 		if x ~= 0 or y ~= 0 then
 			ResetTimer()
 		end

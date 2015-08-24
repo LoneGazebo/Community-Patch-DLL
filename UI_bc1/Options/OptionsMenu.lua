@@ -103,6 +103,7 @@ function OnOK()
 	EUI_options.SetValue( "ClockIsOn", Controls.ClockCheckbox:IsChecked() )
 	EUI_options.SetValue( "HideCityRibbon", not Controls.CityRibbonCheckbox:IsChecked() )
 	EUI_options.SetValue( "HideUnitRibbon", not Controls.UnitRibbonCheckbox:IsChecked() )
+	EUI_options.SetValue( "HideCivRibbon", not Controls.CivRibbonCheckbox:IsChecked() )
 
 	OptionsManager.CommitGameOptions();
 	OptionsManager.CommitGraphicsOptions();
@@ -649,6 +650,7 @@ function UpdateGameOptionsDisplay()
 	Controls.ClockCheckbox:SetCheck( EUI_options.GetValue( "ClockIsOn" ) == 1 )
 	Controls.CityRibbonCheckbox:SetCheck( EUI_options.GetValue( "HideCityRibbon" ) ~= 1 )
 	Controls.UnitRibbonCheckbox:SetCheck( EUI_options.GetValue( "HideUnitRibbon" ) ~= 1 )
+	Controls.CivRibbonCheckbox:SetCheck( EUI_options.GetValue( "HideCivRibbon" ) ~= 1 )
 	Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
 	Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
 	Controls.AutoWorkersDontRemoveFeaturesCB:SetCheck( OptionsManager.IsAutoWorkersDontRemoveFeatures_Cached() );
