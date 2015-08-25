@@ -33106,6 +33106,7 @@ void CvPlayer::invalidateYieldRankCache(YieldTypes)
 //	--------------------------------------------------------------------------------
 void CvPlayer::doUpdateCacheOnTurn()
 {
+#if defined(MOD_BALANCE_CORE)
 	struct CompareUnitPowerAscending
 	{
 		const TContainer<CvUnit>& container;
@@ -33123,6 +33124,7 @@ void CvPlayer::doUpdateCacheOnTurn()
 
 	//this orders units by combat strength
 	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
+#endif
 }
 
 //	--------------------------------------------------------------------------------
