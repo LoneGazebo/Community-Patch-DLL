@@ -1093,6 +1093,7 @@ namespace TacticalAIHelpers
 	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
 	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
+	CvPlot* FindSafestPlotInReach(CvUnit* pUnit);
 }
 
 extern const char* barbarianMoveNames[];

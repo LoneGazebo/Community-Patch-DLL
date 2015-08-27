@@ -4199,6 +4199,16 @@ void CvHomelandAI::ExecuteHeals()
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot()
 {
+#if defined(MOD_BALANCE_CORE)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if(pUnit)
+		{
+			//so easy
+			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer());
+#else
+
 	int iDanger;
 
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -4342,6 +4352,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 					#endif
 				}
 			}
+#endif
 
 			if(pBestPlot != NULL)
 			{
