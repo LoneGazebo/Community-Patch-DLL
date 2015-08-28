@@ -2018,7 +2018,7 @@ void CvCityCitizens::DoReallocateCitizens()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 		{
 			GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 		}
@@ -2833,7 +2833,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}
@@ -2894,7 +2894,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}
@@ -2961,7 +2961,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}

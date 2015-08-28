@@ -68,6 +68,11 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+	int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
+#endif
+
 //------------------------------------------------------------------------------
 // CvGame Version History
 // Version 1 
@@ -171,11 +176,6 @@ void CvGame::init(HandicapTypes eHandicap)
 	//--------------------------------
 	// Init saved data
 	reset(eHandicap);
-
-	//--------------------------------
-	// Init containers
-	m_voteSelections.Init();
-	m_votesTriggered.Init();
 
 	if(!isGameMultiPlayer())
 	{
@@ -972,9 +972,6 @@ void CvGame::uninit()
 	m_aszDestroyedCities.clear();
 	m_aszGreatPeopleBorn.clear();
 
-	m_voteSelections.Uninit();
-	m_votesTriggered.Uninit();
-
 	m_mapRand.uninit();
 	m_jonRand.uninit();
 
@@ -1302,9 +1299,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pAdvisorRecommender = FNEW(CvAdvisorRecommender, c_eCiv5GameplayDLL, 0);
 	}
 
-	m_voteSelections.RemoveAll();
-	m_votesTriggered.RemoveAll();
-
 	m_mapRand.reset();
 	m_jonRand.reset();
 
@@ -1314,8 +1308,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	CvCityManager::Reset();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalCityCounter = 1; //0 is invalid
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	m_iGlobalAssetCounter = 1000; //0 is invalid
 #endif
 }
 
@@ -9735,38 +9729,30 @@ void CvGame::getGlobalAverage() const
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
 {
-	if(GetCultureAverage() != iValue)
-	{
-		float fAlpha = 0.05f;
-		m_iCultureAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
-	}
+	float fAlpha = 0.05f;
+	int iAverage = int(0.5f + (iValue * fAlpha) + (GetCultureAverage() * ( 1 - fAlpha)));
+	m_iCultureAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetScienceAverage(int iValue)
 {
-	if(GetScienceAverage() != iValue)
-	{
-		float fAlpha = 0.05f;
-		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iScienceAverage * ( 1 - fAlpha)));
-	}
+	float fAlpha = 0.05f;
+	int iAverage = int(0.5f + (iValue * fAlpha) + (GetScienceAverage() * ( 1 - fAlpha)));
+	m_iScienceAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetDefenseAverage(int iValue)
 {
-	if(GetDefenseAverage() != iValue)
-	{
-		float fAlpha = 0.05f;
-		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iDefenseAverage * ( 1 - fAlpha)));
-	}
+	float fAlpha = 0.05f;
+	int iAverage = int(0.5f + (iValue * fAlpha) + (GetDefenseAverage() * ( 1 - fAlpha)));
+	m_iDefenseAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGoldAverage(int iValue)
 {
-	if(GetGoldAverage() != iValue)
-	{
-		float fAlpha = 0.05f;
-		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iGoldAverage * ( 1 - fAlpha)));
-	}
+	float fAlpha = 0.05f;
+	int iAverage = int(0.5f + (iValue * fAlpha) + (GetGoldAverage() * ( 1 - fAlpha)));
+	m_iGoldAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGlobalPopulation(int iValue)
@@ -9889,8 +9875,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNoNukesCount;
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream >> m_iGlobalCityCounter;
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	kStream >> m_iGlobalAssetCounter;
 #endif
 	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
@@ -10010,8 +9996,6 @@ void CvGame::Read(FDataStream& kStream)
 
 	kStream >> m_aszDestroyedCities;
 	kStream >> m_aszGreatPeopleBorn;
-	kStream >> m_voteSelections;
-	kStream >> m_votesTriggered;
 
 	m_mapRand.read(kStream);
 	bool wasCallStackDebuggingEnabled = m_jonRand.callStackDebuggingEnabled();
@@ -10149,8 +10133,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNoNukesCount;
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream << m_iGlobalCityCounter;
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	kStream << m_iGlobalAssetCounter;
 #endif
 	kStream << m_iUnused1;
 	kStream << m_iUnused2;
@@ -10246,8 +10230,6 @@ void CvGame::Write(FDataStream& kStream) const
 
 	kStream << m_aszDestroyedCities;
 	kStream << m_aszGreatPeopleBorn;
-	kStream << m_voteSelections;
-	kStream << m_votesTriggered;
 
 	m_mapRand.write(kStream);
 	m_jonRand.write(kStream);
@@ -11692,23 +11674,26 @@ void CvGame::LogGameState(bool bLogHeaders)
 		}
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(bFirstTurn)
+		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			strOutput += ", CultureAvg";
-			strOutput += ", ScienceAvg";
-			strOutput += ", DefenseAvg";
-			strOutput += ", GoldAvg";
-		}
-		else
-		{
-			strTemp.Format("%d", GC.getGame().GetCultureAverage());
-			strOutput += ", " + strTemp;
-			strTemp.Format("%d", GC.getGame().GetScienceAverage());
-			strOutput += ", " + strTemp;
-			strTemp.Format("%d", GC.getGame().GetDefenseAverage());
-			strOutput += ", " + strTemp;
-			strTemp.Format("%d", GC.getGame().GetGoldAverage());
-			strOutput += ", " + strTemp;
+			if(bFirstTurn)
+			{
+				strOutput += ", CultureAvg";
+				strOutput += ", ScienceAvg";
+				strOutput += ", DefenseAvg";
+				strOutput += ", GoldAvg";
+			}
+			else
+			{
+				strTemp.Format("%d", GC.getGame().GetCultureAverage());
+				strOutput += ", " + strTemp;
+				strTemp.Format("%d", GC.getGame().GetScienceAverage());
+				strOutput += ", " + strTemp;
+				strTemp.Format("%d", GC.getGame().GetDefenseAverage());
+				strOutput += ", " + strTemp;
+				strTemp.Format("%d", GC.getGame().GetGoldAverage());
+				strOutput += ", " + strTemp;
+			}
 		}
 #endif
 

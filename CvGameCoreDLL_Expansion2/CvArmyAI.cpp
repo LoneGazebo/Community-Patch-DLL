@@ -77,7 +77,7 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID, bool /* bCon
 void CvArmyAI::Kill()
 {
 	CvAssert(GetOwner() != NO_PLAYER);
-	CvAssertMsg(GetID() != FFreeList::INVALID_INDEX, "GetID() is not expected to be equal with FFreeList::INVALID_INDEX");
+	CvAssertMsg(GetID() != -1, "GetID() is not expected to be equal with -1");
 
 	int iUnitID;
 	iUnitID = GetFirstUnitID();
@@ -87,7 +87,7 @@ void CvArmyAI::Kill()
 		UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if(pThisUnit)
 		{
-			pThisUnit->setArmyID(FFreeList::INVALID_INDEX);
+			pThisUnit->setArmyID(-1);
 		}
 		iUnitID = GetNextUnitID();
 	}
@@ -96,7 +96,7 @@ void CvArmyAI::Kill()
 }
 
 /// Read from binary data store
-void CvArmyAI::read(FDataStream& kStream)
+void CvArmyAI::Read(FDataStream& kStream)
 {
 	// Init saved data
 	Reset();
@@ -128,7 +128,7 @@ void CvArmyAI::read(FDataStream& kStream)
 }
 
 /// Write to binary data store
-void CvArmyAI::write(FDataStream& kStream) const
+void CvArmyAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
@@ -570,7 +570,7 @@ int CvArmyAI::GetArea() const
 	else
 	{
 		// since there is no plot return the invalid index
-		return FFreeList::INVALID_INDEX;
+		return -1;
 	}
 }
 
@@ -690,7 +690,7 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 			if(pThisUnit)
 			{
 				// Clears unit's army ID and erase from formation entries
-				pThisUnit->setArmyID(FFreeList::INVALID_INDEX);
+				pThisUnit->setArmyID(-1);
 				m_FormationEntries[iI].SetUnitID(ARMY_NO_UNIT);
 				bWasOneOrMoreRemoved = true;
 
@@ -850,13 +850,13 @@ bool CvArmyAI::DoDelayedDeath()
 }
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)
 {
-	readFrom.write(saveTo);
+	readFrom.Write(saveTo);
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvArmyAI& writeTo)
 {
-	writeTo.read(loadFrom);
+	writeTo.Read(loadFrom);
 	return loadFrom;
 }
 

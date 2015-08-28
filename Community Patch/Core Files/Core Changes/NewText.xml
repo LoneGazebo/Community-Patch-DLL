@@ -314,10 +314,10 @@
 
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
-			<Text>Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
-			<Text>Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
 		<!-- Defensive Pact Bonuses -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
@@ -2685,7 +2685,7 @@
 
 		<!-- tooltip for purchase cooldown -->
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
-			<Text>You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
 		
 		<!-- Tooltips for CBP Austria Ability -->

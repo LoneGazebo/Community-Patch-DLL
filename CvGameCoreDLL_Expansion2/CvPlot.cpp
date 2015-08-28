@@ -225,8 +225,8 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
 #endif
 
-	m_iArea = FFreeList::INVALID_INDEX;
-	m_iLandmass = FFreeList::INVALID_INDEX;
+	m_iArea = -1;
+	m_iLandmass = -1;
 	m_iFeatureVariety = 0;
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
@@ -881,7 +881,7 @@ bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
-	iLastArea = FFreeList::INVALID_INDEX;
+	iLastArea = -1;
 
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
@@ -6079,7 +6079,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
-						if(GET_PLAYER(getOwner()).isHuman())
+						if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 						{
 							GET_PLAYER(getOwner()).CalculateHappiness();
 						}
@@ -6488,7 +6488,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 				else
 				{
-					setArea(FFreeList::INVALID_INDEX);
+					setArea(-1);
 
 					if((area() != NULL) && (area()->getNumTiles() == 1))
 					{
@@ -7335,7 +7335,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 							if(MOD_BALANCE_CORE_HAPPINESS)
 							{
-								if(owningPlayer.isHuman())
+								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 								{
 									owningPlayer.CalculateHappiness();
 								}
@@ -7436,7 +7436,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 							if(MOD_BALANCE_CORE_HAPPINESS)
 							{
-								if(owningPlayer.isHuman())
+								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 								{
 									owningPlayer.CalculateHappiness();
 								}
@@ -10143,7 +10143,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 								if(MOD_BALANCE_CORE_HAPPINESS)
 								{
-									if(playerI.isHuman())
+									if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
 									{
 										playerI.CalculateHappiness();
 									}

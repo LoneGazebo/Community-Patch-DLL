@@ -1006,10 +1006,10 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkCity->GetPurchaseCooldown() > 0)
+	if(MOD_BALANCE_CORE && pkCity->GetUnitPurchaseCooldown() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
-		localizedText << pkCity->GetPurchaseCooldown();
+		localizedText << pkCity->GetUnitPurchaseCooldown();
 
 		const char* const localized = localizedText.toUTF8();
 		if(localized)
@@ -1150,10 +1150,10 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkCity->GetPurchaseCooldown() > 0)
+	if(MOD_BALANCE_CORE && pkCity->GetBuildingPurchaseCooldown() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
-		localizedText << pkCity->GetPurchaseCooldown();
+		localizedText << pkCity->GetBuildingPurchaseCooldown();
 
 		const char* const localized = localizedText.toUTF8();
 		if(localized)

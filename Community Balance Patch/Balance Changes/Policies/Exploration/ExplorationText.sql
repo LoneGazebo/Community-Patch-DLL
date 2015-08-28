@@ -39,7 +39,7 @@ SET Text = 'Exploitation'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE]Farms and Plantations gain +1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE]Farms and Plantations gain +1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food. Military Units can be upgraded in territory owned by allied City-States.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

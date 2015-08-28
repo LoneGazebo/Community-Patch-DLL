@@ -2562,7 +2562,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-					if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && iCeilTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+					if(iCeilTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
 						iCeilTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}

@@ -349,6 +349,7 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount("CvPlayer::m_iMinorResourceBonusCount", m_syncArchive)
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
+	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
 	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
 	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
@@ -690,11 +691,11 @@ void CvPlayer::init(PlayerTypes eID)
 
 	//--------------------------------
 	// Init containers
-	m_cities.Init();
+	m_cities.RemoveAll();
 
-	m_units.Init();
+	m_units.RemoveAll();
 
-	m_armyAIs.Init();
+	m_armyAIs.RemoveAll();
 
 	m_AIOperations.clear();
 
@@ -1071,10 +1072,6 @@ void CvPlayer::uninit()
 
 	m_cityNames.clear();
 
-	m_cities.Uninit();
-
-	m_units.Uninit();
-
 	// loop through all entries freeing them up
 	std::map<int , CvAIOperation*>::iterator iter;
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
@@ -1305,6 +1302,7 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iUpgradeCSTerritory = 0;
 	m_iAbleToMarryCityStatesCount = 0;
 	m_iCorporateFounderID = 0;
 	m_iCorporateFranchises = 0;
@@ -1365,7 +1363,7 @@ void CvPlayer::uninit()
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
-	m_iCapitalCityID = FFreeList::INVALID_INDEX;
+	m_iCapitalCityID = -1;
 	m_iCitiesLost = 0;
 	m_iMilitaryMight = 0;
 	m_iEconomicMight = 0;
@@ -1950,7 +1948,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -2386,14 +2384,6 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 		m_pCityDistance->Update();
-#endif
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-		if (bInitialFounding)
-		{
-			pCity->SetGlobalID( GC.getGame().GetNextCityID() );
-			m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity->GetID() ) );
-		}
 #endif
 	}
 
@@ -3328,10 +3318,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 	}
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	int iOldCityGlobalID = pOldCity->GetGlobalID();
-#endif
-
 	GET_PLAYER(eOldOwner).deleteCity(pOldCity->GetID());
 	// adapted from PostKill()
 
@@ -3376,12 +3362,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift), NO_RELIGION, strName.c_str());
 #else
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift));
-#endif
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	//fix the missing global ID of the new city - initCity sets it only for initial founding
-	pNewCity->SetGlobalID( iOldCityGlobalID );
-	m_citiesByGlobalID.insert( std::make_pair( iOldCityGlobalID, pNewCity->GetID() ) );
 #endif
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
@@ -5880,7 +5860,6 @@ void CvPlayer::doTurn()
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -6558,7 +6537,10 @@ void CvPlayer::UpdateReligion()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		GetExcessHappiness();
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		{
+			CalculateHappiness();
+		}
 	}
 	else
 	{
@@ -7376,7 +7358,7 @@ void CvPlayer::raze(CvCity* pCity)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -21287,6 +21269,26 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
+bool CvPlayer::CanUpgradeCSTerritory() const
+{
+	if (GetUpgradeCSTerritory() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetUpgradeCSTerritory() const
+{
+	return m_iUpgradeCSTerritory;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeUpgradeCSTerritory(int iChange)
+{
+	m_iUpgradeCSTerritory += iChange;
+}
+//	--------------------------------------------------------------------------------
 bool CvPlayer::IsDiplomaticMarriage() const
 {
 	if (GetAbleToMarryCityStatesCount() > 0)
@@ -21853,7 +21855,7 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 		}
 		else
 		{
-			m_iCapitalCityID = FFreeList::INVALID_INDEX;
+			m_iCapitalCityID = -1;
 		}
 	}
 }
@@ -22693,11 +22695,7 @@ int CvPlayer::calculateEconomicMight() const
 	}
 	else if(IsEmpireSuperUnhappy())
 	{
-		iEconomicMight -= (GetUnhappiness() * 4);
-	}
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	{
-		iEconomicMight /= max(1, getNumCities());
+		iEconomicMight -= (GetSetUnhappiness() * 4);
 	}
 #else
 	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
@@ -23391,7 +23389,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(isHuman())
+				if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 				{
 					CalculateHappiness();
 				}
@@ -26656,7 +26654,7 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -26689,7 +26687,7 @@ void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -26732,7 +26730,7 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -28309,25 +28307,43 @@ const CLLNode<CvString>* CvPlayer::headCityNameNode() const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::firstCity(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_cities.BeginIter(pIterIdx) : m_cities.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_cities.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_cities.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 const CvCity* CvPlayer::firstCity(int* pIterIdx, bool bRev) const
 {
-	return !bRev ? m_cities.BeginIter(pIterIdx) : m_cities.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_cities.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_cities.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_cities.NextIter(pIterIdx) : m_cities.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+
+	return m_cities.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 const CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev) const
 {
-	return !bRev ? m_cities.NextIter(pIterIdx) : m_cities.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+
+	return m_cities.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
@@ -28340,25 +28356,14 @@ int CvPlayer::getNumCities() const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::getCity(int iID)
 {
-	return(m_cities.GetAt(iID));
+	return(m_cities.Get(iID));
 }
 
 //	--------------------------------------------------------------------------------
 const CvCity* CvPlayer::getCity(int iID) const
 {
-	return(m_cities.GetAt(iID));
+	return(m_cities.Get(iID));
 }
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-CvCity* CvPlayer::getCityByGlobalID(int iID)
-{
-	std::map<int,int>::const_iterator it = m_citiesByGlobalID.find(iID);
-	if (it!=m_citiesByGlobalID.end())
-		return getCity(it->second);
-
-	return NULL;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::addCity()
@@ -28369,16 +28374,7 @@ CvCity* CvPlayer::addCity()
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	for (std::map<int,int>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
-		if (it->second==iID)
-		{
-			m_citiesByGlobalID.erase(it);
-			break;
-		}
-#endif
-
-	m_cities.RemoveAt(iID);
+	m_cities.Remove(iID);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	m_pCityDistance->Update();
@@ -28418,25 +28414,41 @@ CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClas
 //	--------------------------------------------------------------------------------
 const CvUnit* CvPlayer::firstUnit(int* pIterIdx, bool bRev) const
 {
-	return !bRev ? m_units.BeginIter(pIterIdx) : m_units.EndIter(pIterIdx);
-}
-
-//	--------------------------------------------------------------------------------
-const CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev) const
-{
-	return !bRev ? m_units.NextIter(pIterIdx) : m_units.PrevIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_units.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_units.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlayer::firstUnit(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_units.BeginIter(pIterIdx) : m_units.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_units.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_units.GetAt(*pIterIdx);
+}
+
+//	--------------------------------------------------------------------------------
+const CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev) const
+{
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_units.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_units.NextIter(pIterIdx) : m_units.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_units.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
@@ -28449,7 +28461,13 @@ int CvPlayer::getNumUnits() const
 //	--------------------------------------------------------------------------------
 const CvUnit* CvPlayer::getUnit(int iID) const
 {
+#if defined(MOD_BALANCE_CORE)
+	//spread it out a little for an easy breakpoint
+	const CvUnit* pUnit = m_units.Get(iID);
+	return pUnit;
+#else
 	return (m_units.GetAt(iID));
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -28457,7 +28475,7 @@ CvUnit* CvPlayer::getUnit(int iID)
 {
 #if defined(MOD_BALANCE_CORE)
 	//spread it out a little for an easy breakpoint
-	CvUnit* pUnit = m_units.GetAt(iID);
+	CvUnit* pUnit = m_units.Get(iID);
 	return pUnit;
 #else
 	return (m_units.GetAt(iID));
@@ -28474,34 +28492,48 @@ CvUnit* CvPlayer::addUnit()
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteUnit(int iID)
 {
-	m_units.RemoveAt(iID);
+	m_units.Remove(iID);
 }
 
 
 //	--------------------------------------------------------------------------------
 const CvArmyAI* CvPlayer::firstArmyAI(int* pIterIdx, bool bRev) const
 {
-	return !bRev ? m_armyAIs.BeginIter(pIterIdx) : m_armyAIs.EndIter(pIterIdx);
-}
-
-
-//	--------------------------------------------------------------------------------
-const CvArmyAI* CvPlayer::nextArmyAI(int* pIterIdx, bool bRev) const
-{
-	return !bRev ? m_armyAIs.NextIter(pIterIdx) : m_armyAIs.PrevIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_armyAIs.GetCount()-1;
+	else
+		*pIterIdx = 0;
+	return m_armyAIs.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
 CvArmyAI* CvPlayer::firstArmyAI(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_armyAIs.BeginIter(pIterIdx) : m_armyAIs.EndIter(pIterIdx);
+	if (bRev)
+		*pIterIdx = m_armyAIs.GetCount()-1;
+	else
+		*pIterIdx = 0;	
+	return m_armyAIs.GetAt(*pIterIdx);
 }
 
+//	--------------------------------------------------------------------------------
+const CvArmyAI* CvPlayer::nextArmyAI(int* pIterIdx, bool bRev) const
+{
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_armyAIs.GetAt(*pIterIdx);
+}
 
 //	--------------------------------------------------------------------------------
 CvArmyAI* CvPlayer::nextArmyAI(int* pIterIdx, bool bRev)
 {
-	return !bRev ? m_armyAIs.NextIter(pIterIdx) : m_armyAIs.PrevIter(pIterIdx);
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_armyAIs.GetAt(*pIterIdx);
 }
 
 //	--------------------------------------------------------------------------------
@@ -28514,13 +28546,13 @@ int CvPlayer::getNumArmyAIs() const
 //	--------------------------------------------------------------------------------
 const CvArmyAI* CvPlayer::getArmyAI(int iID) const
 {
-	return ((CvArmyAI*)(m_armyAIs.GetAt(iID)));
+	return ((CvArmyAI*)(m_armyAIs.Get(iID)));
 }
 
 //	--------------------------------------------------------------------------------
 CvArmyAI* CvPlayer::getArmyAI(int iID)
 {
-	return ((CvArmyAI*)(m_armyAIs.GetAt(iID)));
+	return ((CvArmyAI*)(m_armyAIs.Get(iID)));
 }
 
 
@@ -28534,7 +28566,7 @@ CvArmyAI* CvPlayer::addArmyAI()
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteArmyAI(int iID)
 {
-	bool bRemoved = m_armyAIs.RemoveAt(iID);
+	bool bRemoved = m_armyAIs.Remove(iID);
 	DEBUG_VARIABLE(bRemoved);
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
@@ -30381,6 +30413,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		SetFreedomCorp(true);
 		CalculateCorporateFranchisesWorldwide();
 	}
+	if(pPolicy->IsUpgradeCSTerritory())
+	{
+		ChangeUpgradeCSTerritory(pPolicy->IsUpgradeCSTerritory() * iChange);
+	}
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -31357,7 +31393,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -31911,6 +31947,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iAbleToAnnexCityStatesCount = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_iUpgradeCSTerritory;
 	kStream >> m_iAbleToMarryCityStatesCount;
 	kStream >> m_iCorporateFounderID;
 	kStream >> m_iCorporateFranchises;
@@ -32277,19 +32314,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_cityNames;
 
 	kStream >> m_cities;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	{
-		int iLoopCity = 0;
-		for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-		{
-			if (pLoopCity->getOwner()!=GetID())
-				OutputDebugString("incorrect city owner");
-			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity->GetID() ) );
-		}
-	}
-#endif
-
 	kStream >> m_units;
 	kStream >> m_armyAIs;
 
@@ -32620,6 +32644,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iMinorResourceBonusCount;
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_iUpgradeCSTerritory;
 	kStream << m_iAbleToMarryCityStatesCount;
 	kStream << m_iCorporateFounderID;
 	kStream << m_iCorporateFranchises;
@@ -33235,7 +33260,25 @@ void CvPlayer::invalidateYieldRankCache(YieldTypes)
 //	--------------------------------------------------------------------------------
 void CvPlayer::doUpdateCacheOnTurn()
 {
+#if defined(MOD_BALANCE_CORE)
+	struct CompareUnitPowerAscending
+	{
+		const TContainer<CvUnit>& container;
 
+		CompareUnitPowerAscending(TContainer<CvUnit>& c) : container(c) {}
+		bool operator()(int iID1, int iID2)
+		{
+			return ( container.Get(iID1)->GetPower() > container.Get(iID2)->GetPower() );
+		}
+
+	private:
+		//need an assignment operator apparently
+		CompareUnitPowerAscending& operator=( const CompareUnitPowerAscending& ) { return *this; }
+	};
+
+	//this orders units by combat strength
+	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
+#endif
 }
 
 //	--------------------------------------------------------------------------------

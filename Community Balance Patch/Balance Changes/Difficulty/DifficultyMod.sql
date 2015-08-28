@@ -161,33 +161,33 @@ WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='CO
 -- Names
 
 UPDATE Language_en_US
-SET Text = 'A standard challenge. The AI receives no bonuses.'
+SET Text = 'Easy. The AI is at a slight disadvantage.'
 WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A little challenging. The AI receives small bonuses.'
+SET Text = 'A standard challenge. The AI receives a few bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A mild challenge. The AI receives noticeable bonuses.'
+SET Text = 'A little challenging. The AI receives noticeable bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A good challenge. The AI has many advantages.'
+SET Text = 'A good test of skill. The AI has many advantages.'
 WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Quite challenging. AI players are given major bonuses.'
+SET Text = 'Quite hard. The AI has major bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Very challenging. AI players receive substantial bonuses.'
+SET Text = 'Very difficult. The AI has substantial bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Extremely challenging. The AI has a very large advantage.'
+SET Text = 'Extremely challenging. AI players have very large advantages.'
 WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The AI has massive bonuses at all stages of the game. Good luck!'
+SET Text = 'The AI has massive bonuses at all stages of the game. You have been warned!'
 WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';

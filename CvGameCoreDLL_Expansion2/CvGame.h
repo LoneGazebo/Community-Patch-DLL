@@ -641,8 +641,8 @@ public:
 	int m_iLargestBasePotential;
 #endif
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	int GetNextCityID() { return ++m_iGlobalCityCounter; }
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	int GetNextGlobalID() { return ++m_iGlobalAssetCounter; }
 #endif
 
 	//------------------------------------------------------------
@@ -657,8 +657,8 @@ private:
 
 protected:
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	int m_iGlobalCityCounter;
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	int m_iGlobalAssetCounter;
 #endif
 
 	int m_iEndTurnMessagesSent;
@@ -776,9 +776,6 @@ protected:
 
 	std::vector<CvString> m_aszDestroyedCities;
 	std::vector<CvString> m_aszGreatPeopleBorn;
-
-	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
-	FFreeListTrashArray<VoteTriggeredData> m_votesTriggered;
 
 	CvRandom m_mapRand;
 	CvRandom m_jonRand;

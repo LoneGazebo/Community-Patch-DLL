@@ -780,7 +780,11 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	}
 #endif	
 	// Possible enough that we need to look at this in detail?
+#if defined(MOD_BALANCE_CORE)
+	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= (-1 * GC.getSUPER_UNHAPPY_THRESHOLD()))
+#else
 	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
+#endif
 	{
 		// How much Happiness could we gain from a switch?
 		int iHappinessCurrentIdeology = GetBranchBuildingHappiness(pPlayer, eCurrentIdeology);
@@ -822,11 +826,43 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			{
 				return;
 			}
+			if((iCurrentHappiness + iUnhappiness) <= GC.getSUPER_UNHAPPY_THRESHOLD())
+			{
+				return;
+			}
+			// Finally see what our friends (and enemies) have already chosen
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+				{
+					CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
+					PolicyBranchTypes eOtherPlayerIdeology;
+					eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+
+					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true))
+					{
+					case MAJOR_CIV_APPROACH_HOSTILE:
+						if (eOtherPlayerIdeology == ePreferredIdeology)
+						{
+							return;
+						}
+						break;
+					case MAJOR_CIV_APPROACH_GUARDED:
+						if (eOtherPlayerIdeology == ePreferredIdeology)
+						{
+							return;
+						}
+						break;
+					}
+				}
+			}
 		}
 #endif
 		int iTotalHappinessImprovement = iPublicOpinionUnhappiness + iHappinessPreferredIdeology - iHappinessCurrentIdeology;
 #if defined(MOD_BALANCE_CORE)
-		if (iTotalHappinessImprovement >= 20)
+		if (iTotalHappinessImprovement >= 25)
 #else
 		if (iTotalHappinessImprovement >= 10)
 #endif

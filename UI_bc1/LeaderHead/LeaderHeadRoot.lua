@@ -112,7 +112,7 @@ Events.LeavingLeaderViewMode.Add( DoLeaveLeader )
 
 local function ButtonClick( buttonID, void2, control )
 print( "clicked discussion dialogue button#", buttonID, control:GetText(), g_diploProcess )
-	if g_diploProcess then
+	if g_diploProcess and g_diploPlayer and g_diploPlayer:IsAlive() then
 		local diploEvent = g_diploProcess[2]
 		local diploEventType = type( diploEvent )
 print( "click action", diploEvent )
@@ -169,6 +169,7 @@ local function SetupDisplay( diploPlayerID, diploUIstateID, diploMessage, diploD
 		g_diploPlayerName = g_diploPlayer:GetName()
 	end
 	g_isAtWar = g_activeTeam:IsAtWar( g_diploTeamID )
+	local isAlive = g_diploPlayer and g_diploPlayer:IsAlive()
 
 --	local diploCivInfo = GameInfo.Civilizations[ g_diploPlayer:GetCivilizationType() ]
 	if civ5_mode then
@@ -213,34 +214,35 @@ local function SetupDisplay( diploPlayerID, diploUIstateID, diploMessage, diploD
 	if g_canGoBack then
 		Controls.WarButton:SetHide( not g_activeTeam:CanChangeWarPeace(g_diploTeamID) )
 		Controls.DemandButton:SetHide( g_activeTeamID == g_diploTeamID )
-		Controls.TradeButton:SetDisabled( g_isAtWar )
-		Controls.DemandButton:SetDisabled( g_isAtWar )
-		Controls.DiscussButton:SetDisabled( g_isAtWar )
+		Controls.TradeButton:SetDisabled( not isAlive or g_isAtWar )
+		Controls.DemandButton:SetDisabled( not isAlive or g_isAtWar )
+		Controls.DiscussButton:SetDisabled( not isAlive or g_isAtWar )
+		local isDisabled = true
 		if g_isAtWar then
 			Controls.WarButton:LocalizeAndSetText( "TXT_KEY_DIPLO_NEGOTIATE_PEACE" )
 			local numTurnsLockedIntoWar = g_activeTeam:GetNumTurnsLockedIntoWar( g_diploTeamID )
 			-- Not locked into war
-			if numTurnsLockedIntoWar == 0 then
-				Controls.WarButton:SetDisabled(false)
+			if isAlive and numTurnsLockedIntoWar == 0 then
+				isDisabled = false
 				Controls.WarButton:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_TT" )
 			-- Locked into war
 			else
-				Controls.WarButton:SetDisabled(true)
 				Controls.WarButton:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", numTurnsLockedIntoWar )
 			end
 		else
 			Controls.WarButton:LocalizeAndSetText( "TXT_KEY_DIPLO_DECLARE_WAR" )
-			if g_activeTeam:IsForcePeace(g_diploTeamID) then
-				Controls.WarButton:SetDisabled(true)
+			if not isAlive then
+				Controls.WarButton:SetToolTipString()
+			elseif g_activeTeam:IsForcePeace(g_diploTeamID) then
 				Controls.WarButton:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" )
 			elseif not g_activeTeam:CanDeclareWar(g_diploTeamID) then
-				Controls.WarButton:SetDisabled(true)
 				Controls.WarButton:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" )
 			else
-				Controls.WarButton:SetDisabled(false)
+				isDisabled = false
 				Controls.WarButton:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_DECLARES_WAR_TT" )
 			end
 		end
+		Controls.WarButton:SetDisabled( isDisabled )
 		if civBE_mode then
 			Controls.TalkOptionStack:CalculateSize()
 			Controls.TalkOptionStack:ReprocessAnchoring()

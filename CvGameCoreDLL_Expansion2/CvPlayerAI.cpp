@@ -1307,7 +1307,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
 	// If headed on a concert tour, keep going
-	if (pGreatMusician->getArmyID() != FFreeList::INVALID_INDEX)
+	if (pGreatMusician->getArmyID() != -1)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
@@ -1426,7 +1426,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	// if the merchant is in an army, he's already marching to a destination, so don't evaluate him
-	if(pGreatMerchant->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatMerchant->getArmyID() != -1)
 	{
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
@@ -1548,7 +1548,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			iGreatGeneralCount++;
 		}
 	}
-	if(pGreatGeneral->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatGeneral->getArmyID() != -1)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1577,7 +1577,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
-	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX))
+	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1698,7 +1698,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
 	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
-	if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
+	if(pGreatAdmiral->getArmyID() != -1)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -2024,6 +2024,12 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 		}
 	}
 
+	int iPathTurns;
+	if(!pUnit->GeneratePath(pCity->plot(), MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
+	{
+		return 0;
+	}
+
 	// Do we already have an embassy here?
 	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
 	// Iterate all plots owned by a city
@@ -2035,7 +2041,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	{
 		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-		if(pCityPlot != NULL)
+		if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
 		{
 			ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
 			ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
@@ -2054,8 +2060,35 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 
 	iScore = 100;
 
-	// Then subtract distance
-	iScore -= (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+	// Subtract distance (XML value important here!)
+	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+
+	//Are there barbarians near the city-state? If so, careful!
+	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
+	{
+		iDistance *= 2;
+	}
+
+	//Let's downplay minors we can't walk to if we don't have embarkation.
+	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
+	{
+		iDistance *= 2;
+	}
+
+	//Let's downplay far/distant minors without full embarkation.
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	{
+		iDistance *= 2;
+	}
+
+	//If this is way too far away, let's not penalize it too much.
+	iScore -= iDistance;
+
+	//All CSs should theoretically be valuable if we've gotten this far.
+	if(iScore <= 0)
+	{
+		iScore = 1;
+	}
 
 	return iScore;
 }
@@ -2092,6 +2125,27 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		return 0;
 	}
 
+	// Did we bully you recently?  If so, being friendly now would be very odd.
+	if(pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
+	{
+		return 0;
+	}
+
+	//Return score if we can't embark and they aren't on our landmass.
+	if(pCity->getArea() != pUnit->plot()->getArea())
+	{
+		if(!GET_TEAM(getTeam()).canEmbark())
+		{
+			return 0;
+		}
+	}
+
+	int iPathTurns;
+	if(!pUnit->GeneratePath(pPlot, MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
+	{
+		return 0;
+	}
+
 	int iOtherMajorLoop;
 	PlayerTypes eOtherMajor;
 	int iFriendshipWithMinor;
@@ -2113,17 +2167,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 
 	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
 	{
-		iScore *= 2;
-	}
-
-	else if (eApproach == MINOR_CIV_APPROACH_FRIENDLY)
-	{
-		iScore *= 3;
-	}
-
-	else if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-	{
-		iScore  *= 4;
+		iScore /= 2;
 	}
 
 	// **************************
@@ -2133,48 +2177,13 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	//DIPLOMACY - We want all of them the same!
 	if(GetDiplomacyAI()->IsGoingForDiploVictory())
 	{
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-		{
-			iScore *= 2;
-		}
+		iScore *= 2;
 	}
 
 	//MILITARY - We want units and happiness!!
 	else if(GetDiplomacyAI()->IsGoingForWorldConquest())
 	{
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-		{
-			iScore *= 2;
-		}
 		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-		{
-			iScore *= 4;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
-			iScore *= 3;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
 			iScore *= 2;
 		}
@@ -2183,23 +2192,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	//SCIENCE - We want happiness and growth!!
 	else if(GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 	{
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-		{
-			iScore *= 2;
-		}
 		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 		{
-			iScore *= 3;
+			iScore *= 2;
 		}
 		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
-			iScore *= 4;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
 			iScore *= 2;
 		}
@@ -2210,30 +2207,18 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	{
 		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iScore *= 4;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-		{
-			iScore *= 2;
-		}
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
 			iScore *= 2;
 		}
 		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iScore *= 3;
+			iScore *= 2;
 		}
 	}
 
 	// Is Our Influence worth more here? Definitely take advantage of this.
 	if(pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_INFLUENCE))
 	{
-		iScore *= 4;
+		iScore *= 5;
 	}
 	
 	// Do they have a resource we lack?
@@ -2246,7 +2231,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		}
 		else if(bNeedHappinessCritical)
 		{
-			iScore *= 5;
+			iScore *= 4;
 		}
 		else
 		{
@@ -2277,6 +2262,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 
 	//Nobody likes hostile city-states.
 	if(pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+	{
+		iScore /= 2;
+	}
+	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
+	if(eMinor.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetID()) < 0)
 	{
 		iScore /= 2;
 	}
@@ -2312,18 +2302,18 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 						//If their influence is way higher than ours, let's tune this down...
 						if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
 						{
-							iScore /= 3;
+							iScore /= 2;
 						}
 						//If we can pass them, ramp it up!
 						else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
 						{
-							iScore *= 3;
+							iScore *= 2;
 						}
 					}
 					// If a teammate is allied, let's discourage going there.
 					else
 					{
-						iScore /= 3;
+						iScore /= 2;
 					}
 					// If a friendly player is allied, let's discourage going there.
 					if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
@@ -2364,14 +2354,14 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 			// Are we close to losing our status? If so, obsess away!
 			else if(pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
 			{
-				iScore *= 5;
+				iScore *= 10;
 			}
 		}
 	}
 	// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
 	if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
 	{
-			iScore *= 6;
+			iScore *= 2;
 	}
 
 	// Are we already Friends? If so, let's stay the course.
@@ -2380,56 +2370,38 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		iScore *= 2;
 	}
 
-	// Did we bully you recently?  If so, being friendly now would be very odd.
-	if(pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
-	{
-		iScore /= 6;
-	}
-
 	// **************************
 	// Distance
 	// **************************
 
-	CvMap& theMap = GC.getMap();
-	CvArea* pArea = theMap.getArea(pCity->getArea());
-
 	// Subtract distance (XML value important here!)
-	iScore -= ((plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY())) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
-
-	// Multiplier by how safe it is
-	if(!atWar(getTeam(), eMinor.getTeam()))
-	{
-		iScore *= 2;
-	}
-
-	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if(eMinor.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetID()) < 0)
-	{
-		iScore /= 2;
-	}
+	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 	{
-		iScore /= 4;
+		iDistance *= 2;
 	}
 
 	//Let's downplay minors we can't walk to if we don't have embarkation.
 	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
 	{
-		iScore /= 3;
+		iDistance *= 2;
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
 	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
 	{
-		iScore /= 2;
+		iDistance *= 2;
 	}
 
-	//If we can travel across oceans, let's emphasize island CSs to get them alliances.
-	else if((pArea->getNumTiles() <= 15) && GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	//If this is way too far away, let's not penalize it too much.
+	iScore -= iDistance;
+
+	//All CSs should theoretically be valuable if we've gotten this far.
+	if(iScore <= 0)
 	{
-		iScore *= 2;
+		iScore = 1;
 	}
 
 	return iScore;
@@ -2511,6 +2483,10 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 {
+	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER)
+	{
+		return NULL;
+	}
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit);
 	CvPlot* pBestTarget = NULL;
 	int iTurns;
@@ -2854,13 +2830,6 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			//Defense build yield.
 			iScore += iDefenseScore * 2;
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Great General considering a Citadel, Location: X: %d, Y: %d. SCORE: %d", pAdjacentPlot->getX(), pAdjacentPlot->getY(), iScore);
-				GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
 		}
 
 		//require a certain minimum score ...
@@ -2892,6 +2861,13 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				{
 					//don't even keep it if it's much worse than the current best
 					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Great General considering a Citadel, Location: X: %d, Y: %d. SCORE: %d", pPlot->getX(), pPlot->getY(), iScore);
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}

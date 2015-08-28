@@ -138,32 +138,32 @@
 		<!-- Makes sure the AI doesn't disregard ideologies on the slightest priority advantage -->
 		<!-- Following 4 mean that diplomatic relations also define ideologies, not just the other way around -->
 		<Update>
-			<Set Value="10" />
+			<Set Value="500" />
 			<Where Name="IDEOLOGY_SCORE_HOSTILE" />
 		</Update>
 		<Update>
-			<Set Value="6" />
+			<Set Value="100" />
 			<Where Name="IDEOLOGY_SCORE_GUARDED" />
 		</Update>
 		<Update>
-			<Set Value="8" />
+			<Set Value="50" />
 			<Where Name="IDEOLOGY_SCORE_AFRAID" />
 		</Update>
 		<Update>
-			<Set Value="14" />
+			<Set Value="25" />
 			<Where Name="IDEOLOGY_SCORE_FRIENDLY" />
 		</Update>
 		<!-- Makes sure the AI is actually likely to voluntarily switch ideologies if it suits their goals -->
 		<Update>
-			<Set Value="6" />
+			<Set Value="4" />
 			<Where Name="IDEOLOGY_SCORE_HAPPINESS" />
 		</Update>
 		<Update>
-			<Set Value="60" />
+			<Set Value="100" />
 			<Where Name="IDEOLOGY_SCORE_PER_FREE_TENET" />
 		</Update>
 		<Update>
-			<Set Value="325" />
+			<Set Value="300" />
 			<Where Name="IDEOLOGY_SCORE_GRAND_STRATS" />
 		</Update>
 	</Defines>

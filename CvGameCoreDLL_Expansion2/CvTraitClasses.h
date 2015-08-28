@@ -116,6 +116,8 @@ public:
 	bool IsMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
 	int  GetGrowthBoon() const;
+	int GetAllianceCSDefense() const;
+	int GetAllianceCSStrength() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -339,6 +341,8 @@ protected:
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
+	int m_iAllianceCSDefense;
+	int m_iAllianceCSStrength;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -784,6 +788,14 @@ public:
 	int GetGrowthBoon() const
 	{
 		return m_iGrowthBoon;
+	};
+	int GetAllianceCSDefense() const
+	{
+		return m_iAllianceCSDefense;
+	};
+	int GetAllianceCSStrength() const
+	{
+		return m_iAllianceCSStrength;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1295,6 +1307,8 @@ private:
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
+	int m_iAllianceCSDefense;
+	int m_iAllianceCSStrength;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

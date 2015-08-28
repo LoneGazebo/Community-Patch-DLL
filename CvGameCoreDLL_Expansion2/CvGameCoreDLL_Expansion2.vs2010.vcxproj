@@ -75,7 +75,11 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OmitFramePointers>false</OmitFramePointers>
       <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -319,6 +323,7 @@
   <ItemGroup>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="banned.h" />
+    <ClInclude Include="TContainer.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
     <ClInclude Include="CvAchievementInfo.h" />
@@ -438,7 +443,6 @@
     <ClInclude Include="CvDllDiplomacyAI.h" />
     <ClInclude Include="CvDllDlcPackageInfo.h" />
     <ClInclude Include="CvDllEraInfo.h" />
-    <ClInclude Include="CvDLLFAStarIFaceBase.h" />
     <ClInclude Include="CvDllFeatureInfo.h" />
     <ClInclude Include="CvDllGame.h" />
     <ClInclude Include="CvDllGameAsynch.h" />

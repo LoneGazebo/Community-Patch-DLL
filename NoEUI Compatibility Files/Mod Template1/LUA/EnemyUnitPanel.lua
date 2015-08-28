@@ -474,6 +474,12 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
+			iModifier = pMyUnit:GetAllianceCSStrength();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- END
 						
 			-- Civ Trait Bonus
@@ -1015,6 +1021,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			if (iModifier ~= 0 and pTheirUnit:IsHigherPopThan(pMyUnit)) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+			iModifier = pMyUnit:GetAllianceCSStrength();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 --END		
@@ -1675,6 +1687,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
+				iModifier = pTheirUnit:GetAllianceCSStrength();
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
 --END
 				-- CombatBonusVsHigherTech
 				if (pToPlot:GetOwner() == iTheirPlayer) then
@@ -2033,6 +2051,12 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
+		end
+		iModifier = theirUnit:GetAllianceCSStrength();
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
 --END
 		-- Defense Modifier

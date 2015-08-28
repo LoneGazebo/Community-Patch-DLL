@@ -97,6 +97,7 @@ public:
 	bool IsOrderCorp() const;
 	bool IsAutocracyCorp() const;
 	bool IsFreedomCorp() const;
+	bool IsUpgradeCSTerritory() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -560,6 +561,7 @@ private:
 	bool m_bOrderCorporation;
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;
+	bool m_bUpgradeCSTerritory;
 	int* m_piConquerorYield;
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;

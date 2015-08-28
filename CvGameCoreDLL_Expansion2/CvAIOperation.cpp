@@ -98,7 +98,7 @@ void CvAIOperation::Reset()
 	m_iID = 0;
 	m_eOwner = NO_PLAYER;
 	m_eEnemy = NO_PLAYER;
-	m_iDefaultArea = FFreeList::INVALID_INDEX;
+	m_iDefaultArea = -1;
 	m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 	m_eAbortReason = NO_ABORT_REASON;
 #if defined(MOD_BALANCE_CORE)
@@ -731,7 +731,7 @@ bool CvAIOperation::CheckOnTarget()
 					{
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 						pCenterOfMass = pThisArmy->GetCenterOfMass(IsAllNavalOperation() || IsMixedLandNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
-						if(pCenterOfMass &&
+						if(pCenterOfMass && GetMusterPlot() &&
 							plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
 							pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
 						{
@@ -2290,7 +2290,7 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				// Make sure he's not needed by the tactical AI or already in an army
-				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -2571,7 +2571,7 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				// Make sure he's not needed by the tactical AI or already in an army
-				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -2878,7 +2878,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				// Make sure he's not needed by the tactical AI or already in an army
-				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -3159,7 +3159,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				// Make sure he's not needed by the tactical AI or already in an army
-				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -3481,7 +3481,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 #endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 
 				// Make sure he's not needed by the tactical AI or already in an army or scouting
-				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX &&
+				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1 &&
 #if defined(AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS)
 					(eLoopUnitAIType != UNITAI_EXPLORE || eLoopUnitDefaultAIType != UNITAI_EXPLORE) &&
 					(eLoopUnitAIType != UNITAI_EXPLORE_SEA || eLoopUnitDefaultAIType != UNITAI_EXPLORE_SEA) )
@@ -3600,7 +3600,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 #endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 
 				// Make sure he's not needed by the tactical AI or already in an army or scouting
-				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX &&
+				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1 &&
 #if defined(AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS)
 					(eLoopUnitAIType != UNITAI_EXPLORE || eLoopUnitDefaultAIType != UNITAI_EXPLORE) &&
 					(eLoopUnitAIType != UNITAI_EXPLORE_SEA || eLoopUnitDefaultAIType != UNITAI_EXPLORE_SEA) )
@@ -5163,10 +5163,6 @@ void CvAIEscortedOperation::Write(FDataStream& kStream) const
 /// Always abort if settler is removed
 void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
-#if defined(MOD_BALANCE_CORE)
-	if(GetOperationType() == AI_OPERATION_COLONIZE || GetOperationType() == AI_OPERATION_QUICK_COLONIZE || GetOperationType() == AI_OPERATION_FOUND_CITY)
-	{
-#endif
 	if(iSlotID == 0)
 	{
 		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
@@ -5176,9 +5172,6 @@ void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 	{
 		m_bEscorted = false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 }
 
 /// Find the civilian we want to use
@@ -5193,7 +5186,7 @@ CvUnit* CvAIEscortedOperation::FindBestCivilian()
 		{
 			if(pLoopUnit->AI_getUnitAIType() == m_eCivilianType)
 			{
-				if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit->getArmyID() == -1)
 				{
 					return pLoopUnit;
 				}
@@ -5970,7 +5963,7 @@ CvUnit* CvAIOperationQuickColonize::FindBestCivilian()
 		{
 			if(pLoopUnit->AI_getUnitAIType() == m_eCivilianType)
 			{
-				if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit->getArmyID() == -1)
 				{
 					return pLoopUnit;
 				}
@@ -6985,7 +6978,7 @@ CvUnit* CvAINavalOperation::FindInitialUnit()
 				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
 				if(pkUnitEntry && pkUnitEntry->GetUnitAIType(UNITAI_ATTACK_SEA))
 				{
-					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					if(pLoopUnit->getArmyID() == -1)
 					{
 						return pLoopUnit;
 					}
@@ -8983,7 +8976,7 @@ CvUnit* CvAINavalEscortedOperation::FindBestCivilian()
 		{
 			if(pLoopUnit->AI_getUnitAIType() == m_eCivilianType)
 			{
-				if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(pLoopUnit->getArmyID() == -1)
 				{
 					return pLoopUnit;
 				}

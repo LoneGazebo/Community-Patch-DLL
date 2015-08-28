@@ -277,7 +277,9 @@ public:
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
 #endif
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* FindTestArchaeologistPlot(CvUnit* pUnit);
+#endif
 	// Public logging
 	void LogHomelandMessage(CvString& strMsg);
 	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);

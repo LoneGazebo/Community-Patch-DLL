@@ -6711,7 +6711,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 					}
@@ -9021,7 +9021,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 					}
@@ -9328,7 +9328,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
 					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 				}

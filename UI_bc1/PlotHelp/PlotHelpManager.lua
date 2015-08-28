@@ -1250,7 +1250,7 @@ end
 -------------------------------------------------
 local function DirtyAll()
 	g_lastPlot = false
-	g_tipLevel = 0
+	g_tipLevel = -1
 end
 
 -------------------------------------------------
@@ -1276,7 +1276,7 @@ function( uiMsg ) --, wParam, lParam )
 	if uiMsg == g_mouseEventsMouseMove then
 		local x, y = UIManager:GetMouseDelta()
 		if x ~= 0 or y ~= 0 then
-			ResetTimer()
+			return ResetTimer()
 		end
 	end
 end)

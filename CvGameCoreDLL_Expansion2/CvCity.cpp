@@ -116,9 +116,6 @@ CvCity::CvCity() :
 	, m_iX("CvCity::m_iX", m_syncArchive)
 	, m_iY("CvCity::m_iY", m_syncArchive)
 	, m_iID("CvCity::m_iID", m_syncArchive)
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	, m_iGlobalID("CvCity::m_iGlobalID", m_syncArchive)
-#endif
 	, m_iRallyX("CvCity::m_iRallyX", m_syncArchive)
 	, m_iRallyY("CvCity::m_iRallyY", m_syncArchive)
 	, m_iGameTurnFounded("CvCity::m_iGameTurnFounded", m_syncArchive)
@@ -242,7 +239,8 @@ CvCity::CvCity() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iUnhappyCitizen("CvCity::m_iUnhappyCitizen", m_syncArchive)
-	, m_iPurchaseCooldown("CvCity::m_iPurchaseCooldown", m_syncArchive)
+	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
+	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
 	, m_iFreeBuildingTradeTargetCity("CvCity::m_iFreeBuildingTradeTargetCity", m_syncArchive)
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
@@ -858,7 +856,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(owningPlayer.isHuman())
+		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 		{
 			owningPlayer.CalculateHappiness();
 		}
@@ -1071,11 +1069,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			changeFeatureProduction(iProduction);
 			if(bClearedForest)
 			{
-				CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
+				//CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
 			}
 			else if(bClearedJungle)
 			{
-				CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
+				//CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
 			}
 
 			if (getOwner() == GC.getGame().getActivePlayer())
@@ -1345,7 +1343,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNationalMissionaries = 0;
 	m_iBorderObstacleCity = 0;
 	m_iUnhappyCitizen = 0;
-	m_iPurchaseCooldown = 0;
+	m_iUnitPurchaseCooldown = 0;
+	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
 	m_iFreeBuildingTradeTargetCity = -1;
 	m_iBaseTourism = 0;
@@ -2056,7 +2055,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(owningPlayer.isHuman())
+		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 		{
 			owningPlayer.CalculateHappiness();
 		}
@@ -2248,9 +2247,13 @@ void CvCity::doTurn()
 	AI_doTurn();
 
 #if defined(MOD_BALANCE_CORE)
-	if(GetPurchaseCooldown() > 0)
+	if(GetUnitPurchaseCooldown() > 0)
 	{
-		ChangePurchaseCooldown(-1);
+		ChangeUnitPurchaseCooldown(-1);
+	}
+	if(GetBuildingPurchaseCooldown() > 0)
+	{
+		ChangeBuildingPurchaseCooldown(-1);
 	}
 	if(!GET_PLAYER(getOwner()).isHuman())
 	{
@@ -2984,50 +2987,7 @@ void CvCity::SetEspionageRanking(int iPotential)
 	{
 		iRank = ((iPotential * 100) / GC.getGame().m_iLargestBasePotential);
 		//Rank time - 10 is worst, 1 is best
-		if(iRank == 100)
-		{
-			iRank = 10;
-		}
-		else if(iRank >= 90)
-		{
-			iRank = 9;
-		}
-		else if(iRank >= 80)
-		{
-			iRank = 8;
-		}
-		else if(iRank >= 70)
-		{
-			iRank = 7;
-		}
-		else if(iRank >= 60)
-		{
-			iRank = 6;
-		}
-		else if(iRank >= 50)
-		{
-			iRank = 5;
-		}
-		else if(iRank >= 40)
-		{
-			iRank = 4;
-		}
-		else if(iRank >= 30)
-		{
-			iRank = 3;
-		}
-		else if(iRank >= 20)
-		{
-			iRank = 2;
-		}
-		else if(iRank > 10)
-		{
-			iRank = 1;
-		}
-		else
-		{
-			iRank = 0;
-		}
+		iRank /= 10;
 	}
 	//Seed rank warning and update rank.
 	DoRankIncreaseWarning(iRank);
@@ -6255,20 +6215,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 #endif
 
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	//Increase cost based on # of cities in empire (helps Tall empires)
-	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-		{
-			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-			if(iCityExponent > 0)
-			{
-				iCost *= (100 + iCityExponent);
-				iCost /= 100;
-			}
-		}
-
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 		iTechProgress /= 2;
@@ -6509,18 +6457,15 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	//Increase cost based on # of cities in empire (helps Tall empires)
-	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+		//Increase cost based on # of techs researched.
+		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress /= 2;
+		if(iTechProgress > 0)
 		{
-			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-			if(iCityExponent > 0)
-			{
-				iCost *= (100 + iCityExponent);
-				iCost /= 100;
-			}
+			iCost *= (100 + iTechProgress);
+			iCost /= 100;
 		}
 	}
 #endif
@@ -6569,19 +6514,9 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		//Increase cost based on # of cities in empire (helps Tall empires)
-		int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-		{
-			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-			if(iCityExponent > 0)
-			{
-				iCost *= (100 + iCityExponent);
-				iCost /= 100;
-			}
-		}
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress /= 2;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -6631,16 +6566,13 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		//Increase cost based on # of cities in empire (helps Tall empires)
-		int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+		//Increase cost based on # of techs researched.
+		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress /= 2;
+		if(iTechProgress > 0)
 		{
-			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-			if(iCityExponent > 0)
-			{
-				iCost *= (100 + iCityExponent);
-				iCost /= 100;
-			}
+			iCost *= (100 + iTechProgress);
+			iCost /= 100;
 		}
 	}
 #endif
@@ -8864,7 +8796,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(owningPlayer.isHuman())
+		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 		{
 			owningPlayer.CalculateHappiness();
 		}
@@ -9373,24 +9305,45 @@ bool CvCity::isAddsFreshWater() const {
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-int CvCity::GetPurchaseCooldown() const
+int CvCity::GetUnitPurchaseCooldown() const
 {
 	VALIDATE_OBJECT
-	return m_iPurchaseCooldown;
+	return m_iUnitPurchaseCooldown;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetPurchaseCooldown(int iValue)
+void CvCity::SetUnitPurchaseCooldown(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iPurchaseCooldown = iValue;
+	m_iUnitPurchaseCooldown = iValue;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::ChangePurchaseCooldown(int iValue)
+void CvCity::ChangeUnitPurchaseCooldown(int iValue)
 {
 	VALIDATE_OBJECT
 	if(iValue != 0)
 	{
-		m_iPurchaseCooldown += iValue;
+		m_iUnitPurchaseCooldown += iValue;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetBuildingPurchaseCooldown() const
+{
+	VALIDATE_OBJECT
+	return m_iBuildingPurchaseCooldown;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBuildingPurchaseCooldown(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iBuildingPurchaseCooldown = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBuildingPurchaseCooldown(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iBuildingPurchaseCooldown += iValue;
 	}
 }
 void CvCity::CheckForOperationUnits()
@@ -9475,8 +9428,8 @@ void CvCity::CheckForOperationUnits()
 							//and train it!
 							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-							if (iResult != FFreeList::INVALID_INDEX)
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -9548,8 +9501,8 @@ void CvCity::CheckForOperationUnits()
 							//and train it!
 							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-							if (iResult != FFreeList::INVALID_INDEX)
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -10169,7 +10122,7 @@ bool CvCity::hasActiveWorldWonder() const
 int CvCity::getIndex() const
 {
 	VALIDATE_OBJECT
-	return (GetID() & FLTA_INDEX_MASK);
+	return GetID();
 }
 
 
@@ -10962,9 +10915,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI);
 
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+							CvAssertMsg(iResult != -1, "Unable to create unit");
 
-							if (iResult != FFreeList::INVALID_INDEX)
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->jumpToNearestValidPlot())
@@ -11046,7 +10999,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(getOwner()).isHuman())
+			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(getOwner()).CalculateHappiness();
 			}
@@ -13297,7 +13250,7 @@ void CvCity::DoCreatePuppet()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(GET_PLAYER(getOwner()).isHuman())
+		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer()) 
 		{
 			GET_PLAYER(getOwner()).CalculateHappiness();
 		}
@@ -13331,7 +13284,7 @@ void CvCity::DoAnnex()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(GET_PLAYER(getOwner()).isHuman())
+		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 		{
 			GET_PLAYER(getOwner()).CalculateHappiness();
 		}
@@ -17385,6 +17338,44 @@ void CvCity::updateStrengthValue()
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
+	{
+		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
+		if(eAlly != NO_PLAYER)
+		{
+			int iAllyBonus = (GET_PLAYER(eAlly).GetPlayerTraits()->GetAllianceCSDefense() + GC.getBALANCE_CS_ALLIANCE_DEFENSE_BONUS());
+			if(iAllyBonus > 0)
+			{
+				iStrengthValue *= (100 + iAllyBonus);
+				iStrengthValue /= 100;
+			}
+		}
+		if(GET_PLAYER(getOwner()).GetMinorCivAI()->IsProtectedByAnyMajor())
+		{
+			int iProtections = 0;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(getOwner()).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
+				{
+					iProtections++;
+				}
+			}
+			int iPtPBonus = GC.getBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS() * iProtections;
+			if(iPtPBonus > GC.getBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX())
+			{
+				iPtPBonus = GC.getBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX();
+			}
+			if(iPtPBonus > 0)
+			{
+				iStrengthValue *= (100 + iPtPBonus);
+				iStrengthValue /= 100;
+			}
+		}
+	}
+#endif
+
 	m_iStrengthValue = iStrengthValue;
 
 	// Terrain mod
@@ -18142,7 +18133,27 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* pPlot2 = GC.getMap().plot(iPlotX, iPlotY);
+	if (iCost > 0) 
+	{
+		//Did we buy this plot from someone? Oh no!
+		if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
+		{
+			if(!GET_PLAYER(pPlot->getOwner()).isHuman())
+			{
+				if(GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+				}
+				else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_UI_CITY_EXPANSION)
 	if (iCost > 0) {
 		// Only do this if we actually paid for the plot (as opposed to getting it for free via city growth)
@@ -18167,31 +18178,17 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 				{
 					if(pNearbyCity->getOwner() != getOwner())
 					{
-#if defined(MOD_BALANCE_CORE)
-						int iDistance = plotDistance(pNearbyCity->getX(), pNearbyCity->getY(), pPlot->getX(), pPlot->getY());
-						if(iDistance <= GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT())
+#if defined(MOD_BALANCE_CORE)				
+						if(pPlot2 != NULL)
 						{
-							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
+							int iDistance = plotDistance(pNearbyCity->getX(), pNearbyCity->getY(), pPlot2->getX(), pPlot2->getY());
+							if(iDistance <= GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT())
+							{
+								pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
+							}
 						}
 #else
 						pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
-#endif
-#if defined(MOD_BALANCE_CORE)
-						//Did we buy this plot from someone? Oh no!
-						if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER)
-						{
-							if(MOD_BALANCE_CORE && !GET_PLAYER(pPlot->getOwner()).isHuman() && (pPlot->getOwner() != getOwner()))
-							{
-								if(!GET_PLAYER(pPlot->getOwner()).isMinorCiv())
-								{
-									GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
-								}
-								else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
-								{
-									GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
-								}
-							}
-						}
 #endif
 					}
 				}
@@ -18907,7 +18904,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		if(bFinish)
 		{
 			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit);
-			if(iResult != FFreeList::INVALID_INDEX)
+			if(iResult != -1)
 			{
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
@@ -19526,13 +19523,13 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
-		return FFreeList::INVALID_INDEX;
+		return -1;
 	}
 
 	if(pUnit->IsHasNoValidMove())
 	{
 		pUnit->kill(false);
-		return FFreeList::INVALID_INDEX;
+		return -1;
 	}
 
 	addProductionExperience(pUnit);
@@ -19978,7 +19975,11 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				if(iGoldCost > GET_PLAYER(getOwner()).GetTreasury()->GetGold())
 					return false;
 #if defined(MOD_BALANCE_CORE)
-				if(MOD_BALANCE_CORE && GetPurchaseCooldown() > 0)
+				if(eUnitType != NO_UNIT && MOD_BALANCE_CORE && GetUnitPurchaseCooldown() > 0)
+				{
+					return false;
+				}
+				if(NO_BUILDING != eBuildingType && MOD_BALANCE_CORE && GetBuildingPurchaseCooldown() > 0)
 				{
 					return false;
 				}
@@ -20308,7 +20309,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameUnit->GetText(), iGoldCost, 2);
 			}
 #if defined(MOD_BALANCE_CORE)
-			SetPurchaseCooldown(pGameUnit->GetCooldown());
+			SetUnitPurchaseCooldown(pGameUnit->GetCooldown());
 #endif
 		// Building
 		}else if(eBuildingType != NO_BUILDING){
@@ -20319,7 +20320,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
 			}
 #if defined(MOD_BALANCE_CORE)
-			SetPurchaseCooldown(pGameBuilding->GetCooldown());
+			SetBuildingPurchaseCooldown(pGameBuilding->GetCooldown());
 #endif
 		// Project
 		} else if(eProjectType != NO_PROJECT){
@@ -20333,8 +20334,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		if(eUnitType >= 0)
 		{
 			int iResult = CreateUnit(eUnitType);
-			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-			if (iResult != FFreeList::INVALID_INDEX)
+			CvAssertMsg(iResult != -1, "Unable to create unit");
+			if (iResult != -1)
 			{
 				CvUnit* pUnit = kPlayer.getUnit(iResult);
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -20453,8 +20454,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		if(eUnitType >= 0)
 		{
 			int iResult = CreateUnit(eUnitType);
-			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-			if (iResult == FFreeList::INVALID_INDEX)
+			CvAssertMsg(iResult != -1, "Unable to create unit");
+			if (iResult == -1)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
 			CvUnit* pUnit = kPlayer.getUnit(iResult);
@@ -21324,11 +21325,6 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iID;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream >> m_iGlobalID;
-#endif
-
 	kStream >> m_iX;
 	kStream >> m_iY;
 	kStream >> m_iRallyX;
@@ -21474,7 +21470,8 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iPurchaseCooldown, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iUnitPurchaseCooldown, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBuildingPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iReligiousTradeModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeBuildingTradeTargetCity, -1);
 	MOD_SERIALIZE_READ(66, kStream, m_iBaseTourism, 0);
@@ -21779,11 +21776,6 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iID;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	kStream << m_iGlobalID;
-#endif
-
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iRallyX;
@@ -21905,7 +21897,8 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
-	MOD_SERIALIZE_WRITE(kStream, m_iPurchaseCooldown);
+	MOD_SERIALIZE_WRITE(kStream, m_iUnitPurchaseCooldown);
+	MOD_SERIALIZE_WRITE(kStream, m_iBuildingPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iReligiousTradeModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeBuildingTradeTargetCity);
 	MOD_SERIALIZE_WRITE(kStream, m_iBaseTourism);
@@ -23520,8 +23513,8 @@ bool CvCity::CommitToBuildingUnitForOperation()
 							//and train it!
 							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-							if (iResult != FFreeList::INVALID_INDEX)
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
 							{
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())

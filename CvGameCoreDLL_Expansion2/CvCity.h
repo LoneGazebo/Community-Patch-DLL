@@ -323,9 +323,12 @@ public:
 	bool isAddsFreshWater() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetPurchaseCooldown() const;
-	void SetPurchaseCooldown(int iValue);
-	void ChangePurchaseCooldown(int iValue);
+	int GetUnitPurchaseCooldown() const;
+	void SetUnitPurchaseCooldown(int iValue);
+	void ChangeUnitPurchaseCooldown(int iValue);
+	int GetBuildingPurchaseCooldown() const;
+	void SetBuildingPurchaseCooldown(int iValue);
+	void ChangeBuildingPurchaseCooldown(int iValue);
 	void CheckForOperationUnits();
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
@@ -1204,11 +1207,6 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	int GetGlobalID() const { return m_iGlobalID; };
-	void SetGlobalID(int iID) { m_iGlobalID=iID; };
-#endif
-
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1219,10 +1217,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iX;
 	FAutoVariable<int, CvCity> m_iY;
 	FAutoVariable<int, CvCity> m_iID;
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	FAutoVariable<int, CvCity> m_iGlobalID;
-#endif
 
 	FAutoVariable<int, CvCity> m_iRallyX;
 	FAutoVariable<int, CvCity> m_iRallyY;
@@ -1345,7 +1339,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
-	FAutoVariable<int, CvCity> m_iPurchaseCooldown;
+	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
+	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
 	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;

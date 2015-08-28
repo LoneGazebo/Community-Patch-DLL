@@ -711,7 +711,7 @@ public:
 	bool IsCantMatchDeal(PlayerTypes ePlayer);
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
 	const char* GetOfferText(PlayerTypes ePlayer);
-	const char* GetDoFHumanMessage(PlayerTypes ePlayer);
+	const char* GetDoFHumanMessage();
 	int	GetDenounceMessage(PlayerTypes ePlayer);
 	const char* GetDenounceMessageValue(int iValue);
 #endif

@@ -865,9 +865,6 @@
     <ClInclude Include="CvDllEraInfo.h">
       <Filter>Dll Interface</Filter>
     </ClInclude>
-    <ClInclude Include="CvDLLFAStarIFaceBase.h">
-      <Filter>Dll Interface</Filter>
-    </ClInclude>
     <ClInclude Include="CvDllFeatureInfo.h">
       <Filter>Dll Interface</Filter>
     </ClInclude>
@@ -1055,6 +1052,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

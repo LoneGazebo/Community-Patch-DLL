@@ -214,7 +214,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith.'
+SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits

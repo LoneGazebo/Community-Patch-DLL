@@ -2523,7 +2523,7 @@ end
 local function UpdateOptions()
 	g_clockFormat = g_options
 				and g_options.GetValue
-				and g_options.GetValue( "ClockIsOn" ) == 1
+				and g_options.GetValue( "Clock" ) == 1
 				and g_clockFormats[ g_options.GetValue("ClockMode") or 1 ]
 	Controls.CurrentTime:SetHide( not g_clockFormat )
 	g_isBasicHelp = civBE_mode or not OptionsManager.IsNoBasicHelp()

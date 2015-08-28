@@ -318,7 +318,7 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
@@ -332,13 +332,6 @@
 		</Row>
 	</Language_en_US>
 	<!-- Greece -->
-	<Trait_YieldChanges>
-		<Row>
-			<TraitType>TRAIT_CITY_STATE_FRIENDSHIP</TraitType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Trait_YieldChanges>
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_GREEK_HOPLITE</UnitType>

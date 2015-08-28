@@ -166,6 +166,13 @@
 						<Label Anchor="L,C" String="TXT_KEY_ADVISOR_CITY_SCREEN_DISPLAY" />
 					</Stack>
 				</CheckBox>
+				<CheckBox ID="AutoCloseCheckbox" Anchor="R,C" >
+					<Stack Offset="30.0" Anchor="R,C" StackGrowth="L" Padding="10" >
+						<Label Anchor="L,C" String="TXT_KEY_ADVISOR_CITY_SCREEN_DISPLAY" />
+						<Label Anchor="L,C" String="TXT_KEY_ADVISOR_SCREEN_TECH_TREE_DISPLAY" />
+						<Label Anchor="L,C" String="TXT_KEY_CLOSE" />
+					</Stack>
+				</CheckBox>
 				<Image Anchor="R,C" Offset="30.0" Texture="TopPanelBar.dds" Size="100.32" >
 					<CheckBox ID="ClockCheckbox" String="12:34" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" Offset="-30.0"/>
 				</Image>

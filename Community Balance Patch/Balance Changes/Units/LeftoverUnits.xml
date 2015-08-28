@@ -64,7 +64,7 @@
 			<Moves>2</Moves>
 			<PolicyType>POLICY_THEIR_FINEST_HOUR</PolicyType>
 			<Immobile>true</Immobile>
-			<Range>10</Range>
+			<Range>8</Range>
 			<Special>SPECIALUNIT_FIGHTER</Special>
 			<CombatClass>UNITCOMBAT_BOMBER</CombatClass>
 			<Domain>DOMAIN_AIR</Domain>
@@ -98,8 +98,8 @@
 			<Cost>500</Cost>
 			<Moves>2</Moves>
 			<Immobile>true</Immobile>
-			<Range>8</Range>
-			<AirInterceptRange>8</AirInterceptRange>
+			<Range>6</Range>
+			<AirInterceptRange>6</AirInterceptRange>
 			<Special>SPECIALUNIT_FIGHTER</Special>
 			<CombatClass>UNITCOMBAT_FIGHTER</CombatClass>
 			<Domain>DOMAIN_AIR</Domain>

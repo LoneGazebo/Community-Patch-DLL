@@ -47,31 +47,28 @@
 					<Button ID="CycleRight" Anchor="L,C" Size="32,32" TextureOffset="30,0" Texture="UnitPanelArrows.dds" ToolTip="TXT_KEY_UPANEL_CYCLERIGHT"/>"
 				</Container>
 
-				<Stack ID="PrimaryStack" Anchor="R,T" Offset="17,44" StackGrowth="Bottom">
+				<!-- Promotions -->
+				<Stack ID="EarnedPromotionStack" Anchor="R,T" Offset="17,44" StackGrowth="Left"/>
 
-					<!-- Promotions -->
-					<Stack ID="EarnedPromotionStack" Anchor="R,T" StackGrowth="Left"/>
+				<!-- XP METER -->
+				<Grid ID="XPFrame" Anchor="R,T" Offset="17,70" Size="275,12" Style="Grid9FrameTurns">
+					<TextureBar ID="XPMeter" Anchor="L,T" Offset="3,2" Texture="XPmeter.dds" Size="269,7"/>
+				</Grid>
 
-					<!-- XP METER -->
-					<Grid ID="XPFrame" Anchor="R,C" Size="275,12" Style="Grid9FrameTurns">
-						<TextureBar ID="XPMeter" Anchor="L,T" Offset="3,2" Texture="XPmeter.dds" Size="269,7"/>
-					</Grid>
-
-					<!-- Unit Stats -->
-					<Grid ID="UnitStatBox" Anchor="R,C" Size="260,27" Style="Grid9FrameTurns">
-						<Stack ID="UnitStats" Anchor="C,C" Padding="-5" StackGrowth="Right" >
-							<Image ID="MovementPip" Anchor="C,C" Texture="MarcPips.dds" Size="32.32"/>
-							<Image ID="Mission" Anchor="C,C" Size="45.45">
-								<Label ID="MissionText" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
-							</Image>
-							<Label ID="UnitStatMovement" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
-							<Container Size="15,1"/>
-							<Label ID="UnitStatStrength" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT"/>
-							<Container Size="15;1"/>
-							<Label ID="UnitStatRangedAttack" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT"/>
-						</Stack>
-					</Grid>
-				</Stack>
+				<!-- Unit Stats -->
+				<Grid ID="UnitStatBox" Anchor="R,T" Offset="17,82" Size="260,27" Style="Grid9FrameTurns">
+					<Stack ID="UnitStats" Anchor="C,C" Padding="-5" StackGrowth="Right" >
+						<Image ID="MovementPip" Anchor="C,C" Texture="MarcPips.dds" Size="32.32"/>
+						<Image ID="Mission" Anchor="C,C" Size="45.45">
+							<Label ID="MissionText" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+						</Image>
+						<Label ID="UnitStatMovement" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
+						<Container Size="15,1"/>
+						<Label ID="UnitStatStrength" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT"/>
+						<Container Size="15;1"/>
+						<Label ID="UnitStatRangedAttack" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT"/>
+					</Stack>
+				</Grid>
 
 				<!-- Health Bar	-->
 				<Image ID="HealthBar" Anchor="R,B" Offset="0,39" Texture="HealthBarBlack.dds" Size="17,127" ToolTip="TXT_KEY_UPANEL_HEALTH" Hidden="1">

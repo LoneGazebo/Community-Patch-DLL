@@ -413,4 +413,31 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
+	<Automates>
+		<Row>
+			<Type>AUTOMATE_DIPLOMAT</Type>
+			<Description>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT</Description>
+			<Help>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_HELP</Help>
+			<DisabledHelp>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_DISABLED_HELP</DisabledHelp>>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>1</OrderPriority>
+			<Command>COMMAND_AUTOMATE</Command>
+			<Automate>AUTOMATE_DIPLOMAT</Automate>
+			<Visible>true</Visible>
+			<IconIndex>43</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</Automates>
+	<Language_en_US>
+		<!-- Automation Text -->
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT">
+			<Text>Diplomatic Mission (Automated)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_HELP">
+			<Text>Automate all [COLOR_UNIT_TEXT]Diplomatic Unit[ENDCOLOR] actions. The unit will remain automated until you cancel its automation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_DISABLED_HELP">
+			<Text>No valid targets for diplomacy at this time.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

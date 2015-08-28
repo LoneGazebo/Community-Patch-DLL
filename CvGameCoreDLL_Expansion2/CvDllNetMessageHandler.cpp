@@ -1021,7 +1021,7 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(kPlayer.isHuman())
+			if(kPlayer.isHuman() && ePlayer == GC.getGame().getActivePlayer())
 			{
 				kPlayer.CalculateHappiness();
 			}

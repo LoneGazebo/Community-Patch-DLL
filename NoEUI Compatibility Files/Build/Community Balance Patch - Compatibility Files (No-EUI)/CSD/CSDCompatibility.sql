@@ -38,7 +38,29 @@ WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP';
 UPDATE Policies
 SET GreatDiplomatRateModifier = '25'
 WHERE Type = 'POLICY_SCHOLASTICISM';
-	
+
+-- Printing Press Culture Boost
+
+INSERT INTO Policy_BuildingClassYieldModifiers
+(PolicyType, BuildingClassType, YieldType, YieldMod)
+SELECT 'POLICY_PHILANTHROPY', 'BUILDINGCLASS_PRINTING_PRESS' , 'YIELD_CULTURE' , '15';
+
+		-- Chancery Happiness Boost
+
+INSERT INTO Policy_BuildingClassHappiness
+(PolicyType, BuildingClassType, Happiness)
+SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
+
+-- Philanthropy
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive +33% [ICON_INFLUENCE] Influence from Quests completed for City-States. The Printing Press boosts City [ICON_CULTURE] Culture by +15%.'
+WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
+
+-- Cultural Diplomacy
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Diplomacy[ENDCOLOR][NEWLINE]Quantity of Resources gifted by City-States increased by 100%. +1 [ICON_HAPPINESS_1] Happiness from Chanceries.'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP';
+
 -- Change to Order Palace of Science and Culture
 UPDATE Buildings
 SET DPToVotes = '1'

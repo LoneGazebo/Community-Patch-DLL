@@ -1972,8 +1972,6 @@ local function UpdateDisplayNow()
 			Controls.Actions:SetHide( not city )
 		end
 		Controls.ActionStack:SetHide( not unit )
-		Controls.PrimaryStack:CalculateSize()
-		Controls.PrimaryStack:ReprocessAnchoring()
 		Controls.UnitPanel:SetOffsetY( g_bottomOffset )
 
 		if not g_isHideUnitTypes then
@@ -2007,8 +2005,8 @@ local function UpdateDisplayNow()
 		unitStackHeight = maxTotalStackHeight - cityStackHeight
 		cityStackHeight = false
 	elseif unitStackHeight <= halfTotalStackHeight then
-		unitStackHeight = false
 		cityStackHeight = maxTotalStackHeight - unitStackHeight
+		unitStackHeight = false
 	else
 		cityStackHeight = halfTotalStackHeight
 		unitStackHeight = halfTotalStackHeight
@@ -2194,7 +2192,7 @@ end
 local AddOrRemove = { [true] = "Remove", [false] = "Add" }
 local function UpdateOptions()
 
-	local flag = EUI_options.GetValue( "HideUnitRibbon" ) == 1
+	local flag = EUI_options.GetValue( "UnitRibbon" ) == 0
 	if g_isHideUnitList ~= flag then
 		g_isHideUnitList = flag
 		Events.SerialEventUnitCreated[AddOrRemove[flag]]( CreateUnit )
@@ -2204,7 +2202,7 @@ local function UpdateOptions()
 	g_units.Initialize( g_isHideUnitList )
 	Controls.UnitPanel:SetHide( g_isHideUnitList )
 
-	flag = EUI_options.GetValue( "HideCityRibbon" ) == 1
+	flag = EUI_options.GetValue( "CityRibbon" ) == 0
 	if g_isHideCityList ~= flag then
 		g_isHideCityList = flag
 		Events.SerialEventCityCreated[AddOrRemove[flag]]( CreateCity )

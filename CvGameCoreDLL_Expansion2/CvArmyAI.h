@@ -99,12 +99,11 @@ public:
 	void Reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iOperationID = -1, bool bConstructorCall = false);
 	void Kill();
 
-	// for serialization - must be lowerCamelCase due to FFreeListTrashArray
-	virtual void read(FDataStream& kStream);
-	virtual void write(FDataStream& kStream) const;
+	// for serialization
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
 
 	// Accessors
-	//		Next two routines must be lowerCamelCase due to FFreeListTrashArray
 	int GetID();
 	void SetID(int iID);
 

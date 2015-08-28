@@ -8300,6 +8300,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 		return iScore;
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int iPathTurns;
+	if(!pUnit->GeneratePath(pCity->plot(), MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
+	{
+		return iScore;
+	}
+#endif
 	// Base score based on if we are establishing majority
 	iScore = 100;
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))

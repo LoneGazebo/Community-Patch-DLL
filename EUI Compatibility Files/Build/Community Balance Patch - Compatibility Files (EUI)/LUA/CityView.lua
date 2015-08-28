@@ -33,7 +33,7 @@ local g_yieldCurrency = civ5_mode and YieldTypes.YIELD_GOLD or YieldTypes.YIELD_
 local g_focusCurrency = CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or CityAIFocusTypes.CITY_AI_FOCUS_TYPE_ENERGY
 
 include( "EUI_utilities" )
-include( "EUI_tooltips" ); local GetHelpTextForUnit = GetHelpTextForUnit; local GetHelpTextForBuilding = GetHelpTextForBuilding; local GetHelpTextForProject = GetHelpTextForProject; local GetHelpTextForProcess = GetHelpTextForProcess; local GetFoodTooltip = GetFoodTooltip; local GetGoldTooltip = civ5_mode and GetGoldTooltip or GetEnergyTooltip; local GetScienceTooltip = GetScienceTooltip; local GetProductionTooltip = GetProductionTooltip; local GetCultureTooltip = GetCultureTooltip; local GetFaithTooltip = GetFaithTooltip; local GetTourismTooltip = GetTourismTooltip; local GetCityHappinessTooltip = GetCityHappinessTooltip
+include( "EUI_tooltips" ); local GetHelpTextForUnit = GetHelpTextForUnit; local GetHelpTextForBuilding = GetHelpTextForBuilding; local GetHelpTextForProject = GetHelpTextForProject; local GetHelpTextForProcess = GetHelpTextForProcess; local GetFoodTooltip = GetFoodTooltip; local GetGoldTooltip = civ5_mode and GetGoldTooltip or GetEnergyTooltip; local GetScienceTooltip = GetScienceTooltip; local GetProductionTooltip = GetProductionTooltip; local GetCultureTooltip = GetCultureTooltip; local GetFaithTooltip = GetFaithTooltip; local GetTourismTooltip = GetTourismTooltip
 include( "SupportFunctions" ); local TruncateString = TruncateString
 if not civ5_mode then
 	include( "IntrigueHelper" )
@@ -177,12 +177,13 @@ local g_citySpecialists = {}
 local g_queuedItemNumber = false
 local g_isRazeButtonDisabled = false
 local g_isViewingMode = true
-local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchaseIsOff" ) == 1 )
+local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchase" ) == 0 )
 local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
 local g_toolTipHandler, g_toolTipControl, RequestToolTip
 
 local g_autoUnitCycleRequest -- workaround hack
 local g_isButtonPopupChooseProduction = false
+local g_isAutoClose
 
 local g_slotTexture = {
 	SPECIALIST_CITIZEN = "CitizenUnemployed.dds",
@@ -2277,7 +2278,8 @@ local function UpdateWorkingHexes()
 end
 
 local function UpdateOptionsAndCityView()
-	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisorIsOff" ) == 1 )
+	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
+	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
 	g_FocusSelectIM.Collapse( not OptionsManager.IsNoCitizenWarning() )
 	Controls.BuyPlotCheckBox:SetCheck( g_BuyPlotMode )
 	return UpdateCityView()
@@ -2478,7 +2480,7 @@ SetupCallbacks( Controls, g_toolTips, "EUI_CityViewLeftTooltip", g_callBacks )
 
 Controls.BuyPlotCheckBox:RegisterCheckHandler( function( isChecked ) -- Void1, Void2, control )
 	g_BuyPlotMode = isChecked
-	g_options.SetValue( "CityPlotPurchaseIsOff", isChecked and 0 or 1 )
+	g_options.SetValue( "CityPlotPurchase", isChecked and 1 or 0 )
 	return UpdateCityView()
 end )
 
@@ -2598,7 +2600,7 @@ function( popupInfo )
 		if orderID >= 0 and itemID >= 0 then
 			g_finishedItems[ cityID ] = { orderID, itemID }
 		end
-		g_isButtonPopupChooseProduction = true
+		g_isButtonPopupChooseProduction = g_isAutoClose
 		return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
 	end
 end)

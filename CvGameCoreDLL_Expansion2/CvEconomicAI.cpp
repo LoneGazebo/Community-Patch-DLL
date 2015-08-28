@@ -13,7 +13,6 @@
 #include "CvMinorCivAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
-#include "Fireworks/FVariableSystem.h"
 #include "CvImprovementClasses.h"
 #include "CvAStar.h"
 #include "CvCitySpecializationAI.h"
@@ -2022,15 +2021,15 @@ void CvEconomicAI::DoHurry()
 												//and train it!
 												UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
 												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
-												CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-												if (iResult != FFreeList::INVALID_INDEX)
+												CvAssertMsg(iResult != -1, "Unable to create unit");
+												if (iResult != -1)
 												{
 													CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 													if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {
@@ -2064,15 +2063,15 @@ void CvEconomicAI::DoHurry()
 											//and train it!
 											UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
 											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
-											CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-											if (iResult != FFreeList::INVALID_INDEX)
+											CvAssertMsg(iResult != -1, "Unable to create unit");
+											if (iResult != -1)
 											{
 												CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 												if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 												{
 													pUnit->setMoves(0);
 												}
-												pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+												pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 												if (MOD_EVENTS_CITY) {
@@ -2132,7 +2131,7 @@ void CvEconomicAI::DoHurry()
 										{
 #endif
 										pLoopCity->CreateBuilding(eBuildingType);
-										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
+										pLoopCity->SetBuildingPurchaseCooldown(pkBuildingEntry->GetCooldown());
 #if defined(MOD_EVENTS_CITY)
 										if (MOD_EVENTS_CITY) 
 										{
@@ -2179,7 +2178,7 @@ void CvEconomicAI::DoHurry()
 									{
 #endif
 									pLoopCity->CreateBuilding(eBuildingType);
-									pLoopCity->SetPurchaseCooldown(pkBuildingInfo->GetCooldown());
+									pLoopCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
 #if defined(MOD_EVENTS_CITY)
 									if (MOD_EVENTS_CITY) 
 									{
@@ -2232,15 +2231,15 @@ void CvEconomicAI::DoHurry()
 													//and train it!
 													UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
 													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
-													CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-													if (iResult != FFreeList::INVALID_INDEX)
+													CvAssertMsg(iResult != -1, "Unable to create unit");
+													if (iResult != -1)
 													{
 														CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 														if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 														{
 															pUnit->setMoves(0);
 														}
-														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
+														pLoopCity->SetUnitPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {
@@ -2275,15 +2274,15 @@ void CvEconomicAI::DoHurry()
 												//and train it!
 												UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
 												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
-												CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-												if (iResult != FFreeList::INVALID_INDEX)
+												CvAssertMsg(iResult != -1, "Unable to create unit");
+												if (iResult != -1)
 												{
 													CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 													if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {
@@ -2578,7 +2577,7 @@ void CvEconomicAI::DoReconState()
 			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
 				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
-				if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+				if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())
@@ -2658,7 +2657,7 @@ void CvEconomicAI::DoReconState()
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
 					((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA)) )
 				{
-					if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+					if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 					{
 						pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 						if(GC.getLogging() && GC.getAILogging())
@@ -3275,7 +3274,7 @@ void CvEconomicAI::UpdatePlots()
 	m_vPlotsToExploreSea.clear();
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = MOD_BALANCE_CORE_MILITARY_LOGGING && GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && MOD_BALANCE_CORE_MILITARY_LOGGING;
 	CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
 #endif
@@ -3298,7 +3297,7 @@ void CvEconomicAI::UpdatePlots()
 				int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-				if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
+				if (bLogging && pLog) 
 				{
 					CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 						pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3317,7 +3316,7 @@ void CvEconomicAI::UpdatePlots()
 			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-			if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
+			if (bLogging && pLog) 
 			{
 				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3333,7 +3332,7 @@ void CvEconomicAI::UpdatePlots()
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (MOD_BALANCE_CORE_MILITARY_LOGGING && pLog)
+	if (pLog)
 		pLog->Close();
 #endif
 
@@ -3364,7 +3363,7 @@ void CvEconomicAI::UpdatePlots()
 		if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->GetMissionAIType() != MISSIONAI_EXPLORE)
 			continue;
 
-		if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+		if(pLoopUnit->getArmyID() != -1)
 			continue;
 
 		m_apExplorers.push_back(pLoopUnit);
@@ -3505,7 +3504,7 @@ void CvEconomicAI::UpdatePlots()
 			continue;
 		}
 
-		if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+		if(pLoopUnit->getArmyID() != -1)
 		{
 			continue;
 		}
@@ -4653,7 +4652,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 			{
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE)
 				{
-					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					if(pLoopUnit->getArmyID() == -1)
 					{
 #if defined(MOD_BALANCE_CORE)
 						int iInitialSettlerArea = pLoopUnit->getArea();
@@ -4860,7 +4859,7 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 			{
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 				{
-					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					if(pLoopUnit->getArmyID() == -1)
 					{
 						iLooseMerchant++;
 					}
@@ -4905,7 +4904,7 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 			{
 				if((pLoopUnit->AI_getUnitAIType() == UNITAI_DIPLOMAT) && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER))
 				{
-					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					if(pLoopUnit->getArmyID() == -1)
 					{
 						iLooseDiplomat++;
 					}
@@ -4950,7 +4949,7 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 			{
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_MUSICIAN && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST)
 				{
-					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					if(pLoopUnit->getArmyID() == -1)
 					{
 						iLooseMusician++;
 					}

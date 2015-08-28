@@ -27,7 +27,6 @@ class CvIgnoreUnitsPathFinder;
 class CvTwoLayerPathFinder;
 class CvInterface;
 class CvEngine;
-class FVariableSystem;
 class CvMap;
 class CvPlayerAI;
 class CvTeam;
@@ -7106,6 +7105,26 @@ public:
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	inline int getBALANCE_MAX_CS_ALLY_STRENGTH()
+	{
+		return m_iBALANCE_MAX_CS_ALLY_STRENGTH;
+	}
+	inline int getBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS()
+	{
+		return m_iBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS;
+	}
+	inline int getBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX()
+	{
+		return m_iBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX;
+	}
+	inline int getBALANCE_CS_ALLIANCE_DEFENSE_BONUS()
+	{
+		return m_iBALANCE_CS_ALLIANCE_DEFENSE_BONUS;
+	}
+	inline int getUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED()
+	{
+		return m_iUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED;
+	}
 	inline int getBALANCE_CORE_ARABIA_TILE_BONUS()
 	{
 		return m_iBALANCE_CORE_ARABIA_TILE_BONUS;
@@ -10610,6 +10629,11 @@ protected:
 	int m_iBALANCE_CS_FORGIVENESS_CHANCE;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iBALANCE_MAX_CS_ALLY_STRENGTH;
+	int m_iBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS;
+	int m_iBALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX;
+	int m_iBALANCE_CS_ALLIANCE_DEFENSE_BONUS;
+	int m_iUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED;
 	int m_iBALANCE_CORE_ARABIA_TILE_BONUS;
 	int m_iBALANCE_MARRIAGE_GP_RATE;
 	int m_iBALANCE_SPY_RESPAWN_TIMER;
@@ -11023,6 +11047,8 @@ public:
 	MyStackWalker() : m_pLog(NULL), StackWalker() {}
 	void SetLog(FILogFile* pLog) { m_pLog=pLog; }
 protected:
+	virtual void OnSymInit(LPCSTR, DWORD, LPCSTR) { /*dummy*/ }
+	virtual void OnLoadModule(LPCSTR, LPCSTR, DWORD64, DWORD, DWORD, LPCSTR, LPCSTR, ULONGLONG) { /*dummy*/ }
 	virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
 	FILogFile* m_pLog;
 };

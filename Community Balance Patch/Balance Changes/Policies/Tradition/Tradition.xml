@@ -7,12 +7,12 @@
 	</Policy_PrereqPolicies>
 	<Policy_CityYieldChanges>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>

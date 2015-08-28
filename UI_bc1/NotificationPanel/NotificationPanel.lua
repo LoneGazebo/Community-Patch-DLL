@@ -193,7 +193,7 @@ for k, v, w in ([[
 	NOTIFICATION_BARBARIAN				Barbarian		B
 	NOTIFICATION_GOODY				AncientRuins		B
 	NOTIFICATION_BUY_TILE				BuyTile
-	NOTIFICATION_CITY_GROWTH			CityGrowth		B
+	NOTIFICATION_CITY_GROWTH			CityGrowth
 	NOTIFICATION_CITY_TILE				CityTile
 	NOTIFICATION_DEMAND_RESOURCE			BonusResource
 	NOTIFICATION_UNIT_PROMOTION			UnitPromoted		B
@@ -1552,7 +1552,7 @@ end
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
 
 local function OnOptionsChanged()
-	g_isShowCivList = EUI_options.GetValue( "HideCivRibbon" ) ~= 1
+	g_isShowCivList = EUI_options.GetValue( "CivRibbon" ) ~= 0
 	Controls.CivPanel:SetHide( not g_isShowCivList )
 	UpdateCivList()
 end

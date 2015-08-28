@@ -174,7 +174,7 @@ struct CvWorldBuilderMapLoaderMapInfo
 //------------------------------------------------------------------------------
 struct IDInfo
 {
-	IDInfo(PlayerTypes eOwner=NO_PLAYER, int iID=FFreeList::INVALID_INDEX) : eOwner(eOwner), iID(iID) {}
+	IDInfo(PlayerTypes eOwner=NO_PLAYER, int iID=-1) : eOwner(eOwner), iID(iID) {}
 	PlayerTypes eOwner;
 	int iID;
 
@@ -191,12 +191,12 @@ struct IDInfo
 	void reset()
 	{
 		eOwner = NO_PLAYER;
-		iID = FFreeList::INVALID_INDEX;
+		iID = -1;
 	}
 
 	bool isInvalid() const
 	{
-		return eOwner == NO_PLAYER && iID == FFreeList::INVALID_INDEX;
+		return eOwner == NO_PLAYER && iID == -1;
 	}
 };
 //------------------------------------------------------------------------------

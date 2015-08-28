@@ -395,7 +395,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<DefenseMod>20</DefenseMod>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_HONOR_BONUS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</PediaEntry>
 		</Row>
 	</UnitPromotions>
 	<Language_en_US>

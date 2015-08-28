@@ -1309,7 +1309,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		plot()->getPlotCity()->updateStrengthValue();
 	}
 
-	m_iArmyId = FFreeList::INVALID_INDEX;
+	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
 
@@ -2392,7 +2392,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		plot()->getPlotCity()->updateStrengthValue();
 	}
 
-	m_iArmyId = FFreeList::INVALID_INDEX;
+	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
 
@@ -5198,7 +5198,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				{
 					changeMoves(-iMoveCost);
 				}
-				else
+				else if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
 				{
 					finishMoves();
 				}
@@ -5522,7 +5522,120 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(eAutomate == 2)
+	{
+		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
+		{
+			return false;
+		}
+		if(AI_getUnitAIType() != UNITAI_MISSIONARY)
+		{
+			return false;
+		}
 
+		if (!bTestVisibility)
+		{
+			int iTargetTurns;
+			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
+			if(pUnit)
+			{
+				CvPlot* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetPlot(pUnit, &iTargetTurns);
+				if(pTarget == NULL)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		if (!bTestVisibility)
+		{
+			if (GC.getUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED() == 1)
+			{
+				return false;
+			}
+		}
+	}
+	if(eAutomate == 3)
+	{
+		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
+		{
+			return false;
+		}
+		if(AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
+		{
+			return false;
+		}
+
+		if (!bTestVisibility)
+		{
+			CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
+			if(pUnit)
+			{
+				CvPlot* pTarget = GET_PLAYER(m_eOwner).GetHomelandAI()->FindTestArchaeologistPlot(pUnit);
+				if(pTarget == NULL)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		if (!bTestVisibility)
+		{
+			if (GC.getUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED() == 1)
+			{
+				return false;
+			}
+		}
+	}
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if(eAutomate == 4)
+	{
+		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
+		{
+			return false;
+		}
+		if(AI_getUnitAIType() != UNITAI_MESSENGER)
+		{
+			return false;
+		}
+
+		if (!bTestVisibility)
+		{
+			int iTargetTurns;
+			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
+			if(pUnit)
+			{
+				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+				if(pTarget == NULL)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		if (!bTestVisibility)
+		{
+			if (GC.getUNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED() == 1)
+			{
+				return false;
+			}
+		}
+	}
+#endif
 	switch(eAutomate)
 	{
 	case AUTOMATE_BUILD:
@@ -5572,7 +5685,6 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			}
 		}
 		break;
-
 	default:
 		CvAssert(false);
 		break;
@@ -13197,15 +13309,25 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 		const PlayerTypes kPlotOwner = pPlot->getOwner();
 
 		// Must be in territory owned by the player or by an allied militaristic City State
-		if (kPlotOwner != getOwner()) {
-			if (MOD_GLOBAL_CS_UPGRADES && kPlotOwner != NO_PLAYER) {
+		if (kPlotOwner != getOwner()) 
+		{
+			if(MOD_GLOBAL_CS_UPGRADES && kPlotOwner != NO_PLAYER && GET_PLAYER(getOwner()).CanUpgradeCSTerritory()) 
+			{
 				const CvPlayer& pPlotOwner = GET_PLAYER(kPlotOwner);
-				if (!(pPlotOwner.isMinorCiv() && 
-					  pPlotOwner.GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && 
-					  pPlotOwner.GetMinorCivAI()->GetAlly() == getOwner())) {
+				if (!pPlotOwner.isMinorCiv())
+				{
 					return false;
 				}
-			} else {
+				else
+				{
+					if(pPlotOwner.GetMinorCivAI()->GetAlly() != getOwner())
+					{
+						return false;
+					}
+				}
+			} 
+			else 
+			{
 				return false;
 			}
 		}
@@ -13337,6 +13459,17 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	int iDivisor = /*5*/ GC.getUNIT_UPGRADE_COST_VISIBLE_DIVISOR();
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
+	if(pCity != NULL)
+	{
+		int iMaxPrice = pCity->GetPurchaseCost(eUnit);
+		if(iPrice > iMaxPrice)
+		{
+			iPrice = iMaxPrice;
+		}
+	}
+#endif
 
 	return iPrice;
 }
@@ -13368,36 +13501,6 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 #endif
 	thisPlayer.GetTreasury()->LogExpenditure(getUnitInfo().GetText(), iUpgradeCost, 3);
 	thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
-#if defined(MOD_API_EXTENSIONS)
-	}
-#endif
-
-#if defined(MOD_API_EXTENSIONS)
-	if (!bFree) {
-#endif
-#if defined(MOD_GLOBAL_CS_UPGRADES)
-	if (MOD_GLOBAL_CS_UPGRADES) {
-		// Is this plot owned by an allied militaristic City State
-		const CvPlot* pPlot = plot();
-		if(pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER) {
-			const CvPlayer& pPlotOwner = GET_PLAYER(pPlot->getOwner());
-			if (pPlotOwner.isMinorCiv()) {
-				CvMinorCivAI* kMinor = pPlotOwner.GetMinorCivAI();
-				if (kMinor->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && kMinor->GetAlly() == getOwner()) {
-					// Push the spawn unit counter back as a penalty for upgrading one of our own units
-					int iNumTurns = /*-3*/ GC.getALLIES_EXTRA_TURNS_UNIT_SPAWN() * -1;
-
-					// Modify for Game Speed
-					iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-					iNumTurns /= 100;
-
-					CUSTOMLOG("CS unit spawn penalty for upgrading one of our own units is %d turns", iNumTurns);
-					kMinor->ChangeUnitSpawnCounter(getOwner(), iNumTurns);
-				}
-			}
-		}
-	}
-#endif
 #if defined(MOD_API_EXTENSIONS)
 	}
 #endif
@@ -14339,13 +14442,20 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-#else
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	{
+		// units cannot heal anymore, but strength is unaffected
+	}
+	else
+	{
+#endif
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	}
 #endif
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -14373,6 +14483,74 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += GetGreatGeneralCombatModifier();
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iCSStrengthMod = 0;
+	if(GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
+		if(eAlly != NO_PLAYER)
+		{
+			int iCSBonus = GET_PLAYER(eAlly).GetPlayerTraits()->GetAllianceCSStrength();
+			if(iCSBonus > 0)
+			{
+				int iNumAllies = 0;
+				// Loop through all minors and get the total number we've met.
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+					{
+						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(eAlly))
+						{
+							iNumAllies++;
+							if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+							{
+								break;
+							}
+						}
+					}
+				}
+				if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+				{
+					iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+				}
+				iCSStrengthMod = (iCSBonus * iNumAllies);
+			}
+		}
+	}
+	else
+	{
+		int iCSBonus = GET_PLAYER(getOwner()).GetPlayerTraits()->GetAllianceCSStrength();
+		if(iCSBonus > 0)
+		{
+			int iNumAllies = 0;
+			// Loop through all minors and get the total number we've met.
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				{
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(getOwner()))
+					{
+						iNumAllies++;
+						if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+						{
+							break;
+						}
+					}
+				}
+			}
+			if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+			{
+				iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+			}
+			iCSStrengthMod = (iCSBonus * iNumAllies);
+		}
+	}
+	iModifier += iCSStrengthMod;
+#endif
 
 	// Reverse Great General nearby
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -18218,7 +18396,7 @@ bool CvUnit::IsHasNoValidMove() const
 int CvUnit::getIndex() const
 {
 	VALIDATE_OBJECT
-	return (GetID() & FLTA_INDEX_MASK);
+	return GetID();
 }
 
 
@@ -19744,7 +19922,7 @@ if (!bDoEvade)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(getOwner()).isHuman())
+			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(getOwner()).CalculateHappiness();
 			}

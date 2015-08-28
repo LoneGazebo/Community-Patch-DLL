@@ -2604,10 +2604,12 @@ void CvDiplomacyAI::DoCounters()
 					if(GetNumDoFLifetime(eLoopPlayer) < 0)
 					{
 						SetNumDoFLifetime(eLoopPlayer, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), 0);
 					}
 					else if(GetNumDoFLifetime(eLoopPlayer) >= 0)
 					{
 						ChangeNumDoFLifetime(eLoopPlayer, 1);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumDoFLifetime(GetPlayer()->GetID(), 1);
 					}
 #endif
 
@@ -7030,25 +7032,25 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 						eWarProjection = WAR_PROJECTION_STALEMATE;
 				}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				if(MOD_BALANCE_CORE_DIPLOMACY && IsAtWar(eLoopPlayer))
+				if(MOD_BALANCE_CORE_DIPLOMACY && IsAtWar(eLoopPlayer) && (eWarProjection < WAR_PROJECTION_UNKNOWN))
 				{
-					// can't be imminent destruction if none of our cities is in danger at the moment
-					if ((GetNumberOfThreatenedCities(eLoopPlayer) == 0) && (eWarProjection < WAR_PROJECTION_UNKNOWN))
-					{
-						eWarProjection = WAR_PROJECTION_GOOD;
-					}
-					// can't be imminent destruction if we are winning wars.
 					MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WINNING_WARS");
-					if ( GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategy) && (eWarProjection < WAR_PROJECTION_GOOD))
+					// can't be imminent destruction if none of our cities is in danger at the moment
+					if ((GetNumberOfThreatenedCities(eLoopPlayer) == 0))
 					{
-						eWarProjection = WAR_PROJECTION_GOOD;
+						eWarProjection = WAR_PROJECTION_UNKNOWN;
 					}
-					if(eWarProjection <= WAR_PROJECTION_UNKNOWN)
+					// can't be imminent destruction if we are winning wars.		
+					else if (GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategy))
+					{
+						eWarProjection = WAR_PROJECTION_UNKNOWN;
+					}
+					else
 					{
 						// Are there no enemy military units near our cities? Let's not give in.
 						int iLoop;
 						int iDX, iDY;
-						int iRange = 3;
+						int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
 						bool bUnit = false;
 						CvCity* pLoopCity;
 						CvPlot* pLoopPlot;
@@ -7072,7 +7074,7 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 						}
 						if(!bUnit)
 						{
-							eWarProjection = WAR_PROJECTION_GOOD;
+							eWarProjection = WAR_PROJECTION_UNKNOWN;
 						}
 					}
 				}
@@ -7331,7 +7333,11 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 							eWarGoal = WAR_GOAL_CONQUEST;
 
 						// If we think the war will go well, we can aim for conquest, which means we will not make peace
+#if defined(MOD_BALANCE_CORE)
+						if(eProjection > WAR_PROJECTION_UNKNOWN)
+#else
 						if(eProjection >= WAR_PROJECTION_UNKNOWN)
+#endif
 						{
 							// If they're unforgivable we're out to destroy them, no less
 							if(GetMajorCivOpinion(eLoopPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
@@ -7349,7 +7355,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				else
 				{
 					// If we're about to cause some mayhem then hold off on the peace stuff for a bit - not against Minors though
-					if(!bIsMinor && GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON && GetStateAllWars() != STATE_ALL_WARS_LOSING)\
+					if(!bIsMinor && GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON && GetStateAllWars() != STATE_ALL_WARS_LOSING)
 					{
 						eWarGoal = WAR_GOAL_DAMAGE;
 					}
@@ -12630,13 +12636,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 100);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), -1);	
-				LogBrokenDoF(ePlayer);
-			}
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 100);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), -1);	
+			LogBrokenDoF(ePlayer);
 #endif
 		}
 	}
@@ -13649,7 +13652,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13657,7 +13660,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13665,7 +13668,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CULTURE)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CULTURE)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13673,7 +13676,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13681,7 +13684,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CONFUSED)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CONFUSED)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13689,7 +13692,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13697,7 +13700,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13705,7 +13708,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_CULTURE)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_CULTURE)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -13713,7 +13716,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-	else if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_SPACESHIP)
+	else if(eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_SPACESHIP)
 	{
 		if(bShouldShowLeaderScene)
 		{
@@ -14127,10 +14130,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoDenounceFriendStatement(ePlayer, eStatement);
 			DoDenounceStatement(ePlayer, eStatement);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				DoEndDoFStatement(ePlayer, eStatement);
-			}
+			DoEndDoFStatement(ePlayer, eStatement);
 #endif
 			DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
 			//DoWorkAgainstSomeoneStatement(ePlayer, eStatement, iData1);
@@ -14198,10 +14198,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 				DoHappySamePolicyTree(ePlayer, eStatement);
 				DoIdeologicalStatement(ePlayer, eStatement);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-				if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-				{
-					DoVictoryCompetitionStatement(ePlayer, eStatement);
-				}
+				DoVictoryCompetitionStatement(ePlayer, eStatement);
 #endif
 			}
 		}
@@ -16082,7 +16079,7 @@ void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatemen
 			{
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 				//We have to be really treacherous to do this, otherwise we'll just break up our friendship.
-				if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && ((GetMeanness() > 8) || (GetDenounceWillingness() > 8) || (GetLoyalty() < 3)))
+				if(((GetMeanness() > 8) || (GetDenounceWillingness() > 8) || (GetLoyalty() < 3)))
 				{
 #endif
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -18630,7 +18627,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI would like to work with a player
 	case DIPLO_MESSAGE_WORK_WITH_US:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		strText = GetDoFHumanMessage(eForPlayer);
+		strText = GetDoFHumanMessage();
 #else
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 #endif
@@ -20710,47 +20707,46 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_MEAN_RESPONSE:
 	{
-		if(!IsAtWar(eFromPlayer))
+		if(bActivePlayer)
 		{
-			// Does the AI declare war?
-			bool bDeclareWar = false;
+			if(!IsAtWar(eFromPlayer))
+			{
+				// Does the AI declare war?
+				bool bDeclareWar = false;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
+				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 #else
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
+				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 #endif
-			{
-				if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (80 - GetMeanness() - GetBoldness()))
 				{
-					bDeclareWar = true;
+					if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (80 - GetMeanness() - GetBoldness()))
+					{
+						bDeclareWar = true;
+					}
 				}
-			}
-			if(bDeclareWar)
-			{
-
+				if(bDeclareWar)
+				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
+					GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
 #else
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
+					GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
 #endif
-				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-				LogWarDeclaration(eFromPlayer);
+					m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
+					LogWarDeclaration(eFromPlayer);
 
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
-			}
-			else
-			{
-				if(GetMajorCivApproach(eFromPlayer, true) <= MAJOR_CIV_APPROACH_GUARDED)
-				{
-					SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 				}
-				//If player is offended, AI should take note as penalty to assistance.
-				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
-				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
-			}
-			if(bActivePlayer)
-			{
+				else
+				{
+					if(GetMajorCivApproach(eFromPlayer, true) <= MAJOR_CIV_APPROACH_GUARDED)
+					{
+						SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+					}
+					//If player is offended, AI should take note as penalty to assistance.
+					CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
+					int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
+				}
 				if(bDeclareWar)
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_WAR_RUDE_INSULT);
@@ -20761,6 +20757,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_SO_BE_IT);
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 				}
+			}
+			else
+			{
+				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
+				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEUTRAL_IDLE);
 			}
 		}
 		break;
@@ -22071,12 +22072,12 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 	}
 }
 /// AI is DOF the human
-const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
+const char* CvDiplomacyAI::GetDoFHumanMessage()
 {
-	if(ePlayer == NO_PLAYER)
+	const char* strText = NULL;
+	PlayerTypes	ePlayer = GC.getGame().getActivePlayer();
+	if(ePlayer != NO_PLAYER)
 	{
-		ePlayer = GC.getGame().getActivePlayer();
-
 		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
 		const char* strText;
 		if(iFriendshipValue < 0)
@@ -22103,38 +22104,13 @@ const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
 		{
 			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		}
-		return strText;
 	}
 	else
 	{
-		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
-		const char* strText;
-		if(iFriendshipValue < 0)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
-		}
-		else if(iFriendshipValue == 0)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
-		}
-		else if(iFriendshipValue == 1)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
-		}
-		else if(iFriendshipValue == 2)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
-		}
-		else if(iFriendshipValue > 2)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
-		}
-		else
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
-		}
-		return strText;
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 	}
+
+	return strText;
 }
 /// The AI is denouncing the human
 int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
@@ -23909,7 +23885,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsDoFBroken(ePlayer))
+	if(IsDoFBroken(ePlayer))
 	{
 		//If we've made amends, take away the DoF malus.
 		if(eOpinion >= MAJOR_CIV_OPINION_FRIEND)

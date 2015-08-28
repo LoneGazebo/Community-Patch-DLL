@@ -1779,6 +1779,13 @@ enum AutomateTypes
 	// Do not add any more sequential enums, add explicit key values (hash of text key)
 
 	AUTOMATE_TRADE		= 0x4bdc68d8,	// FString::Hash("AUTOMATE_TRADE");
+#if defined(MOD_BALANCE_CORE)
+	AUTOMATE_MISSIONARY = 0x840842ea,  //FString::Hash("AUTOMATE_MISSIONARY");
+	AUTOMATE_ARCHAEOLOGIST = 0x64f5468a,  //FString::Hash("AUTOMATE_ARCHAEOLOGIST");
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	AUTOMATE_DIPLOMAT = 0xd2d86d2d,  //FString::Hash("AUTOMATE_DIPLOMAT");
+#endif
 
 };
 

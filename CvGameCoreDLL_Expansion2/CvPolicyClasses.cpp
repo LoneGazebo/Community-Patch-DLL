@@ -87,6 +87,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bOrderCorporation(false),
 	m_bAutocracyCorporation(false),
 	m_bFreedomCorporation(false),
+	m_bUpgradeCSTerritory(false),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -425,6 +426,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bOrderCorporation = kResults.GetBool("OrderCorporation");
 	m_bAutocracyCorporation = kResults.GetBool("AutocracyCorporation");
 	m_bFreedomCorporation = kResults.GetBool("FreedomCorporation");
+	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1460,6 +1462,10 @@ bool CvPolicyEntry::IsAutocracyCorp() const
 bool CvPolicyEntry::IsFreedomCorp() const
 {
 	return m_bFreedomCorporation;
+}
+bool CvPolicyEntry::IsUpgradeCSTerritory() const
+{
+	return m_bUpgradeCSTerritory;
 }
 #endif
 /// Happiness from each connected Luxury Resource

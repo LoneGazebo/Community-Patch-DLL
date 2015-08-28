@@ -941,7 +941,7 @@ void UnitPathInitialize(const void* pointer, CvAStar* finder)
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
 
 #ifdef AUI_DANGER_PLOTS_REMADE
-	pCacheData->m_bDoDanger = (pCacheData->m_bIsAutomated || !pCacheData->isHuman()) && (!(finder->GetInfo() & MOVE_UNITS_IGNORE_DANGER)) && (!pUnit->IsCombatUnit() || pUnit->getArmyID() == FFreeList::INVALID_INDEX);
+	pCacheData->m_bDoDanger = (pCacheData->m_bIsAutomated || !pCacheData->isHuman()) && (!(finder->GetInfo() & MOVE_UNITS_IGNORE_DANGER)) && (!pUnit->IsCombatUnit() || pUnit->getArmyID() == -1);
 #endif
 }
 
@@ -1066,7 +1066,7 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 #ifndef AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
 		if(!(finder->GetInfo() & MOVE_UNITS_IGNORE_DANGER))
 		{
-			if(!pUnit->IsCombatUnit() || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
+			if(!pUnit->IsCombatUnit() || pUnit->getArmyID() == -1)
 			{
 				if(GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pToPlot) > 0)
 				{
@@ -1736,7 +1736,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		{
 			if(!(iFinderInfo & MOVE_UNITS_IGNORE_DANGER))
 			{
-				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(!bUnitIsCombat || pUnit->getArmyID() == -1)
 				{
 #ifdef AUI_DANGER_PLOTS_REMADE
 					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
@@ -4124,7 +4124,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 		{
 			if(!(iFinderInfo & MOVE_UNITS_IGNORE_DANGER))
 			{
-				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
+				if(!bUnitIsCombat || pUnit->getArmyID() == -1)
 				{
 #ifdef AUI_DANGER_PLOTS_REMADE
 					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
