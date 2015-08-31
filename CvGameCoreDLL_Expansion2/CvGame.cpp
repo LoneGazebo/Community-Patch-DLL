@@ -2390,7 +2390,11 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 		do
 		{
+#if defined(MOD_BALANCE_CORE)
+			pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).nextCity(pkHeadSelectedCity, !bForward);
+#else
 			pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).nextCity(&iLoop, !bForward);
+#endif
 
 			if(pLoopCity == NULL)
 			{

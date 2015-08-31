@@ -36,6 +36,7 @@ public:
 	T* GetAt(int iIndex);
 	const T* GetAt(int iIndex) const;
 	bool RemoveAt(int iIndex);
+	int GetIndexForID(const int iID) const;
 
 	//create a new item
 	T* Add();
@@ -163,6 +164,17 @@ void TContainer<T>::RemoveAll()
 
 	m_items.clear();
 	m_order.clear();
+}
+
+template <class T>
+int TContainer<T>::GetIndexForID(const int iID) const
+{
+	std::vector<int>::const_iterator it=std::find(m_order.begin(),m_order.end(),iID);
+
+	if (it!=m_order.end())
+		return (int)(it-m_order.begin());
+
+	return -1;
 }
 
 template <class T>

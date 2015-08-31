@@ -1747,6 +1747,10 @@ public:
 	CvCity* firstCity(int* pIterIdx, bool bRev=false);
 	const CvCity* nextCity(int* pIterIdx, bool bRev=false) const;
 	CvCity* nextCity(int* pIterIdx, bool bRev=false);
+#if defined(MOD_BALANCE_CORE)
+	const CvCity* nextCity(const CvCity* pCurrent, bool bRev=false) const;
+	CvCity* nextCity(const CvCity* pCurrent, bool bRev=false);
+#endif
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;

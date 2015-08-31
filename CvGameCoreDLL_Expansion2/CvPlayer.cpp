@@ -28199,6 +28199,34 @@ const CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev) const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
+{
+	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_cities.GetAt(iIdx);
+}
+
+//	--------------------------------------------------------------------------------
+const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
+{
+	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_cities.GetAt(iIdx);
+}
+#endif
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::getNumCities() const
 {
 	return m_cities.GetCount();
