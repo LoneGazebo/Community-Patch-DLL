@@ -57,6 +57,11 @@ public:
 	void Read( FDataStream* pStream );
 	void Write( FDataStream* pStream ) const;
 
+private:
+	//hide copy constructor and assignment operator
+	TContainer(const TContainer& other) {}
+	const TContainer& operator=(const TContainer& rhs) {}
+
 protected:
 	std::map<int,T*> m_items;
 	std::vector<int> m_order;

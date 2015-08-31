@@ -1388,7 +1388,7 @@ public:
 	int GetLengthMissionQueue() const;
 	const MissionData* GetHeadMissionData();
 	const MissionData* GetMissionData(int iIndex);
-	CvPlot* GetMissionAIPlot();
+	CvPlot* GetMissionAIPlot() const;
 	MissionAITypes GetMissionAIType();
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();

@@ -232,6 +232,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if(vExplorePlots[ui].pPlot->getNumUnits() > 0)
 			continue;
 
+		//don't send multiple explorers to the same target
+		if (m_pPlayer->IsPlotTargetedForExplorer(vExplorePlots[ui].pPlot))
+			continue;
+
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 
@@ -4206,7 +4210,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 		if(pUnit)
 		{
 			//so easy
-			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer());
+			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
 #else
 
 	int iDanger;

@@ -825,6 +825,10 @@ public:
 	bool IsCityInQueuedAttack(const CvCity* pAttackCity);
 	int NearXQueuedAttacks(const CvPlot* pPlot, const int iRange);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsUnitHealing(int iUnitID) const;
+#endif
+
 	// Public logging
 	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
 
@@ -950,10 +954,11 @@ private:
 #endif
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
-	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, bool bNeedOnlyOne=false);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, bool bNeedOnlyOne=false);
 #else
+	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bSafeForRanged, bool bMustBeRangedUnit);
 #endif
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits);
@@ -1022,6 +1027,7 @@ private:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
+	set<int> m_HealingUnits;
 	CTacticalUnitArray m_CurrentMoveUnits;
 	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
 #else
@@ -1093,7 +1099,8 @@ namespace TacticalAIHelpers
 	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
 	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
-	CvPlot* FindSafestPlotInReach(CvUnit* pUnit);
+	CvPlot* FindSafestPlotInReach(CvUnit* pUnit, bool bAllowEmbark);
+	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
 }
 
 extern const char* barbarianMoveNames[];

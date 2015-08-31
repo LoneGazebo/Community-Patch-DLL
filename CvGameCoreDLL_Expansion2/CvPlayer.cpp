@@ -28625,6 +28625,24 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 }
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
+{
+	// Loop through our units
+	int iLoop = 0;
+	for(const CvUnit* pUnit = firstUnit(&iLoop); pUnit; pUnit = nextUnit(&iLoop))
+	{
+		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
+			    pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE)
+		{
+			if (pUnit->GetMissionAIPlot() == pPlot)
+				return true;
+		}
+	}
+	return false;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Are we already sending a settler to this plot (or any plot within 2)
 #if defined(MOD_BALANCE_CORE_SETTLER)

@@ -3712,9 +3712,7 @@ void CvMilitaryAI::ScanForBarbarians()
 
 #if defined(MOD_BALANCE_CORE)
 	//try to smooth the count a bit
-	if (iLastTurnBarbarianCount >= m_iVisibleBarbarianCount)
-		m_iVisibleBarbarianCount = iLastTurnBarbarianCount;
-	else
+	if (m_iVisibleBarbarianCount < iLastTurnBarbarianCount)
 		m_iVisibleBarbarianCount = iLastTurnBarbarianCount-1;
 #endif
 
