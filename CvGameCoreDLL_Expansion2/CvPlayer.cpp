@@ -4157,12 +4157,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 //	--------------------------------------------------------------------------------
 void CvPlayer::killCities()
 {
-	CvCity* pLoopCity;
-	int iLoop;
+	//can't kill the cities directly because that invalidates the iterator
+	std::vector<int> citiesToKill;
 
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	int iLoop;
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		pLoopCity->kill();
+		citiesToKill.push_back(pLoopCity->GetID());
+	}
+
+	for (std::vector<int>::iterator it=citiesToKill.begin(); it!=citiesToKill.end(); ++it)
+	{
+		CvCity* pLoopCity = getCity(*it);
+		pLoopCity->kill(false);
 	}
 }
 
@@ -5121,11 +5128,18 @@ void CvPlayer::disbandUnit(bool)
 //	--------------------------------------------------------------------------------
 void CvPlayer::killUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
+	//can't kill the units directly because that invalidates the iterator
+	std::vector<int> unitsToKill;
 
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	int iLoop;
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
+		unitsToKill.push_back(pLoopUnit->GetID());
+	}
+
+	for (std::vector<int>::iterator it=unitsToKill.begin(); it!=unitsToKill.end(); ++it)
+	{
+		CvUnit* pLoopUnit = getUnit(*it);
 		pLoopUnit->kill(false);
 	}
 }

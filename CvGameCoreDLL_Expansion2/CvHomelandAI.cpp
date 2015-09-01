@@ -1406,8 +1406,10 @@ void CvHomelandAI::PlotMovesToSafety()
 					bFallout = true;
 				}
 			}
-#endif
+			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -1502,10 +1504,6 @@ void CvHomelandAI::PlotMovesToSafety()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteMovesToSafestPlot();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Do twice to confirm that everyone has moved their full extent.
-		ExecuteMovesToSafestPlot();
-#endif
 	}
 }
 

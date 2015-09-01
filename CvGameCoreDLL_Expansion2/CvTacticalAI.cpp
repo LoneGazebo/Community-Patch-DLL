@@ -16040,15 +16040,21 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(CvUnit* pUnit, bool bAllowEmbar
 		}
 	}
 
+	//this makes the highest weight come first!
+	aCityList.SortItems();
+	aZeroDangerList.SortItems();
+	aCoverList.SortItems();
+	aDangerList.SortItems();
+
 	// Now that we've gathered up our lists of destinations, pick the most promising one
 	if (aCityList.size()>0)
-		return aCityList.GetElement(0);
+		return aCityList.GetElement( aCityList.size()-1 );
 	else if (aZeroDangerList.size()>0)
-		return aZeroDangerList.GetElement(0);
+		return aZeroDangerList.GetElement(  aZeroDangerList.size()-1 );
 	else if (aCoverList.size()>0)
-		return aCoverList.GetElement(0);
+		return aCoverList.GetElement( aCoverList.size()-1 );
 	else if (aDangerList.size()>0)
-		return aDangerList.GetElement(0);
+		return aDangerList.GetElement( aDangerList.size()-1 );
 
 	return NULL;
 }
@@ -16104,6 +16110,9 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 
 				//new candidate: remember it
 				nextRing.push_back( pAdjacentPlot );
+
+				//and mark it
+				checkedPlots[ GC.getMap().plotNum(pAdjacentPlot->getX(),pAdjacentPlot->getY()) ] = 1;
 			}
 		}
 
@@ -16115,9 +16124,6 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 		for (std::vector<CvPlot*>::iterator it = nextRing.begin(); it!=nextRing.end(); ++it)
 		{
 			CvPlot* pPlot = *it;
-
-			//first: mark it
-			checkedPlots[ GC.getMap().plotNum(pPlot->getX(),pPlot->getY()) ] = 1;
 
 			//can we go there?
 			if (!pUnit->canEnterTerrain(*pPlot))
