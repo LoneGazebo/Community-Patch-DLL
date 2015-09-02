@@ -1,4 +1,4 @@
-// CustomMods.h
+﻿// CustomMods.h
 #pragma once
 
 #ifndef CUSTOM_MODS_H

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -28383,6 +28383,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
 
+	if (iIdx<0)
+		return NULL;
+
 	if (bRev)
 		iIdx--;
 	else
@@ -28395,6 +28398,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
 
 	if (bRev)
 		iIdx--;
@@ -28513,6 +28519,10 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 {
 	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
+
 	if (bRev)
 		iIdx--;
 	else
@@ -28525,6 +28535,9 @@ CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
 {
 	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
 
 	if (bRev)
 		iIdx--;
