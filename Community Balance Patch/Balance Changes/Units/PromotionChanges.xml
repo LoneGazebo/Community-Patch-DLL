@@ -603,19 +603,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SORTIE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_REPAIR</Type>
-			<Description>TXT_KEY_PROMOTION_REPAIR</Description>
-			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
-			<OrderPriority>7</OrderPriority>
-			<AlwaysHeal>true</AlwaysHeal>
-			<PortraitIndex>36</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_REPAIR</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_AIR_REPAIR</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_REPAIR</Description>
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
@@ -1402,8 +1389,9 @@
 			<Description>TXT_KEY_PROMOTION_ANTI_AIR_II</Description>
 			<Help>TXT_KEY_PROMOTION_ANTI_AIR_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ANTI_AIR</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
+			<PromotionPrereq>PROMOTION_ANTI_AIR</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_COVER_1</PromotionPrereqOr2>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -2831,11 +2819,13 @@
 			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 		</Row>
-	</UnitPromotions_UnitCombats>
-	<UnitPromotions_UnitCombats>
 		<Row>
 			<PromotionType>PROMOTION_ANTI_AIR_II</PromotionType>
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
 	<UnitPromotions_PostCombatRandomPromotion>

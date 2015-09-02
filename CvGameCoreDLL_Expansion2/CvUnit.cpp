@@ -27123,7 +27123,7 @@ MissionQueueNode* CvUnit::HeadMissionQueueNode()
 
 //	--------------------------------------------------------------------------------
 /// The plot saved with the mission AI data
-CvPlot* CvUnit::GetMissionAIPlot()
+CvPlot* CvUnit::GetMissionAIPlot() const
 {
 	VALIDATE_OBJECT
 	return GC.getMap().plotCheckInvalid(m_iMissionAIX, m_iMissionAIY);

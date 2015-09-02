@@ -12,7 +12,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+2 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+3 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -26,7 +26,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 

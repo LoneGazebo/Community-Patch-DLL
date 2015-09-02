@@ -10,13 +10,13 @@
 	</Policy_PrereqPolicies>
 	<Policy_BuildingClassYieldChanges>
 		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>1</YieldChange>

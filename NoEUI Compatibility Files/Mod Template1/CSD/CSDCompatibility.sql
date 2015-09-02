@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
 -- Policy Changes
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patronage[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] [ICON_INFLUENCE] Influence with City-States degrades 20% slower than normal. [NEWLINE] [ICON_BULLET] Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game).[NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Patronage policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET][ICON_INFLUENCE] Influence with City-States degrades 4% slower than normal.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People. [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence with all known City-States every time you expend a [ICON_GREAT_PEOPLE] Great Person. [NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement. [NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Patronage[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Resting point for [ICON_INFLUENCE] Influence with all City-States is increased by 20. [NEWLINE] [ICON_BULLET] Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game).[NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Patronage policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET]Your City-State [ICON_INFLUENCE] Influence degrades 5% slower.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Patronage grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People. [NEWLINE] [ICON_BULLET] +5 [ICON_INFLUENCE] Influence with all known City-States every time you expend a [ICON_GREAT_PEOPLE] Great Person. [NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement. [NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP';
 
 UPDATE Language_en_US
@@ -53,7 +53,7 @@ SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
 
 -- Philanthropy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive +33% [ICON_INFLUENCE] Influence from Quests completed for City-States. Minmum [ICON_INFLUENCE] Influence with all City-States raised by 10. The Printing Press boosts City [ICON_CULTURE] Culture by +15%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive +33% [ICON_INFLUENCE] Influence from Quests completed for City-States. The Printing Press boosts City [ICON_CULTURE] Culture by +15%.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 -- Cultural Diplomacy
@@ -118,32 +118,27 @@ WHERE Type = 'UNIT_ENVOY';
 
 -- Building Requirement - Printing Press
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_PRINTING_PRESS';
 
 -- Building Requirement - Foreign Office
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_FOREIGN_OFFICE';
 
 -- Building Requirement - Palace S&C
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_PALACE_SCIENCE_CULTURE';
 
 -- Building Requirement - Finance Center
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_FINANCE_CENTER';
 
 -- Building Requirement - Ehrenhalle
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_EHRENHALLE';
 
 -- Pop Requirement

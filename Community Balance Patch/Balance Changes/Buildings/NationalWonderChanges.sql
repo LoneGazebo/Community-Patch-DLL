@@ -105,48 +105,37 @@ WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Building Requirement
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_HEROIC_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_NATIONAL_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_IRONWORKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_HERMITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
-UPDATE Building_PrereqBuildingClasses
-SET NumBuildingNeeded = '1'
+DELETE FROM Building_PrereqBuildingClasses
 WHERE BuildingType = 'BUILDING_TOURIST_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 -- Pop Requirement

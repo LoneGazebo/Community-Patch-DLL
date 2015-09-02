@@ -2877,6 +2877,12 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			int iLoop = 0;
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
+#if defined(MOD_BALANCE_CORE)
+				//don't recruit if currently healing
+				if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+					continue;
+#endif
+
 				// Make sure he's not needed by the tactical AI or already in an army
 				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
@@ -5363,7 +5369,11 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pMusterPt->getX(), pMusterPt->getY(), ((DirectionTypes)iDirectionLoop));
-						if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner && pAdjacentPlot->getNumUnits() <= 0)
+						if (!pAdjacentPlot)
+							continue;
+
+						int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pAdjacentPlot,pOurCivilian);
+						if(!pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner && pAdjacentPlot->getNumUnits()==0 && iDanger==0)
 						{
 							pMusterPt = pAdjacentPlot;
 							break;

@@ -133,6 +133,21 @@
 			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of {@1_CivName}'s [COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR] Policy. This will increase the value of their Corporation!</Text>
 		</Row>
 
+		<!-- Moved/Destroyed Notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_MOVED_SUMMARY">
+			<Text>{@1_BldgName} relocates to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_MOVED">
+			<Text>{@2_BldgName} has relocated to the City of {@1_City} as a result of the previous HQ being captured! Try not to let this happen again, okay?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED_SUMMARY">
+			<Text>{@1_BldgName} closes all offices and franchises!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED">
+			<Text>{@1_BldgName} has closed all global offices and franchises as a result of their home nation's untimely destruction.</Text>
+		</Row>
+		
 		<!-- LUA -->
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_ONE_CORP_ONLY">
 			<Text>[NEWLINE]{1_BuildingName:textkey} cannot be constructed while you are constructing {2_BuildingName:textkey} elsewhere in your Empire.</Text>

@@ -8992,6 +8992,17 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		{
 			eDisputeLevel = DISPUTE_LEVEL_NONE;
 
+#if defined(MOD_BALANCE_CORE)
+			// Look at our Proximity to the other Player
+			eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
+			if(eProximity <= PLAYER_PROXIMITY_FAR)
+			{
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				return;
+			}
+
+#endif
+
 			iLandDisputeWeight = 0;
 
 			// Expansion aggression
@@ -9024,12 +9035,14 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 
 			// Look at our Proximity to the other Player
 			eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-
+#if !defined(MOD_BALANCE_CORE)
 			if(eProximity == PLAYER_PROXIMITY_DISTANT)
 				iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_DISTANT();
 			else if(eProximity == PLAYER_PROXIMITY_FAR)
 				iLandDisputeWeight += /*10*/ GC.getLAND_DISPUTE_FAR();
-			else if(eProximity == PLAYER_PROXIMITY_CLOSE)
+			else 
+#endif	
+				if(eProximity == PLAYER_PROXIMITY_CLOSE)
 				iLandDisputeWeight += /*18*/ GC.getLAND_DISPUTE_CLOSE();
 			else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 				iLandDisputeWeight += /*30*/ GC.getLAND_DISPUTE_NEIGHBORS();
@@ -14132,7 +14145,9 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			DoEndDoFStatement(ePlayer, eStatement);
 #endif
+#if !defined(MOD_BALANCE_CORE)
 			DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
+#endif
 			//DoWorkAgainstSomeoneStatement(ePlayer, eStatement, iData1);
 			//DoEndWorkAgainstSomeoneStatement(ePlayer, eStatement, iData1);
 
@@ -18143,8 +18158,27 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 			{
 				eTempStatement = DIPLO_STATEMENT_WE_LIKED_THEIR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS();
+#if defined(MOD_BALANCE_CORE)
+				int iMessage = 0;
+				int iMessageMax = MAX_INT;
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
+					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+					{
+						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+						if(iMessage < iMessageMax)
+						{
+							iMessageMax = iMessage;
+						}
+					}
+				}
+				if(iMessageMax >= iTurnsBetweenStatements)
+#else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+#endif
 					eStatement = eTempStatement;
 			}
 		}
@@ -18174,7 +18208,27 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 				eTempStatement = DIPLO_STATEMENT_WE_DISLIKED_THEIR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS();
 
+#if defined(MOD_BALANCE_CORE)
+				int iMessage = 0;
+				int iMessageMax = MAX_INT;
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+					{
+						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+						if(iMessage < iMessageMax)
+						{
+							iMessageMax = iMessage;
+						}
+					}
+				}
+				if(iMessageMax >= iTurnsBetweenStatements)
+#else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+#endif
 					eStatement = eTempStatement;
 			}
 		}
@@ -18204,7 +18258,27 @@ void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStateme
 				eTempStatement = DIPLO_STATEMENT_THEY_SUPPORTED_OUR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS();
 
+#if defined(MOD_BALANCE_CORE)
+				int iMessage = 0;
+				int iMessageMax = MAX_INT;
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+					{
+						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+						if(iMessage < iMessageMax)
+						{
+							iMessageMax = iMessage;
+						}
+					}
+				}
+				if(iMessageMax >= iTurnsBetweenStatements)
+#else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+#endif
 					eStatement = eTempStatement;
 			}
 		}
@@ -18234,7 +18308,27 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 				eTempStatement = DIPLO_STATEMENT_THEY_FOILED_OUR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS();
 
+#if defined(MOD_BALANCE_CORE)
+				int iMessage = 0;
+				int iMessageMax = MAX_INT;
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+					{
+						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+						if(iMessage < iMessageMax)
+						{
+							iMessageMax = iMessage;
+						}
+					}
+				}
+				if(iMessageMax >= iTurnsBetweenStatements)
+#else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+#endif
 					eStatement = eTempStatement;
 			}
 		}
@@ -18627,7 +18721,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI would like to work with a player
 	case DIPLO_MESSAGE_WORK_WITH_US:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		strText = GetDoFHumanMessage();
+		strText = GetDoFHumanMessage(eForPlayer);
 #else
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 #endif
@@ -22032,17 +22126,24 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 	if(ePlayer == NO_PLAYER)
 	{
 		ePlayer = GC.getGame().getActivePlayer();
-		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-		if(IsCantMatchDeal(ePlayer))
+		if(ePlayer != NO_PLAYER)
 		{
-			SetCantMatchDeal(ePlayer, false);
-			if(eApproach >= MAJOR_CIV_APPROACH_AFRAID)
+			MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+			if(IsCantMatchDeal(ePlayer))
 			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
+				SetCantMatchDeal(ePlayer, false);
+				if(eApproach >= MAJOR_CIV_APPROACH_AFRAID)
+				{
+					return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
+				}
+				else
+				{
+					return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE");
+				}
 			}
 			else
 			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE");
+				return GetDiploTextFromTag("RESPONSE_TRADE_AI_MAKES_OFFER");
 			}
 		}
 		else
@@ -22072,45 +22173,70 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 	}
 }
 /// AI is DOF the human
-const char* CvDiplomacyAI::GetDoFHumanMessage()
+const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
 {
-	const char* strText = NULL;
-	PlayerTypes	ePlayer = GC.getGame().getActivePlayer();
-	if(ePlayer != NO_PLAYER)
+	if(ePlayer == NO_PLAYER)
 	{
-		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
-		const char* strText;
-		if(iFriendshipValue < 0)
+		ePlayer = GC.getGame().getActivePlayer();
+		if(ePlayer != NO_PLAYER)
 		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
-		}
-		else if(iFriendshipValue == 0)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
-		}
-		else if(iFriendshipValue == 1)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
-		}
-		else if(iFriendshipValue == 2)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
-		}
-		else if(iFriendshipValue > 2)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
-		}
-		else
-		{
-			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+			int iFriendshipValue = GetNumDoFLifetime(ePlayer);
+			if(iFriendshipValue < 0)
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
+			}
+			else if(iFriendshipValue == 0)
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+			}
+			else if(iFriendshipValue == 1)
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
+			}
+			else if(iFriendshipValue == 2)
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
+			}
+			else if(iFriendshipValue > 2)
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+			}
+			else
+			{
+				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+			}
 		}
 	}
 	else
 	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
+		if(iFriendshipValue < 0)
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
+		}
+		else if(iFriendshipValue == 0)
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
+		else if(iFriendshipValue == 1)
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
+		}
+		else if(iFriendshipValue == 2)
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
+		}
+		else if(iFriendshipValue > 2)
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+		}
+		else
+		{
+			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
 	}
 
-	return strText;
+	return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 }
 /// The AI is denouncing the human
 int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
@@ -25478,6 +25604,22 @@ void CvDiplomacyAI::ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int 
 {
 	SetPlayerMilitaryPromiseCounter(ePlayer, GetPlayerMilitaryPromiseCounter(ePlayer) + iChange);
 }
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
+{
+	if(!IsPlayerMadeExpansionPromise(ePlayer))
+	{
+		return -1;
+	}
+	int iGameTurn;
+	iGameTurn = GC.getGame().getGameTurn();
+
+	int iTurnDifference = iGameTurn - m_paiPlayerMadeExpansionPromiseTurn[ePlayer];
+	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	
+	return (iTimeOutTurns - iTurnDifference);
+}
+#endif
 
 bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn)
 {
@@ -25586,7 +25728,22 @@ bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 	}
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
+{
+	if(!IsPlayerMadeBorderPromise(ePlayer))
+	{
+		return -1;
+	}
+	int iGameTurn;
+	iGameTurn = GC.getGame().getGameTurn();
 
+	int iTurnDifference = iGameTurn - m_paiPlayerMadeBorderPromiseTurn[ePlayer];
+	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	
+	return (iTimeOutTurns - iTurnDifference);
+}
+#endif
 bool CvDiplomacyAI::IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");

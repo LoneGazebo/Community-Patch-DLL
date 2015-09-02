@@ -388,7 +388,7 @@ private:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes m_majorityReligion;
+	ReligionTypes m_majorityPlayerReligion;
 #endif
 };
 
@@ -477,6 +477,10 @@ public:
 	ReligionInCityList m_ReligionStatus;
 	ReligionInCityList m_SimulatedStatus;
 
+#if defined(MOD_BALANCE_CORE)
+	bool ComputeReligiousMajority();
+#endif
+
 private:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();
@@ -489,7 +493,7 @@ private:
 	int m_iReligiousPressureModifier;
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes m_majorityReligion;
+	ReligionTypes m_majorityCityReligion;
 #endif
 };
 

@@ -67,6 +67,9 @@
 	DELETE FROM UnitPromotions_UnitCombatMods
 	WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
+	DELETE FROM UnitPromotions_UnitCombats
+	WHERE PromotionType = 'PROMOTION_REPAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Replace Drill with +10% Combat Strength everywhere.
 
 	UPDATE Language_en_US

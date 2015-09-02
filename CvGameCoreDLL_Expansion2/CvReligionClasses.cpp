@@ -3313,7 +3313,7 @@ CvPlayerReligions::CvPlayerReligions(void):
 	m_iNumFreeProphetsSpawned(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion(NO_RELIGION),
+	m_majorityPlayerReligion(NO_RELIGION),
 #endif
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
@@ -3352,7 +3352,7 @@ void CvPlayerReligions::Reset()
 	m_iFaithAtLastNotify = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion = NO_RELIGION;
+	m_majorityPlayerReligion = NO_RELIGION;
 #endif
 }
 
@@ -3369,8 +3369,7 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 	kStream >> m_iNumProphetsSpawned;
 	kStream >> m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
-	int tmp;
-	kStream >> tmp; m_majorityReligion = (ReligionTypes)tmp;
+	kStream >> m_majorityPlayerReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
@@ -3390,7 +3389,7 @@ void CvPlayerReligions::Write(FDataStream& kStream)
 	kStream << m_iNumProphetsSpawned;
 	kStream << m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_majorityReligion;
+	kStream << m_majorityPlayerReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
@@ -3678,7 +3677,7 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 /// What religion is followed in a majority of our cities?
 ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
-	return m_majorityReligion;
+	return m_majorityPlayerReligion;
 }
 
 /// What religion is followed in a majority of our cities?
@@ -3689,11 +3688,11 @@ bool CvPlayerReligions::ComputeMajority()
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		if (HasReligionInMostCities(eReligion))
 		{
-			m_majorityReligion = eReligion;
+			m_majorityPlayerReligion = eReligion;
 			return true;
 		}
 	}
-	m_majorityReligion = NO_RELIGION;
+	m_majorityPlayerReligion = NO_RELIGION;
 	return false;
 }
 
@@ -3834,7 +3833,7 @@ CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
 #if defined(MOD_BALANCE_CORE)
 	m_pCity(NULL),
-	m_majorityReligion(NO_RELIGION),
+	m_majorityCityReligion(NO_RELIGION),
 #endif
 	m_iReligiousPressureModifier(0)
 {
@@ -3855,7 +3854,7 @@ void CvCityReligions::Init(CvCity* pCity)
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion = NO_RELIGION;
+	m_majorityCityReligion = NO_RELIGION;
 #endif
 }
 
@@ -4065,9 +4064,19 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+ReligionTypes CvCityReligions::GetReligiousMajority()
+{
+	return m_majorityCityReligion;
+}
+
+bool CvCityReligions::ComputeReligiousMajority()
+{
+#else
 /// Is there a religion that at least half of the population follows?
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
+#endif
 	int iTotalFollowers = 0;
 	int iMostFollowerPressure = 0;
 	int iMostFollowers = -1;
@@ -4086,6 +4095,21 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//update local majority
+	if ((iMostFollowers * 2) >= iTotalFollowers)
+	{
+		m_majorityCityReligion = eMostFollowers;
+		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
+		return true;
+	}
+	else
+	{
+		m_majorityCityReligion = NO_RELIGION;
+		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
+		return false;
+	}
+#else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
 		return eMostFollowers;
@@ -4094,6 +4118,8 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 	{
 		return NO_RELIGION;
 	}
+#endif
+
 }
 
 /// Just asked to simulate a conversion - who would be the majority religion?
@@ -4951,6 +4977,10 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 			itLargestRemainder->m_iTemp = 0;
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	ComputeReligiousMajority();
+#endif
 
 	ReligionTypes eMajority = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eMajority);

@@ -276,6 +276,13 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Promises LUA -->
+		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
+			<Text>[COLOR_CYAN]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PROMISE_BORDER">
+			<Text>[COLOR_CYAN]You promised not to buy land near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
 			<Text>{1_Num} [ICON_TOURISM] Tourism from Buildings</Text>

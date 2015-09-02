@@ -721,7 +721,7 @@
     <Row Class="1" Name="BUGFIX_BARB_GP_XP" Value="1"/>
     <!-- Fixes the bug where you can't remove roads in no-mans-land originally built by a now dead player (v19) -->
     <!-- See also: "Global - Remove Ghost Routes" -->
-    <Row Class="1" Name="BUGFIX_REMOVE_GHOST_ROUTES" Value="0"/>
+    <Row Class="1" Name="BUGFIX_REMOVE_GHOST_ROUTES" Value="1"/>
     <!-- Fixes healing units ignoring enemy units and sleeping units under direct fire remaining asleep (v19) -->
     <!-- See also: "Global - Units Awake In Danger" -->
     <Row Class="1" Name="BUGFIX_UNITS_AWAKE_IN_DANGER" Value="0"/>

@@ -2263,6 +2263,7 @@ void CvCity::doTurn()
 	{
 		SetPuppet(false);
 	}
+	GetCityReligions()->ComputeReligiousMajority();
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE)
@@ -10850,7 +10851,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0)
+			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0 && !IsResistance())
 			{
 				int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
 				if(iRemainder == 0)

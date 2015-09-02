@@ -2501,10 +2501,33 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				return false;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(isCity())
+#else
 		else
+#endif
 		{
 			return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(getRouteType() != NO_ROUTE)
+		{
+			if(getOwner() == ePlayer)
+			{
+				bValid = true;
+			}
+			else if(getOwner() == NO_PLAYER && GetPlayerResponsibleForRoute() == ePlayer)
+			{
+				bValid = true;
+			}
+#if defined(MOD_BUGFIX_REMOVE_GHOST_ROUTES)
+			else if(MOD_BUGFIX_REMOVE_GHOST_ROUTES && getOwner() == NO_PLAYER && (GetPlayerResponsibleForRoute() == NO_PLAYER || !GET_PLAYER(GetPlayerResponsibleForRoute()).isAlive()))
+			{
+				bValid = true;
+			}
+#endif
+		}
+#endif
 	}
 
 	eImprovement = ((ImprovementTypes)(thisBuildInfo.getImprovement()));

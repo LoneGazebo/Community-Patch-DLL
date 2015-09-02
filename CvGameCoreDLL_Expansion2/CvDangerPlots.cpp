@@ -1068,6 +1068,19 @@ void CvDangerPlots::Read(FDataStream& kStream)
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	m_knownUnits.clear();
+	int iCount;
+	kStream >> iCount;
+	for (int i=0; i<iCount; i++)
+	{
+		int iTemp1,iTemp2;
+		kStream >> iTemp1;
+		kStream >> iTemp2;
+		m_knownUnits.insert( std::make_pair((PlayerTypes)iTemp1,iTemp2) );
+	}
+#endif
+
 	m_bDirty = false;
 }
 
@@ -1088,6 +1101,17 @@ void CvDangerPlots::Write(FDataStream& kStream) const
 	{
 		kStream << m_DangerPlots[i];
 	}
+
+
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_knownUnits.size();
+	for (UnitSet::const_iterator it=m_knownUnits.begin(); it!=m_knownUnits.end(); ++it)
+	{
+		kStream << it->first;
+		kStream << it->second;
+	}
+#endif
+
 }
 
 //	-----------------------------------------------------------------------------------------------

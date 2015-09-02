@@ -1751,6 +1751,10 @@ public:
 	CvCity* firstCity(int* pIterIdx, bool bRev=false);
 	const CvCity* nextCity(int* pIterIdx, bool bRev=false) const;
 	CvCity* nextCity(int* pIterIdx, bool bRev=false);
+#if defined(MOD_BALANCE_CORE)
+	const CvCity* nextCity(const CvCity* pCurrent, bool bRev=false) const;
+	CvCity* nextCity(const CvCity* pCurrent, bool bRev=false);
+#endif
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
@@ -1765,6 +1769,10 @@ public:
 	const CvUnit* getUnit(int iID) const;
 	CvUnit* firstUnit(int* pIterIdx, bool bRev=false);
 	CvUnit* nextUnit(int* pIterIdx, bool bRev=false);
+#if defined(MOD_BALANCE_CORE)
+	CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev);
+	const CvUnit* nextUnit(const CvCity* pCurrent, bool bRev) const;
+#endif
 	CvUnit* getUnit(int iID);
 	CvUnit* addUnit();
 	void deleteUnit(int iID);
@@ -1790,9 +1798,12 @@ public:
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+	bool IsPlotTargetedForExplorer(const CvPlot* pPlot) const;
 #endif
+
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 #else

@@ -8550,7 +8550,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				if(!bCannotWar && eLoopTeam != NO_TEAM)
 				{
-					GET_TEAM(eLoopTeam).declareWar(GetPlayer()->getTeam(), false);
+					GET_TEAM(eLoopTeam).declareWar(GetPlayer()->getTeam(), true);
 #else
 				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 #endif
@@ -11347,14 +11347,6 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 	if(MOD_BALANCE_CORE_MINORS)
 	{
-		if(fLocalPowerRatio >= 5.0)
-		{
-			iLocalPowerScore += 50;
-		}
-		if(fLocalPowerRatio >= 4.5)
-		{
-			iLocalPowerScore += 50;
-		}
 		if(fLocalPowerRatio >= 4.0)
 		{
 			iLocalPowerScore += 50;
@@ -11646,7 +11638,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		int iAllyScore = 0;
 		if(MOD_BALANCE_CORE_MINORS)
 		{
-			iAllyScore = -75;
+			iAllyScore = -100;
 		}
 		else
 		{

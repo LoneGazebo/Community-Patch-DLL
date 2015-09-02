@@ -232,6 +232,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if(vExplorePlots[ui].pPlot->getNumUnits() > 0)
 			continue;
 
+		//don't send multiple explorers to the same target
+		if (m_pPlayer->IsPlotTargetedForExplorer(vExplorePlots[ui].pPlot))
+			continue;
+
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 
@@ -1424,8 +1428,10 @@ void CvHomelandAI::PlotMovesToSafety()
 					bFallout = true;
 				}
 			}
-#endif
+			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -1520,10 +1526,6 @@ void CvHomelandAI::PlotMovesToSafety()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteMovesToSafestPlot();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Do twice to confirm that everyone has moved their full extent.
-		ExecuteMovesToSafestPlot();
-#endif
 	}
 }
 
@@ -4233,6 +4235,16 @@ void CvHomelandAI::ExecuteHeals()
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot()
 {
+#if defined(MOD_BALANCE_CORE)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if(pUnit)
+		{
+			//so easy
+			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
+#else
+
 	int iDanger;
 
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -4376,6 +4388,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 					#endif
 				}
 			}
+#endif
 
 			if(pBestPlot != NULL)
 			{

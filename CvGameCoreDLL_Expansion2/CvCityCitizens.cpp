@@ -672,13 +672,19 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iFoodYieldValue *= 4;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 #if defined(MOD_BALANCE_CORE)
+	{
 		iProductionYieldValue *= 6;
+		iFoodYieldValue *= 2;
+	}
 #else
 		iProductionYieldValue *= 3;
 #endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 #if defined(MOD_BALANCE_CORE)
+	{
 		iGoldYieldValue *= 5;
+		iFoodYieldValue *= 2;
+	}
 #else
 		iGoldYieldValue *= 3;
 #endif

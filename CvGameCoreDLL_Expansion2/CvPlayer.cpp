@@ -3905,12 +3905,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// If the old owner is "killed," then notify everyone's Grand Strategy AI
 	if(GET_PLAYER(eOldOwner).getNumCities() == 0 && !GET_PLAYER(eOldOwner).GetPlayerTraits()->IsStaysAliveZeroCities() && !bIsMinorCivBuyout)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(eOldOwner != NO_PLAYER)
-		{
-			GET_PLAYER(eOldOwner).SetCorporateFounderID(0);
-		}
-#endif
 		if(!isMinorCiv() && !isBarbarian())
 		{
 			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -4159,12 +4153,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 //	--------------------------------------------------------------------------------
 void CvPlayer::killCities()
 {
-	CvCity* pLoopCity;
-	int iLoop;
+	//can't kill the cities directly because that invalidates the iterator
+	std::vector<int> citiesToKill;
 
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	int iLoop;
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		pLoopCity->kill();
+		citiesToKill.push_back(pLoopCity->GetID());
+	}
+
+	for (std::vector<int>::iterator it=citiesToKill.begin(); it!=citiesToKill.end(); ++it)
+	{
+		CvCity* pLoopCity = getCity(*it);
+		pLoopCity->kill(false);
 	}
 }
 
@@ -5123,11 +5124,18 @@ void CvPlayer::disbandUnit(bool)
 //	--------------------------------------------------------------------------------
 void CvPlayer::killUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
+	//can't kill the units directly because that invalidates the iterator
+	std::vector<int> unitsToKill;
 
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	int iLoop;
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
+		unitsToKill.push_back(pLoopUnit->GetID());
+	}
+
+	for (std::vector<int>::iterator it=unitsToKill.begin(); it!=unitsToKill.end(); ++it)
+	{
+		CvUnit* pLoopUnit = getUnit(*it);
 		pLoopUnit->kill(false);
 	}
 }
@@ -5860,6 +5868,7 @@ void CvPlayer::doTurn()
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
+
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -14036,12 +14045,18 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				{
+					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				}
 			}
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
 			if(iYieldPerScience > 0)
 			{
-				iYieldPerTurn += (GetScience() / iYieldPerScience);
+				if(GetScience() > 0)
+				{
+					iYieldPerTurn += (GetScience() / iYieldPerScience);
+				}
 			}
 		}
 	}
@@ -14110,12 +14125,18 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				{
+					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				}
 			}
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
 			if(iYieldPerScience > 0)
 			{
-				iYieldPerTurn += (GetScience() / iYieldPerScience);
+				if(GetScience() > 0)
+				{
+					iYieldPerTurn += (GetScience() / iYieldPerScience);
+				}
 			}
 		}
 	}
@@ -19105,6 +19126,10 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	int iExpendGold = GetGreatPersonExpendGold();
 	if(iExpendGold > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iExpendGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iExpendGold /= 100;
+#endif
 		GetTreasury()->ChangeGold(iExpendGold);
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -19161,6 +19186,12 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			{
 				iYieldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYieldBonus /= 100;
+int iEra = GetCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				iYieldBonus *= iEra;
 					
 				switch(eYield)
 				{
@@ -28347,6 +28378,34 @@ const CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev) const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
+{
+	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_cities.GetAt(iIdx);
+}
+
+//	--------------------------------------------------------------------------------
+const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
+{
+	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_cities.GetAt(iIdx);
+}
+#endif
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::getNumCities() const
 {
 	return m_cities.GetCount();
@@ -28450,7 +28509,31 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 		(*pIterIdx)++;
 	return m_units.GetAt(*pIterIdx);
 }
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
+{
+	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
 
+	return m_units.GetAt(iIdx);
+}
+
+//	--------------------------------------------------------------------------------
+const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
+{
+	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_units.GetAt(iIdx);
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnits() const
 {
@@ -28769,6 +28852,24 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 		}
 	}
 
+	return false;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
+{
+	// Loop through our units
+	int iLoop = 0;
+	for(const CvUnit* pUnit = firstUnit(&iLoop); pUnit; pUnit = nextUnit(&iLoop))
+	{
+		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
+			    pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE)
+		{
+			if (pUnit->GetMissionAIPlot() == pPlot)
+				return true;
+		}
+	}
 	return false;
 }
 #endif
@@ -30792,8 +30893,23 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				// Don't hurt us or teammates
 				if(GET_PLAYER(ePlayer).getTeam() != getTeam())
 				{
-					GET_PLAYER(ePlayer).changeGetMinorFriendshipDecayMod(iOtherPlayersDecay * iChange);
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod() <= 0)
+					{
+						// Send notification to affected players
+						locString = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDSHIP_DECAY");
+						locString << getNameKey();
+						locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDSHIP_DECAY");
 
+						pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+						if(pNotifications)
+						{
+							pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, locString.toUTF8(), locSummary.toUTF8(), -1, -1, -1);
+						}
+					}
+#endif
+					GET_PLAYER(ePlayer).changeGetMinorFriendshipDecayMod(iOtherPlayersDecay * iChange);
+#if !defined(MOD_BALANCE_CORE)
 					// Send notification to affected players
 					locString = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDSHIP_DECAY");
 					locString << getNameKey();
@@ -30804,6 +30920,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					{
 						pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, locString.toUTF8(), locSummary.toUTF8(), -1, -1, -1);
 					}
+#endif
 				}
 			}
 		}

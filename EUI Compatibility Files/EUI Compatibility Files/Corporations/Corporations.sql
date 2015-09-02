@@ -1,7 +1,7 @@
 -- Civilized Jewelers
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+SET Text = '[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_FOOD] Food. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY';
 
 UPDATE Language_en_US
@@ -9,7 +9,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls and [ICON_RES_AMBER] Amber gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
+SET Text = 'Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls and [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS';
 
 -- Firaxite Materials
@@ -85,7 +85,7 @@ WHERE Tag = 'TXT_KEY_CORP_HELPER_TRADER_SIDS';
 -- TwoKay Foods
 
 UPDATE Language_en_US
-SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. All Trade Routes have +1 Sight and reveal the Fog of War. +3 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. All Grocers produce +2 [ICON_FOOD] Food and +2 [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. All Trade Routes have +1 Sight and reveal the Fog of War. +2 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. All Grocers produce +2 [ICON_FOOD] Food and +2 [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
 WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY';
 
 UPDATE Language_en_US
@@ -93,5 +93,5 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFL
 WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVES] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVES] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_TWOKAY_FOODS';

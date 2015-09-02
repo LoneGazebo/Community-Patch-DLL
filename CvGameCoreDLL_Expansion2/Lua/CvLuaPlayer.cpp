@@ -11033,7 +11033,26 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MINOR_CIV_DISPUTE");
 			aOpinions.push_back(kOpinion);
 		}
+
 #if defined(MOD_BALANCE_CORE)
+		//Promises
+		iValue = pDiploAI->GetPlayerMadeExpansionPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_EXPANSION", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetPlayerMadeBorderPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_BORDER", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+
 		// victory dispute
 		iValue = pDiploAI->GetVictoryDisputeLevelScore(eWithPlayer);
 		if (iValue > 0)
