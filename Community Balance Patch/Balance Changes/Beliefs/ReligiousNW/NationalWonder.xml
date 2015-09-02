@@ -280,7 +280,7 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>12</PortraitIndex>
 			<Cost>125</Cost>
-			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<ReligiousPressureModifier>50</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
@@ -367,7 +367,7 @@
 		<Row>
 			<BuildingType>BUILDING_GRAND_OSSUARY</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>6</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>

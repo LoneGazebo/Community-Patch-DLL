@@ -1,3 +1,8 @@
+-- Land Dispute Text
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]Territorial disputes strain your relationship.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_LAND_DISPUTE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Reversed Tourism for Open Borders
 UPDATE Language_en_US
 SET Text = '+{1_Num}% Bonus for Open Borders from:[NEWLINE]   '

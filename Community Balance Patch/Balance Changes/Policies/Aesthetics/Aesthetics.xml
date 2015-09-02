@@ -47,7 +47,7 @@
 	<Policy_BuildingClassHappiness>
 		<Row>
 			<PolicyType>POLICY_FINE_ARTS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>
 	</Policy_BuildingClassHappiness>

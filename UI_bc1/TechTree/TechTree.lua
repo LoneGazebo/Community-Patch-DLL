@@ -115,7 +115,8 @@ local gk_mode = Players[0].GetNumTechsToSteal ~= nil
 
 local g_scienceEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)
 
-local g_popupInfoType = false
+local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
+local g_popupInfoType, g_isAutoClose, g_isAdvisor
 local g_stealingTechTargetPlayerID, g_stealingTechTargetPlayer = -1
 
 local g_NeedsFullRefresh = true
@@ -247,6 +248,9 @@ local function TechSelected( techID )
 			end
 		else
 			Network.SendResearch( techID, g_activePlayer:GetNumFreeTechs(), -1, UIManager:GetShift() )
+			if g_isAutoClose and g_popupInfoType == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH then
+				CloseTechTree()
+			end
 		end
 	end
 end
@@ -603,13 +607,18 @@ local function InitActivePlayerData()
 	GatherInfoAboutUniqueStuff( g_activeCivType )
 
 	g_NeedsFullRefresh = true
-	RefreshDisplay()
+	return RefreshDisplay()
 end
 InitActivePlayerData()
 
--------------------------------------------------
--- 'Active' (local human) has changed
--------------------------------------------------
+local function UpdateOptions()
+--	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
+	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
+	return RefreshDisplay()
+end
+UpdateOptions()
+Events.GameOptionsChanged.Add( UpdateOptions )
+
 Events.GameplaySetActivePlayer.Add( function()
 	-- So some extra stuff gets re-built on the refresh call
 	if g_popupInfoType then

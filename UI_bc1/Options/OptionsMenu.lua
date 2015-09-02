@@ -99,10 +99,12 @@ end
 -------------------------------------------------
 -------------------------------------------------
 function OnOK()
-	EUI_options.SetValue( "CityAdvisorIsOff", not Controls.CityAdvisorCheckbox:IsChecked() )
-	EUI_options.SetValue( "ClockIsOn", Controls.ClockCheckbox:IsChecked() )
-	EUI_options.SetValue( "HideCityRibbon", not Controls.CityRibbonCheckbox:IsChecked() )
-	EUI_options.SetValue( "HideUnitRibbon", not Controls.UnitRibbonCheckbox:IsChecked() )
+	EUI_options.SetValue( "AutoClose", Controls.AutoCloseCheckbox:IsChecked() )
+	EUI_options.SetValue( "CityAdvisor", Controls.CityAdvisorCheckbox:IsChecked() )
+	EUI_options.SetValue( "Clock", Controls.ClockCheckbox:IsChecked() )
+	EUI_options.SetValue( "CityRibbon", Controls.CityRibbonCheckbox:IsChecked() )
+	EUI_options.SetValue( "UnitRibbon", Controls.UnitRibbonCheckbox:IsChecked() )
+	EUI_options.SetValue( "CivRibbon", Controls.CivRibbonCheckbox:IsChecked() )
 
 	OptionsManager.CommitGameOptions();
 	OptionsManager.CommitGraphicsOptions();
@@ -645,10 +647,12 @@ m_MSAAInvMap[ 8 ] = 3;
 
 function UpdateGameOptionsDisplay()
 
-	Controls.CityAdvisorCheckbox:SetCheck( EUI_options.GetValue( "CityAdvisorIsOff" ) ~= 1 )
-	Controls.ClockCheckbox:SetCheck( EUI_options.GetValue( "ClockIsOn" ) == 1 )
-	Controls.CityRibbonCheckbox:SetCheck( EUI_options.GetValue( "HideCityRibbon" ) ~= 1 )
-	Controls.UnitRibbonCheckbox:SetCheck( EUI_options.GetValue( "HideUnitRibbon" ) ~= 1 )
+	Controls.AutoCloseCheckbox:SetCheck( EUI_options.GetValue( "AutoClose" ) ~= 0 )
+	Controls.CityAdvisorCheckbox:SetCheck( EUI_options.GetValue( "CityAdvisor" ) ~= 0 )
+	Controls.ClockCheckbox:SetCheck( EUI_options.GetValue( "Clock" ) == 1 )
+	Controls.CityRibbonCheckbox:SetCheck( EUI_options.GetValue( "CityRibbon" ) ~= 0 )
+	Controls.UnitRibbonCheckbox:SetCheck( EUI_options.GetValue( "UnitRibbon" ) ~= 0 )
+	Controls.CivRibbonCheckbox:SetCheck( EUI_options.GetValue( "CivRibbon" ) ~= 0 )
 	Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
 	Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
 	Controls.AutoWorkersDontRemoveFeaturesCB:SetCheck( OptionsManager.IsAutoWorkersDontRemoveFeatures_Cached() );

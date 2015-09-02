@@ -85,6 +85,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
+	m_iAllianceCSDefense(0),
+	m_iAllianceCSStrength(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -563,6 +565,14 @@ bool CvTraitEntry::IsMountainPass() const
 int CvTraitEntry::GetGrowthBoon() const
 {
 	return m_iGrowthBoon;
+}
+int CvTraitEntry::GetAllianceCSDefense() const
+{
+	return m_iAllianceCSDefense;
+}
+int CvTraitEntry::GetAllianceCSStrength() const
+{
+	return m_iAllianceCSStrength;
 }
 bool CvTraitEntry::IsUniqueBeliefsOnly() const
 {
@@ -1411,6 +1421,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
 	m_bAdoptionFreeTech						= kResults.GetBool("IsAdoptionFreeTech");
 	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
+	m_iAllianceCSDefense					= kResults.GetInt("AllianceCSDefense");
+	m_iAllianceCSStrength					= kResults.GetInt("AllianceCSStrength");
 	m_bGPWLTKD								= kResults.GetBool("GPWLTKD");
 	m_bTradeRouteOnly						= kResults.GetBool("TradeRouteOnly");
 	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
@@ -2292,6 +2304,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bUniqueBeliefsOnly = true;
 			}
 			m_iGrowthBoon += trait->GetGrowthBoon();
+			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
+			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2770,6 +2784,8 @@ void CvPlayerTraits::Reset()
 	m_bDiplomaticMarriage = false;
 	m_bAdoptionFreeTech = false;
 	m_iGrowthBoon = 0;
+	m_iAllianceCSDefense = 0;
+	m_iAllianceCSStrength = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
 	m_iTerrainClaimBoost = NO_TERRAIN;
@@ -4381,6 +4397,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4851,6 +4869,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
+	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
+	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

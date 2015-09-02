@@ -19,7 +19,6 @@ local IconLookup = EUI.IconLookup
 local IconHookup = EUI.IconHookup
 local CivIconHookup = EUI.CivIconHookup
 local CityPlots = EUI.CityPlots
-local GameInfoCache = EUI.GameInfoCache -- !!! cannot use iterator on cache
 local PushScratchDeal = EUI.PushScratchDeal
 local PopScratchDeal = EUI.PopScratchDeal
 local table = EUI.table
@@ -194,7 +193,7 @@ for k, v, w in ([[
 	NOTIFICATION_BARBARIAN				Barbarian		B
 	NOTIFICATION_GOODY				AncientRuins		B
 	NOTIFICATION_BUY_TILE				BuyTile
-	NOTIFICATION_CITY_GROWTH			CityGrowth		B
+	NOTIFICATION_CITY_GROWTH			CityGrowth		
 	NOTIFICATION_CITY_TILE				CityTile
 	NOTIFICATION_DEMAND_RESOURCE			BonusResource
 	NOTIFICATION_UNIT_PROMOTION			UnitPromoted		B
@@ -454,9 +453,9 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		or type == NotificationTypes.NOTIFICATION_WONDER_BEATEN
 		then
 			if iGameValue ~= -1 then
-				local portraitIndex = GameInfoCache.Buildings[iGameValue].PortraitIndex
+				local portraitIndex = GameInfo.Buildings[iGameValue].PortraitIndex
 				if portraitIndex ~= -1 then
-					IconHookup( portraitIndex, 80, GameInfoCache.Buildings[iGameValue].IconAtlas, instance.WonderConstructedAlphaAnim )
+					IconHookup( portraitIndex, 80, GameInfo.Buildings[iGameValue].IconAtlas, instance.WonderConstructedAlphaAnim )
 				end
 			end
 			if iExtraGameData ~= -1 then
@@ -468,9 +467,9 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			end
 		elseif type == NotificationTypes.NOTIFICATION_PROJECT_COMPLETED then
 			if iGameValue ~= -1 then
-				local portraitIndex = GameInfoCache.Projects[iGameValue].PortraitIndex
+				local portraitIndex = GameInfo.Projects[iGameValue].PortraitIndex
 				if portraitIndex ~= -1 then
-					IconHookup( portraitIndex, 80, GameInfoCache.Projects[iGameValue].IconAtlas, instance.ProjectConstructedAlphaAnim )
+					IconHookup( portraitIndex, 80, GameInfo.Projects[iGameValue].IconAtlas, instance.ProjectConstructedAlphaAnim )
 				end
 			end
 			if iExtraGameData ~= -1 then
@@ -486,7 +485,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		or type == NotificationTypes.NOTIFICATION_DEMAND_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_REQUEST_RESOURCE
 		then
-			local thisResourceInfo = GameInfoCache.Resources[iGameValue]
+			local thisResourceInfo = GameInfo.Resources[iGameValue]
 			local portraitIndex = thisResourceInfo.PortraitIndex
 			if portraitIndex ~= -1 then
 				IconHookup( portraitIndex, 80, thisResourceInfo.IconAtlas, instance.ResourceImage )
@@ -494,7 +493,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		elseif type == NotificationTypes.NOTIFICATION_CITY_TILE then
 			local plot = Map.GetPlotByIndex( iGameValue )
 			local info = plot and plot:GetResourceType( g_activeTeamID )
-			info = info and GameInfoCache.Resources[info]	-- or GameInfoCache.Terrains[info]
+			info = info and GameInfo.Resources[info]	-- or GameInfo.Terrains[info]
 			local offset, texture
 			if info then
 				offset, texture = IconLookup( info.PortraitIndex, 80, info.IconAtlas )
@@ -505,13 +504,13 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			end
 			instance.ResourceImage:SetHide( not texture )
 		elseif type == NotificationTypes.NOTIFICATION_EXPLORATION_RACE then
-			local thisFeatureInfo = GameInfoCache.Features[iGameValue]
+			local thisFeatureInfo = GameInfo.Features[iGameValue]
 			local portraitIndex = thisFeatureInfo.PortraitIndex
 			if portraitIndex ~= -1 then
 				IconHookup( portraitIndex, 80, thisFeatureInfo.IconAtlas, instance.NaturalWonderImage )
 			end
 		elseif type == NotificationTypes.NOTIFICATION_TECH_AWARD then
-			local thisTechInfo = GameInfoCache.Technologies[iExtraGameData]
+			local thisTechInfo = GameInfo.Technologies[iExtraGameData]
 			local portraitIndex = thisTechInfo.PortraitIndex
 			if portraitIndex ~= -1 then
 				IconHookup( portraitIndex, 80, thisTechInfo.IconAtlas, instance.TechAwardImage )
@@ -525,7 +524,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		or type == NotificationTypes.NOTIFICATION_REBELS
 		then
 			local thisUnitType = iGameValue
-			local thisUnitInfo = GameInfoCache.Units[thisUnitType]
+			local thisUnitInfo = GameInfo.Units[thisUnitType]
 			local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( thisUnitType, playerID )
 			if portraitOffset ~= -1 then
 				IconHookup( portraitOffset, 80, portraitAtlas, instance.UnitImage )
@@ -553,9 +552,9 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			CivIconHookup( index, 45, instance.Peace2Image, instance.Civ2IconBG, instance.Civ2IconShadow, false, true )
 		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then
 			--if iGameValue ~= -1 then
-				--local portraitIndex = GameInfoCache.Buildings[iGameValue].PortraitIndex
+				--local portraitIndex = GameInfo.Buildings[iGameValue].PortraitIndex
 				--if portraitIndex ~= -1 then
-					--IconHookup( portraitIndex, 80, GameInfoCache.Buildings[iGameValue].IconAtlas, instance.WonderConstructedAlphaAnim )
+					--IconHookup( portraitIndex, 80, GameInfo.Buildings[iGameValue].IconAtlas, instance.WonderConstructedAlphaAnim )
 				--end
 			--end
 			if iExtraGameData ~= -1 then
@@ -789,38 +788,23 @@ Events.RemotePlayerTurnStart.Add( OnPlayerTurnStart );
 -- Sort Functions
 -------------------------------------------------
 
-local function SortMajorStack( instance1, instance2 )
+local function SortStack( instance1, instance2 )
 
-	local player1 = Players[ instance1:GetVoid1() ]
-	local player2 = Players[ instance2:GetVoid1() ]
-	if player1 and player2 then
-		local score1 = Teams[ player1:GetTeam() ]:GetScore()
-		local score2 = Teams[ player2:GetTeam() ]:GetScore()
-		if score1 == score2 then
-			return player1:GetScore() > player2:GetScore()
-		else
-			return score1 > score2
+	if instance1 and instance2 then
+		for i = 3, 1, -1 do
+			if instance1[i] ~= instance2[i] then
+				return instance1[i] > instance2[i]
+			end
 		end
 	end
 end
 
-local function SortMinorStack( instance1, instance2 )
+local function SortMajorStack( control1, control2 )
+	return SortStack( g_majorControlTable[ control1:GetVoid1() ], g_majorControlTable[ control2:GetVoid1() ] )
+end
 
-	local minorPlayer1 = Players[ instance1:GetVoid1() ]
-	local minorPlayer2 = Players[ instance2:GetVoid1() ]
-	if minorPlayer1 and minorPlayer2 then
-		local influence1 = minorPlayer1:GetMinorCivFriendshipWithMajor( g_activePlayerID )
-		local influence2 = minorPlayer2:GetMinorCivFriendshipWithMajor( g_activePlayerID )
-		if influence1 == influence2 then
-			local capital = g_activePlayer:GetCapitalCity()
-			local capital1 = minorPlayer1:GetCapitalCity()
-			local capital2 = minorPlayer2:GetCapitalCity()
-			return capital and capital1 and capital2
-				and Map.PlotDistance( capital:GetX(), capital:GetY(), capital1:GetX(), capital1:GetY() ) < Map.PlotDistance( capital:GetX(), capital:GetY(), capital2:GetX(), capital2:GetY() )
-		else
-			return influence1 > influence2
-		end
-	end
+local function SortMinorStack( control1, control2 )
+	return SortStack( g_minorControlTable[ control1:GetVoid1() ], g_minorControlTable[ control2:GetVoid1() ] )
 end
 
 -------------------------------------------------
@@ -918,7 +902,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 				g_tipControls.Text:SetText( GetCityStateStatusToolTip( g_activePlayerID, playerID, true ) )
 			else
 				g_tipControls.Text:SetText( GetMoodInfo( playerID, true ) )
-				local leader = GameInfoCache.Leaders[player:GetLeaderType()]
+				local leader = GameInfo.Leaders[player:GetLeaderType()]
 				isShowPortrait = IconHookup( leader.PortraitIndex, g_tipControls.Portrait:GetSizeY(), leader.IconAtlas, g_tipControls.Portrait )
 				CivIconHookup( playerID, g_tipControls.CivIconBG:GetSizeY(), g_tipControls.CivIcon, g_tipControls.CivIconBG, g_tipControls.CivIconShadow, false, true )
 			end
@@ -1020,9 +1004,12 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 	War = function( control )
 		local player = FindPlayer( g_majorControlTable, control )
 		local tips = table( L( "TXT_KEY_AT_WAR_WITH", player:GetCivilizationShortDescriptionKey() ) )
-		local lockedWarTurns = g_activeTeam:GetNumTurnsLockedIntoWar( player:GetTeam() )
+		local teamID = player:GetTeam()
+		local lockedWarTurns = g_activeTeam:GetNumTurnsLockedIntoWar( teamID )
 		if lockedWarTurns > 0 then
 			tips:insert( L( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", lockedWarTurns ) )
+		elseif not g_activeTeam:CanChangeWarPeace( teamID ) then
+			tips:insert( L"TXT_KEY_PEACE_BLOCKED" )
 		end
 -- todo TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR & permanent war
 		ShowSimpleTip( tips:concat("[NEWLINE]" ) )
@@ -1142,35 +1129,34 @@ g_civListInstanceCallBacks = {-- the callback function table names need to match
 		[Mouse.eLClick] = function( playerID )
 			local player = playerID and Players[playerID]
 			local teamID = player:GetTeam()
-			if player and playerID ~= g_leaderID and (not g_leaderMode or g_activePlayer:IsTurnActive()) then
+			if player and playerID ~= g_leaderID and ( not g_leaderMode or UI.GetLeaderHeadRootUp() ) then
 				-- player
 				if playerID == g_activePlayerID then
 					if not g_leaderMode then
 						Events.SerialEventGameMessagePopup{ Type = ButtonPopupTypes.BUTTONPOPUP_ADVISOR_COUNSEL, Data1 = 1 }
 					end
+				-- war declaration
 				elseif bnw_mode and UI.CtrlKeyDown() and g_activeTeam:CanChangeWarPeace( teamID ) then
 					if g_activeTeam:IsAtWar( teamID ) then
 					-- Asking for Peace (currently at war) - bring up the trade screen
 						Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_NEGOTIATE_PEACE, playerID, 0, 0 )
-					else
-					-- Declaring War (currently at peace)
-						UI.AddPopup{ Type = ButtonPopupTypes.BUTTONPOPUP_DECLAREWARMOVE, Data1 = teamID, Option1 = true}
+					elseif g_activeTeam:CanDeclareWar( teamID ) then
+					-- Declaring War - bring up the BNW popup
+						UI.AddPopup{ Type = ButtonPopupTypes.BUTTONPOPUP_DECLAREWARMOVE, Data1 = teamID, Option1 = true }
 					end
-				else
-					-- other human player
-					if player:IsHuman() then
-						Events.OpenPlayerDealScreenEvent( playerID )
+				-- human player
+				elseif player:IsHuman() then
+					Events.OpenPlayerDealScreenEvent( playerID )
 
-					-- city state
-					elseif player:IsMinorCiv() then
-						Events.SerialEventGameMessagePopup{ Type = ButtonPopupTypes.BUTTONPOPUP_CITY_STATE_DIPLO, Data1 = playerID }
+				-- city state
+				elseif player:IsMinorCiv() then
+					Events.SerialEventGameMessagePopup{ Type = ButtonPopupTypes.BUTTONPOPUP_CITY_STATE_DIPLO, Data1 = playerID }
 
-					-- AI player
-					elseif not player:IsBarbarian() then
-						UI.SetRepeatActionPlayer( playerID )
-						UI.ChangeStartDiploRepeatCount( 1 )
-						Players[ playerID ]:DoBeginDiploWithHuman()
-					end
+				-- AI player
+				elseif not player:IsBarbarian() then
+					UI.SetRepeatActionPlayer( playerID )
+					UI.ChangeStartDiploRepeatCount( 1 )
+					player:DoBeginDiploWithHuman()
 				end
 				if g_leaderMode then
 					g_deal:ClearItems()
@@ -1349,6 +1335,7 @@ local function UpdateCivListNow()
 			if isActivePlayer then
 				-- Resources we can trade
 --[[ too much stuff
+--				ourTradeItems[1] = tostring( not g_leaderMode or UI.GetLeaderHeadRootUp() )
 				for resource in GameInfo.Resources() do
 					for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
 						local player = Players[playerID]
@@ -1381,8 +1368,8 @@ local function UpdateCivListNow()
 					end
 				end
 				local minKeepLuxuries = 1
-				-- Is reasonable trade possible ?
-				if player:GetMajorCivApproach( g_activePlayerID ) >= MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				-- Reasonable trade is not possible if war or hostile
+				if player:GetMajorCivApproach( g_activePlayerID ) >= MajorCivApproachTypes.MAJOR_CIV_APPROACH_DECEPTIVE then
 					-- Luxuries available from them
 					for resource in GameInfo.Resources() do
 						local resourceID = resource.ID
@@ -1427,6 +1414,8 @@ local function UpdateCivListNow()
 			instance.Button:SetDisabled( playerID == UI.HasMadeProposal( g_activePlayerID ) )
 
 			instance.Button:SetHide( false )
+			instance[3] = team:GetScore()
+			instance[2] = player:GetScore()
 		else
 			instance.Button:SetHide( true )
 		end
@@ -1435,6 +1424,7 @@ local function UpdateCivListNow()
 
 	-- Show the CityStates we know
 
+	local capital = g_activePlayer:GetCapitalCity()
 	for minorPlayerID, instance in pairs( g_minorControlTable ) do
 
 		local minorPlayer = Players[ minorPlayerID ]
@@ -1472,6 +1462,9 @@ local function UpdateCivListNow()
 				instance.Pledge1:SetHide( not pledge or free )
 				instance.Pledge2:SetHide( not free )
 			end
+			instance[3] = minorPlayer:GetMinorCivFriendshipWithMajor( g_activePlayerID )
+			local minorCapital = minorPlayer:GetCapitalCity()
+			instance[2] = -(capital and minorCapital and Map.PlotDistance( capital:GetX(), capital:GetY(), minorCapital:GetX(), minorCapital:GetY() ) or math.huge)
 		else
 			instance.Button:SetHide( true )
 		end
@@ -1520,7 +1513,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 	local player = Players[ playerID ]
 	if player and player:IsEverAlive() then
 		--print( "Setting up civilization ribbon player ID", playerID )
-		local instance = {}
+		local instance = { -playerID, 0, 0, 0 }
 
 		if player:IsMinorCiv() then
 
@@ -1529,7 +1522,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 			g_minorControlTable[playerID] = instance
 
 			-- Setup icons
-			instance.StatusIcon:SetTexture(GameInfoCache.MinorCivTraits[GameInfoCache.MinorCivilizations[player:GetMinorCivType()].MinorCivTrait].TraitIcon)
+			instance.StatusIcon:SetTexture(GameInfo.MinorCivTraits[GameInfo.MinorCivilizations[player:GetMinorCivType()].MinorCivTrait].TraitIcon)
 --			instance.StatusIcon:SetColor( PrimaryColors[playerID] )
 		else
 
@@ -1538,7 +1531,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 			g_majorControlTable[playerID] = instance
 
 			-- Setup icons
-			local leader = GameInfoCache.Leaders[player:GetLeaderType()]
+			local leader = GameInfo.Leaders[player:GetLeaderType()]
 			IconHookup( leader.PortraitIndex, instance.LeaderPortrait:GetSizeY(), leader.IconAtlas, instance.LeaderPortrait )
 			CivIconHookup( playerID, 32, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
 			instance.Connection:SetHide( not g_isNetworkMultiPlayer )
@@ -1576,9 +1569,10 @@ local function OnChatToggle( isChatOpen )
 	end
 end
 
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
+
 local function OnOptionsChanged()
-	g_isShowCivList = not( (Game.IsGameMultiPlayer() and OptionsManager.GetMPScoreList() )
-			or (not Game.IsGameMultiPlayer() and OptionsManager.GetScoreList()) )
+	g_isShowCivList = EUI_options.GetValue( "HideCivRibbon" ) ~= 1
 	Controls.CivPanel:SetHide( not g_isShowCivList )
 	UpdateCivList()
 end
@@ -1589,6 +1583,21 @@ if diploChatPanel then
 end
 
 local diploButtons = {}
+local predefined = {
+	[L"TXT_KEY_ADVISOR_COUNSEL"] = "",-- "DC45_AdvisorCounsel.dds",
+	[L"TXT_KEY_ADVISOR_SCREEN_TECH_TREE_DISPLAY"] = "",-- "DC45_TechTree.dds",
+	[L"TXT_KEY_DIPLOMACY_OVERVIEW"] = "",--"DC45_DiplomacyOverview.dds",
+	[L"TXT_KEY_MILITARY_OVERVIEW"] = "DC45_MilitaryOverview.dds",--{ "MainUnitButton.dds", "MainUnitButtonHL.dds" },--
+	[L"TXT_KEY_ECONOMIC_OVERVIEW"] = "",-- "DC45_EconomicOverview.dds",
+	[L"TXT_KEY_VP_TT"] = "DC45_VictoryProgress.dds",
+	[L"TXT_KEY_DEMOGRAPHICS"] = "DC45_Demographics.dds",
+	[L"TXT_KEY_POP_NOTIFICATION_LOG"] = "DC45_NotificationLog.dds",
+	[L"TXT_KEY_TRADE_ROUTE_OVERVIEW"] = "",-- "DC45_TradeRouteOverview.dds",
+	[L"TXT_KEY_EO_TITLE"] = "",--"DC45_EspionageOverview.dds",
+	[L"TXT_KEY_RELIGION_OVERVIEW"] = "",--"DC45_ReligionOverview.dds",
+	[L"TXT_KEY_LEAGUE_OVERVIEW"] = "DC45_WorldCongress.dds",
+	[L"TXT_KEY_INFOADDICT_MAIN_TITLE"] = "DC45_InfoAddict.dds",
+}
 LuaEvents.AdditionalInformationDropdownGatherEntries.Add(
 function( diploButtonEntries )
 	local diploButtonStack = LookUpControl( "/InGame/WorldView/DiploCorner/DiploCornerStack" )
@@ -1601,21 +1610,6 @@ function( diploButtonEntries )
 
 		local DiploCorner = LookUpControl( "/InGame/WorldView/DiploCorner" )
 		if DiploCorner then
-			local predefined = {
-				[L"TXT_KEY_ADVISOR_COUNSEL"] = "",-- "DC45_AdvisorCounsel.dds",
-				[L"TXT_KEY_ADVISOR_SCREEN_TECH_TREE_DISPLAY"] = "",-- "DC45_TechTree.dds",
-				[L"TXT_KEY_DIPLOMACY_OVERVIEW"] = "",--"DC45_DiplomacyOverview.dds",
-				[L"TXT_KEY_MILITARY_OVERVIEW"] = "DC45_MilitaryOverview.dds",--{ "MainUnitButton.dds", "MainUnitButtonHL.dds" },--
-				[L"TXT_KEY_ECONOMIC_OVERVIEW"] = "",-- "DC45_EconomicOverview.dds",
-				[L"TXT_KEY_VP_TT"] = "DC45_VictoryProgress.dds",
-				[L"TXT_KEY_DEMOGRAPHICS"] = "DC45_Demographics.dds",
-				[L"TXT_KEY_POP_NOTIFICATION_LOG"] = "DC45_NotificationLog.dds",
-				[L"TXT_KEY_TRADE_ROUTE_OVERVIEW"] = "",-- "DC45_TradeRouteOverview.dds",
-				[L"TXT_KEY_EO_TITLE"] = "",--"DC45_EspionageOverview.dds",
-				[L"TXT_KEY_RELIGION_OVERVIEW"] = "",--"DC45_ReligionOverview.dds",
-				[L"TXT_KEY_LEAGUE_OVERVIEW"] = "DC45_WorldCongress.dds",
-				[L"TXT_KEY_INFOADDICT_MAIN_TITLE"] = "DC45_InfoAddict.dds",
-			}
 			for k, v in ipairs( diploButtonEntries ) do
 				local t = v.art or predefined[ v.text ]
 				if not t or #t > 0 then
@@ -1695,14 +1689,6 @@ if #g_LeaderPopups > 0 then
 --local d = "?"; for k,v in pairs( DiploUIStateTypes ) do if v == diploUIStateID then d = k break end end
 --print("AILeaderMessage event", Players[playerID]:GetCivilizationShortDescription(), diploUIStateID, d, "during my turn", g_activePlayer:IsTurnActive(), "IsGameCoreBusy", IsGameCoreBusy() )
 		g_leaderID = playerID
---[[
-		if diploUIStateID == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
-		or diploUIStateID == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST
-		or diploUIStateID == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER	--this is the one!
-		then
-			g_isLeaderLock = true
-		end
---]]
 		for i=1, #g_LeaderPopups do
 			if not g_LeaderPopups[i]:IsHidden() then
 				if i ~= g_leaderMode then

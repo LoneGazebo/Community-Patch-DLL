@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Just War (Now Martyrdom)
 UPDATE Language_en_US
-SET Text = 'Your spies exert religious pressure on the Cities they occupy. Gain 100 [ICON_PEACE] Faith each time a Great Person is expended.'
+SET Text = 'Your spies exert religious pressure on the Cities they occupy. Gain 100 [ICON_PEACE] Faith each time a Great Person is expended. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

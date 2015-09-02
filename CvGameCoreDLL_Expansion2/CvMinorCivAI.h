@@ -674,7 +674,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool m_abIsJerk[REALLY_MAX_TEAMS];
 	int m_aiJerk[REALLY_MAX_TEAMS];
-	bool m_abIsMarried[REALLY_MAX_TEAMS];
+	bool m_abIsMarried[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;

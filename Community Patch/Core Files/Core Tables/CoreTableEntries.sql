@@ -78,6 +78,14 @@ ALTER TABLE Traits ADD COLUMN 'CapitalFreeBuildingPrereqTech' TEXT DEFAULT NULL;
 
 ALTER TABLE Traits ADD COLUMN 'BullyAnnex' BOOLEAN DEFAULT 0;
 
+-- Adds a trait that makes CS alliances boost the defense of CS cities.
+
+ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;
+
+-- Adds a trait that makes CS alliances boost the strength of CS units.
+
+ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
+
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
 ALTER TABLE Features ADD COLUMN 'LocationUnitFreePromotion' TEXT DEFAULT NULL;
@@ -123,7 +131,11 @@ ALTER TABLE Buildings ADD COLUMN 'LocalPopRequired' INTEGER DEFAULT 0;
 -- Movement speed penalty (like Great Wall) for plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 
+-- Adds abiility for units to upgrade in allied CS lands.
+ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
+
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
+
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' INTEGER DEFAULT 0;
 

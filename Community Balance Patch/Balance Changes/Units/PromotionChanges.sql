@@ -67,6 +67,9 @@
 	DELETE FROM UnitPromotions_UnitCombatMods
 	WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
+	DELETE FROM UnitPromotions_UnitCombats
+	WHERE PromotionType = 'PROMOTION_REPAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Replace Drill with +10% Combat Strength everywhere.
 
 	UPDATE Language_en_US
@@ -176,15 +179,15 @@
 -- Wolfpack extremely strong
 
 	UPDATE Language_en_US
-	SET Text = '+15% Combat Bonus when attacking.'
+	SET Text = '+20% Combat Bonus when attacking.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% Combat Bonus when attacking.'
+	SET Text = '+20% Combat Bonus when attacking.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% Combat Bonus when attacking.'
+	SET Text = '+20% Combat Bonus when attacking.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Air Promotions -- Update Air Targeting to Hit all Domains
@@ -301,4 +304,29 @@
 	DELETE FROM UnitPromotions_UnitCombats
 	WHERE UnitCombatType = 'UNITCOMBAT_SUBMARINE' AND PromotionType = 'PROMOTION_MORALE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Fix for Air Repair Promotion - should only apply to fighters
+	DELETE FROM UnitPromotions_UnitCombats
+	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_AIR_REPAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Fix Anti-Air Promotion Info
+	UPDATE Language_en_US
+	SET Text = 'Flak Targeting I'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Flak Targeting II'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Second Attack Explanations
+	UPDATE Language_en_US
+	SET Text = 'May attack twice, though second attack expends all Movement'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'May attack twice, though second attack expends all Movement'
+	WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'One extra Movement. May attack twice, though second attack expends all Movement'
+	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	

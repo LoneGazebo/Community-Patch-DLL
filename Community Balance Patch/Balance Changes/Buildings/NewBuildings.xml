@@ -216,6 +216,10 @@
 			<BuildingType>BUILDING_STOCKYARD</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_COAL_PLANT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+		</Row>
 	</Building_ClassesNeededInCity>
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -354,7 +358,7 @@
 			<Text>The Stockyard is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. The Stockyard helps your City grow more quickly, however the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
-			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
+			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
@@ -372,7 +376,7 @@
 			<Text>+15% [ICON_FOOD] Food. Each source of [ICON_RES_WHEAT] Wheat [ICON_RES_BANANA] Bananas, [ICON_RES_DEER] Deer, and [ICON_RES_BISON] Bison worked by this City produces +1 [ICON_FOOD] Food. [NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City. Requires a Factory in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>

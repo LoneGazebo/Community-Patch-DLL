@@ -388,7 +388,7 @@ private:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes m_majorityReligion;
+	ReligionTypes m_majorityPlayerReligion;
 #endif
 };
 
@@ -493,7 +493,7 @@ private:
 	int m_iReligiousPressureModifier;
 
 #if defined(MOD_BALANCE_CORE)
-	ReligionTypes m_majorityReligion;
+	ReligionTypes m_majorityCityReligion;
 #endif
 };
 

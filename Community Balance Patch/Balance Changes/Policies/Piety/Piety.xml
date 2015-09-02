@@ -10,13 +10,13 @@
 	</Policy_PrereqPolicies>
 	<Policy_BuildingClassYieldChanges>
 		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>1</YieldChange>
@@ -26,19 +26,19 @@
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldMod>2</YieldMod>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldMod>2</YieldMod>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CARAVANSARY</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldMod>2</YieldMod>
 		</Row>
 		<Row>
@@ -169,4 +169,36 @@
 			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population</Text>
 		</Row>
 	</Language_en_US>
+	<Policy_BuildingClassYieldModifiers>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>3</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>3</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>3</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_REFORMATION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>3</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FREE_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>3</YieldMod>
+		</Row>
+	</Policy_BuildingClassYieldModifiers>
 </GameData>

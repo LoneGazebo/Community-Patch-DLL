@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -349,6 +349,7 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount("CvPlayer::m_iMinorResourceBonusCount", m_syncArchive)
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
+	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
 	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
 	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
@@ -1301,6 +1302,7 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iUpgradeCSTerritory = 0;
 	m_iAbleToMarryCityStatesCount = 0;
 	m_iCorporateFounderID = 0;
 	m_iCorporateFranchises = 0;
@@ -1946,7 +1948,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -3903,12 +3905,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// If the old owner is "killed," then notify everyone's Grand Strategy AI
 	if(GET_PLAYER(eOldOwner).getNumCities() == 0 && !GET_PLAYER(eOldOwner).GetPlayerTraits()->IsStaysAliveZeroCities() && !bIsMinorCivBuyout)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(eOldOwner != NO_PLAYER)
-		{
-			GET_PLAYER(eOldOwner).SetCorporateFounderID(0);
-		}
-#endif
 		if(!isMinorCiv() && !isBarbarian())
 		{
 			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -6550,7 +6546,10 @@ void CvPlayer::UpdateReligion()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		GetExcessHappiness();
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		{
+			CalculateHappiness();
+		}
 	}
 	else
 	{
@@ -7368,7 +7367,7 @@ void CvPlayer::raze(CvCity* pCity)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -13682,65 +13681,64 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 {
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+	GreatWorkSlotType eMusicSlot = CvTypes::getGREAT_WORK_SLOT_MUSIC();
+	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 
-	int iOpenArt = 0;
-	int iArtStolen = 0;
+	int iOpenSlots = 0;
+	int iStuffStolen = 0;
+	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> artChoices;
 	const char* strTargetNameKey = pCity->getNameKey();
 	const CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iOpenArt += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eMusicSlot);
+		iOpenSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eWritingSlot);
 	}
 	if(GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 	{
-		if(iOpenArt > 0)
+		if(iOpenSlots > 0)
 		{
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
-			int iGreatWorkIndex;
-			int ArtPlunder = GC.getGame().getJonRandNum(iOpenArt, "Art Plunder Value");
-			if(ArtPlunder <= 0)
+			int iGreatWorkIndex;	
+			for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				ArtPlunder = 1;
-			}
-			for(int iArtLoop = 0; iArtLoop < ArtPlunder; iArtLoop++)
-			{			
-				for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+				if(pPlayerCity != NULL && pPlayerCity != pCity)
 				{
-					for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+					int iDistance = plotDistance(pCity->getX(), pCity->getY(), pPlayerCity->getX(), pPlayerCity->getY());
+					if(iDistance > 0)
 					{
-						CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-						BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-						if (eBuilding != NO_BUILDING)
+						for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 						{
-							CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-							if (pkBuilding)
+							CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+							BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+							if (eBuilding != NO_BUILDING)
 							{
-								if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot)
+								CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+								if (pkBuilding)
 								{
-									int iNumSlots = pkBuilding->GetGreatWorkCount();
-									if(iNumSlots > 0)
+									if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
 									{
-										for (int iI = 0; iI < iNumSlots; iI++)
+										int iNumSlots = pkBuilding->GetGreatWorkCount();
+										if(iNumSlots > 0)
 										{
-											iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-											if (iGreatWorkIndex != -1 && !GetCulture()->ControlsGreatWork(iGreatWorkIndex))
+											for (int iI = 0; iI < iNumSlots; iI++)
 											{
-												// remove existing great works
-												pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
-												// and create great work at home
-												BuildingClassTypes eGWBuildingClass;
-												int iGWSlot;
-												CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eArtArtifactSlot, &eGWBuildingClass, &iGWSlot);
-												if (pArtCity)
+												iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+												if (iGreatWorkIndex != -1 && !GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 												{
-													pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
-													iArtStolen++;
-													if(GetID() == GC.getGame().getActivePlayer())
+													artChoices.push_back(iGreatWorkIndex, iDistance);
+													if((GC.getLogging() && GC.getAILogging()))
 													{
-														CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
-														GC.GetEngineUserInterface()->AddPopup(kPopup);
+														CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+														if(pCulture)
+														{
+															CvString strLogString;
+															strLogString.Format("Found Great Work for Conquest Plunder: %d, Distance: %d, Name: %s", iGreatWorkIndex, iDistance, pCulture->GetGreatWorkName(iGreatWorkIndex).GetCString());
+															GetHomelandAI()->LogHomelandMessage(strLogString);
+														}
 													}
 												}
 											}
@@ -13752,14 +13750,109 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					}
 				}
 			}
-			if(iArtStolen > 0)
+			artChoices.SortItems();
+			if(artChoices.size() > 0)
+			{
+				int iPlunder = GC.getGame().getJonRandNum(max(1, (pCity->getPopulation() / 10)), "Art Plunder Value");
+				if(iPlunder <= 0)
+				{
+					iPlunder = 1;
+				}
+				if((GC.getLogging() && GC.getAILogging()))
+				{
+					CvString strLogString;
+					strLogString.Format("Number of Great Works to steal for Conquest Plunder: %d", iPlunder);
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+				for(int iGrab = 0; iGrab < artChoices.size(); iGrab++)
+				{
+					if(iStuffStolen >= iPlunder)
+					{
+						break;
+					}
+					int iCityLoop;
+					CvCity* pPlayerCity = NULL;
+					int iGreatWorkIndex;	
+					for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+					{
+						if(iStuffStolen >= iPlunder)
+						{
+							break;
+						}
+						if(pPlayerCity != NULL && pPlayerCity != pCity)
+						{
+							for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+							{
+								if(iStuffStolen >= iPlunder)
+								{
+									break;
+								}
+								CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+								BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+								if (eBuilding != NO_BUILDING)
+								{
+									CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+									if (pkBuilding)
+									{
+										if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
+										{
+											int iNumSlots = pkBuilding->GetGreatWorkCount();
+											if(iNumSlots > 0)
+											{
+												for (int iI = 0; iI < iNumSlots; iI++)
+												{
+													if(iStuffStolen >= iPlunder)
+													{
+														break;
+													}
+													iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+													if (iGreatWorkIndex == artChoices.GetElement(iGrab))
+													{
+														// and create great work at home
+														BuildingClassTypes eGWBuildingClass;
+														int iGWSlot;
+														CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), pkBuilding->GetGreatWorkSlotType(), &eGWBuildingClass, &iGWSlot);
+														if (pArtCity)
+														{
+															// remove existing great works
+															pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
+															pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
+															iStuffStolen++;
+															if((GC.getLogging() && GC.getAILogging()))
+															{
+																CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+																if(pCulture)
+																{
+																	CvString strLogString;
+																	strLogString.Format("Great Work STOLEN for Conquest Plunder: %s. Number stolen: %d. Max to steal: %d", pCulture->GetGreatWorkName(iGreatWorkIndex).GetCString(), iStuffStolen, iPlunder);
+																	GetHomelandAI()->LogHomelandMessage(strLogString);
+																}
+															}															
+															if(GetID() == GC.getGame().getActivePlayer())
+															{
+																CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
+																GC.GetEngineUserInterface()->AddPopup(kPopup);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(iStuffStolen > 0)
 			{
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_ART_STOLEN");
-					strMessage << iArtStolen;
+					strMessage << iStuffStolen;
 					strMessage << strTargetNameKey;
 					strSummary = Localization::Lookup("TXT_KEY_ART_STOLEN_SUMMARY");
 
@@ -13774,7 +13867,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_ART_PLUNDERED");
-					strMessage << iArtStolen;
+					strMessage << iStuffStolen;
 					strMessage << strTargetNameKey;
 					strSummary = Localization::Lookup("TXT_KEY_ART_PLUNDERED_SUMMARY");
 
@@ -13803,6 +13896,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
 					}
 				}
+				if((GC.getLogging() && GC.getAILogging()))
+				{
+					CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+					if(pCulture)
+					{
+						CvString strLogString;
+						strLogString.Format("Tried to steal stuff for Conquest Plunder but couldn't for some reason.");
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
 			}
 		}
 		else
@@ -13823,6 +13926,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
 				}
 			}
+			if((GC.getLogging() && GC.getAILogging()))
+			{
+				CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+				if(pCulture)
+				{
+					CvString strLogString;
+					strLogString.Format("Tried to steal stuff for Conquest Plunder but no open slots.");
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+			}
 		}
 	}
 	else
@@ -13841,6 +13954,16 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			if(pNotification)
 			{
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+			}
+		}
+		if((GC.getLogging() && GC.getAILogging()))
+		{
+			CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+			if(pCulture)
+			{
+				CvString strLogString;
+				strLogString.Format("Tried to steal stuff for Conquest Plunder but invalid target.");
+				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
 	}
@@ -13922,12 +14045,18 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				{
+					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				}
 			}
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
 			if(iYieldPerScience > 0)
 			{
-				iYieldPerTurn += (GetScience() / iYieldPerScience);
+				if(GetScience() > 0)
+				{
+					iYieldPerTurn += (GetScience() / iYieldPerScience);
+				}
 			}
 		}
 	}
@@ -13996,12 +14125,18 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				{
+					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				}
 			}
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
 			if(iYieldPerScience > 0)
 			{
-				iYieldPerTurn += (GetScience() / iYieldPerScience);
+				if(GetScience() > 0)
+				{
+					iYieldPerTurn += (GetScience() / iYieldPerScience);
+				}
 			}
 		}
 	}
@@ -18991,6 +19126,10 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	int iExpendGold = GetGreatPersonExpendGold();
 	if(iExpendGold > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iExpendGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iExpendGold /= 100;
+#endif
 		GetTreasury()->ChangeGold(iExpendGold);
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -19047,6 +19186,12 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			{
 				iYieldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYieldBonus /= 100;
+int iEra = GetCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				iYieldBonus *= iEra;
 					
 				switch(eYield)
 				{
@@ -21155,6 +21300,26 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
+bool CvPlayer::CanUpgradeCSTerritory() const
+{
+	if (GetUpgradeCSTerritory() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetUpgradeCSTerritory() const
+{
+	return m_iUpgradeCSTerritory;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeUpgradeCSTerritory(int iChange)
+{
+	m_iUpgradeCSTerritory += iChange;
+}
+//	--------------------------------------------------------------------------------
 bool CvPlayer::IsDiplomaticMarriage() const
 {
 	if (GetAbleToMarryCityStatesCount() > 0)
@@ -23255,7 +23420,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(isHuman())
+				if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 				{
 					CalculateHappiness();
 				}
@@ -26520,7 +26685,7 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -26553,7 +26718,7 @@ void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -26596,7 +26761,7 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(isHuman())
+			if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 			{
 				CalculateHappiness();
 			}
@@ -28218,6 +28383,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
 
+	if (iIdx<0)
+		return NULL;
+
 	if (bRev)
 		iIdx--;
 	else
@@ -28230,6 +28398,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
 
 	if (bRev)
 		iIdx--;
@@ -28344,7 +28515,38 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 		(*pIterIdx)++;
 	return m_units.GetAt(*pIterIdx);
 }
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
+{
+	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
 
+	if (iIdx<0)
+		return NULL;
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_units.GetAt(iIdx);
+}
+
+//	--------------------------------------------------------------------------------
+const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
+{
+	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
+
+	if (bRev)
+		iIdx--;
+	else
+		iIdx++;
+
+	return m_units.GetAt(iIdx);
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnits() const
 {
@@ -30325,6 +30527,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		SetFreedomCorp(true);
 		CalculateCorporateFranchisesWorldwide();
 	}
+	if(pPolicy->IsUpgradeCSTerritory())
+	{
+		ChangeUpgradeCSTerritory(pPolicy->IsUpgradeCSTerritory() * iChange);
+	}
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -30700,8 +30906,23 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				// Don't hurt us or teammates
 				if(GET_PLAYER(ePlayer).getTeam() != getTeam())
 				{
-					GET_PLAYER(ePlayer).changeGetMinorFriendshipDecayMod(iOtherPlayersDecay * iChange);
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod() <= 0)
+					{
+						// Send notification to affected players
+						locString = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDSHIP_DECAY");
+						locString << getNameKey();
+						locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDSHIP_DECAY");
 
+						pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+						if(pNotifications)
+						{
+							pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, locString.toUTF8(), locSummary.toUTF8(), -1, -1, -1);
+						}
+					}
+#endif
+					GET_PLAYER(ePlayer).changeGetMinorFriendshipDecayMod(iOtherPlayersDecay * iChange);
+#if !defined(MOD_BALANCE_CORE)
 					// Send notification to affected players
 					locString = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDSHIP_DECAY");
 					locString << getNameKey();
@@ -30712,6 +30933,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					{
 						pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, locString.toUTF8(), locSummary.toUTF8(), -1, -1, -1);
 					}
+#endif
 				}
 			}
 		}
@@ -31301,7 +31523,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(isHuman())
+		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
 		{
 			CalculateHappiness();
 		}
@@ -31855,6 +32077,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iAbleToAnnexCityStatesCount = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_iUpgradeCSTerritory;
 	kStream >> m_iAbleToMarryCityStatesCount;
 	kStream >> m_iCorporateFounderID;
 	kStream >> m_iCorporateFranchises;
@@ -32551,6 +32774,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iMinorResourceBonusCount;
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_iUpgradeCSTerritory;
 	kStream << m_iAbleToMarryCityStatesCount;
 	kStream << m_iCorporateFounderID;
 	kStream << m_iCorporateFranchises;

@@ -214,7 +214,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith.'
+SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -374,7 +374,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP' AND EXISTS (SELECT * FROM CO
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
 UPDATE Language_en_US
-SET Text = 'Can use [ICON_GOLD] Gold to arrange Marriages with allied City-States. While not at war, Marriages grant +1 Delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person generation in your [ICON_CAPITAL] Capital, and your [ICON_INFLUENCE] Influence over the City-State no longer decays.'
+SET Text = 'Use [ICON_GOLD] Gold to arrange Marriages to City-States. While at peace with the City-State, Marriages eliminate [ICON_INFLUENCE] Influence decay, grant +1 Delegate to World Congress, and +10% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -945,10 +945,19 @@ void CvBarbarians::DoUnits()
 				if(pCity && pCity->getOwner() != NO_PLAYER && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && !GET_PLAYER(pCity->getOwner()).isBarbarian())
 				{
 					iCityStrength = pCity->getStrengthValue(false);
+#ifdef AUI_BINOM_RNG
+					iCityStrength += GC.getGame().getJonRandNumBinom(iCityStrength, "Barbarian Random Strength Bump");
+#else
 					iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
+#endif
 					iCityStrength /= 100;
 					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 4);
 					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+#ifdef AUI_BINOM_RNG
+					iBarbStrength +=GC.getGame().getJonRandNumBinom(iBarbStrength, "Barbarian Random Strength Bump");
+#else
+					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+#endif
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
@@ -957,7 +966,11 @@ void CvBarbarians::DoUnits()
 						{
 							pCity->changeDamage((iTheft / 2));
 							pUnit->changeDamage((iTheft / 2));
+#ifdef AUI_BINOM_RNG
+							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
+#else
 							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");
+#endif			
 							if(iYield <= 2)
 							{
 								int iGold = ((pCity->getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);

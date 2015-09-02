@@ -303,12 +303,18 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SORRY" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEAL" );
+-- CBP
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT");
+-- END
 			bHideBackButton = true;
 			
 		-- AI did something mean, and human responds in turn with fluff
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_OKAY" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY" );
+-- CBP
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT");
+-- END
 			bHideBackButton = true;
 			
 		-- AI declared war on us!
@@ -369,6 +375,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_EXPANSION_WARNING) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE") ;
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING") ;
+-- CBP
+			local iTimeOutTurns = Game:GetPromiseDuration();
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
+-- END
 			bHideBackButton = true;
 		-- AI seriously warning human about his plot buying
 		--elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_SERIOUS_WARNING) then
@@ -379,6 +389,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_WARNING) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_NOT_YOUR_BUSINESS" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_CLAIMING" );
+-- CBP
+			local iTimeOutTurns = Game:GetPromiseDuration();
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
+-- END
 			bHideBackButton = true;
 		-- AI asking player to work with him
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_WORK_WITH_US) then
@@ -1120,7 +1134,9 @@ function OnButton6()
 	local pPlayer = Players[Game.GetActivePlayer()];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pAIPlayer = Players[g_iAIPlayer];
-
+-- CBP
+	local iActivePlayer = Game.GetActivePlayer();
+-- END
 	local iButtonID = 6;
 
 	-- Discussion mode brought up by the human

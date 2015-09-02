@@ -1152,6 +1152,10 @@ public:
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
 #if defined(MOD_BALANCE_CORE)
+	bool CanUpgradeCSTerritory() const;
+	void ChangeUpgradeCSTerritory(int iChange);
+	int GetUpgradeCSTerritory() const;
+
 	bool IsDiplomaticMarriage() const;
 	int GetAbleToMarryCityStatesCount() const;
 	void ChangeAbleToMarryCityStatesCount(int iChange);
@@ -1765,6 +1769,10 @@ public:
 	const CvUnit* getUnit(int iID) const;
 	CvUnit* firstUnit(int* pIterIdx, bool bRev=false);
 	CvUnit* nextUnit(int* pIterIdx, bool bRev=false);
+#if defined(MOD_BALANCE_CORE)
+	CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev);
+	const CvUnit* nextUnit(const CvCity* pCurrent, bool bRev) const;
+#endif
 	CvUnit* getUnit(int iID);
 	CvUnit* addUnit();
 	void deleteUnit(int iID);
@@ -2490,6 +2498,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
 	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;

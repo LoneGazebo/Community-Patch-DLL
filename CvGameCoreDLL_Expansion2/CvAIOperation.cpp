@@ -6113,6 +6113,29 @@ bool CvAIOperationMerchantDelegation::ArmyInPosition(CvArmyAI* pArmy)
 
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 			}
+
+			// Does it look like we should be done?
+			else if(pMerchant->plot() == GetTargetPlot())
+			{
+				// We're at our target but can no longer trade, city state was probably conquered
+				if(!pMerchant->canTrade(pMerchant->plot()))
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						strMsg.Format("At target but can no longer trade here. Target was (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+						LogOperationSpecialMessage(strMsg);
+					}
+					RetargetCivilian(pMerchant, pArmy);
+					pMerchant->finishMoves();
+					iUnitID = pArmy->GetNextUnitID();
+					if(iUnitID != -1)
+					{
+						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+						pEscort->finishMoves();
+					}
+				}
+			}
+
 #if defined(MOD_BALANCE_CORE)
 			// If the merchant made it, we don't care about the entire army
 			if(pMerchant->plot()->getOwner() == GetTargetPlot()->getOwner() && pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
@@ -6140,27 +6163,6 @@ bool CvAIOperationMerchantDelegation::ArmyInPosition(CvArmyAI* pArmy)
 			}
 #endif
 
-			// Does it look like we should be done?
-			else if(pMerchant->plot() == GetTargetPlot())
-			{
-				// We're at our target but can no longer trade, city state was probably conquered
-				if(!pMerchant->canTrade(pMerchant->plot()))
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						strMsg.Format("At target but can no longer trade here. Target was (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-						LogOperationSpecialMessage(strMsg);
-					}
-					RetargetCivilian(pMerchant, pArmy);
-					pMerchant->finishMoves();
-					iUnitID = pArmy->GetNextUnitID();
-					if(iUnitID != -1)
-					{
-						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-						pEscort->finishMoves();
-					}
-				}
-			}
 		}
 		break;
 

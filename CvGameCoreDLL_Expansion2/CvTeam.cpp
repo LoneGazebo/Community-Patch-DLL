@@ -6711,7 +6711,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 					}
@@ -7957,11 +7957,16 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 					{
 						// provide the player with the extra spies according to their trait when they get their first spy
+#if defined(MOD_BALANCE_CORE)
+						if (kPlayer.GetEspionage()->GetNumSpies() <= kPlayer.GetFreeSpy())
+#else
 						if (kPlayer.GetEspionage()->GetNumSpies() == 0)
+#endif
 						{
 							int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
 #if defined(MOD_BALANCE_CORE_SPIES)
-							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0){
+							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0)
+							{
 								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
 								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO() * 2) / 100);
 								if((iNumMinor) > 0)
@@ -8038,7 +8043,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForEveryone(); i++)
 						{
 							// provide the player with the extra spies according to their trait when they get their first spy
+#if defined(MOD_BALANCE_CORE)
+							if (kPlayer.GetEspionage()->GetNumSpies() <= kPlayer.GetFreeSpy())
+#else
 							if (kPlayer.GetEspionage()->GetNumSpies() == 0)
+#endif
 							{
 								int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
 								for (int iIndex = 0; iIndex < iNumTraitSpies; iIndex++)
@@ -8048,7 +8057,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							}
 							kPlayer.GetEspionage()->CreateSpy();
 #if defined(MOD_BALANCE_CORE_SPIES)
-							if(MOD_BALANCE_CORE_SPIES){
+							if(MOD_BALANCE_CORE_SPIES)
+							{
 								//Optional: Spies scaled for the number of City-States in the game.
 								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 								if((iNumMinor - 1) > 0)
@@ -9021,7 +9031,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 					}
@@ -9328,7 +9338,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
 					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
 				}

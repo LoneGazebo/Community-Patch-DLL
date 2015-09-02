@@ -672,13 +672,19 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iFoodYieldValue *= 4;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 #if defined(MOD_BALANCE_CORE)
+	{
 		iProductionYieldValue *= 6;
+		iFoodYieldValue *= 2;
+	}
 #else
 		iProductionYieldValue *= 3;
 #endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 #if defined(MOD_BALANCE_CORE)
+	{
 		iGoldYieldValue *= 5;
+		iFoodYieldValue *= 2;
+	}
 #else
 		iGoldYieldValue *= 3;
 #endif
@@ -2018,7 +2024,7 @@ void CvCityCitizens::DoReallocateCitizens()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 		{
 			GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 		}
@@ -2833,7 +2839,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}
@@ -2894,7 +2900,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}
@@ -2961,7 +2967,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
 			}

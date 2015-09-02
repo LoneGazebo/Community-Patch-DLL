@@ -2600,7 +2600,7 @@ void CvMinorCivAI::Reset()
 		m_abEverFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 #endif
 	}
@@ -8500,7 +8500,9 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	{
 		CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
 		CvTeam& kNewAllyTeam = GET_TEAM(kNewAlly.getTeam());
+#if !defined(MOD_BALANCE_CORE)
 		CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
+#endif
 
 		TeamTypes eLoopTeam;
 		for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -8546,9 +8548,9 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-				if(!bCannotWar)
+				if(!bCannotWar && eLoopTeam != NO_TEAM)
 				{
-					kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
+					GET_TEAM(eLoopTeam).declareWar(GetPlayer()->getTeam(), true);
 #else
 				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 #endif
@@ -8602,7 +8604,13 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = m_pPlayer->getCapitalCity();
+	if(pCity != NULL)
+	{
+		pCity->updateStrengthValue();
+	}
+#endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -8980,7 +8988,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(ePlayer).isHuman())
+			if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(ePlayer).CalculateHappiness();
 			}
@@ -9501,6 +9509,13 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 	// In case we had a Pledge to Protect quest active, complete it now
 	DoTestActiveQuestsForPlayer(eMajor, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_PLEDGE_TO_PROTECT);
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = m_pPlayer->getCapitalCity();
+	if(pCity != NULL)
+	{
+		pCity->updateStrengthValue();
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -9753,7 +9768,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER(ePlayer).isHuman())
+					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER(ePlayer).CalculateHappiness();
 					}
@@ -9782,7 +9797,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER(ePlayer).isHuman())
+					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER(ePlayer).CalculateHappiness();
 					}
@@ -11239,9 +11254,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
-#else
+			if(MOD_BALANCE_CORE_MINORS)
+			{
+				iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
+			}
+			else
+			{
+#endif
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+#if defined(MOD_BALANCE_CORE_MINORS)
+			}
 #endif
 			iScore += iGlobalMilitaryScore;
 			break;
@@ -11261,7 +11283,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// +0 ~ +125
 	// **************************
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MINORS)
 	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 15, 4);
 #else
 	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 10, 5);
@@ -11323,47 +11345,44 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	float fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
 	int iLocalPowerScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(fLocalPowerRatio >= 5.0)
+	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iLocalPowerScore += 50;
+		if(fLocalPowerRatio >= 4.0)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 3.5)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 3.0)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 2.5)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 2.0)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 1.5)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 1.0)
+		{
+			iLocalPowerScore += 50;
+		}
+		if(fLocalPowerRatio >= 0.5)
+		{
+			iLocalPowerScore += 50;
+		}
 	}
-	if(fLocalPowerRatio >= 4.5)
+	else
 	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 4.0)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 3.5)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 3.0)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 2.5)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 2.0)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 1.5)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 1.0)
-	{
-		iLocalPowerScore += 50;
-	}
-	if(fLocalPowerRatio >= 0.5)
-	{
-		iLocalPowerScore += 50;
-	}
-#else
+#endif
 	if(fLocalPowerRatio >= 3.0)
 	{
 		iLocalPowerScore += 125;
@@ -11383,6 +11402,8 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 0.5)
 	{
 		iLocalPowerScore += 25;
+	}
+#if defined(MOD_BALANCE_CORE_MINORS)
 	}
 #endif
 	iScore += iLocalPowerScore;
@@ -11425,9 +11446,17 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -150;
-#else
-	const int iBaseReluctanceScore = -110;
+	int iBaseReluctanceScore = 0;
+	if(MOD_BALANCE_CORE_MINORS)
+	{
+		iBaseReluctanceScore = -150;
+	}
+	else
+	{
+#endif
+		iBaseReluctanceScore = -110;
+#if defined(MOD_BALANCE_CORE_MINORS)
+	}
 #endif
 	
 	if (sTooltipSink)
@@ -11437,14 +11466,17 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
 		sFactors += strNegativeFactor.toUTF8();
 	}
-#if defined(MOD_BALANCE_CORE)
-	int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-	int iLimit = 30;
-	iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iLimit /= 100;
-	if(iDuration <= iLimit)
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iBaseReluctanceScore *= 5;
+		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+		int iLimit = 30;
+		iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iLimit /= 100;
+		if(iDuration <= iLimit)
+		{
+			iBaseReluctanceScore *= 5;
+		}
 	}
 #endif
 	iScore += iBaseReluctanceScore;
@@ -11455,15 +11487,29 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -999 ~ -0
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
-	if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
+	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iFriendshipLimit *= 5;
+		int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
+		if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
+		{
+			iFriendshipLimit *= 5;
+		}
+		if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= iFriendshipLimit)
+		{
+			int iInfluenceScore = iFailScore;
+			iScore += iInfluenceScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iInfluenceScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
 	}
-	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= iFriendshipLimit)
-#else
-	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+	else
 #endif
+	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
 	{
 		int iInfluenceScore = iFailScore;
 		iScore += iInfluenceScore;
@@ -11483,17 +11529,20 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// **************************
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
 #if defined(MOD_BALANCE_CORE_MINORS)
-	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	if(MOD_BALANCE_CORE_MINORS)
 	{
-		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-		if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && eMinorLoop != GetPlayer()->GetID())
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
+			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+			if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && eMinorLoop != GetPlayer()->GetID())
 			{
-				int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
-				if(iOtherLastBullyTurn >= iLastBullyTurn)
+				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
 				{
-					iLastBullyTurn = iOtherLastBullyTurn;
+					int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
+					if(iOtherLastBullyTurn >= iLastBullyTurn)
+					{
+						iLastBullyTurn = iOtherLastBullyTurn;
+					}
 				}
 			}
 		}
@@ -11535,9 +11584,17 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if (bForUnit)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iUnitScore = -50;
-#else
-		int iUnitScore = -30;
+		int iUnitScore = 0;
+		if(MOD_BALANCE_CORE_MINORS)
+		{
+			iUnitScore = -50;
+		}
+		else
+		{
+#endif
+			iUnitScore = -30;
+#if defined(MOD_BALANCE_CORE_MINORS)
+		}
 #endif
 		iScore += iUnitScore;
 		if (sTooltipSink)
@@ -11578,9 +11635,17 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -75;
-#else
-		int iAllyScore = -10;
+		int iAllyScore = 0;
+		if(MOD_BALANCE_CORE_MINORS)
+		{
+			iAllyScore = -100;
+		}
+		else
+		{
+#endif
+		iAllyScore = -10;
+#if defined(MOD_BALANCE_CORE_MINORS)
+		}
 #endif
 		iScore += iAllyScore;
 		if (sTooltipSink)
@@ -11604,9 +11669,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -25;
-#else
-			iProtectionScore += -20;
+			if(MOD_BALANCE_CORE_MINORS)
+			{
+				iProtectionScore = -25;
+			}
+			else
+			{
+#endif
+				iProtectionScore = -20;
+#if defined(MOD_BALANCE_CORE_MINORS)
+			}
 #endif
 			iScore += iProtectionScore;
 			if (sTooltipSink)
@@ -11855,24 +11927,42 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	switch(eYield)
 	{
 		case YIELD_CULTURE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE);
+			if(pCapitalCity->getYieldRate(YIELD_CULTURE, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_CULTURE, false);
+			}
 			break;
 		case YIELD_FAITH:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH);
+			if(pCapitalCity->getYieldRate(YIELD_FAITH, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_FAITH, false);
+			}
 			break;
 		case YIELD_SCIENCE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE);
+			if(pCapitalCity->getYieldRate(YIELD_SCIENCE, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_SCIENCE, false);
+			}
 			break;
 		case YIELD_PRODUCTION:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION);
+			if(pCapitalCity->getYieldRate(YIELD_PRODUCTION, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_PRODUCTION, false);
+			}
 			break;
 		case YIELD_FOOD:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD);
+			if(pCapitalCity->getYieldRate(YIELD_FOOD, false) > 0)
+			{
+				iValue += pCapitalCity->getYieldRate(YIELD_FOOD, false);
+			}
 			break;
 	}
-	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
-	iValue *= (iNumTurns + 100);
-	iValue /= 100;
+	int iNumTurns = max(600, GC.getGame().getMaxTurns()) - max(500, GC.getGame().getGameTurn());
+	if(iNumTurns > 0)
+	{
+		iValue *= (iNumTurns + 100);
+		iValue /= 100;
+	}
 	return iValue;
 }
 #endif

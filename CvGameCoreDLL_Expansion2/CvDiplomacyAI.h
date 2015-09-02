@@ -1014,6 +1014,9 @@ public:
 	void SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer);
+#endif
 	bool IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);
 	void SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer);
@@ -1023,7 +1026,9 @@ public:
 	AggressivePostureTypes GetPlayerExpansionPromiseData(PlayerTypes ePlayer);
 	void SetPlayerExpansionPromiseData(PlayerTypes ePlayer, AggressivePostureTypes eValue);
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
-
+#if defined(MOD_BALANCE_CORE)
+	int GetPlayerMadeBorderPromise(PlayerTypes ePlayer);
+#endif
 	bool IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);
 	void SetPlayerMadeBorderPromise(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenBorderPromise(PlayerTypes ePlayer);

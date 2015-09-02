@@ -276,6 +276,17 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Promises LUA -->
+		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
+			<Text>[COLOR_CYAN]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PROMISE_BORDER">
+			<Text>[COLOR_CYAN]You promised not to buy land near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<!-- Tourism Lua -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from Buildings</Text>
+		</Row>
 		<!-- City Over Resource Need Notification -->
 		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
 			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>
@@ -310,10 +321,10 @@
 
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
-			<Text>Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
-			<Text>Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
 		<!-- Defensive Pact Bonuses -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
@@ -2681,7 +2692,7 @@
 
 		<!-- tooltip for purchase cooldown -->
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
-			<Text>You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
 		
 		<!-- Tooltips for CBP Austria Ability -->

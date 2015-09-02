@@ -1,11 +1,11 @@
 -- Piety Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] capitalizes on your investment in religion and trade.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Temples.[NEWLINE] [ICON_BULLET] +15% Pressure for your [ICON_RELIGION] Religion in nearby Cities not following a [ICON_RELIGION] Religion. [NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]University of Sankore[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Piety policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +5% to Religious Pressure modifier.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Holy Sites produce +4 [ICON_GOLD] Gold and +4 [ICON_FOOD] Food. [NEWLINE] [ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +1 of every Yield.[NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] capitalizes on your investment in religion and trade.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET]+100% Pressure in nearby Cities without your majority [ICON_RELIGION] Religion. [NEWLINE] [ICON_BULLET] All Religions (or just your founded [ICON_RELIGION] Religion, if you have one) spread to owned Cities without a majority from 50% further away.[NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]University of Sankore[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Piety policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +3% [ICON_GOLD] Gold in Cities with a Temple.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Holy Sites produce +4 [ICON_GOLD] Gold and +4 [ICON_FOOD] Food. [NEWLINE] [ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +1 of every Yield.[NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] -25% [ICON_PEACE] Faith purchase costs. Religions spread to owned Cities without a Majority Religion from 25% further away (applies to just your founded Religion if you have one).'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] -25% [ICON_PEACE] Faith purchase costs. +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Temples.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mandate of Heaven (Now Syncretism)
@@ -14,7 +14,7 @@ SET Text = 'Syncretism'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Syncretism[ENDCOLOR][NEWLINE] +2 [ICON_RESEARCH] Science and +2 [ICON_GOLD] Gold from Markets, Caravansaries, and Harbors in Cities that follow your Religion. Your Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Syncretism[ENDCOLOR][NEWLINE] +2 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from Markets, Caravansaries, and Harbors in Cities that follow your Religion. Your Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

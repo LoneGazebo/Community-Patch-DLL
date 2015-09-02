@@ -22,8 +22,7 @@ local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
 
---print( "InGame context", ContextPtr:LookUpControl( "/InGame" ) or "NIL" )
-
+--print( "Root contexts:", LookUpControl( "/FrontEnd" ) or "nil", LookUpControl( "/InGame" ) or "nil", LookUpControl( "/LeaderHeadRoot" ) or "nil")
 -------------------------------
 -- minor lua optimizations
 -------------------------------
@@ -780,7 +779,7 @@ local g_gameAvailableBeliefs = Game and { Game.GetAvailablePantheonBeliefs, Game
 -------------------------------------------------
 local function GetSpecialistSlotsTooltip( specialistType, numSlots )
 	local tip = ""
-	for row in GameInfo.SpecialistYields{ SpecialistType = specialistType } do	
+	for row in GameInfo.SpecialistYields{ SpecialistType = specialistType } do
 		tip = S( "%s %+i%s", tip, row.Yield, YieldIcons[ row.YieldType ] or "???" )
 	end
 	return S( "%i %s%s", numSlots, L( (GameInfo.Specialists[ specialistType ] or {}).Description or "???" ), tip )

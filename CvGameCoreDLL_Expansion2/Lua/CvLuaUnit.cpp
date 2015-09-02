@@ -551,6 +551,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHigherPopThan);
 	Method(GetResistancePower);
+	Method(GetAllianceCSStrength);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetMonopolyAttackBonus);
@@ -5083,6 +5084,79 @@ int CvLuaUnit::lGetResistancePower(lua_State* L)
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
 	int iResistancePower = pkUnit->GetResistancePower(pkOtherUnit);
 	lua_pushinteger(L, iResistancePower);
+
+	return 1;
+}
+//int GetAllianceCSStrength();
+int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iStrengthMod = 0;
+	if(GET_PLAYER(pkUnit->getOwner()).isMinorCiv())
+	{
+		PlayerTypes eAlly = GET_PLAYER(pkUnit->getOwner()).GetMinorCivAI()->GetAlly();
+		if(eAlly != NO_PLAYER)
+		{
+			int iCSBonus = GET_PLAYER(eAlly).GetPlayerTraits()->GetAllianceCSStrength();
+			if(iCSBonus > 0)
+			{
+				int iNumAllies = 0;
+				// Loop through all minors and get the total number we've met.
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+					{
+						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(eAlly))
+						{
+							iNumAllies++;
+							if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+							{
+								break;
+							}
+						}
+					}
+				}
+				if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+				{
+					iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+				}
+				iStrengthMod = (iCSBonus * iNumAllies);
+			}
+		}
+	}
+	else
+	{
+		int iCSBonus = GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetAllianceCSStrength();
+		if(iCSBonus > 0)
+		{
+			int iNumAllies = 0;
+			// Loop through all minors and get the total number we've met.
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				{
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(pkUnit->getOwner()))
+					{
+						iNumAllies++;
+						if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+						{
+							break;
+						}
+					}
+				}
+			}
+			if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
+			{
+				iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
+			}
+			iStrengthMod = (iCSBonus * iNumAllies);
+		}
+	}
+	lua_pushinteger(L, iStrengthMod);
 
 	return 1;
 }

@@ -827,14 +827,36 @@ void CvHomelandAI::FindHomelandTargets()
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... antiquity site?
+#if defined(MOD_BALANCE_CORE)
+			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			{
+				if(pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
+					{
+						newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+						newTarget.SetTargetX(pLoopPlot->getX());
+						newTarget.SetTargetY(pLoopPlot->getY());
+						newTarget.SetAuxData(pLoopPlot);
+						m_TargetedAntiquitySites.push_back(newTarget);
+					}
+				}
+				else
+				{
+
+#else
 			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()) && 
 				!(pLoopPlot->getOwner() != NO_PLAYER && m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner())))
 			{
+#endif
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
 				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAntiquitySites.push_back(newTarget);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?
@@ -2378,7 +2400,11 @@ void CvHomelandAI::PlotMessengerMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_DIPLOMAT))
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -2457,7 +2483,11 @@ void CvHomelandAI::PlotMissionaryMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->AI_getUnitAIType() == UNITAI_MISSIONARY || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_MISSIONARY))
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_MISSIONARY)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -2703,7 +2733,11 @@ void CvHomelandAI::PlotArchaeologistMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST))
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -5401,7 +5435,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
 		if(pTarget)
 		{
-			if(pUnit->plot() == pTarget && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+			if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_TRADE());
 				PlayerTypes ePlayer = pUnit->plot()->getOwner();
@@ -5416,7 +5450,6 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				}
 #if defined(MOD_BALANCE_CORE)
 				UnitProcessed(pUnit->GetID());
-				pUnit->finishMoves();
 				continue;
 #endif
 			}
@@ -5424,7 +5457,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				
-				if(pUnit->plot() == pTarget && pUnit->canMove())
+				if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_TRADE());
 					PlayerTypes ePlayer = pUnit->plot()->getOwner();
@@ -5446,36 +5479,66 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 			else
 			{
-				m_CurrentBestMoveHighPriorityUnit = NULL;
-				m_CurrentBestMoveUnit = m_pPlayer->getUnit(it->GetID());
-				ExecuteMoveToTarget(pTarget);
-
-				if(GC.getLogging() && GC.getAILogging())
+				if(pUnit->plot()->getOwner() == pTarget->getOwner() && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 				{
-					CvString strLogString;
-					strLogString.Format("Diplomatic Unit moving to city-state, currently at X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-					LogHomelandMessage(strLogString);
+					pUnit->PushMission(CvTypes::getMISSION_TRADE());
+					PlayerTypes ePlayer = pUnit->plot()->getOwner();
+					if(ePlayer != NO_PLAYER)
+					{
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+							LogHomelandMessage(strLogString);
+						}
+					}
+					UnitProcessed(pUnit->GetID());
+					continue;
 				}
+				else
+				{
+					m_CurrentBestMoveHighPriorityUnit = NULL;
+					m_CurrentBestMoveUnit = m_pPlayer->getUnit(it->GetID());
+					ExecuteMoveToTarget(pTarget);
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Diplomatic Unit moving to city-state, currently at X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
+						LogHomelandMessage(strLogString);
+					}
 #if defined(MOD_BALANCE_CORE)
-				continue;
+					UnitProcessed(pUnit->GetID());
+					continue;
 #endif
+				}
 			}
 		}
 		//Dangerous?
 		else
 		{
-			MoveCivilianToSafety(pUnit.pointer());
-			if(GC.getLogging() && GC.getAILogging())
+			if(pUnit->isHuman())
 			{
-				CvString strLogString;
-				strLogString.Format("Moving Messenger to safety.");
-				LogHomelandMessage(strLogString);
+				pUnit->SetAutomateType(NO_AUTOMATE);
+				UnitProcessed(pUnit->GetID());
+				continue;
 			}
+			else
+			{
+				MoveCivilianToSafety(pUnit.pointer());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Moving Messenger to safety.");
+					LogHomelandMessage(strLogString);
+				}
 #if defined(MOD_BALANCE_CORE)
-			UnitProcessed(pUnit->GetID());
-			pUnit->finishMoves();
-			continue;
+				UnitProcessed(pUnit->GetID());
+				pUnit->finishMoves();
+				continue;
+			}
 #endif
+
 		}
 	}
 }
@@ -6554,6 +6617,17 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 #endif
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		else
+		{
+			if(pUnit->isHuman())
+			{
+				pUnit->SetAutomateType(NO_AUTOMATE);
+				UnitProcessed(pUnit->GetID());
+				continue;
+			}
+		}
+#endif
 	}
 }
 
@@ -7363,9 +7437,6 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 						strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
-					pUnit->finishMoves();
-#endif
 				}
 				else
 				{
@@ -7374,9 +7445,6 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 			}
 			// Delete this unit from those we have to move
 			UnitProcessed(pUnit->GetID());
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
-			pUnit->finishMoves();
-#endif
 		}
 #if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
 		else
@@ -8091,6 +8159,10 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
 #ifdef AUI_ASTAR_TURN_LIMITER
+			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
+			{
+				continue;
+			}
 			int iTurns = TurnsToReachTarget(pUnit, pTarget, false, false, false, iBestTurns);
 #else
 			int iTurns = TurnsToReachTarget(pUnit, pTarget);
@@ -8491,7 +8563,101 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Find best target for this archaeologist
+CvPlot* CvHomelandAI::FindTestArchaeologistPlot(CvUnit *pUnit)
+{
+	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
+	{
+		return NULL;
+	}
+	CvPlot *pBestTarget = NULL;
+	CvPlot* pLoopPlot;
+	CvHomelandTarget newTarget;
+	TeamTypes eTeam = m_pPlayer->getTeam();
+	int iBestTurns = MAX_INT;
+	CvMap& theMap = GC.getMap();
+	int iNumPlots = theMap.numPlots();
+	int iI;
+	for(iI = 0; iI < iNumPlots; iI++)
+	{
+		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
+		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+		{
+			// ... antiquity site?
+			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			{
+				if(pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
+					{
+						newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+						newTarget.SetTargetX(pLoopPlot->getX());
+						newTarget.SetTargetY(pLoopPlot->getY());
+						newTarget.SetAuxData(pLoopPlot);
+						m_TargetedAntiquitySites.push_back(newTarget);
+					}
+				}
+				else
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAntiquitySites.push_back(newTarget);
+				}
+			}
+		}
+	}
+	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
+	std::vector<CvHomelandTarget>::iterator it;
+	for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+	{
+		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
+		{
+#ifdef AUI_ASTAR_TURN_LIMITER
+			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
+			{
+				continue;
+			}
+			int iTurns = TurnsToReachTarget(pUnit, pTarget, false, false, false, iBestTurns);
+#else
+			int iTurns = TurnsToReachTarget(pUnit, pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
+
+			if (iTurns < iBestTurns)
+			{
+				pBestTarget = pTarget;
+				iBestTurns = iTurns;
+			}
+		}
+	}
+	// Erase this site from future contention
+	if (pBestTarget)
+	{
+		for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+		{
+			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
+			{
+				m_TargetedAntiquitySites.erase(it);
+				break;
+			}
+		}
+	}
+	else
+	{
+		if(pUnit->isHuman())
+		{
+			pUnit->SetAutomateType(NO_AUTOMATE);
+			UnitProcessed(pUnit->GetID());
+		}
+	}
+
+	return pBestTarget;
+}
+#endif
 /// Build log filename
 CvString CvHomelandAI::GetLogFileName(CvString& playerName) const
 {

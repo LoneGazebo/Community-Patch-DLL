@@ -1407,10 +1407,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 {
 	int iFriendlyLoop;
 	int iEnemyLoop;
+#if !defined(MOD_BALANCE_CORE)
 	int iUnitLoop;
+#endif
 	CvCity* pFriendlyCity;
 	CvCity* pEnemyCity;
+#if !defined(MOD_BALANCE_CORE)
 	CvUnit* pLoopUnit;
+#endif
 	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> weightedTargetList;
 	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
@@ -1442,32 +1446,39 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 					{
 						continue;
 					}
-					int iX = pPlot->getX();
-					int iY = pPlot->getY();
-					bool bGeneralInTheVicinity = false;
 					int iPower = 0;
-					for (pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iUnitLoop))
+					bool bGeneralInTheVicinity = false;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
+#else
+					for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 					{
-						if (pLoopUnit->IsCombatUnit())
+						CvPlot* pLoopPlot;
+						pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+						if(pLoopPlot != NULL)
 						{
-							int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-							if (iDistance <= 5)
+							if(pLoopPlot->getNumUnits() > 0)
 							{
-								iPower += pLoopUnit->GetPower();
-							}
-						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-						{
-							int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-							if (iDistance <= 5)
-							{
-								bGeneralInTheVicinity = true;
+								CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
+								if(pLoopUnit != NULL)
+								{
+									if (pLoopUnit->IsCombatUnit())
+									{
+										iPower += pLoopUnit->GetPower();
+									}
+									if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(pLoopUnit->plot()))
+									{
+										bGeneralInTheVicinity = true;
+									}
+								}
 							}
 						}
 					}
 					if (bGeneralInTheVicinity)
 					{
-						iPower *= 11;
+						iPower *= 12;
 						iPower /= 10;
 					}
 					pFriendlyCity->iScratch = iPower;
@@ -1485,26 +1496,33 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 					}
 					if(pPlot->isRevealed(m_pPlayer->getTeam()))
 					{
-						int iX = pPlot->getX();
-						int iY = pPlot->getY();
-						bool bGeneralInTheVicinity = false;
 						int iPower = 0;
-						for (pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
+						bool bGeneralInTheVicinity = false;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+						for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
+#else
+						for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 						{
-							if (pLoopUnit->IsCombatUnit())
+							CvPlot* pLoopPlot;
+							pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+							if(pLoopPlot != NULL)
 							{
-								int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-								if (iDistance <= 5)
+								if(pLoopPlot->getNumUnits() > 0)
 								{
-									iPower += pLoopUnit->GetPower();
-								}
-							}
-							if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-							{
-								int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-								if (iDistance <= 5)
-								{
-									bGeneralInTheVicinity = true;
+									CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
+									if(pLoopUnit != NULL)
+									{
+										if (pLoopUnit->IsCombatUnit())
+										{
+											iPower += pLoopUnit->GetPower();
+										}
+										if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(pLoopUnit->plot()))
+										{
+											bGeneralInTheVicinity = true;
+										}
+									}
 								}
 							}
 						}
@@ -1523,6 +1541,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
+		iFriendlyLoop = 0;
+		iEnemyLoop = 0;
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{

@@ -5,7 +5,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP' AND EXISTS (SELECT * FROM COM
 
 -- Aristocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Authority[ENDCOLOR][NEWLINE] +1 [ICON_CULTURE] Culture in every City. Royal Guardhouse constructed in [ICON_CAPITAL] Capital, granting an Engineer Specialist slot as well as a boost to [ICON_STRENGTH] Defense and [ICON_PRODUCTION] Production.'
+SET Text = '[COLOR_POSITIVE_TEXT]Authority[ENDCOLOR][NEWLINE]+1 [ICON_GOLD] Gold in every City. Royal Guardhouse constructed in [ICON_CAPITAL] Capital, granting an Engineer Specialist slot as well as a boost to [ICON_STRENGTH] Defense and [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Oligarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE] +1 [ICON_GOLD] Gold in every City. State Treasury constructed in [ICON_CAPITAL] Capital, granting a Merchant Specialist slot, [ICON_GOLD] Gold, and a boost to border growth in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE] +1 [ICON_CULTURE] Culture in every City. State Treasury constructed in [ICON_CAPITAL] Capital, granting a Merchant Specialist slot, [ICON_GOLD] Gold, and a boost to border growth in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

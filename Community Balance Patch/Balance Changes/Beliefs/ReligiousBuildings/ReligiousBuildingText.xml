@@ -12,7 +12,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+2 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+3 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -26,7 +26,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 
@@ -67,7 +67,7 @@
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, additional City Hit Points and [ICON_STRENGTH] Strength, +10 XP for Military units, and the Morale promotion for your land units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>+10 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for Military units produced in this city. Grants additional City Hit Points and [ICON_STRENGTH] Strength. Reduces [ICON_HAPPINESS_3] Crime. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+10 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for land Military units produced in this city. Grants additional City Hit Points and [ICON_STRENGTH] Strength. Reduces [ICON_HAPPINESS_3] Crime. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>

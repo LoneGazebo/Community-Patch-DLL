@@ -92,6 +92,10 @@ WHERE Name = 'TRADE_ROUTE_SCALING';
 
 UPDATE CustomModOptions
 SET Value = '1'
+WHERE Name = 'GLOBAL_CS_UPGRADES';
+
+UPDATE CustomModOptions
+SET Value = '1'
 WHERE Name = 'GLOBAL_TRULY_FREE_GP';
 
 UPDATE CustomModOptions

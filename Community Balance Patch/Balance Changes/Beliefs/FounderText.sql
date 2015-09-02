@@ -9,7 +9,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 -- Interfaith Dialog (Now Hero Worship)
 UPDATE Language_en_US
-SET Text = 'Unlocks Great Altar National Wonder (+4 [ICON_PEACE] Faith, and +15% Military Unit [ICON_PRODUCTION] Production). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age points when you conquer a City. Bonus scales with City population and Era.'
+SET Text = 'Unlocks Great Altar National Wonder (+5 [ICON_PEACE] Faith, and +15% Military Unit [ICON_PRODUCTION] Production). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age points when you conquer a City. Bonus scales with City population and Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE_SHORT' AND EXISTS (SELECT * FROM
 
 -- Ceremonial Burial
 UPDATE Language_en_US
-SET Text = 'Unlocks Mausoleum National Wonder (+4 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle). Receive [ICON_PEACE] Faith and [ICON_CULTURE] Culture whenever a Great Person is expended. Bonus scales with Era.'
+SET Text = 'Unlocks Mausoleum National Wonder (+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle). Receive [ICON_PEACE] Faith and [ICON_CULTURE] Culture whenever a Great Person is expended. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Church Property (Now Holy Law)
@@ -32,7 +32,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Tithe (Now Way of the Pilgrim)
 UPDATE Language_en_US
-SET Text = 'Unlocks Reliquary National Wonder (+4 [ICON_PEACE] Faith, and 4 [ICON_GREAT_WORK] Art/Artfiact slots). Receive [ICON_TOURISM] Tourism when you spread your Religion to foreign cities. Bonus scales with Era.'
+SET Text = 'Unlocks Reliquary National Wonder (+4 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, and 4 [ICON_GREAT_WORK] Art/Artfiact slots). Receive [ICON_TOURISM] Tourism when you spread your Religion to foreign cities. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -41,7 +41,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TITHE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Initiation Rites (Now Way of Transcendence)
 UPDATE Language_en_US
-SET Text = 'Unlocks Sacred Garden National Wonder (+4 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture). Receive a large boost to all national yields when you enter a new Era. Bonus scales with Era.'
+SET Text = 'Unlocks Sacred Garden National Wonder (+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture). Receive a large boost to all national yields when you enter a new Era. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -68,7 +68,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- World Church (Now Theocratic Rule)
 UPDATE Language_en_US
-SET Text = 'Unlocks Grand Ossuary National Wonder (+5 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 15%.'
+SET Text = 'Unlocks Grand Ossuary National Wonder (+10 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 15%.'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

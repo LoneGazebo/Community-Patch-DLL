@@ -3847,11 +3847,19 @@ void CvPlayerCulture::DoPublicOpinion()
 
 		if (m_eOpinion != PUBLIC_OPINION_CONTENT)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if (iDissatisfaction < 4)
+#else
 			if (iDissatisfaction < 3)
+#endif
 			{
 				m_eOpinion = PUBLIC_OPINION_DISSIDENTS;
 			}
+#if defined(MOD_BALANCE_CORE)
+			else if (iDissatisfaction < 7)
+#else
 			else if (iDissatisfaction < 5)
+#endif
 			{
 				m_eOpinion = PUBLIC_OPINION_CIVIL_RESISTANCE;
 			}
@@ -4202,11 +4210,20 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 	if (iDissatisfaction<1)
 		return 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	float fPerCityUnhappy = 0.5f;
-	float fUnhappyPerXPop = 15.0f;
-#else
-	float fPerCityUnhappy = 1.0f;
-	float fUnhappyPerXPop = 10.0f;
+	float fPerCityUnhappy = 0.0f;
+	float fUnhappyPerXPop = 0.0f;
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		fPerCityUnhappy = 0.5f;
+		fUnhappyPerXPop = 15.0f;
+	}
+	else
+	{
+#endif
+	fPerCityUnhappy = 1.0f;
+	fUnhappyPerXPop = 10.0f;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 
 	//important!
@@ -4523,6 +4540,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		writeTo.m_eOpinion = NO_PUBLIC_OPINION;
 		writeTo.m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
 		writeTo.m_iOpinionUnhappiness = 0;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		writeTo.m_iWarWeariness = 0;
+#endif
 		writeTo.m_strOpinionTooltip = "";
 	}
 
@@ -5317,6 +5337,14 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
+	}
+	if(m_pCity->getYieldRate(YIELD_TOURISM, false) > 0)
+	{
+		if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
 	}
 #endif
 

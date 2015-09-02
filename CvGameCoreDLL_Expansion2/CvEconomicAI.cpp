@@ -2029,7 +2029,7 @@ void CvEconomicAI::DoHurry()
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {
@@ -2071,7 +2071,7 @@ void CvEconomicAI::DoHurry()
 												{
 													pUnit->setMoves(0);
 												}
-												pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+												pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 												if (MOD_EVENTS_CITY) {
@@ -2131,7 +2131,7 @@ void CvEconomicAI::DoHurry()
 										{
 #endif
 										pLoopCity->CreateBuilding(eBuildingType);
-										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
+										pLoopCity->SetBuildingPurchaseCooldown(pkBuildingEntry->GetCooldown());
 #if defined(MOD_EVENTS_CITY)
 										if (MOD_EVENTS_CITY) 
 										{
@@ -2178,7 +2178,7 @@ void CvEconomicAI::DoHurry()
 									{
 #endif
 									pLoopCity->CreateBuilding(eBuildingType);
-									pLoopCity->SetPurchaseCooldown(pkBuildingInfo->GetCooldown());
+									pLoopCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
 #if defined(MOD_EVENTS_CITY)
 									if (MOD_EVENTS_CITY) 
 									{
@@ -2239,7 +2239,7 @@ void CvEconomicAI::DoHurry()
 														{
 															pUnit->setMoves(0);
 														}
-														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
+														pLoopCity->SetUnitPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {
@@ -2282,7 +2282,7 @@ void CvEconomicAI::DoHurry()
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetPurchaseCooldown(pkUnitInfo->GetCooldown());
+													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {

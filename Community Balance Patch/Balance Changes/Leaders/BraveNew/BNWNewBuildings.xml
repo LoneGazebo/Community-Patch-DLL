@@ -21,7 +21,7 @@
 			<BlockScienceTheft>1</BlockScienceTheft>
 			<BlockUnrestSpies>1</BlockUnrestSpies>
 			<BlockRebellionSpies>1</BlockRebellionSpies>
-			<BlockGPDestructionSpies></BlockGPDestructionSpies>
+			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
 			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
 			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>

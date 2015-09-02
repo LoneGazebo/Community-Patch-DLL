@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3313,7 +3313,7 @@ CvPlayerReligions::CvPlayerReligions(void):
 	m_iNumFreeProphetsSpawned(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion(NO_RELIGION),
+	m_majorityPlayerReligion(NO_RELIGION),
 #endif
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
@@ -3352,7 +3352,7 @@ void CvPlayerReligions::Reset()
 	m_iFaithAtLastNotify = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion = NO_RELIGION;
+	m_majorityPlayerReligion = NO_RELIGION;
 #endif
 }
 
@@ -3369,8 +3369,7 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 	kStream >> m_iNumProphetsSpawned;
 	kStream >> m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
-	int tmp;
-	kStream >> tmp; m_majorityReligion = (ReligionTypes)tmp;
+	kStream >> m_majorityPlayerReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
@@ -3390,7 +3389,7 @@ void CvPlayerReligions::Write(FDataStream& kStream)
 	kStream << m_iNumProphetsSpawned;
 	kStream << m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_majorityReligion;
+	kStream << m_majorityPlayerReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
@@ -3678,7 +3677,7 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 /// What religion is followed in a majority of our cities?
 ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
-	return m_majorityReligion;
+	return m_majorityPlayerReligion;
 }
 
 /// What religion is followed in a majority of our cities?
@@ -3689,11 +3688,11 @@ bool CvPlayerReligions::ComputeMajority()
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		if (HasReligionInMostCities(eReligion))
 		{
-			m_majorityReligion = eReligion;
+			m_majorityPlayerReligion = eReligion;
 			return true;
 		}
 	}
-	m_majorityReligion = NO_RELIGION;
+	m_majorityPlayerReligion = NO_RELIGION;
 	return false;
 }
 
@@ -3834,7 +3833,7 @@ CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
 #if defined(MOD_BALANCE_CORE)
 	m_pCity(NULL),
-	m_majorityReligion(NO_RELIGION),
+	m_majorityCityReligion(NO_RELIGION),
 #endif
 	m_iReligiousPressureModifier(0)
 {
@@ -3855,7 +3854,7 @@ void CvCityReligions::Init(CvCity* pCity)
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion = NO_RELIGION;
+	m_majorityCityReligion = NO_RELIGION;
 #endif
 }
 
@@ -4068,7 +4067,7 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
 #if defined(MOD_BALANCE_CORE)
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
-	return m_majorityReligion;
+	return m_majorityCityReligion;
 }
 
 bool CvCityReligions::ComputeReligiousMajority()
@@ -4098,24 +4097,22 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 
 #if defined(MOD_BALANCE_CORE)
 	//update local majority
-	ReligionTypes oldMajority = m_majorityReligion;
-	m_majorityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
+	ReligionTypes oldMajority = m_majorityCityReligion;
+	m_majorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
 
 	//update player majority
-	if (m_majorityReligion!=oldMajority)
+	if (m_majorityCityReligion!=oldMajority)
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
 
-	return (m_majorityReligion!=NO_RELIGION);
+	return (m_majorityCityReligion!=NO_RELIGION);
 #else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
-		m_majorityReligion = eMostFollowers;
-		return true;
+		return eMostFollowers;
 	}
 	else
 	{
-		m_majorityReligion = NO_RELIGION;
-		return false;
+		return NO_RELIGION;
 	}
 #endif
 
@@ -5444,10 +5441,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
-	
-#if defined(MOD_BALANCE_CORE)
-	writeTo.ComputeReligiousMajority();
-#endif
 
 	return loadFrom;
 }
@@ -8329,6 +8322,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 #if defined(MOD_BALANCE_CORE)
 	// Skip if at war with city owner
 	if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
+	{
+		return iScore;
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int iPathTurns;
+	if(!pUnit->GeneratePath(pCity->plot(), MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
 	{
 		return iScore;
 	}

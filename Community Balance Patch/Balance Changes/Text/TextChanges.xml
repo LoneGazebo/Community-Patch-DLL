@@ -293,6 +293,10 @@
 			<Text>Blockaded</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
+			<Text>Hellenic League</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
 			<Text>Enemy Defection</Text>
 		</Row>

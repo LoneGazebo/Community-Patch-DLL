@@ -6822,7 +6822,7 @@ void CvLeague::CheckResolutionsValid()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+					if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman() && GET_PLAYER(m_vMembers[i].ePlayer).GetID() == GC.getGame().getActivePlayer())
 					{
 						GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
 					}
@@ -6882,7 +6882,7 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+			if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman() && GET_PLAYER(m_vMembers[i].ePlayer).GetID() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
 			}
@@ -6927,7 +6927,10 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+					if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman() && GET_PLAYER(m_vMembers[i].ePlayer).GetID() == GC.getGame().getActivePlayer())
+					{
+						GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+					}
 				}
 				else
 				{
@@ -7442,7 +7445,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(GET_PLAYER(ePlayer).isHuman())
+				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 				{
 					GET_PLAYER(ePlayer).CalculateHappiness();
 				}

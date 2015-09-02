@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (8-20)</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (9-1)</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -444,6 +444,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/TerrainFixes.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/Automates.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -477,6 +482,7 @@
     <Folder Include="Core Files\Core Values\Artificial Unintelligence" />
     <Folder Include="Core Files\PNM Mods DB" />
     <Folder Include="Core Files\PNM Mods DB\API\" />
+    <Folder Include="Core Files\PNM Mods DB\API\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
     <Folder Include="Core Files\PNM Mods DB\BUGFIX\" />
     <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
@@ -767,6 +773,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Core Values\Automates.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Core Values\GoodyHuts.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -780,6 +790,18 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\API\Espionage.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\EVENTS\CanMoveInto.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\EVENTS\CityBombard.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\EVENTS\DiploModifiers.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

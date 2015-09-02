@@ -37,7 +37,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-20</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<ReligiousPressureModifier>50</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>

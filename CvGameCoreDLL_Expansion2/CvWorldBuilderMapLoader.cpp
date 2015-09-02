@@ -574,7 +574,7 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(kPlayer.isHuman())
+				if(kPlayer.isHuman() && kPlayer.GetID() == GC.getGame().getActivePlayer())
 				{
 					kPlayer.CalculateHappiness();
 				}
@@ -586,7 +586,6 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			}
 #endif
-			kPlayer.DoUpdateHappiness();
 		}
 	}
 

@@ -177,11 +177,13 @@ local g_citySpecialists = {}
 local g_queuedItemNumber = false
 local g_isRazeButtonDisabled = false
 local g_isViewingMode = true
-local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchaseIsOff" ) == 1 )
+local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchase" ) == 0 )
 local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
 local g_toolTipHandler, g_toolTipControl, RequestToolTip
 
 local g_autoUnitCycleRequest -- workaround hack
+local g_isButtonPopupChooseProduction = false
+local g_isAutoClose
 
 local g_slotTexture = {
 	SPECIALIST_CITIZEN = "CitizenUnemployed.dds",
@@ -195,14 +197,19 @@ local g_slotTexture = {
 	SPECIALIST_JFD_MONK = "CitizenMonk.dds", -- Compatibility with JFD's Piety & Prestige for Brave New World
 	SPECIALIST_PMMM_ENTERTAINER = "PMMMEntertainmentSpecialist.dds", --Compatibility with Vicevirtuoso's Madoka Magica: Wish for the World for Brave New World
 }
+for specialist in GameInfo.Specialists() do
+	if specialist.SlotTexture then
+		g_slotTexture[ specialist.Type ] = specialist.SlotTexture
+	end
+end
+
 local g_slackerTexture = civBE_mode and "UnemployedIndicator.dds" or g_slotTexture[ (GameInfo.Specialists[GameDefines.DEFAULT_SPECIALIST or -1] or {}).Type ] or "Blank.dds"
 
 --local g_colorWhite = {x=1, y=1, z=1, w=1}
 --local g_colorGreen = {x=0, y=1, z=0, w=1}
 --local g_colorYellow = {x=1, y=1, z=0, w=1}
 --local g_colorRed = {x=1, y=0, z=0, w=1}
-local g_colorCulture = {x=1, y=0, z=1, w=1}
-local g_nullOffset = {x=0, y=0}
+local g_colorCulture = EUI.Color( 1, 0, 1, 1 )
 
 local g_gameInfo = {
 [OrderTypes.ORDER_TRAIN] = GameInfo.Units,
@@ -310,10 +317,10 @@ end
 local function ClearCityUIInfo()
 	g_ProdQueueIM.ResetInstances()
 	g_ProdQueueIM.Commit()
-	Controls.PQrank:SetHide( true )
 	Controls.PQremove:SetHide( true )
-	Controls.PQname:SetText("")
-	Controls.PQturns:SetText("")
+	Controls.PQrank:SetText()
+	Controls.PQname:SetText()
+	Controls.PQturns:SetText()
 	return Controls.ProductionPortraitButton:SetHide(true)
 end
 
@@ -348,12 +355,14 @@ end
 
 local function GotoNextCity()
 	CancelBuildingSale()
+	g_isButtonPopupChooseProduction = false
 	Controls.RightScrollPanel:SetScrollValue(0)
 	return Game.DoControl( GameInfoTypes.CONTROL_NEXTCITY )
 end
 
 local function GotoPrevCity()
 	CancelBuildingSale()
+	g_isButtonPopupChooseProduction = false
 	Controls.RightScrollPanel:SetScrollValue(0)
 	return Game.DoControl( GameInfoTypes.CONTROL_PREVCITY )
 end
@@ -363,6 +372,8 @@ local function ExitCityScreen()
 	g_leftTipControls.Box:SetHide( true )
 	g_rightTipControls.Box:SetHide( true )
 	g_toolTipHandler = nil
+	CancelBuildingSale()
+	g_isButtonPopupChooseProduction = false
 	return Events.SerialEventExitCityScreen()
 end
 
@@ -496,8 +507,8 @@ local function BuildingToolTip( control )
 	return RequestToolTip( BuildingToolTipNow, control )
 end
 
-local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID )
-	local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas
+local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID, _, isRepeat )
+	local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas, isRealRepeat
 	if city then
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[ cityOwnerID ]
@@ -506,6 +517,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 			itemInfo = GameInfo.Units
 			portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( itemID, cityOwnerID )
 			strToolTip = GetHelpTextForUnit( itemID, true )
+			isRealRepeat = isRepeat
 
 			if isDisabled then
 				if purchaseYieldID == g_yieldCurrency then
@@ -544,10 +556,14 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 		elseif orderID == OrderTypes.ORDER_MAINTAIN then
 			itemInfo = GameInfo.Processes
 			strToolTip = GetHelpTextForProcess( itemID, true )
+			isRealRepeat = true
 		else
 			strToolTip = L"TXT_KEY_PRODUCTION_NO_PRODUCTION"
 		end
 		if strToolTip then
+			if isRealRepeat then
+				strToolTip = "[ICON_TURNS_REMAINING]" .. strToolTip
+			end
 			if strDisabledInfo and #strDisabledInfo > 0 then
 				strDisabledInfo = (strDisabledInfo:gsub("^%[NEWLINE%]","")):gsub("^%[NEWLINE%]","")
 				if cash and cash < 0 then
@@ -987,7 +1003,10 @@ local g_SelectionListCallBacks = {
 					-- cityPushOrder( city, orderID, itemID, bAlt, replaceQueue, bottomOfQueue )
 					Game.CityPushOrder( city, orderID, itemID, UI.AltKeyDown(), UI.ShiftKeyDown(), not UI.CtrlKeyDown() )
 					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_BANNER )
-					return Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
+					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
+					if g_isButtonPopupChooseProduction then
+						ExitCityScreen()
+					end
 				end
 			end
 		end,
@@ -1128,7 +1147,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 
 	for queuedItemNumber = 0, math.max( queueLength-1, 0 ) do
 
-		local orderID, itemID = -1, -1
+		local orderID, itemID, _, isRepeat, isReallyRepeat
 		if isQueueEmpty then
 			local item = g_finishedItems[ cityID ]
 			if item then
@@ -1136,7 +1155,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 				Controls.ProductionFinished:SetHide( false )
 			end
 		else
-			orderID, itemID = city:GetOrderFromQueue( queuedItemNumber )
+			orderID, itemID, _, isRepeat = city:GetOrderFromQueue( queuedItemNumber )
 			queueItems[ orderID / 64 + itemID ] = true
 		end
 		local instance, portraitSize
@@ -1156,8 +1175,6 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		instance.PQremove:SetHide( isQueueEmpty or g_isViewingMode )
 		instance.PQremove:SetVoid1( queuedItemNumber )
 		instance.PQremove:RegisterCallback( Mouse.eLClick, RemoveQueueItem )
-		instance.PQrank:SetHide( queueLength < 2 )
-		instance.PQrank:SetText( (queuedItemNumber+1).."." )
 
 		local itemInfo, turnsRemaining, portraitOffset, portraitAtlas
 
@@ -1165,6 +1182,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 			itemInfo = GameInfo.Units
 			turnsRemaining = city:GetUnitProductionTurnsLeft( itemID, queuedItemNumber )
 			portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( itemID, cityOwnerID )
+			isReallyRepeat = isRepeat
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
 			turnsRemaining = city:GetBuildingProductionTurnsLeft( itemID, queuedItemNumber )
@@ -1174,6 +1192,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		elseif orderID == OrderTypes.ORDER_MAINTAIN then
 			itemInfo = GameInfo.Processes
 			isMaintain = true
+			isReallyRepeat = true
 		end
 		if itemInfo then
 			local item = itemInfo[itemID]
@@ -1190,6 +1209,12 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		end
 		instance.PQturns:SetHide( isMaintain or isQueueEmpty or not itemInfo )
 		instance.PQportrait:SetHide( not itemInfo )
+		if isReallyRepeat then
+			isMaintain = true
+			instance.PQrank:SetText( "[ICON_TURNS_REMAINING]" )
+		else
+			instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+		end
 	end
 
 	g_ProdQueueIM.Commit()
@@ -2107,7 +2132,8 @@ local function UpdateWorkingHexes()
 end
 
 local function UpdateOptionsAndCityView()
-	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisorIsOff" ) == 1 )
+	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
+	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
 	g_FocusSelectIM.Collapse( not OptionsManager.IsNoCitizenWarning() )
 	Controls.BuyPlotCheckBox:SetCheck( g_BuyPlotMode )
 	return UpdateCityView()
@@ -2301,7 +2327,7 @@ SetupCallbacks( Controls, g_toolTips, "EUI_CityViewLeftTooltip", g_callBacks )
 
 Controls.BuyPlotCheckBox:RegisterCheckHandler( function( isChecked ) -- Void1, Void2, control )
 	g_BuyPlotMode = isChecked
-	g_options.SetValue( "CityPlotPurchaseIsOff", isChecked and 0 or 1 )
+	g_options.SetValue( "CityPlotPurchase", isChecked and 1 or 0 )
 	return UpdateCityView()
 end )
 
@@ -2357,9 +2383,12 @@ function()
 	CancelBuildingSale()
 
 	-- Try and re-select the last unit selected
-	if not UI.GetHeadSelectedUnit() and UI.GetLastSelectedUnit() then
-		UI.SelectUnit(UI.GetLastSelectedUnit())
-		UI.LookAtSelectionPlot()
+	if not UI.GetHeadSelectedUnit() then
+		local unit = UI.GetLastSelectedUnit()
+		if unit and unit:MovesLeft() > 0 then
+			UI.SelectUnit( unit )
+			UI.LookAtSelectionPlot()
+		end
 	end
 	g_isViewingMode = true
 	return UI.SetCityScreenViewingMode(false)
@@ -2418,7 +2447,8 @@ function( popupInfo )
 		if orderID >= 0 and itemID >= 0 then
 			g_finishedItems[ cityID ] = { orderID, itemID }
 		end
-		return UI.DoSelectCityAtPlot( city:Plot() )	--force open city screen
+		g_isButtonPopupChooseProduction = g_isAutoClose
+		return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
 	end
 end)
 
