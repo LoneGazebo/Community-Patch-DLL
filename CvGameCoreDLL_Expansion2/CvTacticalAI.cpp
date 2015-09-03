@@ -437,26 +437,32 @@ void CvTacticalAI::CommandeerUnits()
 			pLoopUnit->DumpDangerInNeighborhood();
 		}
 
-		// see if the unit needs healing badly or is done healing (cf PlotHealMoves)
-		if (pLoopUnit->getArmyID()!=-1 && !m_pPlayer->isBarbarian())
+		// is the unit healing?
+		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
-			if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
-			{
-				if ( pLoopUnit->getDamage()>20 )
-					//need to continue healing
-					continue;
-				else
-					//done healing
-					m_HealingUnits.erase( pLoopUnit->GetID() );
-			}
+			if ( pLoopUnit->getDamage()>20 )
+				//need to continue healing
+				continue;
 			else
+				//done healing
+				m_HealingUnits.erase( pLoopUnit->GetID() );
+		}
+		else
+		{
+			//does it need healing? unless barbarian or japanese!
+			if ( pLoopUnit->getDamage()>80 && !m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() )
 			{
-				if ( pLoopUnit->getDamage()>80 )
+				//need to split from army?
+				if (pLoopUnit->getArmyID()!=-1)
 				{
-					//need to start healing
-					m_HealingUnits.insert( pLoopUnit->GetID() );
-					continue;
+					CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
+					if (pArmy)
+						pArmy->RemoveUnit( pLoopUnit->GetID() );
 				}
+
+				//need to start healing
+				m_HealingUnits.insert( pLoopUnit->GetID() );
+				continue;
 			}
 		}
 
