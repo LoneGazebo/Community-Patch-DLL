@@ -8,39 +8,6 @@
 	SET TechCityTrade = 'TECH_STEAM_POWER'
 	WHERE Type = 'RESOURCE_COAL';
 
--- Tech Progression for Bonus Resources (a la Civ 4)
-	UPDATE Resources
-	SET TechReveal = 'TECH_TRAPPING'
-	WHERE Type = 'RESOURCE_DEER';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_TRAPPING'
-	WHERE Type = 'RESOURCE_BISON';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_ANIMAL_HUSBANDRY'
-	WHERE Type = 'RESOURCE_COW';
-	
-	UPDATE Resources
-	SET TechReveal = 'TECH_ANIMAL_HUSBANDRY'
-	WHERE Type = 'RESOURCE_SHEEP';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_SAILING'
-	WHERE Type = 'RESOURCE_FISH';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_MINING'
-	WHERE Type = 'RESOURCE_STONE';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_CALENDAR'
-	WHERE Type = 'RESOURCE_BANANA';
-
-	UPDATE Resources
-	SET TechReveal = 'TECH_AGRICULTURE'
-	WHERE Type = 'RESOURCE_WHEAT';
-
 	-- Stone good for Ancient and Classical wonders
 	UPDATE Resources
 	SET WonderProductionMod = '10'

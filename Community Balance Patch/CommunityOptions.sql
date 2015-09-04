@@ -10,6 +10,17 @@ All options below are preset to the default values of this mod.
 -- OPTIONS --
 -- If you have not read the instructions above, please do so now!
 -- Disabling files below will only remove the SQL changes. If you also want to remove the XML changes, you will need to delete the associated XML files.
+/*
+Changes to Civilization Traits
+0 = All Resources Visible at Game Start
+1 = Only Luxury Resources Visible at Game Start
+2 = Only Bonus Resources Visible at Game Start
+3 = No Resources Visible at Game Start
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_RESOURCE_REVEAL', 1);
+
 
 /*
 Changes to Civilization Traits
