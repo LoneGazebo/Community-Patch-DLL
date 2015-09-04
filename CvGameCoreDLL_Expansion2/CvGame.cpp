@@ -2372,11 +2372,7 @@ void CvGame::getPlotUnits(CvPlot* pPlot, std::vector<CvUnit*>& plotUnits)
 //	--------------------------------------------------------------------------------
 void CvGame::cycleCities(bool bForward, bool bAdd)
 {
-	CvCity* pSelectCity;
-	CvCity* pLoopCity;
-	int iLoop;
-
-	pSelectCity = NULL;
+	CvCity* pSelectCity = NULL;
 
 	auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
 
@@ -2384,17 +2380,14 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 	if((pkHeadSelectedCity != NULL) && ((pkHeadSelectedCity->getTeam() == getActiveTeam()) || isDebugMode()))
 	{
-		iLoop = pkHeadSelectedCity->getIndex();
+		int iLoop = pkHeadSelectedCity->getIndex();
 
 		iLoop += (bForward ? 1 : -1);
 
+		CvCity* pLoopCity = pkHeadSelectedCity;
 		do
 		{
-#if defined(MOD_BALANCE_CORE)
-			pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).nextCity(pkHeadSelectedCity, !bForward);
-#else
-			pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).nextCity(&iLoop, !bForward);
-#endif
+			pLoopCity = GET_PLAYER(pLoopCity->getOwner()).nextCity(pLoopCity, !bForward);
 
 			if(pLoopCity == NULL)
 			{
@@ -2412,6 +2405,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 	}
 	else
 	{
+		int iLoop = 0;
 		pSelectCity = GET_PLAYER(getActivePlayer()).firstCity(&iLoop, !bForward);
 	}
 

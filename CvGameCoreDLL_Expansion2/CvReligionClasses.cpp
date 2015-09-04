@@ -4097,18 +4097,14 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 
 #if defined(MOD_BALANCE_CORE)
 	//update local majority
-	if ((iMostFollowers * 2) >= iTotalFollowers)
-	{
-		m_majorityCityReligion = eMostFollowers;
+	ReligionTypes oldMajority = m_majorityCityReligion;
+	m_majorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
+
+	//update player majority
+	if (m_majorityCityReligion!=oldMajority)
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
-		return true;
-	}
-	else
-	{
-		m_majorityCityReligion = NO_RELIGION;
-		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
-		return false;
-	}
+
+	return (m_majorityCityReligion!=NO_RELIGION);
 #else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{

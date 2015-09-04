@@ -582,16 +582,16 @@ SET Text = 'The Windmill is a Renaissance-era building which increases the [ICON
 WHERE Tag = 'TXT_KEY_BUILDING_WINDMILL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Hydroplant
-UPDATE Building_ResourceQuantityRequirements
-SET Cost = '0'
-WHERE BuildingType = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Building_RiverPlotYieldChanges
+SET Yield = '3'
+WHERE Type = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
 SET PrereqTech = 'TECH_ELECTRONICS'
 WHERE Type = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production in every tile next to a River. [NEWLINE][NEWLINE]City must be built next to a River.'
+SET Text = '+3 [ICON_PRODUCTION] Production on every tile next to a River. [NEWLINE][NEWLINE]City must be built next to a River. Requires [ICON_RES_ALUMINUM] Aluminum to be built.'
 WHERE Tag = 'TXT_KEY_BUILDING_HYDRO_PLANT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US

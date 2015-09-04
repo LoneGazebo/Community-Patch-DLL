@@ -22675,35 +22675,22 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY && GetAttackBonusTurns() > 5)
+	if(MOD_BALANCE_CORE_MILITARY && GetAttackBonusTurns() > 3)
 	{
-		rtnValue *= 2;
+		rtnValue = (rtnValue*(100+GC.getPOLICY_ATTACK_BONUS_MOD()))/100;
 	}
-#endif
+
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	return int( rtnValue / max(1.f, sqrt((float)getNumCities())));
+#else
 
 	//Simplistic increase based on player's gold
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
 	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
 	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//If we can't sustain, we aren't that strong.
-	if(GetTreasury()->CalculateBaseNetGold() <= 10)
-	{
-		fGoldMultiplier /= 2;
-	}
-	if(GetTreasury()->GetGoldPerTurnFromTradeRoutes() <= GetTreasury()->GetExpensePerTurnUnitMaintenance())
-	{
-		fGoldMultiplier /= 2;
-	}
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	{
-		rtnValue /= int( max(1.f, sqrt((float)getNumCities())));
-	}
-#endif
-
 	rtnValue = (int)(rtnValue * fGoldMultiplier);
-
 	return rtnValue;
+#endif
 }
 
 
@@ -28383,6 +28370,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
 
+	if (iIdx<0)
+		return NULL;
+
 	if (bRev)
 		iIdx--;
 	else
@@ -28395,6 +28385,9 @@ CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev)
 const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
 {
 	int iIdx = m_cities.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
 
 	if (bRev)
 		iIdx--;
@@ -28513,6 +28506,10 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 {
 	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
+
 	if (bRev)
 		iIdx--;
 	else
@@ -28525,6 +28522,9 @@ CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
 {
 	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
+
+	if (iIdx<0)
+		return NULL;
 
 	if (bRev)
 		iIdx--;

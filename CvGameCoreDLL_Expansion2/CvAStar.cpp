@@ -1726,11 +1726,20 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		}
 	}
 
-#ifdef AUI_DANGER_PLOTS_REMADE
+#if defined(MOD_BALANCE_CORE)
 	if (bAIControl || !bIsHuman)
+	{
+		//always check danger if requested, but it may be a little more than zero as long as we're moving away from it
+		if(!(iFinderInfo & MOVE_UNITS_IGNORE_DANGER))
+		{
+			if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
+			{
+				return FALSE;
+			}
+		}
+	}
 #else
 	if(bAIControl)
-#endif
 	{
 		if((parent->m_iData2 > 1) || (parent->m_iData1 == 0))
 		{
@@ -1738,11 +1747,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			{
 				if(!bUnitIsCombat || pUnit->getArmyID() == -1)
 				{
-#ifdef AUI_DANGER_PLOTS_REMADE
-					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
-#else
 					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
-#endif // AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
 					{
 						return FALSE;
 					}
@@ -1750,6 +1755,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			}
 		}
 	}
+#endif
 
 	// slewis - added AI check and embark check to prevent units from moving into unexplored areas
 	if(bAIControl || kFromNodeCacheData.bIsRevealedToTeam || pCacheData->isEmbarked() || !bIsHuman)
