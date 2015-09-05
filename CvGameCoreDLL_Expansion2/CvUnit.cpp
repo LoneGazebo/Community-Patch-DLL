@@ -2688,6 +2688,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = (uint)-1;
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = 0;
+#endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
@@ -26200,7 +26203,11 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 		else
 		{
 			// If we have already tried this, don't waste time and do it again.
+#if defined(MOD_BALANCE_CORE)
+			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || m_uiLastPathFlags != iFlags )	
+#else
 			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex())	
+#endif
 			{
 				bGenerated = GeneratePath(pDestPlot, iFlags);	// Need to regenerate
 			}
@@ -27418,6 +27425,9 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = iFlags;
+#endif
 
 	CvAStar::CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
 
@@ -27532,6 +27542,9 @@ void CvUnit::ClearPathCache()
 {
 	m_kLastPath.setsize(0);
 	m_uiLastPathCacheDest = (uint)-1;
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = 0;
+#endif
 }
 
 

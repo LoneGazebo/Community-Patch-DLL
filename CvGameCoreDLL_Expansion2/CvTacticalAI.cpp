@@ -2160,6 +2160,9 @@ void CvTacticalAI::ProcessDominanceZones()
 			}
 		}
 	}
+
+	//failsafe
+	ReviewUnassignedUnits();
 }
 
 /// Choose which tactics to run and assign units to it
@@ -2488,8 +2491,6 @@ void CvTacticalAI::AssignBarbarianMoves()
 			break;
 		}
 	}
-
-	ReviewUnassignedUnits();
 }
 
 /// Assign a group of units to take down each city we can capture
@@ -4642,21 +4643,38 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
-
-			OutputDebugString( CvString::format( "unassigned %s tactical unit %s at %d,%d (last move: %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
-
 #if defined(MOD_BALANCE_CORE)
-			if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
+			//barbarians have no homeland AI, so they end their turn here
+			if (pUnit->isBarbarian())
 			{
-				pUnit->finishMoves();
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Ranged unit performing opportunity attack, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-					LogTacticalMessage(strLogString);
-				}
+				MissionTypes eMission = pUnit->getDomainType()==DOMAIN_LAND ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
+				pUnit->PushMission(eMission);
+				pUnit->SetTurnProcessed(true);
 			}
+			else if ( pUnit->getDomainType()==DOMAIN_LAND )
+			{
+				//tactical reposition failed ... 
+				CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
+			
+				OutputDebugString( CvString::format( "unassigned %s tactical unit %s %d at %d,%d (last move: %s)\n", 
+					m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
+			}
+			else if ( pUnit->getDomainType()==DOMAIN_AIR )
+			{
+				//homeland doesn't handle air units except for rebasing
+				//units to be rebased are passed over for tactical AI, the rest simply does nothing
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pUnit->SetTurnProcessed(true);
+			}
+			else if ( pUnit->getDomainType()==DOMAIN_SEA )
+			{
+				//don't know if homeland AI does anything with the navy ...
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pUnit->SetTurnProcessed(true);
+			}
+
+			//homeland ai may use recruit the units if it wants to
+			pUnit->setTacticalMove(NO_TACTICAL_MOVE);
 #else
 			// Barbarians and air units aren't handled by the operational or homeland AIs
 			if(pUnit->isBarbarian() || pUnit->getDomainType() == DOMAIN_AIR)
@@ -8635,7 +8653,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 										iAttacksLeft -= 1;
 									}
 
-									//might still be good for other targets ... or not
+									//we've given our best
 									if(iMovesLeft<1 || iAttacksLeft<1)
 									{
 										pUnit->SetTacticalAIPlot(NULL);
@@ -9553,7 +9571,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-						pUnit->finishMoves();
 						UnitProcessed(pUnit->GetID());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -10008,12 +10025,6 @@ void CvTacticalAI::ExecuteMoveToPlot(UnitHandle pUnit, CvPlot* pTarget, bool bSa
 		{
 			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 			pUnit->SetFortifiedThisTurn(true);
-#if defined(MOD_BALANCE_CORE)
-			if(!bSaveMoves)
-			{
-				pUnit->finishMoves();
-			}
-#endif
 		}
 		else
 		{
@@ -12693,8 +12704,8 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 				std::list<int>::iterator ctu = std::find( m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID() );
 				if (ctu==m_CurrentTurnUnits.end() && pLoopUnit->getArmyID()==-1 )
 				{
-					CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d. mission info %s", 
-										 pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
+					CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d", 
+										 pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
 					LogTacticalMessage( msg );
 				}
 
@@ -13272,16 +13283,7 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 CvPlot* CvTacticalAI::FindBestBarbarianLandMove(UnitHandle pUnit)
 {
 	CvPlot* pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange);
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-	{
-		return pUnit->plot();
-	}
-	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
-	{
-		return pUnit->plot();
-	}
-#endif
+
 	// move toward trade routes
 	if (pBestMovePlot == NULL)
 	{
@@ -13306,16 +13308,7 @@ CvPlot* CvTacticalAI::FindPassiveBarbarianLandMove(UnitHandle pUnit)
 
 	iBestValue = MAX_INT;
 	pBestMovePlot = NULL;
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-	{
-		return pUnit->plot();
-	}
-	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
-	{
-		return pUnit->plot();
-	}
-#endif
+
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 	{
 		// Is this target a camp?
@@ -13523,16 +13516,6 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue;
 	int iValue;
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-	{
-		return pUnit->plot();
-	}
-	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
-	{
-		return pUnit->plot();
-	}
-#endif
 
 	// Now looking for BEST score
 	iBestValue = 0;

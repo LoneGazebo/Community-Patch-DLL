@@ -1826,6 +1826,9 @@ protected:
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheDest;
+#if defined(MOD_BALANCE_CORE)
+	mutable uint m_uiLastPathFlags;
+#endif
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

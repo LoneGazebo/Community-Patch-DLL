@@ -127,8 +127,8 @@ void CvHomelandAI::RecruitUnits()
 			//don't use units which were assigned a tactical move this turn!
 			if ( pLoopUnit->hasCurrentTacticalMove() )
 			{
-				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d. mission info %s)", 
-										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
+				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d)", 
+										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
 				LogHomelandMessage( msg );
 
 				//important - else AI turn will never end! (in fact it does for some reason end after a while ...)
