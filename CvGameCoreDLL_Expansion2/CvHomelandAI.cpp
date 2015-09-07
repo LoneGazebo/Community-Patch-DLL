@@ -131,10 +131,12 @@ void CvHomelandAI::RecruitUnits()
 										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
 				LogHomelandMessage( msg );
 
-				//important - else AI turn will never end! (in fact it does for some reason end after a while ...)
+				/*
+				//if we skip the units, we have to end their turn, else the AI turn will never end! (in fact it is terminated after 10 turn slices without movement ...)
 				pLoopUnit->finishMoves();
 				pLoopUnit->SetTurnProcessed(true);
 				continue;
+				*/
 			}
 #endif
 

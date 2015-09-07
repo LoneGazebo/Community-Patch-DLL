@@ -2264,8 +2264,7 @@ void CvCity::doTurn()
 		SetPuppet(false);
 	}
 	GetCityReligions()->ComputeReligiousMajority();
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	if(MOD_BALANCE_CORE)
 	{
 		int iNumAllies = 0;
@@ -2292,8 +2291,7 @@ void CvCity::doTurn()
 			}
 		}
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
@@ -2346,6 +2344,7 @@ void CvCity::doTurn()
 		}
 	}
 #endif
+
 	bool bRazed = DoRazingTurn();
 
 	if(!bRazed)

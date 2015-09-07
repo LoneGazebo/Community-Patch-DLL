@@ -4644,6 +4644,9 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
+			//in any case: homeland AI may use recruit the units if it wants to
+			pUnit->setTacticalMove(NO_TACTICAL_MOVE);
+
 			//barbarians have no homeland AI, so they end their turn here
 			if (pUnit->isBarbarian())
 			{
@@ -4653,11 +4656,13 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			}
 			else if ( pUnit->getDomainType()==DOMAIN_LAND )
 			{
-				//tactical reposition failed ... 
+				//tactical reposition failed ... but well, maybe homeland AI can use the unit
+				/*
 				CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
 			
 				OutputDebugString( CvString::format( "unassigned %s tactical unit %s %d at %d,%d (last move: %s)\n", 
 					m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
+				*/
 			}
 			else if ( pUnit->getDomainType()==DOMAIN_AIR )
 			{
@@ -4672,9 +4677,6 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				pUnit->SetTurnProcessed(true);
 			}
-
-			//homeland ai may use recruit the units if it wants to
-			pUnit->setTacticalMove(NO_TACTICAL_MOVE);
 #else
 			// Barbarians and air units aren't handled by the operational or homeland AIs
 			if(pUnit->isBarbarian() || pUnit->getDomainType() == DOMAIN_AIR)
