@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/6/2014 10:23:37 PM -->
+<GameData>
+	
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GREAT_PERSON_KISSINGER">
+			<Text>Henry Kissinger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ALBRIGHT">
+			<Text>Madeleine Albright</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ANNAN">
+			<Text>Kofi Annan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_BAN">
+			<Text>Ban Ki-Moon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_BELL">
+			<Text>Gertrude Bell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DINTEVILLE">
+			<Text>Jean de Dinteville</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DURRELL">
+			<Text>Lawrence Durrell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DAG">
+			<Text>Dag Hammarskjold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WHOWARD">
+			<Text>William Howard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_JAY">
+			<Text>John Jay</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_KOLLONTAI">
+			<Text>Aleksandra Kollontai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_LAWRENCE">
+			<Text>T.E. Lawrence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_METTERNICH">
+			<Text>Klemens von Metternich</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_NERUDA">
+			<Text>Pablo Neruda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ODO">
+			<Text>Odo Russell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SELVE">
+			<Text>Georges de Selve</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SEWARD">
+			<Text>William Seward</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SHIGERU">
+			<Text>Yoshida Shigeru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SZABO">
+			<Text>Violette Szabo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_TALLEYRAND">
+			<Text>Charles-Maurice de Talleyrand</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_THANT">
+			<Text>U Thant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WALDHEIM">
+			<Text>Kurt Waldheim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WALLENBERG">
+			<Text>Raoul Wallenberg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WEIJUN">
+			<Text>Gu Weijun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ZIMMERMAN">
+			<Text>Arthur Zimmerman</Text>
+		</Row>
+		
+		
+	</Language_en_US>
+	<Unit_UniqueNames>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_KISSINGER</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_ALBRIGHT</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_ANNAN</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_BAN</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_BELL</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_DINTEVILLE</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_DURRELL</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_DAG</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_WHOWARD</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_JAY</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_KOLLONTAI</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_LAWRENCE</UniqueName>
+		</Row>	
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_METTERNICH</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_NERUDA</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_ODO</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_SELVE</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_SEWARD</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_SHIGERU</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_SZABO</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_TALLEYRAND</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_THANT</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_WALDHEIM</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_WALLENBERG</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_WEIJUN</UniqueName>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<UniqueName>TXT_KEY_GREAT_PERSON_ZIMMERMAN</UniqueName>
+		</Row>
+	</Unit_UniqueNames>
+</GameData>

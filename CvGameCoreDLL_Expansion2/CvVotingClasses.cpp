@@ -12080,6 +12080,16 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	if (pProposal->GetEffects()->bDiplomaticVictory)
 	{
 		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
+			{
+				iScore += 200;
+			}
+		}
+#endif
+
 		if (eAlignment == ALIGNMENT_LIBERATOR)
 		{
 			iScore += 200;
@@ -12146,6 +12156,15 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) {
 			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
 			PlayerTypes ePlayer = GetPlayer()->GetID();
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
+				{
+					iScore += 300;
+				}
+			}
+#endif
 			//There should be more to it than this!
 			if (eAlignment == ALIGNMENT_LIBERATOR)
 			{

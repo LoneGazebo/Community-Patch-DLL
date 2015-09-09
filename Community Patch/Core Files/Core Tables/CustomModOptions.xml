@@ -327,7 +327,7 @@
     <Row Class="5" Name="RELIGION_CONVERSION_MODIFIERS" Value="1" DbUpdates="1"/>
     <!-- Keeps overflow faith from spawning a Great Prophet if the base spawn chance is 100% (v21) -->
     <!-- See also: "Religion - Fixed Prophets" -->
-    <Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="0"/>
+    <Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="1"/>
     <!-- Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60) -->
     <Row Class="4" Name="RELIGION_ALLIED_INQUISITORS" Value="0"/>
     <!-- Send purchase notifications at every boundary and not just the first (v42) -->

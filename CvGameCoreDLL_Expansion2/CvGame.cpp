@@ -1473,6 +1473,33 @@ void CvGame::assignStartingPlots()
 	pPositioner->AssignStartingLocations();
 }
 
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+bool ExternalPause()
+{
+	bool bPause = false;
+
+	// wait for an external mutex if it exists to make it easier to see what the AI is doing
+	HANDLE hMutex = ::OpenMutex(SYNCHRONIZE, FALSE, "TurnByTurn");
+	if(hMutex != NULL)
+	{
+		if (::WaitForSingleObject(hMutex,0)==WAIT_OBJECT_0)
+		{
+			//we acquired the mutex, that means we can continue
+			ReleaseMutex(hMutex);
+		}
+		else
+		{
+			//couldn't acquire it, we should pause
+			bPause = true;
+		}
+		//close the handle in any case
+		CloseHandle(hMutex);
+	}
+
+	return bPause;
+}
+#endif
+
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
@@ -1526,14 +1553,24 @@ void CvGame::update()
 				gDLL->AutoSave(true);
 			}
 
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+			bool bExternalPause = ExternalPause();
+			if ( !bExternalPause && getNumGameTurnActive()==0 )
+#else
 			// If there are no active players, move on to the AI
 			if(getNumGameTurnActive() == 0)
+#endif
 			{
 				if(gDLL->CanAdvanceTurn())
 					doTurn();
 			}
 
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+			if( !isPaused() && !bExternalPause )
+#else
 			if(!isPaused())	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
+#endif
 			{
 				updateScore();
 

@@ -817,7 +817,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
 #if defined(MOD_BALANCE_CORE)
+	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
+	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
 	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+	MilitaryAIStrategyTypes eNeedCarriers = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR_CARRIER");
 	bool bNoBoats = false;
 	if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 	{
@@ -846,18 +849,22 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		{
 			if(pDiploAI->IsWantsSneakAttack(eLoopPlayer))
 			{
-				iSneakies += 5;
+				iSneakies += 10;
 			}
 		}
 	}
 	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
-		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5;
 	}
 #endif
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	bool bWantWorkers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers);
+	bool bWantArch = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantArch);
+	bool bWantCarrier = GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eNeedCarriers);
+
 	if(!bEnoughSettlers)
 	{
 		AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
@@ -977,6 +984,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		{
 			iTempWeight = 0;
 		}
+		if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
+		{
+			iTempWeight = 0;
+		}
 #endif
 		if (iTempWeight > 0)
 		{
@@ -1023,6 +1042,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		iTempWeight *= max(1, (iSneakies * 10));
 		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnitForArmy);
 		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
 		{
 			iTempWeight = 0;
 		}
@@ -1238,6 +1269,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				}
 #if defined(MOD_BALANCE_CORE)
 				if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+				{
+					iTempWeight = 0;
+				}
+				if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+				{
+					iTempWeight = 0;
+				}
+				if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+				{
+					iTempWeight = 0;
+				}
+				if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
 				{
 					iTempWeight = 0;
 				}
@@ -1553,7 +1596,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
 #if defined(MOD_BALANCE_CORE)
+	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
+	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
 	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+	MilitaryAIStrategyTypes eNeedCarriers = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR_CARRIER");
 	bool bNoBoats = false;
 	if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 	{
@@ -1571,6 +1617,27 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				}
 			}
 		}
+	}
+	bool bWantWorkers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers);
+	bool bWantArch = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantArch);
+	bool bWantCarrier = GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eNeedCarriers);
+	PlayerTypes eLoopPlayer;
+	int iSneakies = 0;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		{
+			if(GET_PLAYER(m_pCity->getOwner()).GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+			{
+				iSneakies += 10;
+			}
+		}
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	{
+		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5;
 	}
 #endif
 	// Check units for operations first
@@ -1614,6 +1681,19 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 		{
 			iTempWeight = 0;
 		}
+		if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
+		{
+			iTempWeight = 0;
+		}
+		iTempWeight *= max(1, (iSneakies * 10));
 #endif
 		if (iTempWeight > 0)
 		{
@@ -1647,6 +1727,19 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 		{
 			iTempWeight = 0;
 		}
+		if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		{
+			iTempWeight = 0;
+		}
+		if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
+		{
+			iTempWeight = 0;
+		}
+		iTempWeight *= max(1, (iSneakies * 10));
 #endif
 		if (iTempWeight > 0)
 		{
@@ -1752,6 +1845,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 					iTempWeight *= 2;
 				}
 			}
+			iTempWeight *= max(1, (iSneakies * 10));
 #endif
 			// sanity check for building ships on small inland seas (not lakes)
 			if (pkUnitEntry)
@@ -1777,6 +1871,18 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			}
 #if defined(MOD_BALANCE_CORE)
 			if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+			{
+				iTempWeight = 0;
+			}
+			if(!bWantWorkers && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
+			{
+				iTempWeight = 0;
+			}
+			if(!bWantArch && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+			{
+				iTempWeight = 0;
+			}
+			if(!bWantCarrier && pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
 			{
 				iTempWeight = 0;
 			}
@@ -3132,7 +3238,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 				//Do we have enough military units to defend our land? No? Abort.
 				int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 				int iNumMilitaryUnits = kPlayer.getNumMilitaryUnits();
-				if(iNumWorkers >= iNumMilitaryUnits * 2)
+				if((iNumWorkers * 5) >= iNumMilitaryUnits)
 				{
 #endif
 				return false;
@@ -3184,15 +3290,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 #if defined(MOD_BALANCE_CORE)
 	int iCurrentNumCities = kPlayer.getNumCities();
-	//Do we have fewer workers than cities?
-	int iNumCities = max(1, (iCurrentNumCities * 3) / 4);
-	if(iNumWorkers < iNumCities)
-			return true;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	//Do we have more workers than cities?
-	iNumCities = max(1, iCurrentNumCities);
-	if(iNumWorkers >= iNumCities)
+	if(iNumWorkers >= iCurrentNumCities)
 #else
 	if(iNumWorkers >= ((kPlayer.getNumCities() *  3) / 2) + 1)
 #endif
@@ -3536,7 +3634,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 
 	if(!kPlayer.isMinorCiv())
 	{
-		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
 		//Too many settlers? Stop building them!
 		if(iSettlersOnMapOrBuild >= 2)
 		{
@@ -3544,9 +3642,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 		}
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		// scale based on flavor and world size
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !kPlayer.IsCramped())
+		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			if(iSettlersOnMapOrBuild >= 1)
+			if(iSettlersOnMapOrBuild >= 0)
 			{
 				return true;
 			}
@@ -3559,7 +3657,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-	if(pCity->getPopulation() <= 7)
+	if(pCity->getPopulation() <= 6)
 	{
 		return false;
 	}
@@ -3573,7 +3671,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
 		{
 			//Is there more room here to grow?
-			if(pArea->getNumUnownedTiles() >= pArea2->getNumUnownedTiles())
+			if((pArea->getNumUnownedTiles() > pArea2->getNumUnownedTiles()) && (pArea->GetNumBadPlots() < pArea2->getNumUnownedTiles()))
 			{
 				if(kPlayer.HaveGoodSettlePlot(pArea->GetID()))
 				{

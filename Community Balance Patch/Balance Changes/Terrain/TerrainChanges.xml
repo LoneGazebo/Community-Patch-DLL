@@ -382,7 +382,13 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
-			<TechType>TECH_STEAM_POWER</TechType>
+			<TechType>TECH_PHYSICS</TechType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<TechType>TECH_RADIO</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>2</Yield>
 		</Row>

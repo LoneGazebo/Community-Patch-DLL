@@ -41,17 +41,17 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>200</Flavor>
-		</Row>
-		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</AICityStrategyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
 			<Flavor>100</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</AICityStrategyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</AICityStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>200</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</AICityStrategyType>
@@ -66,17 +66,17 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-200</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 </GameData>

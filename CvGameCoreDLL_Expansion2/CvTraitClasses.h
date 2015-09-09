@@ -118,6 +118,7 @@ public:
 	int  GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
+	int GetTourismGABonus() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -343,6 +344,7 @@ protected:
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
+	int m_iTourismGABonus;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -796,6 +798,10 @@ public:
 	int GetAllianceCSStrength() const
 	{
 		return m_iAllianceCSStrength;
+	};
+	int GetTourismGABonus() const
+	{
+		return m_iTourismGABonus;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1309,6 +1315,7 @@ private:
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
+	int m_iTourismGABonus;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

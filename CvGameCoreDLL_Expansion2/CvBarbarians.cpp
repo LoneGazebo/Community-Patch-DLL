@@ -129,8 +129,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_BALANCE_CORE)
-	//bumped a bit - too many barbs gets annoying.
-	int iNumTurnsToSpawn = 12 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
+	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(8, "Barb Spawn Rand call");
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -909,24 +908,29 @@ void CvBarbarians::DoUnits()
 		{
 			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 			
-			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->getFortifyTurns() > 0)
+			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
 			{
-				if(pUnit->getDamage() > 0)
+				if(pUnit->canFortify(pLoopPlot) && (pLoopPlot->getImprovementType() == eCamp))
 				{
-					if(pUnit->getDomainType() == DOMAIN_LAND)
+					pUnit->PushMission(CvTypes::getMISSION_ALERT());
+					pUnit->SetFortifiedThisTurn(true);
+					if(pUnit->getDamage() > 0)
 					{
-						if(pUnit->plot()->getImprovementType() == eCamp)
+						if(pUnit->getDomainType() == DOMAIN_LAND)
 						{
-							pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() * 2));
+							if(pUnit->plot()->getImprovementType() == eCamp)
+							{
+								pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() * 2));
+							}
+							else
+							{
+								pUnit->setDamage(pUnit->getDamage() - GC.getBALANCE_BARBARIAN_HEAL_RATE());
+							}
 						}
-						else
+						if(pUnit->getDomainType() == DOMAIN_SEA)
 						{
-							pUnit->setDamage(pUnit->getDamage() - GC.getBALANCE_BARBARIAN_HEAL_RATE());
+							pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() / 2));
 						}
-					}
-					if(pUnit->getDomainType() == DOMAIN_SEA)
-					{
-						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() / 2));
 					}
 				}
 			}
@@ -939,7 +943,7 @@ void CvBarbarians::DoUnits()
 			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 			int iBarbStrength = 0;
 			int iCityStrength = 0;
-			if(pUnit != NULL && pUnit->isBarbarian() && pUnit->plot()->GetAdjacentCity() != NULL)
+			if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit() && pUnit->plot()->GetAdjacentCity() != NULL)
 			{
 				CvCity* pCity = pUnit->plot()->GetAdjacentCity();
 				if(pCity && pCity->getOwner() != NO_PLAYER && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && !GET_PLAYER(pCity->getOwner()).isBarbarian())
@@ -951,7 +955,7 @@ void CvBarbarians::DoUnits()
 					iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
 #endif
 					iCityStrength /= 100;
-					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 4);
+					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 10);
 					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 #ifdef AUI_BINOM_RNG
 					iBarbStrength +=GC.getGame().getJonRandNumBinom(iBarbStrength, "Barbarian Random Strength Bump");
@@ -964,8 +968,8 @@ void CvBarbarians::DoUnits()
 
 						if(iTheft > 0)
 						{
-							pCity->changeDamage((iTheft / 2));
-							pUnit->changeDamage((iTheft / 2));
+							pCity->changeDamage((iTheft / 3));
+							pUnit->changeDamage((iTheft / 3));
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else

@@ -2688,6 +2688,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = (uint)-1;
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = 0;
+#endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
@@ -4609,6 +4612,48 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 	{
 		if(canRangeStrikeAt(plot.getX(), plot.getY(), false))
 		{
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+			if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
+			{
+				pUnit = NULL;
+				int iPeaceUnits = 0;
+				bool bWarCity = false;
+				if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
+				{
+					bWarCity = true;
+				}
+				for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+				{
+					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+
+					//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
+					if(loopUnit != NULL)
+					{
+						if(loopUnit->IsCombatUnit())
+						{
+							if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+							{
+								//There can be only one military unit on a tile, so one check is good enough.
+								pUnit = plot.getUnitByIndex(iUnitLoop);
+							}
+						}
+						else if(loopUnit->IsCivilianUnit())
+						{
+							//Only need one to trigger.
+							if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+							{
+								iPeaceUnits++;
+							}
+						}
+					}
+				}
+				//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+				if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
+				{
+					return NO_TEAM;
+				}
+			}
+#endif
 			pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
 			if(pUnit != NULL)
@@ -26200,7 +26245,11 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 		else
 		{
 			// If we have already tried this, don't waste time and do it again.
+#if defined(MOD_BALANCE_CORE)
+			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || m_uiLastPathFlags != iFlags )	
+#else
 			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex())	
+#endif
 			{
 				bGenerated = GeneratePath(pDestPlot, iFlags);	// Need to regenerate
 			}
@@ -27418,6 +27467,9 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = iFlags;
+#endif
 
 	CvAStar::CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
 
@@ -27532,6 +27584,9 @@ void CvUnit::ClearPathCache()
 {
 	m_kLastPath.setsize(0);
 	m_uiLastPathCacheDest = (uint)-1;
+#if defined(MOD_BALANCE_CORE)
+	m_uiLastPathFlags = 0;
+#endif
 }
 
 

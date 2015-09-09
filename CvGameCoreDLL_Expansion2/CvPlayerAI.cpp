@@ -2483,7 +2483,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 {
-	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER)
+	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
 		return NULL;
 	}

@@ -743,7 +743,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	int iCurrentHappiness = pPlayer->GetExcessHappiness();
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
+#if !defined(MOD_BALANCE_CORE)
 	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+#endif
 #if !defined(NO_ACHIEVEMENTS)
 	PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 #endif
@@ -787,9 +789,10 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif
 	{
 		// How much Happiness could we gain from a switch?
+#if !defined(MOD_BALANCE_CORE)
 		int iHappinessCurrentIdeology = GetBranchBuildingHappiness(pPlayer, eCurrentIdeology);
 		int iHappinessPreferredIdeology = GetBranchBuildingHappiness(pPlayer, ePreferredIdeology);
-
+#endif
 		// Does the switch fight against our clearly preferred victory path?
 		bool bDontSwitchFreedom = false;
 		bool bDontSwitchOrder = false;
@@ -860,13 +863,12 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 		}
 #endif
-		int iTotalHappinessImprovement = iPublicOpinionUnhappiness + iHappinessPreferredIdeology - iHappinessCurrentIdeology;
 #if defined(MOD_BALANCE_CORE)
-		if (iTotalHappinessImprovement >= 25)
 #else
+		int iTotalHappinessImprovement = iPublicOpinionUnhappiness + iHappinessPreferredIdeology - iHappinessCurrentIdeology;
 		if (iTotalHappinessImprovement >= 10)
-#endif
 		{
+#endif
 			if (bDontSwitchFreedom && ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM())
 			{
 				return;
@@ -881,7 +883,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 #if defined(MOD_BALANCE_CORE)
 			//Final sanity check - are we flip-flopping?
-			if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 40)
+			if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
 			{
 				return;
 			}
@@ -904,8 +906,68 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 				}
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+#else
 		}
+#endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() * 2 && iPublicOpinionUnhappiness >= (-1 * (GC.getSUPER_UNHAPPY_THRESHOLD() * 2)))
+	{
+		// Does the switch fight against our clearly preferred victory path?
+		bool bDontSwitchFreedom = false;
+		bool bDontSwitchOrder = false;
+		bool bDontSwitchAutocracy = false;
+		int iConquestPriority = pPlayer->GetGrandStrategyAI()->GetConquestPriority();
+		int iDiploPriority = pPlayer->GetGrandStrategyAI()->GetUnitedNationsPriority();
+		int iTechPriority = pPlayer->GetGrandStrategyAI()->GetSpaceshipPriority();
+		int iCulturePriority = pPlayer->GetGrandStrategyAI()->GetCulturePriority();
+		int iClearPrefPercent = GC.getIDEOLOGY_PERCENT_CLEAR_VICTORY_PREF();
+		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
+			iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
+			iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
+		{
+			bDontSwitchFreedom = true;
+		}
+		else if (iDiploPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
+			iDiploPriority > (iTechPriority     * (100 + iClearPrefPercent) / 100) &&
+			iDiploPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
+		{
+			bDontSwitchOrder = true;
+		}
+		else if (iTechPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
+			iTechPriority > (iDiploPriority    * (100 + iClearPrefPercent) / 100) &&
+			iTechPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
+		{
+			bDontSwitchAutocracy = true;
+		}
+		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
+		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
+		{
+			int iUnhappiness = pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(ePreferredIdeology);
+			if(iUnhappiness >= iPublicOpinionUnhappiness)
+			{
+				return;
+			}
+		}
+#if defined(MOD_BALANCE_CORE)
+		//Final sanity check - are we flip-flopping?
+		if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
+		{
+			return;
+		}
+#endif
+
+		// Cleared all obstacles -- REVOLUTION!
+		pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+		pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);	
+#if defined(MOD_BALANCE_CORE)
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
+		pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+#endif
+	}
+#endif
 }
 
 /// What's the total Happiness benefit we could get from all policies/tenets in the branch based on our current buildings?

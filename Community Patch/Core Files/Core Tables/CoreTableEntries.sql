@@ -206,6 +206,9 @@ ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'PopulationBoostReligion' BOOLEAN DEFAULT 0;
 
+-- New Traits - % of capital culture converted to tourism during a GA
+ALTER TABLE Traits ADD COLUMN 'TourismGABonus' INTEGER DEFAULT 0;
+
 -- New Traits - Additioanl WC vote for every x CS Alliances
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSAlliance' INTEGER DEFAULT 0;
 

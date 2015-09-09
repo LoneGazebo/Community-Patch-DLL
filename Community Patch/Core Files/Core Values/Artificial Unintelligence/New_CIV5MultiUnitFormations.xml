@@ -2,6 +2,12 @@
 <!-- Created by ModBuddy on 8/7/2014 3:30:27 PM -->
 <GameData>
 	<MultiUnitFormation_SlotEntries>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NUKE_ATTACK</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_MISSILE_AIR</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_MISSILE_AIR</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_EARLY_RUSH"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
@@ -677,7 +683,6 @@
 			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
@@ -689,12 +694,6 @@
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>

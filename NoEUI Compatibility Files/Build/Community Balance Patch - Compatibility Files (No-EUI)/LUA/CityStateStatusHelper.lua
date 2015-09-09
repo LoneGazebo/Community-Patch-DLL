@@ -240,9 +240,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	local iInfluence = pMinor:GetMinorCivFriendshipWithMajor(iMajor);
 	local iInfluenceChangeThisTurn = pMinor:GetFriendshipChangePerTurnTimes100(iMajor) / 100;
 	local iInfluenceAnchor = pMinor:GetMinorCivFriendshipAnchorWithMajor(iMajor);
-	--COMMUNITY
-	local iJerk = pMinor:GetJerk(iMajorTeam);
-	--END
+
 	local strStatusTT = "";
 	
 	-- Status and Influence
@@ -269,19 +267,17 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PERMANENT_WAR_CSTATE_TT", strShortDescKey);
--- Peace blocked by being at war (COMMUNITY PATCH CHANGES)		
 	elseif (pMinor:IsPeaceBlocked(iActiveTeam)) then		
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_CSTATE_TT", strShortDescKey, iJerk);
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_CSTATE_TT", strShortDescKey);
 		
 	elseif (bWar) then		-- War
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" ..Locale.ConvertTextKey("TXT_KEY_WAR_CSTATE_TT", strShortDescKey, iJerk);
---END
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" ..Locale.ConvertTextKey("TXT_KEY_WAR_CSTATE_TT", strShortDescKey);
 		
 	elseif (iInfluence < GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]) then
 		-- Afraid
@@ -318,6 +314,12 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY");
 	end
+-- CBP
+	local iJerk = pMinor:GetJerk(iMajor);
+	if(iJerk > 0) then
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CSTATE_JERK_STATUS", iJerk);
+	end
+-- END
 	
 	if (bFullInfo) then
 		-- Open Borders

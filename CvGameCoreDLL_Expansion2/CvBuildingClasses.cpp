@@ -310,6 +310,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	m_ppaiYieldPerXTerrain(NULL),
 	m_ppaiPlotYieldChange(NULL),
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -398,6 +399,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXTerrain);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -882,6 +884,28 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int yield = pResults->GetInt(2);
 
 			m_ppaiImprovementYieldChange[ImprovementID][YieldID] = yield;
+		}
+	}
+	//TerrainYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiYieldPerXTerrain, "Terrains", "Yields");
+
+		std::string strKey("Building_YieldPerXTerrain");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Building_YieldPerXTerrain inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiYieldPerXTerrain[TerrainID][YieldID] = yield;
 		}
 	}
 #endif
@@ -2744,6 +2768,23 @@ int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+/// Change to Terrain yield by type
+int CvBuildingEntry::GetYieldPerXTerrain(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiYieldPerXTerrain ? m_ppaiYieldPerXTerrain[i][j] : -1;
+}
+
+/// Array of changes to Feature yield
+int* CvBuildingEntry::GetYieldPerXTerrainArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiYieldPerXTerrain[i];
+}
 /// Change to Plot yield by type
 int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
 {

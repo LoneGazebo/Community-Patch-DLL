@@ -553,7 +553,7 @@ SET NearbyMountainRequired = '1'
 WHERE Type = 'BUILDING_OBSERVATORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must be within two tiles of a Mountain. All nearby Mountains receive +2 [ICON_RESEARCH] Science.'
+SET Text = 'City must be within two tiles of a Mountain. City gains +1 [ICON_RESEARCH] Science for every Mountain tile within its borders.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -584,7 +584,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_WINDMILL_STRATEGY' AND EXISTS (SELECT * FROM COMMU
 -- Hydroplant
 UPDATE Building_RiverPlotYieldChanges
 SET Yield = '3'
-WHERE Type = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+WHERE BuildingType = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
 SET PrereqTech = 'TECH_ELECTRONICS'

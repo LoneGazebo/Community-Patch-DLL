@@ -420,6 +420,11 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Improvement_Yields>
 	<Unit_FreePromotions>
 		<Row>
@@ -445,6 +450,11 @@
 			<Modifier>50</Modifier>
 		</Row>
 	</Trait_GoldenAgeGreatPersonRateModifier>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GA_BONUS">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from {2_Num}% of the [ICON_CULTURE] Culture of your [ICON_CAPITAL] Capital (Carnival Bonus)</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Portugal UA -->
 	<Trait_YieldFromRouteMovement>
 		<Row>

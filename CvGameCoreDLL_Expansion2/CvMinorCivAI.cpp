@@ -2608,7 +2608,6 @@ void CvMinorCivAI::Reset()
 	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		m_abIsJerk[iI] = false;
 		m_aiJerk[iI] = 0;
 #endif
 		m_abPermanentWar[iI] = false;
@@ -2714,7 +2713,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_bIsRebellionActive;
 	kStream >> m_bIsHordeActive;
 	kStream >> m_iCooldownSpawn;
-	kStream >> m_abIsJerk;
 	kStream >> m_aiJerk;
 	kStream >> m_abIsMarried;
 #endif
@@ -2802,7 +2800,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_bIsRebellionActive;
 	kStream << m_bIsHordeActive;
 	kStream << m_iCooldownSpawn;
-	kStream << m_abIsJerk;
 	kStream << m_aiJerk;
 	kStream << m_abIsMarried;
 #endif
@@ -3079,14 +3076,20 @@ void CvMinorCivAI::DoTurn()
 				eLoopTeam = (TeamTypes) iTeamLoop;
 				if(eLoopTeam != NO_TEAM)
 				{
-					if(IsJerk(eLoopTeam) || GetJerk(eLoopTeam) > 0)
+					if(GetJerk(eLoopTeam) > 0)
 					{
 						ChangeJerk(eLoopTeam, -1);
 					}
-					if(GetJerk(eLoopTeam) <= 0 && !IsJerk(eLoopTeam))
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						SetIsJerk(eLoopTeam, false);
-						SetJerk(eLoopTeam, 0);
+						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+						if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
+						{
+							if(IsFriends(ePlayer))
+							{
+								SetJerk(eLoopTeam, 0);
+							}
+						}
 					}
 				}
 			}
@@ -3139,7 +3142,6 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 				eLoopTeam = (TeamTypes) iTeamLoop;
 				if(eLoopTeam != NO_TEAM)
 				{
-					SetIsJerk(eLoopTeam, false);
 					SetJerk(eLoopTeam, 0);
 				}
 			}
@@ -4950,6 +4952,16 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// Somebody's dead, that's no good
 	if(!GET_PLAYER(ePlayer).isAlive() || !GetPlayer()->isAlive())
 		return false;
+
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
+	{
+		if(GetJerk(GET_PLAYER(ePlayer).getTeam()) > 0)
+		{
+			return false;
+		}
+	}
+#endif
 
 	// No quests are valid if we are at war
 	if(IsAtWarWithPlayersTeam(ePlayer))
@@ -6900,7 +6912,7 @@ void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 void CvMinorCivAI::DoRebellion()
 {
 	// In hundreds
-	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 100); //Based on number of military units of CS.
+	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 75); //Based on number of military units of CS.
 	int iExtraRoll = 100; //1+ Rebels maximum
 	iExtraRoll += (GC.getGame().getCurrentEra() * 50); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
@@ -7916,6 +7928,12 @@ void CvMinorCivAI::DoFriendship()
 
 		if(GET_PLAYER(ePlayer).isAlive())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!IsHasMetPlayer(ePlayer))
+			{
+				continue;
+			}
+#endif
 			// Update friendship even if the player hasn't met us yet, since we may have heard things through the grapevine (Wary Of, SP, etc.)
 
 			// Look at the base friendship (not counting war status etc.) and change it
@@ -8259,14 +8277,9 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		//Anchor reduced by 10 based on num minor civs attacked. Only counts for CSs not allied to or friends with.
-		int iAttacks = GET_TEAM(pMajor->getTeam()).GetNumMinorCivsAttacked();
-		if (iAttacks > 0)
+		if(GetJerk(pMajor->getTeam()) > 0)
 		{
-			if(!IsFriends(pMajor->GetID()) || !IsAllies(pMajor->GetID()))
-			{
-				iAnchor += (GC.getBALANCE_MINOR_ANCHOR_ATTACK() /*-10*/ * iAttacks);
-			}
+			iAnchor += GC.getMINOR_FRIENDSHIP_ANCHOR_MOD_WARY_OF();
 		}
 	}
 #endif
@@ -8742,21 +8755,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 	// If we are Friends now, mark that we've been Friends at least once this game
 	if(bNowAboveFriendsThreshold)
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
-		{
-			//Small Possibility of reducing # of minor civs attacked via friendship the first time we become friends with them.
-			if(!IsEverFriends(ePlayer) && (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumMinorCivsAttacked() > 0))
-			{
-				int iForgive = GC.getGame().getJonRandNum(100, "Rand turns for Minor forgiveness");
-				if(iForgive > GC.getBALANCE_CS_FORGIVENESS_CHANCE())
-				{
-					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).ChangeNumMinorCivsAttacked(-1);
-				}
-			}
-		}
-#endif
-
 		SetEverFriends(ePlayer, true);
 	// Add Friends Bonus
 	if(!bWasAboveFriendsThreshold && bNowAboveFriendsThreshold)
@@ -11927,9 +11925,9 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	switch(eYield)
 	{
 		case YIELD_CULTURE:
-			if(pCapitalCity->getYieldRate(YIELD_CULTURE, false) > 0)
+			if(pCapitalCity->getJONSCulturePerTurn() > 0)
 			{
-				iValue += pCapitalCity->getYieldRate(YIELD_CULTURE, false);
+				iValue += pCapitalCity->getJONSCulturePerTurn();
 			}
 			break;
 		case YIELD_FAITH:
@@ -12943,7 +12941,11 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			// Revoke PtP is there was one
 			if(IsProtectedByMajor(ePlayer))
 			{
+#if defined(MOD_BALANCE_CORE)
+				DoChangeProtectionFromMajor(ePlayer, false, true);
+#else
 				DoChangeProtectionFromMajor(ePlayer, false);
+#endif
 			}
 
 			// Revoke quests if there were any
@@ -13006,16 +13008,6 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if(IsPermanentWar(eTeam))
 		return true;
 
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
-	{
-		if(IsJerk(eTeam) || (GetJerk(eTeam) > 0))
-		{
-			return true;
-		}
-	}
-#endif
-
 	// Allies with someone at war with this guy?
 	PlayerTypes eMajor;
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -13029,14 +13021,6 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 		// Must be allies
 		if(!IsAllies(eMajor))
 			continue;
-
-#if defined(MOD_BALANCE_CORE)
-		//Failsafe
-		if(GET_PLAYER(eMajor).isMinorCiv() || GET_PLAYER(eMajor).isBarbarian())
-		{
-			continue;
-		}
-#endif
 
 		// Ally must be at war with this team
 		if(!GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(eTeam))
@@ -13067,6 +13051,13 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
 		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR());
+#if defined(MOD_BALANCE_CORE)
+		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
+		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
+		{
+			EndAllActiveQuestsForPlayer(eEnemyMajorLoop);
+		}
+#endif
 	}
 
 	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War
@@ -13227,8 +13218,11 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		SetIsJerk(eEnemyTeam, true);
-		SetJerk(eEnemyTeam, /*30*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE());
+		int iJerk = /*50*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE();
+		iJerk *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iJerk /= 100;
+		SetJerk(eEnemyTeam, iJerk);
+
 	}
 #endif
 
@@ -13279,25 +13273,6 @@ void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 	m_abWaryOfTeam[eTeam] = bValue;
 }
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-//Did you attack me FOR NO REASON? JERK!
-bool CvMinorCivAI::IsJerk(TeamTypes eTeam) const
-{
-	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= REALLY_MAX_TEAMS) return 0;  // as defined in Reset()
-	return m_abIsJerk[eTeam];
-}
-
-void CvMinorCivAI::SetIsJerk(TeamTypes eTeam, bool bValue)
-{
-	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(m_abIsJerk[eTeam] != bValue)
-	{
-		m_abIsJerk[eTeam] = bValue;
-	}
-}
-
 //JERK COOLDOWN RATE
 
 void CvMinorCivAI::ChangeJerk(TeamTypes eTeam, int iChange)

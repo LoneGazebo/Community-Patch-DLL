@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/23/2014 10:41:04 PM -->
+<GameData>
+	<Building_GrowthExtraYield>
+		<Row>
+			<BuildingType>BUILDING_CHANCERY</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_GrowthExtraYield>
+</GameData>

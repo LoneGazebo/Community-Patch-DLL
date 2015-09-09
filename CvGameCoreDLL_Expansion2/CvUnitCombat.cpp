@@ -525,8 +525,11 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				else
 				{
 					pkAttacker->changeMoves(-1 * std::max(GC.getMOVE_DENOMINATOR(), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot())));
-
+#if defined(MOD_BALANCE_CORE)
+					if(!pkAttacker->canMove() || !pkAttacker->isBlitz() || pkAttacker->isOutOfAttacks())
+#else
 					if(!pkAttacker->canMove() || !pkAttacker->isBlitz())
+#endif
 					{
 						if(pkAttacker->IsSelected())
 						{

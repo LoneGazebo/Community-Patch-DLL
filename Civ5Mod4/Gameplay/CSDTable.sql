@@ -1,0 +1,6 @@
+--DO NOT MODIFY THIS--
+CREATE TABLE IF NOT EXISTS CSD (
+Type text,
+Value variant default 0
+);
+--DO NOT MODIFY ABOVE--

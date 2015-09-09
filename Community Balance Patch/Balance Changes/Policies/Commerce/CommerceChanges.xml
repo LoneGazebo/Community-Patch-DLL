@@ -43,7 +43,7 @@
 		<Row>
 			<PolicyType>POLICY_COMMERCE_FINISHER</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_SpecialistExtraYields>
 	<Policy_ImprovementYieldChanges>

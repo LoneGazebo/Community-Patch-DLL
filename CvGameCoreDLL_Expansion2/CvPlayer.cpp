@@ -3970,7 +3970,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 						}
 					}
 				}
-				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetIsJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), false);
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), 0);
 			}
 		}
@@ -14013,57 +14012,12 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
-
-			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
-			iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
-
-			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
-			if(iYieldPerXFollowers > 0)
-			{
-				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
-			}
-			if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
-			{
-				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
-				int iNumHappinessResources = 0;
-				ResourceTypes eResource;
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					eResource = (ResourceTypes) iResourceLoop;
-
-					if(GetHappinessFromLuxury(eResource) > 0)
-					{
-						iNumHappinessResources++;
-					}
-				}
-				if(iNumHappinessResources > 0)
-				{
-					iLuxCulture *= iNumHappinessResources;
-					iYieldPerTurn += iLuxCulture;
-				}
-			}
-			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
-			if(iYieldPerGPT > 0)
-			{
-				if(GetTreasury()->CalculateBaseNetGold() > 0)
-				{
-					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
-				}
-			}
-			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
-			if(iYieldPerScience > 0)
-			{
-				if(GetScience() > 0)
-				{
-					iYieldPerTurn += (GetScience() / iYieldPerScience);
-				}
-			}
 		}
 	}
 	//Pantheon
-	else
+	eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+	if(eReligion != NO_RELIGION)
 	{
-		eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
 		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
 		if (pReligion && eReligion == RELIGION_PANTHEON)
 		{
@@ -14082,18 +14036,7 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					}
 				}
 			}
-			// This came from CvTreasury::GetGoldPerTurnFromReligion()
-			if (eYield == YIELD_GOLD)
-			{
-				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity();
-				iYieldPerTurn += (iCities * iGoldPerFollowingCity);
 
-				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers();
-				if(iGoldPerXFollowers > 0)
-				{
-					iYieldPerTurn += (iFollowers / iGoldPerXFollowers);
-				}
-			}
 			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
 			iYieldPerTurn += (iCities * iYieldPerFollowingCity);
 
@@ -19591,13 +19534,15 @@ int iEra = GetCurrentEra();
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
 			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-
-			CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-			if(pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+			if(eMinorLoop != NO_PLAYER)
 			{
-				if(GET_TEAM(pMinorLoop->getTeam()).isHasMet(GET_PLAYER(GetID()).getTeam()))
+				CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+				if(pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
 				{
-					pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iExpendInfluence, false);
+					if(GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+					{
+						pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iExpendInfluence, false);
+					}
 				}
 			}
 		}
@@ -22698,22 +22643,15 @@ int CvPlayer::calculateMilitaryMight() const
 int CvPlayer::calculateEconomicMight() const
 {
 #if defined(MOD_BALANCE_CORE)
-	int iEconomicMight = 0;
+	int iEconomicMight = 5;
+	iEconomicMight += getTotalPopulation();
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
 	if(IsEmpireUnhappy())
 	{
-		iEconomicMight -= GetSetUnhappiness();
-	}
-	else if(IsEmpireVeryUnhappy())
-	{
-		iEconomicMight -= (GetSetUnhappiness() * 2);
-	}
-	else if(IsEmpireSuperUnhappy())
-	{
-		iEconomicMight -= (GetSetUnhappiness() * 4);
+		iEconomicMight -= GetSetUnhappiness() * 10;
 	}
 #else
 	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
@@ -26434,7 +26372,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							int iX = -1;
 							int iY = -1;
 
-							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
 						}
 					}
 				}
@@ -26481,7 +26419,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							int iX = -1;
 							int iY = -1;
 
-							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
 						}
 					}
 				}
@@ -30574,6 +30512,20 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pPolicy->GetStrategicResourceMod() > 0)
+	{
+		for(int iLoop = 0; iLoop < GC.getNumResourceInfos(); iLoop++)
+		{
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iLoop);
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if(pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				CheckForMonopoly(eResource);
+			}
+		}
+	}
+#endif
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -32334,9 +32286,13 @@ void CvPlayer::Read(FDataStream& kStream)
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		if (m_pabHasGlobalMonopoly[iResourceLoop])
-			SetHasGlobalMonopoly((ResourceTypes)iResourceLoop,true);
+		{
+			SetHasGlobalMonopoly((ResourceTypes)iResourceLoop, true);
+		}
 		if (m_pabHasStrategicMonopoly[iResourceLoop])
-			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop,true);
+		{
+			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop, true);
+		}
 	}
 
 #endif

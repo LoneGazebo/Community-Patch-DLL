@@ -488,6 +488,10 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_PRODUCTION] Production from all Mines worked by this City. +2 [ICON_FOOD] Food from Forests worked by this City. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'The Longhouse is the Iroquois unique building, replacing the Workshop. It increases the city''s [ICON_FOOD] Production output for each forest within the city''s radius.'
+WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 UPDATE Units
 SET PrereqTech = 'TECH_IRON_WORKING'
 WHERE Type = 'UNIT_IROQUOIAN_MOHAWKWARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

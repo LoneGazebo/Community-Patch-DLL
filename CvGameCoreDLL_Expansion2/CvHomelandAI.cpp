@@ -123,21 +123,6 @@ void CvHomelandAI::RecruitUnits()
 		// Never want immobile/dead units or ones that have already moved
 		if(!pLoopUnit->TurnProcessed() && !pLoopUnit->isDelayedDeath() && pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN && pLoopUnit->canMove())
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			//don't use units which were assigned a tactical move this turn!
-			if ( pLoopUnit->hasCurrentTacticalMove() )
-			{
-				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d. mission info %s)", 
-										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->GetMissionInfo() );
-				LogHomelandMessage( msg );
-
-				//important - else AI turn will never end! (in fact it does for some reason end after a while ...)
-				pLoopUnit->finishMoves();
-				pLoopUnit->SetTurnProcessed(true);
-				continue;
-			}
-#endif
-
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 	}

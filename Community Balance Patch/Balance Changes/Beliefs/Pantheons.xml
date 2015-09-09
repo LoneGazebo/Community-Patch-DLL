@@ -244,20 +244,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Belief_TerrainYieldChanges>
-	<Belief_PlotYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Belief_PlotYieldChanges>
 	<!-- God King-->
 	<Belief_YieldPerXFollowers>
 		<Row>
@@ -286,6 +272,18 @@
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>3</Yield>
 		</Row>

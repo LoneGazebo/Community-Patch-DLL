@@ -347,6 +347,10 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType,
 		return FNEW(CvAIOperationPillageEnemy(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_CLOSE_DEFENSE:
 		return FNEW(CvAIOperationCityCloseDefense(), c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE)
+	case AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE:
+		return FNEW(CvAIOperationCityCloseDefensePeace(), c_eCiv5GameplayDLL, 0);
+#endif
 	case AI_OPERATION_RAPID_RESPONSE:
 		return FNEW(CvAIOperationRapidResponse(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_SNEAK_CITY_ATTACK:
@@ -646,9 +650,13 @@ bool CvAIOperation::CheckOnTarget()
 		case AI_OPERATION_MOVETYPE_SINGLE_HEX:
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 #if defined(MOD_BALANCE_CORE)
-			if(pThisArmy && pThisArmy->Plot() != NULL && pThisArmy->GetGoalPlot() != NULL)
+			if(pThisArmy)
 			{
-				FillWithUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot());
+				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+				if(pThisOperation && pThisOperation->GetMusterPlot() != NULL && pThisOperation->GetTargetPlot() != NULL)
+				{
+					FillWithUnitsFromTheReserves(pThisOperation->GetMusterPlot(), pThisOperation->GetTargetPlot());
+				}
 			}
 #endif
 			if(pThisArmy->GetNumSlotsFilled() >= 1)
@@ -716,9 +724,13 @@ bool CvAIOperation::CheckOnTarget()
 		{
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 #if defined(MOD_BALANCE_CORE)
-			if(pThisArmy && pThisArmy->Plot() != NULL && pThisArmy->GetGoalPlot() != NULL)
+			if(pThisArmy)
 			{
-				FillWithUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot());
+				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+				if(pThisOperation && pThisOperation->GetMusterPlot() != NULL && pThisOperation->GetTargetPlot() != NULL)
+				{
+					FillWithUnitsFromTheReserves(pThisOperation->GetMusterPlot(), pThisOperation->GetTargetPlot());
+				}
 			}
 #endif
 			CvPlot* pCenterOfMass;
@@ -777,9 +789,13 @@ bool CvAIOperation::CheckOnTarget()
 		{
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 #if defined(MOD_BALANCE_CORE)
-			if(pThisArmy && pThisArmy->Plot() != NULL && pThisArmy->GetGoalPlot() != NULL)
+			if(pThisArmy)
 			{
-				FillWithUnitsFromTheReserves(pThisArmy->Plot(), pThisArmy->GetGoalPlot());
+				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+				if(pThisOperation && pThisOperation->GetMusterPlot() != NULL && pThisOperation->GetTargetPlot() != NULL)
+				{
+					FillWithUnitsFromTheReserves(pThisOperation->GetMusterPlot(), pThisOperation->GetTargetPlot());
+				}
 			}
 #endif
 			CvPlot* pCenterOfMass;
@@ -891,7 +907,16 @@ bool CvAIOperation::CheckOnTarget()
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 			CvPlot* pCenterOfMass;
 			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-
+#if defined(MOD_BALANCE_CORE)
+			if(pThisArmy)
+			{
+				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+				if(pThisOperation && pThisOperation->GetMusterPlot() != NULL && pThisOperation->GetTargetPlot() != NULL)
+				{
+					FillWithUnitsFromTheReserves(pThisOperation->GetMusterPlot(), pThisOperation->GetTargetPlot());
+				}
+			}
+#endif
 			if(pThisArmy->GetNumSlotsFilled() >= 1)
 			{
 				switch(m_eCurrentState)
@@ -6338,6 +6363,11 @@ CvPlot* CvAIOperationDiplomatDelegation::FindBestTarget(CvUnit* pUnit, bool bOnl
 	}
 	int iTargetTurns;
 	bOnlySafePaths= true;
+	if(GetTargetPlot() != NULL)
+	{
+		pUnit->canTrade(GetTargetPlot());
+		return GetTargetPlot();
+	}
 	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
 }
 
@@ -8207,7 +8237,129 @@ CvPlot* CvAIOperationPureNavalCityAttack::FindBestTarget()
 
 	return NULL;
 }
+#if defined(MOD_BALANCE_CORE)
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationCityCloseDefense - Place holder
+////////////////////////////////////////////////////////////////////////////////
 
+/// Constructor
+CvAIOperationCityCloseDefensePeace::CvAIOperationCityCloseDefensePeace()
+{
+}
+
+/// Destructor
+CvAIOperationCityCloseDefensePeace::~CvAIOperationCityCloseDefensePeace()
+{
+}
+
+/// Kick off this operation
+void CvAIOperationCityCloseDefensePeace::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iDefaultArea*/, CvCity* pTarget, CvCity* pMuster)
+{
+	Reset();
+	m_iID = iID;
+	m_eOwner = eOwner;
+	m_eEnemy = eEnemy;
+
+	if(iID != -1)
+	{
+		// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
+		CvArmyAI* pArmyAI = GET_PLAYER(m_eOwner).addArmyAI();
+		if(pArmyAI)
+		{
+			m_viArmyIDs.push_back(pArmyAI->GetID());
+			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
+			pArmyAI->SetFormationIndex(GetFormation());
+			CvPlot* pTargetPlot = NULL;
+			if(pMuster != NULL)
+			{
+				SetMusterPlot(pMuster->plot());
+			}
+			if(pTarget != NULL)
+			{
+				SetTargetPlot(pTarget->plot());
+			}
+			else
+			{
+				pTargetPlot = FindBestTarget();
+				if(pTargetPlot != NULL)
+				{
+					SetTargetPlot(pTargetPlot);
+				}
+			}
+			if(GetTargetPlot() != NULL && GetMusterPlot() != NULL)
+			{
+				pArmyAI->SetGoalPlot(GetTargetPlot());
+				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
+				SetDefaultArea(GetMusterPlot()->getArea());
+
+				// Find the list of units we need to build before starting this operation in earnest
+				BuildListOfUnitsWeStillNeedToBuild();
+
+				// Try to get as many units as possible from existing units that are waiting around
+				if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+				{
+					pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+					m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+				}
+				else
+				{
+					m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+				}
+
+				LogOperationStart();
+			}
+			else
+			{
+				// No muster point, abort
+				m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+				m_eAbortReason = AI_ABORT_NO_MUSTER;
+			}
+		}
+	}
+}
+
+/// Read serialized data
+void CvAIOperationCityCloseDefensePeace::Read(FDataStream& kStream)
+{
+	// read the base class' entries
+	CvAIOperation::Read(kStream);
+
+	// Version number to maintain backwards compatibility
+	uint uiVersion;
+	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
+}
+
+/// Write serialized data
+void CvAIOperationCityCloseDefensePeace::Write(FDataStream& kStream) const
+{
+	// write the base class' entries
+	CvAIOperation::Write(kStream);
+
+	// Current version number
+	uint uiVersion = 1;
+	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
+}
+
+/// Find the best blocking position against the current threats
+CvPlot* CvAIOperationCityCloseDefensePeace::FindBestTarget()
+{
+	CvCity* pCity;
+	CvPlot* pPlot = NULL;
+
+	// Defend the city most under threat
+	pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity();
+
+	if(pCity != NULL)
+	{
+		pPlot = pCity->plot();
+	}
+
+	return pPlot;
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCityCloseDefense - Place holder
 ////////////////////////////////////////////////////////////////////////////////
@@ -10317,6 +10469,43 @@ bool CvAIOperationNukeAttack::ArmyInPosition(CvArmyAI* pArmy)
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		iUnitID = pArmy->GetNextUnitID();
+		CvUnit* pMissile = NULL;
+		if(iUnitID != -1)
+		{
+			pMissile = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+		}
+
+		if(pMissile != NULL)
+		{
+			if(pNuke->canMove())
+			{
+				if(pMissile->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
+				{
+					pNuke->PushMission(CvTypes::getMISSION_NUKE(), pTargetPlot->getX(), pTargetPlot->getY());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("City nuked, At X=%d, At Y=%d", pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
+					}
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				}
+				else if(pMissile->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), false, false))
+				{
+					pMissile->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("City struck with missile, At X=%d, At Y=%d", pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
+					}
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				}
+			}
+		}
+#endif
 	}
 	return true;
 }
@@ -10369,14 +10558,9 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 									// are we at war with them (or are they us)
 #if defined(MOD_BALANCE_CORE)
 									//Nukes have hit here already, let's not target this place again.
-									if(pLoopPlot->IsFeatureFallout() && pCityPlot->getOwner() == pCityPlot->getOwner())
+									if(pLoopPlot->IsFeatureFallout() && pCityPlot->getOwner() == pLoopPlot->getOwner())
 									{
 										iThisCityValue -= 1000;
-									}
-									//Is this city threatened? Let's target this.
-									if(enemyPlayer.GetMilitaryAI()->GetMostThreatenedCity() == pLoopCity)
-									{
-										iThisCityValue += 250;
 									}
 #endif
 									if(ePlotOwner == m_eOwner)
@@ -10468,6 +10652,126 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopUnit && pLoopUnit->isSuicide())
+		{
+			int iUnitRange = pLoopUnit->GetRange();
+			// for all cities of this enemy
+			CvCity* pLoopCity;
+			for(pLoopCity = enemyPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = enemyPlayer.nextCity(&iCityLoop))
+			{
+				if(pLoopCity)
+				{
+					if(plotDistance(pLoopUnit->getX(),pLoopUnit->getY(),pLoopCity->getX(),pLoopCity->getY()) <= iUnitRange)
+					{
+						CvPlot* pCityPlot = pLoopCity->plot();
+						int iThisCityValue = pLoopCity->getPopulation();
+						iThisCityValue -= pLoopCity->getDamage() / 5; // No point nuking a city that is already trashed unless it is good city
+
+						// check to see if there is anything good or bad in the radius that we should account for
+
+						for(int iDX = -iBlastRadius; iDX <= iBlastRadius; iDX++)
+						{
+							for(int iDY = -iBlastRadius; iDY <= iBlastRadius; iDY++)
+							{
+								CvPlot* pLoopPlot = plotXYWithRangeCheck(pCityPlot->getX(), pCityPlot->getY(), iDX, iDY, iBlastRadius);
+								if(pLoopPlot)
+								{
+									// who owns this plot?
+									PlayerTypes ePlotOwner = pLoopPlot->getOwner();
+									TeamTypes ePlotTeam = pLoopPlot->getTeam();
+									// are we at war with them (or are they us)
+
+									if(ePlotOwner == m_eOwner)
+									{
+										iThisCityValue -= 1;
+										if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+										{
+											if(!pLoopPlot->IsImprovementPillaged())
+											{
+												iThisCityValue -= 5;
+												if(pLoopPlot->getResourceType(ePlotTeam) != NO_RESOURCE)  // we aren't nuking our own resources
+												{
+													iThisCityValue -= 1000;
+												}
+											}
+										}
+									}
+									else if(ePlotTeam != NO_TEAM && ourTeam.isAtWar(ePlotTeam))
+									{
+										iThisCityValue += 1;
+										if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+										{
+											if(!pLoopPlot->IsImprovementPillaged())
+											{
+												iThisCityValue += 2;
+												if(pLoopPlot->getResourceType(ePlotTeam) != NO_RESOURCE)  // we like nuking our their resources
+												{
+													iThisCityValue += 5;
+												}
+											}
+										}
+									}
+									else if (ePlotOwner != NO_PLAYER) // this will trigger a war
+									{
+										iThisCityValue -= 1000;
+									}
+
+									// will we hit any units here?
+
+									// Do we want a visibility check here?  We shouldn't know they are here.
+
+									const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+									const CvUnit* pInnerLoopUnit;
+									while(pUnitNode != NULL)
+									{
+										pInnerLoopUnit = ::getUnit(*pUnitNode);
+										pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+										if(pInnerLoopUnit != NULL)
+										{
+											PlayerTypes eUnitOwner = pInnerLoopUnit->getOwner();
+											TeamTypes eUnitTeam = pInnerLoopUnit->getTeam();
+											// are we at war with them (or are they us)
+											if(eUnitOwner == m_eOwner)
+											{
+#if defined(MOD_BALANCE_CORE)
+												//Let's not nuke our own units.
+												iThisCityValue -= 25;
+#else
+												iThisCityValue -= 2;
+#endif
+											}
+											else if(ourTeam.isAtWar(eUnitTeam))
+											{
+												iThisCityValue += 2;
+											}
+											else if (ePlotOwner != NO_PLAYER) // this will trigger a war
+											{
+												iThisCityValue -= 1000;
+											}
+										}
+									}
+								}
+							}
+						}
+
+						// if this is the capital
+						if(pLoopCity->isCapital())
+						{
+							iThisCityValue *= 2;
+						}
+
+						if(iThisCityValue > iBestCity)
+						{
+							pBestUnit = pLoopUnit;
+							pBestCity = pLoopCity;
+							iBestCity = iThisCityValue;
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	if(pBestCity && pBestUnit)

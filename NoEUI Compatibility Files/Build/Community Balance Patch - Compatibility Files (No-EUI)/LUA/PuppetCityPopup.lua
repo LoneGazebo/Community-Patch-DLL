@@ -47,8 +47,8 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	local iUnhappinessPuppetCity = activePlayer:GetUnhappinessForecast(nil, newCity);		-- pAssumeCityAnnexed, pAssumeCityPuppeted
 	
 --CBP
-	local iUnhappinessForAnnexing = (newCity:GetPopulation() / 2) - iUnhappinessNoCity;
-	local iUnhappinessForPuppeting = (newCity:GetPopulation() / 2) - iUnhappinessNoCity;
+	local iUnhappinessForAnnexing = (newCity:GetPopulation() / 2);
+	local iUnhappinessForPuppeting = (newCity:GetPopulation() / 2);
 	--local iUnhappinessForAnnexing = iUnhappinessAnnexedCity - iUnhappinessNoCity;
 	--local iUnhappinessForPuppeting = iUnhappinessPuppetCity - iUnhappinessNoCity;
 --END

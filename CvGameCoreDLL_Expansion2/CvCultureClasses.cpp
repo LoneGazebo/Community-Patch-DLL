@@ -4766,6 +4766,20 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	// Add in all the tourism from yields
 	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
+	{
+		if(m_pCity->isCapital())
+		{
+			int iPercent = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetTourismGABonus();
+			if(iPercent > 0)
+			{
+				int iCulture = m_pCity->getJONSCulturePerTurn();
+				iBase += ((iCulture * iPercent) / 100);
+			}
+		}
+	}
+#endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
 	if (iPercent > 0)
@@ -5239,7 +5253,24 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TILES", iTileTourism, iPercent);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(m_pCity->isCapital() && GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
+	{
+		// Landmarks, Wonders, Natural Wonders, Improvements
+		int iGATourism = 0;
+		int iPercent = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetTourismGABonus();
+		if (iPercent > 0)
+		{
+			int iCulture = m_pCity->getJONSCulturePerTurn();
+			iGATourism = ((iCulture * iPercent) / 100);
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GA_BONUS", iGATourism, iPercent);
+		}
+	}
+#endif
 	// Beliefs
 	int iSacredSitesTourism = 0;
 	int iReligiousArtTourism = 0;
@@ -5338,13 +5369,13 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	if(m_pCity->getYieldRate(YIELD_TOURISM, false) > 0)
+	if(m_pCity->getJONSCulturePerTurn() > 0)
 	{
 		if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
+		{
+			szRtnValue += "[NEWLINE][NEWLINE]";
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
 	}
 #endif
 

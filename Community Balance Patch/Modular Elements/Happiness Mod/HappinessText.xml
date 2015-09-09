@@ -124,7 +124,7 @@
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your [ICON_CITIZEN] Population to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your [ICON_CITIZEN] Population in [ICON_PUPPET] non-Puppet Cities to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">

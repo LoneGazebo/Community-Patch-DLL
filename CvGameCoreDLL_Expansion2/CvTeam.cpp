@@ -1144,7 +1144,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 		return false;
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
+	if(MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
 	{
 		return false;
 	}
@@ -9116,25 +9116,42 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 
 	// Never at war with Master
 	if(isAtWar(eMaster))
+	{
 		makePeace(eMaster);
+	}
 
 	TeamTypes eTeam;
 	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
 		eTeam = (TeamTypes)iTeamLoop;
 
-		if(GET_TEAM(eTeam).isMinorCiv() || GET_TEAM(eTeam).isBarbarian()) continue;
+		if(eTeam == NO_TEAM)
+		{
+			continue;
+		}
+		if(GET_TEAM(eTeam).isBarbarian())
+		{
+			continue;
+		}
 
-		if(eTeam == eMaster) continue;
+		if(eTeam == eMaster)
+		{
+			continue;
+		}
 
-		if(!GET_TEAM(eTeam).isAlive()) continue;
+		if(!GET_TEAM(eTeam).isAlive())
+		{
+			continue;
+		}
 
 		// Master at war with eTeam?
 		if(GET_TEAM(eMaster).isAtWar(eTeam))
 		{
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
+			{
 				DoDeclareWar(getLeaderID(), GET_TEAM(eMaster).isAggressor(eTeam), eTeam, false, false, true);
+			}
 #else
 				DoDeclareWar(eTeam, false, false, true);
 #endif
@@ -9144,7 +9161,9 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		{
 			if(isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
+			{
 				DoMakePeace(getLeaderID(), GET_TEAM(eMaster).isPacifier(eTeam), eTeam, true);
+			}
 #else
 				DoMakePeace(eTeam, true);
 #endif
@@ -9321,7 +9340,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 #if defined(MOD_BALANCE_CORE)
 					if(IsHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam()))
 					{
-						GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).SetHasDefensivePact(this->GetID(), false);
+						GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).SetHasDefensivePact(GetID(), false);
 						SetHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam(), false);
 					}
 #endif
