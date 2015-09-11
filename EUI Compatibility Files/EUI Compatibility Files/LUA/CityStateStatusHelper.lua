@@ -394,19 +394,13 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 			end
 		end
 		-- Status
-
+		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
 -- CBP
 		local iJerk = minorPlayer:GetJerk(majorTeamID);
-
-		if minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Peace blocked by being at war with ally
-			tip = tip .. "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED_CSTATE_TT", minorPlayer:GetCivilizationShortDescription(), iJerk )
-
-		elseif (isAtWar) then		-- War
-			tip = tip .. "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_WAR_CSTATE_TT" , minorPlayer:GetCivilizationShortDescription(), iJerk)
-		else
--- END
-			tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
+		if(iJerk > 0) then
+			tip = tip .. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_CSTATE_JERK_STATUS", iJerk)
 		end
+-- END
 		table.insert( tips, tip )
 
 		-- Influence change

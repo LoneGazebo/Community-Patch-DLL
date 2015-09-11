@@ -5441,6 +5441,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
+#if defined(MOD_BALANCE_CORE)
+	writeTo.ComputeReligiousMajority();
+#endif
 
 	return loadFrom;
 }
@@ -7615,6 +7618,10 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 								{
 									iValidTiles++;
 								}
+							}
+							if(eTerrain == TERRAIN_MOUNTAIN && pPlot->isMountain() && !pPlot->IsNaturalWonder())
+							{
+								iValidTiles++;
 							}
 						}
 					}

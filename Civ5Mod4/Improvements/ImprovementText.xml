@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/21/2014 12:13:13 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_IMPROVEMENT_EMBASSY">
+			<Text>Embassy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT">
+			<Text>
+				Embassies can only be built in City-State territory by Great Diplomats.
+				[NEWLINE][NEWLINE]The first player (and only the first!) to construct an Embassy in a City-State's land [COLOR_POSITIVE_TEXT]earns an extra vote in the World Congress[ENDCOLOR]. No player will receive additional votes for Embassies beyond the first one placed in a City-State's territory.
+				[NEWLINE][NEWLINE]An Embassy cannot be pillaged - once built, they can never be removed, and they will always grant their additional World Congress vote to the original builder. If, however, the original builder is conquered, the conqueror will take ownership of their Embassies, and their votes!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_IMPROVEMENT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from City-State Embassies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOTROLL_EMBASSY">
+			<Text>of {1_CivName:textkey}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_FAITH_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Religious Authority</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_CAPITALS_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Conquered Capitals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DOF_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Declarations of Friendship</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RA_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Research Agreements</Text>
+		</Row>
+		
+		<!-- Tooltips for Resolutions -->
+		
+		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
+			<Text>[NEWLINE][ICON_BULLET] Resolution Growth Modifier: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] [ICON_RESEARCH] cost for technologies known to other civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR] [ICON_RESEARCH] from Resolutions</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
+			<Text>{1_Num} [ICON_RESEARCH] added by Great Works</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CULTURE_LEAGUE_MOD">
+			<Text>+{1_Num}% [ICON_CULTURE] from Resolutions</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
+			<Text>[NEWLINE][ICON_BULLET] +{1_Num}% [ICON_PRODUCTION] from Resolutions</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

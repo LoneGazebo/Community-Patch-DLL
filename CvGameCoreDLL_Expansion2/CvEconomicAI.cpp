@@ -883,7 +883,9 @@ void CvEconomicAI::DoTurn()
 		DisbandExtraArchaeologists();
 #if defined(MOD_AI_SMART_DISBAND)
 		if (MOD_AI_SMART_DISBAND)
+		{
 			DisbandLongObsoleteUnits();
+		}
 #endif
 #if defined(MOD_BALANCE_CORE)
 		DisbandUselessSettlers();
@@ -2960,11 +2962,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	{
 		return;
 	}
-
-	int iBestArea, iSecondBestArea;
-	int iNumSettleAreas;
-	iNumSettleAreas = m_pPlayer->GetBestSettleAreas(m_pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if(iNumSettleAreas != 0)
+	if (m_pPlayer->HaveGoodSettlePlot(-1) )
 	{
 		return;
 	}
@@ -2976,7 +2974,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	}
 
 	pUnit->scrap();
-	LogScrapUnit(pUnit, iNumSettlers, iNumCities, iNumSettleAreas, 0);
+	LogScrapUnit(pUnit, iNumSettlers, iNumCities, -1, 0);
 }
 CvUnit* CvEconomicAI::FindSettlerToScrap()
 {
@@ -3003,10 +3001,26 @@ void CvEconomicAI::DisbandExtraWorkers()
 {
 	// Are we running at a deficit?
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+#if !defined(MOD_AI_SMART_DISBAND)
+	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
+	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
+	if(!bInDeficit && iAverageGoldPerUnit <= 4)
+	{
+		return;
+	}
+#endif
+
+	//antonjs: consider: make calls to GetWorkersToCitiesRatio and GetImprovedToImprovablePlotsRatio instead, is the code similar enough?
+
+	double fWorstCaseRatio = 0.25; // one worker for four cities
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumCities = m_pPlayer->getNumCities();
 #if defined(MOD_BALANCE_CORE)
 	//If we want workers in any city, don't disband.
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 	int iLoopCity = 0;
+	int iNumCitiesWithStrat = 0;
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
@@ -3016,38 +3030,22 @@ void CvEconomicAI::DisbandExtraWorkers()
 			{
 				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 				{
-					return;
+					iNumCitiesWithStrat++;
 				}
 			}
 		}
 	}
+	//# of cities needing workers greater than number of workers? disband.
+	if(iNumCitiesWithStrat >= iNumWorkers)
+	{
+		return;
+	}
 	//Don't disband during the early game.
-	if(m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 150))
+	if(m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 100))
 	{
 		return;
 	}
 #endif
-	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-
-	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
-	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
-
-#if defined(MOD_AI_SMART_DISBAND)
-	int iAverageGold = MOD_AI_SMART_DISBAND ? 3 : 4;
-	if(!bInDeficit && iAverageGoldPerUnit <= iAverageGold)
-#else
-	if(!bInDeficit && iAverageGoldPerUnit <= 4)
-#endif
-	{
-		return;
-	}
-
-	//antonjs: consider: make calls to GetWorkersToCitiesRatio and GetImprovedToImprovablePlotsRatio instead, is the code similar enough?
-
-	double fWorstCaseRatio = 0.25; // one worker for four cities
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
-	int iNumCities = m_pPlayer->getNumCities();
-
 	double fCurrentRatio = iNumWorkers / (double)iNumCities;
 	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
 	{
@@ -3093,20 +3091,34 @@ void CvEconomicAI::DisbandExtraWorkers()
 	}
 
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
-
+#if defined(MOD_BALANCE_CORE)
+	int iWorkersPerUnimprovedPlot = 10;
+	int iMinWorkers = iNumUnimprovedPlots / iWorkersPerUnimprovedPlot;
+#endif
 	// less than two thirds of the plots are improved, don't discard anybody
 	double fRatio = iNumImprovedPlots / (double)iNumValidPlots;
 	if(fRatio < 2/(double)3)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iMinWorkers += 1;
+#else
 		return;
+#endif
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iWorkersPerUnimprovedPlot = 5;
 	int iMinWorkers = iNumUnimprovedPlots / iWorkersPerUnimprovedPlot;
+#endif
 	if((iNumUnimprovedPlots % iWorkersPerUnimprovedPlot) > 0)
 	{
 		iMinWorkers += 1;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(!bInDeficit)
+	{
+		iMinWorkers += 1;
+	}
+#endif
 
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(!pCapital)
@@ -4362,6 +4374,29 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
+	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if (iNumSettleAreas == 0)
+	{
+		return true;
+	}
+	if(pPlayer->IsEmpireUnhappy())
+	{
+		return true;
+	}
+	if (!pPlayer->HaveGoodSettlePlot(-1) )
+	{
+		return true;
+	}
+	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) >= 2)
+	{
+		return true;
+	}
+	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	// scale based on flavor and world size
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
+	{
+		return true;
+	}
 	if(pPlayer->GetNumCitiesFounded() <= (pPlayer->GetDiplomacyAI()->GetBoldness() / 2))
 	{
 		return false;
@@ -4393,25 +4428,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		{
 			return false;
 		}
-	}
-	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if (iNumSettleAreas == 0)
-	{
-		return true;
-	}
-	if(pPlayer->IsEmpireUnhappy())
-	{
-		return true;
-	}
-	if (!pPlayer->HaveGoodSettlePlot(-1) )
-	{
-		return true;
-	}
-	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-	// scale based on flavor and world size
-	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
-	{
-		return true;
 	}
 #else
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())

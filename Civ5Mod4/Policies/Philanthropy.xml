@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/11/2013 9:46:25 PM -->
+<GameData>
+	<Beliefs>
+		<Update>
+			<Set GreatPersonExpendedFaith="15"/>
+			<Where Type ="BELIEF_RELIQUARY" />
+		</Update>
+	</Beliefs>
+	<Policies>
+		<Update>
+			<Set MinorGoldFriendshipMod="0"
+				 MinorResourceBonus="true" />
+			<Where Type="POLICY_PHILANTHROPY" />
+		</Update>
+		<Update>
+			<Set MinorResourceBonus="false"
+				 ProtectedMinorPerTurnInfluence="100" />
+			<Where Type="POLICY_CULTURAL_DIPLOMACY" />
+		</Update>
+		<Update>
+			<Set ProtectedMinorPerTurnInfluence="200" />
+			<Where Type="POLICY_TREATY_ORGANIZATION" />
+		</Update>
+		<Update>
+			<Set MinorFriendshipMinimum="15" />
+			<Where Type="POLICY_CONSULATES" />
+		</Update>
+		<Update>
+			<Set CityStateTradeChange="400" />
+			<Where Type="POLICY_MERCHANT_CONFEDERACY" />
+		</Update>
+	</Policies>
+	<Beliefs>
+		<Update>
+			<Set CityStateInfluenceModifier="0" />
+			<Where Type="BELIEF_CHARITABLE_MISSIONS" />
+		</Update>
+		<Update>
+			<Set CityStateMinimumInfluence="15" />
+			<Where Type="BELIEF_CHARITABLE_MISSIONS" />
+		</Update>
+	</Beliefs>
+	<Language_en_US>
+		<Update>
+			<Set Text="[COLOR_POSITIVE_TEXT]Treaty Organization[ENDCOLOR][NEWLINE]Gain 2 more [ICON_INFLUENCE] Influence per turn (at Standard speed) with City-States you have a trade route with." />
+			<Where Tag="TXT_KEY_POLICY_TREATY_ORGANIZATION_HELP"/>
+		</Update>
+		<Update>
+			<Set Text="+15 to [ICON_INFLUENCE] Influence resting point with City-States following this religion." />
+			<Where Tag="TXT_KEY_BELIEF_CHARITABLE_MISSIONS"/>
+		</Update>
+		<Update>
+			<Set Text="Divine Right" />
+			<Where Tag="TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT"/>
+		</Update>
+		<Update>
+			<Set Text="Gain 15 [ICON_PEACE] Faith each time a Great Person is expended"/>
+			<Where Tag="TXT_KEY_BELIEF_RELIQUARY"/>
+		</Update>
+	</Language_en_US>
+	<Technology_Flavors>
+		<Row>
+			<TechType>TECH_PHILOSOPHY</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_MATHEMATICS</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_CURRENCY</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_ASTRONOMY</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_RAILROAD</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_GUNPOWDER</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_PRINTING_PRESS</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_RIFLING</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_STEAM_POWER</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_ATOMIC_THEORY</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_NUCLEAR_FISSION</TechType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</Technology_Flavors>
+</GameData>

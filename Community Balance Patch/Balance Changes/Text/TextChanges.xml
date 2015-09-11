@@ -131,10 +131,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{3_CivName} control over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} controls over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{2_CivName} have a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+			<Text>{2_CivName} has a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_LOST">
@@ -185,22 +185,22 @@
 		
 		<!-- Strategic Help-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM">
-			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 HP when Healing.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 HP when Healing.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD_COAL">
-			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
+			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL">
-			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_HORSE">
-			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_IRON">
-			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE_URANIUM">
-			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
 		</Row>
 		
 		<!-- Tooltip for Strategic Monopolies -->
@@ -208,14 +208,14 @@
 			<Text>You control over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_GAINED">
-			<Text>Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+			<Text>Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
-			<Text>{3_CivName} control over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} controls over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
-			<Text>{2_CivName} have a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+			<Text>{2_CivName} has a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST">

@@ -617,8 +617,6 @@ public:
 	int GetJerk(TeamTypes eTeam) const;
 	void SetJerk(TeamTypes eTeam, int iValue);
 	void ChangeJerk(TeamTypes eTeam, int iChange);
-	bool IsJerk(TeamTypes eTeam) const;
-	void SetIsJerk(TeamTypes eTeam, bool bValue);
 #endif
 
 	// ******************************
@@ -672,7 +670,6 @@ private:
 #endif
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	bool m_abIsJerk[REALLY_MAX_TEAMS];
 	int m_aiJerk[REALLY_MAX_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
 #endif

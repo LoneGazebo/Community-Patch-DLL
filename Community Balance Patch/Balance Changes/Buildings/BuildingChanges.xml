@@ -391,14 +391,14 @@
 			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_PlotYieldChanges>
+	<Building_YieldPerXTerrain>
 		<Row>
 			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
-	</Building_PlotYieldChanges>
+	</Building_YieldPerXTerrain>
 	<!-- University -->
 	<Building_GrowthExtraYield>
 		<Row>

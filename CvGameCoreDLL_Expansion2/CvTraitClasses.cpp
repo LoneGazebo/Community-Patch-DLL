@@ -87,6 +87,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bUniqueBeliefsOnly(false),
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
+	m_iTourismGABonus(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -577,6 +578,10 @@ int CvTraitEntry::GetAllianceCSStrength() const
 bool CvTraitEntry::IsUniqueBeliefsOnly() const
 {
 	return m_bUniqueBeliefsOnly;
+}
+int CvTraitEntry::GetTourismGABonus() const
+{
+	return m_iTourismGABonus;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1423,6 +1428,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
 	m_iAllianceCSDefense					= kResults.GetInt("AllianceCSDefense");
 	m_iAllianceCSStrength					= kResults.GetInt("AllianceCSStrength");
+	m_iTourismGABonus						= kResults.GetInt("TourismGABonus");
 	m_bGPWLTKD								= kResults.GetBool("GPWLTKD");
 	m_bTradeRouteOnly						= kResults.GetBool("TradeRouteOnly");
 	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
@@ -2306,6 +2312,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGrowthBoon += trait->GetGrowthBoon();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
+			m_iTourismGABonus += trait->GetTourismGABonus();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2786,6 +2793,7 @@ void CvPlayerTraits::Reset()
 	m_iGrowthBoon = 0;
 	m_iAllianceCSDefense = 0;
 	m_iAllianceCSStrength = 0;
+	m_iTourismGABonus = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
 	m_iTerrainClaimBoost = NO_TERRAIN;
@@ -4399,6 +4407,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4871,6 +4880,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
+	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

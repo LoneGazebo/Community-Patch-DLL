@@ -45,6 +45,9 @@ enum AIOperationTypes
 	AI_OPERATION_DIPLOMAT_DELEGATION,
 	AI_OPERATION_ALLY_DEFENSE,
 #endif
+#if defined(MOD_BALANCE_CORE)
+	AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE,
+#endif
     NUM_AI_OPERATIONS,
 };
 
@@ -964,6 +967,40 @@ public:
 private:
 	CvPlot* FindBestTarget();
 };
+
+#if defined(MOD_BALANCE_CORE)
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvAIOperationCityCloseDefense
+//!  \brief		Defend a specific city
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvAIOperationCityCloseDefensePeace : public CvAIOperation
+{
+public:
+
+	CvAIOperationCityCloseDefensePeace();
+	virtual ~CvAIOperationCityCloseDefensePeace();
+
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
+
+	virtual int GetOperationType() const
+	{
+		return AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE;
+	}
+	virtual CvString GetOperationName() const
+	{
+		return CvString("AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE");
+	}
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_CLOSE_CITY_DEFENSE;
+	}
+
+private:
+	CvPlot* FindBestTarget();
+};
+#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAIOperationRapidResponse

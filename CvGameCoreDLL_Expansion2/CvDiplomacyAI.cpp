@@ -1369,10 +1369,10 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabCantMatchDeal(MAX_CIV_PLAYERS, m_pabCantMatchDeal);
 	kStream >> wrapm_pabCantMatchDeal;
 
-	ArrayWrapper<short> wrapm_paiNumDoFLifetime(MAX_CIV_PLAYERS, m_paiNumDoFLifetime);
+	ArrayWrapper<int> wrapm_paiNumDoFLifetime(MAX_CIV_PLAYERS, m_paiNumDoFLifetime);
 	kStream >> wrapm_paiNumDoFLifetime;
 
-	ArrayWrapper<short> wrapm_paiNumTimesCoopWarDenied(MAX_CIV_PLAYERS, m_paiNumTimesCoopWarDenied);
+	ArrayWrapper<int> wrapm_paiNumTimesCoopWarDenied(MAX_CIV_PLAYERS, m_paiNumTimesCoopWarDenied);
 	kStream >> wrapm_paiNumTimesCoopWarDenied;
 
 #endif
@@ -1869,8 +1869,8 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerVictoryBlockLevel);
 	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabCantMatchDeal);
-	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumDoFLifetime);
-	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTimesCoopWarDenied);
+	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paiNumDoFLifetime);
+	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paiNumTimesCoopWarDenied);
 #endif
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerWonderDisputeLevel);
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerMinorCivDisputeLevel);
@@ -5399,6 +5399,12 @@ void CvDiplomacyAI::DoTestDemandReady()
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			else
+			{
+				GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eDemandTarget);
+			}
+#endif
 		}
 	}
 }
@@ -6380,12 +6386,20 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				}
 				else
 				{
+					SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 					SetWantsSneakAttack(eTargetPlayer, false);
 #else
 						GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
 #endif
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			else
+			{
+				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
+				SetWantsSneakAttack(eTargetPlayer, false);
+			}
+#endif
 		}
 	}
 	// We already have an attack on the way
@@ -7347,6 +7361,12 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 							else if(bWorldConquest)
 								eWarGoal = WAR_GOAL_CONQUEST;
 						}
+#if defined(MOD_BALANCE_CORE)
+						else
+						{
+							eWarGoal = WAR_GOAL_DAMAGE;
+						}
+#endif
 					}
 				}
 
@@ -7372,7 +7392,6 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 			// Getting ready to make a forceful demand
 			else if(GetWarGoal(eLoopPlayer) == WAR_GOAL_DEMAND)
 				eWarGoal = WAR_GOAL_DEMAND;
-
 
 			// Update the counter for how long we've wanted peace for (used to determine when to ask for peace)
 			if(eWarGoal == WAR_GOAL_PEACE)
@@ -8671,6 +8690,14 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 							bCancel = true;
 						}
 						if(eOpinion < MAJOR_CIV_OPINION_FAVORABLE)
+						{
+							bCancel = true;
+						}
+						if(GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+						{
+							bCancel = true;
+						}
+						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassalOfSomeone())
 						{
 							bCancel = true;
 						}
@@ -12611,6 +12638,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if(IsDoFAccepted(ePlayer))
 		{
 			SetNumDoFLifetime(ePlayer, -1);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
 #endif
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
@@ -24782,6 +24811,18 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	if(IsAtWar(ePlayer))
 		iWeight += 2;
 
+#if defined(MOD_BALANCE_CORE)
+	int iNumCitiesLiberated = GetNumCitiesLiberated(ePlayer);
+	if (iNumCitiesLiberated > 0)
+	{
+		iWeight += (-5 * iNumCitiesLiberated);
+	}
+	if (WasResurrectedBy(ePlayer))
+	{
+		iWeight += -20;
+	}
+#endif
+
 	MajorCivApproachTypes eThirdPartyApproach;
 
 	// Look for other players we like or are strong, and add a bonus if they've denounced this guy, or are at war with him
@@ -27246,15 +27287,15 @@ MajorCivOpinionTypes CvDiplomacyAI::GetNeighborOpinion(PlayerTypes ePlayer) cons
 		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 		{
 			
-			if(GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_COMPETITOR)
+			if(GetMajorCivOpinion(eLoopPlayer) <= MAJOR_CIV_OPINION_COMPETITOR)
 			{
 				iBad++;
 			}
-			else if(GetMajorCivOpinion(eLoopPlayer) > MAJOR_CIV_OPINION_COMPETITOR && GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_FRIEND)
+			else if(GetMajorCivOpinion(eLoopPlayer) == MAJOR_CIV_OPINION_NEUTRAL)
 			{
 				iNeutral++;
 			}
-			else if(GetMajorCivOpinion(eLoopPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
+			else if(GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FAVORABLE)
 			{
 				iGood++;
 			}
@@ -32761,25 +32802,25 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantsToBecomeVassal += 50;
+		iWantsToBecomeVassal += 100;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantsToBecomeVassal += 30;
+		iWantsToBecomeVassal += 70;
 		break;
 	case STRENGTH_STRONG:
-		iWantsToBecomeVassal += 10;
+		iWantsToBecomeVassal += 40;
 		break;
 	case STRENGTH_AVERAGE:
 		iWantsToBecomeVassal += 0;
 		break;
 	case STRENGTH_POOR:
-		iWantsToBecomeVassal += -20;
+		iWantsToBecomeVassal += -30;
 		break;
 	case STRENGTH_WEAK:
-		iWantsToBecomeVassal += -50;
+		iWantsToBecomeVassal += -60;
 		break;
 	case STRENGTH_PATHETIC:
-		iWantsToBecomeVassal += -100;
+		iWantsToBecomeVassal += -120;
 		break;
 	}
 	
@@ -32807,10 +32848,10 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
 	{
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			iWantsToBecomeVassal *= 120;
+			iWantsToBecomeVassal *= 133;
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iWantsToBecomeVassal *= 100;
+			iWantsToBecomeVassal *= 110;
 			break;
 		case PLAYER_PROXIMITY_FAR:
 			iWantsToBecomeVassal *= 75;

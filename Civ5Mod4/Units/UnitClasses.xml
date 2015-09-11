@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/7/2010 4:14:44 PM -->
+<GameData>
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_GREAT_DIPLOMAT</Type>
+			<Description>TXT_KEY_UNIT_GREAT_DIPLOMAT</Description>
+			<DefaultUnit>UNIT_GREAT_DIPLOMAT</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_AMBASSADOR</Type>
+			<Description>TXT_KEY_UNIT_AMBASSADOR</Description>
+			<DefaultUnit>UNIT_AMBASSADOR</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_DIPLOMAT</Type>
+			<Description>TXT_KEY_UNIT_DIPLOMAT</Description>
+			<DefaultUnit>UNIT_DIPLOMAT</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_ENVOY</Type>
+			<Description>TXT_KEY_UNIT_ENVOY</Description>
+			<DefaultUnit>UNIT_ENVOY</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_EMISSARY</Type>
+			<Description>TXT_KEY_UNIT_EMISSARY</Description>
+			<DefaultUnit>UNIT_EMISSARY</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<UnitCombatInfos>
+		<Row>
+			<Type>UNITCOMBAT_DIPLOMACY</Type>
+			<Description>TXT_KEY_UNITCOMBAT_DIPLOMACY</Description>
+		</Row>
+	</UnitCombatInfos>
+</GameData>

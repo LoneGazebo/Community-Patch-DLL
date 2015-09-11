@@ -36,7 +36,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- One With Nature
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Natural Wonders and Mountains'
+SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] for every 3 Mountain tiles around a City. +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Natural Wonders'
 WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -64,7 +64,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Sacred Waters
 UPDATE Language_en_US
-SET Text = 'Sacred Springs'
+SET Text = 'Purifying Waters'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -119,7 +119,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Monuments to the Gods
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from World Wonders. +15% [ICON_PRODUCTION] Production of Ancient/Classical Wonders'
+SET Text = '+2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from World Wonders. +15% [ICON_PRODUCTION] Production of Pre-Renaissance Wonders'
 WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Dance of the Aurora

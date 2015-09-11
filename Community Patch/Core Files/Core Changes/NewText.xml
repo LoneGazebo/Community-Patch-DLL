@@ -276,6 +276,11 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- CS TEXT CBP -->
+		<Row Tag="TXT_KEY_CSTATE_JERK_STATUS">
+			<Text>[COLOR_NEGATIVE_TEXT]You aggressively attacked this City-State![ENDCOLOR][NEWLINE]For the next [COLOR_NEGATIVE_TEXT]{1_JerkRate}[ENDCOLOR] turns, the City-State will not give you any Quests, and your [ICON_INFLUENCE] Influence anchor will be reduced.[NEWLINE]If you [COLOR_POSITIVE_TEXT]become Friends[ENDCOLOR] with this City-State during this time, these penalties will be removed early.[NEWLINE][NEWLINE]</Text>
+		</Row>
+
 		<!-- Promises LUA -->
 		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
 			<Text>[COLOR_CYAN]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
@@ -375,6 +380,9 @@
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_2">
 			<Text>It is better to resolve territorial disputes through trade instead of war. Tell me, what do you think of this offer?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_3">
+			<Text>A selection of choice lands you control appeal to me. Here is my offer...what do you think?</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_1">
 			<Text>I admire your military prowess, and I would like to see it directed against one of my enemies. What do you think of this deal?</Text>
@@ -382,12 +390,18 @@
 		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_2">
 			<Text>Your military is truly grand. I would like to offer you a chance to war against one of my enemies. Do you agree with this deal?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_3">
+			<Text>Your military power is undeniable, and could be a great force for change. Is this offer of war enticing?</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_THIRD_PARTY_PEACE_OFFER_1">
-			<Text>On behalf of my friend, I urge you to consider this offer of peace.</Text>
+			<Text>On behalf of the sanctity of peace, I urge you to consider this offer.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THIRD_PARTY_PEACE_OFFER_2">
 			<Text>The death and destruction caused by your current war has gone on long enough. Come, won't you consider this offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THIRD_PARTY_PEACE_OFFER_3">
+			<Text>Too many have died in your current conflict. Is it not time to end this war?</Text>
 		</Row>
 		
 		<!-- Embark String for Less/No City Cost-->
@@ -499,7 +513,7 @@
 		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONQUEST_1">
 			<Text>Your armies are a blight on the land. You are the bringer of destruction, not unity. I will not stand idly by to watch you take everything for your own!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRES_1">
+		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRESS_1">
 			<Text>Your machinations in the World Congress are pathetic. A true hero fights his battles with swords, not coins and silver tongues.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE_1">

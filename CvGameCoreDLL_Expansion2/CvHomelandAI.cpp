@@ -127,7 +127,7 @@ void CvHomelandAI::RecruitUnits()
 			//don't use units which were assigned a tactical move this turn!
 			if ( pLoopUnit->hasCurrentTacticalMove() )
 			{
-				CvString msg = CvString::format("ignoring unit %d for homeland ai because it has a current tactical move (%s at %d,%d)", 
+				CvString msg = CvString::format("warning: homeland AI unit %d has a current tactical move (%s at %d,%d)", 
 										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
 				LogHomelandMessage( msg );
 

@@ -4612,6 +4612,48 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 	{
 		if(canRangeStrikeAt(plot.getX(), plot.getY(), false))
 		{
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+			if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
+			{
+				pUnit = NULL;
+				int iPeaceUnits = 0;
+				bool bWarCity = false;
+				if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
+				{
+					bWarCity = true;
+				}
+				for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+				{
+					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+
+					//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
+					if(loopUnit != NULL)
+					{
+						if(loopUnit->IsCombatUnit())
+						{
+							if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+							{
+								//There can be only one military unit on a tile, so one check is good enough.
+								pUnit = plot.getUnitByIndex(iUnitLoop);
+							}
+						}
+						else if(loopUnit->IsCivilianUnit())
+						{
+							//Only need one to trigger.
+							if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+							{
+								iPeaceUnits++;
+							}
+						}
+					}
+				}
+				//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+				if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
+				{
+					return NO_TEAM;
+				}
+			}
+#endif
 			pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
 			if(pUnit != NULL)

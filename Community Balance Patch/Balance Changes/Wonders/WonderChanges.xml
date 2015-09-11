@@ -157,30 +157,30 @@
 		</Row>
 	</Building_TerrainYieldChanges>
 	<!-- Machu Pichu -->
-	<Building_PlotYieldChanges>
+	<Building_YieldPerXTerrain>
 		<Row>
 			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
-			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
-	</Building_PlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldPerXTerrain>	
 </GameData>

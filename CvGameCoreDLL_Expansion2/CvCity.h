@@ -153,6 +153,9 @@ public:
 
 	int GetExtraBuildingMaintenance() const;
 	void SetExtraBuildingMaintenance(int iChange);
+
+	int GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 #endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -476,7 +479,7 @@ public:
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerXTerrain(YieldTypes eYield) const;
+	int GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const;
 	int GetYieldPerXFeature(YieldTypes eYield) const;
 	int GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const;
 #else
@@ -1445,6 +1448,7 @@ protected:
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;
+	int** m_ppaiYieldPerXTerrainFromBuildings;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;

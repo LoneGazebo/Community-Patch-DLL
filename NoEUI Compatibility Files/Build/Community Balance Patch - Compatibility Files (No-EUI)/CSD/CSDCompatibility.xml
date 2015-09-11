@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/14/2014 9:35:13 AM -->
 <GameData>
-	<GreatPersons>
-		<Row>
-			<Type>GREATPERSON_DIPLOMAT</Type>
-			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
-			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
-		</Row>
-	</GreatPersons>
 	<Belief_SpecialistYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>

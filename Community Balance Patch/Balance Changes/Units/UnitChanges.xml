@@ -153,6 +153,10 @@
 			<UnitType>UNIT_ROMAN_LEGION</UnitType>
 			<PromotionType>PROMOTION_COVER_1</PromotionType>
 		</Row>
+		<Row>
+			<UnitType>UNIT_GUIDED_MISSILE</UnitType>
+			<PromotionType>PROMOTION_HEAVY_PAYLOAD</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
 	<Unit_AITypes>
 		<Row>
