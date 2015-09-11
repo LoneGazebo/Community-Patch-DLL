@@ -1229,10 +1229,6 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 /// Log dominance zone data
 void CvTacticalAnalysisMap::LogZones()
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	Dump();
-#endif
-
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString szLogMsg;
@@ -1427,22 +1423,31 @@ void CvTacticalAnalysisMap::Dump()
 	if (m_pPlayer==NULL)
 		return;
 
-	bool bLogging = false; //GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = false; //GC.getLogging() && GC.getAILogging() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian());
 	if (bLogging)
 	{
 		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
 		if (pLog)
 		{
-			pLog->Msg( "#x,y,visible,terrain,enemy,defensemod,targettype,deployscore,deploysafe,underattack,intargetrange,flankbonus\n" );
+			pLog->Msg( "#x,y,visible,terrain,enemy,defensemod,targettype,underattack,zoneid,dominance,zonetype,fstrength,estrength\n" );
 			for (int i=0; i<m_iNumPlots; i++)
 			{
 				CvTacticalAnalysisCell* pCell = GetCell(i);
-				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+
+				if (!pCell->IsRevealed())
+					continue;
+
+				CvTacticalDominanceZone* pZone = GetZone( pCell->GetDominanceZone() );
+
+				int iZoneFriendlyStrength = pZone ? pZone->GetFriendlyRangedStrength() + pZone->GetFriendlyStrength() : -1;
+				int iZoneEnemyStrength = pZone ? pZone->GetEnemyRangedStrength() + pZone->GetEnemyStrength() : -1;
+
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
 					GC.getMap().plotByIndex(i)->getX(), GC.getMap().plotByIndex(i)->getY(),
-					pCell->IsVisible(), GC.getMap().plotByIndex(i)->getTerrainType(), pCell->IsEnemyTerritory(),
-					pCell->GetDefenseModifier(), pCell->GetTargetType(), pCell->GetDeploymentScore(), pCell->IsSafeForDeployment(), pCell->IsSubjectToAttack(), 
-					pCell->IsWithinRangeOfTarget(), pCell->IsHelpsProvidesFlankBonus() );
+					pCell->IsVisible(), (int)GC.getMap().plotByIndex(i)->getTerrainType(), (int)pCell->IsEnemyTerritory(),
+					pCell->GetDefenseModifier(), (int)pCell->GetTargetType(), (int)pCell->IsSubjectToAttack(), 
+					pZone ? pZone->GetDominanceZoneID() : -1, pZone ? pZone->GetDominanceFlag() : -1, pZone ? pZone->GetTerritoryType() : -1, iZoneFriendlyStrength, iZoneEnemyStrength );
 				pLog->Msg( dump.c_str() );
 			}
 			pLog->Close();

@@ -989,7 +989,11 @@ private:
 	CvPlot* FindBestBarbarianSeaMove(UnitHandle pUnit);
 	CvPlot* FindBarbarianExploreTarget(UnitHandle pUnit);
 	CvPlot* FindBarbarianGankTradeRouteTarget(UnitHandle pUnit);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL, bool bAllowDefensiveTargets=false);
+#else
 	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL);
+#endif
 	bool NearVisibleEnemy(UnitHandle pUnit, int iRange);
 	void UnitProcessed(int iID, bool bMarkTacticalMap=true);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);

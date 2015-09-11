@@ -7158,6 +7158,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 
 	// Now loop through the sorted score list and go to the best one we can reach in one turn.
 	CvPlot* pBestPlot = NULL;
+#if defined(MOD_BALANCE_CORE)
+	//we already know that the plot is in reach
+	if (aBestPlotList.size()>0)
+	{
+		aBestPlotList.SortItems(); //highest score will be first
+		pBestPlot=aBestPlotList.GetElement(0);
+	}
+#else
 	uint uiListSize;
 	if ((uiListSize = aBestPlotList.size()) > 0)
 	{
@@ -7182,16 +7190,13 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			break;
 		}
 	}
+#endif
 
 	if(pBestPlot != NULL)
 	{
 		if(pUnit->atPlot(*pBestPlot))
 		{
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->canHold(pBestPlot) && pUnit->getDomainType() == DOMAIN_SEA)
-#else
 			if (pUnit->canHold(pBestPlot))
-#endif
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -7205,66 +7210,8 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				return true;
 			}
-#if defined(MOD_BALANCE_CORE)
-			else if (pUnit->canHold(pBestPlot) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->isEmbarked())
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-					strLogString.Format("%s (%d) tried to move to safety but is at the best spot, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
-					LogHomelandMessage(strLogString);
-				}
-
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				return true;
-			}
-#endif
 			else
 			{
-#if defined(MOD_BALANCE_CORE)
-				//check for an alternative plot again with more relaxed conditions
-				WeightedPlotVector aBestPlotList;
-				TacticalAIHelpers::ReachablePlotSet reachableTiles;
-				TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
-				for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
-				{
-					{
-						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
-
-#if defined(MOD_AI_SECONDARY_WORKERS)
-						if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
-#else
-						if(!pUnit->PlotValid(pLoopPlot))
-#endif
-						{
-							continue;
-						}
-						if(pLoopPlot->isVisibleEnemyUnit(pUnit))
-						{
-							continue;
-						}
-						if(!pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							continue;
-						}
-						if(pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
-							UnitProcessed(pUnit->GetID());
-							break;
-						}
-						else if(pLoopPlot->getOwner() == pUnit->getOwner())
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
-							UnitProcessed(pUnit->GetID());
-							break;
-						}
-					}
-				}
-
-#endif
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;

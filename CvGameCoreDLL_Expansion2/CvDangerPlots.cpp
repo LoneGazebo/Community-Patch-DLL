@@ -717,6 +717,7 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 /// Should this player be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 {
+	//if one is major and the other a minor (but no barbarian)
 	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
 	{
 		CvPlayer* pMinor = NULL;
@@ -754,6 +755,12 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 	//ignore if one is vassal of the other
 	if ( GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()) ||
 		 GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(m_ePlayer).getTeam()) )
+		 return true;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//ignore if at peace
+	if ( !GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) )
 		 return true;
 #endif
 
@@ -1385,9 +1392,6 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 		// If the city survives all possible attacks this turn, so will the unit
 		if (GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL)) + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
 		{
-			// Trivial amount to indicate that the plot can still be attacked
-			++iPlotDamage;
-
 			// Damage from features
 			iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 
