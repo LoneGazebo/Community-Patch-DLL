@@ -9310,7 +9310,6 @@ void CvMinorCivAI::DoDefection()
 		}
 	}
 	CvCity* pCity = GetPlayer()->getCapitalCity();
-	CvPlot* pPlot;
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 	//Let's kill off any barbs remaining.
 #if defined(MOD_GLOBAL_CITY_WORKING)
@@ -9319,9 +9318,9 @@ void CvMinorCivAI::DoDefection()
 	for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 	{
-		pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
-		if(pPlot->getNumUnits() > 0)
+		if(pPlot && pPlot->getNumUnits() > 0)
 		{
 			// Get the current list of units because we will possibly be moving them out of the plot's list
 			IDInfoVector currentUnits;

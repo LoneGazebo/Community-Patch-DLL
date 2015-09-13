@@ -1759,7 +1759,11 @@ void CvTacticalAI::FindTacticalTargets()
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		bValidPlot = false;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(pLoopPlot->isRevealed(m_pPlayer->getTeam()))
+#else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+#endif
 		{
 			// Make sure I am not a barbarian who can not move into owned territory this early in the game
 			if(!m_pPlayer->isBarbarian() || bBarbsAllowedYet)
@@ -1851,9 +1855,15 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// Or citadels!
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
+					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
+					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > 0)
+#else
 				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
 					GC.getImprovementInfo(pLoopPlot->getImprovementType())->GetNearbyEnemyDamage() > 0)
+#endif
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITADEL);
 					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
@@ -1862,9 +1872,15 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... enemy improvement?
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
+				        pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
+				        !pLoopPlot->IsImprovementPillaged())
+#else
 				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 				        pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
 				        !pLoopPlot->IsImprovementPillaged())
+#endif
 				{
 					ResourceUsageTypes eRUT = (ResourceUsageTypes)-1;
 					ResourceTypes eResource = pLoopPlot->getResourceType();
@@ -1899,8 +1915,13 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... enemy trade route?
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
+				        pLoopPlot->getRevealedRouteType(m_pPlayer->getTeam()) != NO_ROUTE && !pLoopPlot->IsRoutePillaged())
+#else
 				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 				        pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged() && pLoopPlot->IsTradeRoute()/* && !bEnemyDominatedPlot*/)
+#endif
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
 					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
@@ -1949,7 +1970,11 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... trade unit
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if (pLoopPlot->isVisible(m_pPlayer->getTeam()) && pPlayerTrade->ContainsEnemyTradeUnit(pLoopPlot))
+#else
 				else if (pPlayerTrade->ContainsEnemyTradeUnit(pLoopPlot))
+#endif
 				{
 					if (pLoopPlot->isWater())
 					{
@@ -1965,12 +1990,21 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... defensive bastion?
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
+				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 15 &&
+						m_pPlayer->GetPlotDanger(*pLoopPlot) > 0)
+				{
+					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
+					if(pDefenseCity || pLoopPlot->IsChokePoint())
+#else
 				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 0 &&
 				        m_pPlayer->GetPlotDanger(*pLoopPlot) > 0)
 				{
 					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
 					if(pDefenseCity)
+#endif
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 						newTarget.SetAuxData((void*)pLoopPlot);
@@ -9637,6 +9671,11 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					}
 					else
 					{
+#if defined(MOD_BALANCE_CORE)
+						if (pUnit->canHeal(pUnit->plot()))
+							pUnit->PushMission(CvTypes::getMISSION_HEAL());
+						else
+#endif
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						if(GC.getLogging() && GC.getAILogging())

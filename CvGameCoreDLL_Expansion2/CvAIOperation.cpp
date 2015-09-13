@@ -739,6 +739,17 @@ bool CvAIOperation::CheckOnTarget()
 			{
 				switch(m_eCurrentState)
 				{
+#if defined(MOD_BALANCE_CORE)
+				case AI_OPERATION_STATE_RECRUITING_UNITS:
+					if (pThisArmy->GetNumSlotsFilled()==pThisArmy->GetNumFormationEntries())
+					{
+						pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+						//no break - intentional fallthrough!
+					}
+					else
+						break;
+#endif
 				case AI_OPERATION_STATE_GATHERING_FORCES:
 					{
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());

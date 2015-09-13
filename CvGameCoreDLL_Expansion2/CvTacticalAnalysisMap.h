@@ -575,6 +575,13 @@ public:
 	};
 	TacticalMoveZoneType GetZoneType() const;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void Extend(CvPlot* pPlot);
+	int GetCenterX() const { return m_iAvgX; }
+	int GetCenterY() const { return m_iAvgY; }
+	int GetNumPlots() const { return m_iPlotCount; }
+#endif
+
 private:
 	int m_iDominanceZoneID;
 	eDominanceTerritoryTypes m_eTerritoryType;
@@ -600,6 +607,11 @@ private:
 	bool m_bIsWater;
 	bool m_bIsNavalInvasion;
 	CvPlot* m_pTempZoneCenter;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int m_iAvgX, m_iAvgY;
+	int m_iPlotCount;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -663,6 +675,10 @@ public:
 	};
 	CvTacticalDominanceZone* GetZone(int iIndex);
 	CvTacticalDominanceZone* GetZoneByCity(CvCity* pCity, bool bWater);
+#if defined(MOD_BALANCE_CORE)
+	CvTacticalDominanceZone* GetZoneByID(int iID);
+#endif
+
 	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
 	{
 		return &m_pPlots[iPlotIndex];

@@ -26058,8 +26058,8 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	}
 #if !defined(MOD_BALANCE_CORE)
 	if(iChange > 0)
-		DoTestOverResourceNotification(eIndex);
 #endif
+		DoTestOverResourceNotification(eIndex);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
