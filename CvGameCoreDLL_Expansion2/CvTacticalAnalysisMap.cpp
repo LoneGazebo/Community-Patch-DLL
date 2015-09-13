@@ -807,15 +807,6 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 		if(pBestCity != NULL)
 		{
 			m_TempZone.SetClosestCity(pBestCity);
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			//city has ranged strength also, mainly this gives dominance over empty zones
-			if (m_pPlayer->getTeam()==pBestCity->getTeam())
-				m_TempZone.AddFriendlyRangedStrength( pBestCity->getStrengthValue(true) );
-			else if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(pBestCity->getTeam()))
-				m_TempZone.AddEnemyRangedStrength( pBestCity->getStrengthValue(true) );
-#endif
-
 		}
 	}
 
@@ -934,11 +925,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			{
 				// Start with strength of the city itself
 				int iCityHitPoints = pClosestCity->GetMaxHitPoints() - pClosestCity->getDamage();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				int iStrength = m_iTacticalRange * pClosestCity->getStrengthValue(true) * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
-#else
 				int iStrength = m_iTacticalRange * pClosestCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
-#endif
 				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 				{
 					pZone->AddFriendlyStrength(iStrength);
@@ -948,12 +935,15 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					pZone->AddFriendlyRangedStrength(pClosestCity->getStrengthValue());
 #endif
 				}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
+				{
+					pZone->AddEnemyStrength(iStrength);
+					pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue(true));
+#else
 				else
 				{
 					pZone->AddEnemyStrength(iStrength);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-					pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue(true));
-#else
 					pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue());
 #endif
 				}
