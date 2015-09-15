@@ -381,7 +381,7 @@
 			<Text>It is better to resolve territorial disputes through trade instead of war. Tell me, what do you think of this offer?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_3">
-			<Text>A selection of choice lands you control appeal to me. Here is my offer...what do you think?</Text>
+			<Text>A selection of choice lands are up for trade. Here is my offer...what do you think?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_1">

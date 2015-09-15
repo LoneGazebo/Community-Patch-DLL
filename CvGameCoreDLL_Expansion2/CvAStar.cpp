@@ -4500,7 +4500,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	// super duper low costs for moving along routes
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 	{
-		iCost = iCost / 2;
+		iCost = iCost / 4;
 	}
 	//// super low costs for moving along rivers
 	else if (pCacheData->IsRiverTradeRoad() && pFromPlot->isRiver() && pToPlot->isRiver())

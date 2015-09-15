@@ -1,7 +1,7 @@
 -- Civilized Jewelers
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_FOOD] Food. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 5, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]All Markets, Banks, Mints, and Stock Exchanges produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY';
 
 UPDATE Language_en_US
@@ -71,7 +71,7 @@ WHERE Tag = 'TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS';
 -- Trader Sid's
 
 UPDATE Language_en_US
-SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes, and Land Trade Routes have 100% increased range.[NEWLINE][NEWLINE]+2 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Trader Sid''s. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes, and Land Trade Routes have 100% increased range.[NEWLINE][NEWLINE]+2 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Trader Sid''s. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
 WHERE Tag = 'TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY';
 
 UPDATE Language_en_US

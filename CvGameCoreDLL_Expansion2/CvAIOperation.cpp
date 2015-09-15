@@ -117,6 +117,9 @@ void CvAIOperation::Reset()
 	m_eMoveType = INVALID_AI_OPERATION_MOVE_TYPE;
 	m_iLastTurnMoved = -1;
 	m_viArmyIDs.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_iTurnStarted = -1;
+#endif
 }
 
 /// How long will we wait for a recruit to show up?
@@ -739,6 +742,17 @@ bool CvAIOperation::CheckOnTarget()
 			{
 				switch(m_eCurrentState)
 				{
+#if defined(MOD_BALANCE_CORE)
+				case AI_OPERATION_STATE_RECRUITING_UNITS:
+					if (pThisArmy->GetNumSlotsFilled()==pThisArmy->GetNumFormationEntries())
+					{
+						pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+						//no break - intentional fallthrough!
+					}
+					else
+						break;
+#endif
 				case AI_OPERATION_STATE_GATHERING_FORCES:
 					{
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
@@ -1449,6 +1463,9 @@ void CvAIOperation::Read(FDataStream& kStream)
 	kStream >> m_viArmyIDs;
 	kStream >> m_viListOfUnitsWeStillNeedToBuild;
 	kStream >> m_viListOfUnitsCitiesHaveCommittedToBuild;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iTurnStarted;
+#endif
 }
 
 /// Write serialized data
@@ -1476,6 +1493,9 @@ void CvAIOperation::Write(FDataStream& kStream) const
 	kStream << m_viArmyIDs;
 	kStream << m_viListOfUnitsWeStillNeedToBuild;
 	kStream << m_viListOfUnitsCitiesHaveCommittedToBuild;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iTurnStarted;
+#endif
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -1819,6 +1839,11 @@ void CvAIOperation::LogOperationEnd()
 		case AI_ABORT_LOST_PATH:
 			strTemp += "Lost Path to Target";
 			break;
+#if defined(MOD_BALANCE_CORE)
+		case AI_ABORT_TIMED_OUT:
+			strTemp += "Timed Out";
+			break;
+#endif
 		}
 
 		strOutBuf = strBaseString + strTemp;
@@ -3812,6 +3837,9 @@ void CvAIEnemyTerritoryOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 				{
 					pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 					SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+					SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 					if (GetDefaultArea() != pTargetPlot->getArea())
 					{
@@ -4064,6 +4092,9 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 				SetMusterPlot(GetStartCityPlot());
 				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 #if defined(MOD_BALANCE_CORE)
 				CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();	
 				int iUnitID;
@@ -5077,7 +5108,9 @@ void CvAIEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				SetMusterPlot(pMusterPt);
 				pArmyAI->SetXY(pMusterPt->getX(), pMusterPt->getY());
 				SetDefaultArea(pMusterPt->getArea());
-
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 				// Add the civilian to our army
 				pArmyAI->AddUnit(pOurCivilian->GetID(), 0);
 
@@ -5410,6 +5443,9 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				SetMusterPlot(pMusterPt);
 				pArmyAI->SetXY(pMusterPt->getX(), pMusterPt->getY());
 				SetDefaultArea(pMusterPt->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Add the settler to our army
 				pArmyAI->AddUnit(pOurCivilian->GetID(), 0);
@@ -5945,6 +5981,9 @@ void CvAIOperationQuickColonize::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 				pArmyAI->SetXY(pMusterPt->getX(), pMusterPt->getY());
 				pArmyAI->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
 				SetDefaultArea(pMusterPt->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Add the settler to our army
 				pArmyAI->AddUnit(pOurCivilian->GetID(), 0);
@@ -6411,6 +6450,9 @@ void CvAIOperationAllyDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 				SetMusterPlot(pMuster->plot());
 				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Find the list of units we need to build before starting this operation in earnest
 				BuildListOfUnitsWeStillNeedToBuild();
@@ -6718,6 +6760,9 @@ void CvAINavalOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, i
 				else if(pCoastalMuster)
 				{
 					SetDefaultArea(pCoastalMuster->getArea());
+#if defined(MOD_BALANCE_CORE)
+					SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 					SetStartCityPlot(pCoastalMuster);
 					SetMusterPlot(pCoastalMuster);
 					pArmyAI->SetXY(pCoastalMuster->getX(), pCoastalMuster->getY());
@@ -7086,6 +7131,9 @@ void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerType
 				{
 					pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 					SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+					SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 					// Find the list of units we need to build before starting this operation in earnest
 					BuildListOfUnitsWeStillNeedToBuild();
@@ -7493,6 +7541,9 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 					pArmyAI->SetGoalPlot(pPlot);
 					pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 					SetDefaultArea(iDefaultArea);
+#if defined(MOD_BALANCE_CORE)
+					SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 				}
 			}
 			else
@@ -7959,6 +8010,9 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 		{
 			SetDefaultArea(pMusterPlot->getArea());
 			SetStartCityPlot(pMusterPlot);
+#if defined(MOD_BALANCE_CORE)
+			SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 			if(iID != -1)
 			{
@@ -8292,6 +8346,9 @@ void CvAIOperationCityCloseDefensePeace::Init(int iID, PlayerTypes eOwner, Playe
 				pArmyAI->SetGoalPlot(GetTargetPlot());
 				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Find the list of units we need to build before starting this operation in earnest
 				BuildListOfUnitsWeStillNeedToBuild();
@@ -8419,6 +8476,9 @@ void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerType
 				pArmyAI->SetGoalPlot(GetTargetPlot());
 				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Find the list of units we need to build before starting this operation in earnest
 				BuildListOfUnitsWeStillNeedToBuild();
@@ -8571,6 +8631,9 @@ void CvAIOperationRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 				SetMusterPlot(pTargetPlot);  // Gather directly at the point we're trying to defend
 				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				SetDefaultArea(GetMusterPlot()->getArea());
+#if defined(MOD_BALANCE_CORE)
+				SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 				// Find the list of units we need to build before starting this operation in earnest
 				BuildListOfUnitsWeStillNeedToBuild();
@@ -8846,6 +8909,9 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 #else
 	SetDefaultArea(iDefaultArea);   // Area settler starts in
 #endif
+#if defined(MOD_BALANCE_CORE)
+	SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 	// Find the free civilian (that triggered this operation)
 #if defined(MOD_BALANCE_CORE)
@@ -8954,7 +9020,9 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 						SetMusterPlot(pFinalPlot);
 						pArmyAI->SetXY(pFinalPlot->getX(), pFinalPlot->getY());
 						SetDefaultArea(pFinalPlot->getArea());
-
+#if defined(MOD_BALANCE_CORE)
+						SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 						// Add the settler to our army
 						pArmyAI->AddUnit(pOurCivilian->GetID(), 0);
 
@@ -9566,6 +9634,9 @@ bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* p
 			SetMusterPlot(pFinalPlot);
 			pArmy->SetXY(pFinalPlot->getX(), pFinalPlot->getY());
 			SetDefaultArea(pFinalPlot->getArea());
+#if defined(MOD_BALANCE_CORE)
+			SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 		}
 	}
 	else if(GetTargetPlot() == NULL)
@@ -9645,6 +9716,9 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 		}
 		iDefaultArea = pMuster->getArea();
 		SetDefaultArea(iDefaultArea);
+#if defined(MOD_BALANCE_CORE)
+			SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 		if(pMusterPlot != NULL)
 		{
@@ -9953,6 +10027,9 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 			SetStartCityPlot(pMusterPlot);
 			iDefaultArea = pMusterPlot->getArea();
 			SetDefaultArea(iDefaultArea);
+#if defined(MOD_BALANCE_CORE)
+			SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 			if(iID != -1)
 			{
@@ -10189,6 +10266,9 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 			SetStartCityPlot(pMusterPlot);
 			iDefaultArea = pMusterPlot->getArea();
 			SetDefaultArea(iDefaultArea);
+#if defined(MOD_BALANCE_CORE)
+			SetTurnStarted(GC.getGame().getGameTurn());
+#endif
 
 			if(iID != -1)
 			{

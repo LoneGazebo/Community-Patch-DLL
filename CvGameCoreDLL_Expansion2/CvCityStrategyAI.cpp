@@ -926,11 +926,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	eUnitForOperation = m_pCity->GetUnitForOperation();
 	if(eUnitForOperation != NO_UNIT)
 	{
-#if defined(MOD_BALANCE_CORE)
-		// Make sure this unit can be built now
-		if(m_pCity->canTrain(eUnitForOperation))
-		{
-#endif
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
 		buildable.m_iIndex = (int)eUnitForOperation;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
@@ -1004,18 +999,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
-		}
 #endif
 	}
 	// Next units for sneak attack armies
 	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
 	if(eUnitForArmy != NO_UNIT)
 	{
-#if defined(MOD_BALANCE_CORE)
-		// Make sure this unit can be built now
-		if(m_pCity->canTrain(eUnitForArmy))
-		{
-#endif
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
 		buildable.m_iIndex = (int)eUnitForArmy;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
@@ -1067,7 +1056,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
-	}
 	}
 #endif
 	// Loop through adding the available buildings
@@ -1422,27 +1410,33 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #if defined(MOD_BALANCE_CORE)
 		//Forced some changes to make the AI a little more direct in its behavior.
 		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
-		selection = m_Buildables.GetElement(0);
-		bool bForced = false;
-		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+		int iBest = -1;
+		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
-			bForced = true;
-		}
-		if((iSneakies > 0) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY)
-		{
-			bForced = true;
-		}
-		else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING)
-		{
-			BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-			if(GetCity()->IsBuildingInvestment(eBuildingClass))
+			selection = m_Buildables.GetElement(iI);
+			if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
-				bForced = true;
+				iBest = iI;
+				break;
+			}
+			else if((iSneakies >= 10) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			{
+				iBest = iI;
+				break;
+			}
+			else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			{
+				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+				if(GetCity()->IsBuildingInvestment(eBuildingClass))
+				{
+					iBest = iI;
+					break;
+				}
 			}
 		}
-		if(!bForced)
+		if(iBest == -1)
 		{
 #endif
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
@@ -1461,7 +1455,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #endif
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
 #if defined(MOD_BALANCE_CORE)
-		if(bForced)
+		if(iBest != -1)
 		{
 			bRush = true;
 			if(GC.getLogging() && GC.getAILogging())
@@ -1484,7 +1478,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				// Get the leading info for this line
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", " + cityName + ", ";
-				CvCityBuildable buildable = m_Buildables.GetElement(0);
+				CvCityBuildable buildable = m_Buildables.GetElement(iBest);
 
 				switch(buildable.m_eBuildableType)
 				{
@@ -1903,10 +1897,17 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	{
 #if defined(MOD_BALANCE_CORE)
 		//Forced some changes to make the AI a little more direct in its behavior.
-		selection = m_Buildables.GetElement(0);
-		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
-			return selection;
+			selection = m_Buildables.GetElement(iI);
+			if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+			{
+				return selection;
+			}
+			else if((iSneakies >= 10) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY)
+			{
+				return selection;
+			}
 		}
 #endif
 		// Choose from the best options (currently 2)

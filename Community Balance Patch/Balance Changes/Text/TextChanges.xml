@@ -131,7 +131,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{3_CivName} controls over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} controls over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED">
 			<Text>{2_CivName} has a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
@@ -150,7 +150,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_HAPPINESS_1] Global Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_GOLDEN_AGE] Golden Age Length</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +15% [ICON_GOLDEN_AGE] Golden Age Length</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
@@ -174,7 +174,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_GOLD] Gold in all owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_FOOD] Growth in all owned Cities.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +15% [ICON_FOOD] Growth in all owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities.</Text>
@@ -212,7 +212,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
-			<Text>{3_CivName} controls over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} controls over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
 			<Text>{2_CivName} has a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>

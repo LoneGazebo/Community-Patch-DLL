@@ -127,8 +127,8 @@ VALUES ('SETTLER_COMMUNITY', 1);
 /*
 Barbarians Heal!
 0 = No Healing
-1 = 6HP out of camps, 12 in camps. (Default)
-2 = 10HP out of camps, 20 in camps. (Hard)
+1 = 10 in camps. (Default)
+2 = 15 in camps. (Hard)
 */
 
 INSERT INTO COMMUNITY (Type, Value)

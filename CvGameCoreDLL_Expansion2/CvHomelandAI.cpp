@@ -123,6 +123,23 @@ void CvHomelandAI::RecruitUnits()
 		// Never want immobile/dead units or ones that have already moved
 		if(!pLoopUnit->TurnProcessed() && !pLoopUnit->isDelayedDeath() && pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN && pLoopUnit->canMove())
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//don't use units which were assigned a tactical move this turn!
+			if ( pLoopUnit->hasCurrentTacticalMove())
+			{
+				CvString msg = CvString::format("warning: homeland AI unit %d has a current tactical move (%s at %d,%d)", 
+										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				LogHomelandMessage( msg );
+
+				/*
+				//if we skip the units, we have to end their turn, else the AI turn will never end! (in fact it is terminated after 10 turn slices without movement ...)
+				pLoopUnit->finishMoves();
+				pLoopUnit->SetTurnProcessed(true);
+				continue;
+				*/
+			}
+#endif
+
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 	}
@@ -845,7 +862,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?
-			else if(!pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isCity())
+			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isCity())
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -913,7 +930,15 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(BARBARIAN_PLAYER != NULL && pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
 			{
 				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				if(pTargetUnit && !pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAncientRuins.push_back(newTarget);
+				}
+				else
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 					newTarget.SetTargetX(pLoopPlot->getX());
@@ -985,7 +1010,7 @@ void CvHomelandAI::FindHomelandTargets()
 #endif
 			// ... road segment in friendly territory?
 #if defined(MOD_BALANCE_CORE)
-			else if(pLoopPlot->isRoute())
+			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID())
 			{
 				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
 				int iWeight = pLoopPlot->defenseModifier(eTeam, true);
@@ -2971,7 +2996,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestCity->getX(), pBestCity->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -3063,7 +3088,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestCity->getX(), pBestCity->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -7141,6 +7166,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 
 	// Now loop through the sorted score list and go to the best one we can reach in one turn.
 	CvPlot* pBestPlot = NULL;
+#if defined(MOD_BALANCE_CORE)
+	//we already know that the plot is in reach
+	if (aBestPlotList.size()>0)
+	{
+		aBestPlotList.SortItems(); //highest score will be first
+		pBestPlot=aBestPlotList.GetElement(0);
+	}
+#else
 	uint uiListSize;
 	if ((uiListSize = aBestPlotList.size()) > 0)
 	{
@@ -7165,16 +7198,13 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			break;
 		}
 	}
+#endif
 
 	if(pBestPlot != NULL)
 	{
 		if(pUnit->atPlot(*pBestPlot))
 		{
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->canHold(pBestPlot) && pUnit->getDomainType() == DOMAIN_SEA)
-#else
 			if (pUnit->canHold(pBestPlot))
-#endif
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -7188,66 +7218,8 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				return true;
 			}
-#if defined(MOD_BALANCE_CORE)
-			else if (pUnit->canHold(pBestPlot) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->isEmbarked())
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-					strLogString.Format("%s (%d) tried to move to safety but is at the best spot, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
-					LogHomelandMessage(strLogString);
-				}
-
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				return true;
-			}
-#endif
 			else
 			{
-#if defined(MOD_BALANCE_CORE)
-				//check for an alternative plot again with more relaxed conditions
-				WeightedPlotVector aBestPlotList;
-				TacticalAIHelpers::ReachablePlotSet reachableTiles;
-				TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
-				for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
-				{
-					{
-						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
-
-#if defined(MOD_AI_SECONDARY_WORKERS)
-						if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
-#else
-						if(!pUnit->PlotValid(pLoopPlot))
-#endif
-						{
-							continue;
-						}
-						if(pLoopPlot->isVisibleEnemyUnit(pUnit))
-						{
-							continue;
-						}
-						if(!pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							continue;
-						}
-						if(pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
-							UnitProcessed(pUnit->GetID());
-							break;
-						}
-						else if(pLoopPlot->getOwner() == pUnit->getOwner())
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
-							UnitProcessed(pUnit->GetID());
-							break;
-						}
-					}
-				}
-
-#endif
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;

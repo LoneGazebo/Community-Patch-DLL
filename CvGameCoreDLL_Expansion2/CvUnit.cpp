@@ -11584,14 +11584,9 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
-			int iWLTKD = (iTradeGold / 100);
 			int iCap = 20;
 			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCap /= 100;
-			if(iWLTKD > iCap)
-			{
-				iWLTKD = iCap;
-			}
 			CvCity* pLoopCity;
 			int iCityLoop;
 
@@ -11600,7 +11595,7 @@ bool CvUnit::trade()
 			{
 				if(pLoopCity != NULL)
 				{
-					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iCap);
 				}
 			}
 			if(GET_PLAYER(getOwner()).isHuman())
@@ -11609,7 +11604,7 @@ bool CvUnit::trade()
 				if(pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT");
-					strText <<  getNameKey() << iWLTKD;
+					strText <<  getNameKey() << iCap;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT_SUMMARY");
 					strSummary << getNameKey();
 					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -13509,9 +13504,12 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	if(pCity != NULL)
 	{
 		int iMaxPrice = pCity->GetPurchaseCost(eUnit);
-		if(iPrice > iMaxPrice)
+		if(iMaxPrice > 0)
 		{
-			iPrice = iMaxPrice;
+			if(iPrice > iMaxPrice)
+			{
+				iPrice = iMaxPrice;
+			}
 		}
 	}
 #endif
@@ -19363,6 +19361,51 @@ if (!bDoEvade)
 				}
 			}
 		}
+		//Improvement that provides free promotion?
+		ImprovementTypes eNeededImprovement = pNewPlot->getImprovementType();
+		if(eNeededImprovement != NO_IMPROVEMENT)
+		{
+			PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
+			if(ePromotion != NO_PROMOTION)
+			{
+				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				{
+					bool bNoPromotion = false;
+					// Check for negating promotions
+					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					{
+						bNoPromotion = true;
+					}
+					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+					{
+						bNoPromotion = true;
+					}
+					if(!bNoPromotion)
+					{
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+					}
+					if(!bNoPromotion)
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+		}
 		// Terrain that provides free promotions?
 		TerrainTypes eTerrain = pNewPlot->getTerrainType();
 		if(eTerrain != NO_TERRAIN && (eTerrain <= TERRAIN_SNOW))
@@ -19674,6 +19717,30 @@ if (!bDoEvade)
 				if(eNeededFeature != pNewPlot->getFeatureType())
 				{
 					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eNeededFeature)->getLocationUnitFreePromotion();
+					if(ePromotion != NO_PROMOTION)
+					{
+						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+						if(pkPromotionInfo && pkPromotionInfo->IsLostOnMove())
+						{
+							if(isHasPromotion(ePromotion))
+							{
+								setHasPromotion(ePromotion, false);
+							}
+						}
+					}
+				}
+			}
+		}
+		//No longer on improvement that provides free promotion?
+		for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		{
+			const ImprovementTypes eNeededImprovement = static_cast<ImprovementTypes>(iI);
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eNeededImprovement);
+			if(pkImprovementInfo)
+			{
+				if(eNeededImprovement != pNewPlot->getImprovementType())
+				{
+					PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);

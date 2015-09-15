@@ -6,7 +6,7 @@
 		<Row>
 			<PolicyType>POLICY_COMMERCE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Policy_YieldFromConstruction>
 	<!-- Gold cost reduction -->

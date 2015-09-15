@@ -4596,14 +4596,14 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 
 	CopyToSimulatedStatus();
 
-	ReligionInCityList::iterator it;
-
 #if defined(MOD_BALANCE_CORE)
-	if(eReligion == -1)
+	if(eReligion == NO_RELIGION)
 	{
 		return;
 	}
 #endif
+
+	ReligionInCityList::iterator it;
 	for(it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
 	{
 		if(it->m_eReligion == eReligion)

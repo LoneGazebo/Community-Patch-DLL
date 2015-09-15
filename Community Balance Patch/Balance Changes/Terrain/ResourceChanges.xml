@@ -88,12 +88,12 @@
 		<Row>
 			<ResourceType>RESOURCE_SALT</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_URANIUM</ResourceType>

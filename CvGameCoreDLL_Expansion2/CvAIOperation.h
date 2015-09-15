@@ -91,6 +91,9 @@ enum AIOperationAbortReason
 	AI_ABORT_WAR_STATE_CHANGE,
 	AI_ABORT_DIPLO_OPINION_CHANGE,
 	AI_ABORT_LOST_PATH,
+#if defined(MOD_BALANCE_CORE)
+	AI_ABORT_TIMED_OUT,
+#endif
 };
 
 FDataStream& operator<<(FDataStream&, const AIOperationState&);
@@ -184,6 +187,16 @@ public:
 	{
 		m_iLastTurnMoved = iValue;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetTurnStarted() const
+	{
+		return m_iTurnStarted;
+	};
+	void SetTurnStarted(int iValue)
+	{
+		m_iTurnStarted = iValue;
+	};
+#endif
 
 	int GetID() const;
 	void SetID(int iID);
@@ -299,6 +312,9 @@ protected:
 	AIOperationAbortReason m_eAbortReason;
 	int m_iDefaultArea;
 	int m_iLastTurnMoved;
+#if defined(MOD_BALANCE_CORE)
+	int m_iTurnStarted;
+#endif
 	PlayerTypes m_eOwner;
 	PlayerTypes m_eEnemy;
 	bool m_bShouldReplaceLossesWithReinforcements;

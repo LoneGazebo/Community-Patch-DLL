@@ -86,6 +86,10 @@ ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
 
+-- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
+
+ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
+
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
 ALTER TABLE Features ADD COLUMN 'LocationUnitFreePromotion' TEXT DEFAULT NULL;

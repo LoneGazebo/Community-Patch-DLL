@@ -214,6 +214,14 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
 	}
+	if(pDeal->IsPeaceTreatyTrade(eFromPlayer))
+	{
+		if(pDeal->GetSurrenderingPlayer() == eFromPlayer && iValueTheyreOffering <= GetCachedValueOfPeaceWithHuman())
+		{
+			bDealAcceptable = false;
+			iDealValueToMe = -500;
+		}
+	}
 #endif
 	if(bDealAcceptable)
 	{
@@ -2245,6 +2253,26 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				return 100000;
 			}
+			CvCity* pLoopCity;
+			int iCityLoop;
+			bool bGood = false;
+			for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					int iTempDistance = plotDistance(pCity->getX(), pCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+					//Only trade border cities, okay?
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					{
+						bGood = true;
+						break;
+					}
+				}
+			}
+			if(!bGood)
+			{
+				return 100000;
+			}
 			int goldPerPlot = GetPlayer()->GetBuyPlotCost(); // this is how much ANY plot is worth to me right now
 			goldPerPlot *= 3;
 			goldPerPlot /= 2;
@@ -2405,7 +2433,26 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				return 100000;
 			}
-
+			CvCity* pLoopCity2;
+			int iCityLoop2;
+			bool bGood = false;
+			for(pLoopCity2 = GetPlayer()->firstCity(&iCityLoop2); pLoopCity2 != NULL; pLoopCity2 = GetPlayer()->nextCity(&iCityLoop2))
+			{
+				if(pLoopCity2 != NULL)
+				{
+					int iTempDistance = plotDistance(pCity->getX(), pCity->getY(), pLoopCity2->getX(), pLoopCity2->getY());
+					//Only trade border cities, okay?
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					{
+						bGood = true;
+						break;
+					}
+				}
+			}
+			if(!bGood)
+			{
+				return 100000;
+			}
 			//Is this city objectively worse than all our non-capital current cities? We don't want it (unless we founded it)
 			int iGoodValue = 0;
 			int iOkayValue = 0;
@@ -3525,7 +3572,7 @@ int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Peace Treaty with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 #if defined(MOD_BALANCE_CORE)
-	return (10 * GetPlayer()->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
+	return 10;
 #else
 	return 0;
 #endif
@@ -3568,7 +3615,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 400 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 300 + GC.getGame().getGameTurn(); //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -7202,38 +7249,57 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	// Logic for when THIS AI wants to buy a city. Only applies to cities we owned previously or are close to our borders.
 	CvCity* pLoopCity;
+	CvCity* pLoopMyCity;
 	int iCityLoop;
+	int iMyCityLoop;
 	int iItemValue = 0;
+	int iTempDistance = 0;
 	CvCity* pBestCity = NULL;
 	int iBestCity = 0;
 	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
 		if(pLoopCity != NULL)
 		{
-			if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+			for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 			{
-				iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
-				if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+				//Only trade border cities, okay?
+				if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
 				{
-					pBestCity = pLoopCity;
-					iBestCity = iItemValue;
-				}	
+					if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+					{
+						iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
+						if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+						{
+							pBestCity = pLoopCity;
+							iBestCity = iItemValue;
+						}	
+					}
+				}
 			}
 		}
 	}
 	// Logic for when THIS AI wants to sell a city. Only applies to cities they owned previously
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
 		if(pLoopCity != NULL)
 		{
-			if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+			for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 			{
-				iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), true, eOtherPlayer, false);
-				if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+				//Only trade border cities, okay?
+				if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
 				{
-					pBestCity = pLoopCity;
-					iBestCity = iItemValue;
-				}	
+					if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
+					{
+						iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
+						if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+						{
+							pBestCity = pLoopMyCity;
+							iBestCity = iItemValue;
+						}	
+					}
+				}
 			}
 		}
 	}

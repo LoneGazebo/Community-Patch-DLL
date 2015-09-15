@@ -554,4 +554,12 @@
 			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
+	<!-- Persia -->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_SATRAPS_COURT</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 </GameData>

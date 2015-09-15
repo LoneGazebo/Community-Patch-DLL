@@ -36,7 +36,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION_SHORT' AND EXISTS (SELECT * FROM 
 
 -- Itinerant Preachers (Pious Celebrations)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_HAPPINESS_1] Happiness for every owned City following this religion, +15 to [ICON_INFLUENCE] Influence resting point with City-States following this religion.'
+SET Text = '+1 [ICON_HAPPINESS_1] Happiness for every two Cities following this religion, +15 to [ICON_INFLUENCE] Influence resting point with City-States following this religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
