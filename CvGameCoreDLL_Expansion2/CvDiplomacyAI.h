@@ -1434,8 +1434,8 @@ private:
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
-		int m_aiNumDoFLifetime[REALLY_MAX_PLAYERS];
-		int m_aiNumTimesCoopWarDenied[REALLY_MAX_PLAYERS];
+		int m_aiNumDoFLifetime[MAX_MAJOR_CIVS];
+		int m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 

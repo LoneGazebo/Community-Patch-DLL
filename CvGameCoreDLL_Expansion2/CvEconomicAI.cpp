@@ -3035,7 +3035,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 			}
 		}
 	}
-	//# of cities needing workers greater than number of workers? disband.
+	//# of cities needing workers greater than number of workers? don't disband.
 	if(iNumCitiesWithStrat >= iNumWorkers)
 	{
 		return;
@@ -3092,24 +3092,26 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
 #if defined(MOD_BALANCE_CORE)
-	int iWorkersPerUnimprovedPlot = 10;
-	int iMinWorkers = iNumUnimprovedPlots / iWorkersPerUnimprovedPlot;
+	int iUnimprovedPlotPerWorkers = 8;
+	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
 #endif
 	// less than two thirds of the plots are improved, don't discard anybody
 	double fRatio = iNumImprovedPlots / (double)iNumValidPlots;
 	if(fRatio < 2/(double)3)
 	{
 #if defined(MOD_BALANCE_CORE)
-		iMinWorkers += 1;
+		iMinWorkers += 2;
 #else
 		return;
 #endif
 	}
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+	if((iNumUnimprovedPlots % iUnimprovedPlotPerWorkers) > 0)
+#else
 	int iWorkersPerUnimprovedPlot = 5;
 	int iMinWorkers = iNumUnimprovedPlots / iWorkersPerUnimprovedPlot;
-#endif
 	if((iNumUnimprovedPlots % iWorkersPerUnimprovedPlot) > 0)
+#endif
 	{
 		iMinWorkers += 1;
 	}

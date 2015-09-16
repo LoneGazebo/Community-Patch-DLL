@@ -36,7 +36,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- One With Nature
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] for every 3 Mountain tiles around a City. +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Natural Wonders'
+SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] for every 3 Mountain tiles near your Cities. Natural Wonders gain +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture'
 WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

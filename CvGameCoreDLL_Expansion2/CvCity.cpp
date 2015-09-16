@@ -9845,7 +9845,11 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
 		// WLTKD Growth Bonus
+#if defined(MOD_BALANCE_CORE)
+		if(GetWeLoveTheKingDayCounter() > 0)
+#else
 		else if(GetWeLoveTheKingDayCounter() > 0)
+#endif
 		{
 			int iMod = /*25*/ GC.getWLTKD_GROWTH_MULTIPLIER();
 #if defined(MOD_BALANCE_CORE)
@@ -10872,95 +10876,100 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0 && !IsResistance())
+			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0 && !IsResistance() && !IsRazing())
 			{
-				int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
-				if(iRemainder == 0)
+				int iDiff = foodDifference();
+
+				if(iDiff >= 0)
 				{
-					UnitTypes eBestUnit = NO_UNIT;
-					int iStrengthBest = 0;
-					// Loop through adding the available units
-					for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+					int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
+					if(iRemainder == 0)
 					{
-						UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
-						if(eLoopUnit != NO_UNIT)
+						UnitTypes eBestUnit = NO_UNIT;
+						int iStrengthBest = 0;
+						// Loop through adding the available units
+						for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitEntry)
+							UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
+							if(eLoopUnit != NO_UNIT)
 							{
-								if(!canTrain(eLoopUnit))
+								CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+								if(pkUnitEntry)
 								{
-									continue;
-								}
-								if(pkUnitEntry->GetRangedCombat() > 0)
-								{
-									continue;
-								}
-								if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
-								{
-									int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
-									if(iChance < 50)
+									if(!canTrain(eLoopUnit))
 									{
 										continue;
 									}
-								}
-								bool bBad = false;
-								ResourceTypes eResource;
-								for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-								{
-									eResource = (ResourceTypes) iResourceLoop;
-									int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
-									if (iNumResource > 0)
+									if(pkUnitEntry->GetRangedCombat() > 0)
 									{
-										bBad = true;
-										break;
+										continue;
 									}
-								}
-								if(bBad)
-								{
-									continue;
-								}
-								int iCombatStrength = pkUnitEntry->GetCombat();
-								if(iCombatStrength > iStrengthBest)
-								{
-									iStrengthBest = iCombatStrength;
-									eBestUnit = eLoopUnit;
+									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+									{
+										int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
+										if(iChance < 50)
+										{
+											continue;
+										}
+									}
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											bBad = true;
+											break;
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatStrength = pkUnitEntry->GetCombat();
+									if(iCombatStrength > iStrengthBest)
+									{
+										iStrengthBest = iCombatStrength;
+										eBestUnit = eLoopUnit;
+									}
 								}
 							}
 						}
-					}
-					if(eBestUnit != NO_UNIT)
-					{
-						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-						if(pkUnitEntry)
+						if(eBestUnit != NO_UNIT)
 						{
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI);
-
-							CvAssertMsg(iResult != -1, "Unable to create unit");
-
-							if (iResult != -1)
+							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+							if(pkUnitEntry)
 							{
-								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-								if (!pUnit->jumpToNearestValidPlot())
+								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eBestUnit, eUnitAI);
+
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+
+								if (iResult != -1)
 								{
-									pUnit->kill(false);	// Could not find a valid spot!
-								}
-								pUnit->setMoves(0);
-								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-								if(pUnit && pNotifications)
-								{
-									Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-									localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
-									Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-									localizedSummary << getNameKey() << pUnit->getNameKey();
-									pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
-								}
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), getName().GetCString(), getPopulation());
-									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+									pUnit->setMoves(0);
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if(pUnit && pNotifications)
+									{
+										Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+										localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
+										Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+										localizedSummary << getNameKey() << pUnit->getNameKey();
+										pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
+									}
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), getName().GetCString(), getPopulation());
+										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
 								}
 							}
 						}
@@ -17426,6 +17435,8 @@ void CvCity::updateStrengthValue()
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
 	{
+		iStrengthValue *= (100 + GC.getBALANCE_CS_ALLIANCE_DEFENSE_BONUS());
+		iStrengthValue /= 100;
 		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
 		if(eAlly != NO_PLAYER)
 		{

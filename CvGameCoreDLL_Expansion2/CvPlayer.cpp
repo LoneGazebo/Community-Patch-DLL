@@ -4018,7 +4018,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pNewCity->SetOccupied(true);
 
 			int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
+#if defined(MOD_BALANCE_CORE)
+			int iResistanceTurns = ((pNewCity->getPopulation() / 2) * (100 - iInfluenceReduction)) / 100;
+#else
 			int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
+#endif
 
 			if (iResistanceTurns > 0)
 			{
@@ -13348,47 +13352,25 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 							iValue += pMyReligion->m_Beliefs.GetYieldFromBarbarianKills(eYield);
 						}
 					}
-					int iLoop;
-					int iYieldKillCity = 0;
-					int iValueKill = 0;
-					int iYieldKillCityBarb = 0;
-					int iValueKillBarb = 0;
-					const CvCity* pLoopCity;
-					for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				}
+			}
+			else
+			{
+				ReligionTypes eMajorityReligion = GetReligions()->GetReligionInMostCities();
+				if (eMajorityReligion >= RELIGION_PANTHEON) 
+				{
+					const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eMajorityReligion, GetID());
+					if (pMyReligion) 
 					{
-						if(pLoopCity != NULL)
+						const CvCity* pCity = getCapitalCity();
+						if(pCity && pCity->GetCityReligions()->GetNumFollowers(eMajorityReligion) > 0)
 						{
-							BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if(eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+							iValue += pMyReligion->m_Beliefs.GetYieldFromKills(eYield);
+
+							if (bWasBarbarian) 
 							{
-								if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldFromKills(eYield) > 0)
-								{
-									iYieldKillCity++;
-									iValueKill = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldFromKills(eYield);
-								}
-								if (bWasBarbarian) 
-								{
-									iYieldKillCityBarb++;
-									iValueKillBarb = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldFromBarbarianKills(eYield);
-								}
+								iValue += pMyReligion->m_Beliefs.GetYieldFromBarbarianKills(eYield);
 							}
-						}
-					}
-					int iCalcCities = 0;
-					if(iYieldKillCity > 0 && iValueKill > 0)
-					{
-						iCalcCities = (getNumCities() - iYieldKillCity);
-						if(iCalcCities > 0)
-						{
-							iValue += (iValueKill / iCalcCities);
-						}
-					}
-					if(iYieldKillCityBarb > 0 && iValueKillBarb > 0)
-					{
-						iCalcCities = (getNumCities() - iYieldKillCityBarb);
-						if(iCalcCities > 0)
-						{
-							iValue += (iValueKillBarb / iCalcCities);
 						}
 					}
 				}
@@ -13976,12 +13958,14 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 	int iYieldPerTurn = 0;
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eReligion = pReligions->GetFounderBenefitsReligion(GetID());
+	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(GetID());
 	if (eReligion != NO_RELIGION)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eReligion, NO_PLAYER);
+		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
 		if (pReligion)
 		{
+			//Founders and Enhancers
+
 			iYieldPerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield);
 
 			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield);
@@ -14014,71 +13998,58 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			}
 		}
 	}
-	//Pantheon
-	eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
-	if(eReligion != NO_RELIGION)
+	else
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
-		if (pReligion && eReligion == RELIGION_PANTHEON)
-		{
-			int iLoop;
-			const CvCity* pLoopCity;
-			int iFollowers = 0;
-			int iCities = 0;
-			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		 eReligion = GetReligions()->GetReligionInMostCities();
+		 if(eReligion != NO_RELIGION)
+		 {
+			 const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
+			if (pReligion)
 			{
-				if(pLoopCity != NULL)
+				//Pantheons
+				int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
+				iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+
+				int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
+				if(iYieldPerXFollowers > 0)
+				{		
+					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+				}
+				if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
 				{
-					if(pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
+					int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
+					int iNumHappinessResources = 0;
+					ResourceTypes eResource;
+					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 					{
-						iFollowers += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
-						iCities++;
+						eResource = (ResourceTypes) iResourceLoop;
+
+						if(GetHappinessFromLuxury(eResource) > 0)
+						{
+							iNumHappinessResources++;
+						}
+					}
+					if(iNumHappinessResources > 0)
+					{
+						iLuxCulture *= iNumHappinessResources;
+						iYieldPerTurn += iLuxCulture;
 					}
 				}
-			}
-
-			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
-			iYieldPerTurn += (iCities * iYieldPerFollowingCity);
-
-			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
-			if(iYieldPerXFollowers > 0)
-			{		
-				iYieldPerTurn += (iFollowers / iYieldPerXFollowers);
-			}
-			if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
-			{
-				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
-				int iNumHappinessResources = 0;
-				ResourceTypes eResource;
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
+				if(iYieldPerGPT > 0)
 				{
-					eResource = (ResourceTypes) iResourceLoop;
-
-					if(GetHappinessFromLuxury(eResource) > 0)
+					if(GetTreasury()->CalculateBaseNetGold() > 0)
 					{
-						iNumHappinessResources++;
+						iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
 					}
 				}
-				if(iNumHappinessResources > 0)
+				int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
+				if(iYieldPerScience > 0)
 				{
-					iLuxCulture *= iNumHappinessResources;
-					iYieldPerTurn += iLuxCulture;
-				}
-			}
-			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
-			if(iYieldPerGPT > 0)
-			{
-				if(GetTreasury()->CalculateBaseNetGold() > 0)
-				{
-					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
-				}
-			}
-			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
-			if(iYieldPerScience > 0)
-			{
-				if(GetScience() > 0)
-				{
-					iYieldPerTurn += (GetScience() / iYieldPerScience);
+					if(GetScience() > 0)
+					{
+						iYieldPerTurn += (GetScience() / iYieldPerScience);
+					}
 				}
 			}
 		}
@@ -15488,53 +15459,65 @@ int CvPlayer::GetHappinessFromReligion()
 		}
 	}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
-	int iSecondaryPantheon = 0;
-	if(MOD_BALANCE_CORE_BELIEFS && pReligion)
+	if(MOD_BALANCE_CORE_BELIEFS)
 	{
-		int iPantheon = 0;
-		if(pReligion->m_Beliefs.GetHappinessPerPantheon() > 0)
+		ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer(true);
+		if(eReligionFounded != NO_RELIGION)
 		{
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
+			int iPantheon = 0;
+			if(pReligion)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
+				if(pReligion->m_Beliefs.GetHappinessPerPantheon() > 0)
+				{
+					PlayerTypes eLoopPlayer;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
 			
-				if(pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GET_PLAYER(GetID()).getTeam()))
-				{
-					ReligionTypes eReligionFounded = pMajorLoop->GetReligions()->GetReligionCreatedByPlayer(true);
-					if(eReligionFounded >= RELIGION_PANTHEON)
-					{
-						iPantheon++;
+						if(pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GET_PLAYER(GetID()).getTeam()))
+						{
+							ReligionTypes eReligionFounded = pMajorLoop->GetReligions()->GetReligionCreatedByPlayer(true);
+							if(eReligionFounded >= RELIGION_PANTHEON)
+							{
+								iPantheon++;
+							}
+						}
 					}
-				}
-			}
-			iHappinessFromReligion += (iPantheon * pReligion->m_Beliefs.GetHappinessPerPantheon());
-		}
-		int iLoop;
-		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-				{
-					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHappinessPerPantheon() > 0)
-					{
-						iSecondaryPantheon++;
-					}
+					iHappinessFromReligion += (iPantheon * pReligion->m_Beliefs.GetHappinessPerPantheon());
 				}
 			}
 		}
-		int iCities = (getNumCities() - iSecondaryPantheon);
-		if(iCities > 0)
+		else
 		{
-			int iHappiness = ((iPantheon * pReligion->m_Beliefs.GetHappinessPerPantheon()) / iCities);
-			if(iHappiness > 0)
+			ReligionTypes eReligion =  GetReligions()->GetReligionInMostCities();
+			if(eReligion != NO_RELIGION)
 			{
-				iHappinessFromReligion += iHappiness;
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+				int iPantheon = 0;
+				if(pReligion)
+				{
+					if(pReligion->m_Beliefs.GetHappinessPerPantheon() > 0)
+					{
+						PlayerTypes eLoopPlayer;
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
+			
+							if(pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GET_PLAYER(GetID()).getTeam()))
+							{
+								ReligionTypes eReligionFounded = pMajorLoop->GetReligions()->GetReligionCreatedByPlayer(true);
+								if(eReligionFounded >= RELIGION_PANTHEON)
+								{
+									iPantheon++;
+								}
+							}
+						}
+						iHappinessFromReligion += (iPantheon * pReligion->m_Beliefs.GetHappinessPerPantheon());
+					}
+				}
 			}
 		}
 	}

@@ -4331,7 +4331,7 @@ void CvMilitaryAI::UpdateOperations()
 			}
 		}
 	}
-	else
+	if(IsUsingStrategy(eStrategyBarbs) || bStrategyFightAWar)
 	{
 		bool bFoundOneToDelete = true;
 		while(bFoundOneToDelete)
@@ -4492,14 +4492,20 @@ void CvMilitaryAI::UpdateOperations()
 	}
 	else
 	{
-		CvCity* pCity = GetMostThreatenedCity();
-		if(pCity != NULL)
+		if(m_pPlayer->getNumCities() > 2)
 		{
-			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE, &iOperationID);
-			if (!bHasOperationUnderway)
+			if(!IsUsingStrategy(eStrategyBarbs) && !bStrategyFightAWar)
 			{
-				// We should have AI build for this
-				m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE, NO_PLAYER, pCity->getArea(), pCity, pCity);
+				CvCity* pCity = GetMostThreatenedCity();
+				if(pCity != NULL)
+				{
+					bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE, &iOperationID);
+					if (!bHasOperationUnderway)
+					{
+						// We should have AI build for this
+						m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE, NO_PLAYER, pCity->getArea(), pCity, pCity);
+					}
+				}
 			}
 		}
 	}

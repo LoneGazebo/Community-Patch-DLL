@@ -2008,7 +2008,18 @@ void CvTacticalAI::FindTacticalTargets()
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 						newTarget.SetAuxData((void*)pLoopPlot);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(pDefenseCity)
+						{
+							newTarget.SetAuxIntData(pDefenseCity->getThreatValue() + m_pPlayer->GetPlotDanger(*pLoopPlot));
+						}
+						else
+						{
+							newTarget.SetAuxIntData(m_pPlayer->GetPlotDanger(*pLoopPlot));
+						}
+#else
 						newTarget.SetAuxIntData(pDefenseCity->getThreatValue() + m_pPlayer->GetPlotDanger(*pLoopPlot));
+#endif
 						m_AllTargets.push_back(newTarget);
 					}
 				}
@@ -3234,6 +3245,13 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 		if(nextOp->GetLastTurnMoved() < GC.getGame().getGameTurn())
 		{
 #if defined(MOD_BALANCE_CORE)
+			int iTurnValue = GC.getGame().getGameTurn() - nextOp->GetTurnStarted();
+			if((nextOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS) && (iTurnValue > GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY()))
+			{
+				nextOp->SetToAbort(AI_ABORT_TIMED_OUT);
+			}
+			else
+			{
 			nextOp->CheckTarget();
 #endif
 
@@ -3258,6 +3276,9 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 
 			nextOp->SetLastTurnMoved(GC.getGame().getGameTurn());
 			nextOp->CheckOnTarget();
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 
 
@@ -14442,13 +14463,12 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				//A lot of injured ships around us
 				if(iInjured >= 3)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
+					pGeneral->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Expending for REPAIR FLEET ACTION - Great Admiral - %s, To X: %d, To Y: %d, At X: %d, At Y: %d",
-										pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
-										pGeneral->getX(), pGeneral->getY());
+						strMsg.Format("Expending for REPAIR FLEET ACTION - Great Admiral - %s, At X: %d, At Y: %d",
+							pGeneral->getName().GetCString(), pGeneral->getX(), pGeneral->getY());
 						LogTacticalMessage(strMsg);
 					}
 					UnitProcessed(pGeneral->GetID());

@@ -700,7 +700,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		if (IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
+		//Can't already be offering this.
+		if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
 			return false;
 #endif
 		// Can't be the same team
@@ -793,7 +794,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eToTeam))
 				return false;
 		}
-		if (IsThirdPartyWarTrade( ePlayer, eThirdTeam))
+		//Can't already be offering this
+		if (!bFinalizing && IsThirdPartyWarTrade( ePlayer, eThirdTeam))
 			return false;
 #endif
 		// Can't be the same team

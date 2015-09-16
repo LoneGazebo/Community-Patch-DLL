@@ -9911,6 +9911,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		// Don't look at Cities they've captured
 		if(pLoopCity->getOriginalOwner() != pLoopCity->getOwner())
 			continue;
+#if defined(MOD_BALANCE_CORE)
+		//Ignore puppets
+		if(pLoopCity->IsPuppet())
+			continue;
+#endif
 
 		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
@@ -22214,25 +22219,21 @@ const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
 			{
 				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
 			}
-			else if(iFriendshipValue == 0)
+			if(iFriendshipValue <= 0)
 			{
 				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 			}
-			else if(iFriendshipValue == 1)
+			if(iFriendshipValue <= 2)
 			{
 				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
 			}
-			else if(iFriendshipValue == 2)
+			if(iFriendshipValue <= 4)
 			{
 				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
 			}
-			else if(iFriendshipValue > 2)
+			if(iFriendshipValue > 4)
 			{
 				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
-			}
-			else
-			{
-				return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 			}
 		}
 	}
@@ -22243,25 +22244,21 @@ const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
 		{
 			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
 		}
-		else if(iFriendshipValue == 0)
+		if(iFriendshipValue <= 0)
 		{
 			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		}
-		else if(iFriendshipValue == 1)
+		if(iFriendshipValue <= 2)
 		{
 			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
 		}
-		else if(iFriendshipValue == 2)
+		if(iFriendshipValue <= 4)
 		{
 			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
 		}
-		else if(iFriendshipValue > 2)
+		if(iFriendshipValue > 4)
 		{
 			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
-		}
-		else
-		{
-			return GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		}
 	}
 

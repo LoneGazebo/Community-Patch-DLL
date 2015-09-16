@@ -93,6 +93,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iImprovementResource(NO_RESOURCE),
 	m_iImprovementResourceQuantity(0),
+	m_iUnitFreePromotionImprovement(NO_PROMOTION),
 #endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
@@ -314,6 +315,12 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
 	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
+	const char* szTextVal;
+	szTextVal = kResults.GetText("UnitFreePromotion");
+	if(szTextVal != NULL)
+	{
+		m_iUnitFreePromotionImprovement = GC.getInfoTypeForString(szTextVal, true);
+	}
 #endif
 	//References
 	const char* szWorldsoundscapeAudioScript = kResults.GetText("WorldSoundscapeAudioScript");
@@ -712,6 +719,10 @@ int CvImprovementEntry::GetResourceFromImprovement() const
 int CvImprovementEntry::GetResourceQuantityFromImprovement() const
 {
 	return m_iImprovementResourceQuantity;
+}
+int CvImprovementEntry::GetUnitFreePromotion() const
+{
+	return m_iUnitFreePromotionImprovement;
 }
 #endif
 /// Returns the type of improvement that results from this improvement being pillaged

@@ -345,21 +345,6 @@
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 		</Row>
 	</Building_LocalResourceOrs>
-	<!-- Forge Buff -->
-	<Building_FeatureYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_FORGE</BuildingType>
-			<FeatureType>FEATURE_FOREST</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_FORGE</BuildingType>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_FeatureYieldChanges>
 	<!-- University, Windmill, Research Lab -->
 	<Building_FeatureYieldChanges>
 		<Row>
@@ -448,34 +433,54 @@
 			<ResourceType>RESOURCE_SALT</ResourceType>
 		</Row>
 	</Building_LocalResourceOrs>
-	<Building_ClassesNeededInCity>
+	<!-- Workshop -->
+	<Building_FeatureYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WORKSHOP</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
-	</Building_ClassesNeededInCity>
-	<Building_ClassesNeededInCity>
-		<Row>
-			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
-		</Row>
-	</Building_ClassesNeededInCity>
-	<!-- Workshop/Longhouse-->
-	<Building_ImprovementYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WORKSHOP</BuildingType>
-			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_WORKSHOP</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<!-- Forge -->
+	<Building_ImprovementYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_FORGE</BuildingType>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ImprovementYieldChanges>
-	<!-- Forge -->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_FORGE</BuildingType>

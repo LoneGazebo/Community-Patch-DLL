@@ -2929,7 +2929,7 @@
 		<Row>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 			<DomainType>DOMAIN_SEA</DomainType>
-			<Modifier>-50</Modifier>
+			<Modifier>-25</Modifier>
 		</Row>
 	</UnitPromotions_Domains>
 	<UnitPromotions_YieldFromKills>

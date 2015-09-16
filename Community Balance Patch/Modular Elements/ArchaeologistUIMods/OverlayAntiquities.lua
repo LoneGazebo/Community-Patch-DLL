@@ -8,7 +8,7 @@ local highlights = { Red     = Vector4(1.0, 0.0, 0.0, 1.0),
                      Magenta = Vector4(1.0, 0.0, 1.0, 1.0),
                      Black   = Vector4(0.5, 0.5, 0.5, 1.0)}             
 
-local iExplorationFinisher = GameInfoTypes.POLICY_EXPLORATION_FINISHER
+local iExplorationFinisher = GameInfoTypes.POLICY_AESTHETICS_FINISHER
 local iSiteHut = GameInfoTypes.IMPROVEMENT_GOODY_HUT
 local iSiteDig = GameInfoTypes.RESOURCE_ARTIFACTS
 local iHiddenDig = GameInfoTypes.RESOURCE_HIDDEN_ARTIFACTS
