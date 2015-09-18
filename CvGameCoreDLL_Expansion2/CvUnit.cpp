@@ -4489,6 +4489,12 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 	TeamTypes eRevealedTeam;
 
 	CvAssert(isHuman());
+#if defined(MOD_BALANCE_CORE)
+	if(IsAutomated() && isHuman())
+	{
+		return NO_TEAM;
+	}
+#endif
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
@@ -28107,22 +28113,22 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	iTemp = pkPromotionInfo->GetCombatPercent();
-	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && iTemp != 0)
+	if(iTemp != 0)
 	{
 		iExtra = getExtraCombatPercent();
-//Let's encourage getting all three tiers asap.
-		iTemp *= (100 + ((iExtra + 30) * 50));
+		//Let's encourage getting all three tiers asap.
+		iTemp *= (100 + iExtra * 5);
 		iTemp /= 100;
 
-		iValue += (iTemp + iFlavorOffense + iFlavorDefense) * 10;
+		iValue += iTemp + iFlavorOffense * 5;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
 	{
 		iExtra = GetRangedAttackModifier();
-		iTemp *= (100 + ((iExtra + 30) * 50));
+		iTemp *= (100 + iExtra * 5);
 		iTemp /= 100;
-		iValue += (iTemp + iFlavorOffense + iFlavorDefense) * 10;
+		iValue += iTemp + iFlavorOffense * 5;
 	}
 #endif
 
@@ -28250,6 +28256,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp /= 100;
 		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 2;
 	}
+#if defined(MOD_BALANCE_CORE)
+	iTemp = pkPromotionInfo->GetAttackFortifiedMod();
+	if(iTemp != 0 && !isRanged())
+	{
+		iExtra = getExtraAttackFortifiedMod() * 2;
+		iTemp *= (100 + iExtra);
+		iTemp /= 100;
+		iValue += iTemp + (iFlavorOffense * iFlavorDefense) * 2;
+	}
+#endif
 
 	iTemp = pkPromotionInfo->GetEnemyHealChange();
 	if((AI_getUnitAIType() == UNITAI_PARADROP) ||
@@ -28977,6 +28993,22 @@ bool CvUnit::IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int i
 bool CvUnit::IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	return plot()->IsWithinDistanceOfUnitPromotion(getOwner(), eUnitPromotion, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsAdjacentToUnit(UnitTypes eOtherUnit, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsAdjacentToUnit(getOwner(), eOtherUnit, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsAdjacentToUnitClass(UnitClassTypes eUnitClass, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsAdjacentToUnitClass(getOwner(), eUnitClass, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsAdjacentToUnitCombatType(UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsAdjacentToUnitCombatType(getOwner(), eUnitCombat, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsAdjacentToUnitPromotion(PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsAdjacentToUnitPromotion(getOwner(), eUnitPromotion, bIsFriendly, bIsEnemy);
 }
 #endif
 bool CvUnit::IsOnImprovement(ImprovementTypes iImprovementType) const

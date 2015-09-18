@@ -862,12 +862,23 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 				DoAddMapsToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddCitiesToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+
+			DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+
+			DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+#endif
 
 			DoAddGPTToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iDealDuration, bUseEvenValue);
 			DoAddGPTToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iDealDuration, bUseEvenValue);
 
 			DoAddGoldToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
 			DoAddGoldToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+
 			if (!bDontChangeTheirExistingItems)
 			{
 				DoRemoveGPTFromThem(pDeal, eOtherPlayer, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iDealDuration, bUseEvenValue);
@@ -879,17 +890,10 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			DoRemoveGoldFromUs(pDeal, eOtherPlayer, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
 			DoRemoveGoldFromThem(pDeal, eOtherPlayer, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
 
+#if !defined(MOD_BALANCE_CORE)
 			DoAddCitiesToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
-#if defined(MOD_BALANCE_CORE)
-			DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-			DoAddCitiesToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-
-			DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-			DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-
-			DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-			DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 #endif
+
 			// Make sure we haven't removed everything from the deal!
 			if(pDeal->m_TradedItems.size() > 0)
 			{
@@ -2240,7 +2244,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of City with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 400 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 100 + GC.getGame().getGameTurn(); //just some base value
 
 	CvCity* pCity = GC.getMap().plot(iX, iY)->getPlotCity();
 
@@ -2274,8 +2278,8 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				return 100000;
 			}
 			int goldPerPlot = GetPlayer()->GetBuyPlotCost(); // this is how much ANY plot is worth to me right now
-			goldPerPlot *= 3;
-			goldPerPlot /= 2;
+			goldPerPlot *= 2;
+			goldPerPlot /= 3;
 
 			//first some amount for the pure territory
 	#if defined(MOD_GLOBAL_CITY_WORKING)
@@ -2286,14 +2290,14 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 				if(NULL != pLoopPlot && pCity->GetID() == pLoopPlot->GetCityPurchaseID())
-					if(iI > 6)
-					{
-						iItemValue += goldPerPlot; // this is a bargain, but at least it's in the ballpark
-					}
+				if(iI > 6)
+				{
+					iItemValue += goldPerPlot; // this is a bargain, but at least it's in the ballpark
+				}
 			}
 			//bring the value back down a bit.
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			iItemValue /= max(1, (pCity->GetNumWorkablePlots() / 5));
+			iItemValue /= max(1, (pCity->GetNumWorkablePlots() / 6));
 #else
 			iItemValue /= max((NUM_CITY_PLOTS / 6), 1);
 #endif
@@ -2360,7 +2364,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iDistance = 20;
 			}
-			iItemValue /= max(1, (iDistance / 5));
+			iItemValue /= max(1, (iDistance / 4));
 
 			// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
 			if (pCity->IsOriginalMajorCapital())
@@ -2473,7 +2477,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
 				{
-					iTestValue /= 2;
+					iTestValue /= 3;
 				}
 			}
 #endif
@@ -2528,7 +2532,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			}
 			//bring the value back down a bit.
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			iItemValue /= (pCity->GetNumWorkablePlots() / 5);
+			iItemValue /= (pCity->GetNumWorkablePlots() / 4);
 #else
 			iItemValue /= (NUM_CITY_PLOTS / 7);
 #endif
@@ -2581,7 +2585,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iDistance = 20;
 			}
-			iItemValue /= max(1, (iDistance / 5));
+			iItemValue /= max(1, (iDistance / 4));
 
 			// Opinion also matters
 			if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()))
@@ -2800,8 +2804,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
-
+#if defined(MOD_BALANCE_CORE)
+	int iItemValue = 70;
+#else
 	int iItemValue = 35;
+#endif
 
 	// Scale up or down by deal duration at this game speed
 	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GC.getSTANDARD_GAMESPEED());
@@ -2891,7 +2898,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 		return 50;
 #else
-	int iItemValue = 10;
+	int iItemValue = 50;
 #endif
 
 	// Me giving Open Borders to the other guy
@@ -2901,23 +2908,26 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(eApproach)
 		{
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue = 1000;
+			return 100000;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
-			iItemValue = 100;
+			return 100000;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue += 50;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue = 20;
+			iItemValue += 30;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue = 40;
+			iItemValue += 40;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue = 50;
+			iItemValue += 50;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-			iItemValue = 100;
+			iItemValue += 100;
 			break;
 		}
 
@@ -2925,28 +2935,30 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
-			iItemValue = 0;
+			iItemValue *= 40;
+			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iItemValue *= 35;
+			iItemValue *= 60;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
-			iItemValue *= 70;
+			iItemValue *= 80;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
-			break;
-		case MAJOR_CIV_OPINION_COMPETITOR:
-			iItemValue *= 150;
+			iItemValue *= 125;
 			iItemValue /= 100;
+			break;
+		//If we don't like him, don't give him open borders.
+		case MAJOR_CIV_OPINION_COMPETITOR:
+			return 100000;
 			break;
 		case MAJOR_CIV_OPINION_ENEMY:
-			iItemValue *= 400;
-			iItemValue /= 100;
+			return 100000;
 			break;
 		case MAJOR_CIV_OPINION_UNFORGIVABLE:
-			iItemValue = 10000;
+			return 100000;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2962,17 +2974,19 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #endif
 		{
 #if defined(MOD_BALANCE_CORE_DEALS)
-			iItemValue *= (10 - iNumEnemiesAtWarWith);
+			iItemValue *= (100 - (iNumEnemiesAtWarWith * 10));
 #else
 			iItemValue *= 10;
 #endif
 			iItemValue /= 100;
 		}
+#if !defined(MOD_BALANCE_CORE_DEALS)
 		else if(iNumEnemiesAtWarWith == 1)
 		{
-			iItemValue *= 25;
+			iItemValue *= 50;
 			iItemValue /= 100;
 		}
+#endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && GetPlayer()->GetCulture()->GetTourism() > 0 )
@@ -2980,26 +2994,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			// The civ we need influence on the most should ALWAYS be included
 			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
 			{
-				iItemValue *= 1000;
+				iItemValue *= 50;
 				iItemValue /= 100;
 			}
 
 			// If have influence over half the civs, want OB with the other half
-			else if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
+			if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
 			{
 				if (GetPlayer()->GetCulture()->GetInfluenceLevel(eOtherPlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iItemValue *= 500;
-					iItemValue /= 100;
-				}
-			}
-
-			else if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-			{
-				// If we're cramped then we want OB more with our neighbors
-				if(GetPlayer()->IsCramped())
-				{
-					iItemValue *= 300;
+					iItemValue *= 50;
 					iItemValue /= 100;
 				}
 			}
@@ -3044,40 +3048,48 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		// Approach is important
 		switch(eApproach)
 		{
+		//If we don't like him, don't take his borders. It's a trap!
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue = 15;
+			return 100000;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
-			iItemValue = 25;
+			return 100000;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue += 50;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue = 25;
+			iItemValue += 100;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue = 40;
+			iItemValue += 50;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue = 30;
+			iItemValue += 50;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-			iItemValue = 100;
+			iItemValue += 100;
 			break;
 		}
 		// Proximity is very important
 		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
 		case PLAYER_PROXIMITY_DISTANT:
-			iItemValue -= 10;
+			iItemValue *= 25;
+			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_FAR:
-			iItemValue -= 5;
+			iItemValue *= 50;
+			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iItemValue += 5;
+			iItemValue *= 75;
+			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			iItemValue += 10;
+			iItemValue *= 125;
+			iItemValue /= 100;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3115,30 +3127,28 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		if(GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
 		{
-			iItemValue *= 115;
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
 		if(GetPlayer()->GetDiplomacyAI()->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
 		{
-			iItemValue *= 125;
-			iItemValue /= 100;
+			iItemValue *= 3;
 		}
 		if(GetPlayer()->GetDiplomacyAI()->MusteringForNeighborAttack(eOtherPlayer))
 		{
-			iItemValue *= 125;
-			iItemValue /= 100;
+			iItemValue *= 3;
 		}
 		//We need to explore?
 		EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
 		if(eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 		{
-			iItemValue *= 115;
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
 		if(eNavalRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 		{
-			iItemValue *= 115;
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
 #endif
@@ -3177,28 +3187,14 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		// Do we think he's going for culture victory?
-		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eOtherPlayer) == eCultureStrategy)
-		{
-			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-
-			// If he has tourism and he's not influential on us yet, resist!
-			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL)
-			{
-				iItemValue *= 500;
-				iItemValue /= 100;
-			}
-		}
+		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
 		CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-		if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+
+		if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 		{
-			if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+			if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 			{
-				if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
-				{
-					iItemValue = 100000;
-				}
+				return 100000;
 			}
 		}
 #endif
@@ -3572,7 +3568,7 @@ int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Peace Treaty with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 #if defined(MOD_BALANCE_CORE)
-	return 10;
+	return 20;
 #else
 	return 0;
 #endif
@@ -3615,7 +3611,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 300 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 25 + GC.getGame().getGameTurn(); //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3678,13 +3674,13 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	{
 #if defined(MOD_BALANCE_CORE)
 		if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-			iItemValue += 1000;
-		else if(eWarProjection == WAR_PROJECTION_GOOD)
-			iItemValue += 750;
-		else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
 			iItemValue += 500;
+		else if(eWarProjection == WAR_PROJECTION_GOOD)
+			iItemValue += 300;
+		else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
+			iItemValue += 100;
 		else
-			iItemValue += 200;
+			iItemValue += 100;
 #else
 		if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
 			iItemValue = 600;
@@ -3706,11 +3702,11 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			MinorCivApproachTypes eMinorApproachTowardsWarPlayer = pDiploAI->GetMinorCivApproach(eWithPlayer);
 			if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_CONQUEST)
 			{
-				iItemValue += 300;
+				iItemValue += 200;
 			}
 			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_BULLY)
 			{
-				iItemValue += 50;
+				iItemValue += 100;
 			}
 #endif
 		}
@@ -3749,17 +3745,17 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 #if defined(MOD_BALANCE_CORE)
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_COMPETITOR)
 		{
-			iItemValue *= 125;
+			iItemValue *= 150;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_ENEMY)
 		{
-			iItemValue *= 200;
+			iItemValue *= 300;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
 		{
-			iItemValue *= 300;
+			iItemValue *= 500;
 			iItemValue /= 100;
 		}
 #endif
@@ -3823,7 +3819,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 
 		if(!GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
-			// Modify for our feelings towards the player we're at war with
+			// Modify for our feelings towards the player we're dealing with
 			if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_FAVORABLE)
 			{
 				iItemValue *= 95;
@@ -3870,7 +3866,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 350 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 50 + GC.getGame().getGameTurn(); //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3967,14 +3963,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		int iExtraCost = eOurEra * 25;
 		iItemValue += iExtraCost;
 
-		// Modify based on our War Approach
-		int iWarBias = /*5*/ GC.getDEFAULT_FLAVOR_VALUE() - iWarApproachWeight;
-		int iWarMod = iWarBias * 10;	// EX: 5 - War Approach of 9 = -4 * 10 = -40% cost
-		iWarMod *= iItemValue;
-		iWarMod /= 100;
-
-		iItemValue += iWarMod;
-
 		// Minor
 		if(bMinor)
 		{
@@ -3989,18 +3977,27 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			// Modify for our feelings towards the player we're would go to war with
 			if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
-				iItemValue *= 30;
+				iItemValue *= 40;
 				iItemValue /= 100;
 			}
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
 			{
-				iItemValue *= 40;
+				iItemValue *= 60;
 				iItemValue /= 100;
 			}
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_COMPETITOR)
 			{
-				iItemValue *= 50;
+				iItemValue *= 80;
 				iItemValue /= 100;
+			}
+			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
+			{
+				iItemValue *= 120;
+				iItemValue /= 100;
+			}
+			else
+			{
+				return 100000;
 			}
 		}
 
@@ -4031,16 +4028,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 95;
 			iItemValue /= 100;
 		}
-		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_COMPETITOR)
+		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_FAVORABLE)
 		{
-			iItemValue *= 150;
-			iItemValue /= 100;
-		}
-		//Probably tricksy.
-		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_COMPETITOR)
-		{
-			iItemValue *= 500;
-			iItemValue /= 100;
+			return 100000;
 		}
 #else
 		if(eWarProjection >= WAR_PROJECTION_GOOD)
@@ -4141,7 +4131,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue *= 3;
+								iItemValue *= 5;
 							}
 						}
 					}
@@ -4150,16 +4140,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 			{
 				case PLAYER_PROXIMITY_DISTANT:
-					iItemValue *= 200;
-					break;
-				case PLAYER_PROXIMITY_FAR:
 					iItemValue *= 150;
 					break;
+				case PLAYER_PROXIMITY_FAR:
+					iItemValue *= 120;
+					break;
 				case PLAYER_PROXIMITY_CLOSE:
-					iItemValue *= 100;
+					iItemValue *= 80;
 					break;
 				case PLAYER_PROXIMITY_NEIGHBORS:
-					iItemValue *= 75;
+					iItemValue *= 60;
 					break;
 				default:
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
@@ -4176,25 +4166,20 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 #if defined(MOD_BALANCE_CORE)
 		if(eWarProjection >= WAR_PROJECTION_GOOD)
-			iItemValue += 200;
+			iItemValue += 50;
 		else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
-			iItemValue += 300;
+			iItemValue += 100;
 		else if(eWarProjection == WAR_PROJECTION_STALEMATE)
-			iItemValue += 500;
-		else
+			iItemValue += 200;
+		else if(eWarProjection == WAR_PROJECTION_DEFEAT)
+			iItemValue += 300;
+		else if(eWarProjection == WAR_PROJECTION_DESTRUCTION)
 			iItemValue += 500;
 
 		// Add 20 gold per era
 		int iExtraCost = eOurEra * 20;
 		iItemValue += iExtraCost;
 
-		// Modify based on our War Approach
-		int iWarBias = /*5*/ GC.getDEFAULT_FLAVOR_VALUE() - iWarApproachWeight;
-		int iWarMod = iWarBias * 10;	// EX: 5 - War Approach of 9 = -4 * 10 = -40% cost
-		iWarMod *= iItemValue;
-		iWarMod /= 100;
-
-		iItemValue += iWarMod;
 		iItemValue += (GetPlayer()->GetDiplomacyAI()->GetCoopWarScore(eOtherPlayer, eWithPlayer, true) * 2);
 		// Minor
 		if(bMinor)
@@ -4209,12 +4194,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_CONQUEST)
 			{
-				iItemValue *= 150;
+				iItemValue *= 75;
 				iItemValue /= 100;
 			}
 			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_BULLY)
 			{
-				iItemValue *= 125;
+				iItemValue *= 50;
 				iItemValue /= 100;
 			}
 		}
@@ -4239,7 +4224,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
 			{
-				iItemValue *= 75;
+				iItemValue *= 100;
 				iItemValue /= 100;
 			}
 			else if(eOpinionTowardsWarPlayer > MAJOR_CIV_OPINION_NEUTRAL)
@@ -4251,22 +4236,22 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		// Modify for our feelings towards the asking player
 		if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_ALLY)
 		{
-			iItemValue *= 150;
+			iItemValue *= 75;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_FRIEND)
 		{
-			iItemValue *= 125;
+			iItemValue *= 90;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_FAVORABLE)
 		{
-			iItemValue *= 105;
+			iItemValue *= 115;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_NEUTRAL)
 		{
-			iItemValue *= 75;
+			iItemValue *= 150;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_NEUTRAL)
@@ -4281,26 +4266,26 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				WarStateTypes eWarState = pDiploAI->GetWarState(eWithPlayer);
 				if(eWarState < WAR_STATE_CALM)
 				{
-					iItemValue *= 8;
+					iItemValue *= 6;
 				}
 				else
 				{
-					iItemValue *= 4;
+					iItemValue *= 3;
 				}
 			}
 			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 			{
 				case PLAYER_PROXIMITY_DISTANT:
-					iItemValue *= 75;
+					iItemValue *= 50;
 					break;
 				case PLAYER_PROXIMITY_FAR:
-					iItemValue *= 90;
+					iItemValue *= 75;
 					break;
 				case PLAYER_PROXIMITY_CLOSE:
-					iItemValue *= 125;
+					iItemValue *= 100;
 					break;
 				case PLAYER_PROXIMITY_NEIGHBORS:
-					iItemValue *= 150;
+					iItemValue *= 125;
 					break;
 				default:
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
@@ -4888,7 +4873,6 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 							{
 								TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-								int iWeight = GetTradeItemValue(TRADE_ITEM_THIRD_PARTY_WAR, /*bFromMe*/ false, eThem, eOtherTeam, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 								if(iWeight == GetTradeItemValue(TRADE_ITEM_THIRD_PARTY_WAR, /*bFromMe*/ false, eThem, eOtherTeam, -1, -1, /*bFlag1*/false, -1, bUseEvenValue))
 								{
 									if((iWeight + iValueTheyreOffering) <= (iValueImOffering + iAmountOverWeWillRequest))
@@ -5045,7 +5029,6 @@ void CvDealAI::DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, bool
 							{
 								TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-								int iWeight = GetTradeItemValue(TRADE_ITEM_THIRD_PARTY_PEACE, /*bFromMe*/ false, eThem, eOtherTeam, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 								if(iWeight == GetTradeItemValue(TRADE_ITEM_THIRD_PARTY_PEACE, /*bFromMe*/ false, eThem, eOtherTeam, -1, -1, /*bFlag1*/false, -1, bUseEvenValue))
 								{
 									if((iWeight + iValueTheyreOffering) <= (iValueImOffering + iAmountOverWeWillRequest))
@@ -7229,7 +7212,7 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	return bDealAcceptable;
 }
 /// A good time to make an offer to buy or sell a city?
-bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bBuying)
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
@@ -7247,7 +7230,6 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return false;
 	}
 
-	// Logic for when THIS AI wants to buy a city. Only applies to cities we owned previously or are close to our borders.
 	CvCity* pLoopCity;
 	CvCity* pLoopMyCity;
 	int iCityLoop;
@@ -7256,53 +7238,67 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	int iTempDistance = 0;
 	CvCity* pBestCity = NULL;
 	int iBestCity = 0;
-	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+	// Logic for when THIS AI wants to buy a city. Only applies to cities close to our borders.
+	if(bBuying)
 	{
-		if(pLoopCity != NULL)
+		for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 		{
-			for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
+			if(pLoopCity != NULL)
 			{
-				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
-				//Only trade border cities, okay?
-				if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+				for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 				{
-					if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+					if(pLoopMyCity != NULL)
 					{
-						iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
-						if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+						iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+						//Only trade border cities, okay?
+						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
 						{
-							pBestCity = pLoopCity;
-							iBestCity = iItemValue;
-						}	
+							if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+							{
+								iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
+								if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+								{
+									pBestCity = pLoopCity;
+									iBestCity = iItemValue;
+								}	
+							}
+						}
 					}
 				}
 			}
 		}
 	}
-	// Logic for when THIS AI wants to sell a city. Only applies to cities they owned previously
-	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+	else
 	{
-		if(pLoopCity != NULL)
+		// Logic for when THIS AI wants to sell a city. Only applies to cities close to them
+		for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 		{
-			for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
+			if(pLoopCity != NULL)
 			{
-				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
-				//Only trade border cities, okay?
-				if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+				for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 				{
-					if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
+					if(pLoopMyCity != NULL)
 					{
-						iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
-						if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+						iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+						//Only trade border cities, okay?
+						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
 						{
-							pBestCity = pLoopMyCity;
-							iBestCity = iItemValue;
-						}	
+							if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
+							{
+								iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
+								if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestCity)
+								{
+									pBestCity = pLoopMyCity;
+									iBestCity = iItemValue;
+								}	
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+
 	if(pBestCity == NULL)
 	{
 		return false;
@@ -7339,13 +7335,140 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	return bDealAcceptable;
 }
+/// A good time to make an offer to buy or sell a city?
+bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	CvAssert(eOtherPlayer >= 0);
+	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
+
+	// Don't ask for a city if we're hostile or planning a war
+	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
+	{
+		return false;
+	}
+
+	MajorCivOpinionTypes eOpinionTowardsAskingPlayer = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer);
+	if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_FAVORABLE)
+	{
+		return false;
+	}
+
+	CvCity* pLoopCity;
+	CvCity* pLoopMyCity;
+	int iCityLoop;
+	int iCityLoop2;
+	int iMyCityLoop;
+	int iMyCityLoop2;
+	int iItemValue = 0;
+	int iTempDistance = 0;
+	CvCity* pBestBuyCity = NULL;
+	int iBestBuyCity = 0;
+	CvCity* pBestSellCity = NULL;
+	int iBestSellCity = 0;
+	// Logic for when THIS AI wants to buy a city. Only applies to cities close to our borders.
+	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
+			{
+				if(pLoopMyCity != NULL)
+				{
+					iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+					//Only trade border cities, okay?
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					{
+						if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+						{
+							iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
+							if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestBuyCity)
+							{
+								pBestBuyCity = pLoopCity;
+								iBestBuyCity = iItemValue;
+							}	
+						}
+					}
+				}
+			}
+		}
+	}
+	if(pBestBuyCity != NULL)
+	{
+		// Logic for when THIS AI wants to sell a city. Only applies to cities close to them
+		for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop2); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop2))
+		{
+			if(pLoopCity != NULL)
+			{
+				for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop2); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop2))
+				{
+					//Don't wnat to compare distance for city we're about to trade
+					if(pLoopMyCity != NULL && pBestSellCity != pLoopMyCity)
+					{
+						iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+						//Only trade border cities, okay?
+						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+						{
+							if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
+							{
+								iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
+								if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestSellCity)
+								{
+									pBestSellCity = pLoopMyCity;
+									iBestSellCity = iItemValue;
+								}	
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(pBestBuyCity == NULL || pBestSellCity == NULL)
+	{
+		return false;
+	}
+	if(pBestBuyCity->getOwner() == m_pPlayer->GetID())
+	{
+		pDeal->AddCityTrade(m_pPlayer->GetID(), pBestBuyCity->GetID());
+	}
+	else
+	{
+		return false;
+	}
+	if(pBestSellCity->getOwner() == eOtherPlayer)
+	{
+		pDeal->AddCityTrade(eOtherPlayer, pBestSellCity->GetID());
+	}
+	else
+	{
+		return false;
+	}
+
+	bool bDealAcceptable = false;
+
+	// AI evaluation
+	if(!GET_PLAYER(eOtherPlayer).isHuman())
+	{
+		bDealAcceptable = DoEqualizeDealWithAI(pDeal, eOtherPlayer);	// Change the deal as necessary to make it work
+	}
+	else
+	{
+		bool bUselessReferenceVariable;
+		bool bCantMatchOffer;
+		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, false, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+	}
+
+	return bDealAcceptable;
+}
 /// A good time to make an offer to start a war?
 bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
-	// Don't ask for a city if we're hostile or planning a war
+	// Don't ask for a war if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
 	{
@@ -7451,7 +7574,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 			continue;
 		}
 		//Are we in a DOF with the player? Don't do it!
-		if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAgainstPlayer) || GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->IsDoFAccepted(m_pPlayer->GetID()))
+		if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAgainstPlayer) || GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 		{
 			continue;
 		}
@@ -8140,7 +8263,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 // How much is a technology worth?
 int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	int iItemValue = 0;
+	int iItemValue = 50;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
 	int iTurnsLeft;
@@ -8610,10 +8733,30 @@ void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 				int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ false, eThem, -1, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 
 				// If adding this to the deal doesn't take it over the limit, do it
-				if(iItemValue + iTotalValue <= iAmountOverWeWillRequest)
+				if(iItemValue <= 0)
+				{
+					return;
+				}
+				if((iItemValue + iValueTheyreOffering) <= (iValueImOffering + iAmountOverWeWillRequest))
 				{
 					pDeal->AddMapTrade(eThem);
 					iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+					int iAmountOverWeWillRequest = iTotalValue;
+					int iPercentOverWeWillRequest = 0;
+					if(GET_PLAYER(eThem).isHuman())
+					{
+						iPercentOverWeWillRequest = GetDealPercentLeewayWithHuman(eThem);
+					}
+					else
+					{
+						iPercentOverWeWillRequest = GetDealPercentLeewayWithAI(eThem);
+					}
+					iAmountOverWeWillRequest *= iPercentOverWeWillRequest;
+					iAmountOverWeWillRequest /= 100;
+					if(iTotalValue >= iAmountOverWeWillRequest)
+					{
+						return;
+					}
 				}
 			}
 		}
@@ -8638,22 +8781,30 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeM
 			{
 				int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ true, eThem, -1, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 
-				// If adding this to the deal doesn't take it under the min limit, do it
-				if(-iItemValue + iTotalValue >= iAmountUnderWeWillOffer)
+				// If adding this to the deal doesn't take it over the limit, do it
+				if(iItemValue <= 0)
+				{
+					return;
+				}
+				if((iItemValue + iValueImOffering) <= (iValueTheyreOffering - iAmountUnderWeWillOffer))
 				{
 					pDeal->AddMapTrade(eMyPlayer);
 					iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
-				}
-				else
-				{
-					// Does adding in the territory map help even out pDeal?
-					iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ true, eThem, -1, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
-
-					// If adding this to the deal doesn't take it under the min limit, do it
-					if(iItemValue + iTotalValue >= iAmountUnderWeWillOffer)
+					int iAmountUnderWeWillOffer = iTotalValue;
+					int iPercentOverWeWillOffer = 0;
+					if(GET_PLAYER(eThem).isHuman())
 					{
-						pDeal->AddMapTrade(eThem);
-						iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+						iPercentOverWeWillOffer = GetDealPercentLeewayWithHuman(eThem);
+					}
+					else
+					{
+						iPercentOverWeWillOffer = GetDealPercentLeewayWithAI(eThem);
+					}
+					iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
+					iAmountUnderWeWillOffer /= 100;
+					if(iTotalValue >= iAmountUnderWeWillOffer)
+					{
+						return;
 					}
 				}
 			}
@@ -8667,7 +8818,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.  Please show Jon");
-
+	CvWeightedVector<int> viTradeValues;
 	if(!bDontChangeTheirExistingItems)
 	{
 		if(iTotalValue < 0)
@@ -8688,12 +8839,56 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_TECHS, eTech))
 				{
 					iItemValue = GetTradeItemValue(TRADE_ITEM_TECHS, /*bFromMe*/ false, eThem, eTech, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
-
 					// If adding this to the deal doesn't take it over the limit, do it
-					if(iItemValue + iTotalValue <= iAmountOverWeWillRequest)
+					if(iItemValue <= 0)
 					{
-						pDeal->AddTechTrade(eThem, eTech);
-						iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+						continue;
+					}
+					else
+					{
+						viTradeValues.push_back(eTech, iItemValue);
+					}
+				}
+			}
+			// Sort the vector based on value to get the best possible item to trade.
+			viTradeValues.SortItems();
+			if(viTradeValues.size() > 0)
+			{
+				for(int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
+				{
+					int iWeight = viTradeValues.GetWeight(iRanking);
+					if(iWeight != 0)
+					{
+						// Loop through each Tech
+						for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
+						{
+							eTech = (TechTypes) iTechLoop;
+
+							if(iWeight == GetTradeItemValue(TRADE_ITEM_TECHS, /*bFromMe*/ false, eThem, eTech, -1, -1, /*bFlag1*/false, -1, bUseEvenValue))
+							{
+								if((iWeight + iValueTheyreOffering) <= (iValueImOffering + iAmountOverWeWillRequest))
+								{
+									pDeal->AddTechTrade(eThem, eTech);
+									iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+									int iAmountOverWeWillRequest = iTotalValue;
+									int iPercentOverWeWillRequest = 0;
+									if(GET_PLAYER(eThem).isHuman())
+									{
+										iPercentOverWeWillRequest = GetDealPercentLeewayWithHuman(eThem);
+									}
+									else
+									{
+										iPercentOverWeWillRequest = GetDealPercentLeewayWithAI(eThem);
+									}
+									iAmountOverWeWillRequest *= iPercentOverWeWillRequest;
+									iAmountOverWeWillRequest /= 100;
+									if(iTotalValue >= iAmountOverWeWillRequest)
+									{
+										return;
+									}
+								}
+							}
+						}			
 					}
 				}
 			}
@@ -8729,11 +8924,30 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeM
 				{
 					iItemValue = GetTradeItemValue(TRADE_ITEM_TECHS, /*bFromMe*/ true, eThem, eTech, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 
-					// If adding this to the deal doesn't take it over the limit, do it
-					if(iItemValue + iTotalValue <= iAmountUnderWeWillOffer)
+					if(iItemValue <= 0)
+					{
+						return;
+					}
+					if((iItemValue + iValueImOffering) <= (iValueTheyreOffering - iAmountUnderWeWillOffer))
 					{
 						pDeal->AddTechTrade(eMyPlayer, eTech);
 						iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+						int iAmountUnderWeWillOffer = iTotalValue;
+						int iPercentOverWeWillOffer = 0;
+						if(GET_PLAYER(eThem).isHuman())
+						{
+							iPercentOverWeWillOffer = GetDealPercentLeewayWithHuman(eThem);
+						}
+						else
+						{
+							iPercentOverWeWillOffer = GetDealPercentLeewayWithAI(eThem);
+						}
+						iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
+						iAmountUnderWeWillOffer /= 100;
+						if(iTotalValue >= iAmountUnderWeWillOffer)
+						{
+							return;
+						}
 					}
 				}
 			}

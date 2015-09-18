@@ -67,20 +67,20 @@
       <PreprocessorDefinitions>FXS_IS_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;FINAL_RELEASE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>
       </ExceptionHandling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <FloatingPointModel>Precise</FloatingPointModel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <OmitFramePointers>false</OmitFramePointers>
-      <Optimization>MaxSpeed</Optimization>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <Optimization>Full</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Strict</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>

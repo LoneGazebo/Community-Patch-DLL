@@ -102,27 +102,27 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>8</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
@@ -178,27 +178,27 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>4</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>4</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>4</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
 			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>6</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_HONOR</PolicyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>6</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_HONOR</PolicyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>8</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>

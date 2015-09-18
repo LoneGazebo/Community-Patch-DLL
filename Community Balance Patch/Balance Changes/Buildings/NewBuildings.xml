@@ -58,7 +58,7 @@
 			<Type>BUILDING_WELL</Type>
 			<BuildingClass>BUILDINGCLASS_WELL</BuildingClass>
 			<Cost>70</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WELL</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WELL_TEXT</Civilopedia>
@@ -242,21 +242,33 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_GROCER</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GROCER</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_STOCKYARD</BuildingType>
@@ -358,7 +370,7 @@
 			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
-			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's Food and Production, but has a higher maintenance cost than a Water Mill.</Text>
+			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
 			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the Production output of every Grassland and Plains tile the city works.</Text>
@@ -373,7 +385,7 @@
 			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+			<Text>+1 [ICON_GROWTH] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE]NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>

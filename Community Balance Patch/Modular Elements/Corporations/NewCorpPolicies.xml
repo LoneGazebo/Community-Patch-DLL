@@ -6,7 +6,7 @@
 			<Type>POLICY_NATIONALIZATION</Type>
 			<Description>TXT_KEY_POLICY_NATIONALIZATION</Description>
 			<Civilopedia>TXT_KEY_POLICY_NATIONALIZATION_TEXT</Civilopedia>
-			<Help>TXT_POLICY_NATIONALIZATION_HELP</Help>
+			<Help>TXT_KEY_POLICY_NATIONALIZATION_HELP</Help>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
 			<CultureCost>10</CultureCost>
 			<OrderCorporation>true</OrderCorporation>
@@ -19,7 +19,7 @@
 			<Type>POLICY_GLOBALIZATION</Type>
 			<Description>TXT_KEY_POLICY_GLOBALIZATION</Description>
 			<Civilopedia>TXT_KEY_POLICY_GLOBALIZATION_TEXT</Civilopedia>
-			<Help>TXT_POLICY_GLOBALIZATION_HELP</Help>
+			<Help>TXT_KEY_POLICY_GLOBALIZATION_HELP</Help>
 			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType>
 			<CultureCost>10</CultureCost>
 			<FreedomCorporation>true</FreedomCorporation>
@@ -32,7 +32,7 @@
 			<Type>POLICY_INFILTRATION</Type>
 			<Description>TXT_KEY_POLICY_INFILTRATION</Description>
 			<Civilopedia>TXT_KEY_POLICY_INFILTRATION_TEXT</Civilopedia>
-			<Help>TXT_POLICY_INFILTRATION_HELP</Help>
+			<Help>TXT_KEY_POLICY_INFILTRATION_HELP</Help>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
 			<CultureCost>10</CultureCost>
 			<AutocracyCorporation>true</AutocracyCorporation>
@@ -60,7 +60,7 @@
 		</Row>
 	</Policy_Flavors>
 	<Language_en_US>
-		<Row Tag="TXT_POLICY_NATIONALIZATION_HELP">
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR][NEWLINE]Corporate Offices function as Franchises. Franchises in foreign Cities no longer benefit your Corporation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
@@ -70,7 +70,7 @@
 			<Text>Nationalization is the process of taking a private industry or private assets into public ownership by a national government or state. Nationalization usually refers to private assets, but may also mean assets owned by lower levels of government, such as municipalities, being transferred to be the state. The opposite of nationalization is usually privatization or de-nationalization, but may also be municipalization. Industries that are usually subject to nationalization include transport, communications, energy, banking and natural resources.</Text>
 		</Row>
 
-		<Row Tag="TXT_POLICY_GLOBALIZATION_HELP">
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, there is a chance (based on number of owned Trade Units) that a Corporate Franchise will appear in a foreign City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
@@ -80,7 +80,7 @@
 			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>
 		</Row>
 
-		<Row Tag="TXT_POLICY_INFILTRATION_HELP">
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR][NEWLINE]Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_INFILTRATION">

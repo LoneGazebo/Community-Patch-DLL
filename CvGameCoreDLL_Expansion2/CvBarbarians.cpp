@@ -910,27 +910,11 @@ void CvBarbarians::DoUnits()
 			
 			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
 			{
-				if(pUnit->canFortify(pLoopPlot) && (pLoopPlot->getImprovementType() == eCamp))
+				if((pUnit->getFortifyTurns() > 0) && (pLoopPlot->getImprovementType() == eCamp))
 				{
-					pUnit->PushMission(CvTypes::getMISSION_ALERT());
-					pUnit->SetFortifiedThisTurn(true);
 					if(pUnit->getDamage() > 0)
 					{
-						if(pUnit->getDomainType() == DOMAIN_LAND)
-						{
-							if(pUnit->plot()->getImprovementType() == eCamp)
-							{
-								pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() * 2));
-							}
-							else
-							{
-								pUnit->setDamage(pUnit->getDamage() - GC.getBALANCE_BARBARIAN_HEAL_RATE());
-							}
-						}
-						if(pUnit->getDomainType() == DOMAIN_SEA)
-						{
-							pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() / 2));
-						}
+						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
 					}
 				}
 			}
@@ -1045,7 +1029,14 @@ void CvBarbarians::DoUnits()
 								int iFood = ((pCity->getBaseYieldRate(YIELD_FOOD) * iTheft) / 100);
 								if(iFood > 0)
 								{
-									pCity->changeFood(-iFood);
+									if(iFood > pCity->getFood())
+									{
+										pCity->setFood(0);
+									}
+									else
+									{
+										pCity->changeFood(-iFood);
+									}
 
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
 									strMessage << iFood;
@@ -1067,7 +1058,14 @@ void CvBarbarians::DoUnits()
 									int iProduction = ((pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
 									if(iProduction > 0)
 									{
-										pCity->changeProduction(-iProduction);
+										if(iProduction > pCity->getProduction())
+										{
+											pCity->setProduction(0);
+										}
+										else
+										{
+											pCity->changeProduction(-iProduction);
+										}
 
 										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
 										strMessage << iProduction;

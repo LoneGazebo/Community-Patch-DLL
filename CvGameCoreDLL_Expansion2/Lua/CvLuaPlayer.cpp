@@ -9570,6 +9570,29 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFCounter(pkPlayer->GetID(), 0);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
+	{
+		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_BATTLE_BROTHERS);
+		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_BATTLE_BROTHERS);
+	}
+	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_FRIENDS) 
+	{
+		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_ALLIES);
+		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_ALLIES);
+	}
+	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_NEW || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_NEW)  
+	{
+		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_FRIENDS);
+		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_FRIENDS);
+	}
+	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_UNTRUSTWORTHY)  
+	{
+		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_NEW);
+		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
+	}		
+#endif
+
 	return 1;
 }
 //------------------------------------------------------------------------------

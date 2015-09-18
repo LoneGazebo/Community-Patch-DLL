@@ -648,6 +648,7 @@ public:
 #if defined(MOD_BALANCE_CORE_DEALS)
 	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 #endif
@@ -711,7 +712,6 @@ public:
 	bool IsCantMatchDeal(PlayerTypes ePlayer);
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
 	const char* GetOfferText(PlayerTypes ePlayer);
-	const char* GetDoFHumanMessage(PlayerTypes ePlayer);
 	int	GetDenounceMessage(PlayerTypes ePlayer);
 	const char* GetDenounceMessageValue(int iValue);
 #endif
@@ -802,9 +802,8 @@ public:
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	void SetNumDoFLifetime(PlayerTypes ePlayer, int iValue);
-	void ChangeNumDoFLifetime(PlayerTypes ePlayer, int iValue);
-	int GetNumDoFLifetime(PlayerTypes ePlayer) const;
+	void SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel);
+	DoFLevelTypes GetDoFType(PlayerTypes ePlayer) const;
 
 	void SetNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
@@ -1434,8 +1433,8 @@ private:
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
-		int m_aiNumDoFLifetime[MAX_MAJOR_CIVS];
-		int m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
+		char m_aeDoFType[REALLY_MAX_PLAYERS];
+		short m_aiNumTimesCoopWarDenied[REALLY_MAX_PLAYERS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1719,8 +1718,8 @@ private:
 	bool* m_pabDoFAccepted;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
-	int* m_paiNumDoFLifetime;
-	int* m_paiNumTimesCoopWarDenied;
+	char* m_paeDoFType;
+	short* m_paiNumTimesCoopWarDenied;
 #endif
 	short* m_paiDoFCounter;
 

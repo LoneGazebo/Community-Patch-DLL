@@ -591,6 +591,10 @@ protected:
 	LUAAPIEXTN(IsWithinDistanceOfUnitClass, iUnitClassType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitCombatType, iUnitCombatType, iDistance, bool, bool);
 	LUAAPIEXTN(IsWithinDistanceOfUnitPromotion, iPromotionType, iDistance, bool, bool);
+	LUAAPIEXTN(IsAdjacentToUnit, iUnitType, bool, bool);
+	LUAAPIEXTN(IsAdjacentToUnitClass, iUnitClassType, bool, bool);
+	LUAAPIEXTN(IsAdjacentToUnitCombatType, iUnitCombatType, bool, bool);
+	LUAAPIEXTN(IsAdjacentToUnitPromotion, iPromotionType, bool, bool);
 #endif
 	LUAAPIEXTN(IsOnImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsAdjacentToImprovement, bool, iImprovementType);

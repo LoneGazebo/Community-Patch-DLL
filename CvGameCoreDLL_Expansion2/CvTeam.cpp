@@ -1585,6 +1585,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 				{
 					if(bWar)
 #if defined(MOD_BALANCE_CORE)
+					{
 						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != NO_PLAYER)
 						{
 							if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly()).getTeam()))
@@ -1593,6 +1594,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
 #if defined(MOD_BALANCE_CORE)
 							}
+						}
 						}
 #endif
 					else
@@ -2625,11 +2627,14 @@ void CvTeam::updateTeamStatus()
 	}
 
 	//the first member determines the result
-	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER(*iI);
-		m_bIsObserverTeam = kPlayer.isObserver();
-		break;
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		if (kPlayer.getTeam() == GetID())
+		{
+			m_bIsObserverTeam = kPlayer.isObserver();
+			break;
+		}
 	}
 
 	//make sure team membership is correct
@@ -9016,7 +9021,9 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 
 		// Not peaceful end of vassalage? Declare war!
 		if(!bPeaceful)
-			GET_TEAM(eTeam).declareWar(GetID());
+		{
+			declareWar(eTeam);
+		}
 
 		// Update war/peace relationships for all of eTeam's vassals
 		for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)

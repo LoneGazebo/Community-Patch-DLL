@@ -213,6 +213,21 @@ enum BlockLevelTypes
 
     NUM_BLOCK_LEVELS,
 };
+
+enum DoFLevelTypes
+{
+    NO_DOF_TYPE = -1,
+
+    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
+    DOF_TYPE_UNTRUSTWORTHY,
+	DOF_TYPE_NEW,
+    DOF_TYPE_FRIENDS,
+    DOF_TYPE_ALLIES,
+    DOF_TYPE_BATTLE_BROTHERS,
+    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
+
+    NUM_DOF_TYPES,
+};
 #endif
 enum AgreementLevelTypes
 {

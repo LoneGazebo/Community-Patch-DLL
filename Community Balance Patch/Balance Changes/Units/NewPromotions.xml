@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 9/17/2015 11:23:08 PM -->
+<GameData>
+	<UnitPromotions>
+		<Row>
+			<Type>PROMOTION_CHARGE_II</Type>
+			<Description>TXT_KEY_PROMOTION_CHARGE_II</Description>
+			<Help>TXT_KEY_PROMOTION_CHARGE_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_CHARGE</PromotionPrereqOr1>
+			<OrderPriority>4</OrderPriority>
+			<AttackWoundedMod>25</AttackWoundedMod>
+			<OpenAttack>10</OpenAttack>
+			<PortraitIndex>13</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CHARGE_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_NAVAL_MISFIRE</Type>
+			<Description>TXT_KEY_PROMOTION_NAVAL_MISFIRE</Description>
+			<Help>TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OrderPriority>1</OrderPriority>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>57</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_MISFIRE</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MODERN_RANGED_PENALTY_I</Type>
+			<Description>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I</Description>
+			<Help>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AttackFortifiedMod>-50</AttackFortifiedMod>
+			<DefenseMod>20</DefenseMod>
+			<CityAttack>-50</CityAttack>
+			<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
+			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
+			<OrderPriority>1</OrderPriority>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>34</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MODERN_RANGED_PENALTY_II</Type>
+			<Description>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II</Description>
+			<Help>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AttackFortifiedMod>-25</AttackFortifiedMod>
+			<DefenseMod>10</DefenseMod>
+			<CityAttack>-25</CityAttack>
+			<NearbyEnemyCombatMod>-10</NearbyEnemyCombatMod>
+			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
+			<OrderPriority>1</OrderPriority>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>34</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ENSLAVEMENT</Type>
+			<Description>TXT_KEY_PROMOTION_ENSLAVEMENT</Description>
+			<Help>TXT_KEY_PROMOTION_ENSLAVEMENT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ENSLAVEMENT</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_RAIDER</Type>
+			<Description>TXT_KEY_PROMOTION_RAIDER</Description>
+			<Help>TXT_KEY_PROMOTION_RAIDER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
+			<EnemyRoute>true</EnemyRoute>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RAIDER</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<FlankAttackModifier>200</FlankAttackModifier>
+			<CityAttackPlunderModifier>50</CityAttackPlunderModifier>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FALLOUT_REDUCTION</Type>
+			<Description>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</Description>
+			<Help>TXT_KEY_PROMOTION_FALLOUT_REDUCTION_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<ExtraFeatureDamage>1</ExtraFeatureDamage>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<TechPrereq>TECH_PENICILIN</TechPrereq>
+			<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FALLOUT_IMMUNITY</Type>
+			<Description>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY</Description>
+			<Help>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+			<TechPrereq>TECH_NANOTECHNOLOGY</TechPrereq>
+			<IgnoreFeatureDamage>1</IgnoreFeatureDamage>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ICE_BREAKERS</Type>
+			<Description>TXT_KEY_PROMOTION_ICE_BREAKERS</Description>
+			<Help>TXT_KEY_PROMOTION_ICE_BREAKERS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>43</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<TechPrereq>TECH_BALLISTICS</TechPrereq>
+			<CanMoveImpassable>true</CanMoveImpassable>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ICE_BREAKERS</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_RECON_EXPERIENCE</Type>
+			<Description>TXT_KEY_PROMOTION_RECON_EXPERIENCE</Description>
+			<Help>TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>43</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<GainsXPFromScouting>true</GainsXPFromScouting>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RECON_EXPERIENCE</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ATLATL_ATTACK</Type>
+			<Description>TXT_KEY_PROMOTION_ATLATL_ATTACK</Description>
+			<Help>TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<ExtraAttacks>1</ExtraAttacks>
+			<PortraitIndex>59</PortraitIndex>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ATLATL_ATTACK</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<!-- Eight Virtues -->
+		<Row>
+			<Type>PROMOTION_BUSHIDO</Type>
+			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
+			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>23</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<HasPostCombatPromotions>true</HasPostCombatPromotions>
+		</Row>
+		<Row>
+			<Type>PROMOTION_RIGHTEOUSNESS</Type>
+			<Description>TXT_KEY_PROMOTION_RIGHTEOUSNESS</Description>
+			<Help>TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AttackWoundedMod>15</AttackWoundedMod>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_COURAGE</Type>
+			<Description>TXT_KEY_PROMOTION_COURAGE</Description>
+			<Help>TXT_KEY_PROMOTION_COURAGE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COURAGE</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AttackFortifiedMod>15</AttackFortifiedMod>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_BENEVOLENCE</Type>
+			<Description>TXT_KEY_PROMOTION_BENEVOLENCE</Description>
+			<Help>TXT_KEY_PROMOTION_BENEVOLENCE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AdjacentTileHealChange>5</AdjacentTileHealChange>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_RESPECT</Type>
+			<Description>TXT_KEY_PROMOTION_RESPECT</Description>
+			<Help>TXT_KEY_PROMOTION_RESPECT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SINCERITY</Type>
+			<Description>TXT_KEY_PROMOTION_SINCERITY</Description>
+			<Help>TXT_KEY_PROMOTION_SINCERITY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<ExperiencePercent>25</ExperiencePercent>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_BUSHIDO_HONOR</Type>
+			<Description>TXT_KEY_PROMOTION_BUSHIDO_HONOR</Description>
+			<Help>TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO_HONOR</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_LOYALTY</Type>
+			<Description>TXT_KEY_PROMOTION_LOYALTY</Description>
+			<Help>TXT_KEY_PROMOTION_LOYALTY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<FriendlyLandsModifier>15</FriendlyLandsModifier>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SELF_CONTROL</Type>
+			<Description>TXT_KEY_PROMOTION_SELF_CONTROL</Description>
+			<Help>TXT_KEY_PROMOTION_SELF_CONTROL_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<DefenseMod>15</DefenseMod>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>
+			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
+			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<AttackMod>15</AttackMod>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</PediaEntry>
+		</Row>
+		<!-- Guerilla Fighter -->
+		<Row>
+			<Type>PROMOTION_GUERILLA_FIGHTER</Type>
+			<Description>TXT_KEY_PROMOTION_GUERILLA_FIGHTER</Description>
+			<Help>TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<IgnoreTerrainCost>true</IgnoreTerrainCost>
+			<IgnoreZOC>true</IgnoreZOC>
+			<AttackWoundedMod>50</AttackWoundedMod>
+			<FlankAttackModifier>50</FlankAttackModifier>
+			<FriendlyHealChange>10</FriendlyHealChange>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_GUERILLA_FIGHTER</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<UnitPromotions_YieldFromKills>
+		<Row>
+			<PromotionType>PROMOTION_ENSLAVEMENT</PromotionType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>75</Yield>
+		</Row>
+	</UnitPromotions_YieldFromKills>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II">
+			<Text>Charge II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
+			<Text>+50% Flank Attack and Wounded Attack Bonus. Ignores ZOC and Terrain Movement Penalties, and +10 HP when healing in Friendly Territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER">
+			<Text>Guerilla Fighter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
+			<Text>No Retreat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
+			<Text>Atlatl Strike</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
+			<Text>May attack twice, though second attack expends all Movement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
+			<Text>Difficult Target</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
+			<Text>Covering Fire I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Armor Units, Fortified Units, and Cities. +20% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
+			<Text>Covering Fire II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Fortified Units and Cities. +15% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT">
+			<Text>Forced Labor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
+			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an enemy unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
+			<Text>Raider</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
+			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION">
+			<Text>Fallout Resistance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION_HELP">
+			<Text>Damage from Fallout reduced by 10.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_IMMUNITY">
+			<Text>Fallout Immunity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_IMMUNITY_HELP">
+			<Text>Ignores damage from Fallout.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS">
+			<Text>Ice Breakers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS_HELP">
+			<Text>Allows Workboats to move through Ice tiles.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE">
+			<Text>Reconnaissance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP">
+			<Text>Gains XP from revealing tiles</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY">
+			<Text>Major Penalty Attacking Cities (75)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY_HELP">
+			<Text>75% Penalty Attacking Cities</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL">
+			<Text>Faster General</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL_HELP">
+			<Text>+1 [ICON_MOVES] Movement</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
+			<Text>Eight Virtues of Bushido</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HELP">
+			<Text>Promotion is replaced with a randomly chosen new promotion after the unit completes its first combat</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
+			<Text>Righteousness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
+			<Text>Attack Wounded Mod (15%). +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
+			<Text>Courage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
+			<Text>Attack Fortified Mod (15%). +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
+			<Text>Benevolence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
+			<Text>Units in adjacent tiles receive +5 HP when healing. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
+			<Text>Respect</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength versus Melee and Gun units. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
+			<Text>Sincerity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
+			<Text>+25% Experience gained from combat. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR">
+			<Text>Honor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength outside of friendly lands. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
+			<Text>Loyalty</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength inside friendly lands. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL">
+			<Text>Self Control</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength when defending. +10 HP if you destroy an enemy unit</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
+			<Text>+150% [ICON_STRENGTH] Strength versus Air and Helicopter Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
+			<Text>+150% [ICON_STRENGTH] Strength versus Air and Helicopter Units</Text>
+		</Row>
+	</Language_en_US>
+	<UnitPromotions_Domains>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Modifier>-25</Modifier>
+		</Row>
+	</UnitPromotions_Domains>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_MODERN_RANGED_PENALTY_I</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+			<Modifier>-25</Modifier>
+		</Row>
+	</UnitPromotions_UnitCombatMods>
+	<UnitPromotions_PostCombatRandomPromotion>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_RIGHTEOUSNESS</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_COURAGE</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_BENEVOLENCE</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_RESPECT</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_SINCERITY</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_BUSHIDO_HONOR</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_LOYALTY</NewPromotion>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<NewPromotion>PROMOTION_SELF_CONTROL</NewPromotion>
+		</Row>
+	</UnitPromotions_PostCombatRandomPromotion>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_RESPECT</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+			<Modifier>15</Modifier>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_RESPECT</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+			<Modifier>15</Modifier>
+		</Row>
+	</UnitPromotions_UnitCombatMods>
+	<UnitPromotions_CivilianUnitType>
+		<Row>
+			<PromotionType>PROMOTION_FALLOUT_REDUCTION</PromotionType>
+			<UnitType>UNIT_WORKER</UnitType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FALLOUT_IMMUNITY</PromotionType>
+			<UnitType>UNIT_WORKER</UnitType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ICE_BREAKERS</PromotionType>
+			<UnitType>UNIT_WORKBOAT</UnitType>
+		</Row>
+	</UnitPromotions_CivilianUnitType>
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
+</GameData>
