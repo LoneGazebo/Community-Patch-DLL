@@ -216,6 +216,10 @@
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION
 
+// make caravans stick to roads and rivers if possible
+#define MOD_CORE_TRADE_NATURAL_ROUTES
+#define MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST 100
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

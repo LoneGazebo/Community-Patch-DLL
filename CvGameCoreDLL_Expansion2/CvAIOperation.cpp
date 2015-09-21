@@ -2047,8 +2047,6 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 			}
 			else
 			{
-				int iPathDistance = MAX_INT;
-			
 				if (!kPathFinder.DoesPathExist(*pkLoopUnit, pkLoopUnit->plot(), pkMusterPlot))
 				{
 					continue;
@@ -3204,6 +3202,15 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 					{
 						strMsg.Format("Recruited %s (primary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
+
+#if defined(MOD_BALANCE_CORE)
+						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+						if (iMusterDist>5)
+						{
+							strMsg.Format("%s: Recruited unit %d plots from muster point\n", GetOperationName().c_str(), iMusterDist );
+							OutputDebugString(strMsg.c_str());
+						}
+#endif
 					}
 				}
 				return true;

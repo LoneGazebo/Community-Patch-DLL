@@ -583,12 +583,19 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 	}
 
 	// beyond the origin player's trade range
+#if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
+	int iMovementCost = pPathfinderNode->m_iKnownCost;
+	int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	if (iMovementCost > iMaxCost)
+		return false;
+#else
 	int iPathDistance = pPathfinderNode->m_iTotalCost;
 	int iRange = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) * 100 + 99; // adding 99 so that any movement penalties are ignored
 	if (iPathDistance > iRange)
 	{
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -5223,7 +5230,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
-	int iDangerSum = 1; // can't be zero because we divide by zero!
+	int iDangerSum = 1; // can't be zero because we divide by it!
 	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 	{
 		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);

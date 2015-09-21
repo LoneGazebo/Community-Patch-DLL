@@ -1016,7 +1016,12 @@ private:
 	int ScoreAssignments(bool bCanLeaveOpenings);
 	int ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly);
 	void ScoreHedgehogPlots(CvPlot* pTarget);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI, CvPlot* pArmyCOM);
+#else
 	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI);
+#endif
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;

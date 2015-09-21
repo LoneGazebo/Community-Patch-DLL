@@ -305,12 +305,6 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numTechInfos = GC.getNumTechInfos();
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-		m_iBestRouteFlatCostMultiplier = 1;
-		m_iBestRouteNormalCostMultiplier = 1;
-		m_iUseFlatCostIfBelowThis = -1;
-#endif
-
 		//Perform batch allocation
 		AllocData aData[] =
 		{
@@ -4804,60 +4798,11 @@ void CvTeam::DoUpdateBestRoute()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(eBestRoute > NO_ROUTE)
 	{
 		SetBestPossibleRoute(eBestRoute);
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRoute);
-		if (pRouteInfo)
-		{
-			if((pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) != 0) && (pRouteInfo->getFlatMovementCost() != 0))
-			{
-				m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
-				m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
-				// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
-				m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
-			}
-			else
-			{
-				m_iBestRouteNormalCostMultiplier = 1;
-				m_iBestRouteFlatCostMultiplier = 0;
-				m_iUseFlatCostIfBelowThis = -1;
-			}
-		}
-		else
-		{
-			m_iBestRouteFlatCostMultiplier = 0;
-			m_iBestRouteNormalCostMultiplier = 1;
-			m_iUseFlatCostIfBelowThis = -1;
-		}
 	}
-#else
-	if(iBestRouteValue > -1)
-	{
-		SetBestPossibleRoute(eBestRoute);
-	}
-#endif
 }
-
-#if defined(MOD_BALANCE_CORE)
-int CvTeam::GetCurrentBestMovementMultiplier(const CvUnit* pUnit) const
-{
-	int iRtnValue = m_iBestRouteNormalCostMultiplier;
-	if (pUnit)
-	{
-		if (pUnit->baseMoves(DOMAIN_LAND) < m_iUseFlatCostIfBelowThis)
-		{
-			iRtnValue = m_iBestRouteFlatCostMultiplier / pUnit->baseMoves(DOMAIN_LAND);
-		}
-	}
-	
-	if (iRtnValue < 1)
-		iRtnValue = 1;
-
-	return iRtnValue;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectCount(ProjectTypes eIndex) const

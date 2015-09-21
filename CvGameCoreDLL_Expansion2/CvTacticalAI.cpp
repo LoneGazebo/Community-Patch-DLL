@@ -12161,82 +12161,26 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurn
 					// Don't use air units for air strikes if at or below half health
 					if (pLoopUnit->getDomainType() != DOMAIN_AIR || (pLoopUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
 					{
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-						if (MOD_AI_SMART_RANGED_UNITS)
+						// Are we in range?
+						if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY()) <= pLoopUnit->GetRange())
 						{
-							// Are we in range or could be in range with movement?
-							int getDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY());
-
-							if(getDistance < pLoopUnit->GetRangeWithMovement())
+							// Do we have LOS to the target?
+							if(pLoopUnit->canEverRangeStrikeAt(pTarget->getX(), pTarget->getY()))
 							{
-								if (getDistance > pLoopUnit->GetRange())
-								{
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strMsg;
-										strMsg.Format("Unit %s going to be considered, out of pure range (%d) but in move+range (%d)", pLoopUnit->getName().GetCString(), pLoopUnit->GetRange(), pLoopUnit->GetRangeWithMovement());
-										LogTacticalMessage(strMsg);
-									}
-								}
-
 								// Will we do any damage
 								if(IsExpectedToDamageWithRangedAttack(pLoopUnit, pTarget))
 								{
 									CvTacticalUnit unit;
 									unit.SetID(pLoopUnit->GetID());
-#ifdef AUI_TACTICAL_FIX_FIND_UNITS_WITHIN_STRIKING_DISTANCE_RANGED_STRENGTH
-									if (bIsCityTarget)
-									{
-										unit.SetAttackStrength(pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ pTarget->getPlotCity(), true, true));
-									}
-									else
-									{
-										unit.SetAttackStrength(pLoopUnit->GetMaxRangedCombatStrength(pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID()).pointer(), /*pCity*/ NULL, true, true));
-									}
-									unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
-#else
+
 									// Want ranged units to attack first, so inflate this
 									unit.SetAttackStrength(100 * pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true));
 									unit.SetHealthPercent(100, 100);  // Don't take damage from bombarding, so show as fully healthy
-#endif
 									m_CurrentMoveUnits.push_back(unit);
 									rtnValue = true;
-
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-									if (pLoopUnit->getDomainType() == DOMAIN_AIR)
-									{
-										bAirUnitsAdded = true;
-									}
-#endif
 								}
 							}
 						}
-						else
-						{
-#endif
-							// Are we in range?
-							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY()) <= pLoopUnit->GetRange())
-							{
-								// Do we have LOS to the target?
-								if(pLoopUnit->canEverRangeStrikeAt(pTarget->getX(), pTarget->getY()))
-								{
-									// Will we do any damage
-									if(IsExpectedToDamageWithRangedAttack(pLoopUnit, pTarget))
-									{
-										CvTacticalUnit unit;
-										unit.SetID(pLoopUnit->GetID());
-
-										// Want ranged units to attack first, so inflate this
-										unit.SetAttackStrength(100 * pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true));
-										unit.SetHealthPercent(100, 100);  // Don't take damage from bombarding, so show as fully healthy
-										m_CurrentMoveUnits.push_back(unit);
-										rtnValue = true;
-									}
-								}
-							}
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-						}
-#endif
 					}
 				}
 				else
@@ -14411,14 +14355,11 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 /// Move a great general with an operation
 void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 {
-	UnitHandle pGeneral;
-	int iRange;
-
 	for (unsigned int iI = 0; iI < m_GeneralsToMove.size(); iI++)
 	{
 		CvPlot* pBestPlot = NULL;
 		int iBestScore = -1;
-		pGeneral = m_pPlayer->getUnit(m_GeneralsToMove[iI].GetUnitID());
+		UnitHandle pGeneral = m_pPlayer->getUnit(m_GeneralsToMove[iI].GetUnitID());
 		iBestScore = 0;
 
 		if(pGeneral)
@@ -14476,51 +14417,53 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					continue;
 				}
 			}
-			if(pArmyAI != NULL)
+
+			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass(DOMAIN_LAND) : NULL;
+			int iCurrentScore = 0;
+
+			TacticalAIHelpers::ReachablePlotSet reachableTiles;
+			TacticalAIHelpers::GetAllTilesInReach(pGeneral.pointer(),pGeneral->plot(),reachableTiles,true,true);
+
+			for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 			{
-				bool bGood = false;
-				iRange = pGeneral->getMoves();					
-				for(int iX = -iRange; iX <= iRange; iX++)
-				{
-					if(bGood)
+				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				if (!pEvalPlot)
+					continue;
+
+				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI, pArmyCOM);	
+				if(iScore > 0)
+				{			
+					if(pEvalPlot==pGeneral->plot())
 					{
-						break;
+						iCurrentScore = iScore;
 					}
-					for(int iY = -iRange; iY <= iRange; iY++)
+					if(iScore > iBestScore)
 					{
-						CvPlot* pEvalPlot = NULL;
-						pEvalPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
-						if (!pEvalPlot)
-						{
-							continue;
-						}
-						if(bGood)
-						{
-							break;
-						}
-						int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI);	
-						if(iScore > 0)
-						{			
-							//Already in a good spot? Let's chill.
-							if(plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pGeneral->getX(), pGeneral->getY()) == 0)
-							{
-								pBestPlot = pEvalPlot;
-								bGood = true;
-							}
-							if(iScore > iBestScore)
-							{
-								iBestScore = iScore;
-								pBestPlot = pEvalPlot;
-							}
-						}
+						iBestScore = iScore;
+						pBestPlot = pEvalPlot;
 					}
 				}
 			}
-			if(pBestPlot == NULL)
+
+			if (iBestScore*2<iCurrentScore*3 && iCurrentScore>0)
+			{
+				//hmm. should i stay or should i go?
+				pBestPlot = pGeneral->plot();
+			}
+
+			if (pBestPlot)
+			{
+				ExecuteMoveToPlot(pGeneral, pBestPlot);
+				UnitProcessed(pGeneral->GetID());
+				pGeneral->finishMoves();
+				//next general ...
+				continue;
+			}
+			else
 			{
 				int iHighestDanger = 0;
 				bool bGood = false;
-				iRange = (pGeneral->getMoves() * 3);
+				int iRange = (pGeneral->getMoves() * 3);
 				CvPlot* pLoopPlot = NULL;
 				for(int iX = -iRange; iX <= iRange; iX++)
 				{
@@ -14646,6 +14589,8 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					}
 				}
 			}
+
+			//ok, one last attempt
 			if(pBestPlot == NULL)
 			{
 				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
@@ -14662,6 +14607,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					}
 				}
 			}
+
 			if(pBestPlot != NULL)
 			{
 				pGeneral->GeneratePath(pBestPlot);
@@ -14672,6 +14618,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					if(pMovePlot->getNumDefenders(m_pPlayer->GetID()) > 0)
 					{
 						ExecuteMoveToPlot(pGeneral, pBestPlot);
+						bSafe = true;
 					}
 					else
 					{
@@ -14721,13 +14668,21 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 										pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
 										pGeneral->getX(), pGeneral->getY());
 						LogTacticalMessage(strMsg);
+
+						CvPlot* pSafestPlot = TacticalAIHelpers::FindSafestPlotInReach(pGeneral.pointer(),true);
+						if(pSafestPlot != NULL)
+						{
+							pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
+							pGeneral->finishMoves();
+							UnitProcessed(pGeneral->GetID());						
+						}
 					}
 				}
 			}
 		}
 	}
 #else
-			iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
+			int iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
 			for(int iX = -iRange; iX <= iRange; iX++)
 			{
 				for(int iY = -iRange; iY <= iRange; iY++)
@@ -15272,7 +15227,11 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 }
 
 /// Support function to pick best hex for a great general to move to
+#if defined(MOD_BALANCE_CORE_MILITARY)
+int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI, CvPlot* pArmyCOM)
+#else
 int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI)
+#endif
 {
 	// Returned value
 	int iScore = 0;
@@ -15319,7 +15278,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 #endif
 	// Danger value
 #ifdef AUI_DANGER_PLOTS_REMADE
-	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget,pGeneral.pointer());
+	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget, pGeneral.pointer());
 #else
 	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget);
 #endif
@@ -15396,6 +15355,9 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	}
 
 	// Distance to center of army (if still under operational AI)
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	iDistToOperationCenter = pArmyCOM ? plotDistance(pTarget->getX(), pTarget->getY(), pArmyCOM->getX(), pArmyCOM->getY()) : INT_MAX;
+#else
 	if(pArmyAI)
 	{
 		CvPlot* pCOM = pArmyAI->GetCenterOfMass(NO_DOMAIN);
@@ -15404,6 +15366,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 			iDistToOperationCenter = plotDistance(pTarget->getX(), pTarget->getY(), pCOM->getX(), pCOM->getY());
 		}
 	}
+#endif
 
 	// Near an attack we already have planned?
 	iNearbyQueuedAttacks = NearXQueuedAttacks(pTarget, 2);
@@ -15431,14 +15394,14 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(!pArmyAI && iDangerValue <= 0)
 		{
-#endif
-		iScore = 10;
-#if defined(MOD_BALANCE_CORE_MILITARY)
+			iScore = 10;
 		}
 		else
 		{
 			return 0;
 		}
+#else
+		iScore = 10;
 #endif
 	}
 

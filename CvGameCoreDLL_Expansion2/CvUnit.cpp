@@ -13985,26 +13985,12 @@ int CvUnit::GetRange() const
 	return (m_pUnitInfo->GetRange() + m_iExtraRange);
 }
 
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-// Special property to get unit range+ move possibility.
-int CvUnit::GetRangeWithMovement() const
-{
-#if defined(MOD_BALANCE_CORE)
-	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + GetBestCaseMoveRange(this) - (isMustSetUpToRangedAttack() ? 1 : 0)));
-#else
-	VALIDATE_OBJECT
-	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + baseMoves() - (isMustSetUpToRangedAttack() ? 1 : 0)));
-#endif
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNukeDamageLevel() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().GetNukeDamageLevel();
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canBuildRoute() const
@@ -24775,9 +24761,16 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 		{
 			// Can I get there this turn?
 			CvUnit* pUnit = (CvUnit*)this;
+#if defined(MOD_BALANCE_CORE)
+			if(CanReachInXTurns(pUnit,&swapPlot,1))
+			{
+				CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+#else
 			if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), plot(), &swapPlot))
 			{
 				CvPlot* pEndTurnPlot = GC.getIgnoreUnitsPathFinder().GetPathEndTurnPlot();
+#endif
+
 				if(pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -24808,10 +24801,17 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									CvPlot* here = plot();
 									if(here && pLoopUnit->canEnterTerrain(*here))
 									{
+#if defined(MOD_BALANCE_CORE)
+										// Can the unit I am swapping with get to me this turn?
+										if(CanReachInXTurns(pLoopUnit,pUnit->plot(),1))
+										{
+											CvPlot* pPathEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+#else
 										// Can the unit I am swapping with get to me this turn?
 										if(pLoopUnit->ReadyToMove() && GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pLoopUnit), &swapPlot, plot()))
 										{
 											CvPlot* pPathEndTurnPlot = GC.getIgnoreUnitsPathFinder().GetPathEndTurnPlot();
+#endif
 											if(pPathEndTurnPlot == plot())
 											{
 												bSwapPossible = true;
@@ -27066,6 +27066,11 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !plot()->getBestDefender(getOwner()) && GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this)>0)
+	{
+		OutputDebugString("Civilian moving into danger!\n");
+	}
+
 	//if (GC.getLogging() && GC.getAILogging()) 
 	//{
 	//	CvPlayer& kPlayer = GET_PLAYER(getOwner());

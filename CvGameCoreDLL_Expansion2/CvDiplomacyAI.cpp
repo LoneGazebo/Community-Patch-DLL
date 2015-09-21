@@ -50,6 +50,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aeWarGoal()
 	, m_aiPlayerNumTurnsAtWar()
 #if defined(MOD_BALANCE_CORE)
+	, m_aiPlayerNumTurnsAtPeace()
 	, m_aiPlayerNumTurnsSinceCityCapture()
 #endif
 	, m_aiNumWarsFought()
@@ -228,6 +229,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paeWarGoal(NULL),
 	m_paiPlayerNumTurnsAtWar(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsAtPeace(NULL),
 	m_paiPlayerNumTurnsSinceCityCapture(NULL),
 #endif
 	m_paiNumWarsFought(NULL),
@@ -470,6 +472,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paeWarGoal = &m_pDiploData->m_aeWarGoal[0];
 	m_paiPlayerNumTurnsAtWar = &m_pDiploData->m_aiPlayerNumTurnsAtWar[0];
 #if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsAtPeace = &m_pDiploData->m_aiPlayerNumTurnsAtPeace[0];
 	m_paiPlayerNumTurnsSinceCityCapture = &m_pDiploData->m_aiPlayerNumTurnsSinceCityCapture[0];
 #endif
 	m_paiNumWarsFought = &m_pDiploData->m_aiNumWarsFought[0];
@@ -757,6 +760,7 @@ void CvDiplomacyAI::Uninit()
 	m_paeWarGoal = NULL;
 	m_paiPlayerNumTurnsAtWar = NULL;
 #if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsAtPeace = NULL;
 	m_paiPlayerNumTurnsSinceCityCapture = NULL;
 #endif
 	m_paiNumWarsFought = NULL;
@@ -1336,6 +1340,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> wrapm_paiPlayerNumTurnsAtWar;
 
 #if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<short> wrapm_paiPlayerNumTurnsAtPeace(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtPeace);
+	kStream >> wrapm_paiPlayerNumTurnsAtPeace;
+
 	ArrayWrapper<short> wrapm_paiPlayerNumTurnsSinceCityCapture (MAX_CIV_PLAYERS, m_paiPlayerNumTurnsSinceCityCapture );
 	kStream >> wrapm_paiPlayerNumTurnsSinceCityCapture;
 #endif
@@ -1855,6 +1862,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paeWarGoal);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtWar);
 #if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtPeace);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsSinceCityCapture );
 #endif
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumWarsFought);
@@ -2397,24 +2405,24 @@ void CvDiplomacyAI::DoCounters()
 		if(IsPlayerValid(eLoopPlayer))
 		{
 			// War Counter
+#if defined(MOD_BALANCE_CORE)
 			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-#if defined(MOD_BALANCE_CORE)
 			{
-#endif
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
-#if defined(MOD_BALANCE_CORE)
 				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
+				SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
 			}
-#endif
-			// Reset Counter if not at war
-			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
-#if defined(MOD_BALANCE_CORE)
+			else
 			{
-#endif
 				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
-#if defined(MOD_BALANCE_CORE)
 				SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+				ChangePlayerNumTurnsAtPeace(eLoopPlayer, 1);
 			}
+#else
+			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
+			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
+				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
 #endif
 
 			///////////////////////////////
@@ -5959,8 +5967,10 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
-						iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() * 2);
-						iWillingToAcceptScore += GET_PLAYER(eLoopPlayer).GetCulture()->GetWarWeariness();
+						int iMyMultiplier = GetPlayer()->IsEmpireVeryUnhappy() ? 3 : 1;
+						int iTheirMultiplier = GET_PLAYER(eLoopPlayer).IsEmpireVeryUnhappy() ? 3 : 1;
+						iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() * 100)/GetPlayer()->getTotalPopulation() * iMyMultiplier;
+						iWillingToAcceptScore += (GET_PLAYER(eLoopPlayer).GetCulture()->GetWarWeariness() * 100)/GET_PLAYER(eLoopPlayer).getTotalPopulation() * iTheirMultiplier;
 					}
 #endif
 //					if (IsWantsPeaceWithPlayer(eLoopPlayer))
@@ -7451,7 +7461,34 @@ void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
 		SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
 	}
 }
+
 #if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiPlayerNumTurnsAtPeace[ePlayer];
+}
+
+/// Sets how many turns we've been at war with this Player
+void CvDiplomacyAI::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting PlayerNumTurnsAtWar to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiPlayerNumTurnsAtPeace[ePlayer] = iValue;
+}
+
+/// Sets how many turns we've been at war with this Player
+void CvDiplomacyAI::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange)
+{
+	if(iChange != 0)
+	{
+		SetPlayerNumTurnsAtPeace(ePlayer, GetPlayerNumTurnsAtPeace(ePlayer) + iChange);
+	}
+}
+
 /// How many turns have we been at war with this Player?
 int CvDiplomacyAI::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 {

@@ -8229,7 +8229,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 	// evaluator
 #if defined(MOD_AI_SECONDARY_WORKERS)
-	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false, bSecondary);
+	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false, bSecondary || pUnit->isHuman());
 #else
 	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize);
 #endif

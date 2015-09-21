@@ -343,10 +343,6 @@ public:
 	void SetBestPossibleRoute(RouteTypes eRoute);
 	void DoUpdateBestRoute();
 
-#if defined(MOD_BALANCE_CORE)
-	int GetCurrentBestMovementMultiplier(const CvUnit* pUnit) const;
-#endif
-
 	int getProjectCount(ProjectTypes eIndex) const;
 	int getProjectDefaultArtType(ProjectTypes eIndex) const;
 	void setProjectDefaultArtType(ProjectTypes eIndex, int value);
@@ -551,12 +547,6 @@ protected:
 	int m_iNumNaturalWondersDiscovered;
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
-
-#if defined(MOD_BALANCE_CORE)
-	int m_iBestRouteNormalCostMultiplier;
-	int m_iBestRouteFlatCostMultiplier;
-	int m_iUseFlatCostIfBelowThis;
-#endif
 
 	bool m_bMapCentering;
 	bool m_bHasBrokenPeaceTreaty;

@@ -2638,7 +2638,7 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	if(isCapital())
 	{
 #if defined(MOD_BALANCE_CORE)
-		RouteTypes eRoute = (RouteTypes)ROUTE_RAILROAD;
+		RouteTypes eRoute = GC.getGame().GetIndustrialRoute();
 
 		if(eRoute != NO_ROUTE)
 		{
@@ -6808,43 +6808,6 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 	int iMultiplier = 0;
 
 	// Railroad to capital?
-#if defined(MOD_BALANCE_CORE)
-	RouteTypes eRoute = (RouteTypes)ROUTE_RAILROAD;
-	bool bValid = false;
-	if(eRoute != NO_ROUTE)
-	{
-		for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
-		{
-			CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iBuildLoop);
-			if(!pkBuildInfo)
-			{
-				continue;
-			}
-
-			if(pkBuildInfo->getRoute() == eRoute)
-			{
-				if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
-				{
-					bValid = true;
-					break;
-				}
-			}
-		}
-	}
-	if(MOD_BALANCE_CORE && isCapital() && bValid && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-	{
-		if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
-		{
-			const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
-			iMultiplier += iTempMod;
-			if(toolTipSink && iTempMod)
-			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
-			}
-		}
-	}
-#endif
-
 	if(IsIndustrialRouteToCapital())
 	{
 		const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
@@ -12124,6 +12087,12 @@ int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
 	int iBaseYieldReligion = 0;
 	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	//manual optimization for debug build ...
+	int nWorkablePlots = GetNumWorkablePlots();
+#endif
+
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
 		TerrainTypes eTerrain = (TerrainTypes) iI;
@@ -12131,7 +12100,7 @@ int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
 		iValidTilesTerrain = 0;
 		iValidTilesBuilding = 0;
 #if defined(MOD_GLOBAL_CITY_WORKING)
-		for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+		for(int iJ = 0; iJ < nWorkablePlots; iJ++)
 #else
 		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
 #endif
@@ -17821,7 +17790,12 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	CvPlot* pPickedPlot = NULL;
 	if(iListLength > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//pick from the top half
+		int iPickedIndex = GC.getGame().getJonRandNum(iListLength/2+1, "GetNextBuyablePlot picker");
+#else
 		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
+#endif
 		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 	}
 
@@ -17863,6 +17837,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 	bool bFoundAdjacentOwnedByCity;
 
 	int iDX, iDY;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	int iWorkPlotDistance = getWorkPlotDistance();
+#endif
 
 	ImprovementTypes eBarbCamptype = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
@@ -17932,12 +17909,20 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					ResourceTypes eResource = pLoopPlot->getResourceType(thisTeam);
 					if (eResource != NO_RESOURCE)
 					{
+#if defined(MOD_BALANCE_CORE)
+						//prefer resources we don't have already
+						if (GetPlayer()->getNumResourceTotal(eResource)==0)
+							iInfluenceCost += 2*iPLOT_INFLUENCE_RESOURCE_COST;
+						else
+							iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+#else
 						iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
 						bool bBonusResource = GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS;
 						if (bBonusResource)
+#endif
 						{
 #if defined(MOD_GLOBAL_CITY_WORKING)
-							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > getWorkPlotDistance())
+							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 #else	
 							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > NUM_CITY_RINGS)
 #endif
@@ -17967,7 +17952,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 
 						// if we can't work this tile in this city make it much less likely to be picked
 #if defined(MOD_GLOBAL_CITY_WORKING)
-						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > getWorkPlotDistance())
+						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 #else	
 						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > NUM_CITY_RINGS)
 #endif
@@ -18035,7 +18020,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 								{
 									// if we are close enough to work, or this is not a bonus resource
 #if defined(MOD_GLOBAL_CITY_WORKING)
-									if (iPlotDistance <= getWorkPlotDistance() || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
+									if (iPlotDistance <= iWorkPlotDistance || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
 #else	
 									if (iPlotDistance <= NUM_CITY_RINGS || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
 #endif
@@ -18046,7 +18031,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 								if (pAdjacentPlot->IsNaturalWonder())
 								{
 #if defined(MOD_GLOBAL_CITY_WORKING)
-									if (iPlotDistance <= getWorkPlotDistance()) // grab for this city
+									if (iPlotDistance <= iWorkPlotDistance) // grab for this city
 #else	
 									if (iPlotDistance <= NUM_CITY_RINGS) // grab for this city
 #endif

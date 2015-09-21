@@ -3591,9 +3591,9 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	int iWarTurns = 0;
 	int iMostWarTurns = 0;
-	// Look at each civ and get longest war.
+	int iLeastPeaceTurns = INT_MAX;
+	// Look at each civ and get longest war and shortest peace
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
@@ -3601,55 +3601,59 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
 			{
-				if(m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID()) > 0)
+				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
+				if(iWarTurns > iMostWarTurns)
 				{
-					iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
-					if(iWarTurns > iMostWarTurns)
-					{
-						iMostWarTurns = iWarTurns;
-					}
+					iMostWarTurns = iWarTurns;
+				}
+			}
+			else
+			{
+				int iPeaceTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
+				if(iPeaceTurns < iLeastPeaceTurns)
+				{
+					iLeastPeaceTurns = iPeaceTurns;
 				}
 			}
 		}
 	}
+
+	int iWorstWarWeariness = 0;
 	if(iMostWarTurns > 0)
 	{
-		int iTotalPop = m_pPlayer->getTotalPopulation();
-	
-		int iChance = GC.getGame().getJonRandNum((iTotalPop * 5), "Roll for war weariness increase!");
-			
-		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
-		iChance /= 100;
+		//war weariness is asymptotic. for X turns nothing happens, after X more turns it reaches 5% of the population, then maxes out at 10%
+		int iDelay = 10; 
+		int iTimeConstant = 40;
+		
+		//simple asymptotic function x/(1+x) mapped to interval [0;100]
+		int iX = max(0, iMostWarTurns - iDelay);
+		int iScale = (100 * iX) / (iTimeConstant + iX);
 
-		if(iChance <= iMostWarTurns)
-		{
-			m_iWarWeariness += 1;
-		}
-		if(m_iWarWeariness >= (iTotalPop / 5))
-		{
-			m_iWarWeariness = (iTotalPop / 5);
-		}
-		return m_iWarWeariness;
+		iWorstWarWeariness = (m_pPlayer->getTotalPopulation() * iScale) / 1000;
 	}
+	
+	if (iLeastPeaceTurns==0)
+	{
+		//signed peace last turn - halve it for immediate relief
+		//note: if the peace treaty was not for our longest war, we will overwrite it again in the next step
+		m_iWarWeariness /= 2;
+	}
+
+	//in any case, if we still have a war going, it new determines the result
+	if (iWorstWarWeariness>=m_iWarWeariness)
+		//rising
+		m_iWarWeariness = iWorstWarWeariness;
 	else
 	{
-		if(m_iWarWeariness > 0)
-		{
-			m_iWarWeariness -= GC.getGame().getJonRandNum(10, "Roll for war weariness reduction!");
-		}
-		else if(m_iWarWeariness <= 0)
-		{
-			m_iWarWeariness = 0;
-		}
-		else
-		{
-			m_iWarWeariness = 0;
-		}
+		//apparently we made peace recently ... reduce the value step by step
+		m_iWarWeariness -= GC.getGame().getJonRandNum(10, "Roll for war weariness reduction!");
+		m_iWarWeariness = max(m_iWarWeariness, 0);
+	}
 
 		return m_iWarWeariness;
-	}
 }
 #endif
+
 /// Once per turn calculation of public opinion data
 void CvPlayerCulture::DoPublicOpinion()
 {
@@ -3896,12 +3900,10 @@ void CvPlayerCulture::DoPublicOpinion()
 			}
 		}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		int iWarWeariness = 0;
 		if(MOD_BALANCE_CORE_HAPPINESS)
-		{
-			iWarWeariness = ComputeWarWeariness();
-		}
+			ComputeWarWeariness();
 #endif
+
 		// Build tooltip
 		if (strFreedomPressureString.size() > 0)
 		{
@@ -3949,11 +3951,11 @@ void CvPlayerCulture::DoPublicOpinion()
 			m_strOpinionTooltip += locText.toUTF8();
 		}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS && iWarWeariness > 0)
+		if(MOD_BALANCE_CORE_HAPPINESS && m_iWarWeariness > 0)
 		{
 			Localization::String locText;
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
-			locText << iWarWeariness;
+			locText << m_iWarWeariness;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 		}
 #endif

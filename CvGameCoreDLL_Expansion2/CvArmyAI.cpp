@@ -221,6 +221,66 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	int iTotalX = 0;
 	int iTotalY = 0;
 	int iNumUnits = 0;
+
+#if defined(MOD_BALANCE_CORE)
+	UnitHandle pUnit = GetFirstUnit();
+
+	if (!pUnit)
+		return NULL;
+
+	int iTotalX2 = 0;
+	int iTotalY2 = 0;
+	int iRefX = pUnit->getX();
+	int iRefY = pUnit->getY();
+	int iWorldWidth = GC.getMap().getGridWidth();
+	int iWorldHeight = GC.getMap().getGridHeight();
+
+	while(pUnit)
+	{
+		int iDX = pUnit->getX() - iRefX;
+		int iDY = pUnit->getY() - iRefY;
+
+		if (GC.getMap().isWrapX())
+		{
+			if( iDX > +(iWorldWidth / 2))
+				iDX -= iWorldWidth;
+			if( iDX < -(iWorldWidth / 2))
+				iDX += iWorldWidth;
+		}
+		if (GC.getMap().isWrapY())
+		{
+			if( iDY > +(iWorldHeight / 2))
+				iDY -= iWorldHeight;
+			if( iDY < -(iWorldHeight / 2))
+				iDY += iWorldHeight;
+		}
+
+		iTotalX += iDX;
+		iTotalY += iDY;
+		iTotalX2 += iDX*iDX;
+		iTotalY2 += iDY*iDY;
+		iNumUnits++;
+
+		pUnit = GetNextUnit();
+	}
+
+	if (iNumUnits==0)
+		return NULL;
+
+	//this is for debugging
+	float fVarX = (iTotalX2 / (float)iNumUnits) - (iTotalX/(float)iNumUnits)*(iTotalX/(float)iNumUnits);
+	float fVarY = (iTotalY2 / (float)iNumUnits) - (iTotalY/(float)iNumUnits)*(iTotalY/(float)iNumUnits);
+	if (fVarX > 100 || fVarY > 100)
+		OutputDebugString("Warning: Army Center of Mass has a very large variance\n");
+
+	//finally, compute average (with rounding)
+	int iAvgX = (iTotalX + (iNumUnits / 2)) / iNumUnits + iRefX;
+	int iAvgY = (iTotalY + (iNumUnits / 2)) / iNumUnits + iRefY;
+
+	//this handles wrapped coordinates
+	pRtnValue = GC.getMap().plot(iAvgX, iAvgY);
+
+#else
 	UnitHandle pUnit;
 	int iReferenceUnitX = -1;
 	int iWorldWidth = GC.getMap().getGridWidth();
@@ -265,6 +325,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 		int iAverageY = (iTotalY + (iNumUnits / 2)) / iNumUnits;
 		pRtnValue = GC.getMap().plot(iAverageX, iAverageY);
 	}
+#endif
 
 	// Domain check
 	if (eDomainRequired != NO_DOMAIN && pRtnValue)

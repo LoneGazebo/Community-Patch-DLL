@@ -7143,6 +7143,9 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
 #if defined(MOD_BALANCE_CORE)
+	if (!pCity)
+		return false;
+
 	if(pCity->isCapital())
 	{
 		return true;
@@ -11575,12 +11578,8 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 #if defined(MOD_BALANCE_CORE)
 						if(MOD_BALANCE_CORE && pkBuildInfo->getTechObsolete() == NO_TECH)
 						{
-#endif
-						iValue = pkRouteInfo->getValue();
-#if defined(MOD_BALANCE_CORE)
+							iValue = pkRouteInfo->getValue();
 						}
-#endif
-#if defined(MOD_BALANCE_CORE)
 						else if(MOD_BALANCE_CORE && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkBuildInfo->getTechObsolete())))
 						{
 							iValue = pkRouteInfo->getValue();
@@ -11589,6 +11588,8 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 						{
 							iValue = 0;
 						}
+#else
+						iValue = pkRouteInfo->getValue();
 #endif
 						if(iValue > iBestValue)
 						{

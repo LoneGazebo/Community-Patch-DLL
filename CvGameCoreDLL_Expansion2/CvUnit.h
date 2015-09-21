@@ -495,9 +495,6 @@ public:
 	bool hasMoved() const;
 
 	int GetRange() const;
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-	int GetRangeWithMovement() const;
-#endif
 	int GetNukeDamageLevel() const;
 
 	bool canBuildRoute() const;
