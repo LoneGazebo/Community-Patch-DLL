@@ -125,7 +125,7 @@
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
-			<Set Value="0.67"/>
+			<Set Value="0.68"/>
 			<!-- 0.75 -->
 		</Update>
 		<Update>

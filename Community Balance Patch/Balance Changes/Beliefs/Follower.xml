@@ -75,32 +75,32 @@
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Belief_BuildingClassFaithPurchase>

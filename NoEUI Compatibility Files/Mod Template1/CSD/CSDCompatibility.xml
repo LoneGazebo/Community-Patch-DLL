@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/14/2014 9:35:13 AM -->
 <GameData>
+	<Trait_SpecialistYieldChanges>
+		<Row>
+			<TraitType>TRAIT_SCHOLARS_JADE_HALL</TraitType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_SpecialistYieldChanges>
 	<Belief_SpecialistYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>

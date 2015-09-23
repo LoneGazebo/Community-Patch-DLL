@@ -154,6 +154,12 @@
 			<Response>TXT_KEY_CITY_TRADE_OFFER%</Response>
 		</Row>
 
+		<!-- Exchange Cities-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_EXCHANGE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_EXCHANGE_OFFER%</Response>
+		</Row>
+
 		<!-- 3rd Party War-->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_THIRD_PARTY_WAR_REQUEST</ResponseType>
@@ -169,20 +175,20 @@
 
 		<!-- DOF Friend Levels -->
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_WORK_WITH_US_UNTRUSTWORTHY</ResponseType>
-			<Response>TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY%</Response>
+			<ResponseType>RESPONSE_DOF_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_DOF_UNTRUSTWORTHY%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_WORK_WITH_US_FRIENDS</ResponseType>
-			<Response>TXT_KEY_DEC_FRIENDSHIP_FRIENDS%</Response>
+			<ResponseType>RESPONSE_DOF_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DOF_FRIENDS%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_WORK_WITH_US_OLD_FRIENDS</ResponseType>
-			<Response>TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS%</Response>
+			<ResponseType>RESPONSE_DOF_ALLIES</ResponseType>
+			<Response>TXT_KEY_DOF_OLD_FRIENDS%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_WORK_WITH_US_BATTLE_BROTHERS</ResponseType>
-			<Response>TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS%</Response>
+			<ResponseType>RESPONSE_DOF_BATTLE_BROTHERS</ResponseType>
+			<Response>TXT_KEY_DOF_BATTLE_BROTHERS%</Response>
 		</Row>
 		
 		<!-- Denounce Statements-->
@@ -382,6 +388,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_3">
 			<Text>A selection of choice lands are up for trade. Here is my offer...what do you think?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EXCHANGE_OFFER_1">
+			<Text>You have lands I would like, and I think I have lands that you would like. Is an exchange in order?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EXCHANGE_OFFER_2">
+			<Text>Let us exchange territory, so that disputes over borders will never disrupt the fine peace we have established.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EXCHANGE_OFFER_3">
+			<Text>There is mutual benefit in the exchange of territory, especially these two cities. What do you think?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_1">
@@ -2360,44 +2376,56 @@
 		</Row>
 		
 		<!-- DOF Layers -->
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_1">
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_1">
 			<Text>We have not always seen eye to eye in the past. A Declaration of Friendship could change that. What do you say?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_2">
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_2">
 			<Text>I do not trust you, yet my advisors tell me that a Declaration of Friendship with you is a shrewd diplomatic move. Shall we?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_3">
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_3">
 			<Text>A Declaration of Friendship might show the world that we are willing to put past transgressions behind us. Do you agree?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_4">
+			<Text>Our history is filled with strife and conflict. Why don't we put it all behind us with a public Declaration of Friendship?</Text>
+		</Row>
 
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_1">
+		<Row Tag="TXT_KEY_DOF_FRIENDS_1">
 			<Text>Our people have grown close over the years. It would be a shame to see this relationship decay. Shall we renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_2">
+		<Row Tag="TXT_KEY_DOF_FRIENDS_2">
 			<Text>You have proven to be a trustworthy friend, a rare trait in this world. Do you wish to renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_3">
+		<Row Tag="TXT_KEY_DOF_FRIENDS_3">
 			<Text>We have shown the world that cooperation is possible. Come, let us show them again. Shall we renew our Declaration of Friendship?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DOF_FRIENDS_4">
+			<Text>Our Declaration of Friendship has lapsed. Much good came from the previous arrangement, thus I believe we should try again. Shall we?</Text>
+		</Row>
 
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_1">
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_1">
 			<Text>Greetings, old friend. My advisors tell me that our Declaration of Friendship has lapsed. Surely this is simply a clerical error, yes? Shall we renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_2">
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_2">
 			<Text>Our friendship has stood the test of time. It would be a shame to see it end now. Do you want to renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_3">
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_3">
 			<Text>There are few people in the world I trust more than you. It would be wise of us to renew our Declaration of Friendship. Do you agree?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_4">
+			<Text>You are a great friend, and I cannot remember a time that we were at odds with each other. Shall we renew our Declaration of Friendship one more time?</Text>
+		</Row>
 
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_1">
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_1">
 			<Text>Once more into the breach, dear friend. Shall we renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_2">
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_2">
 			<Text>I have been, and always shall be, your friend. Will you reciprocate this sentiment, and renew our Declaration of Friendship?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_3">
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_3">
 			<Text>We have forged a legendary alliance over the years, have we not? Come, let us renew our Declaration of Friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_4">
+			<Text>The future will tell tales of our historic alliance. Shall we renew our Declaration of Friendship?</Text>
 		</Row>
 
 		<!-- ESSENTIAL TEXTS - DO NOT CHANGE -->

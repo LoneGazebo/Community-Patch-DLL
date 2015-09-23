@@ -1,15 +1,15 @@
--- Delete All the things!
-	DELETE FROM UnitPromotions;
-	
-	DELETE FROM UnitPromotions 
-	WHERE ID <= 204;
+-- Delete Bad Stuff
+	DELETE FROM UnitPromotions
+	WHERE Type = 'PROMOTION_RECON_SHORT_RANGE';
 
+	DELETE FROM UnitPromotions
+	WHERE Type = 'PROMOTION_RECON_LONG_RANGE';
 -- THIS NEEDS TO BE FIRST, SILLY.
 
 -- Delete Anti-Tank Gun, combine stats with Bazooka and Missile Pod (help AI)
 
 	DELETE FROM Units
-	Where Type = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	WHERE Type = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	DELETE FROM Civilization_UnitClassOverrides
 	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -34,12 +34,3 @@
 
 	DELETE FROM UnitGameplay2DScripts
 	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	CREATE TABLE IDRemapper ( id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT );
-	INSERT INTO IDRemapper (Type) SELECT Type FROM UnitPromotions ORDER BY ID;
-	UPDATE UnitPromotions SET ID = ( SELECT IDRemapper.id-1 FROM IDRemapper WHERE UnitPromotions.Type = IDRemapper.Type);
-	DROP TABLE IDRemapper;
-
-	UPDATE sqlite_sequence
-	SET seq = (SELECT COUNT(ID) FROM UnitPromotions)-1
-	WHERE name = 'UnitPromotions';

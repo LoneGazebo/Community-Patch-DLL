@@ -483,6 +483,8 @@ function OnShowHide( isHide, bIsInit )
 			Controls.ThemPocketStrategicStack:SetHide( true );
 			Controls.UsPocketLuxuryStack:SetHide( true );
 			Controls.ThemPocketLuxuryStack:SetHide( true );
+			Controls.UsPocketTechnologyStack:SetHide( true );	-- Putmalk
+            Controls.ThemPocketTechnologyStack:SetHide( true );
 			if bnw_mode then
 				Controls.UsPocketVoteStack:SetHide( true );
 				Controls.ThemPocketVoteStack:SetHide( true );
@@ -968,6 +970,10 @@ function ResetDisplay()
 	Controls.ThemPocketOpenBorders:SetHide( false );
 	Controls.UsPocketDefensivePact:SetHide( false );
 	Controls.ThemPocketDefensivePact:SetHide( false );
+	Controls.UsPocketVassalage:SetHide( false );		-- Putmalk
+	Controls.ThemPocketVassalage:SetHide( false );		-- Putmalk
+	Controls.UsPocketTradeMap:SetHide( false );			-- Putmalk
+	Controls.ThemPocketTradeMap:SetHide( false );		-- Putmalk
 	Controls.UsPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
 	Controls.ThemPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
 	--Controls.UsPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
@@ -2291,6 +2297,7 @@ function ResizeStacks()
     Controls.ThemPocketTechnologyStack:CalculateSize();
 	Controls.UsTableTechnologyStack:CalculateSize();
     Controls.ThemTableTechnologyStack:CalculateSize();
+	
 	Controls.UsPocketLuxuryStack:CalculateSize();
 	Controls.ThemPocketLuxuryStack:CalculateSize();
 	Controls.UsTableLuxuryStack:CalculateSize();

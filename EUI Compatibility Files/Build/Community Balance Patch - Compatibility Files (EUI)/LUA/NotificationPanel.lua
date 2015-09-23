@@ -928,7 +928,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			if minorPlayer:CanMajorWithdrawProtection( g_activePlayerID ) then
 				toolTip = toolTip .. "[NEWLINE][NEWLINE]" .. L"TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_TT"
 			else
-				toolTip = toolTip .. L("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_DISABLED_COMMITTED_TT", minorPlayer:GetTurnLastPledgedProtectionByMajor( g_activePlayerID ) + 10 - Game.GetGameTurn() )
+				toolTip = toolTip .. L("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_DISABLED_COMMITTED_TT", minorPlayer:GetTurnLastPledgedProtectionByMajor( g_activePlayerID ) + GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION - Game.GetGameTurn() )
 			end
 		end
 		ShowSimpleTip( toolTip )

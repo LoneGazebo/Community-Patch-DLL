@@ -596,6 +596,9 @@ public:
 	ReligionTypes GetReligionToSpread() const;
 
 private:
+#if defined(MOD_BALANCE_CORE)
+	void DoFaithPurchasesInCities(CvCity* pCity);
+#endif
 	void DoFaithPurchases();
 	void BuyMissionary(ReligionTypes eReligion);
 	void BuyInquisitor(ReligionTypes eReligion);

@@ -13997,6 +13997,52 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
+
+			//Pantheons
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
+			iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+
+			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
+			if(iYieldPerXFollowers > 0)
+			{		
+				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+			}
+			if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
+			{
+				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
+				int iNumHappinessResources = 0;
+				ResourceTypes eResource;
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes) iResourceLoop;
+
+					if(GetHappinessFromLuxury(eResource) > 0)
+					{
+						iNumHappinessResources++;
+					}
+				}
+				if(iNumHappinessResources > 0)
+				{
+					iLuxCulture *= iNumHappinessResources;
+					iYieldPerTurn += iLuxCulture;
+				}
+			}
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
+			if(iYieldPerGPT > 0)
+			{
+				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				{
+					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+				}
+			}
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
+			if(iYieldPerScience > 0)
+			{
+				if(GetScience() > 0)
+				{
+					iYieldPerTurn += (GetScience() / iYieldPerScience);
+				}
+			}
 		}
 	}
 	else

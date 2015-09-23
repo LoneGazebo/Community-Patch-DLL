@@ -115,12 +115,27 @@
 		</Row>
 	</Building_RiverPlotYieldChanges>
 	<!-- Askia -->
-	<Building_RiverPlotYieldChanges>
+	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_MARBLE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_STONE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_RiverPlotYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>

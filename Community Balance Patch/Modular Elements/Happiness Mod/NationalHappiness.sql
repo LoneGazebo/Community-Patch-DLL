@@ -37,7 +37,7 @@
 
 	-- Golden Age starting requirement.
 	UPDATE Defines
-	SET Value = '700'
+	SET Value = '500'
 	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- Golden Age per GA increase.

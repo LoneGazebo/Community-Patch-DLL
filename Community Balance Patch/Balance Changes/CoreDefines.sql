@@ -34,7 +34,7 @@
 
 	-- 1.5
 	UPDATE Defines
-	SET Value = '1.9'
+	SET Value = '1.95'
 	WHERE Name = 'CITY_GROWTH_EXPONENT';
 
 	-- 8
@@ -80,7 +80,7 @@
 	WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 	UPDATE Defines
-	SET Value = '0.4'
+	SET Value = '0.5'
 	WHERE Name = 'UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA';
 
 	-- Barbarian Experience Cap raised to 45

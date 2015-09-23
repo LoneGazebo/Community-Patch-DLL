@@ -7988,7 +7988,7 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 {
 #if defined(MOD_BALANCE_CORE)
 	Reset();
-	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
+	m_eMoveType = AI_OPERATION_MOVETYPE_FREEFORM_NAVAL;
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;

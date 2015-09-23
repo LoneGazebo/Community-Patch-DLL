@@ -1453,47 +1453,50 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		int iDefense = 0;
 		bool bBad = false;
 		//Fort test.
-		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-		if (eFort != NO_IMPROVEMENT)
+		if(!GET_PLAYER(pUnit->getOwner()).isHuman())
 		{
-			if(eImprovement == eFort)
+			ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+			if (eFort != NO_IMPROVEMENT)
 			{
-				//Is this a good spot for a defensive building?
-				if(eResource == NO_RESOURCE)
+				if(eImprovement == eFort)
 				{
-					if(pPlot->getOwner() == m_pPlayer->GetID())
+					//Is this a good spot for a defensive building?
+					if(eResource == NO_RESOURCE)
 					{
-						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+						if(pPlot->getOwner() == m_pPlayer->GetID())
 						{
-							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
-							if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
+							for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 							{
-								bBad = true;
-								break;
+								CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
+								if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
+								{
+									bBad = true;
+									break;
+								}
 							}
-						}
-						if(bBad)
-						{
-							continue;
-						}
-						iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-						if(iDefense > iScore)
-						{
-							iScore = iDefense;
+							if(bBad)
+							{
+								continue;
+							}
+							iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+							if(iDefense > iScore)
+							{
+								iScore = iDefense;
+							}
 						}
 					}
 				}
-			}
-			//Looking to build something else on top of a fort? It'd better be good.
-			else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
-			{
-				if(pPlot->getImprovementType() == eFort)
+				//Looking to build something else on top of a fort? It'd better be good.
+				else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
 				{
-					iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-				}
-				if(iDefense > iScore)
-				{
-					continue;
+					if(pPlot->getImprovementType() == eFort)
+					{
+						iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+					}
+					if(iDefense > iScore)
+					{
+						continue;
+					}
 				}
 			}
 		}
