@@ -27015,6 +27015,12 @@ const char* CvUnit::GetMissionInfo()
 		}
 	}
 
+	if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		CvString strTemp0 = CvString::format(" // %s", directiveNames[m_eGreatPeopleDirectiveType.get()]);
+		m_strMissionInfoString += strTemp0;
+	}
+
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
 		CvString strTemp1;
@@ -27072,9 +27078,11 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !plot()->getBestDefender(getOwner()))
+	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !GC.getMap().plot(iData1,iData2)->getBestDefender(getOwner()))
 	{
-		if(GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this)>GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this))
+		int iFromDanger = GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this);
+		int iToDanger = GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this);
+		if(iFromDanger<iToDanger)
 			OutputDebugString("Civilian moving into danger!\n");
 	}
 

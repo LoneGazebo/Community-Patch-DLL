@@ -5414,7 +5414,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 			//Handled by economic AI
 		break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-		MoveCivilianToSafety(pUnit.pointer());
+			MoveCivilianToSafety(pUnit.pointer());
 #if defined(MOD_BALANCE_CORE)
 		UnitProcessed(pUnit->GetID());
 		pUnit->finishMoves();
@@ -8343,6 +8343,47 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pLog->Msg(strLog);
 			}
 
+#if defined(MOD_BALANCE_CORE)
+			if(eMission == CvTypes::getMISSION_MOVE_TO())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
+
+				//do we have movement left?
+				if (pUnit->getMoves()>0)
+					eMission = CvTypes::getMISSION_BUILD();
+				else
+				{
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+				}
+			}
+
+			if(eMission == CvTypes::getMISSION_BUILD())
+			{
+				// check to see if we already have this mission as the unit's head mission
+				bool bPushMission = true;
+				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
+				if(pkMissionData != NULL)
+				{
+					if(pkMissionData->eMissionType == eMission && pkMissionData->iData1 == aDirective[0].m_eBuild)
+					{
+						bPushMission = false;
+					}
+				}
+
+				if(bPushMission)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+				}
+
+				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
+				if(pUnit->ReadyToMove())
+				{
+					pUnit->finishMoves();
+				}
+				UnitProcessed(pUnit->GetID());
+			}
+#else
 			if(eMission == CvTypes::getMISSION_BUILD())
 			{
 				// check to see if we already have this mission as the unit's head mission
@@ -8374,6 +8415,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
+#endif
 
 			return true;
 		}
@@ -8692,6 +8734,17 @@ const char* homelandMoveNames[] =
 	"AI_HOMELAND_MOVE_AIRLIFT",
 	"AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY",
 	"AI_HOMELAND_MOVE_MESSENGER",
+};
+
+const char* directiveNames[] = 
+{
+	"GOLDEN_AGE",
+	"USE_POWER",
+	"CONSTRUCT_IMPROVEMENT",
+	"SPREAD_RELIGION",
+	"CULTURE_BLAST",
+	"TOURISM_BLAST",
+	"FIELD_COMMAND",
 };
 
 void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)

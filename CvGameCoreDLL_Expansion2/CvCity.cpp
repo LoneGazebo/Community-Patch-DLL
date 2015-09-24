@@ -12088,11 +12088,6 @@ int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
 	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	//manual optimization for debug build ...
-	int nWorkablePlots = GetNumWorkablePlots();
-#endif
-
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
 		TerrainTypes eTerrain = (TerrainTypes) iI;
@@ -12100,10 +12095,14 @@ int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
 		iValidTilesTerrain = 0;
 		iValidTilesBuilding = 0;
 #if defined(MOD_GLOBAL_CITY_WORKING)
-		for(int iJ = 0; iJ < nWorkablePlots; iJ++)
+		const std::vector<int>& vWorkedPlots =  GetCityCitizens()->GetWorkedPlots();
+		for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+			{
+				{
 #else
 		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 		{
 			CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
 
@@ -12111,6 +12110,7 @@ int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
 			{
 				if(GetCityCitizens()->IsWorkingPlot(pPlot))
 				{
+#endif
 					if(pPlot->getTerrainType() == eTerrain && eTerrain != TERRAIN_MOUNTAIN)
 					{
 						if(pReligion && bReligion)
@@ -12231,10 +12231,14 @@ int CvCity::GetYieldPerXFeature(YieldTypes eYield) const
 				{
 					iValidTiles = 0;
 #if defined(MOD_GLOBAL_CITY_WORKING)
-					for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+					const std::vector<int>& vWorkedPlots =  GetCityCitizens()->GetWorkedPlots();
+					for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+					{
+						CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+						{
+							{
 #else
 					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 					{
 						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
 
@@ -12242,6 +12246,7 @@ int CvCity::GetYieldPerXFeature(YieldTypes eYield) const
 						{
 							if(GetCityCitizens()->IsWorkingPlot(pPlot))
 							{
+#endif
 								if(pPlot->getFeatureType() == eFeature)
 								{
 									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)

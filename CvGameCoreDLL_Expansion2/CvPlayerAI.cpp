@@ -1540,19 +1540,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
-	int iValue = 0;
-	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
-	int iGreatGeneralCount = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
-		if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
-		{
-			iGreatGeneralCount++;
-		}
-	}
 	if(pGreatGeneral->getArmyID() != -1)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
@@ -1561,6 +1550,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
+
 	int iFriendlies = 0;
 	if(bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
 	{
@@ -1577,11 +1567,21 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			}
 		}
 	}
+
 	if(bWar && iFriendlies > 3)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
+
+	int iGreatGeneralCount = 0;
+	int iLoop;
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+		if(pLoopUnit->IsGreatGeneral())
+			iGreatGeneralCount++;
+
+	int iDummy = 0;
+	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iDummy);
+	//keep at least one general around
 	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
 	{
 		//build a citadel
@@ -1701,7 +1701,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
 	if(pGreatAdmiral->getArmyID() != -1)
 	{
@@ -1711,6 +1711,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
+
 	int iFriendlies = 0;
 	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
 	{
@@ -1737,7 +1738,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		if(pLoopUnit->IsGreatAdmiral())
 		{
 			iGreatAdmiralCount++;
 		}

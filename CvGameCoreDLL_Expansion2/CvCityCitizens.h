@@ -97,6 +97,10 @@ public:
 	void DoVerifyWorkingPlot(CvPlot* pPlot);
 	void DoVerifyWorkingPlots();
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	const std::vector<int>& GetWorkedPlots() const { return m_vWorkedPlots; }
+#endif
+
 	// Helpful Stuff
 	int GetCityIndexFromPlot(const CvPlot* pPlot) const;
 	CvPlot* GetCityPlotFromIndex(int iIndex) const;
@@ -157,6 +161,7 @@ private:
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
+	std::vector<int> m_vWorkedPlots;
 #else
 	bool m_pabWorkingPlot[NUM_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[NUM_CITY_PLOTS];

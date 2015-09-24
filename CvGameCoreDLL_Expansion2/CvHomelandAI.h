@@ -451,6 +451,7 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 extern const char* homelandMoveNames[];
+extern const char* directiveNames[];
 #endif
 
 namespace HomelandAIHelpers

@@ -4517,7 +4517,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 		iCost = iCost / 4;
 	// super low costs for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver())
+	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iCost = iCost / 4;
 	// Iroquios ability
 	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())

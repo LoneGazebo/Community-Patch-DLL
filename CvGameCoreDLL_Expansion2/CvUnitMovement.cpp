@@ -441,9 +441,16 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		bool bIsVisibleEnemyUnit     = pToPlot->isVisibleEnemyUnit(pUnit);
 		CvTeam& kUnitTeam = GET_TEAM(unit_team_type);
 
+#if defined(MOD_BALANCE_CORE)
+		CvPlot** aPlotsToCheck1 = GC.getMap().getNeighborsUnchecked(pFromPlot);
+		for(int iCount1=0; iCount1<NUM_DIRECTION_TYPES; iCount1++)
+		{
+			CvPlot* pAdjPlot = aPlotsToCheck1[iCount1];
+#else
 		for(int iDirection0 = 0; iDirection0 < NUM_DIRECTION_TYPES; iDirection0++)
 		{
 			CvPlot* pAdjPlot = plotDirection(iFromPlotX, iFromPlotY, ((DirectionTypes)iDirection0));
+#endif
 			if(NULL != pAdjPlot)
 			{
 				// check city zone of control
@@ -524,9 +531,16 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 						}
 
 						// Loop through plots adjacent to the enemy unit and see if it's the same as our unit's Destination Plot
+#if defined(MOD_BALANCE_CORE)
+						CvPlot** aPlotsToCheck2 = GC.getMap().getNeighborsUnchecked(pAdjPlot);
+						for(int iCount2=0; iCount2<NUM_DIRECTION_TYPES; iCount2++)
+						{
+							const CvPlot* pEnemyAdjPlot = aPlotsToCheck2[iCount2];
+#else
 						for(int iDirection2 = 0; iDirection2 < NUM_DIRECTION_TYPES; iDirection2++)
 						{
 							CvPlot* pEnemyAdjPlot = plotDirection(pAdjPlot->getX(), pAdjPlot->getY(), ((DirectionTypes)iDirection2));
+#endif
 							if(!pEnemyAdjPlot)
 							{
 								continue;

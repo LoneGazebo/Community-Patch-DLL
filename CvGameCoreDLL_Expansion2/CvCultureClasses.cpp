@@ -5824,14 +5824,21 @@ int CvCityCulture::GetCultureFromWonders() const
 int CvCityCulture::GetCultureFromNaturalWonders() const
 {
 	int iRtnValue = 0;
-	CvPlot* pLoopPlot;
 
 	// Look at all workable Plots
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
+	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
+	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+		if(pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsNaturalWonder())
+		{
+			iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
+		}
+	}
 #else
+	CvPlot* pLoopPlot;
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -5854,6 +5861,7 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 			}
 		}
 	}
+#endif
 	return iRtnValue;
 }
 
@@ -5865,14 +5873,40 @@ int CvCityCulture::GetCultureFromImprovements() const
 #endif
 {
 	int iRtnValue = 0;
-	CvPlot* pLoopPlot;
 	
 	// Look at all workable Plots
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
+	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
+	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			iRtnValue += pLoopPlot->calculateYield(eYield);
+
+			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
+			{
+#if defined(MOD_API_UNIFIED_YIELDS)
+				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
 #else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
+				if(iAdjacentCulture > 0)
+				{
+#if defined(MOD_API_UNIFIED_YIELDS)
+					iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+#else
+					iRtnValue += pLoopPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
+#endif
+				}
+			}
+		}
+	}
+#else
+	CvPlot* pLoopPlot;
+	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -5914,6 +5948,7 @@ int CvCityCulture::GetCultureFromImprovements() const
 			}
 		}
 	}
+#endif
 	return iRtnValue;
 }
 
