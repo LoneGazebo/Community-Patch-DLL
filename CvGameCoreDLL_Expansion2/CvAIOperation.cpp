@@ -2609,6 +2609,14 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 						strMsg.Format("Recruited %s (primary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
 					}
+#if defined(MOD_BALANCE_CORE)
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
+#endif
 				}
 				return true;
 			}
@@ -2890,6 +2898,14 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 						strMsg.Format("Recruited %s (secondary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
 					}
+#if defined(MOD_BALANCE_CORE)
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
+#endif
 				}
 				return true;
 			}
@@ -3205,10 +3221,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 
 #if defined(MOD_BALANCE_CORE)
 						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-						if (iMusterDist>5)
+						if (iMusterDist>12)
 						{
-							strMsg.Format("%s: Recruited unit %d plots from muster point\n", GetOperationName().c_str(), iMusterDist );
-							OutputDebugString(strMsg.c_str());
+							strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+							LogOperationSpecialMessage(strMsg);
 						}
 #endif
 					}
@@ -3493,6 +3509,14 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						strMsg.Format("Recruited %s (secondary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogOperationSpecialMessage(strMsg);
 					}
+#if defined(MOD_BALANCE_CORE)
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
+#endif
 				}
 				return true;
 			}

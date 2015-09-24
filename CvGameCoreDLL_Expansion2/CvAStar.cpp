@@ -462,7 +462,12 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		check = node->m_apNeighbors[i];
 
+#if defined(MOD_BALANCE_CORE)
+		//don't walk backwards!
+		if(check && check!=node->m_pParent && udFunc(udValid, node, check, 0, m_pData))
+#else
 		if(check && udFunc(udValid, node, check, 0, m_pData))
+#endif
 		{
 			LinkChild(node, check);
 		}
@@ -1735,7 +1740,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			if (kToNodeCacheData.iPlotDanger == MAX_INT)
 				return FALSE;
 
-			if (pUnit->IsCombatUnit())
+			if (pUnit->IsCombatUnit() && !pUnit->isEmbarked())
 			{
 				//combat units can still tolerate some danger - whether with an army or without - but only if it's decreasing along the path
 				if (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3)

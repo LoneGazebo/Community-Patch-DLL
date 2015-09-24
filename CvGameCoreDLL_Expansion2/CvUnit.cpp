@@ -27072,9 +27072,10 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !plot()->getBestDefender(getOwner()) && GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this)>0)
+	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !plot()->getBestDefender(getOwner()))
 	{
-		OutputDebugString("Civilian moving into danger!\n");
+		if(GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this)>GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this))
+			OutputDebugString("Civilian moving into danger!\n");
 	}
 
 	//if (GC.getLogging() && GC.getAILogging()) 
