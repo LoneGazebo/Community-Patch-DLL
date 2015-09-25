@@ -139,7 +139,7 @@ SELECT 'BALANCE_MINOR_PROTECTION_MINIMUM_DURATION', '50';
 -- Ideology Unlock via Policies
 INSERT INTO Defines (
 Name, Value)
-SELECT 'BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', '4';
+SELECT 'BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', '3';
 
 -- Worker stuff
 
@@ -290,3 +290,65 @@ SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', '5';
 INSERT INTO Defines (
 Name, Value)
 SELECT 'UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', '0';
+
+-- AI Military Strategies - no CSs
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_RANGED';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_RANGED';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_MOBILE';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_MOBILE';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_ANTIAIR';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_ANTIAIR';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = 'true'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '35'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '35'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '35'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '25'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '25'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '10'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '10'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';

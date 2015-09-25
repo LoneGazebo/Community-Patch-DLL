@@ -902,17 +902,22 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			bForceSettler = true;
 		}
 	}
-
-	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-	{
-		bEnoughSettlers = true;
-		bForceSettler = false;
-	}
 	int iBestArea;
 	int iSecondBestArea;
 	int iNumAreas;
 	iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 	if(iNumAreas == 0)
+	{
+		bEnoughSettlers = true;
+		bForceSettler = false;
+	}
+	if(kPlayer.getNumCities() <= 1)
+	{
+		bEnoughSettlers = false;
+		bForceSettler = true;
+	}
+
+	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 	{
 		bEnoughSettlers = true;
 		bForceSettler = false;
@@ -1088,6 +1093,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					iTempWeight *= 1000;
 				}
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					iTempWeight *= 100;
+				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -1176,6 +1185,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					if(GetCity()->IsBuildingInvestment(eBuildingClass))
 					{
 						iTempWeight *= 10;
+					}
+					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+					{
+						iTempWeight *= 100;
 					}
 				}
 #endif
@@ -1384,7 +1397,16 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #if defined(MOD_BALANCE_CORE)
 							if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
 							{
-								iTempWeight /= 10;
+								iTempWeight /= 2;
+							}
+						}
+						for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
+						{
+							LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
+							CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
+							if (pInfo && pInfo->GetProcess() == eProcess)
+							{
+								iTempWeight *= 10;
 							}
 						}
 #endif
@@ -1430,6 +1452,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 				if(GetCity()->IsBuildingInvestment(eBuildingClass))
+				{
+					iBest = iI;
+					break;
+				}
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					iBest = iI;
 					break;

@@ -41,9 +41,9 @@ WHERE Type = 'POLICY_SCHOLASTICISM';
 
 -- Printing Press Culture Boost
 
-INSERT INTO Policy_BuildingClassYieldModifiers
-(PolicyType, BuildingClassType, YieldType, YieldMod)
-SELECT 'POLICY_PHILANTHROPY', 'BUILDINGCLASS_PRINTING_PRESS' , 'YIELD_CULTURE' , '15';
+INSERT INTO Policy_BuildingClassCultureChanges
+(PolicyType, BuildingClassType, CultureChange)
+SELECT 'POLICY_PHILANTHROPY', 'BUILDINGCLASS_PRINTING_PRESS' , '10';
 
 		-- Chancery Happiness Boost
 
@@ -53,7 +53,7 @@ SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
 
 -- Philanthropy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). The Printing Press boosts City [ICON_CULTURE] Culture by +15%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). The Printing Press boosts City [ICON_CULTURE] Culture by +10.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 -- Cultural Diplomacy

@@ -2742,8 +2742,16 @@ int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int iBonus = 0;
 	CvCity* pkCity = GetInstance(L);
-	const int iBonus = pkCity->GetYieldPerTurnFromUnimprovedFeatures(YIELD_FAITH);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+		if(eFeature != NO_FEATURE)
+		{
+			iBonus += pkCity->GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_FAITH);
+		}
+	}
 	lua_pushinteger(L, iBonus);
 	return 1;
 #else

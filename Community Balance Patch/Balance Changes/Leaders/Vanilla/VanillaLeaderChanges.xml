@@ -98,11 +98,34 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>2</Yield>
 		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
 	</Trait_TerrainYieldChanges>
 	<UnitPromotions_Terrains>
 		<Row>
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<DoubleMove>true</DoubleMove>
 		</Row>
 	</UnitPromotions_Terrains>

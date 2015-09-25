@@ -572,7 +572,6 @@ void TradePathInitialize(const void* pointer, CvAStar* finder);
 void TradePathUninitialize(const void* pointer, CvAStar* finder);
 
 #if defined(MOD_BALANCE_CORE)
-int GetBestCaseMoveRange(const CvUnit* pUnit);
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
 #endif
 

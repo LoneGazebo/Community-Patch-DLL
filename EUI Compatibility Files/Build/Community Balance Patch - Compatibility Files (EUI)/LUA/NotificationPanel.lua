@@ -1031,6 +1031,10 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_VASSALS", player:GetScoreFromVassals() ) )
 		end
+--END 
+		--CBP
+		tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_ALLIES", player:GetScoreFromMinorAllies() ) )
+		tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_MILITARY", player:GetScoreFromMilitarySize() ) )
 -- END
 		if bnw_mode then
 			if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then

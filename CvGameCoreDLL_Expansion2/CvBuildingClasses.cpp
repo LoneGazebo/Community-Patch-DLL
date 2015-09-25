@@ -181,6 +181,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
+	m_bIsNoRiver(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
@@ -431,6 +432,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE){
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
+	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
@@ -2848,6 +2850,10 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 bool CvBuildingEntry::IsNoWater() const
 {
 	return m_bIsNoWater;
+}
+bool CvBuildingEntry::IsNoRiver() const
+{
+	return m_bIsNoRiver;
 }
 /// Does a city need to be the Capital?
 bool CvBuildingEntry::IsCapitalOnly() const

@@ -189,13 +189,13 @@
 			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
 			<FeatureType>FEATURE_OASIS</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
 			<FeatureType>FEATURE_MARSH</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_SEA</BeliefType>
@@ -208,7 +208,7 @@
 		<Row>
 			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_LakePlotYield>
 	<Belief_YieldPerScience>
@@ -273,19 +273,19 @@
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
 			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
 			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_CityYieldPerXTerrain>
 	<Belief_CityYieldPerXFeature>

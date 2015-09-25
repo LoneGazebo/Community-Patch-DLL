@@ -6,7 +6,12 @@
 		<Row>
 			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Bazaar -->

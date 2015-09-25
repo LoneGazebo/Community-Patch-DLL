@@ -1174,7 +1174,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(MoveRequestTooSoon);
 	Method(GetPlayerMoveTroopsRequestCounter);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	Method(GetScoreFromMinorAllies);
+	Method(GetScoreFromMilitarySize);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(HasBelief);
 	Method(HasBuilding);
@@ -12774,7 +12777,18 @@ int CvLuaPlayer::lAddMessage(lua_State* L)
 	return 0;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetScoreFromMinorAllies(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetScoreFromMinorAllies);
+}
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetScoreFromMilitarySize(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetScoreFromMilitarySize);
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //-------------------------------------------------------------------------
 int CvLuaPlayer::lGetScoreFromVassals(lua_State* L)

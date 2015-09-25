@@ -48,8 +48,12 @@ SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Units move twice as fast in the Desert. When you gain a Desert tile, unowned adjacent Desert is also claimed. Deserts gain [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold if [ICON_INTERNATIONAL_TRADE] Trade Routes or [ICON_CONNECTED] City Connections pass over them, scaling with Era.'
+SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connection roads grant Desert and Plains tiles [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Unit movement doubled in Deserts and Plains.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Caravans of the Caliphate'
+WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET TradeReligionModifier = '0'
@@ -67,13 +71,9 @@ UPDATE Traits
 SET TradeRouteOnly = '1'
 WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET TerrainClaimBoost = 'TERRAIN_DESERT'
-WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
--- Aztec -- Set Floating Garden to +1 Food per 4 citizens instead of +15%
+-- Aztec -- Set Floating Garden to +1 Food per 3 citizens instead of +15%
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.[NEWLINE][NEWLINE]City must be built next to a River or Lake.'
+SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.[NEWLINE][NEWLINE]City must be built next to a River or Lake.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

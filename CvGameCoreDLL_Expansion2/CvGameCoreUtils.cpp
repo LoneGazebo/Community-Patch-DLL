@@ -116,14 +116,15 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 	iDX = dxWrap(iPlotHexX - iCityHexX);
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	if(hexDistance(iDX, iDY) > pCity->getWorkPlotDistance())
+	//performance optimization, this check is unnecessary
+	//if(hexDistance(iDX, iDY) > pCity->getWorkPlotDistance())
 #else
 	if(hexDistance(iDX, iDY) > CITY_PLOTS_RADIUS)
-#endif
 	{
 		return -1;
 	}
 	else
+#endif
 	{
 #if defined(MOD_GLOBAL_CITY_WORKING)
 		// Regardless of the working radius, we need to offset into the array by the maximum radius

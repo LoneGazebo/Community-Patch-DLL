@@ -88,6 +88,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
+	m_bNoNaturalReligionSpread(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -578,6 +579,10 @@ int CvTraitEntry::GetAllianceCSStrength() const
 bool CvTraitEntry::IsUniqueBeliefsOnly() const
 {
 	return m_bUniqueBeliefsOnly;
+}
+bool CvTraitEntry::IsNoNaturalReligionSpread() const
+{
+	return m_bNoNaturalReligionSpread;
 }
 int CvTraitEntry::GetTourismGABonus() const
 {
@@ -1434,6 +1439,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
 	m_bMountainPass							= kResults.GetBool("MountainPass");
 	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
+	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2309,6 +2315,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bUniqueBeliefsOnly = true;
 			}
+			if(trait->IsNoNaturalReligionSpread())
+			{
+				m_bNoNaturalReligionSpread = true;
+			}
 			m_iGrowthBoon += trait->GetGrowthBoon();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
@@ -2800,6 +2810,7 @@ void CvPlayerTraits::Reset()
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
 	m_bUniqueBeliefsOnly = false;
+	m_bNoNaturalReligionSpread = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -4404,6 +4415,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
@@ -4877,6 +4889,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);

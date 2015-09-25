@@ -2183,6 +2183,15 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(getFeatureType() != NO_FEATURE)
+	{
+		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
+		{
+			return false;
+		}
+	}
+#endif
 
 	bValid = false;
 
@@ -2653,24 +2662,57 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								//Let's check for Embassies.
 								if(GC.getImprovementInfo(eImprovement)->IsEmbassy())
 								{
-									CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
-									if(pCity != NULL)
+									if(GET_PLAYER(getOwner()).getNumCities() > 1)
 									{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-										for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-										for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
+										CvCity* pLoopCity;
+										int iCityLoop;
+										// Not owned by this player, so we have to check things the hard way, and see how close the Plot is to any of this Player's Cities
+										for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
 										{
-											CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-											if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+											if(pLoopCity != NULL)
 											{
-												ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
-												ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
-												if(CSImprovement == eEmbassy)
+#if defined(MOD_GLOBAL_CITY_WORKING)
+												for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+#else
+												for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 												{
-													return false;
+													CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+													if(pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
+													{
+														ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+														ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
+														if(CSImprovement == eEmbassy)
+														{
+															return false;
+														}
+													}
+												}
+											}
+										}
+									}
+									else
+									{
+										CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
+										if(pCity != NULL)
+										{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+											for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+#else
+											for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+											{
+												CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+												if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+												{
+													ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+													ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
+													if(CSImprovement == eEmbassy)
+													{
+														return false;
+													}
 												}
 											}
 										}
@@ -6572,6 +6614,19 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		updateYield();
 		updateImpassable();
 
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pWorkingCity = getWorkingCity();
+
+		if(pWorkingCity != NULL)
+		{
+			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+			{
+				pWorkingCity->UpdateYieldPerXTerrain((YieldTypes)iI);
+				pWorkingCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI);
+			}
+		}
+#endif
+
 		if(bUpdateSight)
 		{
 			updateSeeFromSight(true);
@@ -6626,6 +6681,18 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 		updateYield();
 		updateImpassable();
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pWorkingCity = getWorkingCity();
+
+		if(pWorkingCity != NULL)
+		{
+			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+			{
+				pWorkingCity->UpdateYieldPerXFeature((YieldTypes)iI);
+				pWorkingCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI);
+			}
+		}
+#endif
 
 		if(bUpdateSight)
 		{
@@ -9185,7 +9252,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					if(bTrade)
 					{
 						int iScale = 0;
-						int iEra = (GC.getGame().getCurrentEra() + 1);
+						int iEra = (kPlayer.GetCurrentEra() + 1);
 
 						iScale = ((iBonus * iEra) / 4);
 

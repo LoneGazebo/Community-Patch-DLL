@@ -583,12 +583,19 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 	}
 
 	// beyond the origin player's trade range
+#if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
+	int iMovementCost = pPathfinderNode->m_iKnownCost;
+	int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	if (iMovementCost > iMaxCost)
+		return false;
+#else
 	int iPathDistance = pPathfinderNode->m_iTotalCost;
 	int iRange = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) * 100 + 99; // adding 99 so that any movement penalties are ignored
 	if (iPathDistance > iRange)
 	{
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -5223,7 +5230,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
-	int iDangerSum = 1; // can't be zero because we divide by zero!
+	int iDangerSum = 1; // can't be zero because we divide by it!
 	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 	{
 		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
@@ -5257,6 +5264,29 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				iDangerValue += 10000;
 #endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			int iRange = 3;
+			CvPlot* pLoopPlot;
+			for(int iDX = -iRange; iDX <= iRange; iDX++)
+			{
+				for(int iDY = -iRange; iDY <= iRange; iDY++)
+				{
+					pLoopPlot = ::plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
+
+					if(pLoopPlot != NULL)
+					{
+						if(pLoopPlot->getNumUnits() > 0)
+						{
+							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+							if(pUnit && pUnit->IsCombatUnit() && GET_TEAM(pUnit->getTeam()).isAtWar(m_pPlayer->getTeam()))
+							{
+									iDangerValue += 1000;
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 		iDangerSum += iDangerValue;
 	}
@@ -5403,28 +5433,23 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #if defined(MOD_BALANCE_CORE)
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
-		for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			if(m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) > 0)
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
 			{
-				for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-				{
-					CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-					CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-					if (pPlot == NULL)
-					{
-						break;
-					}
-					if(pPlot->getOwner() != m_pPlayer->GetID())
-					{
-						continue;
-					}
-					if(pPlot->getTerrainType() == ((TerrainTypes)iI))
-					{
-						iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) * 10);
-					}
-				}
+				continue;
 			}
+			if(pPlot->getOwner() != m_pPlayer->GetID())
+			{
+				continue;
+			}
+			if(pPlot->getTerrainType() == NO_TERRAIN)
+			{
+				continue;
+			}
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
 	int iDistance = kTradeConnection.m_aPlotList.size();
@@ -5702,28 +5727,23 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 #if defined(MOD_BALANCE_CORE)
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
-		for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			if(m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) > 0)
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
 			{
-				for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-				{
-					CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-					CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-					if (pPlot == NULL)
-					{
-						break;
-					}
-					if(pPlot->getOwner() != m_pPlayer->GetID())
-					{
-						continue;
-					}
-					if(pPlot->getTerrainType() == ((TerrainTypes)iI))
-					{
-						iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) * 2);
-					}
-				}
+				continue;
 			}
+			if(pPlot->getOwner() != m_pPlayer->GetID())
+			{
+				continue;
+			}
+			if(pPlot->getTerrainType() == NO_TERRAIN)
+			{
+				continue;
+			}
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
 	
@@ -5873,28 +5893,23 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 #if defined(MOD_BALANCE_CORE)
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
-		for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			if(m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) > 0)
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
 			{
-				for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-				{
-					CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-					CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-					if (pPlot == NULL)
-					{
-						break;
-					}
-					if(pPlot->getOwner() != m_pPlayer->GetID())
-					{
-						continue;
-					}
-					if(pPlot->getTerrainType() == ((TerrainTypes)iI))
-					{
-						iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) * 5);
-					}
-				}
+				continue;
 			}
+			if(pPlot->getOwner() != m_pPlayer->GetID())
+			{
+				continue;
+			}
+			if(pPlot->getTerrainType() == NO_TERRAIN)
+			{
+				continue;
+			}
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
 	return (iScore - (iDistance + iDangerSum));
@@ -6044,28 +6059,23 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 #if defined(MOD_BALANCE_CORE)
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
-		for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			if(m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) > 0)
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
 			{
-				for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-				{
-					CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-					CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-					if (pPlot == NULL)
-					{
-						break;
-					}
-					if(pPlot->getOwner() != m_pPlayer->GetID())
-					{
-						continue;
-					}
-					if(pPlot->getTerrainType() == ((TerrainTypes)iI))
-					{
-						iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ)) * 5);
-					}
-				}
+				continue;
 			}
+			if(pPlot->getOwner() != m_pPlayer->GetID())
+			{
+				continue;
+			}
+			if(pPlot->getTerrainType() == NO_TERRAIN)
+			{
+				continue;
+			}
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
 	return (iScore - (iDistance + iDangerSum));

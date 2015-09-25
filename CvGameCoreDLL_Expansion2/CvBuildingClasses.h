@@ -184,6 +184,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
+	bool IsNoRiver() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
 	bool IsBuildAnywhere() const;
@@ -627,6 +628,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;
+	bool m_bIsNoRiver;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
 	bool m_bBuildAnywhere;

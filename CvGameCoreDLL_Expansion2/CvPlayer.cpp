@@ -4766,6 +4766,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	// Is this a Minor we have liberated?
 	if(GET_PLAYER(ePlayer).isMinorCiv())
 	{
+		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+		{
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).meet(getTeam(), true);
+		}
 		GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
 	}
 
@@ -6826,6 +6830,10 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 		iScore += GetScoreFromVassals();
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	iScore += GetScoreFromMinorAllies();
+	iScore += GetScoreFromMilitarySize();
+#endif
 	iScore += GetScoreFromFutureTech();
 	iScore += GetScoreFromScenario1();
 	iScore += GetScoreFromScenario2();
@@ -7143,6 +7151,9 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
 #if defined(MOD_BALANCE_CORE)
+	if (!pCity)
+		return false;
+
 	if(pCity->isCapital())
 	{
 		return true;
@@ -11575,12 +11586,8 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 #if defined(MOD_BALANCE_CORE)
 						if(MOD_BALANCE_CORE && pkBuildInfo->getTechObsolete() == NO_TECH)
 						{
-#endif
-						iValue = pkRouteInfo->getValue();
-#if defined(MOD_BALANCE_CORE)
+							iValue = pkRouteInfo->getValue();
 						}
-#endif
-#if defined(MOD_BALANCE_CORE)
 						else if(MOD_BALANCE_CORE && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkBuildInfo->getTechObsolete())))
 						{
 							iValue = pkRouteInfo->getValue();
@@ -11589,6 +11596,8 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 						{
 							iValue = 0;
 						}
+#else
+						iValue = pkRouteInfo->getValue();
 #endif
 						if(iValue > iBestValue)
 						{
@@ -12403,7 +12412,7 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		iCulturePerTurn += GetYieldPerTurnFromHappiness(YIELD_CULTURE);
+		iCulturePerTurn += GetYieldPerTurnFromHappiness(YIELD_CULTURE, iCulturePerTurn);
 	}
 #endif
 
@@ -12698,7 +12707,7 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 	else
 	{
 		eFoundedReligion = GetReligions()->GetReligionCreatedByPlayer(true);
-		if(eFoundedReligion != NO_RELIGION && eFoundedReligion == RELIGION_PANTHEON)
+		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 			if(pReligion)
@@ -12712,6 +12721,19 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 					iReligionCulturePerTurn += ((iReligionCulturePerTurn + iOtherCulturePerTurn) * iMod) / 100;
 				}
 				return iReligionCulturePerTurn;
+			}
+		}
+		else
+		{
+			eFoundedReligion = GetReligions()->GetReligionInMostCities();
+			if(eFoundedReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
+				if(pReligion)
+				{
+					iReligionCulturePerTurn += GetYieldPerTurnFromReligion(YIELD_CULTURE);
+					return iReligionCulturePerTurn;
+				}
 			}
 		}
 	}
@@ -13959,7 +13981,8 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(GetID());
-	if (eReligion != NO_RELIGION)
+	//Religions
+	if (eReligion != NO_RELIGION && eReligion != RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
 		if (pReligion)
@@ -14044,22 +14067,39 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			}
 		}
 	}
+	//Pantheons
 	else
 	{
-		 eReligion = GetReligions()->GetReligionInMostCities();
-		 if(eReligion != NO_RELIGION)
-		 {
-			 const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
-			if (pReligion)
+		ReligionTypes ePantheon = GetReligions()->GetReligionCreatedByPlayer(true);
+		if(ePantheon != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(ePantheon, GetID());
+			if(pReligion)
 			{
+				int iLoop;
+				const CvCity* pLoopCity;
+				int iFollowers = 0;
+				int iCities = 0;
+				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL)
+					{
+						if(pLoopCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0)
+						{
+							iFollowers += pLoopCity->GetCityReligions()->GetNumFollowers(ePantheon);
+							iCities++;
+						}
+					}
+				}
+
 				//Pantheons
 				int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
-				iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+				iYieldPerTurn += (iCities * iYieldPerFollowingCity);
 
 				int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
 				if(iYieldPerXFollowers > 0)
 				{		
-					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+					iYieldPerTurn += (iFollowers / iYieldPerXFollowers);
 				}
 				if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
 				{
@@ -14152,7 +14192,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	iFaithPerTurn += GetYieldPerTurnFromHappiness(YIELD_FAITH);
+	iFaithPerTurn += GetYieldPerTurnFromHappiness(YIELD_FAITH, iFaithPerTurn);
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -14473,7 +14513,7 @@ void CvPlayer::CalculateHappiness()
 }
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-int CvPlayer::GetYieldPerTurnFromHappiness(YieldTypes eYield) const
+int CvPlayer::GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const
 {
 	//Mechanic to allow for growth malus from happiness/unhappiness.
 	int iHappiness = 0;
@@ -14512,25 +14552,21 @@ int CvPlayer::GetYieldPerTurnFromHappiness(YieldTypes eYield) const
 		//Mechanic to allow for growth malus from happiness/unhappiness.
 		if(eYield == YIELD_GOLD)
 		{
-			int iValue = GetTreasury()->CalculateGrossGoldTimes100ForUI();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_FAITH)
 		{
-			int iValue = GetTotalFaithPerTurnForUI();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_FAITH_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_CULTURE)
 		{
-			int iValue = GetTotalJONSCulturePerTurnforUI();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_CULTURE_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_SCIENCE)
 		{
-			int iValue = GetScienceTimes100ForUI();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_SCIENCE_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
@@ -14576,25 +14612,25 @@ int CvPlayer::CalculateUnhappinessTooltip(YieldTypes eYield) const
 		//Mechanic to allow for growth malus from happiness/unhappiness.
 		if(eYield == YIELD_GOLD)
 		{
-			int iValue = GetTreasury()->CalculateGrossGoldTimes100ForUI();
+			int iValue = GetTreasury()->CalculateGrossGoldTimes100();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_FAITH)
 		{
-			int iValue = GetTotalFaithPerTurnForUI();
+			int iValue = GetTotalFaithPerTurn();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_FAITH_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_CULTURE)
 		{
-			int iValue = GetTotalJONSCulturePerTurnforUI();
+			int iValue = GetTotalJONSCulturePerTurn();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_CULTURE_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
 		else if(eYield == YIELD_SCIENCE)
 		{
-			int iValue = GetScienceTimes100ForUI();
+			int iValue = GetScienceTimes100();
 			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_SCIENCE_MODIFIER() * iHappiness) / 100);
 			return iValue;
 		}
@@ -22682,6 +22718,8 @@ int CvPlayer::calculateEconomicMight() const
 	{
 		iEconomicMight -= GetSetUnhappiness() * 10;
 	}
+	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
+	return int( iEconomicMight / max(1.f, sqrt((float)getNumCities())));
 #else
 	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
 	int iEconomicMight = 5;
@@ -22699,8 +22737,8 @@ int CvPlayer::calculateEconomicMight() const
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 	//iEconomicMight += calculateTotalYield(YIELD_GOLDEN_AGE_POINTS);
 #endif
-#endif
 	return iEconomicMight;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -25006,7 +25044,7 @@ int CvPlayer::GetScienceTimes100() const
 	//Mod for national unhappiness
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		iValue += GetYieldPerTurnFromHappiness(YIELD_SCIENCE);
+		iValue += GetYieldPerTurnFromHappiness(YIELD_SCIENCE, iValue);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -34452,6 +34490,10 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 						}
 					}
 				}
+				if((GC.getMap().GetAIMapHint() & 1) || (GC.getMap().GetAIMapHint() & 4))
+				{
+					iScore *= max(1, (pLoopArea->getNumTiles() * 10));
+				}
 #endif
 
 				if(iScore > iBestScore)
@@ -36013,6 +36055,37 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 
 	return iYield;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::GetScoreFromMinorAllies() const
+{
+	int iScore = (GC.getGame().GetNumMinorCivsEver() * 20);
+	int iMaxMinorCivs = 0;
+	int iMinorAllies = 0;
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if(GET_PLAYER(eMinor).isAlive())
+		{
+			iMaxMinorCivs++;
+		}
+		if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
+		{
+			iMinorAllies++;
+		}
+	}
+	if(iMaxMinorCivs > 0)
+	{
+		int iPercentage = ((iMinorAllies * 100) / iMaxMinorCivs);
+		iScore = ((iPercentage * iScore) / 100);
+		return iScore;
+	}
+	return 0;
+}
+int CvPlayer::GetScoreFromMilitarySize() const
+{
+	return (GetMilitaryMight() / 10);
+}
+#endif
 //	--------------------------------------------------------------------------------
 // Score from Vassals: 50% percent
 int CvPlayer::GetScoreFromVassals() const

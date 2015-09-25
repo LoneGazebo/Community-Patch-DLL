@@ -3059,6 +3059,25 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType) const
 
 	return rtnValue;
 }
+/// Get yield from beliefs from # of followers
+CivilizationTypes CvReligionBeliefs::GetUniqueCiv() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	CivilizationTypes eCivilization = NO_CIVILIZATION;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if(pBeliefs->GetEntry(i)->GetRequiredCivilization() != NO_CIVILIZATION)
+			{
+				return pBeliefs->GetEntry(i)->GetRequiredCivilization();
+			}
+		}
+	}
+
+	return eCivilization;
+}
 #endif
 /// Serialization read
 void CvReligionBeliefs::Read(FDataStream& kStream)

@@ -48,7 +48,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 			<ConquestProb>66</ConquestProb>
-			<IsNoWater>true</IsNoWater>
+			<IsNoRiver>true</IsNoRiver>
 			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
@@ -66,7 +66,7 @@
 			<Help>TXT_KEY_BUILDING_WELL_HELP</Help>
 			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<IsNoWater>true</IsNoWater>
+			<IsNoRiver>true</IsNoRiver>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
@@ -102,7 +102,7 @@
 			<Strategy>TXT_KEY_BUILDING_WIND_PLANT_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_WIND_PLANT_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<IsNoWater>true</IsNoWater>
+			<IsNoRiver>true</IsNoRiver>
 			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
@@ -367,13 +367,13 @@
 			<Text>Coal Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
+			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river. Requires an Aqueduct in order to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
-			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
+			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the Production output of every Grassland and Plains tile the city works.</Text>
+			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city not on a river. The Wind Plant increases the Production output of every Grassland and Plains tile the city works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, and combats Poverty.</Text>
@@ -385,7 +385,7 @@
 			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_GROWTH] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE]NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+			<Text>+1 [ICON_GROWTH] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>

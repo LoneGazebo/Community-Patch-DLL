@@ -305,8 +305,10 @@ public:
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true) const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
-	RouteTypes getBestRoute(CvPlot* pPlot = NULL) const;
 	int getImprovementUpgradeRate() const;
+
+	//todo: unify with CvTeam::GetBestPossibleRoute()
+	RouteTypes getBestRoute(CvPlot* pPlot = NULL) const;
 
 	int GetAllFeatureProduction() const;
 	void ChangeAllFeatureProduction(int iChange);
@@ -514,7 +516,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//LUA Functions
-	int GetYieldPerTurnFromHappiness(YieldTypes eYield) const;
+	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
 	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
 #endif
 	int GetExcessHappiness() const;
@@ -2158,7 +2160,10 @@ public:
 #endif
 
 	bool hasTurnTimerExpired();
-
+#if defined(MOD_BALANCE_CORE)
+	int GetScoreFromMinorAllies() const;
+	int GetScoreFromMilitarySize() const;
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;

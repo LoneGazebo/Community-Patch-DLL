@@ -297,6 +297,20 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GUERILLA_FIGHTER</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_COERCION</Type>
+			<Description>TXT_KEY_PROMOTION_COERCION</Description>
+			<Help>TXT_KEY_PROMOTION_COERCION_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<InstaHeal>true</InstaHeal>
+			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
+			<FlankAttackModifier>100</FlankAttackModifier>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COERCION</PediaEntry>
+		</Row>
 	</UnitPromotions>
 	<UnitPromotions_YieldFromKills>
 		<Row>
@@ -306,6 +320,13 @@
 		</Row>
 	</UnitPromotions_YieldFromKills>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_COERCION">
+			<Text>Coercion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
+			<Text>Defeated land units may join your side. +100% to Flank Attack Bonus.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II">
 			<Text>Charge II</Text>
 		</Row>

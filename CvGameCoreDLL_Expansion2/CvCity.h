@@ -154,8 +154,26 @@ public:
 	int GetExtraBuildingMaintenance() const;
 	void SetExtraBuildingMaintenance(int iChange);
 
+	int GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const;
+
+	void UpdateYieldPerXTerrain(YieldTypes eYield);
+	void UpdateYieldPerXTerrainFromReligion(YieldTypes eYield);
+
+	void ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange);
+	int GetNumTerrainWorked(TerrainTypes eTerrain);
+
+	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+
 	int GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
+
+	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+
+	void UpdateYieldPerXFeature(YieldTypes eYield);
+	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield);
 #endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -479,9 +497,8 @@ public:
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const;
-	int GetYieldPerXFeature(YieldTypes eYield) const;
-	int GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const;
+	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const;
+	int GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const;
 #else
 	int GetFaithPerTurnFromTraits() const;
 #endif
@@ -666,6 +683,10 @@ public:
 	void ChangeBorderObstacleCity(int iNewValue);
 	int GetBorderObstacleCity() const;
 	void SetBorderObstacleCity(int iValue);
+
+	void ChangeNearbyMountains(int iNewValue);
+	int GetNearbyMountains() const;
+	void SetNearbyMountains(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const;
@@ -1350,6 +1371,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
+	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
@@ -1400,6 +1422,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
 #endif
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
 
@@ -1449,6 +1472,10 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;
 	int** m_ppaiYieldPerXTerrainFromBuildings;
+	int** m_ppaiYieldPerXTerrainFromReligion;
+	int** m_ppaiYieldPerXTerrain;
+	int** m_ppaiYieldPerXFeature;
+	int** m_ppaiYieldPerXUnimprovedFeature;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;

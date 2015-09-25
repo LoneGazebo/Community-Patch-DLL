@@ -705,11 +705,14 @@ void CvPlayerAI::AI_chooseResearch()
 	if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
 #if defined(MOD_EVENTS_AI_OVERRIDE_TECH)
-		if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) {
+		if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) 
+		{
 			int iValue = 0;
-			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), false) == GAMEEVENTRETURN_VALUE) {
+			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), false) == GAMEEVENTRETURN_VALUE) 
+			{
 				// Defend against modder stupidity!
-				if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) {
+				if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) 
+				{
 					eBestTech = (TechTypes)iValue;
 				}
 			}
@@ -2030,7 +2033,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	int iPathTurns;
-	if(!pUnit->GeneratePath(pCity->plot(), MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
+	if(!pUnit->GeneratePath(pCity->plot(), MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
 	{
 		return 0;
 	}
@@ -2146,7 +2149,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	int iPathTurns;
-	if(!pUnit->GeneratePath(pPlot, MOVE_MINIMIZE_ENEMY_TERRITORY, true, &iPathTurns))
+	if(!pUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
 	{
 		return 0;
 	}

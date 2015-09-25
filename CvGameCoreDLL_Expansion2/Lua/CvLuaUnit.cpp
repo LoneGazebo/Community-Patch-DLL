@@ -582,10 +582,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsWithinDistanceOfUnitClass);
 	Method(IsWithinDistanceOfUnitCombatType);
 	Method(IsWithinDistanceOfUnitPromotion);
-	Method(IsAdjacentToUnit)
-	Method(IsAdjacentToUnitClass)
-	Method(IsAdjacentToUnitCombatType)
-	Method(IsAdjacentToUnitPromotion)
+	Method(IsAdjacentToUnit);
+	Method(IsAdjacentToUnitClass);
+	Method(IsAdjacentToUnitCombatType);
+	Method(IsAdjacentToUnitPromotion);
 #endif
 	Method(IsOnImprovement);
 	Method(IsAdjacentToImprovement);

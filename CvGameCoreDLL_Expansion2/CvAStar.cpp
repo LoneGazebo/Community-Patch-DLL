@@ -462,7 +462,12 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		check = node->m_apNeighbors[i];
 
+#if defined(MOD_BALANCE_CORE)
+		//don't walk backwards!
+		if(check && check!=node->m_pParent && udFunc(udValid, node, check, 0, m_pData))
+#else
 		if(check && udFunc(udValid, node, check, 0, m_pData))
+#endif
 		{
 			LinkChild(node, check);
 		}
@@ -1732,10 +1737,18 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		//always check danger if requested, but it may be a little more than zero as long as we're moving away from it
 		if(!(iFinderInfo & MOVE_UNITS_IGNORE_DANGER))
 		{
-			if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
-			{
+			if (kToNodeCacheData.iPlotDanger == MAX_INT)
 				return FALSE;
+
+			if (pUnit->IsCombatUnit() && !pUnit->isEmbarked())
+			{
+				//combat units can still tolerate some danger - whether with an army or without - but only if it's decreasing along the path
+				if (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3)
+					return FALSE;
 			}
+			else if (kToNodeCacheData.iPlotDanger>0)
+				//for civilians the danger==MAX_INT condition should apply, but better be safe
+				return FALSE;
 		}
 	}
 #else
@@ -4228,43 +4241,56 @@ int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int da
 }
 
 
-#if defined(MOD_BALANCE_CORE)
-// If there is a valid road within the unit's base movement range, multiply range by movement modifier of best road type
-int GetBestCaseMoveRange(const CvUnit* pUnit)
-{
-	int iRange = pUnit->baseMoves();
-
-	// Filtering out units that don't need road optimization
-	if (pUnit->getDomainType() != DOMAIN_LAND || pUnit->flatMovementCost())
-		return iRange;
-
-	// Don't want to call this on each loop, so we'll call it once out of loop and be done with it
-	const bool bIsIroquois = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad();
-	const bool bIsSonghai = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterAlongRiver();
-	const bool bIsInca = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterInHills();
-
-	CvPlot* pLoopPlot = pUnit->plot();
-	FeatureTypes eFeature = pLoopPlot->getFeatureType();
-	if ( pLoopPlot->isValidRoute(pUnit) ||
-		(bIsIroquois && pUnit->getOwner() == pLoopPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE)) ||
-		(bIsSonghai && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isRiver()) ||
-		(bIsInca && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isHills()) )
-	{
-		return iRange * GET_TEAM(pUnit->getTeam()).GetCurrentBestMovementMultiplier(pUnit);
-	}
-
-	return iRange;
-}
-#endif
-
-
 //	--------------------------------------------------------------------------------
-/// Can a unit reach this destination in "X" turns of movement (pass in 0 if need to make it in 1 turn with movement left)?
-// ***
-// *** WARNING - The optimization below (so that TurnsToReachTarget() doesn't get called too often breaks down when we get to RR.  We need to address this!
-// ***
+/// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
 bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnoreUnits, int* piTurns /* = NULL */)
 {
+#if defined(MOD_BALANCE_CORE)
+	if (!pUnit || !pTarget)
+		return false;
+
+	int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
+
+	//default range
+	int iMoves = pUnit->baseMoves() + pUnit->getExtraMoves();
+	int iRange = iMoves * iTurns;
+
+	//catch stupid cases
+	if (iRange<=0)
+		return (pTarget==pUnit->plot());
+
+	//but routes increase it
+	if (pUnit->getDomainType()==DOMAIN_LAND && !pUnit->flatMovementCost() )
+	{
+		CvTeam& kTeam = GET_TEAM(pUnit->getTeam());
+		RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
+		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
+		if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
+		{
+			int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
+
+			if (pUnit->plot()->getRouteType()!=NO_ROUTE)
+				//standing directly on a route
+				iRange = iMoves * iTurns * iMultiplier;
+			else
+				//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
+				iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTurns-1)*iMultiplier;
+		}
+	}
+
+	if (iDistance>iRange)
+	{
+		if (piTurns)
+			*piTurns = INT_MAX;
+		return false;
+	}
+
+	int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, false, iTurns);
+	if (piTurns)
+		*piTurns = iTurnsCalculated;
+
+	return (iTurnsCalculated <= iTurns);
+#else
 	int iDistance;
 
 	if(!pTarget)
@@ -4277,15 +4303,6 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	// KWG: If the unit is a land unit that can embark, baseMoves() is only going to give correct value if the starting and ending locations
 	//		are in the same domain (LAND vs. SEA) and no transition occurs.
 
-#if defined(MOD_BALANCE_CORE)
-
-	int iMaxMoves = GetBestCaseMoveRange(pUnit.pointer());
-	if (iDistance > iMaxMoves*(iTurns+1))
-	{
-		return false;
-	}
-
-#else
 	if(iTurns == 0 && iDistance >= pUnit->baseMoves())
 	{
 		return false;
@@ -4294,20 +4311,15 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	{
 		return false;
 	}
-#endif
-
 	// Distance not too far, now use pathfinder
 	else
 	{
-#ifdef AUI_ASTAR_TURN_LIMITER
-		int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, false, iTurns);
-#else
 		int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits);
-#endif // AUI_ASTAR_TURN_LIMITER
 		if (piTurns)
 			*piTurns = iTurnsCalculated;
 		return (iTurnsCalculated <= iTurns);
 	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -4474,7 +4486,11 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder)
 //	--------------------------------------------------------------------------------
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
+#if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
+	return plotDistance(iFromX, iFromY, iToX, iToY) * 20;
+#else
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 100;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -4491,16 +4507,72 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	int iToPlotY = node->m_iY;
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
-	int iBaseCost = 100;
-	int iCost = iBaseCost;
-
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
+
+#if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
+	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+
+	// super duper low costs for moving along routes
+	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
+		iCost = iCost / 4;
+	// super low costs for moving along rivers
+	else if (pFromPlot->isRiver() && pToPlot->isRiver())
+		iCost = iCost / 4;
+	// Iroquios ability
+	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())
+		iCost = iCost / 2;
+	// Mountain pass
+	else if (pToPlot->isMountain() && pCacheData->IsMountainPass())
+		iCost = iCost / 2;
+	else
+	{
+		//try to avoid these plots
+		if (pToPlot->isHills() || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_ICE)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+
+		//prefer oasis
+		if (eFeature != FEATURE_OASIS)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+	}
+	
+	TeamTypes eToPlotTeam = pToPlot->getTeam();
+	if (pCacheData->getTeam().GetID() != eToPlotTeam)
+	{
+		//try to stick to friendly territory
+		if (pToPlot->getOwner()==NO_PLAYER || !pCacheData->getTeam().IsAllowsOpenBordersToTeam(eToPlotTeam))
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+	}
+
+	// avoid enemy lands
+	if (eToPlotTeam != NO_TEAM && pCacheData->getTeam().isAtWar(eToPlotTeam))
+	{
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*10;
+	}
+
+	if (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater())
+	{
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+	}
+	
+	// Penalty for ending a turn on a mountain
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+	if(pToPlot->isImpassable())
+#else
+	if(pToPlot->isImpassable() || pToPlot->isMountain())
+#endif
+	{
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+	}
+
+#else
+	int iBaseCost = 100;
+	int iCost = iBaseCost;
 
 	// super duper low costs for moving along routes
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 	{
-		iCost = iCost / 4;
+		iCost = iCost / 2;
 	}
 	//// super low costs for moving along rivers
 	else if (pCacheData->IsRiverTradeRoad() && pFromPlot->isRiver() && pToPlot->isRiver())
@@ -4552,6 +4624,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	{
 		iCost += 1000;
 	}
+#endif
 
 	FAssert(iCost != MAX_INT);
 	FAssert(iCost > 0);
@@ -4606,6 +4679,56 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 	int iToPlotY = node->m_iY;
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
+#if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
+	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+
+	if (pToPlot->isWater())
+	{
+		//avoid ocean initially
+		if (pToPlot->getTerrainType() != (TerrainTypes)GC.getSHALLOW_WATER_TERRAIN()) //quicker isShallowWater test, since we already know the plot is water
+			if (!pCacheData->CanEmbarkAllWaterPassage())
+				iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*4;
+
+		//try to stick to coast
+		bool bIsAdjacentToLand = pFromPlot->isAdjacentToLand_Cached() && pToPlot->isAdjacentToLand_Cached();
+		if (!bIsAdjacentToLand)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+	}
+	else
+	{
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pToPlot->getImprovementType());
+		bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+		bool bIsCityOrPassable = (pToPlot->isCity() || bIsPassable);
+		if(!bIsCityOrPassable)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+#else
+		if (!pToPlot->isCity())
+			iCost += 10000;
+#endif
+	}
+
+	if(pToPlot->isImpassable())
+	{
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+	}
+
+	// avoid enemy lands
+	TeamTypes eToPlotTeam = pToPlot->getTeam();
+	if (eToPlotTeam != NO_TEAM && pCacheData->getTeam().isAtWar(eToPlotTeam))
+	{
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*10;
+	}
+
+	if (pCacheData->getTeam().GetID() != eToPlotTeam)
+	{
+		//try to stick to friendly territory
+		if (pToPlot->getOwner()==NO_PLAYER || !pCacheData->getTeam().IsAllowsOpenBordersToTeam(eToPlotTeam))
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+	}
+
+#else
+
 	int iBaseCost = 100;
 	int iCost = iBaseCost;
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
@@ -4655,6 +4778,7 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 			iCost += 1000;
 		}
 	}
+#endif
 
 	FAssert(iCost != MAX_INT);
 	FAssert(iCost > 0);
@@ -4808,10 +4932,10 @@ const CvPathNode* CvPathNodeArray::GetTurnDest(int iTurn)
 //	---------------------------------------------------------------------------
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
 {
-	if (ePlayer==NO_PLAYER)
+	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 	
-	int iPathfinderFlags = ePlayer | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
+	int iPathfinderFlags = ePlayer;
 	if(eRestrictRoute == NO_ROUTE)
 	{
 		iPathfinderFlags |= MOVE_ANY_ROUTE;
@@ -4827,6 +4951,12 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	{
 		GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
 		GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
+	}
+	else
+	{
+		//better make sure
+		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
+		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
 	}
 
 	GC.getRouteFinder().ForceReset();

@@ -311,6 +311,22 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		bMajorMinorConnection = true;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	bool bIndustrialRoute = false;
+	if(GC.getGame().GetIndustrialRoute() == eRoute)
+	{
+		// if we already have a connection, bail out
+		if(pTargetCity->IsIndustrialRouteToCapital())
+		{
+			return;
+		}
+		bIndustrialRoute = true;
+	}
+	else if(m_pPlayer->IsCapitalConnectedToCity(pTargetCity, eRoute))
+	{
+		return;
+	}
+#else
 	bool bIndustrialRoute = false;
 	if(GC.getGame().GetIndustrialRoute() == eRoute)
 	{
@@ -326,6 +342,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		return;
 	}
+#endif
 
 	int iGoldForRoute = 0;
 	if(!bMajorMinorConnection)
@@ -747,6 +764,23 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		m_aiPlots = m_pPlayer->GetPlots();
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//keep track of all other workers which would be eligible to work on the same plot
+	std::vector<CvUnit*> otherWorkers;
+
+	int iUnitLoop;
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if(pLoopUnit != NULL)
+		{
+			if(pLoopUnit->AI_getUnitAIType()==UNITAI_WORKER && pLoopUnit!=pUnit)
+			{
+				otherWorkers.push_back(pLoopUnit);
+			}
+		}
+	}
+#endif
+
 	// go through all the plots the player has under their control
 	for(uint uiPlotIndex = 0; uiPlotIndex < m_aiPlots.size(); uiPlotIndex++)
 	{
@@ -786,6 +820,34 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 			continue;
 		}
+
+#if defined(MOD_BALANCE_CORE)
+		//see if another worker would be more suitable
+		CvUnit* pAlternativeWorker = NULL;
+		int iAlternativeTurnsAway = INT_MAX;
+		for (std::vector<CvUnit*>::iterator it = otherWorkers.begin(); it != otherWorkers.end(); ++it)
+		{
+			int iTurns = FindTurnsAway(*it, pPlot);
+			if (iTurns>-1 && iTurns<iAlternativeTurnsAway)
+			{
+				iTurns = iAlternativeTurnsAway;
+				pAlternativeWorker = *it;
+			}
+		}
+
+		if (pAlternativeWorker)
+		{
+			//assume the other unit will be busy for a while before it moves
+			iAlternativeTurnsAway += 3;
+
+			//if the other unit is much closer
+			if (iAlternativeTurnsAway < iMoveTurnsAway/2)
+			{
+				//pretent we would have to move much further, which will reduce the score of the directives for this plot
+				iMoveTurnsAway *= 2;
+			}
+		}
+#endif
 
 		UpdateCurrentPlotYields(pPlot);
 
@@ -1112,7 +1174,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 		iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
 #if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 		iWeight = CorrectWeight(iWeight);
 
@@ -1554,7 +1616,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		iWeight += iBuildTimeWeight;
 		iWeight *= iScore;
 #if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1595,6 +1657,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
 				if(eCiv == m_pPlayer->getCivilizationType())
 				{
+					if(!m_bEvaluateAdjacent)
+					{
+						iWeight *= 100;
+					}
 					if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (pPlot->getOwner() != m_pPlayer->GetID()))
 					{
 						bool bAdjacent = false;
@@ -1785,11 +1851,12 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 #if !defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
 #endif
+
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false, iMoveTurnsAway);
 	iWeight *= pPlot->GetBuilderAIScratchPadValue();
 #if defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 	iWeight = CorrectWeight(iWeight);
 
@@ -1904,7 +1971,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	iWeight += iBuildTimeWeight;
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 #if defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 	int iYieldDifferenceWeight = 0;
@@ -2122,7 +2189,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false, iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
 #if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
+		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 		BuilderDirective directive;
@@ -2186,18 +2253,19 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 		return false;
 	}
-#endif
 	if(eOwner != NO_PLAYER && eOwner != m_pPlayer->GetID() && !GET_PLAYER(eOwner).isMinorCiv())
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(m_bEvaluateAdjacent && !bAdjacent)
 		{
-#endif
-		return false;
-#if defined(MOD_BALANCE_CORE)
+			return false;
 		}
-#endif
 	}
+#else
+	if(eOwner != NO_PLAYER && eOwner != m_pPlayer->GetID() && !GET_PLAYER(eOwner).isMinorCiv())
+	{
+		return false;
+	}
+#endif
 	
 	// workers should not be able to work in plots that do not match their default domain
 	switch(pUnit->getDomainType())
@@ -2280,22 +2348,34 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 	}
 
-	if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
-	{
 #if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->GetPlotDanger(*pPlot,pUnit) > 0)
+	{
+		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && (!pUnit->ignoreFeatureDamage() || (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2))))
 		{
 			if(m_bLogging)
 			{
 				CvString strLog;
-				strLog.Format("plotX: %d plotY: %d, danger: %d,, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
+				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
 				LogInfo(strLog, m_pPlayer, true);
 			}
 			return false;
 		}
 		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
 		{
-#endif
+			if(m_bLogging)
+			{
+				CvString strLog;
+				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
+				LogInfo(strLog, m_pPlayer, true);
+			}
+			return false;
+		}
+	}
+#else
+	if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
+	{
 		if(m_bLogging)
 		{
 			CvString strLog;
@@ -2304,10 +2384,8 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 
 		return false;
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
+#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	if(!pUnit->atPlot(*pPlot) && pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
@@ -2368,7 +2446,7 @@ int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot)
 
 #if 1
 	// Always return the raw distance
-	return iPlotDistance;
+	return iPlotDistance / pUnit->baseMoves();
 #else
 	if(iPlotDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
 	{

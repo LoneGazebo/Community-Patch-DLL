@@ -2820,6 +2820,12 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	if(bFromMe)  // giving the other player an embassy in my capital
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		{
+			return 100000;
+		}
+#endif
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -2848,6 +2854,12 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 #if defined(MOD_BALANCE_CORE)
 	if(!bFromMe)  // they want to build an embassy with us.
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		{
+			return 100000;
+		}
+#endif
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -2898,7 +2910,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 		return 50;
 #else
-	int iItemValue = 50;
+	int iItemValue = 40;
 #endif
 
 	// Me giving Open Borders to the other guy
@@ -2914,16 +2926,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			return 100000;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue += 50;
+			iItemValue += 40;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue += 30;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue += 40;
+			iItemValue += 30;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue += 50;
+			iItemValue += 40;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2935,19 +2947,19 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
-			iItemValue *= 40;
+			iItemValue *= 70;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iItemValue *= 60;
-			iItemValue /= 100;
-			break;
-		case MAJOR_CIV_OPINION_FAVORABLE:
 			iItemValue *= 80;
 			iItemValue /= 100;
 			break;
+		case MAJOR_CIV_OPINION_FAVORABLE:
+			iItemValue *= 90;
+			iItemValue /= 100;
+			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
-			iItemValue *= 125;
+			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
 		//If we don't like him, don't give him open borders.
@@ -2974,7 +2986,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #endif
 		{
 #if defined(MOD_BALANCE_CORE_DEALS)
-			iItemValue *= (100 - (iNumEnemiesAtWarWith * 10));
+			iItemValue *= (100 - (iNumEnemiesAtWarWith * 5));
 #else
 			iItemValue *= 10;
 #endif
@@ -3056,16 +3068,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			return 100000;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue += 50;
+			iItemValue += 40;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue += 100;
+			iItemValue += 60;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue += 50;
+			iItemValue += 40;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue += 50;
+			iItemValue += 30;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3076,19 +3088,19 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
 		case PLAYER_PROXIMITY_DISTANT:
-			iItemValue *= 25;
+			iItemValue *= 70;
 			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_FAR:
-			iItemValue *= 50;
+			iItemValue *= 80;
 			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iItemValue *= 75;
+			iItemValue *= 90;
 			iItemValue /= 100;
 			break;
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			iItemValue *= 125;
+			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
 		default:
@@ -3132,23 +3144,25 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 		if(GetPlayer()->GetDiplomacyAI()->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
 		{
-			iItemValue *= 3;
+			iItemValue *= 125;
+			iItemValue /= 100;
 		}
 		if(GetPlayer()->GetDiplomacyAI()->MusteringForNeighborAttack(eOtherPlayer))
 		{
-			iItemValue *= 3;
+			iItemValue *= 150;
+			iItemValue /= 100;
 		}
 		//We need to explore?
 		EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
 		if(eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 		{
-			iItemValue *= 125;
+			iItemValue *= 115;
 			iItemValue /= 100;
 		}
 		if(eNavalRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 		{
-			iItemValue *= 125;
+			iItemValue *= 115;
 			iItemValue /= 100;
 		}
 #endif
@@ -3721,7 +3735,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			}
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
 			{
-				iItemValue *= 200;
+				iItemValue *= 150;
 				iItemValue /= 100;
 			}
 		}
@@ -3768,44 +3782,35 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ALLY)
 		{
 			if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-			iItemValue += 400;
+				iItemValue += 400;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
 			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
 				iItemValue += 200;
 			else
 				iItemValue += 100;
-
-			iItemValue *= 300;
-			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_FRIEND)
 		{
 			if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-			iItemValue += 300;
+				iItemValue += 300;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
 			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
 				iItemValue += 100;
 			else
 				iItemValue += 50;
-
-			iItemValue *= 200;
-			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_FAVORABLE)
 		{
 			if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-			iItemValue += 200;
+				iItemValue += 200;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 100;
 			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
 				iItemValue += 50;
 			else
 				iItemValue += 25;
-
-			iItemValue *= 125;
-			iItemValue /= 100;
 		}
 		//Not friends? Don't care.
 		else
@@ -3813,8 +3818,8 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return 100000;
 		}
 
-		// Add 25 gold per era
-		int iExtraCost = eOurEra * 25;
+		// Add 30 gold per era
+		int iExtraCost = eOurEra * 30;
 		iItemValue += iExtraCost;
 
 		if(!GET_PLAYER(eWithPlayer).isMinorCiv())
@@ -3837,7 +3842,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			}
 			else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_COMPETITOR)
 			{
-				iItemValue *= 125;
+				iItemValue *= 150;
 				iItemValue /= 100;
 			}
 			else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_ENEMY)
@@ -3990,11 +3995,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 80;
 				iItemValue /= 100;
 			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
-			{
-				iItemValue *= 120;
-				iItemValue /= 100;
-			}
 			else
 			{
 				return 100000;
@@ -4003,12 +4003,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 		if(pDiploAI->IsMusteringForAttack(eWithPlayer))
 		{
-			iItemValue *= 50;
+			iItemValue *= 75;
 			iItemValue /= 100;
 		}
 		if(GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eWithPlayer))
 		{
-			iItemValue *= 50;
+			iItemValue *= 75;
 			iItemValue /= 100;
 		}
 
@@ -4194,12 +4194,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_CONQUEST)
 			{
-				iItemValue *= 75;
+				iItemValue *= 60;
 				iItemValue /= 100;
 			}
 			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_BULLY)
 			{
-				iItemValue *= 50;
+				iItemValue *= 80;
 				iItemValue /= 100;
 			}
 		}
@@ -4222,12 +4222,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 150;
 				iItemValue /= 100;
 			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
-			{
-				iItemValue *= 100;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer > MAJOR_CIV_OPINION_NEUTRAL)
+			else if(eOpinionTowardsWarPlayer >= MAJOR_CIV_OPINION_NEUTRAL)
 			{
 				return 100000;
 			}
@@ -4266,11 +4261,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				WarStateTypes eWarState = pDiploAI->GetWarState(eWithPlayer);
 				if(eWarState < WAR_STATE_CALM)
 				{
-					iItemValue *= 6;
+					iItemValue *= 4;
 				}
 				else
 				{
-					iItemValue *= 3;
+					iItemValue *= 2;
 				}
 			}
 			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
@@ -7518,8 +7513,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		{
 			continue;
 		}
-		//Minor civ? Only if we're not protective.
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) == MINOR_CIV_APPROACH_FRIENDLY) || (GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) == MINOR_CIV_APPROACH_PROTECTIVE)))
+		//Minor civ? Only if we're out for conquest ourselves
+		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_CONQUEST)))
 		{
 			continue;
 		}
@@ -7538,6 +7533,16 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		{
 			continue;
 		}
+		// asker has met?
+		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
+		{
+			continue;
+		}
+		// asked has met?
+		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+		{
+			continue;
+		}
 		//defensive pact with us?
 		if(GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
 		{
@@ -7550,16 +7555,6 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		}
 		//Is he already at war with the team? Don't do it!
 		if(GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Are we already at war with the team? Don't do it!
-		if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Can we declare war?
-		if(!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eAgainstPlayer).getTeam()))
 		{
 			continue;
 		}
@@ -7589,7 +7584,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 			continue;
 		}
 		// Can we actually complete this deal?
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_WAR, eWithTeam))
+		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_WAR, GET_PLAYER(eAgainstPlayer).getTeam()))
 		{
 			iWarValue = GetThirdPartyWarValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
 			if((iWarValue < 100000) && (iWarValue > -100000) && iWarValue > iBestValue)
@@ -7669,8 +7664,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
-		//Minor civ? Only if we're protective.
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_FRIENDLY) || (GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_PROTECTIVE)))
+		//Minor civ? Only if we're not out for conquest.
+		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) == MINOR_CIV_APPROACH_CONQUEST))
 		{
 			continue;
 		}
@@ -7689,6 +7684,16 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
+		// asker has met?
+		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
+		{
+			continue;
+		}
+		// asked has met?
+		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+		{
+			continue;
+		}
 		//Is he not at war with the team? Don't do it!
 		if(!GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
 		{
@@ -7699,28 +7704,18 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
-		//Can we declare war?
-		if(!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eAgainstPlayer).getTeam()))
+		//Can they make peace?
+		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam()) > 0)
 		{
 			continue;
 		}
-		//Can they declare war?
-		if(!GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Is our opinion of the player good? Don't do it!
+		//Is our opinion of the player bad? Don't do it!
 		if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAgainstPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			continue;
 		}
-		//Is our approach not friendly? Don't do it!
-		if(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eAgainstPlayer, false) < MAJOR_CIV_APPROACH_AFRAID)
-		{
-			continue;
-		}
 		// Can we actually complete this deal?
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, eWithTeam))
+		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, GET_PLAYER(eAgainstPlayer).getTeam()))
 		{
 			iWarValue = GetThirdPartyPeaceValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
 			if((iWarValue < 100000) && (iWarValue > -100000) && iWarValue > iBestValue)
@@ -8466,10 +8461,10 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		}
 
 		// Initial Vassalage deal value at 500 -- edited to 400
-		iItemValue = 400;
+		iItemValue = 350;
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
-		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(false));
+		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
 		// Increase deal value based on number of vassals player already has
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
@@ -8480,13 +8475,13 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		switch(m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
 		{
 			case STRENGTH_IMMENSE:
-				iItemValue *= 90;
+				iItemValue *= 80;
 				break;
 			case STRENGTH_POWERFUL:
-				iItemValue *= 100;
+				iItemValue *= 90;
 				break;
 			case STRENGTH_STRONG:
-				iItemValue *= 125;
+				iItemValue *= 120;
 				break;
 			case STRENGTH_AVERAGE:
 				iItemValue *= 200;
@@ -8495,7 +8490,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 			case STRENGTH_WEAK:
 			case STRENGTH_PATHETIC:
 			default:
-				iItemValue *= 1000;
+				return 100000;
 				break;
 		}
 		iItemValue /= 100;
@@ -8531,7 +8526,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 				iItemValue *= 80;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iItemValue *= 100;
+				iItemValue *= 90;
 				break;
 			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iItemValue *= 100;

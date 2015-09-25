@@ -11,11 +11,11 @@ SET RazeSpeedModifier = '0'
 WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All Mounted Melee Units receive the Flank Attack promotion, and all Mounted Ranged Units the Withdraw Before Melee promotion. Barbarian units defeated inside Encampments join your side.'
+SET Text = 'Mounted melee units deal more flanking damage and can capture units, and defeated Barbarians in Encampments join you. When you gain a Grasslands tile naturally, unowned adjacent Grasslands are also claimed.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The barbarians in this Encampment have joined your army!'
+SET Text = 'The barbarians in this Encampment have joined your army! All hail glorious Attila!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 DELETE FROM Civilization_FreeTechs
@@ -23,6 +23,10 @@ WHERE TechType = 'TECH_ANIMAL_HUSBANDRY' AND CivilizationType = 'CIVILIZATION_HU
 
 DELETE FROM Trait_ImprovementYieldChanges
 WHERE TraitType = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET TerrainClaimBoost = 'TERRAIN_GRASS'
+WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Make Horse Archer cost Horse
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
@@ -214,11 +218,15 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'When selecting a Pantheon, choose from a set of powerful Beliefs unique to the Celts. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
+SET Text = 'When selecting a Pantheon, choose from a set of powerful, unique Beliefs. Cities with your Pantheon neither generate nor receive foreign Religious Pressure. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET UniqueBeliefsOnly = 'true'
+WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET NoNaturalReligionSpread = 'true'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -280,7 +288,7 @@ SET InspirationalLeader = 'true'
 WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Land Melee Units receive +15% [ICON_STRENGTH] Strength when Attacking, and Siege Units gain +1 [ICON_MOVES] Movement. If a [ICON_GREAT_GENERAL] Great General is born while at war, all Military Units are healed and receive +15 XP.'
+SET Text = 'Land melee units receive +15% [ICON_STRENGTH] Strength when Attacking, and Siege Units gain +1 [ICON_MOVES] Movement. If a [ICON_GREAT_GENERAL] Great General is born while at war, all Military Units are healed and receive +15 XP.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -412,11 +420,11 @@ SET PrereqTech = 'TECH_AGRICULTURE'
 WHERE Type = 'BUILDING_MAYA_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Traits
-SET PrereqTech = 'TECH_CALENDAR'
+SET PrereqTech = 'TECH_MATHEMATICS'
 WHERE Type = 'TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'After researching the Calendar, receive a bonus Great Person at the end of every Maya Long Count cycle (every 394 years). Each bonus person can only be chosen once.'
+SET Text = 'After researching Mathematics, receive a bonus Great Person at the end of every Maya Long Count cycle (every 394 years). Each bonus person can only be chosen once.'
 WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Buff Atlatl, move to Classical Age
