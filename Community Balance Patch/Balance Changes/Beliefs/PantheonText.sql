@@ -22,7 +22,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Pastures and +1 [ICON_CULTURE] Culture for every 3 Plains tiles worked by the City'
+SET Text = '+1 [ICON_CULTURE] Culture for every 2 Plains tiles near a City. +2 [ICON_PEACE] Faith from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -36,7 +36,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- One With Nature
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] for every 3 Mountain tiles near your Cities. Natural Wonders gain +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every 2 Mountains near a City. +2 [ICON_PEACE] Faith and [ICON_CULTURE] Culture from Natural Wonders '
 WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -68,7 +68,7 @@ SET Text = 'Purifying Waters'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Oases, Lakes, and Marshes. +1 [ICON_HAPPINESS_1] Happiness from Cities on rivers'
+SET Text = '+2 [ICON_PEACE] Faith from Oases, Lakes, and Marshes. +1 [ICON_HAPPINESS_1] Happiness from Cities on rivers'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Love
@@ -99,12 +99,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNIT
 -- Desert Folklore
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food and [ICON_GOLD] Gold from Desert tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Desert tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Path
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 2 Jungle tiles worked by the City, and +1 [ICON_CULTURE] Culture for every 2 Forest tiles worked by the City'
+SET Text = '+1 [ICON_PEACE] Faith for every 2 Jungles near a City, and +1 [ICON_CULTURE] Culture for every 2 Forests near a City'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection
@@ -124,7 +124,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Dance of the Aurora
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Tundra tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, +1 [ICON_PRODUCTION] Production and +1 [ICON_CULTURE] Culture from Tundra tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 --  Tears of the Gods (Now Polytheism)

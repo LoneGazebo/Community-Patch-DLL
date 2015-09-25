@@ -72,7 +72,7 @@ SET BullyAnnex = 'true'
 WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Mounted units have +1 [ICON_MOVES] Movement. +30% [ICON_STRENGTH] Combat Strength when fighting City-States. Can annex City-States by exacting Tribute. Receive [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City-State.'
+SET Text = 'Mounted ranged units gain +2 [ICON_MOVES] Movement and ignore Zone of Control. Forcefully annex City-States instead of exacting Heavy Tribute, and receive [ICON_GOLDEN_AGE] Golden Age Points when you conquer or annex a City-State.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 INSERT INTO Language_en_US (

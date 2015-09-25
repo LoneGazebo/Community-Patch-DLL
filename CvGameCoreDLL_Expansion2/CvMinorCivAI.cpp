@@ -3726,6 +3726,20 @@ void CvMinorCivAI::DoTurnStatus()
 		{
 			// DISTANT: Elevated if we're at war
 		case PLAYER_PROXIMITY_DISTANT:
+#if defined(MOD_BALANCE_CORE)
+			if(pTeam->IsMinorCivAggressor())
+			{
+				iWeight += 2;
+			}
+			if(pTeam->IsMinorCivWarmonger())
+			{
+				iWeight += 4;
+			}
+			if(IsAtWarWithPlayersTeam(ePlayer))
+			{
+				iWeight += 6;
+			}
+#endif
 			break;
 // 			if (IsAtWarWithPlayersTeam(ePlayer))
 // 			{
@@ -3734,6 +3748,20 @@ void CvMinorCivAI::DoTurnStatus()
 
 			// FAR: Elevated if they're an aggressor OR we're at war (note the ELSE IF)
 		case PLAYER_PROXIMITY_FAR:
+#if defined(MOD_BALANCE_CORE)
+			if(pTeam->IsMinorCivAggressor())
+			{
+				iWeight += 4;
+			}
+			if(pTeam->IsMinorCivWarmonger())
+			{
+				iWeight += 6;
+			}
+			if(IsAtWarWithPlayersTeam(ePlayer))
+			{
+				iWeight += 8;
+			}
+#endif
 			break;
 // 			if (pTeam->IsMinorCivAggressor())
 // 			{
@@ -3754,6 +3782,12 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 20;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(IsAtWarWithPlayersTeam(ePlayer))
+			{
+				iWeight += 15;
+			}
+#endif
 			break;
 
 			// NEIGHBORS: Pretty much anything makes the situation critical
@@ -3762,6 +3796,12 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 20;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pTeam->IsMinorCivWarmonger())
+			{
+				iWeight += 20;
+			}
+#endif
 			if(IsAtWarWithPlayersTeam(ePlayer))
 			{
 				iWeight += 20;
@@ -3771,7 +3811,12 @@ void CvMinorCivAI::DoTurnStatus()
 			break;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(GetNumThreateningBarbarians() > 0)
+	{
+		iWeight += GetNumThreateningBarbarians() * 5;
+	}
+#endif
 	// Do the final math
 	if(iWeight >= 20)
 	{

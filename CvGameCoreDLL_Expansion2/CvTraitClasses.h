@@ -115,6 +115,7 @@ public:
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
+	bool IsNoNaturalReligionSpread() const;
 	int  GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
@@ -345,6 +346,7 @@ protected:
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
+	bool m_bNoNaturalReligionSpread;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -786,6 +788,10 @@ public:
 	bool IsUniqueBeliefsOnly() const
 	{
 		return m_bUniqueBeliefsOnly;
+	};
+	bool IsNoNaturalReligionSpread() const
+	{
+		return m_bNoNaturalReligionSpread;
 	};
 	int GetGrowthBoon() const
 	{
@@ -1312,6 +1318,7 @@ private:
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
+	bool m_bNoNaturalReligionSpread;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;

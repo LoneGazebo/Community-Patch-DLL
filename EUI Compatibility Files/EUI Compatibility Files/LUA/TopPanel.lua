@@ -1045,8 +1045,12 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	end
 
 	-- Total gold
+-- CBP
+		-- Gold gained from happiness
+	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
+
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness -- C4DF
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1092,8 +1096,7 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
 -- CBP
-		-- Gold gained from happiness
-	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
+	-- Gold gained from happiness
 	if(iGoldfromHappiness > 0) then
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldfromHappiness)
 	end

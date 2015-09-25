@@ -88,7 +88,7 @@
 	WHERE Type = 'RESOURCE_GEMS';
 
 	UPDATE Resources
-	SET MonopolyGALength = '15'
+	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_GEMS';
 
 	UPDATE Resources
@@ -96,7 +96,7 @@
 	WHERE Type = 'RESOURCE_GOLD';
 
 	UPDATE Resources
-	SET MonopolyGALength = '15'
+	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_GOLD';
 
 	UPDATE Resources
@@ -128,7 +128,7 @@
 	WHERE Type = 'RESOURCE_IVORY';
 
 	UPDATE Resources
-	SET MonopolyGALength = '15'
+	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_IVORY';
 
 	UPDATE Resources
@@ -176,7 +176,7 @@
 	WHERE Type = 'RESOURCE_SPICES';
 
 	UPDATE Resources
-	SET MonopolyGALength = '15'
+	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_SPICES';
 
 	UPDATE Resources
@@ -220,7 +220,7 @@
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH'
-	WHERE MonopolyGALength = 15;
+	WHERE MonopolyGALength = 25;
 
 	-- Yield Text
 	UPDATE Resources

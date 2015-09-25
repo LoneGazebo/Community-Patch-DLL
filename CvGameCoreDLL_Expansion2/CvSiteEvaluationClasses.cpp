@@ -713,50 +713,93 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	CvArea* pArea = pPlot->area();
 	int iGoodTiles = 1;
 	if(pArea != NULL)
-		iGoodTiles = max(1,(pArea->getNumUnownedTiles() - pArea->GetNumBadPlots()));
-
-	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
-		if(pArea != NULL && iGoodTiles > 7)
-		{
-			iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-			vQualifiersPositive.push_back("(V) coast");
+		iGoodTiles = max(1,(pArea->getNumUnownedTiles() - pArea->GetNumBadPlots()));
+	}
 
-			if (pPlayer)
+	//Island maps need a little more loose restriction here.
+	if((GC.getMap().GetAIMapHint() & 1) || (GC.getMap().GetAIMapHint() & 4))
+	{
+		if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		{
+			if(pArea != NULL && iGoodTiles > 0)
 			{
-				int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
-				if (iNavalFlavor > 7)
+				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+				vQualifiersPositive.push_back("(V) coast");
+
+				if (pPlayer)
 				{
-					iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-				}
-				if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
-				{
-					iValueModifier += iTotalPlotValue;
+					int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+					if (iNavalFlavor > 7)
+					{
+						iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+					}
+					if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+					{
+						iValueModifier += iTotalPlotValue;
+					}
 				}
 			}
 		}
-		else if(pArea != NULL && iGoodTiles == 1)
-		{
-			iValueModifier -= (iTotalPlotValue * 40) / 100;
-			vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
-		}
 		else
 		{
-			iValueModifier -= (iTotalPlotValue * 25) / 100;
-			vQualifiersNegative.push_back("(V) coast on small island");
+			if(iGoodTiles <= 3)
+			{
+				iValueModifier -= (iTotalPlotValue * 40) / 100;
+				vQualifiersNegative.push_back("(V) not enough good plots");
+			}
+			else if(iGoodTiles <= 6)
+			{
+				iValueModifier -= (iTotalPlotValue * 20) / 100;
+				vQualifiersNegative.push_back("(V) few good plots");
+			}
 		}
 	}
 	else
 	{
-		if(iGoodTiles <= 6)
+		if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 		{
-			iValueModifier -= (iTotalPlotValue * 40) / 100;
-			vQualifiersNegative.push_back("(V) not enough good plots");
+			if(pArea != NULL && iGoodTiles > 3)
+			{
+				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+				vQualifiersPositive.push_back("(V) coast");
+
+				if (pPlayer)
+				{
+					int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+					if (iNavalFlavor > 7)
+					{
+						iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+					}
+					if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+					{
+						iValueModifier += iTotalPlotValue;
+					}
+				}
+			}
+			else if(pArea != NULL && iGoodTiles == 1)
+			{
+				iValueModifier -= (iTotalPlotValue * 40) / 100;
+				vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
+			}
+			else
+			{
+				iValueModifier -= (iTotalPlotValue * 25) / 100;
+				vQualifiersNegative.push_back("(V) coast on small island");
+			}
 		}
-		else if(iGoodTiles <= 12)
+		else
 		{
-			iValueModifier -= (iTotalPlotValue * 25) / 100;
-			vQualifiersNegative.push_back("(V) few good plots");
+			if(iGoodTiles <= 5)
+			{
+				iValueModifier -= (iTotalPlotValue * 40) / 100;
+				vQualifiersNegative.push_back("(V) not enough good plots");
+			}
+			else if(iGoodTiles <= 10)
+			{
+				iValueModifier -= (iTotalPlotValue * 20) / 100;
+				vQualifiersNegative.push_back("(V) few good plots");
+			}
 		}
 	}
 
@@ -825,9 +868,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 										}
 									}
 
-									//Good space must be greater than bad plots by at least 30%
+									//Good space must be greater than bad plots by at least 40%
 									//Neighbor must not be too strong
-									if ( (iNumPlots > iNumNonFreePlots*1.3f) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.1f ) )
+									if ( (iNumPlots > iNumNonFreePlots*1.4f) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.3f ) )
 									{
 										iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 										vQualifiersPositive.push_back("(S) landgrab");
@@ -1576,6 +1619,12 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
 	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS || pPlot->getFeatureType()==FEATURE_FLOOD_PLAINS))
 		rtnValue += 1;
+
+	//Help with island settling.
+	if(pPlot->isShallowWater() || pPlot->isLake())
+	{
+		rtnValue += 1;
+	}
 #endif
 
 	// From resource

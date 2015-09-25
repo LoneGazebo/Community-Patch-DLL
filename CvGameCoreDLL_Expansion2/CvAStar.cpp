@@ -4513,7 +4513,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
 	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 
-	// super duper low costs for moving along routes
+	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 		iCost = iCost / 4;
 	// super low costs for moving along rivers

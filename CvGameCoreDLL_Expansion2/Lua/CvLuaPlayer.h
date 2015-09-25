@@ -1181,6 +1181,10 @@ protected:
 	LUAAPIEXTN(MoveRequestTooSoon, bool, iOtherPlayer);
 	LUAAPIEXTN(GetPlayerMoveTroopsRequestCounter, int, iOtherPlayer);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(GetScoreFromMinorAllies, int);
+	LUAAPIEXTN(GetScoreFromMilitarySize, int);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(HasBelief, bool, iBeliefType);

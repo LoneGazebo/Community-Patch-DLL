@@ -2147,6 +2147,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				{
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
 				}
+#if defined(MOD_BALANCE_CORE)
+				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+#endif
 			}
 			// No longer working pPlot
 			else
@@ -2160,8 +2163,17 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				{
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
 				}
+#if defined(MOD_BALANCE_CORE)
+				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+#endif
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			GetCity()->UpdateYieldPerXTerrain(((YieldTypes)iI));
+		}
+#endif
 
 		if(GetCity()->isCitySelected())
 		{
@@ -2334,10 +2346,22 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 			{
 				DoValidateForcedWorkingPlots();
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot != NULL)
+			{
+				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+			}
+#endif
 		}
 		else
 		{
 			ChangeNumForcedWorkingPlots(-1);
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot != NULL)
+			{
+				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+			}
+#endif
 		}
 	}
 }

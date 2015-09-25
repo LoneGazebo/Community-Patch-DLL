@@ -707,7 +707,7 @@
     <Row Class="1" Name="BUGFIX_NAVAL_FREE_UNITS" Value="1"/>
     <!-- Fixes the bug where the naval units jump to the nearest city and not the nearest available non-lake water plot (v19) -->
     <!-- See also: "Global - Naval Nearest Water" -->
-    <Row Class="1" Name="BUGFIX_NAVAL_NEAREST_WATER" Value="0"/>
+    <Row Class="1" Name="BUGFIX_NAVAL_NEAREST_WATER" Value="1"/>
     <!-- Fixes the bug where stacked ranged units may attack out of cities but melee units may not (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
@@ -732,10 +732,10 @@
     <Row Class="1" Name="BUGFIX_FEATURE_REMOVAL" Value="1" DbUpdates="1"/>
     <!-- Fixes the bug in calculating AA interception strength which takes terrain into account (v19) -->
     <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_INTERCEPTOR_STRENGTH" Value="0"/>
+    <Row Class="1" Name="BUGFIX_INTERCEPTOR_STRENGTH" Value="1"/>
     <!-- Fixes the very dodgy maths in the calculation of a unit's power (v19) -->
     <!-- See also: "Promotions - AntiAir Only Defensive" -->
-    <Row Class="1" Name="BUGFIX_UNIT_POWER_CALC" Value="0"/>
+    <Row Class="1" Name="BUGFIX_UNIT_POWER_CALC" Value="1"/>
     <!-- Fixes the Anti-Air non-domain bonuses issue, requires BUGFIX_UNIT_POWER_CALC to be enabled (v19) -->
     <!-- See also: "Promotions - AntiAir Only Defensive" -->
     <Row Class="1" Name="BUGFIX_UNIT_POWER_BONUS_VS_DOMAIN_ONLY" Value="0"/>

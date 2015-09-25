@@ -456,7 +456,7 @@ int ComputeRecommendedNavySize(CvPlayer* pPlayer);
 int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 #if defined(MOD_BALANCE_CORE)
-int GetBestFormationType();
+MultiunitFormationTypes GetBestFormationType();
 #endif
 }
 

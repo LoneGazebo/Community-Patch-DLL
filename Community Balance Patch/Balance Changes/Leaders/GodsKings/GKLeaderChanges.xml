@@ -29,12 +29,12 @@
 		<Row>
 			<BeliefType>BELIEF_MORRIGAN</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>50</Yield>
+			<Yield>75</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MORRIGAN</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>50</Yield>
+			<Yield>75</Yield>
 		</Row>
 	</Belief_YieldFromKills>
 	<Beliefs>
@@ -50,22 +50,22 @@
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>8</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>8</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>8</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +8 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand</Text>
+			<Text>Receive +10 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
@@ -85,19 +85,19 @@
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>8</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerGPT>
 	<Belief_YieldPerScience>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>8</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerScience>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_PEACE] Faith for every 8 [ICON_GOLD] Gold per turn, and +1 [ICON_CULTURE] Culture for every 8 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_PEACE] Faith for every 5 [ICON_GOLD] Gold per turn, and +1 [ICON_CULTURE] Culture for every 5 [ICON_RESEARCH] Science per turn</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
@@ -124,12 +124,12 @@
 			<BeliefType>BELIEF_CERNUNNOS</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_FeatureYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_PEACE] Faith from Forests, +1 [ICON_CULTURE] Culture from Jungles</Text>
+			<Text>+1 [ICON_PEACE] Faith from Forests, +2 [ICON_CULTURE] Culture from Jungles</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
@@ -149,12 +149,17 @@
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_LUGH</BeliefType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>4</Yield>
 		</Row>
 	</Belief_YieldChangeAnySpecialist>
 	<Belief_YieldChangeWorldWonder>
@@ -166,7 +171,7 @@
 	</Belief_YieldChangeWorldWonder>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold in Cities with a Specialist, +3 [ICON_PEACE] Faith from World Wonders</Text>
+			<Text>+4 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +3 [ICON_PEACE] Faith from World Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
@@ -191,22 +196,22 @@
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Belief_YieldPerFollowingCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
-			<Text>+2 [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_GOLDEN_AGE] Golden Age Points in every City</Text>
+			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points, +2 [ICON_PEACE] Faith, +3 [ICON_RESEARCH] Science, and +4 [ICON_GOLD] Gold in every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
 			<Text>Rhiannon, Goddess of Sovereignty</Text>
@@ -231,17 +236,17 @@
 		<Row>
 			<BeliefType>BELIEF_MANANNAN</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MANANNAN</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Belief_CoastalCityYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+2 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in coastal Cities</Text>
+			<Text>+21 [ICON_PEACE] Faith, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>
@@ -261,19 +266,19 @@
 		<Row>
 			<BeliefType>BELIEF_OGMA</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldPerPop>
 	<Belief_YieldPerBirth>
 		<Row>
 			<BeliefType>BELIEF_OGMA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>6</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_OGMA">
-			<Text>+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in a City, and +5 [ICON_PEACE] Faith when a [ICON_CITIZEN] Citizen is born</Text>
+			<Text>+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in a City, and +6 [ICON_PEACE] Faith when a [ICON_CITIZEN] Citizen is born</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
 			<Text>Ogma, the Learned</Text>
@@ -295,12 +300,12 @@
 		<Row>
 			<BeliefType>BELIEF_BRAN</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldPerFollowingCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+20% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +20% [ICON_FOOD] Growth, and +1 [ICON_PEACE] Faith in every City</Text>
+			<Text>+20% increase to the [ICON_RANGE_STRENGTH] Ranged Combat Strength, +20% [ICON_FOOD] Growth, and +2 [ICON_PEACE] Faith of every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>
@@ -320,27 +325,27 @@
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<PerXFollowers>4</PerXFollowers>
+			<PerXFollowers>3</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<PerXFollowers>4</PerXFollowers>
+			<PerXFollowers>3</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<PerXFollowers>4</PerXFollowers>
+			<PerXFollowers>3</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<PerXFollowers>4</PerXFollowers>
+			<PerXFollowers>3</PerXFollowers>
 		</Row>
 	</Belief_YieldPerXFollowers>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 4 Followers</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 3 Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>
@@ -424,43 +429,13 @@
 		</Row>
 	</UnitClasses>
 	<!-- Mounted Units stronger for Attila -->
-	<Trait_FreePromotionUnitClass>
+	<Trait_FreePromotionUnitCombats>
 		<Row>
 			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_HORSEMAN</UnitClassType>
-			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<PromotionType>PROMOTION_COERCION</PromotionType>
 		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
-			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_LANCER</UnitClassType>
-			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
-			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_CHARIOT_ARCHER</UnitClassType>
-			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
-			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
-			<UnitClassType>UNITCLASS_MOUNTED_BOWMAN</UnitClassType>
-			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
-		</Row>
-	</Trait_FreePromotionUnitClass>
+	</Trait_FreePromotionUnitCombats>
 	<!-- Pacal -->
 	<Unit_FreePromotions>
 		<Row>

@@ -6961,7 +6961,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 #else
 			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot);
 #endif
-
 			if (pLoopUnit->getArmyID() != -1)
 			{
 				iPlotDanger += 5000;
@@ -6974,7 +6973,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			}
 
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(pTransportUnit == NULL || pBestPlot == NULL)
+		{
+#endif
 		CvCity* pLoopCity;
 		int iLoopCity = 0;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
@@ -7008,7 +7010,9 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				pTransportUnit = NULL;
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		if(pBestPlot && pBestPlot != pUnitPlot)
 		{
 			pUnit->PushMission(CvTypes::getMISSION_REBASE(), pBestPlot->getX(), pBestPlot->getY());
@@ -8563,6 +8567,43 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
+{
+	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
+	{
+		return false;
+	}
+	CvPlot* pLoopPlot;
+	CvHomelandTarget newTarget;
+	TeamTypes eTeam = m_pPlayer->getTeam();
+	CvMap& theMap = GC.getMap();
+	int iNumPlots = theMap.numPlots();
+	int iI;
+	for(iI = 0; iI < iNumPlots; iI++)
+	{
+		pLoopPlot = theMap.plotByIndexUnchecked(iI);
+
+		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+		{
+			// ... antiquity site?
+			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			{
+				if(pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
+					{
+						return true;
+					}
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 /// Find best target for this archaeologist
 CvPlot* CvHomelandAI::FindTestArchaeologistPlot(CvUnit *pUnit)
 {

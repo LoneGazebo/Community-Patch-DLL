@@ -1657,6 +1657,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
 				if(eCiv == m_pPlayer->getCivilizationType())
 				{
+					if(!m_bEvaluateAdjacent)
+					{
+						iWeight *= 100;
+					}
 					if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (pPlot->getOwner() != m_pPlayer->GetID()))
 					{
 						bool bAdjacent = false;

@@ -11,6 +11,31 @@
 		</Row>
 	</Improvement_TechYieldChanges>
 	<!-- Make Keshik a Medieval Unit -->
+	<UnitPromotions>
+		<!--Arabia Promotion-->
+		<Row>
+			<Type>PROMOTION_MONGOL_TERROR</Type>
+			<Description>TXT_KEY_PROMOTION_MONGOL_TERROR</Description>
+			<Help>TXT_KEY_PROMOTION_MONGOL_TERROR_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<IgnoreZOC>true</IgnoreZOC>
+			<MovesChange>2</MovesChange>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PediaEntry>TXT_KEY_PROMOTION_MONGOL_TERROR</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR">
+			<Text>Steppe Nomads</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
+			<Text>+2 [ICON_MOVES] Movement, and ignores Zone of Control</Text>
+		</Row>
+	</Language_en_US>
 	<UnitClasses>
 		<Row>
 			<Type>UNITCLASS_MOUNTED_BOWMAN</Type>
@@ -19,23 +44,23 @@
 		</Row>
 	</UnitClasses>
 	<!-- Mongols get faster Mounted Units -->
-	<Trait_MovesChangeUnitClass>
+	<Trait_FreePromotionUnitClass>
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
 			<UnitClassType>UNITCLASS_CHARIOT_ARCHER</UnitClassType>
-			<MovesChange>1</MovesChange>
+			<PromotionType>PROMOTION_MONGOL_TERROR</PromotionType>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
 			<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
-			<MovesChange>1</MovesChange>
+			<PromotionType>PROMOTION_MONGOL_TERROR</PromotionType>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
 			<UnitClassType>UNITCLASS_MOUNTED_BOWMAN</UnitClassType>
-			<MovesChange>1</MovesChange>
+			<PromotionType>PROMOTION_MONGOL_TERROR</PromotionType>
 		</Row>
-	</Trait_MovesChangeUnitClass>
+	</Trait_FreePromotionUnitClass>
 	<!-- Defense Happiness Flavors-->
 	<Building_Flavors>
 		<Row>

@@ -83,10 +83,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY">
 			<Text>Mission of your {1_UnitType} completed!</Text>
 		</Row>
-		<!-- Promise Duration -->
-		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
-			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Turns. If you violate this Promise during this time, this player will feel betrayed!</Text>
-		</Row>
 <!-- Maya Prophet Lock -->
 		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
 			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion[ENDCOLOR]</Text>
@@ -150,7 +146,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_HAPPINESS_1] Global Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +15% [ICON_GOLDEN_AGE] Golden Age Length</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>
@@ -174,7 +170,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_GOLD] Gold in all owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +15% [ICON_FOOD] Growth in all owned Cities.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +20% [ICON_FOOD] Growth in all owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities.</Text>

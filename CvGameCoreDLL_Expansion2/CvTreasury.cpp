@@ -529,7 +529,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	//Mod for national unhappiness
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD);
+		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD, iNetGold);
 	}
 #endif
 

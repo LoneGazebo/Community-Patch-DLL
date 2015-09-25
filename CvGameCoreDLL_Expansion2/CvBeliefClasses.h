@@ -586,6 +586,7 @@ public:
 	int GetYieldFromConversion(YieldTypes eYieldType) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType) const;
+	CivilizationTypes GetUniqueCiv() const;
 #endif
 
 	// Serialization

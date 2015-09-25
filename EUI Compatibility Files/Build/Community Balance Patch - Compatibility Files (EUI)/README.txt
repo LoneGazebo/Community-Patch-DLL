@@ -19,7 +19,7 @@ Make sure you delete the LUA folders in the CP and CBP mods before running the g
 
 == Potential Mod Conflicts ==
 
-None, but you must be using the CBP, CSD, and Civ IV DF for this file to be used.
+None, but you must be using EUI, CBP, CSD, C4DF and More Luxuries for this file to be used.
 
 == Version History ==
 

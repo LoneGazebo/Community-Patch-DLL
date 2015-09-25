@@ -1012,6 +1012,10 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool CanTacticalAIInterruptOperation() const
+	{
+		return true;
+	}
 
 private:
 	CvPlot* FindBestTarget();
@@ -1287,6 +1291,10 @@ protected:
 namespace OperationalAIHelpers
 {
 int GetGatherRangeForXUnits(int iTotalUnits);
+#if defined(MOD_BALANCE_CORE)
+bool FindBestBombardmentTarget(PlayerTypes ePlayer);
+bool FindBestBarbCamp(PlayerTypes ePlayer);
+#endif
 }
 
 #endif

@@ -282,6 +282,7 @@ CvCity::CvCity() :
 	, m_abFranchised("CvCity::m_abFranchised", m_syncArchive)
 	, m_bHasOffice("CvCity::m_bHasOffice", m_syncArchive)
 	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
+	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
 #endif
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
@@ -319,6 +320,10 @@ CvCity::CvCity() :
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppaiPlotYieldChange(0)
 	, m_ppaiYieldPerXTerrainFromBuildings(0)
+	, m_ppaiYieldPerXTerrainFromReligion(0)
+	, m_ppaiYieldPerXTerrain(0)
+	, m_ppaiYieldPerXFeature(0)
+	, m_ppaiYieldPerXUnimprovedFeature(0)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_ppaiReligionBuildingYieldRateModifier(0)
@@ -343,6 +348,7 @@ CvCity::CvCity() :
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
 	, m_iNationalMissionaries("CvCity::m_iNationalMissionaries", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
+	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 #endif
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
@@ -884,7 +890,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Add Resource Quantity to total
+#if defined(MOD_BALANCE_CORE)
+	if(plot()->getResourceType(getTeam()) != NO_RESOURCE)
+#else
 	if(plot()->getResourceType() != NO_RESOURCE)
+#endif
 	{
 		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(plot()->getResourceType())->getTechCityTrade()))
 		{
@@ -1006,7 +1016,34 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
 	}
-	
+#if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI));
+		UpdateYieldPerXFeature(((YieldTypes)iI));
+		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
+	}
+	iRange = 2;
+	int iMountain = 0;
+	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	{
+		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		{
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+			if(pLoopPlot != NULL)
+			{
+				if(pLoopPlot != NULL)
+				{
+					if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
+					{
+						iMountain++;
+					}
+				}
+			}
+		}
+	}
+	SetNearbyMountains(iMountain);
+#endif	
 #if defined(MOD_API_EXTENSIONS)
 	if (bInitialFounding) {
 		if (eInitialReligion != NO_RELIGION) {
@@ -1139,9 +1176,17 @@ void CvCity::uninit()
 		for(int i=0; i < GC.getNumFeatureInfos(); i++)
 		{
 			SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange[i]);
+#if defined(MOD_BALANCE_CORE)
+			SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature[i]);
+			SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature[i]);
+#endif
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature);
+	SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature);
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	if(m_ppaiImprovementYieldChange)
@@ -1161,12 +1206,16 @@ void CvCity::uninit()
 			SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange[i]);
 #if defined(MOD_BALANCE_CORE)
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings[i]);
+			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion[i]);
+			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain[i]);
 #endif
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings);
+	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion);
+	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1349,6 +1398,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_iNationalMissionaries = 0;
 	m_iBorderObstacleCity = 0;
+	m_iNumNearbyMountains = 0;
 	m_iUnhappyCitizen = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -1654,6 +1704,14 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
+		m_paiNumTerrainWorked.clear();
+		m_paiNumTerrainWorked.resize(iNumTerrainInfos);
+		for(iI = 0; iI < iNumTerrainInfos; iI++)
+		{
+			m_paiNumTerrainWorked.setAt(iI, 0);
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
 		CvAssertMsg(m_ppaiYieldPerXTerrainFromBuildings==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrainFromBuildings");
 		m_ppaiYieldPerXTerrainFromBuildings = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
 		for(iI = 0; iI < iNumTerrainInfos; iI++)
@@ -1662,6 +1720,50 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
 				m_ppaiYieldPerXTerrainFromBuildings[iI][iJ] = 0;
+			}
+		}
+
+		CvAssertMsg(m_ppaiYieldPerXTerrainFromReligion==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrainFromReligion");
+		m_ppaiYieldPerXTerrainFromReligion = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumTerrainInfos; iI++)
+		{
+			m_ppaiYieldPerXTerrainFromReligion[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiYieldPerXTerrainFromReligion[iI][iJ] = 0;
+			}
+		}
+
+		CvAssertMsg(m_ppaiYieldPerXTerrain==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrain");
+		m_ppaiYieldPerXTerrain = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumTerrainInfos; iI++)
+		{
+			m_ppaiYieldPerXTerrain[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiYieldPerXTerrain[iI][iJ] = 0;
+			}
+		}
+
+		CvAssertMsg(m_ppaiYieldPerXFeature==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXFeature");
+		m_ppaiYieldPerXFeature = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumFeatureInfos; iI++)
+		{
+			m_ppaiYieldPerXFeature[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiYieldPerXFeature[iI][iJ] = 0;
+			}
+		}
+
+		CvAssertMsg(m_ppaiYieldPerXUnimprovedFeature==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXUnimprovedFeature");
+		m_ppaiYieldPerXUnimprovedFeature = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumFeatureInfos; iI++)
+		{
+			m_ppaiYieldPerXUnimprovedFeature[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiYieldPerXUnimprovedFeature[iI][iJ] = 0;
 			}
 		}
 #endif
@@ -8659,7 +8761,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 #if defined(MOD_BALANCE_CORE)
-				ChangeYieldPerXTerrainFromBuildings(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) * iChange));			
+				ChangeYieldPerXTerrainFromBuildings(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) * iChange));
+				if(GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) > 0)
+				{
+					UpdateYieldPerXTerrain(eYield);
+				}
 #endif
 			}
 
@@ -9095,6 +9201,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI));
+		UpdateYieldPerXFeature(((YieldTypes)iI));
+		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
+	}
 	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCityCulture()->CalculateBaseTourism();
 #endif
@@ -9421,7 +9533,6 @@ void CvCity::CheckForOperationUnits()
 								{
 									pUnit->setMoves(0);
 								}
-								pThisArmy->AddUnit(pUnit->GetID(), thisOperationSlot.m_iSlotID);
 								CleanUpQueue();
 								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
 								return;
@@ -10501,122 +10612,125 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			
-			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
-			if(pReligion && (getPopulation() >= getHighestPopulation()))
+			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
+			if(!IsResistance() && (iGameTurn > 0))
 			{
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
+				const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
+				if(pReligion && (getPopulation() >= getHighestPopulation()))
 				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeFood(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeFood(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					changeProduction(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) > 0)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeProduction(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) > 0)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) > 0)
 					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+						}
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-					else
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) > 0)
 					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+						ChangeJONSCultureStored(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeFaith(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).changeJONSCulture(iYield);
-					ChangeJONSCultureStored(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeFaith(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-					}
-				}
-				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
-				{
-					int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100;
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						int iYield = pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
 					}
 				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if(MOD_BALANCE_CORE_POLICIES)
+			if(MOD_BALANCE_CORE_POLICIES && !IsResistance() && (iGameTurn > 0))
 			{
 				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) > 0)
 				{
@@ -11811,7 +11925,14 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #endif
 	iCulturePerTurn += GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 #if defined(MOD_API_UNIFIED_YIELDS)
-	iCulturePerTurn += GetYieldPerTurnFromUnimprovedFeatures(YIELD_CULTURE);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+		if(eFeature != NO_FEATURE)
+		{
+			iCulturePerTurn += GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_CULTURE);
+		}
+	}
 #endif
 	iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
 	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
@@ -11979,7 +12100,14 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
 	iFaith += GetFaithPerTurnFromPolicies();
 #if defined(MOD_API_UNIFIED_YIELDS)
-	iFaith += GetYieldPerTurnFromUnimprovedFeatures(YIELD_FAITH);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+		if(eFeature != NO_FEATURE)
+		{
+			iFaith += GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_FAITH);
+		}
+	}
 #else
 	iFaith += GetFaithPerTurnFromTraits();
 #endif
@@ -12076,112 +12204,183 @@ void CvCity::ChangeFaithPerTurnFromPolicies(int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvCity::GetYieldPerXTerrain(YieldTypes eYield, bool bReligion) const
+void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
-	int iYield = 0;
+	int iYield;
 
 	int iValidTilesTerrain = 0;
-	int iValidTilesBuilding = 0;
 	int iBaseYieldBuildings = 0;
-	int iBaseYieldReligion = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
 
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
 		TerrainTypes eTerrain = (TerrainTypes) iI;
-
-		iValidTilesTerrain = 0;
-		iValidTilesBuilding = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-		const std::vector<int>& vWorkedPlots =  GetCityCitizens()->GetWorkedPlots();
-		for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+		if(eTerrain == NO_TERRAIN || eTerrain == TERRAIN_MOUNTAIN)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
-			{
-				{
-#else
-		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-		{
-			CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
+			continue;
+		}
+		iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
+		iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 
-			if(pPlot != NULL)
+		if(iValidTilesTerrain > 0 && iBaseYieldBuildings > 0)
+		{		
+			iYield = (iValidTilesTerrain / iBaseYieldBuildings);
+			SetYieldPerXTerrain(eTerrain, eYield, iYield);
+		}
+	}	
+}
+void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
+{
+	VALIDATE_OBJECT
+	int iYield;
+
+	int iValidTilesTerrain = 0;
+	int iBaseYieldReligion = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes) iI;
+			iYield = 0;
+			if(eTerrain == NO_TERRAIN)
 			{
-				if(GetCityCitizens()->IsWorkingPlot(pPlot))
+				continue;
+			}
+			iValidTilesTerrain = 0;
+			int iRange = 2;
+			CvPlot* pLoopPlot = NULL;
+
+			for(int iDX = -iRange; iDX <= iRange; iDX++)
+			{
+				for(int iDY = -iRange; iDY <= iRange; iDY++)
 				{
-#endif
-					if(pPlot->getTerrainType() == eTerrain && eTerrain != TERRAIN_MOUNTAIN)
+					pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+					if(!pLoopPlot)
 					{
-						if(pReligion && bReligion)
+						continue;
+					}
+					if(pLoopPlot->getTerrainType() == eTerrain && eTerrain != TERRAIN_MOUNTAIN)
+					{			
+						iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+						if(iBaseYieldReligion > 0)
+						{
+							if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+							{
+								iValidTilesTerrain++;
+							}
+							else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
+							{
+								iValidTilesTerrain++;
+							}
+							else
+							{
+								iValidTilesTerrain++;
+							}
+						}
+					}
+					if(eTerrain == TERRAIN_MOUNTAIN && pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
+					{
+						if(pReligion)
 						{
 							iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
 							if(iBaseYieldReligion > 0)
 							{
-								if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
-								{
-									iValidTilesTerrain++;
-								}
-								else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
-								{
-									iValidTilesTerrain++;
-								}
-								else
-								{
-									iValidTilesTerrain++;
-								}
+								iValidTilesTerrain++;
 							}
-						}
-						if(!bReligion)
-						{
-							iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
-							if(iBaseYieldBuildings > 0)
-							{
-								iValidTilesBuilding++;
-							}
-						}
-					}
-				}
-				if(eTerrain == TERRAIN_MOUNTAIN && pPlot->isMountain() && !pPlot->IsNaturalWonder())
-				{
-					if(pReligion && bReligion)
-					{
-						iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-						if(iBaseYieldReligion > 0)
-						{
-							iValidTilesTerrain++;
-						}
-					}
-					if(!bReligion)
-					{
-						iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
-						if(iBaseYieldBuildings > 0)
-						{
-							iValidTilesBuilding++;
 						}
 					}
 				}
 			}
-		}
-		//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-		if(pReligion && bReligion)
-		{
+			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
 			iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
 			if(iBaseYieldReligion > 0)
 			{
 				iYield += (iValidTilesTerrain / iBaseYieldReligion);
 			}
+			SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
+		}	
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetNumTerrainWorked(TerrainTypes eTerrain)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiNumTerrainWorked[eTerrain];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiNumTerrainWorked.setAt(eTerrain, m_paiNumTerrainWorked[eTerrain] + iChange);
+	CvAssert(GetNumTerrainWorked(eTerrain) >= 0);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(m_ppaiYieldPerXTerrain[eTerrain][eYield] != iValue)
+	{
+		m_ppaiYieldPerXTerrain[eTerrain][eYield] = iValue;
+
+		updateYield();
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield] != iValue)
+	{
+		m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield] = iValue;
+
+		updateYield();
+	}
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield for a Terrain this city is working?
+int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(eTerrain == TERRAIN_MOUNTAIN)
+	{
+		int iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
+		int iValidTilesTerrain = GetNearbyMountains();
+
+		if(iValidTilesTerrain > 0 && iBaseYieldBuildings > 0)
+		{		
+			int iYield = (iValidTilesTerrain / iBaseYieldBuildings);
+			return iYield;
 		}
-		if(!bReligion)
+		else
 		{
-			iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
-			if(iBaseYieldBuildings > 0)
-			{
-				iYield += (iValidTilesBuilding / iBaseYieldBuildings);
-			}
+			return 0;
 		}
-	}	
-	return iYield;
+	}
+
+	return m_ppaiYieldPerXTerrain[eTerrain][eYield];
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield for a Terrain this city is working?
+int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield];
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -12208,72 +12407,55 @@ void CvCity::ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTyp
 		updateYield();
 	}
 }
-int CvCity::GetYieldPerXFeature(YieldTypes eYield) const
+//	--------------------------------------------------------------------------------
+/// Extra yield for a Feature this city is working?
+int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	int iYield = 0;
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	int iValidTiles = 0;
-	int iBaseYield = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-	if(pReligion)
-	{
-
-		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-		{
-			FeatureTypes eFeature = (FeatureTypes) iI;
-
-			if(pReligion)
-			{
-				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
-				if(iBaseYield > 0)
-				{
-					iValidTiles = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-					const std::vector<int>& vWorkedPlots =  GetCityCitizens()->GetWorkedPlots();
-					for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
-					{
-						CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
-						{
-							{
-#else
-					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-					{
-						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
-
-						if(pPlot != NULL)
-						{
-							if(GetCityCitizens()->IsWorkingPlot(pPlot))
-							{
-#endif
-								if(pPlot->getFeatureType() == eFeature)
-								{
-									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
-									{
-										iValidTiles++;
-									}
-									else
-									{
-										iValidTiles++;
-									}
-								}
-							}
-						}
-					}
-					if(iValidTiles > 0)
-					{
-						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-						iYield += (iValidTiles / iBaseYield);
-					}
-				}
-			}
-		}
-	}
-	
-	return iYield;
+	return m_ppaiYieldPerXFeature[eFeature][eYield];
 }
-int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
+//	--------------------------------------------------------------------------------
+/// Extra yield for an unimproved Feature this city is working?
+int CvCity::GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(m_ppaiYieldPerXFeature[eFeature][eYield] != iValue)
+	{
+		m_ppaiYieldPerXFeature[eFeature][eYield] = iValue;
+
+		updateYield();
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield] != iValue)
+	{
+		m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield] = iValue;
+
+		updateYield();
+	}
+}
+void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
 	int iYield = 0;
@@ -12287,7 +12469,8 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 	{
 		FeatureTypes eFeature = (FeatureTypes) iI;
 
-		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder()) {
+		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder()) 
+		{
 			int iBaseYield = kPlayer.getCityYieldFromUnimprovedFeature(eFeature, eYield);
 			iBaseYield += kPlayer.GetPlayerTraits()->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
 		
@@ -12325,11 +12508,72 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 				{
 					iYield += iBaseYield;
 				}
+				SetYieldPerXUnimprovedFeature(eFeature, eYield, iYield);
 			}
 		}
 	}
-	
-	return iYield;
+}
+void CvCity::UpdateYieldPerXFeature(YieldTypes eYield)
+{
+	VALIDATE_OBJECT
+	int iYield;
+
+	int iValidTiles = 0;
+	int iBaseYield = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+
+		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		{
+			FeatureTypes eFeature = (FeatureTypes) iI;
+			if(eFeature == NO_FEATURE)
+			{
+				continue;
+			}
+			iYield = 0;
+			if(pReligion)
+			{
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+				if(iBaseYield > 0)
+				{
+					iValidTiles = 0;
+					int iRange = 2;
+					CvPlot* pLoopPlot = NULL;
+
+					for(int iDX = -iRange; iDX <= iRange; iDX++)
+					{
+						for(int iDY = -iRange; iDY <= iRange; iDY++)
+						{
+							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+							if(!pLoopPlot)
+							{
+								continue;
+							}
+							if(pLoopPlot->getFeatureType() == eFeature)
+							{
+								if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+								{
+									iValidTiles++;
+								}
+								else
+								{
+									iValidTiles++;
+								}
+							}
+						}
+					}
+					if(iValidTiles > 0)
+					{
+						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+						iYield += (iValidTiles / iBaseYield);
+					}
+				}
+			}
+			SetYieldPerXFeature(eFeature, eYield, iYield);
+		}
+	}
 }
 #else
 int CvCity::GetFaithPerTurnFromTraits() const
@@ -14711,6 +14955,28 @@ void CvCity::SetBorderObstacleCity(int iValue)
 	VALIDATE_OBJECT
 	m_iBorderObstacleCity = iValue;
 }
+
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetNearbyMountains() const
+{
+	VALIDATE_OBJECT
+	return m_iNumNearbyMountains;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNearbyMountains(int iChange)
+{
+	VALIDATE_OBJECT
+	SetNearbyMountains(GetNearbyMountains() + iChange);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetNearbyMountains(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNumNearbyMountains = iValue;
+}
+
 #endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -15537,7 +15803,14 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #endif
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
 #if defined(MOD_API_UNIFIED_YIELDS)
-	iValue += GetYieldPerTurnFromUnimprovedFeatures(eIndex);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+		if(eFeature != NO_FEATURE)
+		{
+			iValue += GetYieldPerTurnFromUnimprovedFeatures(eFeature, eIndex);
+		}
+	}
 #endif
 	iValue += GetBaseYieldRateFromBuildings(eIndex);
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
@@ -15672,7 +15945,14 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 			}
 		}
 	}
-	iMod += GetYieldPerXTerrain(eIndex, false);
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	{
+		TerrainTypes eTerrain = (TerrainTypes) iI;
+		if(eTerrain != NO_TERRAIN)
+		{
+			iMod += GetYieldPerXTerrain(eTerrain, eIndex);
+		}
+	}
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -16071,8 +16351,22 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
-	iBaseYield += GetYieldPerXTerrain(eIndex, true);
-	iBaseYield += GetYieldPerXFeature(eIndex);
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	{
+		TerrainTypes eTerrain = (TerrainTypes) iI;
+		if(eTerrain != NO_TERRAIN)
+		{
+			iBaseYield += GetYieldPerXTerrainFromReligion(eTerrain, eIndex);
+		}
+	}
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+		if(eFeature != NO_FEATURE)
+		{
+			iBaseYield += GetYieldPerXFeature(eFeature, eIndex);
+		}
+	}
 	// This will only return a value for food and production
 	iBaseYield += GetYieldPerTurnFromReligion(GetCityReligions()->GetReligiousMajority(), eIndex);
 		
@@ -17948,6 +18242,10 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 
 						// Water Plots claimed later
 #if defined(MOD_BALANCE_CORE)
+						if(pLoopPlot->isLake())
+						{
+							iInfluenceCost += iPLOT_INFLUENCE_IMPROVEMENT_COST;
+						}
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
 #else
 						if (pLoopPlot->isWater())
@@ -21676,6 +21974,7 @@ void CvCity::read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreePromotionCount.dirtyGet());
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiBuildingClassCulture.dirtyGet());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumTerrainWorked.dirtyGet());
 #endif
 
 	UINT uLength;
@@ -21778,6 +22077,12 @@ void CvCity::read(FDataStream& kStream)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrainFromReligion, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrain, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
@@ -21811,6 +22116,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_abBuildingConstructed;
 	kStream >> m_iNationalMissionaries;
 	kStream >> m_iBorderObstacleCity;
+	kStream >> m_iNumNearbyMountains;
 #endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -22069,6 +22375,7 @@ void CvCity::write(FDataStream& kStream) const
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes, int>(kStream, m_paiBuildingClassCulture);
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes, int>(kStream, m_paiNumTerrainWorked);
 #endif
 
 	//  Write m_orderQueue
@@ -22130,6 +22437,10 @@ void CvCity::write(FDataStream& kStream) const
 	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromReligion, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrain, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
@@ -22160,6 +22471,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_abBuildingConstructed;
 	kStream << m_iNationalMissionaries;
 	kStream << m_iBorderObstacleCity;
+	kStream << m_iNumNearbyMountains;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
@@ -22207,6 +22519,11 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 		if(pkBuildingInfo->IsNoWater())
 		{
 			if(plot()->isFreshWater())
+			return false;
+		}
+		if(pkBuildingInfo->IsNoRiver())
+		{
+			if(plot()->isRiver())
 			return false;
 		}
 		//Capital Only
@@ -23610,7 +23927,6 @@ bool CvCity::CommitToBuildingUnitForOperation()
 								{
 									pUnit->setMoves(0);
 								}
-								pThisArmy->AddUnit(pUnit->GetID(), thisOperationSlot.m_iSlotID);
 								CleanUpQueue();
 								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
 							}
