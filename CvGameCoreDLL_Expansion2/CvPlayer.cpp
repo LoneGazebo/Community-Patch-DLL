@@ -23451,7 +23451,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
+#endif
 				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
 				bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
@@ -23491,7 +23493,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
+#endif
 				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 				GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);

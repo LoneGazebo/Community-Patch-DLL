@@ -24252,7 +24252,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 			// Can I get there this turn?
 			CvUnit* pUnit = (CvUnit*)this;
 #if defined(MOD_BALANCE_CORE)
-			if(CanReachInXTurns(pUnit,&swapPlot,1))
+			if(GC.getPathFinder().DoesPathExist(pUnit, plot(), &swapPlot, MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
 			{
 				CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
 #else
@@ -24293,7 +24293,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									{
 #if defined(MOD_BALANCE_CORE)
 										// Can the unit I am swapping with get to me this turn?
-										if(CanReachInXTurns(pLoopUnit,pUnit->plot(),1))
+										if(pLoopUnit->canMove() && GC.getPathFinder().DoesPathExist(pLoopUnit, pLoopUnit->plot(), pUnit->plot(), MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
 										{
 											CvPlot* pPathEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
 #else
@@ -26567,7 +26567,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		int iFromDanger = GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this);
 		int iToDanger = GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this);
 		if(iFromDanger<iToDanger)
-			OutputDebugString("Civilian moving into danger!\n");
+			OutputDebugString(CvString::format("%s moving into danger!\n",getName().c_str()).c_str());
 	}
 
 	//if (GC.getLogging() && GC.getAILogging()) 

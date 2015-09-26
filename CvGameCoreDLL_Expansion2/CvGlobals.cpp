@@ -2585,7 +2585,6 @@ void CvGlobals::init()
 	GetBuildRouteFinder().SetName("build route finder");
 	GetInternationalTradeRouteLandFinder().SetName("tr land finder");
 	GetInternationalTradeRouteWaterFinder().SetName("tr water finder");
-	GetTacticalAnalysisMapFinder().SetName("tactmap finder");
 #endif
 
 }
@@ -2780,10 +2779,12 @@ CvAStar& CvGlobals::GetInternationalTradeRouteWaterFinder()
 	return *m_internationalTradeRouteWaterFinder;
 }
 
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 CvTwoLayerPathFinder& CvGlobals::GetTacticalAnalysisMapFinder()
 {
 	return *m_tacticalAnalysisMapFinder;
 }
+#endif
 
 ICvDLLDatabaseUtility1* CvGlobals::getDatabaseLoadUtility()
 {

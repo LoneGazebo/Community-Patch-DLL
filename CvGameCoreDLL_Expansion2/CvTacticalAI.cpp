@@ -493,7 +493,7 @@ void CvTacticalAI::CommandeerUnits()
 			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() )
 			{
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
-				if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
 				{
 					continue;
 				}
@@ -4910,7 +4910,8 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			}
 			else
 			{
-				ExecuteMoveToPlot(pCivilian, pOperation->GetMusterPlot());
+				//if this fails, we freeze ...
+				MoveToUsingSafeEmbark(pCivilian, pOperation->GetMusterPlot(),true);
 			}
 		}
 	}
@@ -5058,13 +5059,17 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			if(!bPathFound)
 			{
 				//we have a problem, apparently civilian and escort must split up
-				ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
+				if (!MoveToUsingSafeEmbark(pCivilian, pOperation->GetTargetPlot(), true))
+				{
+					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target", 
+						pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY() );
+				}
 				//try to stay close
 				if (!MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked() ))
 				{
 					if(!MoveToEmptySpaceTwoFromTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked() ))
 					{
-						//if impossible, move independently
+						//if impossible, move independently - ignoring danger
 						ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot());
 					}
 				}
@@ -12929,6 +12934,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 					{
 #ifdef AUI_DANGER_PLOTS_REMADE
 						//ideally we would check all plots and use the one with the lowest danger, but that's more pathfinding
+						//note: this check works for civilian also, they have infinite danger if they could be captured 
 						if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*2 > pUnit->GetCurrHitPoints())
 							continue;
 #endif
@@ -14213,21 +14219,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 		if(pGeneral)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			const CvUnit* pGeneralUnit = NULL;
-			const IDInfo* pUnitNode = pGeneral->plot()->headUnitNode();
-			while(pUnitNode)
-			{
-				pGeneralUnit = ::getUnit(*pUnitNode);
-
-				if(pGeneralUnit != NULL)
-				{
-					if(pGeneralUnit->GetID() == pGeneral->GetID())
-					{
-						break;
-					}
-				}
-				pUnitNode = pGeneral->plot()->nextUnitNode(pUnitNode);
-			}
 			//Should we consider using our heal?
 			if(pGeneral->canRepairFleet(pGeneral->plot()))
 			{
@@ -14267,36 +14258,29 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			}
 
 			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass(DOMAIN_LAND) : NULL;
-			int iCurrentScore = 0;
 
 			TacticalAIHelpers::ReachablePlotSet reachableTiles;
 			TacticalAIHelpers::GetAllTilesInReach(pGeneral.pointer(),pGeneral->plot(),reachableTiles,true,true);
-
 			for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 			{
 				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->first);
 				if (!pEvalPlot)
 					continue;
 
-				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI, pArmyCOM);	
-				if(iScore > 0)
-				{			
-					if(pEvalPlot==pGeneral->plot())
-					{
-						iCurrentScore = iScore;
-					}
-					if(iScore > iBestScore)
-					{
-						iBestScore = iScore;
-						pBestPlot = pEvalPlot;
-					}
-				}
-			}
+				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot);	
 
-			if (iBestScore*2<iCurrentScore*3 && iCurrentScore>0)
-			{
-				//hmm. should i stay or should i go?
-				pBestPlot = pGeneral->plot();
+				if (pArmyCOM && iScore>0)
+				{
+					//try to stay with the army center
+					int iDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyCOM->getX(), pArmyCOM->getY());
+					iScore *= MapToPercent(iDistance,4,0);
+				}
+
+				if(iScore > iBestScore)
+				{
+					iBestScore = iScore;
+					pBestPlot = pEvalPlot;
+				}
 			}
 
 			if (pBestPlot)
@@ -14309,131 +14293,25 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			}
 			else
 			{
-				int iHighestDanger = 0;
-				bool bGood = false;
-				int iRange = (pGeneral->getMoves() * 3);
-				CvPlot* pLoopPlot = NULL;
-				for(int iX = -iRange; iX <= iRange; iX++)
+				//nothing near us, check all possible defenders
+				int iHighestScore = 0;
+				int iUnitLoop=0;
+				for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))				
 				{
-					if(bGood)
+					if (!pLoopUnit->IsCombatUnit())
+						continue;
+
+					CvPlot* pLoopPlot = pLoopUnit->plot();
+					int iScore = ScoreGreatGeneralPlot(pGeneral,pLoopPlot);
+
+					//we don't want to adjust our position too much
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pGeneral->getX(), pGeneral->getY());
+					iScore *= MapToPercent(iDistance,15,2);
+
+					if (iScore>iHighestScore)
 					{
-						break;
-					}
-					for(int iY = -iRange; iY <= iRange; iY++)
-					{
-						pLoopPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
-						if(bGood)
-						{
-							break;
-						}
-						if(pLoopPlot == NULL)
-						{
-							continue;
-						}
-						if(pLoopPlot->isImpassable())
-						{
-							continue;
-						}
-						if(!pLoopPlot->isRevealed(m_pPlayer->getTeam()))
-						{
-							continue;
-						}
-						if(pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_LAND)
-						{
-							continue;
-						}
-						if(!pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_SEA)
-						{
-							continue;
-						}
-						const UnitHandle pUnit = pLoopPlot->getBestDefender(m_pPlayer->GetID());
-						if (!pUnit)
-						{
-							continue;
-						}
-						if(pGeneralUnit != NULL && pUnit->IsNearGreatGeneral(pLoopPlot, pGeneralUnit))
-						{
-							continue;
-						}
-
-						//a single unit is too volatile, check for a whole cluster
-						int iUnitPower = pUnit->GetPower();
-						if(pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2))
-						{
-							iUnitPower /= 2;
-						}
-						if(pUnit->plot()->isCity())
-						{
-							iUnitPower *= 2;
-						}
-						int iTotalPower = 0;
-						CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pLoopPlot);
-						for(int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
-						{
-							const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-							if(pNeighborPlot != NULL)
-							{
-								pUnit = pNeighborPlot->getBestDefender(m_pPlayer->GetID());
-							}
-							if (pUnit && (pUnit->getDomainType() == pGeneral->getDomainType()) && pUnit->IsCombatUnit())
-							{
-								iTotalPower += pUnit->GetPower();
-								if(pUnit->GetNumEnemyUnitsAdjacent() > 0)
-								{
-									iTotalPower *= 2;
-								}
-								int iCitadelDamage;
-								if(pUnit->IsNearEnemyCitadel(iCitadelDamage))
-								{
-									iTotalPower *= 2;
-								}
-								if(pUnit->IsEnemyCityAdjacent())
-								{
-									iTotalPower *= 2;
-								}
-								if(pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-								{
-									iTotalPower *= 2;
-								}
-								if(m_pPlayer->GetPlotDanger(*(pUnit->plot()),pUnit.pointer()) > 0)
-								{
-									iTotalPower *= 2;
-								}
-								if(pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2))
-								{
-									iTotalPower /= 2;
-								}
-							}
-						}
-						
-						if(iTotalPower > iUnitPower)
-						{
-							iTotalPower += iUnitPower;
-							//we don't want to adjust our target too much
-							int iDistance = plotDistance(pLoopPlot->getX() ,pLoopPlot->getY() ,pGeneral->getX(),pGeneral->getY());
-
-							iTotalPower *= MapToPercent(iDistance,23,3);
-
-							if(iTotalPower > iHighestDanger)
-							{
-								if((iHighestDanger > 0) && ((iTotalPower * 2) > (iHighestDanger * 3)))
-								{
-									iHighestDanger = iTotalPower;
-									pBestPlot = pLoopPlot;
-									bGood = true;
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strMsg;
-										strMsg.Format("Deploying %s %d to assist troops near excellent plot, To X: %d, To Y: %d, At X: %d, At Y: %d, Value: %d",
-														pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
-														pGeneral->getX(), pGeneral->getY(), iHighestDanger);
-										LogTacticalMessage(strMsg);
-									}
-								}
-								iHighestDanger = iUnitPower;
-								pBestPlot = pLoopPlot;
-							}
-						}
+						pBestPlot = pLoopPlot;
+						iHighestScore = iScore;
 					}
 				}
 			}
@@ -15076,10 +14954,62 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 
 /// Support function to pick best hex for a great general to move to
 #if defined(MOD_BALANCE_CORE_MILITARY)
-int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI, CvPlot* pArmyCOM)
+int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
+{
+	if(pLoopPlot == NULL || pLoopPlot->isImpassable() || !pLoopPlot->isRevealed(m_pPlayer->getTeam()))
+		return 0;
+
+	if(pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_LAND)
+		return 0;
+
+	if(!pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_SEA)
+		return 0;
+
+	if(pGeneral->IsNearGreatGeneral(pLoopPlot, pGeneral.pointer())) //near another general
+		return 0;
+
+	if(pGeneral->GetNumEnemyUnitsAdjacent(NULL,pLoopPlot) > 0 && !pLoopPlot->isCity() ) //never in the trenches
+		return 0;
+
+	const UnitHandle pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
+	if (!pDefender)
+		return 0;
+
+	int iTotalScore = 0;
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pLoopPlot);
+	for(int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	{
+		const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+		if(!pNeighborPlot)
+			continue;
+
+		UnitHandle pSupportedUnit = pNeighborPlot->getBestDefender(m_pPlayer->GetID());
+
+		int iMultiplier = 1;
+		if (pSupportedUnit && (pSupportedUnit->getDomainType() == pGeneral->getDomainType()))
+		{
+			//if enemies are nearby the general is more useful
+			if(pSupportedUnit->GetNumEnemyUnitsAdjacent() > 0)
+				iMultiplier++;
+			if(pSupportedUnit->IsEnemyCityAdjacent())
+				iMultiplier++;
+			//recent operation
+			if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+				iMultiplier++;
+
+			iTotalScore += iMultiplier*pSupportedUnit->GetPower();
+		}
+	}
+
+	int iDefenderPower = pDefender->GetPower();
+	if(pLoopPlot->isCity())
+		iDefenderPower *= 2;
+	iTotalScore += iDefenderPower;
+
+	return iTotalScore;
+}
 #else
 int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI)
-#endif
 {
 	// Returned value
 	int iScore = 0;
@@ -15104,6 +15034,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 		return 0;
 	}
 #endif
+
 	// Non-friendly city here?
 	if(pTarget->isCity() && pTarget->getOwner() != ePlayer)
 	{
@@ -15203,9 +15134,6 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	}
 
 	// Distance to center of army (if still under operational AI)
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	iDistToOperationCenter = pArmyCOM ? plotDistance(pTarget->getX(), pTarget->getY(), pArmyCOM->getX(), pArmyCOM->getY()) : INT_MAX;
-#else
 	if(pArmyAI)
 	{
 		CvPlot* pCOM = pArmyAI->GetCenterOfMass(NO_DOMAIN);
@@ -15214,7 +15142,6 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 			iDistToOperationCenter = plotDistance(pTarget->getX(), pTarget->getY(), pCOM->getX(), pCOM->getY());
 		}
 	}
-#endif
 
 	// Near an attack we already have planned?
 	iNearbyQueuedAttacks = NearXQueuedAttacks(pTarget, 2);
@@ -15239,18 +15166,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	// Moving to an empty tile
 	else
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(!pArmyAI && iDangerValue <= 0)
-		{
-			iScore = 10;
-		}
-		else
-		{
-			return 0;
-		}
-#else
 		iScore = 10;
-#endif
 	}
 
 	if(iNearbyQueuedAttacks > 0)
@@ -15280,6 +15196,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 
 	return iScore;
 }
+#endif
 
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)

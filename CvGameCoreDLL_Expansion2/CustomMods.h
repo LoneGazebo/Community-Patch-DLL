@@ -220,6 +220,9 @@
 #define MOD_CORE_TRADE_NATURAL_ROUTES
 #define MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST 100
 
+// disable the tacticalmappathfinder - it's 99% identical to the regular pathfinder
+#define MOD_CORE_NO_TACTMAP_PATHFINDER
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

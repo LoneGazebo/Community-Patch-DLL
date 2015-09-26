@@ -1018,7 +1018,7 @@ private:
 	void ScoreHedgehogPlots(CvPlot* pTarget);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI, CvPlot* pArmyCOM);
+	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget);
 #else
 	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI);
 #endif

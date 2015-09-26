@@ -315,7 +315,9 @@ void CvPlayerAI::AI_unitUpdate()
 	// but this will allow selective control in case one type of pather is causing out-of-syncs.
 	bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 	bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 	bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
+#endif
 	bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 	bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
 	bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
@@ -367,7 +369,9 @@ void CvPlayerAI::AI_unitUpdate()
 
 	GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 	GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 	GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
+#endif
 	GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
@@ -1543,6 +1547,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
+	//if he has a directive, don't change it
+	if (pGreatGeneral->GetGreatPeopleDirective()!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		return pGreatGeneral->GetGreatPeopleDirective();
+
 	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
 	if(pGreatGeneral->getArmyID() != -1)
@@ -1704,6 +1712,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
+	//if he has a directive, don't change it
+	if (pGreatAdmiral->GetGreatPeopleDirective()!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		return pGreatAdmiral->GetGreatPeopleDirective();
+
 	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
 	if(pGreatAdmiral->getArmyID() != -1)
@@ -2517,6 +2529,10 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+			continue;
+#endif
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
 		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());

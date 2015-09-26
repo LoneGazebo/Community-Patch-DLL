@@ -1199,6 +1199,13 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 						iBaseValue *= (int)((iDamage + 1) * 10 / pClosestCity->GetMaxHitPoints());
 					}
 				}
+
+#if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->IsCityAlreadyTargeted(pClosestCity) || m_pPlayer->GetMilitaryAI()->IsCurrentAttackTarget(pClosestCity) )
+				{
+					iBaseValue *= 10;
+				}
+#endif
 			}
 
 			if(!pZone->IsWater())

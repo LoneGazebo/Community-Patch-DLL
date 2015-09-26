@@ -1347,6 +1347,26 @@ CvCity* GetCityFromGlobalID(int iID)
 	return NULL;
 }
 
+bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
+{
+	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
+		return false;
+
+	CachedTargetsMap::iterator itEnemy = m_cachedTargets.find( pCity->getOwner() );
+	if (itEnemy != m_cachedTargets.end())
+	{
+		for (std::map<AIOperationTypes,SCachedTarget>::iterator itTarget = itEnemy->second.begin(); itTarget != itEnemy->second.end(); ++itTarget)
+		{
+			if (itTarget->second.iTargetCity == pCity->GetID())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
 	int ciAgeLimit = 30;

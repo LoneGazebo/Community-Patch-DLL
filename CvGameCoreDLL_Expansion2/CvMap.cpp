@@ -583,8 +583,11 @@ void CvMap::setup()
 	GC.GetInternationalTradeRouteLandFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL,	TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, NULL, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
 	GC.GetInternationalTradeRouteWaterFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
 #endif
+
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.GetTacticalAnalysisMapFinder().SetDataChangeInvalidatesCache(true);
+#endif
 }
 
 //////////////////////////////////////
