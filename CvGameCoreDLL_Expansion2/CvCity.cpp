@@ -2385,8 +2385,7 @@ void CvCity::doTurn()
 		SetPuppet(false);
 	}
 	GetCityReligions()->ComputeReligiousMajority();
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	if(MOD_BALANCE_CORE)
 	{
 		int iNumAllies = 0;
@@ -2413,8 +2412,7 @@ void CvCity::doTurn()
 			}
 		}
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
@@ -2456,7 +2454,7 @@ void CvCity::doTurn()
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
 										strSummary << pkResourceInfo->GetTextKey();
 										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+										pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
 									}
 								}
 							}

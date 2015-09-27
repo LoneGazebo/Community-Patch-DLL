@@ -326,29 +326,29 @@ SET NoMinorCivs = 'true'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '35'
+SET Flavor = '60'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '35'
+SET Flavor = '60'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '35'
+SET Flavor = '60'
 WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '25'
+SET Flavor = '40'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '25'
+SET Flavor = '40'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '10'
+SET Flavor = '20'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '10'
+SET Flavor = '20'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';

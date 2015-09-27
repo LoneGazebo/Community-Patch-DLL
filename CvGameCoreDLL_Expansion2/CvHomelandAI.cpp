@@ -4495,7 +4495,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 		else
 		{
 			// Best units have already had a full path check to the target, so just add the move
-			pBestUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+			MoveToUsingSafeEmbark(pBestUnit, pTarget, true);
 #if defined(MOD_BALANCE_CORE)
 			if(pBestUnit->getMoves() > 0)
 			{
@@ -4511,6 +4511,8 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 					}
 				}
 			}
+#else
+			pBestUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 #endif
 			pBestUnit->finishMoves();
 			UnitProcessed(pBestUnit->GetID());
@@ -5414,7 +5416,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 			//Handled by economic AI
 		break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-		MoveCivilianToSafety(pUnit.pointer());
+			MoveCivilianToSafety(pUnit.pointer());
 #if defined(MOD_BALANCE_CORE)
 		UnitProcessed(pUnit->GetID());
 		pUnit->finishMoves();
@@ -5824,6 +5826,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	}
 #endif
+
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5831,6 +5834,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			continue;
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//might have been used in tactical AI already
+		if (!pUnit->canMove())
+			continue;
+#endif
 
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
@@ -5879,13 +5888,16 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #if defined(MOD_BALANCE_CORE)
 						UnitProcessed(pUnit->GetID());
 						pUnit->finishMoves();
-						continue;
 #endif
 					}
 				}
 				else
 				{
+#if defined(MOD_BALANCE_CORE)
+					MoveToUsingSafeEmbark(pUnit, pTargetPlot, true);
+#else
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+#endif
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -5896,9 +5908,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 							pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_BALANCE_CORE)
-					continue;
-#endif
 				}
 				continue;
 			}
@@ -5910,6 +5919,66 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			ExecuteGoldenAgeMove(pUnit.pointer());
 			continue;
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+		{
+			int iBestScore = 0;
+			CvPlot* pBestPlot = 0;
+
+			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
+			TacticalAIHelpers::ReachablePlotSet reachableTiles;
+			TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(),pUnit->plot(),reachableTiles,true,true);
+			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
+			{
+				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
+				//plot needs to have a defender, but no be adjacent to the enemy
+				UnitHandle pDefender = pCandidate->getBestDefender(pUnit->getOwner());
+				if (!pDefender || (pDefender->GetNumEnemyUnitsAdjacent()>0 && !pCandidate->isCity()))
+					continue;
+
+				if(pUnit->IsNearGreatGeneral(pCandidate, pUnit.pointer())) //near another general
+					continue;
+
+				//we want to have many neighboring units in danger, but our plot should be relatively safe
+				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
+				int iGeneralDanger = m_pPlayer->GetPlotDanger(*pCandidate,pDefender.pointer());
+
+				//for each candidate plot, look at the neighbors
+				int iSupportedDanger = iGeneralDanger;
+				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pCandidate);
+				for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+				{
+					CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+					if (!pLoopPlot)
+						continue;
+
+					UnitHandle pSupportedUnit = pLoopPlot->getBestDefender(pUnit->getOwner());
+					if (!pSupportedUnit)
+						continue;
+
+					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit.pointer());
+				}
+
+				int iScore = (100*iSupportedDanger)/(iGeneralDanger+1);
+				if (iScore>iBestScore && iScore>100)
+				{
+					iBestScore=iScore;
+					pBestPlot=pCandidate;
+				}
+			}
+
+			if (pBestPlot)
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+			}
+			else
+			{
+				//no units around ... move to city
+				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+			}
+		}
+#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -6010,6 +6079,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (iTurns != MAX_INT)
 				{
 					iWeight -= iTurns;
+					iWeight = max(0,iWeight);
 				}
 				//Is this city a home front?
 				if(pLoopCity->plot()->IsHomeFrontForPlayer(m_pPlayer->GetID()))
@@ -6019,13 +6089,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if(pLoopCity->GetGarrisonedUnit() != NULL)
 				{
 					iWeight *= 2;
-					if(pLoopCity->getUnhappinessFromDefense() > 0)
-					{
-						iWeight *= pLoopCity->getUnhappinessFromDefense();
-					}
 				}
 				if(iNumCommanders > 0)
 				{
+					//discourage more than one general in a city
 					iWeight /= (iNumCommanders + 1);
 				}
 
@@ -6049,15 +6116,11 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						strLogString.Format("Great General still in most favored city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_BALANCE_CORE)
-					continue;
-#endif
 				}
-			
 				// Move normally to this city
 				else if(pChosenCity)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY());
+					MoveToUsingSafeEmbark(pUnit,pChosenCity->plot(),true);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -6067,9 +6130,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						strLogString.Format("Moving Great General to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_BALANCE_CORE)
-					continue;
-#endif
 				}
 				else
 				{
@@ -6081,9 +6141,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						strLogString.Format("No place to move Great General at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_BALANCE_CORE)
-					continue;
-#endif
 				}
 			}
 #else
@@ -6311,6 +6368,12 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			}
 
 		}
+
+		//this should have been handled in tactical AI - so reset him
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+			pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+
+
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
@@ -7632,6 +7695,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 							bSuitableUnit = true;
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_SENTRY:
@@ -7664,6 +7734,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 						bHighPriority = true;
 					}
 #endif
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_MOBILE_RESERVE:
@@ -7677,6 +7754,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					{
 						bSuitableUnit = true;
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_ANCIENT_RUINS:
@@ -7694,6 +7778,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					else if(pLoopUnit->IsCombatUnit())
 					{
 						bSuitableUnit = true;
+					}
+#endif
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
 					}
 #endif
 					break;
@@ -8347,6 +8438,47 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pLog->Msg(strLog);
 			}
 
+#if defined(MOD_BALANCE_CORE)
+			if(eMission == CvTypes::getMISSION_MOVE_TO())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
+
+				//do we have movement left?
+				if (pUnit->getMoves()>0)
+					eMission = CvTypes::getMISSION_BUILD();
+				else
+				{
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+				}
+			}
+
+			if(eMission == CvTypes::getMISSION_BUILD())
+			{
+				// check to see if we already have this mission as the unit's head mission
+				bool bPushMission = true;
+				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
+				if(pkMissionData != NULL)
+				{
+					if(pkMissionData->eMissionType == eMission && pkMissionData->iData1 == aDirective[0].m_eBuild)
+					{
+						bPushMission = false;
+					}
+				}
+
+				if(bPushMission)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+				}
+
+				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
+				if(pUnit->ReadyToMove())
+				{
+					pUnit->finishMoves();
+				}
+				UnitProcessed(pUnit->GetID());
+			}
+#else
 			if(eMission == CvTypes::getMISSION_BUILD())
 			{
 				// check to see if we already have this mission as the unit's head mission
@@ -8378,6 +8510,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
+#endif
 
 			return true;
 		}
@@ -8690,10 +8823,63 @@ void CvHomelandAI::ClearCurrentMoveHighPriorityUnits()
 	m_iCurrentBestMoveHighPriorityUnitTurns = MAX_INT;
 }
 //	---------------------------------------------------------------------------
-CvUnit* m_CurrentBestHighPriorityMoveUnit;
-int m_iCurrentBestHighPriorityMoveUnitTurns;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+
+bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo)
+{
+	// Move right away if not a land unit
+	if (pUnit->getDomainType() != DOMAIN_LAND)
+	{
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+		return true;
+	}
+
+	if (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isEmbarked() && pUnit->IsCivilianUnit())
+	{
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+		return true;
+	}
+
+	// If a land unit, get path to target
+	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : MOVE_UNITS_IGNORE_DANGER;
+	if(!pUnit->GeneratePath(pTargetPlot,iMoveFlags))
+	{
+		// No path this may happen if a unit has moved up and blocked our path to our target plot
+		// If calling routine is moving a bunch of units like this it should retry these units
+		return false;
+	}
+	else
+	{
+		CvPlot *pMovePlot = pUnit->GetPathEndTurnPlot();
+
+		// Not dangerous, proceed
+		if (m_pPlayer->GetPlotDanger(*pMovePlot,pUnit.pointer())==0)
+		{
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+			return true;	
+		}
+		// Dangerous - try to move just on land
+		else
+		{
+			if(!pUnit->GeneratePath(pTargetPlot, MOVE_NO_EMBARK))
+			{
+				// No land path so just stay put and fortify until life improves for you.
+				if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
+					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+
+				return true;	
+			}
+			else
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_NO_EMBARK);
+				return true;	
+			}
+		}
+	}
+}
+
+
 int g_currentHomelandUnitToTrack = 0;
 
 const char* homelandMoveNames[] =
@@ -8733,6 +8919,17 @@ const char* homelandMoveNames[] =
 	"AI_HOMELAND_MOVE_AIRLIFT",
 	"AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY",
 	"AI_HOMELAND_MOVE_MESSENGER",
+};
+
+const char* directiveNames[] = 
+{
+	"GOLDEN_AGE",
+	"USE_POWER",
+	"CONSTRUCT_IMPROVEMENT",
+	"SPREAD_RELIGION",
+	"CULTURE_BLAST",
+	"TOURISM_BLAST",
+	"FIELD_COMMAND",
 };
 
 void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)

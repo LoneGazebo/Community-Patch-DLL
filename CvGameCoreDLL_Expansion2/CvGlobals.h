@@ -217,7 +217,9 @@ public:
 	CvAStar& GetBuildRouteFinder();
 	CvAStar& GetInternationalTradeRouteLandFinder();
 	CvAStar& GetInternationalTradeRouteWaterFinder();
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 	CvTwoLayerPathFinder& GetTacticalAnalysisMapFinder();
+#endif
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
 
 	std::vector<CvInterfaceModeInfo*>& getInterfaceModeInfo();

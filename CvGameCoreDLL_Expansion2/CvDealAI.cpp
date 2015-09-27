@@ -7489,6 +7489,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	{
 		return false;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Asking a vassal? Abort!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return false;
+	}
+#endif
 
 	int iWarValue = 0;
 	int iBestValue = 0;
@@ -7563,6 +7570,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		{
 			continue;
 		}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		//Asking about a vassal? Abort!
+		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassalOfSomeone())
+		{
+			return false;
+		}
+#endif
 		//Is our opinion of the player good? Don't do it!
 		if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAgainstPlayer) >= MAJOR_CIV_OPINION_FAVORABLE)
 		{
@@ -7640,6 +7654,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 	{
 		return false;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Asking a vassal? Abort!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return false;
+	}
+#endif
 
 	int iWarValue = 0;
 	int iBestValue = 0;
@@ -7694,6 +7715,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		//Asking about a vassal? Abort!
+		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassalOfSomeone())
+		{
+			return false;
+		}
+#endif
 		//Is he not at war with the team? Don't do it!
 		if(!GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
 		{

@@ -400,6 +400,9 @@ private:
 	CvPlot* FindPatrolTarget(CvUnit* pUnit);
 	bool GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
+#endif
 	CvCity* ChooseBestFreeWonderCity(BuildingTypes eWonder, UnitHandle pEngineer);
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 	void UnitProcessed(int iID);
@@ -452,6 +455,7 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 extern const char* homelandMoveNames[];
+extern const char* directiveNames[];
 #endif
 
 namespace HomelandAIHelpers

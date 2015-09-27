@@ -1167,7 +1167,7 @@ function ResetDisplay()
 	    Controls.UsPocketGoldPerTurn:SetDisabled(true);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+		Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
 --END
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
@@ -1185,7 +1185,7 @@ function ResetDisplay()
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+		Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
 --END
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);

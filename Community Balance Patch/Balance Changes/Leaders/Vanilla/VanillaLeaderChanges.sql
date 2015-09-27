@@ -48,7 +48,7 @@ SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connection roads grant Desert and Plains tiles [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Unit movement doubled in Deserts and Plains.'
+SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connection roads grant featureless Deserts and Plains extra [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Unit movement doubled in Deserts and Plains.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

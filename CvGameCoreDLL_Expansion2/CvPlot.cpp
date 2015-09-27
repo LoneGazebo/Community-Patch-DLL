@@ -9833,17 +9833,20 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 					//if it is an enemy unit, update the danger plots! 
-					const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
-					for(size_t iI = 0; iI < aePlayers.size(); iI++)
+					if (GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()))
 					{
-						PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
-						if(ePlayer == NO_PLAYER)
+						const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
+						for(size_t iI = 0; iI < aePlayers.size(); iI++)
 						{
-							continue;
-						}
-						else
-						{
-							GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+							PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
+							if(ePlayer == NO_PLAYER)
+							{
+								continue;
+							}
+							else
+							{
+								GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+							}
 						}
 					}
 #endif

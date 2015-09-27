@@ -788,43 +788,43 @@
 	<AIEconomicStrategy_City_Flavors>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NAVAL_MAP</AIEconomicStrategyType>
-			<FlavorType>FLAVOR_LAND_CONNECTION</FlavorType>
+			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
 			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NAVAL_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>-40</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NAVAL_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>-40</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NAVAL_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>-40</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP</AIEconomicStrategyType>
-			<FlavorType>FLAVOR_LAND_CONNECTION</FlavorType>
-			<Flavor>-40</Flavor>
+			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>-10</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>-10</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>-10</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_TOO_MANY_UNITS</AIEconomicStrategyType>

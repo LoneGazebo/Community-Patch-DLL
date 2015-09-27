@@ -22677,10 +22677,12 @@ int CvPlayer::calculateMilitaryMight() const
 	{
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
+#if !defined(MOD_BALANCE_CORE)
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			iPower /= 2;
 		}
+#endif
 		rtnValue += iPower;
 	}
 
@@ -23451,7 +23453,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
+#endif
 				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
 				bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
@@ -23491,7 +23495,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
+#endif
 				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 				GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
@@ -26604,7 +26610,11 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 				strText << pkResourceInfo->GetTextKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT");
 				strSummary << pkResourceInfo->GetTextKey();
+#if defined(MOD_BALANCE_CORE)
+				pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
+#else
 				pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
+#endif
 			}
 		}
 	}
@@ -26715,8 +26725,12 @@ void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
 				CalculateHappiness();
 			}
 		}
-#else
+		else
+		{
+#endif
 		DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 	}
 }

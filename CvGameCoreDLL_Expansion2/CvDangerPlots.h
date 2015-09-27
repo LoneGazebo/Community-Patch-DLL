@@ -67,7 +67,6 @@ struct CvDangerPlotContents
 		m_iFlatPlotDamage = 0;
 		m_pCitadel = NULL;
 		m_apUnits.clear();
-		m_apMoveOnlyUnits.clear();
 		m_apCities.clear();
 
 		//reset cache
@@ -92,7 +91,6 @@ struct CvDangerPlotContents
 	//only one citadel can affect a unit at a time
 	CvPlot* m_pCitadel;
 	DangerUnitVector m_apUnits;
-	DangerUnitVector m_apMoveOnlyUnits;
 	DangerCityVector m_apCities;
 
 	//caching ...

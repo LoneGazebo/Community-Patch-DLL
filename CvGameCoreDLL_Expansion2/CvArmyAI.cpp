@@ -230,10 +230,14 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 
 	int iTotalX2 = 0;
 	int iTotalY2 = 0;
-	int iRefX = pUnit->getX();
-	int iRefY = pUnit->getY();
 	int iWorldWidth = GC.getMap().getGridWidth();
 	int iWorldHeight = GC.getMap().getGridHeight();
+
+	//the first unit is our reference ...
+	int iRefX = pUnit->getX();
+	int iRefY = pUnit->getY();
+	iNumUnits++;
+	pUnit = GetNextUnit();
 
 	while(pUnit)
 	{
@@ -270,12 +274,16 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	//this is for debugging
 	float fVarX = (iTotalX2 / (float)iNumUnits) - (iTotalX/(float)iNumUnits)*(iTotalX/(float)iNumUnits);
 	float fVarY = (iTotalY2 / (float)iNumUnits) - (iTotalY/(float)iNumUnits)*(iTotalY/(float)iNumUnits);
-	if (fVarX > 100 || fVarY > 100)
-		OutputDebugString("Warning: Army Center of Mass has a very large variance\n");
 
 	//finally, compute average (with rounding)
 	int iAvgX = (iTotalX + (iNumUnits / 2)) / iNumUnits + iRefX;
 	int iAvgY = (iTotalY + (iNumUnits / 2)) / iNumUnits + iRefY;
+
+	if (fVarX > 64 || fVarY > 64)
+	{
+		CvString msg = CvString::format("Warning: Army %d with %d units Center of Mass (%d,%d) has a large variance (%.2f,%.2f)\n", GetID(), iNumUnits, iAvgX, iAvgY, fVarX, fVarY);
+		OutputDebugString( msg.c_str() );
+	}
 
 	//this handles wrapped coordinates
 	pRtnValue = GC.getMap().plot(iAvgX, iAvgY);

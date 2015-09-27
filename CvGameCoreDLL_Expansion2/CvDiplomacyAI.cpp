@@ -6997,7 +6997,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						{
 							if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
 							{
-								eWarState = WAR_STATE_DEFENSIVE;
+								eWarState = WAR_STATE_STALEMATE;
 							}
 						}
 					}

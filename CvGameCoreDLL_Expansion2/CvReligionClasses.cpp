@@ -7997,10 +7997,24 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeature(iJ, iI) > 0)
 			{
 #if defined(MOD_GLOBAL_CITY_WORKING)
-				for(int iL = 0; iL < pCity->GetNumWorkablePlots(); iL++)
+				const std::vector<int>& vWorkedPlots =  pCity->GetCityCitizens()->GetWorkedPlots();
+				for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+				{
+					CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+					if(pPlot->getFeatureType() == eFeature)
+					{
+						if(pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+						{
+							iValidTiles++;
+						}
+						else
+						{
+							iValidTiles++;
+						}
+					}
+				}
 #else
 				for(int iL = 0; iL < NUM_CITY_PLOTS; iL++)
-#endif
 				{
 					CvPlot* pPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iL);
 
@@ -8022,6 +8036,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 						}
 					}
 				}
+#endif
 				iRtnValue += iValidTiles;
 			}
 		}

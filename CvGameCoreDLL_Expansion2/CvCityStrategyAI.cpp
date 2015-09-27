@@ -676,15 +676,20 @@ YieldTypes CvCityStrategyAI::GetDeficientYield(void)
 /// Get the average value of the yield for this city
 void CvCityStrategyAI::PrecalcYieldAverages()
 {
-	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
-	CvPlotsVector& aiPlots = pPlayer->GetPlots();
-
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
 
 		int iTilesWorked = 0;
 		int iYieldAmount = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
+		for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+#else
+		CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
+		CvPlotsVector& aiPlots = pPlayer->GetPlots();
 		for(uint ui = 0; ui < aiPlots.size(); ui++)
 		{
 			// at the end of the plot list
@@ -698,7 +703,7 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 			{
 				continue;
 			}
-
+#endif
 			iTilesWorked++;
 			iYieldAmount += pPlot->calculateYield(eYield);
 		}
@@ -725,6 +730,13 @@ double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 
 	int iTilesWorked = 0;
 	int iYieldAmount = 0;
+
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
+	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+#else
 	for(uint ui = 0; ui < aiPlots.size(); ui++)
 	{
 		// at the end of the plot list
@@ -738,7 +750,7 @@ double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 		{
 			continue;
 		}
-
+#endif
 		iTilesWorked++;
 		iYieldAmount += pPlot->calculateYield(eYieldType);
 	}

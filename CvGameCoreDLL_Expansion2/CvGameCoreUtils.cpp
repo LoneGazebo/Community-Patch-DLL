@@ -103,7 +103,6 @@ CvPlot* plotCity(int iX, int iY, int iIndex)
 
 int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 {
-
 	int iDX;
 	int iWrappedDX = dxWrap(pPlot->getX() - pCity->getX());
 	int iWrappedDY = dyWrap(pPlot->getY() - pCity->getY());
@@ -116,23 +115,18 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 	iDX = dxWrap(iPlotHexX - iCityHexX);
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	//performance optimization, this check is unnecessary
-	//if(hexDistance(iDX, iDY) > pCity->getWorkPlotDistance())
+	// Regardless of the working radius, we need to offset into the array by the maximum radius
+	return GC.getXYCityPlot((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
 #else
 	if(hexDistance(iDX, iDY) > CITY_PLOTS_RADIUS)
 	{
 		return -1;
 	}
 	else
-#endif
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-		// Regardless of the working radius, we need to offset into the array by the maximum radius
-		return GC.getXYCityPlot((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
-#else
 		return GC.getXYCityPlot((iDX + CITY_PLOTS_RADIUS), (iDY + CITY_PLOTS_RADIUS));
-#endif
 	}
+#endif
 }
 
 DirectionTypes estimateDirection(int iDX, int iDY)

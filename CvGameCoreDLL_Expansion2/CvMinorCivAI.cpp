@@ -1646,7 +1646,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 					{
 						int iNumRequiredSlots;
-						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, &iNumRequiredSlots);
+						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, &iNumRequiredSlots);
 
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
@@ -1724,7 +1724,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
 				int iNumRequiredSlots;
-				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, &iNumRequiredSlots);
+				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, &iNumRequiredSlots);
 
 				CvCity* pMusterCity = pAssignedPlayer->getCapitalCity();
 				if(pMusterCity != NULL)

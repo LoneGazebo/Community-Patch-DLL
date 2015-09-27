@@ -124,6 +124,9 @@ struct CvMilitaryTarget
 		m_pTargetCity(NULL),
 		m_pMusterCity(NULL),
 		m_bAttackBySea(false),
+#if defined(MOD_BALANCE_CORE)
+		m_bOcean(false),
+#endif
 		iMusterNearbyUnitPower(0),
 		iTargetNearbyUnitPower(0),
 		m_iPathLength(0)
@@ -141,6 +144,9 @@ struct CvMilitaryTarget
 	int iMusterNearbyUnitPower;
 	int m_iPathLength;
 	bool m_bAttackBySea;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bOcean;
+#endif
 };
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -150,6 +156,7 @@ struct SCachedTarget
 		iTargetCity(0),
 		iMusterCity(0),
 		bAttackBySea(0),
+		bOcean(0),
 		iScore(0),
 		iTurnChosen(0)
 	{
@@ -158,6 +165,7 @@ struct SCachedTarget
 	int iTargetCity;
 	int iMusterCity;
 	int bAttackBySea;
+	int bOcean;
 	int iScore;
 	int iTurnChosen;
 };
@@ -242,6 +250,7 @@ public:
 
 	// Finding best cities to target
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	bool IsCurrentAttackTarget(CvCity* pCity);
 	CvMilitaryTarget FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
@@ -453,7 +462,11 @@ bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 
 // Functions that evaluate which operation to launch
 int ComputeRecommendedNavySize(CvPlayer* pPlayer);
+#if defined(MOD_BALANCE_CORE)
+int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
+#else
 int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
+#endif
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 #if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes GetBestFormationType();

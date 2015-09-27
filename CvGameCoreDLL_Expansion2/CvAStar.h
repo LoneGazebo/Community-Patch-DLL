@@ -549,7 +549,9 @@ int AttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* 
 int AttackPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackFortifiedPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#endif
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #ifdef AUI_ASTAR_TURN_LIMITER
@@ -587,6 +589,7 @@ public:
 	CvPlot* GetPathEndTurnPlot() const;
 
 #ifdef AUI_ASTAR_TURN_LIMITER
+	bool DoesPathExist(CvUnit* pUnit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iFlags=0, int iTargetTurns=INT_MAX);
 	bool GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo = 0, bool bReuse = false, int iTargetTurns = MAX_INT);
 #else
 	bool GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo = 0, bool bReuse = false);
@@ -621,11 +624,6 @@ public:
 	int GetPathLength();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathEndTurnPlot() const;
-	CvPlot* GetLastPlot();
-	CvPlot* GetPreviousPlot();
-
-private:
-	CvAStarNode* m_pCurNode;
 };
 
 #endif	//CVASTAR_H

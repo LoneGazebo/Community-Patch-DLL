@@ -3236,6 +3236,17 @@ static void LogPathGeneration(const CvUnit *pkUnit, CvString& strMsg)
 //	--------------------------------------------------------------------------------
 /// Generate a path, using the supplied unit as the data
 #ifdef AUI_ASTAR_TURN_LIMITER
+bool CvTwoLayerPathFinder::DoesPathExist(CvUnit* pUnit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iFlags, int iTargetTurns)
+{
+	if(pUnit == NULL || pStartPlot == NULL || pEndPlot == NULL)
+	{
+		return false;
+	}
+
+	return GenerateUnitPath(pUnit, pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), iFlags, false, iTargetTurns);
+}
+
+
 bool CvTwoLayerPathFinder::GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo, bool bReuse, int iTargetTurns)
 #else
 bool CvTwoLayerPathFinder::GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo /*= 0*/, bool bReuse /*= false*/)
@@ -3250,14 +3261,12 @@ bool CvTwoLayerPathFinder::GenerateUnitPath(const CvUnit* pkUnit, int iXstart, i
 		SetData(pkUnit);
 #endif // AUI_ASTAR_TURN_LIMITER
 		bool bResult = GeneratePath(iXstart, iYstart, iXdest, iYdest, iInfo, bReuse);
-		if(GC.getLogging() && GC.getAILogging())
+		if(false)
 		{
 			CvString strLogString;
 			uint uiChecksum = CRC_INIT;
 			// Loop through the nodes and make a checksum
 			CvAStarNode* pNode = GetLastNode();
-
-			// Starting at the end, loop until we find a plot from this owner
 			while(pNode != NULL)
 			{
 				// Just do the X/Y for now
@@ -3469,8 +3478,6 @@ bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, Cv
 bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot)
 #endif
 {
-	m_pCurNode = NULL;
-
 	if(pStartPlot == NULL || pEndPlot == NULL)
 	{
 		return false;
@@ -3591,43 +3598,6 @@ CvPlot* CvIgnoreUnitsPathFinder::GetPathEndTurnPlot() const
 	FAssert(false);
 
 	return NULL;
-}
-
-//	--------------------------------------------------------------------------------
-/// Get final plot on path [should be used after a call to DoesPathExist()]
-CvPlot* CvIgnoreUnitsPathFinder::GetLastPlot()
-{
-	CvPlot* pPlot = NULL;
-
-	CvAStarNode* pNode = GC.getIgnoreUnitsPathFinder().GetLastNode();
-	if(pNode != NULL)
-	{
-		pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
-
-		// Save off node for future calls to GetPreviousPlot()
-		m_pCurNode = pNode;
-	}
-
-	return pPlot;
-}
-
-//	--------------------------------------------------------------------------------
-/// Get final plot on path [should be used after a call to DoesPathExist()]
-CvPlot* CvIgnoreUnitsPathFinder::GetPreviousPlot()
-{
-	CvPlot* pPlot = NULL;
-
-	if(m_pCurNode != NULL)
-	{
-		m_pCurNode = m_pCurNode->m_pParent;
-
-		if(m_pCurNode != NULL)
-		{
-			pPlot = GC.getMap().plot(m_pCurNode->m_iX, m_pCurNode->m_iY);
-		}
-	}
-
-	return pPlot;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3804,6 +3774,7 @@ int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder)
 
 //	---------------------------------------------------------------------------
 //	---------------------------------------------------------------------------
+#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
 	CvMap& theMap = GC.getMap();
@@ -4179,6 +4150,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 
 	return TRUE;
 }
+#endif
 
 //	---------------------------------------------------------------------------
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder)
@@ -4324,10 +4296,7 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 
 //	--------------------------------------------------------------------------------
 /// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
-// Should call it with bIgnoreStacking true if want foolproof way to see if can make it in 0 turns (since that way doesn't open
-// open the 2nd layer of the pathfinder)
 #ifdef AUI_ASTAR_TURN_LIMITER
-// Delnar: if you're checking if a unit can reach a tile within X turns, set the iTargetTurns parameter to X to speed up the pathfinder
 int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
 #else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
@@ -4340,14 +4309,6 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
-	//directly adjacent? no pathfinding necessary
-	if (plotDistance( pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY() )==1)
-	{
-		int iMovementCost = bIgnoreUnits ? pTarget->MovementCostNoZOC(pUnit.pointer(),pUnit->plot()) : pTarget->movementCost(pUnit.pointer(),pUnit->plot());
-		return (pUnit->movesLeft()-iMovementCost)>0 ? 0 : 1;
-	}
-#endif
 
 	if(pUnit)
 	{
@@ -4382,8 +4343,15 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 				return false;
 			}
 
-			bool bSuccess;
+#if defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+			GC.getPathFinder().SetData(pUnit.pointer(), iTargetTurns);
+			if( GC.getPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), iFlags, bReusePaths) )
+			{
+				pNode = GC.getPathFinder().GetLastNode();
+			}
+#else
 
+			bool bSuccess;
 #ifdef AUI_ASTAR_TURN_LIMITER
 			GC.GetTacticalAnalysisMapFinder().SetData(pUnit.pointer(), iTargetTurns);
 #else
@@ -4395,6 +4363,7 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 			{
 				pNode = GC.GetTacticalAnalysisMapFinder().GetLastNode();
 			}
+#endif
 		}
 
 		if(pNode)
@@ -4513,11 +4482,11 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
 	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 
-	// super duper low costs for moving along routes
+	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 		iCost = iCost / 4;
 	// super low costs for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver())
+	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iCost = iCost / 4;
 	// Iroquios ability
 	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())

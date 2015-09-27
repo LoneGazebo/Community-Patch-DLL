@@ -24252,7 +24252,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 			// Can I get there this turn?
 			CvUnit* pUnit = (CvUnit*)this;
 #if defined(MOD_BALANCE_CORE)
-			if(CanReachInXTurns(pUnit,&swapPlot,1))
+			if(GC.getPathFinder().DoesPathExist(pUnit, plot(), &swapPlot, MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
 			{
 				CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
 #else
@@ -24293,7 +24293,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									{
 #if defined(MOD_BALANCE_CORE)
 										// Can the unit I am swapping with get to me this turn?
-										if(CanReachInXTurns(pLoopUnit,pUnit->plot(),1))
+										if(pLoopUnit->canMove() && GC.getPathFinder().DoesPathExist(pLoopUnit, pLoopUnit->plot(), pUnit->plot(), MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
 										{
 											CvPlot* pPathEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
 #else
@@ -26499,6 +26499,12 @@ const char* CvUnit::GetMissionInfo()
 		}
 	}
 
+	if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		CvString strTemp0 = CvString::format(" // %s", directiveNames[m_eGreatPeopleDirectiveType.get()]);
+		m_strMissionInfoString += strTemp0;
+	}
+
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
 		CvString strTemp1;
@@ -26556,10 +26562,12 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !plot()->getBestDefender(getOwner()))
+	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !GC.getMap().plot(iData1,iData2)->getBestDefender(getOwner()))
 	{
-		if(GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this)>GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this))
-			OutputDebugString("Civilian moving into danger!\n");
+		int iFromDanger = GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this);
+		int iToDanger = GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this);
+		if(iFromDanger<iToDanger)
+			OutputDebugString(CvString::format("%s moving into danger!\n",getName().c_str()).c_str());
 	}
 
 	//if (GC.getLogging() && GC.getAILogging()) 
@@ -27607,18 +27615,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraCombatPercent();
 		//Let's encourage getting all three tiers asap.
-		iTemp *= (100 + iExtra * 12);
+		iTemp *= (100 + iExtra * 11);
 		iTemp /= 100;
 
-		iValue += iTemp + iFlavorOffense * 12;
+		iValue += iTemp + iFlavorOffense * 11;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
 	{
 		iExtra = GetRangedAttackModifier();
-		iTemp *= (100 + iExtra * 12);
+		iTemp *= (100 + iExtra * 11);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 12;
+		iValue += iTemp + iFlavorOffense * 11;
 	}
 #endif
 

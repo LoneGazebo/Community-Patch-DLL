@@ -81,6 +81,7 @@ void CvCityCitizens::Reset()
 	int iI;
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
+	m_vWorkedPlots.clear();
 	CvAssertMsg((0 < MAX_CITY_PLOTS),  "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
 	for(iI = 0; iI < MAX_CITY_PLOTS; iI++)
 #else
@@ -164,6 +165,22 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	BuildingArrayHelpers::Read(kStream, m_aiNumForcedSpecialistsInBuilding);
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piBuildingGreatPeopleRateChanges, GC.getNumSpecialistInfos());
+
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	m_vWorkedPlots.clear();
+	for (int i=0; i<MAX_CITY_PLOTS; i++)
+	{
+		if (m_pabWorkingPlot[i])
+		{
+			CvPlot* pPlot = GetCityPlotFromIndex(i);
+			if (pPlot)
+			{
+				int iPlotNum = GC.getMap().plotNum(pPlot->getX(),pPlot->getY());
+				m_vWorkedPlots.push_back(iPlotNum);
+			}
+		}
+	}
+#endif
 }
 
 /// Serialization write
@@ -2064,6 +2081,21 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
 #if defined(MOD_GLOBAL_CITY_WORKING)
+
+	int iPlotNum = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
+	std::vector<int>::iterator it = std::find( m_vWorkedPlots.begin(), m_vWorkedPlots.end(), iPlotNum );
+	if (bNewValue)
+	{
+		if (it==m_vWorkedPlots.end())
+			m_vWorkedPlots.push_back(iPlotNum);
+	}
+	else
+	{
+		if (it!=m_vWorkedPlots.end())
+			m_vWorkedPlots.erase(it);
+	}
+
+
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if(IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())

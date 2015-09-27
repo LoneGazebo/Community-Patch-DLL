@@ -892,7 +892,6 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 	const int idx = GC.getMap().plotNum(iPlotX, iPlotY);
 	
 	m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-	m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
 }
 #else
 void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
@@ -1303,12 +1302,8 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 		return m_lastResult;
 
 	//otherwise calculate from scratch
-	int iPlotDamage = 0;
-	if (m_iFlatPlotDamage != 0 && (pUnit->atPlot(*m_pPlot) || pUnit->canMoveInto(*m_pPlot)))
-	{
-		// Damage from plot (no unit in tile)
-		iPlotDamage = m_iFlatPlotDamage;
-	}
+	int iPlotDamage = m_iFlatPlotDamage; //fallout etc
+
 	CvCity* pFriendlyCity = m_pPlot->getPlotCity();
 	if (pFriendlyCity && !m_pPlot->isFriendlyCity(*pUnit, false))
 		pFriendlyCity = NULL;
@@ -1317,23 +1312,22 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 	if (!pUnit->IsCombatUnit() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit)))
 	{
 		// If plot contains an enemy unit, mark it as max danger
-		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(),NULL,true))
+		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), NULL, true))
 		{
 			return MAX_INT;
 		}
-		for (DangerUnitVector::iterator it = m_apMoveOnlyUnits.begin(); it < m_apMoveOnlyUnits.end(); ++it)
+		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
 			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 
 			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead())
 			{
-				// If in a city and the city will survive all attack, return a danger value of 1
+				// If in a city and the city can be captured, we are in highest danger
 				if (pFriendlyCity)
 				{
-					if (GetDanger(pFriendlyCity) + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
+					if (GetDanger(pFriendlyCity) + pFriendlyCity->getDamage() > pFriendlyCity->GetMaxHitPoints())
 					{
-						// Trivial amount to indicate that the plot can still be attacked
-						++iPlotDamage;
+						return MAX_INT;
 					}
 				}
 				// Look for a possible plot defender
@@ -1362,23 +1356,22 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 						}
 						pBestDefender = NULL;
 					}
-					// If have a defender and it will survive all attack, return a danger value of 1
+					// If there is a defender and it might be killed, high danger
 					if (pBestDefender && (pBestDefender->isWaiting() || !pBestDefender->canMove()))
 					{
-						if (GetDanger(pBestDefender)<pBestDefender->GetCurrHitPoints())
+						if (GetDanger(pBestDefender) > pBestDefender->GetCurrHitPoints())
 						{
-							// Trivial amount to indicate that the plot can still be attacked
-							++iPlotDamage;
+							return INT_MAX;
 						}
 					}
-				}
-				// If Civilian would be captured on this tile (only happens if iPlotDamage isn't modified), return MAX_INT
-				if (iPlotDamage == m_iFlatPlotDamage)
-				{
-					return MAX_INT;
+					else if (pBestDefender==NULL)
+					{
+						//Civilian could be captured on this tile
+						return MAX_INT;
+					}
 				}
 
-				// Damage from features
+				// Damage from features (citadel)
 				iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 
 				return iPlotDamage;
@@ -1490,7 +1483,7 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 #endif
 	}
 
-	// Damage from features
+	// Damage from features (citadel)
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 
 	//update cache
@@ -1572,26 +1565,12 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
 		}
 
 		// Units in range
-		if (pUnit->IsCombatUnit())
+		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
-			for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
+			CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
+			if (pUnit && !pUnit->isDelayedDeath() && !pUnit->IsDead())
 			{
-				CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
-				if (pUnit && !pUnit->isDelayedDeath() && !pUnit->IsDead())
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			for (DangerUnitVector::iterator it = m_apMoveOnlyUnits.begin(); it < m_apMoveOnlyUnits.end(); ++it)
-			{
-				CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
-				if (pUnit && !pUnit->isDelayedDeath() && !pUnit->IsDead())
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
@@ -1763,7 +1742,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, CvUnit* pPretendGarrison, int
 		iPlotDamage = iMaxNoCaptureDamage;
 
 	// Damage from melee units
-	for (DangerUnitVector::iterator it = m_apMoveOnlyUnits.begin(); it < m_apMoveOnlyUnits.end(); ++it)
+	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
 		if (!pUnit || pUnit->isDelayedDeath() || pUnit->IsDead())

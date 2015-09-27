@@ -5201,6 +5201,10 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 	// Start by resetting the AI
 	m_pPolicyAI->Reset();
 
+#if defined(MOD_BALANCE_CORE)
+	int iCurrentUnhappiness = m_pPlayer->GetUnhappiness(); 
+#endif
+
 	// Now populate the AI with the current flavor information
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
@@ -5236,7 +5240,11 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		{
 			iFlavorValue += 5;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(m_pPlayer->GetHappiness() < iCurrentUnhappiness && iFlavor == GC.getInfoTypeForString("FLAVOR_HAPPINESS"))
+#else
 		else if(m_pPlayer->GetHappiness() < m_pPlayer->GetUnhappiness() && iFlavor == GC.getInfoTypeForString("FLAVOR_HAPPINESS"))
+#endif
 		{
 			iFlavorValue += 5;
 		}
