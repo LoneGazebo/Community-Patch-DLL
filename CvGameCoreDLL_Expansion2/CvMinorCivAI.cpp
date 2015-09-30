@@ -12128,17 +12128,23 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					{
 						GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eBully);
 					}
-					if(eBully == GC.getGame().getActivePlayer())
+					if(GC.getGame().getActivePlayer() != NULL)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
+							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						}
+						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = {0};
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
+							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+						}
 					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
 				}	
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 				if(GC.getLogging() && GC.getAILogging())
@@ -12156,17 +12162,23 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				{
 					GET_PLAYER(eBully).changeJONSCulture(iValue);
 					pCapitalCity->ChangeJONSCultureStored(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
+					if(GC.getGame().getActivePlayer() != NULL)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
+							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						}
+						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = {0};
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
+							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+						}
 					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
 				}			
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 				if(GC.getLogging() && GC.getAILogging())
@@ -12183,17 +12195,23 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				if(iValue > 0)
 				{
 					pCapitalCity->changeProduction(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
+					if(GC.getGame().getActivePlayer() != NULL)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
+							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						}
+						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = {0};
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
+							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+						}
 					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 				if(GC.getLogging() && GC.getAILogging())
@@ -12210,17 +12228,23 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				if(iValue > 0)
 				{
 					GET_PLAYER(eBully).ChangeFaith(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
+					if(GC.getGame().getActivePlayer() != NULL)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
+							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						}
+						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = {0};
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
+							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+						}
 					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 				if(GC.getLogging() && GC.getAILogging())
@@ -12237,18 +12261,23 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				if(iValue > 0)
 				{
 					pCapitalCity->changeFood(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
+					if(GC.getGame().getActivePlayer() != NULL)
 					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
+							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+						}
+						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = {0};
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
+							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+						}
 					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-
 				}		
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 				if(GC.getLogging() && GC.getAILogging())

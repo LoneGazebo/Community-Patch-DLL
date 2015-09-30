@@ -11243,10 +11243,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		pArea->changeYieldRateModifier(GetID(), ((YieldTypes)iI), (pBuildingInfo->GetAreaYieldModifier(iI) * iChange));
 		changeYieldRateModifier(((YieldTypes)iI), (pBuildingInfo->GetGlobalYieldModifier(iI) * iChange));
 #if defined(MOD_BALANCE_CORE_POLICIES)
-		if(MOD_BALANCE_CORE_POLICIES)
-		{
-			changeYieldFromDeath(((YieldTypes)iI), (pBuildingInfo->GetYieldFromDeath(iI) * iChange));
-		}
+		changeYieldFromDeath(((YieldTypes)iI), (pBuildingInfo->GetYieldFromDeath(iI) * iChange));
+#endif
+#if defined(MOD_BALANCE_CORE)
+		changeYieldGPExpend(((YieldTypes)iI), (pBuildingInfo->GetYieldFromGPExpend(iI) * iChange));
 #endif
 	}
 
@@ -30717,18 +30717,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		eYield = (YieldTypes) iI;
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-		if(MOD_BALANCE_CORE_POLICIES)
-		{
-			changeYieldFromBirth(eYield, (pPolicy->GetYieldFromBirth(iI) * iChange));
-			changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
-			changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
-			changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
-			changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
-			changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
-			changeConquerorYield(eYield, (pPolicy->GetConquerorYield(iI) * iChange));
-			changeReligionYieldRateModifier(eYield, (pPolicy->GetReligionYieldMod(iI) * iChange));
-			changeGoldenAgeYieldMod(eYield, (pPolicy->GetGoldenAgeYieldMod(iI) * iChange));
-		}
+		changeYieldFromBirth(eYield, (pPolicy->GetYieldFromBirth(iI) * iChange));
+		changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
+		changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
+		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
+		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
+		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
+		changeConquerorYield(eYield, (pPolicy->GetConquerorYield(iI) * iChange));
+		changeReligionYieldRateModifier(eYield, (pPolicy->GetReligionYieldMod(iI) * iChange));
+		changeGoldenAgeYieldMod(eYield, (pPolicy->GetGoldenAgeYieldMod(iI) * iChange));
 #endif
 
 		iMod = pPolicy->GetYieldModifier(iI) * iChange;
@@ -31061,7 +31058,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						
 #if defined(MOD_API_UNIFIED_YIELDS)
 						iYieldMod = pPolicy->GetBuildingClassYieldModifiers(eBuildingClass, YIELD_CULTURE);
-						if (iYieldMod > 0)
+						if (iYieldMod != 0)
 						{
 							pLoopCity->changeYieldRateModifier(YIELD_CULTURE, iYieldMod * iBuildingCount * iChange);
 						}
@@ -31097,7 +31094,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									eYield = (YieldTypes) iJ;
 									iYieldMod = pPolicy->GetBuildingClassYieldModifiers(eBuildingClass, eYield);
-									if (iYieldMod > 0)
+									if (iYieldMod != 0)
 									{
 										pLoopCity->changeYieldRateModifier(eYield, iYieldMod * iBuildingCount * iChange);
 									}
@@ -31123,7 +31120,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									eYield = (YieldTypes) iJ;
 									iYieldMod = pPolicy->GetBuildingClassYieldModifiers(eBuildingClass, eYield);
+#if defined(MOD_BALANCE_CORE)
+									if (iYieldMod != 0)
+#else
 									if (iYieldMod > 0)
+#endif
 									{
 										pLoopCity->changeYieldRateModifier(eYield, iYieldMod * iBuildingCount * iChange);
 									}

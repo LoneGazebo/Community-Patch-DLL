@@ -1257,6 +1257,15 @@ public:
 	bool isFeatureHalfMove(FeatureTypes eIndex) const;
 	void changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
+	bool isTerrainDoubleHeal(TerrainTypes eIndex) const;
+	void changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange);
+
+	int getFeatureDoubleHeal(FeatureTypes eIndex) const;
+	bool isFeatureDoubleHeal(FeatureTypes eIndex) const;
+	void changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange);
+#endif
 
 	int getImpassableCount() const;
 
@@ -1775,6 +1784,10 @@ protected:
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	FAutoVariable<std::vector<int>, CvUnit> m_terrainHalfMoveCount;
 	FAutoVariable<std::vector<int>, CvUnit> m_featureHalfMoveCount;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_terrainDoubleHeal;
+	FAutoVariable<std::vector<int>, CvUnit> m_featureDoubleHeal;
 #endif
 	FAutoVariable<std::vector<int>, CvUnit> m_terrainImpassableCount;
 	FAutoVariable<std::vector<int>, CvUnit> m_featureImpassableCount;

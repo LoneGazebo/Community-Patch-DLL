@@ -2722,9 +2722,8 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 		}
 		if(kPlayer.GetPlayerTraits()->IsMountainPass())
 		{
-			if(pNewPlot->getOwner() == ePlayer)
-				if(pNewPlot->isMountain())
-					eRouteType = ROUTE_ROAD;
+			if(pNewPlot->isMountain())
+				eRouteType = ROUTE_ROAD;
 		}
 		if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
 		{

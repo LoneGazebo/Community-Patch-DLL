@@ -18653,8 +18653,29 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 	{
 		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_FRIEND;
 
+#if defined(MOD_BALANCE_CORE)
+			int iMessage = 0;
+			int iMessageMax = MAX_INT;
+			PlayerTypes eLoopPlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+				{
+					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+					if(iMessage < iMessageMax)
+					{
+						iMessageMax = iMessage;
+					}
+				}
+			}
+			if(iMessageMax >= 40 &&
+		        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_FRIEND_RANDFAILED) >= 20)
+#else
 		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 50 &&
 		        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_FRIEND_RANDFAILED) >= 20)
+#endif
 		{
 			CvDiplomacyAI* pTheirDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 
