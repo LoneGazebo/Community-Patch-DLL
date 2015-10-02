@@ -126,7 +126,7 @@
 		<Row>
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<DoubleMove>true</DoubleMove>
+			<DoubleHeal>true</DoubleHeal>
 		</Row>
 	</UnitPromotions_Terrains>
 	<!-- Aztec -->
@@ -175,10 +175,10 @@
 	<!-- Arabia -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS">
-			<Text>Ships of the Desert</Text>
+			<Text>Arabian Terrain Bonus</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS_HELP">
-			<Text>Double movement on Desert tiles.</Text>
+			<Text>Double movement on Desert tiles, double healing on Plains tiles.</Text>
 		</Row>
 		<!-- Germany -->
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">

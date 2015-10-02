@@ -1036,6 +1036,41 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(PUBLIC_OPINION_REVOLUTIONARY_WAVE);
 	EnumEnd(L);
 
+#if defined(MOD_BALANCE_CORE)
+	EnumStart(L, "StrengthTypes");
+	RegisterEnum(NO_STRENGTH_VALUE);
+	RegisterEnum(STRENGTH_PATHETIC);
+	RegisterEnum(STRENGTH_WEAK);
+	RegisterEnum(STRENGTH_POOR);
+	RegisterEnum(STRENGTH_AVERAGE);
+	RegisterEnum(STRENGTH_STRONG);
+	RegisterEnum(STRENGTH_POWERFUL);
+	RegisterEnum(STRENGTH_IMMENSE);
+	EnumEnd(L);
+
+	EnumStart(L, "WarDamageLevelTypes");
+	RegisterEnum(NO_WAR_DAMAGE_LEVEL_VALUE);
+	RegisterEnum(WAR_DAMAGE_LEVEL_NONE);
+	RegisterEnum(WAR_DAMAGE_LEVEL_MINOR);
+	RegisterEnum(WAR_DAMAGE_LEVEL_MAJOR);
+	RegisterEnum(WAR_DAMAGE_LEVEL_SERIOUS);
+	RegisterEnum(WAR_DAMAGE_LEVEL_CRIPPLED);
+	EnumEnd(L);
+
+	EnumStart(L, "PeaceTreatyTypes");
+	RegisterEnum(NO_PEACE_TREATY_TYPE);
+	RegisterEnum(PEACE_TREATY_WHITE_PEACE);
+	RegisterEnum(PEACE_TREATY_ARMISTICE);
+	RegisterEnum(PEACE_TREATY_SETTLEMENT);
+	RegisterEnum(PEACE_TREATY_BACKDOWN);
+	RegisterEnum(PEACE_TREATY_SUBMISSION);
+	RegisterEnum(PEACE_TREATY_SURRENDER);
+	RegisterEnum(PEACE_TREATY_CESSION);
+	RegisterEnum(PEACE_TREATY_CAPITULATION);
+	RegisterEnum(PEACE_TREATY_UNCONDITIONAL_SURRENDER);
+	EnumEnd(L);
+#endif
+
 	EnumStart(L, "ControlTypes");
 	RegisterEnum(NO_CONTROL);
 	RegisterEnum(CONTROL_CENTERONSELECTION);

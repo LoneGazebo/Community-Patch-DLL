@@ -506,7 +506,11 @@ int CvTreasury::CalculateGrossGold()
 }
 
 /// Gross income for turn
+#if defined(MOD_BALANCE_CORE)
+int CvTreasury::CalculateGrossGoldTimes100(bool bIgnoreHappiness)
+#else
 int CvTreasury::CalculateGrossGoldTimes100()
+#endif
 {
 	int iNetGold;
 
@@ -524,14 +528,6 @@ int CvTreasury::CalculateGrossGoldTimes100()
 
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	//Mod for national unhappiness
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	{
-		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD, iNetGold);
-	}
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
@@ -539,33 +535,16 @@ int CvTreasury::CalculateGrossGoldTimes100()
 		iNetGold += (m_pPlayer->GetYieldPerTurnFromVassals(YIELD_GOLD) * 100);
 	}
 #endif
-
-	return iNetGold;
-}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-/// Gross income for turn
-int CvTreasury::CalculateGrossGoldTimes100ForUI()
-{
-	int iNetGold;
-
-	// Gold from Cities
-	iNetGold = GetGoldFromCitiesTimes100();
-
-	// Gold per Turn from Diplomacy
-	iNetGold += GetGoldPerTurnFromDiplomacy() * 100;
-
-	// City connection bonuses
-	iNetGold += GetCityConnectionGoldTimes100();
-
-	// Religion
-	iNetGold += GetGoldPerTurnFromReligion() * 100;
-
-	// International trade
-	iNetGold += GetGoldPerTurnFromTraits() * 100;
+	//Mod for national unhappiness
+	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
+	{
+		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD, iNetGold);
+	}
+#endif
 
 	return iNetGold;
 }
-#endif
 /// Gross income across entire game
 int CvTreasury::GetLifetimeGrossGold()
 {

@@ -1200,7 +1200,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 		else if(pZone->GetFriendlyStrength() <= 0)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		else if(pZone->GetEnemyStrength() <= 0)
 		{
@@ -1216,15 +1216,15 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			{
 				if(pZone->GetFriendlyMeleeUnitCount() <= 0)
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+					eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 				}
 				else if(pZone->GetFriendlyUnitCount() < pZone->GetEnemyUnitCount())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+					eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 				}
-				else if(pZone->GetFriendlyStrength() >= pZone->GetEnemyStrength())
+				else if(pZone->GetFriendlyStrength() < pZone->GetEnemyStrength())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+					eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 				}
 				else 
 				{
@@ -1234,7 +1234,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+						eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 					}
 				}
 				if(pZone->IsWater())
@@ -1246,15 +1246,15 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			{
 				if(pZone->GetFriendlyMeleeUnitCount() <= 0)
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+					eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 				}
 				else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY)
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+					eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
 				}
 				else if(pZone->GetFriendlyUnitCount() > pZone->GetEnemyUnitCount())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
+					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 				}
 				else
 				{
@@ -1264,7 +1264,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+						eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 					}
 				}
 				if(pZone->IsWater())
@@ -1280,7 +1280,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				else
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+					eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 				}
 				if(pZone->IsWater())
 				{
@@ -1366,18 +1366,14 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 #if defined(MOD_BALANCE_CORE)
 		if(pZone->GetFriendlyStrength() <= 0)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
-			if(pZone->IsWater())
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_NONE;
-			}
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		else if(pZone->GetEnemyStrength() <= 0)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 			if(pZone->IsWater())
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_NONE;
+				eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
 			}
 		}
 		else
@@ -1396,14 +1392,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						if(eLastPosture != AI_TACTICAL_POSTURE_NONE)
-						{
-							eChosenPosture = eLastPosture;
-						}
-						else
-						{
-							eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-						}
+						eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 					}
 				}
 				if(pZone->IsWater())
@@ -1415,7 +1404,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			{
 				if(pZone->GetFriendlyStrength() > pZone->GetEnemyStrength())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 				}
 				else
 				{
@@ -1425,7 +1414,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+						eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 					}
 				}
 				if(pZone->IsWater())
@@ -1437,7 +1426,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			{
 				if(pZone->GetFriendlyStrength() > pZone->GetEnemyStrength())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 				}
 				else
 				{
@@ -1447,7 +1436,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+						eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 					}
 				}
 				if(pZone->IsWater())
@@ -1495,11 +1484,11 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			if(pZone->IsWater())
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_NONE;
+				eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
 			}
 			else
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+				eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 			}
 		}
 		else
@@ -1522,7 +1511,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 					}
 					else
 					{
-						eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+						eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 					}
 				}
 			}
@@ -1649,7 +1638,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			}
 			else
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_NONE;
+				eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 			}
 #else
 			eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
@@ -4894,7 +4883,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		pCivilian = m_pPlayer->getUnit(iUnitID);
 	}
 
-	if(!pCivilian)
+	if(!pCivilian || !pCivilian->IsCivilianUnit())
 	{
 		return;
 	}
@@ -4946,7 +4935,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 						CvUnit* pPlotDefender = pCivilian->plot()->getBestDefender(pCivilian->getOwner()).pointer();
 
 						//Maybe we just make this guy our new escort, eh?
-						if(pPlotDefender->getArmyID() == -1 && pPlotDefender->AI_getUnitAIType() != UNITAI_EXPLORE && pPlotDefender->getDomainType() == pCivilian->getDomainType())
+						if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->AI_getUnitAIType() != UNITAI_EXPLORE && pPlotDefender->getDomainType() == pCivilian->getDomainType())
 						{
 							pThisArmy->RemoveUnit(pEscort->GetID());
 							pThisArmy->AddUnit(pPlotDefender->GetID(), 1);
@@ -4971,6 +4960,47 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 								LogTacticalMessage(strLogString);
 							}
 						}
+						else
+						{
+							iUnitID = pThisArmy->GetFirstUnitID();
+							if(iUnitID != -1)
+							{
+								pCivilian = m_pPlayer->getUnit(iUnitID);
+							}
+
+							if(!pCivilian || !pCivilian->IsCivilianUnit())
+							{
+								return;
+							}
+
+							//check if the civilian is in danger
+							if ( m_pPlayer->GetPlotDanger(*(pCivilian->plot()),pCivilian.pointer()) > 0 )
+							{
+								//try to move to safety
+								CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian.pointer(),true);
+								if (pBetterPlot)
+								{
+									ExecuteMoveToPlot(pCivilian,pBetterPlot);
+									pOperation->SetMusterPlot(pBetterPlot);
+								}
+							}
+							pCivilian->finishMoves();
+							UnitProcessed(pCivilian->GetID());
+
+							//may be null!
+							pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
+
+							//consistency check
+							if (pEscort)
+							{
+								pOperation->SetEscorted(true);
+								//move escort towards civilian
+								MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
+								pEscort->finishMoves();
+								UnitProcessed(pEscort->GetID());
+							}
+						}
+
 					}
 					else
 					{

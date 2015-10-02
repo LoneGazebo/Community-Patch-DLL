@@ -1,3 +1,5 @@
+print("This is the modded CityStateGreetingPopup from 'Global - CS Gifts'")
+
 -------------------------------------------------
 -- City State Greeting Popup
 -------------------------------------------------
@@ -15,6 +17,22 @@ function OnPopup( popupInfo )
 	local bGreeting = popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CITY_STATE_GREETING;
 	local bMessage = popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CITY_STATE_MESSAGE;
 	local bDiplo = popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CITY_STATE_DIPLO;
+
+	-- Current assignments of members of popupInfo
+	--   Data1 is the player id
+	--   Data2 is the gold gift value
+	--   Data3 is the faith gift value
+	--   Option1 is first met
+	--   Option2 is nil
+	--   Text is nil
+	
+	-- Updated assignments of members of popupInfo
+    --   Data1 is the player id (unchanged)
+	--   Data2 is the gift "value" (Gold/Culture/Faith amount, UnitId, CityId of population growth)
+	--   Data3 is the friendship boost
+	--   Option1 is first met (unchanged)
+	--   Option2 is nil (unchanged)
+	--   Text is suffix for the TXT_KEY_ to format with
 	
 	if (not bGreeting) then
 		return;
@@ -83,6 +101,32 @@ function OnPopup( popupInfo )
 	else
 		Controls.CityStateMeterThingy:SetHide(true);
 		Controls.QuestLabel:SetHide(true);
+		
+		-- Find the City State's ally or best friend
+		local iMajorBestFriend = pPlayer:GetAlly()
+		local iMajorFriendship = GameDefines.FRIENDSHIP_THRESHOLD_FRIENDS - 1
+
+		if (iMajorBestFriend == -1) then
+print(string.format("City State: Looking for a friend"))
+			for iMajor = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+				local iFriendship = pPlayer:GetMinorCivFriendshipWithMajor(iMajor)
+				if (iFriendship > iMajorFriendship) then
+					iMajorBestFriend = iMajor
+					iMajorFriendship = iFriendship
+				end
+			end
+		else
+print(string.format("City State: Has an ally"))
+		end
+
+		if (iMajorBestFriend ~= -1 and iMajorBestFriend ~= iActivePlayer) then
+print(string.format("City State: Best friend is %i", iMajorBestFriend))
+			if (not Teams[Game.GetActiveTeam()]:IsHasMet(Players[iMajorBestFriend]:GetTeam())) then
+print(string.format("City State: Need to add a message and a quest"))
+				-- Can we hijack the quest label to add the "Have you also met ..." text?
+				-- AddMinorCivQuestIfAble(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER)
+			end
+		end
 	end
 		
 	-- Info on their Trait
@@ -96,24 +140,22 @@ function OnPopup( popupInfo )
 	Controls.TraitLabel:SetToolTipString(strTraitTT);
 	
 	-- Personality
+	local strPersonalityKey = "";
 	local strPersonalityText = "";
 	local strPersonalityTT = "";
 	local iPersonality = pPlayer:GetPersonality();
 	if (iPersonality == MinorCivPersonalityTypes.MINOR_CIV_PERSONALITY_FRIENDLY) then
-		strPersonalityText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_FRIENDLY");
-		strPersonalityTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_FRIENDLY_TT");
+		strPersonalityKey = "TXT_KEY_CITY_STATE_PERSONALITY_FRIENDLY"
 	elseif (iPersonality == MinorCivPersonalityTypes.MINOR_CIV_PERSONALITY_NEUTRAL) then
-		strPersonalityText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL");
-		strPersonalityTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL_TT");
+		strPersonalityKey = "TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL"
 	elseif (iPersonality == MinorCivPersonalityTypes.MINOR_CIV_PERSONALITY_HOSTILE) then
-		strPersonalityText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_HOSTILE");
-		strPersonalityTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_HOSTILE_TT");
+		strPersonalityKey = "TXT_KEY_CITY_STATE_PERSONALITY_HOSTILE"
 	elseif (iPersonality == MinorCivPersonalityTypes.MINOR_CIV_PERSONALITY_IRRATIONAL) then
-		strPersonalityText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL");
-		strPersonalityTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL_TT");
+		strPersonalityKey = "TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL"
 	end
 	
-	strPersonalityText = "[COLOR_POSITIVE_TEXT]" .. strPersonalityText .. "[ENDCOLOR]";
+	strPersonalityText = "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(strPersonalityKey) .. "[ENDCOLOR]";
+	strPersonalityTT = Locale.ConvertTextKey(strPersonalityKey .. "_TT");
 	
 	Controls.PersonalityInfo:SetText(strPersonalityText);
 	Controls.PersonalityInfo:SetToolTipString(strPersonalityTT);
@@ -148,6 +190,18 @@ function OnPopup( popupInfo )
 	Controls.AllyLabel:SetToolTipString(strAllyTT);
 	Controls.AllyIconContainer:SetHide(bHideIcon);
 	Controls.AllyText:SetHide(bHideText);
+	
+	-- Protected by anyone?
+	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
+
+	if (sProtectingPlayers ~= "") then
+		Controls.ProtectInfo:SetText("[COLOR_POSITIVE_TEXT]" .. sProtectingPlayers .. "[ENDCOLOR]");
+	else
+		Controls.ProtectInfo:SetText(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_NOBODY"));
+	end
+	
+	Controls.ProtectInfo:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
+	Controls.ProtectLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
 	
 	-- Nearby Resources
 	local pCapital = pPlayer:GetCapitalCity();
@@ -224,31 +278,55 @@ function OnPopup( popupInfo )
 	end
 
 	-- Gifts
-	local iGoldGift = popupInfo.Data2;
-	local iFaithGift = popupInfo.Data3;
+	-- Updated assignments of members of popupInfo
+    --   Data1 is the player id (unchanged)
+	--   Data2 is the gift "value" (Gold/Culture/Faith amount, UnitId, CityId of population growth)
+	--   Data3 is the friendship boost
+	--   Option1 is first met (unchanged)
+	--   Option2 is nil (unchanged)
+	--   Text is suffix for the TXT_KEY_ to format with
+
+--	local iGoldGift = popupInfo.Data2;
+--	local iFaithGift = popupInfo.Data3;
 	local bFirstMajorCiv = popupInfo.Option1;
 	local strGiftString = "";
 	
-	if (iGoldGift > 0) then
-		if (bFirstMajorCiv) then
-			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FIRST", iGoldGift);
-		else
-			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_OTHER", iGoldGift);
-		end
-	end
+--	if (iGoldGift > 0) then
+--		if (bFirstMajorCiv) then
+--			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FIRST", iGoldGift);
+--		else
+--			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_OTHER", iGoldGift);
+--		end
+--	end
+--	
+--	if (iFaithGift > 0) then
+--		if (iGoldGift > 0) then
+--			strGiftString = strGiftString .. " ";
+--		end
+--		
+--		if (bFirstMajorCiv) then
+--			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FAITH_FIRST", iFaithGift);
+--		else
+--			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FAITH_OTHER", iFaithGift);
+--		end
+--	end
+
+	local strGiftTxtKey = string.format("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), popupInfo.Text)
 	
-	if (iFaithGift > 0) then
-		if (iGoldGift > 0) then
-			strGiftString = strGiftString .. " ";
-		end
-		
-		if (bFirstMajorCiv) then
-			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FAITH_FIRST", iFaithGift);
-		else
-			strGiftString = strGiftString .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_GIFT_FAITH_OTHER", iFaithGift);
-		end
+	if (popupInfo.Data2 == 0) then
+          if (popupInfo.Data3 == 0) then
+            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+          else
+            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
+          end
+	else
+	  if (popupInfo.Text == "UNIT") then
+	    strGiftString = Locale.ConvertTextKey(strGiftTxtKey, GameInfo.Units[popupInfo.Data2].Description, strPersonalityKey)
+	  else
+	    strGiftString = Locale.ConvertTextKey(strGiftTxtKey, popupInfo.Data2, strPersonalityKey)
+	  end
 	end
-	
+
 	local strSpeakAgainString = Locale.ConvertTextKey("TXT_KEY_MINOR_SPEAK_AGAIN", strNameKey);
 	
 	strDescription = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MEETING", strNameKey, strGiftString, strSpeakAgainString);
@@ -261,6 +339,29 @@ function OnPopup( popupInfo )
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 
+----------------------------------------------------------------
+----------------------------------------------------------------
+function getProtectingPlayers(iMinorCivID)
+	local sProtecting = "";
+	
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		pOtherPlayer = Players[iPlayerLoop];
+
+		if (iPlayerLoop ~= Game.GetActivePlayer()) then
+			if (pOtherPlayer:IsAlive()) then
+				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
+					if (sProtecting ~= "") then
+						sProtecting = sProtecting .. ", "
+					end
+
+					sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+				end
+			end
+		end
+	end
+
+	return sProtecting
+end
 
 function UpdateActiveQuests()
 	local iActivePlayer = Game.GetActivePlayer();

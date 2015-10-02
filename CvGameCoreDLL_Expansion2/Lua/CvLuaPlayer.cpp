@@ -395,6 +395,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeBarbarianCombatBonus);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetCombatBonusVsHigherPop);
+	Method(GetWarScore);
+	Method(GetPlayerMilitaryStrengthComparedToUs);
+	Method(GetPlayerEconomicStrengthComparedToUs);
+	Method(GetWarDamageLevel);
+	Method(IsWillingToMakePeaceWithHuman);
+	Method(GetTreatyWillingToOffer);
 #endif
 	Method(GetCombatBonusVsHigherTech);
 	Method(GetCombatBonusVsLargerCiv);
@@ -5407,6 +5413,64 @@ int CvLuaPlayer::lGetCombatBonusVsHigherPop(lua_State* L)
 	{
 		lua_pushinteger(L, pkPlayer->GetPlayerTraits()->GetCombatBonusVsHigherPop());
 	}
+	return 1;
+}
+int CvLuaPlayer::lGetWarScore(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetPlayerMilitaryStrengthComparedToUs(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetPlayerEconomicStrengthComparedToUs(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetWarDamageLevel(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	int iTotal = 0;
+	int iResult = pkPlayer->GetDiplomacyAI()->GetWarDamageLevel(ePlayer);
+	int iResult2 = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(pkPlayer->GetID());
+	if(iResult != -1 && iResult2 != -1)
+	{
+		if(iResult > iResult2)
+		{
+			iTotal = iResult - iResult2;
+		}
+	}
+	lua_pushinteger(L, iTotal);
+	return 1;
+}
+
+int CvLuaPlayer::lIsWillingToMakePeaceWithHuman(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->GetDiplomacyAI()->IsWillingToMakePeaceWithHuman(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetTreatyWillingToOffer(ePlayer);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif
@@ -11113,7 +11177,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
+		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
 		{
 			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
 			if (iValue > 0)

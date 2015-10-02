@@ -393,11 +393,12 @@ public:
 	void DoUpdateCityConnectionHappiness();
 
 	// Culture
-
+#if defined(MOD_BALANCE_CORE)
+	int GetTotalJONSCulturePerTurn(bool bIgnoreHappiness = false) const;
+#else
 	int GetTotalJONSCulturePerTurn() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	int GetTotalJONSCulturePerTurnforUI() const;
 #endif
+
 
 	int GetJONSCulturePerTurnFromCities() const;
 
@@ -489,10 +490,12 @@ public:
 #endif
 
 	// Faith
+#if defined(MOD_BALANCE_CORE)
+	int GetTotalFaithPerTurn(bool bIgnoreHappiness = false) const;
+#else
 	int GetTotalFaithPerTurn() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	int GetTotalFaithPerTurnForUI() const;
 #endif
+
 	int GetFaithPerTurnFromCities() const;
 	int GetFaithPerTurnFromMinorCivs() const;
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
@@ -1413,6 +1416,9 @@ public:
 	int getConquerorYield(YieldTypes eIndex) const;
 	void changeConquerorYield(YieldTypes eIndex, int iChange);
 
+	int getFounderYield(YieldTypes eIndex) const;
+	void changeFounderYield(YieldTypes eIndex, int iChange);
+
 	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
 	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -1516,10 +1522,12 @@ public:
 	// Science
 
 	int GetScience() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetScienceTimes100(bool bIgnoreHappiness = false) const;
+#else
 	int GetScienceTimes100() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	int GetScienceTimes100ForUI() const;
 #endif
+
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
 	int GetScienceFromOtherPlayersTimes100() const;
@@ -2613,6 +2621,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiFounderYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;

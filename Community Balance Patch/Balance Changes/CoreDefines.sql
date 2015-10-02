@@ -44,11 +44,11 @@
 
 -- More cost for first and second Great Prophets - push founding/enhancing dates back slightly
 	UPDATE Defines
-	SET Value = '300'
+	SET Value = '400'
 	WHERE Name = 'RELIGION_MIN_FAITH_FIRST_PROPHET';
 
 	UPDATE Defines
-	SET Value = '300'
+	SET Value = '400'
 	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_PROPHET';
 
 -- Great People more expensive - delta will increase faster as well.

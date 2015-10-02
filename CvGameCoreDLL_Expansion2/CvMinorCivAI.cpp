@@ -3411,6 +3411,17 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (MOD_GLOBAL_CS_GIFTS) {
 						// Give the friendship boost to this team member
 						ChangeFriendshipWithMajor(ePlayer, iFriendshipBoost, /*bFromQuest*/ false);
+						iGoldGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iGoldGift /= 100;
+
+						iCultureGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iCultureGift /= 100;
+
+						iFaithGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iFaithGift /= 100;
+
+						iFoodGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iFoodGift /= 100;
 
 						// Give the gifts to this team member
 						GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);

@@ -91,7 +91,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	
 	local strMoodInfo = GetMoodInfo(g_iAIPlayer);
 	Controls.MoodText:SetToolTipString(strMoodInfo);
-	
+
 	local bMyMode = false;
 	
 	local strExtra = "";

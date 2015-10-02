@@ -336,7 +336,19 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MEHAL_SEFARI' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET Help = 'TXT_KEY_BUILDING_STELE_HELP'
+WHERE Type = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET PlotCultureCostModifier = '-33'
+WHERE Type = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
  
+INSERT INTO Language_en_US (Tag, Text)
+SELECT 'TXT_KEY_BUILDING_STELE_HELP', '[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 33% in this city. +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+	
 -- Theodora -- Basilica UB (Replace Dromon)
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -413,11 +425,7 @@ UPDATE Language_en_US
 SET Text = '+33% [ICON_GREAT_PEOPLE] Great People generation in this City. +15% [ICON_PRODUCTION] Production when constructing Buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- Maya -- Move Pyramid to Agriculture, Bring GP back to Calendar (makes so much more sense!)
-
-UPDATE Buildings
-SET PrereqTech = 'TECH_AGRICULTURE'
-WHERE Type = 'BUILDING_MAYA_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+-- Maya -- Move Pyramid to Agriculture, Bring UA back to Mathematics
 
 UPDATE Traits
 SET PrereqTech = 'TECH_MATHEMATICS'
@@ -428,6 +436,24 @@ SET Text = 'After researching Mathematics, receive a bonus Great Person at the e
 WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Buff Atlatl, move to Classical Age
+-- Eki
+
+INSERT INTO ArtDefine_LandmarkTypes(Type, LandmarkType, FriendlyName)
+SELECT 'ART_DEF_IMPROVEMENT_KUNA', 'Improvement', 'Kuna';
+
+INSERT INTO ArtDefine_Landmarks (Era, State, Scale,	ImprovementType,					LayoutHandler,	ResourceType,					Model,						TerrainContour) VALUES
+('Any', 'UnderConstruction',	0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'hb_kuna.fxsxml',			1	),
+('Any', 'Constructed',			0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'kuna.fxsxml',				1	),
+('Any', 'Pillaged',				0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'pl_kuna.fxsxml',			1	);
+
+DELETE FROM Buildings
+WHERE Type = 'BUILDING_MAYA_PYRAMID';
+
+DELETE FROM Building_YieldChanges
+WHERE BuildingType = 'BUILDING_MAYA_PYRAMID';
+
+DELETE FROM Civilization_BuildingClassOverrides
+WHERE BuildingType = 'BUILDING_MAYA_PYRAMID';
 
 UPDATE Units
 SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CROSSBOWMAN'
@@ -472,3 +498,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MAYAN_ATLATLIST' AND EXISTS (SELECT * FROM COMMUN
 UPDATE Language_en_US
 SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are both cheaper than a Composite Bowman, available earlier, and can attack twice. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
 WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Civilization_Start_Region_Priority
+SET RegionType = 'REGION_JUNGLE'
+WHERE CivilizationType = 'CIVILIZATION_MAYA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

@@ -766,6 +766,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			const YieldTypes eYield = static_cast<YieldTypes>(iI);
 			int iYield = owningPlayer.GetPlayerTraits()->GetYieldFromSettle(eYield);
+			iYield += owningPlayer.getFounderYield(eYield);
 			if(iYield > 0)
 			{
 				iYield = (iEra * iYield);
@@ -1010,13 +1011,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	kPlayer.UpdateUnitProductionMaintenanceMod();
-
-	// Spread a pantheon here if one is active
-	CvPlayerReligions* pReligions = kPlayer.GetReligions();
-	if(pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
-	{
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
-	}
 #if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1024,27 +1018,31 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		UpdateYieldPerXFeature(((YieldTypes)iI));
 		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
 	}
-	iRange = 2;
+	int iRange2 = 2;
 	int iMountain = 0;
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	for(int iDX = -iRange2; iDX <= iRange2; iDX++)
 	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		for(int iDY = -iRange2; iDY <= iRange2; iDY++)
 		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange2);
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot != NULL)
+				if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
 				{
-					if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
-					{
-						iMountain++;
-					}
+					iMountain++;
 				}
 			}
 		}
 	}
 	SetNearbyMountains(iMountain);
-#endif	
+#endif
+	// Spread a pantheon here if one is active
+	CvPlayerReligions* pReligions = kPlayer.GetReligions();
+	if(pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
+	{
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
+	}
+	
 #if defined(MOD_API_EXTENSIONS)
 	if (bInitialFounding) {
 		if (eInitialReligion != NO_RELIGION) {
@@ -8153,6 +8151,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					CvUnit* pNewUnit = GET_PLAYER(m_eOwner).initUnit(aExtraUnits[ui], m_iX, m_iY, aExtraUnitAITypes[ui]);
 					bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+#if defined(MOD_BALANCE_CORE)
+					if(bJumpSuccess)
+					{
+						addProductionExperience(pNewUnit);
+					}
+#endif
 					if (!bJumpSuccess)
 					{
 						pNewUnit->kill(false);
@@ -12253,71 +12257,84 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldReligion = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-	if(pReligion)
+	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	if(eReligionFounded != NO_RELIGION)
 	{
-		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
 		{
-			TerrainTypes eTerrain = (TerrainTypes) iI;
-			iYield = 0;
-			if(eTerrain == NO_TERRAIN)
+			for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 			{
-				continue;
-			}
-			iValidTilesTerrain = 0;
-			int iRange = 2;
-			CvPlot* pLoopPlot = NULL;
-
-			for(int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for(int iDY = -iRange; iDY <= iRange; iDY++)
+				TerrainTypes eTerrain = (TerrainTypes) iI;
+				iYield = 0;
+				if(eTerrain == NO_TERRAIN)
 				{
-					pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-					if(!pLoopPlot)
+					continue;
+				}
+				iValidTilesTerrain = 0;
+				int iRange = 2;
+				CvPlot* pLoopPlot = NULL;
+
+				if(eTerrain != TERRAIN_MOUNTAIN)
+				{
+					for(int iDX = -iRange; iDX <= iRange; iDX++)
 					{
-						continue;
-					}
-					if(pLoopPlot->getTerrainType() == eTerrain && eTerrain != TERRAIN_MOUNTAIN)
-					{			
-						iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-						if(iBaseYieldReligion > 0)
+						for(int iDY = -iRange; iDY <= iRange; iDY++)
 						{
-							if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+							if(!pLoopPlot)
 							{
-								iValidTilesTerrain++;
+								continue;
 							}
-							else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
-							{
-								iValidTilesTerrain++;
-							}
-							else
-							{
-								iValidTilesTerrain++;
-							}
-						}
-					}
-					if(eTerrain == TERRAIN_MOUNTAIN && pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
-					{
-						if(pReligion)
-						{
-							iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-							if(iBaseYieldReligion > 0)
-							{
-								iValidTilesTerrain++;
+							if(pLoopPlot->getTerrainType() == eTerrain)
+							{			
+								iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+								if(iBaseYieldReligion > 0)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTilesTerrain++;
+									}
+									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
+									{
+										iValidTilesTerrain++;
+									}
+									else
+									{
+										iValidTilesTerrain++;
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-			iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-			if(iBaseYieldReligion > 0)
-			{
-				iYield += (iValidTilesTerrain / iBaseYieldReligion);
-			}
-			SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
-		}	
+				if(eTerrain == TERRAIN_MOUNTAIN)
+				{
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(TERRAIN_MOUNTAIN, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iValidTilesTerrain = GetNearbyMountains();
+					}
+					//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(TERRAIN_MOUNTAIN, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iYield += (iValidTilesTerrain / iBaseYieldReligion);
+					}
+					SetYieldPerXTerrainFromReligion(TERRAIN_MOUNTAIN, eYield, iYield);
+				}
+				else
+				{
+					//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iYield += (iValidTilesTerrain / iBaseYieldReligion);
+					}
+					SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
+				}
+			}	
+		}
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -12537,58 +12554,61 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield)
 
 	int iValidTiles = 0;
 	int iBaseYield = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-	if(pReligion)
+	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	if(eReligionFounded != NO_RELIGION)
 	{
-
-		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
 		{
-			FeatureTypes eFeature = (FeatureTypes) iI;
-			if(eFeature == NO_FEATURE)
-			{
-				continue;
-			}
-			iYield = 0;
-			if(pReligion)
-			{
-				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
-				if(iBaseYield > 0)
-				{
-					iValidTiles = 0;
-					int iRange = 2;
-					CvPlot* pLoopPlot = NULL;
 
-					for(int iDX = -iRange; iDX <= iRange; iDX++)
+			for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+			{
+				FeatureTypes eFeature = (FeatureTypes) iI;
+				if(eFeature == NO_FEATURE)
+				{
+					continue;
+				}
+				iYield = 0;
+				if(pReligion)
+				{
+					iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+					if(iBaseYield > 0)
 					{
-						for(int iDY = -iRange; iDY <= iRange; iDY++)
+						iValidTiles = 0;
+						int iRange = 2;
+						CvPlot* pLoopPlot = NULL;
+
+						for(int iDX = -iRange; iDX <= iRange; iDX++)
 						{
-							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-							if(!pLoopPlot)
+							for(int iDY = -iRange; iDY <= iRange; iDY++)
 							{
-								continue;
-							}
-							if(pLoopPlot->getFeatureType() == eFeature)
-							{
-								if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+								pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+								if(!pLoopPlot)
 								{
-									iValidTiles++;
+									continue;
 								}
-								else
+								if(pLoopPlot->getFeatureType() == eFeature)
 								{
-									iValidTiles++;
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
 								}
 							}
 						}
-					}
-					if(iValidTiles > 0)
-					{
-						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-						iYield += (iValidTiles / iBaseYield);
+						if(iValidTiles > 0)
+						{
+							//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+							iYield += (iValidTiles / iBaseYield);
+						}
 					}
 				}
+				SetYieldPerXFeature(eFeature, eYield, iYield);
 			}
-			SetYieldPerXFeature(eFeature, eYield, iYield);
 		}
 	}
 }
@@ -19495,7 +19515,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				{
 					iEra = 1;
 				}
-				if(MOD_BALANCE_CORE_POLICIES)
+				if(MOD_BALANCE_CORE_POLICIES && !IsResistance() && !IsRazing())
 				{
 					if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 					{

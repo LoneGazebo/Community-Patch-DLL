@@ -332,8 +332,14 @@
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
 			<Text>These Players have made a Declaration of Friendship.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF_YOU">
+			<Text>You have a Declaration of Friendship with them.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
 			<Text>These Players have a Defensive Pact.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_YOU">
+			<Text>You have signed a Defensive Pact.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_ALLIES_US">
 			<Text>You are allied with them.</Text>
@@ -393,13 +399,13 @@
 		</Row>
 		<!-- Cities/3rd Party War and Peace Offers-->
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_1">
-			<Text>An exchange of territory is in order. I think you will find this offer quite suitable.</Text>
+			<Text>An exchange of territory is in order. I think you will find this offer quite suitable, no?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_2">
 			<Text>It is better to resolve territorial disputes through trade instead of war. Tell me, what do you think of this offer?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_3">
-			<Text>A selection of choice lands are up for trade. Here is my offer...what do you think?</Text>
+			<Text>A selection of choice lands are, I believe, up for trade. Here is my offer...what do you think?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_EXCHANGE_OFFER_1">
@@ -1091,7 +1097,7 @@
 			<Text>While I agree that all empires have a right to expand, you have taken too much, far too quickly. For the sake of peace, please curtail your reckless expansion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_AGGRESSIVE_PLOT_BUYING_2">
-			<Text>You spend gold to gobble up land while I spend gold to buy brand new weapons for my soldiers. Who do you will think benefit the most from their investment in the long run?</Text>
+			<Text>You spend gold to steal land while I spend gold to buy brand new weapons for my soldiers. Who do you think will benefit the most from their investment in the long run?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_AGGRESSIVE_PLOT_BUYING_2">
 			<Text>Must you buy EVERY good piece of land you see?</Text>
@@ -3223,6 +3229,114 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+
+		<!-- LUA for Warscore -->
+		<Row Tag="TXT_KEY_WAR_SCORE">
+			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_SCORE_EXPLANATION">
+			<Text>This value indiates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic compared to us!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are very weak compared to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are somewhat weaker than us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] We are about the same strength.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are somewhat stronger than us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are much stronger than us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are immensely stronger than us!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_ECONOMY_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are in shambles compared to us!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are poor compared to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are not as robust as we are.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] We are roughly equal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are somewhat more robust than us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are much wealthier than us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are extremely wealthy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war is slightly in our favor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are clearly winning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is almost assured.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed by our power!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The momentum of battle is with them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] TWar Status:[ENDCOLOR] They are clearly beating us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Our defeat is likely.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Total destruction is imminent!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_NO_PEACE_OFFER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_WHITE_PEACE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] White Peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Armistice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Small settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Large settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Minor concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Major concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CESSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Huge concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Capitulation!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

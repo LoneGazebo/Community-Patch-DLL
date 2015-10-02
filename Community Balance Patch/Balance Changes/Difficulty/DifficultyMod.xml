@@ -480,9 +480,9 @@
 			<ResearchPercent>100</ResearchPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
-			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>-1</AttitudeChange>
 			<NoTechTradeModifier>70</NoTechTradeModifier>
 			<BarbCampGold>50</BarbCampGold>
@@ -501,7 +501,7 @@
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>80</AIBuildingCostPercent>
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>

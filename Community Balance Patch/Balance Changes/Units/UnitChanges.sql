@@ -964,130 +964,130 @@
 
 	-- Flavors -- Naval
 	UPDATE Unit_Flavors
-	SET Flavor = '4'
+	SET Flavor = '8'
 	WHERE UnitType = 'UNIT_TRIREME' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '8'
+	SET Flavor = '15'
 	WHERE UnitType = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '7'
+	SET Flavor = '15'
 	WHERE UnitType = 'UNIT_CARAVEL' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '11'
+	SET Flavor = '20'
 	WHERE UnitType = 'UNIT_PORTUGUESE_NAU' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '10'
+	SET Flavor = '20'
 	WHERE UnitType = 'UNIT_KOREAN_TURTLE_SHIP' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '9'
+	SET Flavor = '20'
 	WHERE UnitType = 'UNIT_PRIVATEER' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '12'
+	SET Flavor = '25'
 	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '12'
+	SET Flavor = '25'
 	WHERE UnitType = 'UNIT_IRONCLAD' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '15'
+	SET Flavor = '40'
 	WHERE UnitType = 'UNIT_DESTROYER' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '6'
+	SET Flavor = '8'
 	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '10'
+	SET Flavor = '15'
 	WHERE UnitType = 'UNIT_GALLEASS' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '12'
+	SET Flavor = '30'
 	WHERE UnitType = 'UNIT_FRIGATE' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '18'
+	SET Flavor = '40'
 	WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '18'
+	SET Flavor = '40'
 	WHERE UnitType = 'UNIT_CRUISER' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '22'
+	SET Flavor = '50'
 	WHERE UnitType = 'UNIT_BATTLESHIP' AND FlavorType = 'FLAVOR_NAVAL';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '30'
+	SET Flavor = '50'
 	WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND FlavorType = 'FLAVOR_NAVAL';
 
 	-- Flavors -- Naval Recon
 
 	UPDATE Unit_Flavors
-	SET Flavor = '6'
+	SET Flavor = '10'
 	WHERE UnitType = 'UNIT_TRIREME' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '10'
+	SET Flavor = '20'
 	WHERE UnitType = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '12'
+	SET Flavor = '25'
 	WHERE UnitType = 'UNIT_CARAVEL' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '16'
+	SET Flavor = '30'
 	WHERE UnitType = 'UNIT_PORTUGUESE_NAU' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
-	SELECT '6' , 'UNIT_KOREAN_TURTLE_SHIP', 'FLAVOR_NAVAL_RECON';
-
-	UPDATE Unit_Flavors
-	SET Flavor = '14'
-	WHERE UnitType = 'UNIT_PRIVATEER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
-
-	UPDATE Unit_Flavors
-	SET Flavor = '18'
-	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND FlavorType = 'FLAVOR_NAVAL_RECON';
-
-	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
-	SELECT '18' , 'UNIT_IRONCLAD', 'FLAVOR_NAVAL_RECON';
+	SELECT '15' , 'UNIT_KOREAN_TURTLE_SHIP', 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
 	SET Flavor = '25'
+	WHERE UnitType = 'UNIT_PRIVATEER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '30'
+	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
+	SELECT '30' , 'UNIT_IRONCLAD', 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '40'
 	WHERE UnitType = 'UNIT_DESTROYER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '3'
+	SET Flavor = '8'
 	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '5'
+	SET Flavor = '12'
 	WHERE UnitType = 'UNIT_GALLEASS' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '9'
+	SET Flavor = '15'
 	WHERE UnitType = 'UNIT_FRIGATE' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '16'
+	SET Flavor = '25'
 	WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '18'
+	SET Flavor = '30'
 	WHERE UnitType = 'UNIT_CRUISER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
-	SELECT '22' , 'UNIT_BATTLESHIP', 'FLAVOR_NAVAL_RECON';
+	SELECT '35' , 'UNIT_BATTLESHIP', 'FLAVOR_NAVAL_RECON';
 
 	UPDATE Unit_Flavors
-	SET Flavor = '27'
+	SET Flavor = '40'
 	WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 	-- Move Caravel to Compass

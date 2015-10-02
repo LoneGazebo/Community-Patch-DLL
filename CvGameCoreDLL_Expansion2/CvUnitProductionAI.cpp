@@ -294,8 +294,8 @@ bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperatio
 		else // this should never happen, but...
 			return false;
 	}
-	//Sanity check for city-attack only units
-	if(pkUnitEntry->IsCityAttackOnly())
+	//Sanity check for city-attack only units, but only while not at war
+	if(pkUnitEntry->IsCityAttackOnly() && !GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
 	{
 		if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
 		{
@@ -303,11 +303,6 @@ bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperatio
 			{
 				return false;
 			}
-		}
-		//Should only build city attack units if we're actually building an army to use them.
-		else if(pArmy == NULL)
-		{
-			return false;
 		}
 	}
 	// todo: add other sanity checks

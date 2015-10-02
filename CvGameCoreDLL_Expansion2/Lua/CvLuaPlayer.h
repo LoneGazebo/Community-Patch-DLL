@@ -381,6 +381,12 @@ protected:
 	static int lChangeBarbarianCombatBonus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetCombatBonusVsHigherPop, int);
+	LUAAPIEXTN(GetWarScore, int);
+	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
+	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
+	LUAAPIEXTN(GetWarDamageLevel, int);
+	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
+	LUAAPIEXTN(GetTreatyWillingToOffer, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

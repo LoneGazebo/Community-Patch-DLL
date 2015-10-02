@@ -208,14 +208,14 @@
 
 -- Text for city view tooltip.
 	UPDATE Language_en_US
-	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from [ICON_HAPPINESS_1] Happiness and/or a Golden Age.'
+	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from your [ICON_GOLDEN_AGE] Golden Age.'
 	WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Update Text for Very Unhappy and Super Unhappy
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -30 [ICON_HAPPINESS_3] Unhappiness)!'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by [COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -224,11 +224,11 @@
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -30 [ICON_HAPPINESS_3] Unhappiness)!'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by [COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Total [ICON_HAPPINESS_1] Happiness Level of the empire is {1_Num}. Positive [ICON_HAPPINESS_1] Happiness increases Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science by [COLOR_POSITIVE_TEXT]1%[ENDCOLOR] for each point of [ICON_HAPPINESS_1] Happiness (up to 10 [ICON_HAPPINESS_1] Happiness).'
+	SET Text = 'Total [ICON_HAPPINESS_1] Happiness Level of the empire is {1_Num}. Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are increased by [COLOR_POSITIVE_TEXT] +{2_num}% [ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR

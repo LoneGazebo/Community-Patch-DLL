@@ -8886,49 +8886,78 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		if(eRouteType != NO_ROUTE)
 		{
 #if defined(MOD_BALANCE_CORE_YIELDS)
-			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			bool bTrade = false;
-			for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+			if(ePlayer != NO_PLAYER)
 			{
-				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
-				if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				bool bTrade = false;
+				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
 				{
-					continue;
-				}
-				for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-				{
-					if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
-						bTrade = true;
-						break;
+						continue;
+					}
+					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+					{
+						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+						{
+							bTrade = true;
+							break;
+						}
 					}
 				}
-			}
-			if(IsTradeRoute(ePlayer))
-			{
-				if(IsRouteRailroad())
+				if(IsTradeRoute(ePlayer))
 				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					if(IsRouteRailroad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+					else if(IsRouteRoad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 				}
-				else if(IsRouteRoad())
+				if(bTrade)
 				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-				}
-			}
-			if(bTrade)
-			{
-				if(IsRouteRailroad())
-				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-				}
-				else if(IsRouteRoad())
-				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-				}
+					if(IsRouteRailroad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+					else if(IsRouteRoad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 #else
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 #endif
 			}
+#if defined(MOD_BALANCE_CORE)
+				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
+				{
+					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					{
+						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(iBonus > 0)
+						{
+							int iScale = 0;
+							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+							iScale = ((iBonus * iEra) / 4);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
+						}
+					}
+				}
+				else
+				{
+					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+#endif
 		}
 	}
 
@@ -12301,7 +12330,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				}
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if(bTrade && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
 					{
 						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 						if(iBonus > 0)

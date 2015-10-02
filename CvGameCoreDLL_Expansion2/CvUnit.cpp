@@ -1255,6 +1255,10 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iTourism *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iTourism /= 100;
+#endif
 		kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 	}
 
@@ -3199,6 +3203,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
 			int iValue = getUnitInfo().GetPower();
+#if defined(MOD_BALANCE_CORE)
+			if(IsCivilianUnit())
+			{
+				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+			}
+#endif
 
 			int iTypicalPower = GET_PLAYER(ePlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 
@@ -9934,32 +9944,24 @@ bool CvUnit::pillage()
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
 					// Notify Diplo AI that damage has been done
-					int iValue = 25;
+					int iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					{
 						CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(getTeam()));
 						if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 						{
-							iValue += 30;
-						}
-						else
-						{
-							iValue += 15;
+							iValue *= 2;
 						}
 					}
 					if(pkImprovement->IsCreatedByGreatPerson())
 					{
-						iValue += 25;
-					}
-					if(pkImprovement->GetDefenseModifier() > 0)
-					{
-						iValue += pkImprovement->GetDefenseModifier();
+						iValue *= 2;
 					}
 
 					// My viewpoint
-					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(pPlot->getOwner(), iValue);
+					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pPlot->getOwner(), getOwner(), iValue);
 					// Bad guy's viewpoint
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(getOwner(), pPlot->getOwner(), iValue);
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue);
 				}
 #endif
 				int iPillageGold = 0;

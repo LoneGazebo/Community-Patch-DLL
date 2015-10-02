@@ -261,6 +261,7 @@ public:
 	int GetTradeReligionModifier() const;
 	int GetBestRangedUnitSpawnSettle() const;
 	int GetConquerorYield(int i) const;
+	int GetFounderYield(int i) const;
 	int GetReligionBuildingYieldMod(int i, int j) const;
 	int GetReligionYieldMod(int i) const;
 	int GetGoldenAgeYieldMod(int i) const;
@@ -563,6 +564,7 @@ private:
 	bool m_bFreedomCorporation;
 	bool m_bUpgradeCSTerritory;
 	int* m_piConquerorYield;
+	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;

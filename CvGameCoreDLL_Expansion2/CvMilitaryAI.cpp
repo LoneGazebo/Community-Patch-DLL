@@ -3622,12 +3622,23 @@ void CvMilitaryAI::UpdateBaseData()
 			}
 			else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
+				{
+					m_iNumNavalUnits++;
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						m_iNumNavalUnitsInArmies++;
+					}
+				}
+#else
 				m_iNumNavalUnits++;
 
 				if(pLoopUnit->getArmyID() != -1)
 				{
 					m_iNumNavalUnitsInArmies++;
 				}
+#endif
 			}
 			else if(pLoopUnit->getDomainType() == DOMAIN_AIR)
 			{
@@ -5663,7 +5674,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 
 	// Don't do this if at war
 #if defined(MOD_BALANCE_CORE)
-	if(GetNumberCivsAtWarWith(false) > 0)
+	if(GetNumberCivsAtWarWith(true) > 0)
 #else
 	if(GetNumberCivsAtWarWith() > 0)
 #endif
@@ -7560,8 +7571,12 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	EconomicAIStrategyTypes eExpandOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNavalMap) || pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOtherContinents))
 	{
+#if defined(MOD_BALANCE_CORE)
+		iNumUnitsWanted *= 2;
+#else
 		iNumUnitsWanted *= 3;
 		iNumUnitsWanted /= 2;
+#endif
 	}
 
 	if (pPlayer->getCivilizationInfo().isCoastalCiv())

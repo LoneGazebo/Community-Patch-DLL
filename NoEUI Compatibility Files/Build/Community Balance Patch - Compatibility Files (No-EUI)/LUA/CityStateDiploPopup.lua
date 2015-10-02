@@ -1,3 +1,5 @@
+print("This is the modded CityStateDiploPopup from 'Global - City State Gifts'")
+
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -- City State Diplo Popup
@@ -276,6 +278,18 @@ function OnDisplay()
 	Controls.AllyLabel:SetToolTipString(strAllyTT);
 	Controls.AllyIconContainer:SetHide(bHideIcon);
 	Controls.AllyText:SetHide(bHideText);
+	
+	-- Protected by anyone?
+	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
+
+	if (sProtectingPlayers ~= "") then
+		Controls.ProtectInfo:SetText("[COLOR_POSITIVE_TEXT]" .. sProtectingPlayers .. "[ENDCOLOR]");
+	else
+		Controls.ProtectInfo:SetText(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_NOBODY"));
+	end
+	
+	Controls.ProtectInfo:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
+	Controls.ProtectLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
 	
 	-- Nearby Resources
 	local pCapital = pPlayer:GetCapitalCity();
@@ -626,6 +640,30 @@ function OnDisplay()
 	Controls.ButtonStack:SetHide(false);
 	
 	UpdateButtonStack();
+end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+function getProtectingPlayers(iMinorCivID)
+	local sProtecting = "";
+	
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		pOtherPlayer = Players[iPlayerLoop];
+
+		if (iPlayerLoop ~= Game.GetActivePlayer()) then
+			if (pOtherPlayer:IsAlive()) then
+				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
+					if (sProtecting ~= "") then
+						sProtecting = sProtecting .. ", "
+					end
+
+					sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+				end
+			end
+		end
+	end
+
+	return sProtecting
 end
 
 function UpdateActiveQuests()

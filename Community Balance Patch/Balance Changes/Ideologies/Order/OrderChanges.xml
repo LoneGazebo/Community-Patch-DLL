@@ -9,13 +9,14 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
+	</Policy_BuildingClassYieldChanges>
+	<Policy_BuildingClassCultureChanges>
 		<Row>
 			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>2</YieldChange>
+			<CultureChange>2</CultureChange>
 		</Row>
-	</Policy_BuildingClassYieldChanges>
+	</Policy_BuildingClassCultureChanges>
 	<!-- Academy of Sciences -->
 	<Policy_FreeBuilding>
 		<Row>

@@ -76,9 +76,10 @@ public:
 
 	// Calculations ported over from CvPlayer
 	int CalculateGrossGold();
+#if defined(MOD_BALANCE_CORE)
+	int CalculateGrossGoldTimes100(bool bIgnoreHappiness = false);
+#else
 	int CalculateGrossGoldTimes100();
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	int CalculateGrossGoldTimes100ForUI();
 #endif
 	int GetLifetimeGrossGold();
 	int CalculateBaseNetGold();

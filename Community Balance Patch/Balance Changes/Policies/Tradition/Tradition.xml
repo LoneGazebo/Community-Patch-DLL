@@ -5,23 +5,26 @@
 			<PrereqPolicy>POLICY_ARISTOCRACY</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	<Policy_CityYieldChanges>
+	<Policy_BuildingClassYieldChanges>
 		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<PolicyType>POLICY_TRADITION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
 		</Row>
+	</Policy_BuildingClassYieldChanges>
+	<Policy_YieldGPExpend>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
 		</Row>
-	</Policy_CityYieldChanges>
+	</Policy_YieldGPExpend>
 	<Policy_FreeBuilding>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>

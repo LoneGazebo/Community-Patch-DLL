@@ -27,6 +27,9 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN">
 			<Text>Because the City of {1_CityName:textkey} has {2_Population} [ICON_CITIZEN] Citizens, a {3_Unit} has been conscripted!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_FIRST">
+			<Text>Because you adopted the Conscription policy and {1_CityName:textkey} has more than 6 [ICON_CITIZEN] Citizens, a {2_Unit} has been conscripted!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY">
 			<Text>{2_Unit} conscripted by {1_CityName:textkey}!</Text>
 		</Row>

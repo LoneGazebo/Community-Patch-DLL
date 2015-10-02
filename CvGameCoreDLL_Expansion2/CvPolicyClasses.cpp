@@ -248,6 +248,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
 	m_piConquerorYield(NULL),
+	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
 #endif
@@ -319,6 +320,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
 	SAFE_DELETE_ARRAY(m_piConquerorYield);
+	SAFE_DELETE_ARRAY(m_piFounderYield);
 	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
@@ -593,6 +595,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piFounderYield, "Policy_FounderYield", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piReligionYieldMod, "Policy_ReligionYieldMod", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Policy_GoldenAgeYieldMod", "PolicyType", szPolicyType);
 #endif
@@ -2464,6 +2467,14 @@ int CvPolicyEntry::GetConquerorYield(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piConquerorYield[i];
+}
+
+/// Does this Policy grant yields from conquering cities?
+int CvPolicyEntry::GetFounderYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFounderYield[i];
 }
 /// Does this Policy boost yields from having your religion in the city?
 int CvPolicyEntry::GetReligionYieldMod(int i) const

@@ -262,6 +262,18 @@ function OnDisplay()
 	Controls.AllyText:SetToolTipString(strAllyTT)
 	Controls.AllyLabel:SetToolTipString(strAllyTT)
 
+	-- Protected by anyone?
+	local sProtectingPlayers = getProtectingPlayers(minorPlayerID);
+
+	if (sProtectingPlayers ~= "") then
+		Controls.ProtectInfo:SetText("[COLOR_POSITIVE_TEXT]" .. sProtectingPlayers .. "[ENDCOLOR]");
+	else
+		Controls.ProtectInfo:SetText(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_NOBODY"));
+	end
+	
+	Controls.ProtectInfo:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
+	Controls.ProtectLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT"));
+	
 	-- Nearby Resources
 	local pCapital = minorPlayer:GetCapitalCity()
 	if (pCapital ~= nil) then
@@ -370,29 +382,25 @@ function OnDisplay()
 
 		-- Gifts
 		if m_lastAction == kiGreet then
-			local iGoldGift = m_PopupInfo.Data2
-			local iFaithGift = m_PopupInfo.Data3
+			--local iGoldGift = m_PopupInfo.Data2
+			--local iFaithGift = m_PopupInfo.Data3
 			local bFirstMajorCiv = m_PopupInfo.Option1
 			local strGiftString = ""
 
-			if (iGoldGift > 0) then
-				if (bFirstMajorCiv) then
-					strGiftString = strGiftString .. L("TXT_KEY_CITY_STATE_GIFT_FIRST", iGoldGift)
-				else
-					strGiftString = strGiftString .. L("TXT_KEY_CITY_STATE_GIFT_OTHER", iGoldGift)
-				end
-			end
-
-			if (iFaithGift > 0) then
-				if (iGoldGift > 0) then
-					strGiftString = strGiftString .. " "
-				end
-
-				if (bFirstMajorCiv) then
-					strGiftString = strGiftString .. L("TXT_KEY_CITY_STATE_GIFT_FAITH_FIRST", iFaithGift)
-				else
-					strGiftString = strGiftString .. L("TXT_KEY_CITY_STATE_GIFT_FAITH_OTHER", iFaithGift)
-				end
+			local strGiftTxtKey = string.format("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), m_PopupInfo.Text)
+	
+			if (m_PopupInfo.Data2 == 0) then
+				  if (m_PopupInfo.Data3 == 0) then
+					strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+				  else
+					strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
+				  end
+			else
+			  if (m_PopupInfo.Text == "UNIT") then
+				strGiftString = Locale.ConvertTextKey(strGiftTxtKey, GameInfo.Units[m_PopupInfo.Data2].Description, personalityInfo.title)
+			  else
+				strGiftString = Locale.ConvertTextKey(strGiftTxtKey, m_PopupInfo.Data2, personalityInfo.title)
+			  end
 			end
 			strText = strGiftString
 --			strText = L("TXT_KEY_CITY_STATE_MEETING", strShortDescKey, strGiftString, L("TXT_KEY_MINOR_SPEAK_AGAIN", strShortDescKey) )
@@ -641,6 +649,29 @@ function OnDisplay()
 	UpdateButtonStack()
 end
 
+----------------------------------------------------------------
+----------------------------------------------------------------
+function getProtectingPlayers(iMinorCivID)
+	local sProtecting = "";
+	
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		pOtherPlayer = Players[iPlayerLoop];
+
+		if (iPlayerLoop ~= Game.GetActivePlayer()) then
+			if (pOtherPlayer:IsAlive()) then
+				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
+					if (sProtecting ~= "") then
+						sProtecting = sProtecting .. ", "
+					end
+
+					sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+				end
+			end
+		end
+	end
+
+	return sProtecting
+end
 -------------------------------------------------
 -- On Quest Info Clicked
 -------------------------------------------------

@@ -481,4 +481,12 @@
 			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+	<!-- Ethiopia -->
+	<Building_GoldenAgeYieldMod>
+		<Row>
+			<BuildingType>BUILDING_STELE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_GoldenAgeYieldMod>
 </GameData>
