@@ -665,6 +665,11 @@ public:
 
 	void Init(int iNumPlots);
 	void RefreshDataForNextPlayer(CvPlayer* pPlayer);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	PlayerTypes GetCurrentPlayer() const;
+#endif
+
 	bool IsBuilt() const
 	{
 		return m_bIsBuilt;
@@ -711,12 +716,6 @@ public:
 	void ClearDynamicFlags();
 	void SetTargetBombardCells(CvPlot* pTarget, int iRange, bool bIgnoreLOS);
 	void SetTargetFlankBonusCells(CvPlot* pTarget);
-
-	// Get the player the map was built for
-	CvPlayer* GetPlayer()
-	{
-		return m_pPlayer;
-	}
 
 	// Range variable to keep dominance zones and tactical AI in sync
 	int GetTacticalRange() const {return m_iTacticalRange;};

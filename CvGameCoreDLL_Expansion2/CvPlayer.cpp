@@ -2369,25 +2369,31 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
 {
-	CvCity* pCity = addCity();
+	CvCity* pNewCity = addCity();
 
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
-	if(pCity != NULL)
+	if(pNewCity != NULL)
 	{
 		CvAssertMsg(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
 #if defined(MOD_API_EXTENSIONS)
-		pCity->init(pCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName);
+		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName);
 #else
-		pCity->init(pCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
+		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
 #endif
-		pCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
+		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 		m_pCityDistance->Update();
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+		int iLoop=0;
+		for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
+			pCity->UpdateClosestNeighbors();
+#endif
 	}
 
-	return pCity;
+	return pNewCity;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6338,7 +6344,19 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		pLoopUnit->SetTurnProcessed(false);
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+		pLoopUnit->flipDamageReceivedPerTurn();
+#endif
 	}
+
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->flipDamageReceivedPerTurn();
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -6373,6 +6391,9 @@ void CvPlayer::DoUnitReset()
 		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
+#endif
 		}
 
 		// Finally (now that healing is done), restore movement points
@@ -9145,7 +9166,7 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
+bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities) const
 {
 	CvPlot* pPlot;
 
@@ -9165,13 +9186,13 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
 	}
 
 	// Settlers cannot found cities while empire is very unhappy
-	if(!bTestVisible)
+	if(!bIgnoreDistanceToExistingCities)
 	{
 		if(IsEmpireVeryUnhappy())
 			return false;
 	}
 
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bTestVisible);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
 }
 
 //	--------------------------------------------------------------------------------
@@ -23451,7 +23472,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+				bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
+#else
 				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
@@ -23493,7 +23516,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+				GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
+#else
 				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
 				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
@@ -28450,6 +28475,14 @@ int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
 	else
 		return INT_MAX;
 }
+
+CvCity* CvPlayer::GetClosestCity( const CvPlot* pPlot )
+{
+	if (pPlot && m_pCityDistance)
+		return getCity(m_pCityDistance->GetClosestFriendlyCity( *pPlot ));
+	else
+		return NULL;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -32559,6 +32592,10 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
 	GET_TEAM(getTeam()).updateTeamStatus();
+
+	int iLoop=0;
+	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
+		pCity->UpdateClosestNeighbors();
 #endif
 }
 
@@ -34249,9 +34286,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 		}
 	}
 
-	//cache the wars we have going
+	//cache the wars we have going - ignore barbarians
 	m_playersWeAreAtWarWith.clear();
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
@@ -36294,6 +36331,7 @@ bool CvPlayer::IsAtWar() const
 	CvTeam kTeam = GET_TEAM(getTeam());
 #endif
 
+	//ignore the barbarian team here!
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;

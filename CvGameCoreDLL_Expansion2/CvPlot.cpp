@@ -1466,7 +1466,7 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 	// Normal visibility
 	else
 	{
-		iLevel = GC.getTerrainInfo(getTerrainType())->getSeeFromLevel();
+		iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeFromLevel() : 0;
 	}
 
 	if(isMountain())
@@ -1483,7 +1483,7 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 	{
 		iLevel += GC.getSEAWATER_SEE_FROM_CHANGE();
 
-		if(GET_TEAM(eTeam).isExtraWaterSeeFrom())
+		if(eTeam!=NO_TEAM && GET_TEAM(eTeam).isExtraWaterSeeFrom())
 		{
 			iLevel++;
 		}
@@ -1500,7 +1500,7 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	iLevel = GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel();
+	iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
 
 	if(bIncludeShubbery && getFeatureType() != NO_FEATURE)
 	{
@@ -2026,6 +2026,10 @@ void CvPlot::updateSeeFromSight(bool bIncrement)
 			if(pLoopPlot != NULL)
 			{
 				pLoopPlot->updateSight(bIncrement);
+
+#if defined(MOD_BALANCE_CORE)
+				pLoopPlot->UpdatePlotsWithLOS();
+#endif
 			}
 		}
 	}
@@ -13809,4 +13813,120 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	}
 	return 0;
 }
+
+void CvPlot::UpdatePlotsWithLOS()
+{
+	m_vPlotsWithLOSatRange2.clear();
+	m_vPlotsWithLOSatRange3.clear();
+
+	int iMaxRange = 3;
+	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	{
+		for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+		{
+			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+			if(pLoopPlot != NULL)
+			{
+				int iDistance = plotDistance(*this,*pLoopPlot);
+				switch (iDistance)
+				{
+				case 2:
+					if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
+						m_vPlotsWithLOSatRange2.push_back(pLoopPlot);
+					break;
+				case 3:
+					if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
+						m_vPlotsWithLOSatRange3.push_back(pLoopPlot);
+					break;
+				}
+			}
+		}
+	}
+}
+
+//void checkNeighborOffset(CvPlot* pPlot, int iRange)
+//{
+//	CvString res = CvString::format("Plot %d,%d: Range %d\n",pPlot->getX(),pPlot->getY(),iRange);
+//	OutputDebugString(res.c_str());
+//	for (int iDX = -iRange; iDX <= iRange; iDX++)
+//		for (int iDY = -iRange; iDY <= iRange; iDY++)
+//		{
+//			CvPlot *pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
+//			if (pLoopPlot && plotDistance(*pPlot,*pLoopPlot)==iRange)
+//			{
+//				CvString res = CvString::format("\t%d,%d\n",iDX,iDY);
+//				OutputDebugString(res.c_str());
+//			}
+//		}
+//}
+
+int g_ciNumNeighborsRange2 = 12;
+int g_ciNumNeighborsRange3 = 18;
+int g_aiOffsetXRange2[] = {-2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2};
+int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
+int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
+int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
+
+bool CvPlot::GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult)
+{
+	vResult.clear();
+
+	if (bWithLOS)
+	{
+		switch (iRange)
+		{
+		case 1:
+			{
+				//just take all direct neighbors
+				CvPlot** aDirectNeighbors = GC.getMap().getNeighborsUnchecked(this);
+				vResult.insert( vResult.begin(), aDirectNeighbors, aDirectNeighbors+NUM_DIRECTION_TYPES );
+				return true;
+			}
+		case 2:
+			//copy the precomputed result
+			vResult = m_vPlotsWithLOSatRange2;
+			return true;
+		case 3:
+			//copy the precomputed result
+			vResult = m_vPlotsWithLOSatRange3;
+			return true;
+		}
+	}
+	else //no LOS
+	{
+		switch (iRange)
+		{
+		case 1:
+			{
+				//just take all direct neighbors
+				CvPlot** aDirectNeighbors = GC.getMap().getNeighborsUnchecked(this);
+				vResult.insert( vResult.begin(), aDirectNeighbors, aDirectNeighbors+NUM_DIRECTION_TYPES );
+				return true;
+			}
+		case 2:
+			vResult.reserve(g_ciNumNeighborsRange2);
+			for (int i=0; i<g_ciNumNeighborsRange2; i++)
+			{
+				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange2[i], getY()+g_aiOffsetYRange2[i] );
+				if (pCandidate)
+					vResult.push_back(pCandidate);
+			}
+			return true;
+		case 3:
+			vResult.reserve(g_ciNumNeighborsRange3);
+			for (int i=0; i<g_ciNumNeighborsRange3; i++)
+			{
+				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange3[i], getY()+g_aiOffsetYRange3[i] );
+				if (pCandidate)
+					vResult.push_back(pCandidate);
+			}
+			return true;
+		}
+	}
+
+	//todo: compute plots on the fly?
+	OutputDebugString("GetPlotsToAttackFrom() called with invalid parameter\n");
+	return false;
+}
+
 #endif

@@ -304,6 +304,9 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
+#endif
 	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
 	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
 	, m_bRouteToCapitalConnectedLastTurn(false)
@@ -353,6 +356,10 @@ CvCity::CvCity() :
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
+#endif
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
+	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
 {
 	OBJECT_ALLOCATED
@@ -24749,5 +24756,82 @@ bool CvCity::IsAdjacentToTerrain(TerrainTypes iTerrainType) const
 bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const
 {
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+int CvCity::addDamageReceivedThisTurn(int iDamage)
+{
+	m_iDamageTakenThisTurn+=iDamage;
+	return m_iDamageTakenThisTurn;
+}
+
+void CvCity::flipDamageReceivedPerTurn()
+{
+	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	m_iDamageTakenThisTurn = 0;
+}
+
+bool CvCity::isInDangerOfFalling() const
+{
+	int iHitpoints = GetMaxHitPoints() - getDamage();
+	//be conservative here ...
+	return (m_iDamageTakenLastTurn*1.5 > iHitpoints);
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+//the closest friendly cities - up to 4 entries 
+const std::vector<int>& CvCity::GetClosestNeighboringCities() const
+{
+	return m_vClosestNeighbors;
+}
+
+void CvCity::UpdateClosestNeighbors()
+{
+	struct SCityWithScore
+	{
+		CvCity* city;
+		int score;
+		SCityWithScore(CvCity* ptr, int i) : city(ptr), score(i) {}
+		bool operator<(const SCityWithScore& rhs) { return score<rhs.score; }
+	};
+
+	std::vector<SCityWithScore> allNeighbors;
+
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	int iLoop = 0;
+	for(CvCity* pCity = kOwner.firstCity(&iLoop); pCity != NULL; pCity = kOwner.nextCity(&iLoop))
+	{
+		//we are not our own neighbor
+		if (pCity==this)
+			continue;
+
+		int iDistance = plotDistance( this->getX(), this->getY(), pCity->getX(), pCity->getY() );
+		allNeighbors.push_back( SCityWithScore(pCity,iDistance) );
+	}
+
+	std::sort(allNeighbors.begin(), allNeighbors.end());
+
+	m_vClosestNeighbors.clear();
+	for (size_t i=0; i<min<size_t>(4,allNeighbors.size()); i++)
+		m_vClosestNeighbors.push_back(allNeighbors[i].city->GetID());
+}
+
+void CvCity::AttachUnit(CvUnit* pUnit)
+{
+	if (pUnit)
+		m_vAttachedUnits.push_back( pUnit->GetID() );
+}
+
+void CvCity::ClearAttachedUnits()
+{
+	m_vAttachedUnits.clear();
+}
+
+const std::vector<int>& CvCity::GetAttachedUnits() const
+{
+	return m_vAttachedUnits;
 }
 #endif

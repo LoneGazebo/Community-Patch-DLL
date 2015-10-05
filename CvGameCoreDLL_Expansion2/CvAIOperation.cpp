@@ -615,14 +615,14 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 #if defined(MOD_BALANCE_CORE)
 //see if the target is still current or if there is a better one
-bool CvAIOperation::CheckTarget()
+bool CvAIOperation::VerifyTarget()
 {
 	bool retval = true;
 	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 	{
 		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-		//name is misleading, this is basically hook to check if the target is still where we think it is and make adjustments if required. return value is irrelevant
-		retval &= ArmyMoved(pThisArmy);
+		if (pThisArmy)
+			retval = (retval && VerifyTarget(pThisArmy));
 	}
 	return retval;
 }
@@ -1136,6 +1136,17 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 bool CvAIOperation::ShouldAbort()
 {
 	UnitHandle pUnit;
+
+#if defined(MOD_BALANCE_CORE)
+	if(m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
+	{
+		int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
+		if (iTurns > GetMaximumRecruitTurns())
+		{
+			SetToAbort(AI_ABORT_TIMED_OUT);
+		}
+	}
+#endif
 
 	// Mark units in successful operation
 	if(m_eCurrentState == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
@@ -2727,6 +2738,12 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 				// Make sure he's not needed by the tactical AI or already in an army
 				if(pLoopUnit != NULL && pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
 				{
+					//don't recruit if currently healing
+					if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+					{
+						continue;
+					}
+
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
 					if(unitInfo == NULL)
@@ -3318,26 +3335,26 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
-				if (pBestUnit->AI_getUnitAIType() == thisSlotEntry.m_primaryUnitType)
-				{
-					pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
-						{
-							strMsg.Format("Recruited %s (primary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogOperationSpecialMessage(strMsg);
+				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_primaryUnitType)
+					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
 
-							int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-							if (iMusterDist>12)
-							{
-								strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
-								LogOperationSpecialMessage(strMsg);
-							}
+				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
+					{
+						strMsg.Format("Recruited %s (primary) to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
+
+						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+						if (iMusterDist>12)
+						{
+							strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+							LogOperationSpecialMessage(strMsg);
 						}
 					}
-					return true;
 				}
+				return true;
 			}
 
 			kSearchList.clear();
@@ -3355,7 +3372,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						continue;
 					}
 
-					// PRIMARY UNIT TYPE (ONLY)
+					// SECONDARY UNIT TYPE (ONLY)
 					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
 					{
 						//Sanity check for AI sending CS to non-CS operations
@@ -3605,25 +3622,25 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
-				if (pBestUnit->AI_getUnitAIType() == thisSlotEntry.m_secondaryUnitType)
+				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_secondaryUnitType)
+					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType);
+
+				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-					if(GC.getLogging() && GC.getAILogging())
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
 					{
-						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
-						{
-							strMsg.Format("Recruited %s (secondary) to fill in a new existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogOperationSpecialMessage(strMsg);
-						}
-						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-						if (iMusterDist>12)
-						{
-							strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
-							LogOperationSpecialMessage(strMsg);
-						}
+						strMsg.Format("Recruited %s (secondary) to fill in a new existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
 					}
-					return true;
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
 				}
+				return true;
 			}
 		}
 	}
@@ -4527,9 +4544,6 @@ CvAIOperationDestroyBarbarianCamp::CvAIOperationDestroyBarbarianCamp()
 {
 	m_bCivilianRescue = false;
 	m_iUnitToRescue = NULL;
-#if defined(MOD_BALANCE_CORE)
-	m_bInitializedRun = true;
-#endif
 }
 
 /// Destructor
@@ -4553,14 +4567,7 @@ void CvAIOperationDestroyBarbarianCamp::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
-	m_bCivilianRescue = false;
-#if defined(MOD_BALANCE_CORE)
-	m_bInitializedRun = true;
-#endif
 	kStream >> m_bCivilianRescue;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bInitializedRun;
-#endif
 	kStream >> m_iUnitToRescue;
 }
 
@@ -4575,9 +4582,6 @@ void CvAIOperationDestroyBarbarianCamp::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 	kStream << m_bCivilianRescue;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bInitializedRun;
-#endif
 	kStream << m_iUnitToRescue;
 }
 
@@ -4585,17 +4589,6 @@ void CvAIOperationDestroyBarbarianCamp::Write(FDataStream& kStream) const
 bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
-#if defined(MOD_BALANCE_CORE)
-	if(m_bInitializedRun)
-	{
-		CvPlot* pTarget = FindBestTarget();
-		if(pTarget != NULL)
-		{
-			SetTargetPlot(pTarget);
-		}
-		m_bInitializedRun = false;
-	}
-#endif
 	switch(m_eCurrentState)
 	{
 		// If we were gathering forces, let's make sure a better target hasn't presented itself
@@ -4603,56 +4596,22 @@ bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 	{
 		// First do base case processing
 		bStateChanged = CvAIOperation::ArmyInPosition(pArmy);
-		// Now revisit target
+
 #if defined(MOD_BALANCE_CORE)
+		// we're doing this in VerifyTarget() now
 #else
+		// Now revisit target
 		CvPlot* possibleBetterTarget;
-#endif
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* possibleBetterTarget = GetTargetPlot();
-		if(possibleBetterTarget == NULL)
-		{
-#endif
 		possibleBetterTarget = FindBestTarget();
-#if defined(MOD_BALANCE_CORE)
-		}
-		if(possibleBetterTarget != NULL)
-		{
-			SetTargetPlot(possibleBetterTarget);
-		}
-#endif
 		// If no target left, abort
 		if(possibleBetterTarget == NULL)
 		{
 			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 			m_eAbortReason = AI_ABORT_LOST_TARGET;
 		}
-
-		// If target changed, reset to this new one
-#if defined(MOD_BALANCE_CORE)
-		else
-#else
 		else if(possibleBetterTarget != GetTargetPlot())
-#endif
 		{
 			// If we're traveling on a single continent, set our destination to be a few plots shy of the final target
-#if defined(MOD_BALANCE_CORE)
-			if (pArmy->GetArea() == GetTargetPlot()->getArea())
-			{
-				CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), GetTargetPlot(), GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
-				if(pDeployPt != NULL)
-				{
-					pArmy->SetGoalPlot(pDeployPt);
-					SetTargetPlot(GetTargetPlot());
-				}
-			}
-			else
-			{
-				pArmy->SetGoalPlot(GetTargetPlot());
-				SetTargetPlot(GetTargetPlot());
-			}
-		}
-#else
 			if (pArmy->GetArea() == possibleBetterTarget->getArea())
 			{
 				CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), possibleBetterTarget, GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
@@ -4714,16 +4673,19 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 	if(!rtnValue)
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(GetTargetPlot() != NULL)
+		// we're doing this in VerifyTarget() now
+		if (GetTargetPlot()==NULL)
 		{
-#endif
-		// See if our target camp is still there
-#if defined(MOD_BALANCE_CORE)
-		ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if (!m_bCivilianRescue && GetTargetPlot()->getImprovementType() != eBarbCamp)
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				strMsg.Format("No Barbarian camp target for army. Aborting");
+				LogOperationSpecialMessage(strMsg);
+			}
+			return true;
+		}
 #else
+		// See if our target camp is still there
 		if (!m_bCivilianRescue && GetTargetPlot()->getImprovementType() != GC.getBARBARIAN_CAMP_IMPROVEMENT())
-#endif
 		{
 			// Success!  The camp is gone
 			if(GC.getLogging() && GC.getAILogging())
@@ -4731,21 +4693,6 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 				strMsg.Format("Barbarian camp at (x=%d y=%d) no longer exists. Aborting", GetTargetPlot()->getX(), GetTargetPlot()->getY());
 				LogOperationSpecialMessage(strMsg);
 			}
-#if defined(MOD_BALANCE_CORE)
-			CvPlot* possibleBetterTarget = NULL;
-			possibleBetterTarget = FindBestTarget();
-			if((possibleBetterTarget != NULL) && (possibleBetterTarget != GetTargetPlot()))
-			{
-				SetTargetPlot(possibleBetterTarget);
-				// Success!  The camp is gone
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					strMsg.Format("Barbarian camp at (x=%d y=%d) no longer exists. Moving on to a new target.", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-					LogOperationSpecialMessage(strMsg);
-				}
-				return false;
-			}
-#endif
 			return true;
 		}
 		else if (m_bCivilianRescue)
@@ -4775,7 +4722,7 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 				}
 			}
 		}
-
+#endif
 		else if(m_eCurrentState != AI_OPERATION_STATE_RECRUITING_UNITS)
 		{
 			// If down below strength of camp, abort
@@ -4792,18 +4739,6 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 				return true;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-		else
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				strMsg.Format("No Barbarian camp target for army. Aborting");
-				LogOperationSpecialMessage(strMsg);
-			}
-			return true;
-		}
-#endif
 	}
 
 	return rtnValue;
@@ -5008,7 +4943,7 @@ void CvAIOperationPillageEnemy::Write(FDataStream& kStream) const
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
-bool CvAIOperationPillageEnemy::ArmyMoved(CvArmyAI* pArmy)
+bool CvAIOperationPillageEnemy::VerifyTarget(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
 	CvPlot* pBetterTarget;
@@ -5048,7 +4983,7 @@ bool CvAIOperationPillageEnemy::ArmyMoved(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 	case AI_OPERATION_STATE_GATHERING_FORCES:
 	case AI_OPERATION_STATE_ABORTED:
-		return CvAIOperation::ArmyMoved(pArmy);
+		return CvAIOperation::VerifyTarget(pArmy);
 		break;
 	};
 
@@ -6523,21 +6458,15 @@ bool CvAIOperationDiplomatDelegation::ArmyInPosition(CvArmyAI* pArmy)
 }
 
 /// Find the plot where we want to influence
-CvPlot* CvAIOperationDiplomatDelegation::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationDiplomatDelegation::FindBestTarget(CvUnit* pUnit, bool /*bOnlySafePaths*/)
 {
 	CvAssertMsg(pUnit, "pUnit cannot be null");
 	if(!pUnit)
 	{
 		return NULL;
 	}
-	int iTargetTurns;
-	bOnlySafePaths= true;
-	if(GetTargetPlot() != NULL)
-	{
-		pUnit->canTrade(GetTargetPlot());
-		return GetTargetPlot();
-	}
-	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+
+	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8883,7 +8812,7 @@ bool CvAIOperationRapidResponse::ArmyInPosition(CvArmyAI* pArmy)
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
-bool CvAIOperationRapidResponse::ArmyMoved(CvArmyAI* pArmy)
+bool CvAIOperationRapidResponse::VerifyTarget(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
 
@@ -8901,7 +8830,7 @@ bool CvAIOperationRapidResponse::ArmyMoved(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_AT_TARGET:
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 	case AI_OPERATION_STATE_ABORTED:
-		return CvAIOperation::ArmyMoved(pArmy);
+		return CvAIOperation::VerifyTarget(pArmy);
 		break;
 	};
 
@@ -9627,13 +9556,13 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 				// Are we within tactical range of our target? (larger than usual range for a naval attack)
 #if defined(MOD_BALANCE_CORE)
 				if(pCenterOfMass && pArmy->GetGoalPlot() != NULL && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), pArmy->GetGoalX(), pArmy->GetGoalY()) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
+				{
 #else
 				if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
-#endif
 				{
 					// Notify Diplo AI we're in place for attack
 					GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
-
+#endif
 					// Notify tactical AI to focus on this area
 					CvTemporaryZone zone;
 					zone.SetX(GetTargetPlot()->getX());
@@ -9679,6 +9608,7 @@ CvPlot* CvAINavalEscortedOperation::FindBestTargetIncludingCurrent(CvUnit* pUnit
 	}
 	return pResult;
 }
+
 CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea);
@@ -11019,6 +10949,154 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	return true;
 }
 
+//----------------------------------------------
+/// Every time the army moves on its way to the destination lets double-check that we don't have a better target
+bool CvAIOperationDestroyBarbarianCamp::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	bool bNeedNewTarget = false;
+	CvString strMsg;
+
+	if(GetTargetPlot()==NULL)
+		bNeedNewTarget = true;
+	else if (!m_bCivilianRescue)
+	{
+		// See if our target camp is still there
+		ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		if (GetTargetPlot()->getImprovementType() != eBarbCamp)
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				strMsg.Format("Barbarian camp at (x=%d y=%d) no longer exists.", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+				LogOperationSpecialMessage(strMsg);
+			}
+			bNeedNewTarget = true;
+		}
+	}
+	else if (m_bCivilianRescue)
+	{
+		// is the unit rescued?
+		CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+		CvUnit* pUnitToRescue = BarbPlayer.getUnit(m_iUnitToRescue);
+		if (!pUnitToRescue)
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				strMsg.Format ("Civilian %d can no longer be rescued from barbarians.", m_iUnitToRescue);
+				LogOperationSpecialMessage(strMsg);
+			}
+			bNeedNewTarget = true;
+		}
+	}
+
+	if (bNeedNewTarget)
+	{
+		CvPlot* newTarget = FindBestTarget();
+		if(newTarget != NULL)
+		{
+			SetTargetPlot(newTarget);
+
+			// If we're traveling on a single continent, set our destination to be a few plots shy of the final target
+			if (pArmy->GetArea() == GetTargetPlot()->getArea())
+			{
+				CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), GetTargetPlot(), GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
+				if(pDeployPt != NULL)
+				{
+					pArmy->SetGoalPlot(pDeployPt);
+					SetTargetPlot(GetTargetPlot());
+				}
+			}
+			else
+			{
+				pArmy->SetGoalPlot(GetTargetPlot());
+				SetTargetPlot(GetTargetPlot());
+			}
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				strMsg.Format("Moving on to a new target (%d,%d).", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+				LogOperationSpecialMessage(strMsg);
+			}
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+		return true;
+}
+
+bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	int iUnitID = pArmy->GetFirstUnitID();
+	if(iUnitID == -1)
+		return false;
+
+	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+
+	if (GetTargetPlot()==NULL || !pCivilian->canFound( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	return (GetTargetPlot() != NULL);
+}
+
+bool CvAIOperationMerchantDelegation::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	int iUnitID = pArmy->GetFirstUnitID();
+	if(iUnitID == -1)
+		return false;
+
+	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+
+	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	return (GetTargetPlot() != NULL);
+}
+
+bool CvAIOperationDiplomatDelegation::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	int iUnitID = pArmy->GetFirstUnitID();
+	if(iUnitID == -1)
+		return false;
+
+	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+
+	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	return (GetTargetPlot() != NULL);
+}
+
+bool CvAIOperationConcertTour::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	int iUnitID = pArmy->GetFirstUnitID();
+	if(iUnitID == -1)
+		return false;
+
+	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+
+	if (GetTargetPlot()==NULL || !pCivilian->canBlastTourism( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	return (GetTargetPlot() != NULL);
+}
+
+//----------------------------------------------
 
 FDataStream& operator<<(FDataStream& saveTo, const AIOperationState& readFrom)
 {
@@ -11158,6 +11236,7 @@ bool OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 	}
 	return false;
 }
+
 /// Find the barbarian camp we want to eliminate
 bool OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer)
 {

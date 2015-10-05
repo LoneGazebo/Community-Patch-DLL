@@ -112,21 +112,21 @@ public:
 	bool GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int iInfo = 0, bool bReuse = false);
 
 	// Gets the last node in the path (from the origin) - Traverse the parents to get full path (linked list starts at destination)
-	inline CvAStarNode* GetLastNode()
+	inline CvAStarNode* GetLastNode() const
 	{
 		return m_pBest;
 	}
 
 #ifdef AUI_ASTAR_GET_PENULTIMATE_NODE
 	// Gets the node before the last node in the path (from the origin)
-	inline CvAStarNode* GetPenultimateNode()
+	inline CvAStarNode* GetPenultimateNode() const
 	{
 		return m_pBest->m_pParent;
 	}
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	inline int GetPathLength()
+	inline int GetPathLength() const
 	{
 		if( udNotifyChild && GetLastNode() )
 			return GetLastNode()->m_iData2;
@@ -138,7 +138,7 @@ public:
 	virtual void SetName(const char* pName) { m_strName = pName; }
 #endif
 
-	inline bool IsPathStart(int iX, int iY)
+	inline bool IsPathStart(int iX, int iY) const
 	{
 		return ((m_iXstart == iX) && (m_iYstart == iY));
 	}
@@ -152,27 +152,27 @@ public:
 		return FALSE;
 	}
 
-	inline int GetStartX()
+	inline int GetStartX() const
 	{
 		return m_iXstart;
 	}
 
-	inline int GetStartY()
+	inline int GetStartY() const
 	{
 		return m_iYstart;
 	}
 
-	inline int GetDestX()
+	inline int GetDestX() const
 	{
 		return m_iXdest;
 	}
 
-	inline int GetDestY()
+	inline int GetDestY() const
 	{
 		return m_iYdest;
 	}
 
-	inline int GetInfo()
+	inline int GetInfo() const
 	{
 		return m_iInfo;
 	}
@@ -549,7 +549,11 @@ int AttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* 
 int AttackPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackFortifiedPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+int RebaseValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+int RebaseGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder);
+int RebaseGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar* finder);
+#else
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #endif
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
@@ -620,7 +624,7 @@ public:
 #else
 	bool DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot);
 #endif
-	CvPlot* GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pEndPlot, PlayerTypes iOwner) const;
+	CvPlot* GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pEndPlot, PlayerTypes iOwner);
 	int GetPathLength();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathEndTurnPlot() const;

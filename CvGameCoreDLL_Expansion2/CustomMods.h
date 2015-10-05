@@ -220,8 +220,12 @@
 #define MOD_CORE_TRADE_NATURAL_ROUTES
 #define MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST 100
 
-// disable the tacticalmappathfinder - it's 99% identical to the regular pathfinder
-#define MOD_CORE_NO_TACTMAP_PATHFINDER
+// use the RebasePathfinder to rebase air units in multiple hops
+// disable the TacticalMapPathfinder - it's 99% identical to the regular pathfinder
+#define MOD_CORE_PATHFINDER
+
+// track how much damage a unit takes per turn in order to better predict whether it might die
+#define MOD_BALANCE_CORE_PER_TURN_DAMAGE
 
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS

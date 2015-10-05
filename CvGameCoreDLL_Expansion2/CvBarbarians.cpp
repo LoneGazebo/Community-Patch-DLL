@@ -910,12 +910,9 @@ void CvBarbarians::DoUnits()
 			
 			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
 			{
-				if((pUnit->getFortifyTurns() > 0) && (pLoopPlot->getImprovementType() == eCamp))
+				if( ( !pUnit->hasMoved() && pUnit->IsHurt() ) && (pLoopPlot->getImprovementType() == eCamp) )
 				{
-					if(pUnit->getDamage() > 0)
-					{
-						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
-					}
+					pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
 				}
 			}
 		}

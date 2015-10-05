@@ -326,6 +326,10 @@ CvUnit::CvUnit() :
 	, m_eInvisibleType("CvUnit::m_eInvisibleType", m_syncArchive)
 	, m_eSeeInvisibleType("CvUnit::m_eSeeInvisibleType", m_syncArchive)
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
+	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
+#endif
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
@@ -5537,6 +5541,26 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+int CvUnit::addDamageReceivedThisTurn(int iDamage)
+{
+	m_iDamageTakenThisTurn+=iDamage;
+	return m_iDamageTakenThisTurn;
+}
+
+void CvUnit::flipDamageReceivedPerTurn()
+{
+	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	m_iDamageTakenThisTurn = 0;
+}
+
+bool CvUnit::isProjectedToDieNextTurn() const
+{
+	return (m_iDamageTakenLastTurn>GetCurrHitPoints());
+}
+#endif
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::canLoadUnit(const CvUnit& unit, const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
@@ -9456,7 +9480,7 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
+bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities) const
 {
 	VALIDATE_OBJECT
 	if(!m_pUnitInfo->IsFound())
@@ -9476,7 +9500,7 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
+	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities)))
 		return false;
 #else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
@@ -17323,7 +17347,7 @@ bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 
 //	--------------------------------------------------------------------------------
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pUnitCompare, const CvPlot* pAtPlot) const
+int CvUnit::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, const CvPlot* pAtPlot, bool bCombatOnly) const
 {
 	if (pAtPlot == NULL)
 	{
@@ -17332,19 +17356,18 @@ int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const
 			return 0;
 	}
 #else
-int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pUnitCompare) const
+int CvUnit::GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType) const
 {
-#endif
-	int iNumEnemiesAdjacent = 0;
+	PlayerTypes ePlayer = getOwner();
+	bool bCombatOnly = true;
 
-	TeamTypes eMyTeam = getTeam();
+#endif
+	int iNumUnitsAdjacent = 0;
 
 	CvPlot* pLoopPlot;
 	IDInfo* pUnitNode;
 
 	CvUnit* pLoopUnit;
-	TeamTypes eTheirTeam;
-
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -17365,21 +17388,14 @@ int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit())
+					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
 					{
-						eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
+						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
 						{
-
-							if(pLoopUnit->getUnitType() == pUnitCompare->getUnitType())
-							{
-								iNumEnemiesAdjacent++;
-							}
+							iNumUnitsAdjacent++;
 						}
 					}
 				}
@@ -17387,7 +17403,7 @@ int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const
 		}
 	}
 
-	return iNumEnemiesAdjacent;
+	return iNumUnitsAdjacent;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17898,6 +17914,22 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 	return iCount;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvUnit::isAircraftCarrier() const
+{
+	if(cargoSpace() > 0 && getDomainType()==DOMAIN_SEA && domainCargo() == DOMAIN_AIR)
+	{
+		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+		if(specialCargo() == eSpecialUnitPlane)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHasNoValidMove() const
 {
@@ -25194,6 +25226,12 @@ void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
 	m_iArmyId = iNewArmyID;
+
+	if (m_iArmyId!=-1 && GET_PLAYER(getOwner()).GetTacticalAI()->IsUnitHealing(GetID()))
+	{
+		//shouldn't happen
+		OutputDebugString("warning: damaged unit recruited into army!\n");
+	}
 }
 
 //	--------------------------------------------------------------------------------

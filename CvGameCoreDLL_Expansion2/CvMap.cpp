@@ -584,7 +584,9 @@ void CvMap::setup()
 	GC.GetInternationalTradeRouteWaterFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
 #endif
 
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	GC.GetRebasePathfinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, NULL, NULL, NULL);
+#else
 	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.GetTacticalAnalysisMapFinder().SetDataChangeInvalidatesCache(true);
 #endif
@@ -779,6 +781,9 @@ void CvMap::updateAdjacency()
 	{
 		CvPlot* pPlot = plotByIndexUnchecked(iI);
 		pPlot->m_bIsAdjacentToLand = pPlot->isAdjacentToLand();
+#if defined(MOD_BALANCE_CORE)
+		pPlot->UpdatePlotsWithLOS();
+#endif
 	}
 }
 

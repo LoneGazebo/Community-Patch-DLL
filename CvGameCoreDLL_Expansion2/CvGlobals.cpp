@@ -105,7 +105,11 @@ CvGlobals::CvGlobals() :
 	m_buildRouteFinder(NULL),
 	m_internationalTradeRouteLandFinder(NULL),
 	m_internationalTradeRouteWaterFinder(NULL),
+#if defined(MOD_CORE_PATHFINDER)
+	m_rebasePathFinder(NULL),
+#else
 	m_tacticalAnalysisMapFinder(NULL),
+#endif
 	m_pDLL(NULL),
 	m_pEngineUI(NULL),
 
@@ -2571,7 +2575,11 @@ void CvGlobals::init()
 	SetBuildRouteFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetInternationalTradeRouteLandFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetInternationalTradeRouteWaterFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
+#if defined(MOD_CORE_PATHFINDER)
+	SetRebasePathFinder(FNEW(CvIgnoreUnitsPathFinder, c_eCiv5GameplayDLL, 0));
+#else
 	SetTacticalAnalysisMapFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	getPathFinder().SetName("generic pf");
@@ -2579,6 +2587,7 @@ void CvGlobals::init()
 	getIgnoreUnitsPathFinder().SetName("ignore units pf");
 	getStepFinder().SetName("stepfinder");
 	getRouteFinder().SetName("routefinder");
+	GetRebasePathfinder().SetName("rebasefinder");
 	GetWaterRouteFinder().SetName("water routefinder");
 	getAreaFinder().SetName("area finder");
 	getInfluenceFinder().SetName("influence finder");
@@ -2645,7 +2654,11 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_buildRouteFinder);
 	SAFE_DELETE(m_internationalTradeRouteLandFinder);
 	SAFE_DELETE(m_internationalTradeRouteWaterFinder);
+#if defined(MOD_CORE_PATHFINDER)
+	SAFE_DELETE(m_rebasePathFinder);
+#else
 	SAFE_DELETE(m_tacticalAnalysisMapFinder);
+#endif
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
@@ -2659,8 +2672,11 @@ void CvGlobals::uninit()
 	m_buildRouteFinder = NULL;
 	m_internationalTradeRouteLandFinder = NULL;
 	m_internationalTradeRouteWaterFinder = NULL;
+#if defined(MOD_CORE_PATHFINDER)
+	m_rebasePathFinder = NULL;
+#else
 	m_tacticalAnalysisMapFinder = NULL;
-
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -2779,7 +2795,12 @@ CvAStar& CvGlobals::GetInternationalTradeRouteWaterFinder()
 	return *m_internationalTradeRouteWaterFinder;
 }
 
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+CvIgnoreUnitsPathFinder& CvGlobals::GetRebasePathfinder()
+{
+	return *m_rebasePathFinder;
+}
+#else
 CvTwoLayerPathFinder& CvGlobals::GetTacticalAnalysisMapFinder()
 {
 	return *m_tacticalAnalysisMapFinder;
@@ -7059,11 +7080,17 @@ void CvGlobals::SetInternationalTradeRouteWaterFinder(CvAStar* pVal)
 {
 	m_internationalTradeRouteWaterFinder = pVal;
 }
+#if defined(MOD_CORE_PATHFINDER)
+void CvGlobals::SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal)
+{
+	m_rebasePathFinder = pVal;
+}
+#else
 void CvGlobals::SetTacticalAnalysisMapFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_tacticalAnalysisMapFinder = pVal;
 }
-
+#endif
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)
 {
 	m_bOutOfSyncDebuggingEnabled = isEnabled;

@@ -36,11 +36,13 @@ void CvDistanceMap::Init(PlayerTypes ePlayer, bool bAllocate)
 	{
 		int iGridSize = GC.getMap().numPlots();
 		CvAssertMsg(iGridSize > 0, "iGridSize is zero");
-		m_values.resize(iGridSize);
+		m_vDistance.resize(iGridSize);
+		m_vCityID.resize(iGridSize);
 		m_bArrayAllocated = true;
 		for(int i = 0; i < iGridSize; i++)
 		{
-			m_values[i] = INT_MAX;
+			m_vDistance[i] = INT_MAX;
+			m_vCityID[i] = -1;
 		}
 	}
 }
@@ -49,7 +51,8 @@ void CvDistanceMap::Init(PlayerTypes ePlayer, bool bAllocate)
 void CvDistanceMap::Uninit()
 {
 	m_ePlayer = NO_PLAYER;
-	m_values.clear();
+	m_vDistance.clear();
+	m_vCityID.clear();
 	m_bArrayAllocated = false;
 	m_bDirty = false;
 }
@@ -57,7 +60,7 @@ void CvDistanceMap::Uninit()
 /// Updates the danger plots values to reflect threats across the map
 void CvDistanceMap::Update()
 {
-	// danger plots have not been initialized yet, so no need to update
+	//plots have not been initialized yet, so no way to update
 	if(!m_bArrayAllocated)
 	{
 		return;
@@ -68,7 +71,7 @@ void CvDistanceMap::Update()
 	CvAssertMsg(iGridSize == m_values.size(), "CvDistanceMap: iGridSize does not match");
 	for(int i = 0; i < iGridSize; i++)
 	{
-		m_values[i] = MAX_INT;
+		m_vDistance[i] = MAX_INT;
 	}
 
 	// since we know there are very few cities compared to the number of plots,
@@ -90,7 +93,14 @@ void CvDistanceMap::Update()
 		{
 			CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
 			if (pPlot)
-				m_values[iPlotIndex] = min<int>( m_values[iPlotIndex], plotDistance( pCityPlot->getX(),pCityPlot->getY(),pPlot->getX(),pPlot->getY() ) );
+			{
+				int iDistance = plotDistance( pCityPlot->getX(),pCityPlot->getY(),pPlot->getX(),pPlot->getY() );
+				if (iDistance < m_vDistance[iPlotIndex])
+				{
+					m_vDistance[iPlotIndex] = iDistance;
+					m_vCityID[iPlotIndex] = pLoopCity->GetID();
+				}
+			}
 		}
 	}
 
@@ -106,5 +116,17 @@ void CvDistanceMap::SetDirty()
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetDistanceFromFriendlyCity(const CvPlot& plot) const
 {
-	return m_values[ GC.getMap().plotNum( plot.getX(), plot.getY() ) ]; 
+	if (m_bArrayAllocated)
+		return m_vDistance[ GC.getMap().plotNum( plot.getX(), plot.getY() ) ]; 
+
+	return INT_MAX;
+}
+
+//	-----------------------------------------------------------------------------------------------
+int CvDistanceMap::GetClosestFriendlyCity(const CvPlot& plot) const
+{
+	if (m_bArrayAllocated)
+		return m_vCityID[ GC.getMap().plotNum( plot.getX(), plot.getY() ) ];
+
+	return -1;
 }

@@ -827,17 +827,20 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsUnitHealing(int iUnitID) const;
+	bool NeedToRebase(CvUnit* pUnit) const;
 #endif
 
 	// Public logging
 	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
+
+	// Other people want to know this too
+	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 
 private:
 
 	// Internal turn update routines - commandeered unit processing
 	void UpdatePostures();
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
@@ -957,18 +960,18 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, bool bNeedOnlyOne=false);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, bool bNeedOnlyOne=false);
+	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
 #else
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bSafeForRanged, bool bMustBeRangedUnit);
-#endif
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits);
+#endif
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 public:
 	int SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy);
 private:
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
 	CvUnit* GetProbableInterceptor(CvPlot* pTarget) const;
-	void ProcessAirUnitsInAttack(CvPlot *pTargetPlot);
 #endif
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
 	int ComputeTotalExpectedBombardDamage(UnitHandle pTarget);
@@ -1110,6 +1113,7 @@ namespace TacticalAIHelpers
 	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(CvUnit* pUnit, bool bAllowEmbark);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
+	bool GetPlotsForRangedAttack(CvPlot* pTarget, CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 }
 
 extern const char* barbarianMoveNames[];

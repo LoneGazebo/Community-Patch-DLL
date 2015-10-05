@@ -830,7 +830,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			int iTurns = FindTurnsAway(*it, pPlot);
 			if (iTurns>-1 && iTurns<iAlternativeTurnsAway)
 			{
-				iTurns = iAlternativeTurnsAway;
+				iAlternativeTurnsAway = iTurns;
 				pAlternativeWorker = *it;
 			}
 		}

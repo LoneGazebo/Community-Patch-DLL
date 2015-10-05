@@ -271,6 +271,16 @@ void CvTacticalAnalysisMap::Init(int iNumPlots)
 	m_iDominancePercentage = GC.getAI_TACTICAL_MAP_DOMINANCE_PERCENTAGE();
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+PlayerTypes CvTacticalAnalysisMap::GetCurrentPlayer() const
+{
+	if (m_pPlayer)
+		return m_pPlayer->GetID();
+	else
+		return NO_PLAYER;
+}
+#endif
+
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 {

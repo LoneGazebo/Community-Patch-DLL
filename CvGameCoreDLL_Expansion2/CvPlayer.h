@@ -261,7 +261,7 @@ public:
 	void doGoody(CvPlot* pPlot, CvUnit* pUnit);
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
-	bool canFound(int iX, int iY, bool bTestVisible = false) const;
+	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities = false) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION);
@@ -2180,6 +2180,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	int GetCityDistance( const CvPlot* pPlot ) const;
+	CvCity* GetClosestCity( const CvPlot* pPlot );
 #endif
 
 protected:

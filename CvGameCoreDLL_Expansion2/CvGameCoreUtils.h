@@ -150,6 +150,11 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 		return (std::max(iDX, iDY));
 	}
 }
+
+inline int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
+{
+	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
+}
 //
 //// 3 | 3 | 3 | 3 | 3 | 3 | 3
 //// -------------------------

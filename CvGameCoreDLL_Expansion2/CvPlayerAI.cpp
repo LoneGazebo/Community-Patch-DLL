@@ -315,7 +315,9 @@ void CvPlayerAI::AI_unitUpdate()
 	// but this will allow selective control in case one type of pather is causing out-of-syncs.
 	bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 	bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
+#else
 	bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 	bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
@@ -369,9 +371,12 @@ void CvPlayerAI::AI_unitUpdate()
 
 	GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 	GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
+#else
 	GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
+
 	GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
@@ -1562,26 +1567,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
-	int iFriendlies = 0;
-	if(bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
+	if(bWar)
 	{
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
-				{
-					iFriendlies++;
-				}
-			}
-		}
-	}
-
-	if(bWar && iFriendlies > 3)
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
+		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(GetID(),pDefender.pointer());
+		if(iFriendlies > 3)
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
 	int iGreatGeneralCount = 0;

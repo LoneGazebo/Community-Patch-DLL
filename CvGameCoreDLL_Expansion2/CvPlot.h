@@ -918,7 +918,10 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetDefenseBuildValue(PlayerTypes eOwner);
+	void UpdatePlotsWithLOS();
+	bool GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult);
 #endif
+
 protected:
 	class PlotBoolField
 	{
@@ -999,6 +1002,8 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
+	std::vector<CvPlot*> m_vPlotsWithLOSatRange2;
+	std::vector<CvPlot*> m_vPlotsWithLOSatRange3;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

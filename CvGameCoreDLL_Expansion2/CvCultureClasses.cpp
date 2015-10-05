@@ -3622,14 +3622,15 @@ int CvPlayerCulture::ComputeWarWeariness()
 	if(iMostWarTurns > 0)
 	{
 		//war weariness is asymptotic. for X turns nothing happens, after X more turns it reaches 5% of the population, then maxes out at 10%
-		int iDelay = 10; 
-		int iTimeConstant = 40;
+		int iDelay = 8; 
+		int iTimeConstant = 32;
+		int iMaxPercent = 10;
 		
 		//simple asymptotic function x/(1+x) mapped to interval [0;100]
 		int iX = max(0, iMostWarTurns - iDelay);
 		int iScale = (100 * iX) / (iTimeConstant + iX);
 
-		iWorstWarWeariness = (m_pPlayer->getTotalPopulation() * iScale) / 1000;
+		iWorstWarWeariness = (m_pPlayer->getTotalPopulation() * iScale * iMaxPercent) / (100 * 100);
 	}
 	
 	if (iLeastPeaceTurns==0)

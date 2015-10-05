@@ -1231,6 +1231,23 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	int addDamageReceivedThisTurn(int iDamage);
+	void flipDamageReceivedPerTurn();
+	bool isInDangerOfFalling() const;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	//the closest friendly cities - up to 4 entries 
+	const std::vector<int>& GetClosestNeighboringCities() const;
+	void UpdateClosestNeighbors();
+
+	//temporary mapping from city to related units. not serialized!
+	void AttachUnit(CvUnit* pUnit);
+	void ClearAttachedUnits();
+	const std::vector<int>& GetAttachedUnits() const;
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1428,6 +1445,11 @@ protected:
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	FAutoVariable<int, CvCity> m_iDamageTakenThisTurn;
+	FAutoVariable<int, CvCity> m_iDamageTakenLastTurn;
+#endif
+
 	FAutoVariable<std::vector<int>, CvCity> m_paiNoResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreeResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourcesLocal;
@@ -1445,6 +1467,11 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
+	std::vector<int> m_vAttachedUnits;
 #endif
 
 	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;

@@ -21,6 +21,7 @@ public:
 
 	void Update();
 	int GetDistanceFromFriendlyCity(const CvPlot& pPlot) const;
+	int GetClosestFriendlyCity(const CvPlot& pPlot) const;
 
 	void SetDirty();
 	bool IsDirty() const
@@ -34,7 +35,8 @@ protected:
 	bool m_bArrayAllocated;
 	bool m_bDirty;
 
-	FFastVector<uint, true, c_eCiv5GameplayDLL, 0> m_values;
+	FFastVector<int, true, c_eCiv5GameplayDLL, 0> m_vDistance;
+	FFastVector<int, true, c_eCiv5GameplayDLL, 0> m_vCityID;
 };
 
 #endif //CIV5_PROJECT_CLASSES_H
