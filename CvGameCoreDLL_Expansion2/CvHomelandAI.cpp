@@ -1917,8 +1917,10 @@ void CvHomelandAI::PlotPatrolMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			if (MOD_BALANCE_CORE_MILITARY) 
 			{
+				pUnit->setHomelandMove(AI_HOMELAND_MOVE_PATROL);
+
 				//Patrolling is pointless.
-				if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
+				if(pUnit->canMove() && pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 					pUnit->SetTurnProcessed(true);
@@ -5728,9 +5730,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
-		{
 			continue;
-		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//might have been used in tactical AI already
@@ -5782,32 +5782,42 @@ void CvHomelandAI::ExecuteGeneralMoves()
 							strLogString.Format("Great General culture bombed/citadel'd at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
-#if defined(MOD_BALANCE_CORE)
 						UnitProcessed(pUnit->GetID());
 						pUnit->finishMoves();
-#endif
+					}
+					else
+					{
+						//give up
+						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 					}
 				}
 				else
 				{
-#if defined(MOD_BALANCE_CORE)
-					MoveToUsingSafeEmbark(pUnit, pTargetPlot, true);
-#else
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-#endif
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
+					//continue moving to target
+					if (MoveToUsingSafeEmbark(pUnit, pTargetPlot, true))
 					{
-						CvString strLogString;
-						strLogString.Format("Great general moving to culture bomb/citadel at, X: %d, Y: %d, current location, X: %d, Y: %d", 
-							pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
+						pUnit->finishMoves();
+						UnitProcessed(pUnit->GetID());
+
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Great general moving to build citadel at, X: %d, Y: %d, current location, X: %d, Y: %d", 
+								pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+						}
 					}
+					else
+						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 				}
-				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			else
+			{
+				//no target for citadel
+				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+			}
+#endif
 		}
 
 
@@ -5868,6 +5878,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			if (pBestPlot)
 			{
+				//we know we can reach it in one turn
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 			}
 			else
@@ -6902,19 +6913,24 @@ void CvHomelandAI::ExecuteAircraftMoves()
 
 	//check the carriers and their potential cargo
 	int iLoopUnit = 0;
-	SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
 		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
 
 		//first some statistics
-		if(pLoopUnit->getSpecialUnitType() == eSpecialUnitPlane)
+		if(pLoopUnit->getDomainType() == DOMAIN_AIR)
 		{
-			if (pLoopUnit->IsAirSweepCapable() || pLoopUnit->canAirDefend())
-				nAirUnitsDefensive++;
-			else
-				nAirUnitsOffensive++;
+			switch (pLoopUnit->getUnitInfo().GetDefaultUnitAIType())
+			{
+			case UNITAI_DEFENSE_AIR:
+					nAirUnitsDefensive++;
+					break;
+			case UNITAI_ATTACK_AIR:
+			case UNITAI_ICBM:
+			case UNITAI_MISSILE_AIR:
+					nAirUnitsOffensive++;
+					break;
+			}
 
 			if (pLoopUnit->getTransportUnit()!=NULL)
 				nAirUnitsInCarriers++;
@@ -6934,7 +6950,23 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnitPlot->GetPlotIndex() );
 			CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
 
-			if (pZone->GetEnemyStrength() > 0)
+			if (!pZone)
+			{
+				//don't know what to do with this
+				vCarriersMeh.insert(pLoopUnit);
+				continue;
+			}
+
+			bool bInterestingNeighbor = false;
+			const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
+			for (size_t i=0; i<vNeighborZones.size(); i++)
+			{
+				CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
+				if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
+					bInterestingNeighbor = true;
+			}
+
+			if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
 			{
 				//this is a zone which either needs air support or needs to be evacuated
 				if(pLoopUnit->isProjectedToDieNextTurn())  
@@ -6976,7 +7008,23 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pTarget->GetPlotIndex() );
 		CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
 
-		if (pZone->GetEnemyStrength() > 0)
+		if (!pZone)
+		{
+			//don't know what to do with this
+			vCitiesMeh.insert(pLoopCity);
+			continue;
+		}
+
+		bool bInterestingNeighbor = false;
+		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
+		for (size_t i=0; i<vNeighborZones.size(); i++)
+		{
+			CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
+			if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
+				bInterestingNeighbor = true;
+		}
+
+		if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
 		{
 			int iUnitsThere = pTarget->countNumAirUnits( m_pPlayer->getTeam() );
 			if (iUnitsThere < pLoopCity->GetMaxAirUnits())
@@ -6989,11 +7037,33 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	}
 
 	//then decide what to do with our units
-	//for now we simply try to move units to the desirable bases
+	//for now we simply try to move units to the first desirable base
+	//
 	//in the future we should
-	//- try to ensure a good mix of bombers and fighter
+	//- try to ensure a good mix of bombers / fighters / missiles
 	//- try to ensure a good mix of cities and carriers
 	//- try to make space in the waypoints so that we don't block ourselves
+	//- score targets by importance (not only distance)
+
+	//fixme: PreparingForWar / check diploAI / tzone neutral strength
+	/*
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				bNeedsToMove = false;
+				if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+				{
+					if(m_pPlayer->GetDiplomacyAI()->IsMusteringForAttack(eLoopPlayer))
+					{
+						bNeedsToMove = true;
+						break;
+					}
+					if(m_pPlayer->GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+					{
+						bNeedsToMove = true;
+						break;
+					}
+				}
+	*/
+
 	CvIgnoreUnitsPathFinder& pf = GC.GetRebasePathfinder();
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -7001,8 +7071,15 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		if(!pUnit)
 			continue;
 
-		std::vector<SPlotWithScore> vTargets;
+		//unit simply is damaged and needs to heal
+		if(!m_pPlayer->GetTacticalAI()->NeedToRebase(pUnit.pointer()))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			UnitProcessed(pUnit->GetID());
+			continue;
+		}
 
+		std::vector<SPlotWithScore> vTargets;
 		for (std::set<CvUnit*>::iterator it=vCarriersToFill.begin(); it!=vCarriersToFill.end(); ++it)
 		{
 			int iDistance = plotDistance( *(*it)->plot(), *pUnit->plot() );
@@ -7019,6 +7096,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		bool bFoundPath = false;
 		for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 		{
+			//make sure the unit fits the destination (ie missile to cruiser, fighter to carrier)
+			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
+				continue;
+
 			/*
 			if (pUnit->plot()==it->pPlot)
 			{
@@ -7042,13 +7123,12 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					LogHomelandMessage(strLogString);
 				}
 
-				//todo: remove target if full?
-
 				bFoundPath = true;
 				break;
 			}
 		}
 
+		//that's it for this turn, whether we rebased successfully or not
 		pUnit->finishMoves();
 		UnitProcessed(pUnit->GetID());
 
@@ -7759,6 +7839,9 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 				case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 					// Want to put ranged units in cities to give them a ranged attack
 #if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
+						continue;
+
 					if(pLoopUnit->isRanged())
 #else
 					if(pLoopUnit->isRanged() && !pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD))
@@ -7819,6 +7902,10 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					break;
 
 				case AI_HOMELAND_MOVE_MOBILE_RESERVE:
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
+						continue;
+#endif
 					// Ranged units are excellent in the mobile reserve as are fast movers
 					if(pLoopUnit->isRanged() || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
 					{
@@ -7832,6 +7919,10 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					break;
 
 				case AI_HOMELAND_MOVE_ANCIENT_RUINS:
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
+						continue;
+#endif
 					// Fast movers are top priority
 					if(pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
 					{
@@ -8122,12 +8213,6 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
-			{
-				continue;
-			}
-#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
@@ -8154,12 +8239,6 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
-			{
-				continue;
-			}
-#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())

@@ -580,6 +580,9 @@ public:
 	int GetCenterX() const { return m_iAvgX; }
 	int GetCenterY() const { return m_iAvgY; }
 	int GetNumPlots() const { return m_iPlotCount; }
+	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
+	void AddNeighboringZone(int iZoneID);
+	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
 #endif
 
 private:
@@ -611,6 +614,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;
+	std::vector<int> m_vNeighboringZones;
 #endif
 };
 
@@ -668,6 +672,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	PlayerTypes GetCurrentPlayer() const;
+	void EstablishZoneNeighborhood();
 #endif
 
 	bool IsBuilt() const

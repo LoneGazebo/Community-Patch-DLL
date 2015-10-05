@@ -2709,25 +2709,23 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
-				if (pBestUnit->AI_getUnitAIType() == thisSlotEntry.m_primaryUnitType)
+				pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
+				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-					if(GC.getLogging() && GC.getAILogging())
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
 					{
-						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
-						{
-							strMsg.Format("Recruited %s (primary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogOperationSpecialMessage(strMsg);
-						}
-						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-						if (iMusterDist>12)
-						{
-							strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
-							LogOperationSpecialMessage(strMsg);
-						}
+						strMsg.Format("Recruited %s (primary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
 					}
-					return true;
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
 				}
+				return true;
 			}
 
 			kSearchList.clear();
@@ -3003,25 +3001,23 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
-				if (pBestUnit->AI_getUnitAIType() == thisSlotEntry.m_secondaryUnitType)
+				pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType);
+				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
-					if(GC.getLogging() && GC.getAILogging())
+					if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
 					{
-						if(pMusterPlot != NULL && pTargetPlot != NULL && strMsg)
-						{
-							strMsg.Format("Recruited %s (secondary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogOperationSpecialMessage(strMsg);
-						}
-						int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-						if (iMusterDist>12)
-						{
-							strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
-							LogOperationSpecialMessage(strMsg);
-						}
+						strMsg.Format("Recruited %s (secondary) to fill in an existing army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
 					}
-					return true;
+					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
+					if (iMusterDist>12)
+					{
+						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point", GetOperationName().c_str(), iMusterDist );
+						LogOperationSpecialMessage(strMsg);
+					}
 				}
+				return true;
 			}
 		}
 	}
@@ -3899,8 +3895,8 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			if(pBestUnit != NULL)
 			{
 #if defined(AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS)
-				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_primaryUnitType)
-					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
+				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_secondaryUnitType)
+					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType);
 #endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
 				return true;

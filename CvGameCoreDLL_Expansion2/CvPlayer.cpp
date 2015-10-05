@@ -6683,6 +6683,15 @@ void CvPlayer::EndTurnsForReadyUnits()
 		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
 		{
 			pLoopUnit->finishMoves();
+#if defined(MOD_BALANCE_CORE)
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
+				CvString strLogString;
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+#endif
 		}
 	}
 }

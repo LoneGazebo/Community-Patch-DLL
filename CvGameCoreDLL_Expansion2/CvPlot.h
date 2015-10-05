@@ -917,6 +917,11 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL) const;
+	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
+	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
+
 	int GetDefenseBuildValue(PlayerTypes eOwner);
 	void UpdatePlotsWithLOS();
 	bool GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult);

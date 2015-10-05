@@ -3799,8 +3799,8 @@ int RebaseValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* po
 		{
 			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 			pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
-
-			if (pLoopUnit->isAircraftCarrier() && !pLoopUnit->isFull())
+			
+			if (pUnit->canLoad(*(pLoopUnit->plot())))
 				return TRUE;
 		}
 	}

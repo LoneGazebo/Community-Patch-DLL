@@ -730,19 +730,10 @@ public:
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvPlot* pAtPlot = NULL) const;
-	bool IsEnemyCityAdjacent(const CvPlot* pAtPlot = NULL) const;
-	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity, const CvPlot* pAtPlot = NULL) const;
-	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, const CvPlot* pAtPlot = NULL, bool bCombatOnly = true) const;
-	bool IsFriendlyUnitAdjacent(bool bCombatUnit, const CvPlot* pAtPlot = NULL) const;
-#else
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
-	bool IsEnemyCityAdjacent() const;
-	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const;
-	int GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL) const;
+	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
+	int GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
-#endif
 
 	int GetAdjacentModifier() const;
 	void ChangeAdjacentModifier(int iValue);

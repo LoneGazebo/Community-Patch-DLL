@@ -14137,7 +14137,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 	// Adjacent Friendly military Unit?
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true, pFromPlot))
+	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 #else
 	if(IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 #endif
@@ -17156,326 +17156,31 @@ int CvUnit::withdrawalProbability() const
 
 //	--------------------------------------------------------------------------------
 /// How many enemy Units are adjacent to this guy?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-#else
 int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
-#endif
-	int iNumEnemiesAdjacent = 0;
-
-	TeamTypes eMyTeam = getTeam();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-	TeamTypes eTheirTeam;
-
-#if defined(MOD_BALANCE_CORE)
-
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pAtPlot);
-#else
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-#endif
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		pLoopPlot = aPlotsToCheck[iCount];
-#else
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-#endif
-		if(pLoopPlot != NULL)
-		{
-			pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
-			{
-				pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
-				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
-					{
-						eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == getDomainType())
-							{
-								iNumEnemiesAdjacent++;
-							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (getDomainType() == DOMAIN_SEA && pLoopUnit->IsHoveringUnit()) {
-							
-								// Need to count adjacent hovering units as enemies regardless
-								iNumEnemiesAdjacent++;
-							}
-#endif
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iNumEnemiesAdjacent;
-}
-
-//	--------------------------------------------------------------------------------
-/// Is there any enemy city next to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsEnemyCityAdjacent(const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return false;
-	}
-#else
-bool CvUnit::IsEnemyCityAdjacent() const
-{
-#endif
-	TeamTypes eMyTeam = getTeam();
-	CvPlot* pLoopPlot;
-	CvCity* pCity;
-
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-		if(!pLoopPlot)
-		{
-			continue;
-		}
-
-		pCity = pLoopPlot->getPlotCity();
-		if(!pCity)
-		{
-			continue;
-		}
-
-		if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return plot()->GetNumEnemyUnitsAdjacent( getTeam(), getDomainType(), pUnitToExclude);
 }
 
 //	--------------------------------------------------------------------------------
 /// Is a particular enemy city next to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity, const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return false;
-	}
-#else
 bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 {
-#endif
 	CvAssertMsg(pSpecifyCity, "City is NULL when checking if it is adjacent to a unit");
-	if (!pSpecifyCity)
-	{
-		return false;
-	}
-
-	TeamTypes eMyTeam = getTeam();
-	CvPlot* pLoopPlot;
-	CvCity* pCity;
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-		if(!pLoopPlot)
-		{
-			continue;
-		}
-
-		pCity = pLoopPlot->getPlotCity();
-		if(!pCity)
-		{
-			continue;
-		}
-
-		if (pCity->getX() == pSpecifyCity->getX() && pCity->getY() == pSpecifyCity->getY())
-		{
-			if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return plot()->IsEnemyCityAdjacent(getTeam(), pSpecifyCity);
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-int CvUnit::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, const CvPlot* pAtPlot, bool bCombatOnly) const
+int CvUnit::GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
 {
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-#else
-int CvUnit::GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType) const
-{
-	PlayerTypes ePlayer = getOwner();
-	bool bCombatOnly = true;
-
-#endif
-	int iNumUnitsAdjacent = 0;
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-		if(pLoopPlot != NULL)
-		{
-			pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
-			{
-				pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
-				{
-					// Must be a combat Unit
-					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
-					{
-						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
-						{
-							iNumUnitsAdjacent++;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iNumUnitsAdjacent;
+	return plot()->GetNumSpecificPlayerUnitsAdjacent(getOwner(), pUnitToExclude, pExampleUnitType, bCombatOnly);
 }
 
 //	--------------------------------------------------------------------------------
 /// Is there a friendly Unit adjacent to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit, const CvPlot* pPlot) const
-{
-	if (pPlot == NULL)
-	{
-		pPlot = plot();
-		if (pPlot == NULL)
-			return false;
-	}
-#else
 bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 {
-#endif
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-
-#ifndef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvPlot* pPlot = plot();
-#endif
-
-	TeamTypes eTeam = getTeam();
-
-#if defined(MOD_BALANCE_CORE)
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		pLoopPlot = aPlotsToCheck[iCount];
-#else
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-#endif
-		if(pLoopPlot != NULL)
-		{
-			// Must be in same area
-			if(pLoopPlot->getArea() == pPlot->getArea())
-			{
-				pUnitNode = pLoopPlot->headUnitNode();
-
-				while(pUnitNode != NULL)
-				{
-					pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-					if(pLoopUnit && pLoopUnit->getTeam() == eTeam)
-					{
-						// Combat Unit?
-						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return false;
+	return plot()->IsFriendlyUnitAdjacent(getTeam(), bCombatUnit);
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAdjacentModifier() const
@@ -17921,7 +17626,8 @@ bool CvUnit::isAircraftCarrier() const
 	if(cargoSpace() > 0 && getDomainType()==DOMAIN_SEA && domainCargo() == DOMAIN_AIR)
 	{
 		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-		if(specialCargo() == eSpecialUnitPlane)
+		SpecialUnitTypes eSpecialUnitMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
+		if(specialCargo() == eSpecialUnitPlane || specialCargo() == eSpecialUnitMissile)
 		{
 			return true;
 		}
@@ -26552,6 +26258,8 @@ const char* CvUnit::GetMissionInfo()
 		strTemp1.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
 		m_strMissionInfoString += strTemp1;
 	}
+
+	m_strMissionInfoString += " -----------------------";
 
 	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();

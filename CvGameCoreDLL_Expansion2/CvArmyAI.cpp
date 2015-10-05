@@ -88,6 +88,9 @@ void CvArmyAI::Kill()
 		if(pThisUnit)
 		{
 			pThisUnit->setArmyID(-1);
+#if defined(MOD_BALANCE_CORE)
+			pThisUnit->AI_setUnitAIType((UnitAITypes)pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+#endif
 		}
 		iUnitID = GetNextUnitID();
 	}
@@ -480,6 +483,13 @@ int CvArmyAI::GetTurnAtNextCheckpoint() const
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(m_FormationEntries[iI].GetUnitID() == ARMY_NO_UNIT)
+			continue;
+		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
+			continue;
+#endif
+
 		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 		{
 			return ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
@@ -507,9 +517,9 @@ void CvArmyAI::UpdateCheckpointTurns()
 			{
 				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, true /*bReusePaths*/, true, true);
 				if(iTurnsToReachCheckpoint < MAX_INT)
-				{
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
-				}
+				else
+					SetEstimatedTurn(iI, ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT);
 			}
 		}
 	}
@@ -732,6 +742,11 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	m_FormationEntries[iSlotNum].SetUnitID(iUnitID);
 	pThisUnit->setArmyID(GetID());
 
+#if defined(MOD_BALANCE_CORE)
+	//just for avoiding confusion
+	pThisUnit->setTacticalMove(NO_TACTICAL_MOVE);
+#endif
+
 	// Finally, compute when we think this unit will arrive at the next checkpoint
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
@@ -760,6 +775,9 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 			{
 				// Clears unit's army ID and erase from formation entries
 				pThisUnit->setArmyID(-1);
+#if defined(MOD_BALANCE_CORE)
+				pThisUnit->AI_setUnitAIType((UnitAITypes)pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+#endif
 				m_FormationEntries[iI].SetUnitID(ARMY_NO_UNIT);
 				bWasOneOrMoreRemoved = true;
 

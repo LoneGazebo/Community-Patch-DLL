@@ -279,6 +279,65 @@ PlayerTypes CvTacticalAnalysisMap::GetCurrentPlayer() const
 	else
 		return NO_PLAYER;
 }
+
+void CvTacticalDominanceZone::AddNeighboringZone(int iZoneID)
+{ 
+	if (iZoneID==m_iDominanceZoneID || iZoneID==-1)
+		return;
+
+	std::vector<int>::iterator it = std::find(m_vNeighboringZones.begin(),m_vNeighboringZones.end(),iZoneID);
+
+	if (it==m_vNeighboringZones.end())
+		m_vNeighboringZones.push_back(iZoneID);
+}
+
+void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
+{
+	//walk over the map and see which zones are adjacent
+	int iW = GC.getMap().getGridWidth();
+	int iH = GC.getMap().getGridHeight();
+
+	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
+	{
+		m_DominanceZones[iI].ClearNeighboringZones();
+	}
+
+	for (int i=0; i<iW; i++)
+	{
+		for (int j=0; j<iH; j++)
+		{
+			CvPlot* pA = GC.getMap().plot(i,j);
+			CvPlot* pB = GC.getMap().plot(i,j+1);
+			CvPlot* pC = GC.getMap().plot(i+1,j);
+
+			CvTacticalAnalysisCell* cA = pA ? GetCell( pA->GetPlotIndex() ) : NULL;
+			CvTacticalAnalysisCell* cB = pB ? GetCell( pB->GetPlotIndex() ) : NULL;
+			CvTacticalAnalysisCell* cC = pC ? GetCell( pC->GetPlotIndex() ) : NULL;
+
+			if (cA && cB)
+			{
+				int iA = cA->GetDominanceZone();
+				int iB = cB->GetDominanceZone();
+				if (iA!=-1 && iB!=-1)
+				{
+					GetZoneByID(iA)->AddNeighboringZone(iB);
+					GetZoneByID(iB)->AddNeighboringZone(iA);
+				}
+			}
+			if (cA && cC)
+			{
+				int iA = cA->GetDominanceZone();
+				int iC = cC->GetDominanceZone();
+				if (iA!=-1 && iC!=-1)
+				{
+					GetZoneByID(iA)->AddNeighboringZone(iC);
+					GetZoneByID(iC)->AddNeighboringZone(iA);
+				}
+			}
+		}
+	}
+}
+
 #endif
 
 /// Fill the map with data for this AI player's turn
@@ -330,6 +389,7 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 				//barbarians don't care about tactical dominance
 				if(!m_pPlayer->isBarbarian())
 				{
+					EstablishZoneNeighborhood();
 					CalculateMilitaryStrengths();
 					PrioritizeZones();
 					LogZones();

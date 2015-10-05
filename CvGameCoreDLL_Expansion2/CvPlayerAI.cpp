@@ -1570,7 +1570,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	if(bWar)
 	{
 		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
-		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(GetID(),pDefender.pointer());
+		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
 		if(iFriendlies > 3)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -2446,11 +2446,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 #ifdef AUI_ASTAR_TURN_LIMITER
-			if(pLoopPlot->isWater())
-			{
-				continue;
-			}
-			if(pLoopPlot->isImpassable())
+			if(pLoopPlot->isWater() || pLoopPlot->isImpassable())
 			{
 				continue;
 			}
@@ -2458,6 +2454,16 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
+			// Make sure this is still owned by target and is revealed to us
+			bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+			bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+			if(!bRightOwner || !bIsRevealed)
+			{
+				continue;
+			}
+			// Don't be captured
+			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+				continue;
 
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
 			if(iTurns < MAX_INT)
@@ -2690,6 +2696,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			// can't build on some plots
 			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+				continue;
+			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;
 
 			if(!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))

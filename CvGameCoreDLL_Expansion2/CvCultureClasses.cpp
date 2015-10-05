@@ -3591,8 +3591,8 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	int iMostWarTurns = 0;
-	int iLeastPeaceTurns = INT_MAX;
+	int iMostWarTurns = -1;
+	int iLeastPeaceTurns = -1;
 	// Look at each civ and get longest war and shortest peace
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
@@ -3610,7 +3610,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 			else
 			{
 				int iPeaceTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
-				if(iPeaceTurns < iLeastPeaceTurns)
+				if(iPeaceTurns < iLeastPeaceTurns || iLeastPeaceTurns<0)
 				{
 					iLeastPeaceTurns = iPeaceTurns;
 				}
@@ -3618,40 +3618,44 @@ int CvPlayerCulture::ComputeWarWeariness()
 		}
 	}
 
-	int iWorstWarWeariness = 0;
+	//by default, war weariness is slowly falling over time
+	int iFallingWarWeariness = 0;
+	if (iLeastPeaceTurns==1)
+	{
+		//signed peace last turn - halve value for immediate relief
+		//if we eliminate another player, this won't apply!
+		iFallingWarWeariness = m_iWarWeariness / 2;
+	}
+	else if (iLeastPeaceTurns>1)
+	{
+		//apparently we made peace recently ... reduce the value step by step
+		int iReduction = GC.getGame().getJonRandNum(4, "Roll for war weariness reduction!");
+		iFallingWarWeariness = max(m_iWarWeariness-iReduction, 0);
+	}
+
+	//but if we have a war going, it will generate rising unhappiness
+	int iRisingWarWeariness = 0;
 	if(iMostWarTurns > 0)
 	{
-		//war weariness is asymptotic. for X turns nothing happens, after X more turns it reaches 5% of the population, then maxes out at 10%
+		//war weariness is asymptotic. for Delay turns nothing happens, then after TimeConstant more turns it affects max/2 % of the population, then asymptotically approaches max %
 		int iDelay = 8; 
 		int iTimeConstant = 32;
-		int iMaxPercent = 10;
+		int iMaxPercent = 20;
 		
 		//simple asymptotic function x/(1+x) mapped to interval [0;100]
 		int iX = max(0, iMostWarTurns - iDelay);
 		int iScale = (100 * iX) / (iTimeConstant + iX);
 
-		iWorstWarWeariness = (m_pPlayer->getTotalPopulation() * iScale * iMaxPercent) / (100 * 100);
-	}
-	
-	if (iLeastPeaceTurns==0)
-	{
-		//signed peace last turn - halve it for immediate relief
-		//note: if the peace treaty was not for our longest war, we will overwrite it again in the next step
-		m_iWarWeariness /= 2;
+		iRisingWarWeariness = (m_pPlayer->getTotalPopulation() * iScale * iMaxPercent) / (100 * 100);
 	}
 
-	//in any case, if we still have a war going, it new determines the result
-	if (iWorstWarWeariness>=m_iWarWeariness)
-		//rising
-		m_iWarWeariness = iWorstWarWeariness;
+	//see which one is worse
+	if (iRisingWarWeariness>=iFallingWarWeariness)
+		m_iWarWeariness = iRisingWarWeariness;
 	else
-	{
-		//apparently we made peace recently ... reduce the value step by step
-		m_iWarWeariness -= GC.getGame().getJonRandNum(10, "Roll for war weariness reduction!");
-		m_iWarWeariness = max(m_iWarWeariness, 0);
-	}
+		m_iWarWeariness = iFallingWarWeariness;
 
-		return m_iWarWeariness;
+	return m_iWarWeariness;
 }
 #endif
 

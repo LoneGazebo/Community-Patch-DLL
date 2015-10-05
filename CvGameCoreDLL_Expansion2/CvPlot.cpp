@@ -13196,6 +13196,7 @@ bool CvPlot::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 
 	return false;
 }
+
 #if defined(MOD_BALANCE_CORE)
 bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
@@ -13236,6 +13237,7 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 	}
 	return false;
 }
+
 bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13275,6 +13277,7 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 	}
 	return false;
 }
+
 bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13314,6 +13317,7 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 	}
 	return false;
 }
+
 bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13398,6 +13402,7 @@ bool CvPlot::IsAdjacentToUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, bool bI
 	}
 	return false;
 }
+
 bool CvPlot::IsAdjacentToUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13434,6 +13439,7 @@ bool CvPlot::IsAdjacentToUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUn
 	}
 	return false;
 }
+
 bool CvPlot::IsAdjacentToUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13470,6 +13476,7 @@ bool CvPlot::IsAdjacentToUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClas
 	}
 	return false;
 }
+
 bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -13515,6 +13522,7 @@ bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnit
 	return false;
 }
 #endif
+
 bool CvPlot::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const
 {
 	int iX = getX(); int iY = getY();
@@ -13643,6 +13651,171 @@ bool CvPlot::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	return false;
 }
 #endif
+
+///-------------------------------------
+/// Is an enemy city next to us?
+bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const
+{
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if(!pLoopPlot)
+		{
+			continue;
+		}
+
+		CvCity* pCity = pLoopPlot->getPlotCity();
+		if(!pCity)
+		{
+			continue;
+		}
+
+		if (!pSpecifyCity || (pCity->getX() == pSpecifyCity->getX() && pCity->getY() == pSpecifyCity->getY()))
+		{
+			if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude) const
+{
+	int iNumEnemiesAdjacent = 0;
+	CvPlot* pLoopPlot;
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+#if defined(MOD_BALANCE_CORE)
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		pLoopPlot = aPlotsToCheck[iCount];
+#else
+
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+#endif
+		if(pLoopPlot != NULL)
+		{
+			pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					{
+						TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be at war with us
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
+						{
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain)
+							{
+								iNumEnemiesAdjacent++;
+							}
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit()) {
+							
+								// Need to count adjacent hovering units as enemies regardless
+								iNumEnemiesAdjacent++;
+							}
+#endif
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumEnemiesAdjacent;
+}
+
+int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
+{
+	int iNumUnitsAdjacent = 0;
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if(pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
+				{
+					// Must be a combat Unit
+					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
+					{
+						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
+						{
+							iNumUnitsAdjacent++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumUnitsAdjacent;
+}
+
+bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if(pLoopPlot != NULL)
+		{
+			// Must be in same area
+			if(pLoopPlot->getArea() == getArea())
+			{
+				IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+				while(pUnitNode != NULL)
+				{
+					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
+					{
+						// Combat Unit?
+						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+
+///-------------------------------------
+
 #if defined(MOD_BALANCE_CORE)
 int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 {
@@ -13871,6 +14044,10 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& v
 {
 	vResult.clear();
 
+	//for now, we can only do up to range 3
+	//TODO: on the fly lookup for range 4 etc
+	iRange = min(3,iRange);
+
 	if (bWithLOS)
 	{
 		switch (iRange)
@@ -13925,7 +14102,7 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& v
 	}
 
 	//todo: compute plots on the fly?
-	OutputDebugString("GetPlotsToAttackFrom() called with invalid parameter\n");
+	OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 	return false;
 }
 
