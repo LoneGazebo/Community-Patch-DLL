@@ -612,18 +612,6 @@ int CvArmyAI::GetY() const
 	return m_iCurrentY;
 }
 
-/// Set current army X position
-void CvArmyAI::SetX(int iX)
-{
-	m_iCurrentX = iX;
-}
-
-/// Set current army Y position
-void CvArmyAI::SetY(int iY)
-{
-	m_iCurrentY = iY;
-}
-
 /// Set current army position, passing in X and Y
 void CvArmyAI::SetXY(int iX, int iY)
 {

@@ -2648,10 +2648,21 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						//citadels only in adjacent _unowned_ territory
+						if (getTeam() == NO_TEAM)
+						{
+							if (!isAdjacentTeam(eTeam, false))
+								return false;
+						}
+						else if (getTeam() != eTeam)
+							return false;
+#else
 						if (getTeam() != eTeam && !isAdjacentTeam(eTeam, false))
 						{
 							return false;
 						}
+#endif
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())

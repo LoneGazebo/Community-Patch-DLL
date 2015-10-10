@@ -1426,7 +1426,8 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 					pNode2 = m_NodesOnPath[iNode2Index];
 					
 					pRtnValue = GC.getMap().plot(pNode1->m_iX, pNode1->m_iY);
-					*ppClosestCurrentCOMonPath = GC.getMap().plot(pNode2->m_iX, pNode2->m_iY);
+					if (ppClosestCurrentCOMonPath)
+						*ppClosestCurrentCOMonPath = GC.getMap().plot(pNode2->m_iX, pNode2->m_iY);
 				}
 				else
 				{

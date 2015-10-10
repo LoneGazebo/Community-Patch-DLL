@@ -266,7 +266,7 @@ public:
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
-	virtual CvPlot* ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath) const;
+	virtual CvPlot* ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath=NULL) const;
 
 	bool HasOneMoreSlotToFill() const;
 	bool BuyFinalUnit();

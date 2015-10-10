@@ -180,7 +180,6 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		// look at same land mass
@@ -209,10 +208,12 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 			}
 		}
 	}
+#endif
 
 	return true;
 }
 
+#if defined(MOD_BALANCE_CORE)
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
 void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 {
@@ -980,39 +981,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 	return max(0,iTotalPlotValue + iValueModifier + iStratModifier + iCivModifier);
 }
+
 #else
-
-	if(!bTestVisible)
-	{
-		// look at same land mass
-		iRange = GC.getMIN_CITY_RANGE();
-
-		for(iDX = -(iRange); iDX <= iRange; iDX++)
-		{
-			for(iDY = -(iRange); iDY <= iRange; iDY++)
-			{
-				pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL)
-				{
-					if(pLoopPlot->isCity())
-					{
-						if(pLoopPlot->getLandmass() == pPlot->getLandmass())
-						{
-							return false;
-						}
-						else if(hexDistance(iDX, iDY) < iRange)  // one less for off shore
-						{
-							return false;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return true;
-}
 
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
 void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
@@ -1568,6 +1538,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	return rtnValue;
 }
 #endif
+
 /// Retrieve the relative fertility of this plot (alone)
 int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
@@ -2098,33 +2069,19 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes, bool)
-{
-	return CvCitySiteEvaluator::PlotFoundValue(pPlot, NULL);
-}
 
-#else
-
-#if defined(MOD_GLOBAL_CITY_WORKING)
-// *****
-// ***** WARNING!!!
 // *****
 // ***** This method gets called pre-game if using a WB map (.civ5map), in which case pPlayer is NULL
 // *****
-#endif
 /// Value of this site for a civ starting location
-int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes, bool)
+int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes, bool)
 {
 	int rtnValue = 0;
-	int iI;
-	CvPlot* pLoopPlot(NULL);
-	int iCelticForestCount = 0;
 
-	CvAssert(pPlot);
-	if(!pPlot) return rtnValue;
+	if(!pPlot) 
+		return rtnValue;
 
-	if(!CanFound(pPlot, pPlayer, false))
+	if(!CanFound(pPlot, NULL, false))
 	{
 		return rtnValue;
 	}
@@ -2139,13 +2096,13 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 
 	// We have our own special method of scoring, so don't call the base class for that (like settler version does)
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	int iLimit = (pPlayer != NULL) ? pPlayer->GetNumWorkablePlots() : AVG_CITY_PLOTS;
-	for(iI = 0; iI < iLimit; iI++)
+	int iLimit = AVG_CITY_PLOTS;
+	for(int iI = 0; iI < iLimit; iI++)
 #else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
 #endif
 	{
-		pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+		CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
 
 		// Too close to map edge?
 		if(pLoopPlot == NULL)
@@ -2156,55 +2113,31 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 		{
 			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			if (pPlayer != NULL) {
-				CvAssert(iDistance <= pPlayer->getWorkPlotDistance());
-				if(iDistance > pPlayer->getWorkPlotDistance()) continue;
-			} else {
-				CvAssert(iDistance <= AVG_CITY_RADIUS);
-				if(iDistance > AVG_CITY_RADIUS) continue;
-			}
+			if(iDistance > AVG_CITY_RADIUS)
+				continue;
 #else	
-			CvAssert(iDistance <= NUM_CITY_RINGS);
-			if(iDistance > NUM_CITY_RINGS) continue;
+			if(iDistance > NUM_CITY_RINGS) 
+				continue;
 #endif
 			int iRingModifier = m_iRingModifier[iDistance];
 
 			// Skip the city plot itself for now
 			if(iDistance != 0)
 			{
-				rtnValue += iRingModifier * ComputeFoodValue(pLoopPlot, pPlayer) * /*6*/ GC.getSTART_AREA_FOOD_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeHappinessValue(pLoopPlot, pPlayer) * /*12*/ GC.getSTART_AREA_HAPPINESS_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeProductionValue(pLoopPlot, pPlayer) * /*8*/ GC.getSTART_AREA_PRODUCTION_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSTART_AREA_GOLD_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSTART_AREA_SCIENCE_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSTART_AREA_FAITH_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSTART_AREA_RESOURCE_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSTART_AREA_STRATEGIC_MULTIPLIER();
-			}
-
-			if (pPlayer)
-			{
-				if (iDistance == 1 && pLoopPlot->getFeatureType() == FEATURE_FOREST)
-				{
-					if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT && pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
-					{
-						iCelticForestCount += 1;
-					}
-				}
+				rtnValue += iRingModifier * ComputeFoodValue(pLoopPlot, NULL) * /*6*/ GC.getSTART_AREA_FOOD_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeHappinessValue(pLoopPlot, NULL) * /*12*/ GC.getSTART_AREA_HAPPINESS_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeProductionValue(pLoopPlot, NULL) * /*8*/ GC.getSTART_AREA_PRODUCTION_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeGoldValue(pLoopPlot, NULL) * /*2*/ GC.getSTART_AREA_GOLD_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeScienceValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_SCIENCE_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeFaithValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_FAITH_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeTradeableResourceValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_RESOURCE_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeStrategicValue(pLoopPlot, NULL, iDistance) * /*1*/ GC.getSTART_AREA_STRATEGIC_MULTIPLIER();
 			}
 		}
 	}
 
-	if (iCelticForestCount >= 3)
-	{
-		rtnValue += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-	}
-	else if (iCelticForestCount >= 1)
-	{
-		rtnValue += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-	}
-
-	if(rtnValue < 0) rtnValue = 0;
+	if(rtnValue < 0) 
+		rtnValue = 0;
 
 	// Finally, look at the city plot itself and use it as an overall multiplier
 	if(pPlot->getResourceType() != NO_RESOURCE)
@@ -2215,15 +2148,6 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 	if(pPlot->isRiver())
 	{
 		rtnValue += rtnValue * GC.getBUILD_ON_RIVER_PERCENT() / 100;
-#if defined(MOD_BALANCE_CORE)
-		if(pPlayer != NULL)
-		{
-			if(pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
-			{
-				rtnValue *= 2;
-			}
-		}
-#endif
 	}
 
 	if(pPlot->isCoastalLand())
@@ -2233,5 +2157,3 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 
 	return rtnValue;
 }
-
-#endif

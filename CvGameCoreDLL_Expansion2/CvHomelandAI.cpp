@@ -1917,11 +1917,10 @@ void CvHomelandAI::PlotPatrolMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			if (MOD_BALANCE_CORE_MILITARY) 
 			{
-				pUnit->setHomelandMove(AI_HOMELAND_MOVE_PATROL);
-
 				//Patrolling is pointless.
 				if(pUnit->canMove() && pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
 				{
+					pUnit->setHomelandMove(AI_HOMELAND_MOVE_PATROL);
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 					pUnit->SetTurnProcessed(true);
 					pUnit->finishMoves();
@@ -9053,10 +9052,10 @@ const char* homelandMoveNames[] =
 	"AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH",
 	"AI_HOMELAND_MOVE_MERCHANT_TRADE",
 	"AI_HOMELAND_MOVE_ENGINEER_HURRY",
-	"AI_HOMELAND_MOVE_GENERAL_GARRISON",
-	"AI_HOMELAND_MOVE_ADMIRAL_GARRISON",
+	"AI_HOMELAND_MOVE_GENERAL",
+	"AI_HOMELAND_MOVE_ADMIRAL",
 	"AI_HOMELAND_MOVE_SPACESHIP_PART",
-	"AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT",
+	"AI_HOMELAND_MOVE_AIRCRAFT_REBASE",
 	"AI_HOMELAND_MOVE_TREASURE",
 	"AI_HOMELAND_MOVE_PROPHET_RELIGION",
 	"AI_HOMELAND_MOVE_MISSIONARY",

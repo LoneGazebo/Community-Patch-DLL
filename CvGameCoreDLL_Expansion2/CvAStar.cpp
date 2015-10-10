@@ -4575,7 +4575,7 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder)
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 20;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * 30;
 #else
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 100;
 #endif

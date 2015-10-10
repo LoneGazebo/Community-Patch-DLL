@@ -147,8 +147,6 @@ public:
 	// Position accessors
 	int GetX() const;
 	int GetY() const;
-	void SetX(int iX);
-	void SetY(int iY);
 	void SetXY(int iX, int iY);
 	CvPlot* Plot() const;
 	int GetArea() const;
