@@ -524,6 +524,23 @@ public:
 	{
 		return m_iEnemyMeleeUnitCount;
 	};
+	inline void AddNeutralUnitCount(int iUnitCount)
+	{
+		m_iNeutralUnitCount += iUnitCount;
+	};
+	inline void AddNeutralStrength(int iUnitStrength)
+	{
+		m_iNeutralUnitStrength += iUnitStrength;
+	};
+	inline int GetNeutralUnitCount() const
+	{
+		return m_iNeutralUnitCount;
+	};
+	inline int GetNeutralStength() const
+	{
+		return m_iNeutralUnitStrength;
+	};
+
 #endif
 	inline int GetEnemyRangedUnitCount() const
 	{
@@ -602,6 +619,8 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iFriendlyMeleeUnitCount;
 	int m_iEnemyMeleeUnitCount;
+	int m_iNeutralUnitCount;
+	int m_iNeutralUnitStrength;
 #endif
 	int m_iEnemyRangedUnitCount;
 	int m_iEnemyNavalUnitCount;

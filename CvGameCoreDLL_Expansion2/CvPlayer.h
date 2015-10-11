@@ -1911,11 +1911,13 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
-	void UpdateAreaEffectUnits();
+	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
 	const std::vector<int>& GetAreaEffectPositiveUnits() const;
 	const std::vector<int>& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
+	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	void UpdateCurrentAndFutureWars();
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2838,6 +2840,7 @@ protected:
 	std::vector<int> m_unitsAreaEffectNegative;
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
+	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
 #endif
 };
 

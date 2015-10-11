@@ -403,7 +403,7 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 #if defined(MOD_BALANCE_CORE)
 	if(GC.getGame().getGameTurn() > 0)
 	{
-		GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+		GET_PLAYER(getOwner()).UpdateAreaEffectUnits(false);
 	}
 #endif
 }

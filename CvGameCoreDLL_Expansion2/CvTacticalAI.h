@@ -894,6 +894,9 @@ private:
 	void PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation* pOperation);
 	void PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOperation);
 	void PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperation);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void PlotGatherOnlyMoves(CvAIOperation* pOperation);
+#endif
 	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);

@@ -3904,34 +3904,6 @@ bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isAdjacentVisible(TeamTypes eTeam) const
-{
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
-	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-		if(pAdjacentPlot != NULL)
-		{
-			if(pAdjacentPlot->isVisible(eTeam))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot;

@@ -5995,6 +5995,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
+			UpdateCurrentAndFutureWars();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -32601,6 +32602,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
 	GET_TEAM(getTeam()).updateTeamStatus();
+	UpdateCurrentAndFutureWars();
 
 	int iLoop=0;
 	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
@@ -34249,7 +34251,7 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 	}
 }
 
-void CvPlayer::UpdateAreaEffectUnits()
+void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 {
 	//great generals/admirals
 	m_unitsAreaEffectPositive.clear();
@@ -34275,7 +34277,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 
 	// Loop through our plots
 	ImprovementTypes iTraitImprovement = GetPlayerTraits()->GetCombatBonusImprovementType();
-	if (iTraitImprovement!=NO_IMPROVEMENT)
+	if (bCheckSpecialPlotAsWell && iTraitImprovement!=NO_IMPROVEMENT)
 	{
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
@@ -34285,7 +34287,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 		}
 	}
 	//Looks for Natural Wonders
-	if(GetPlayerTraits()->IsCombatBoostNearNaturalWonder())
+	if(bCheckSpecialPlotAsWell && GetPlayerTraits()->IsCombatBoostNearNaturalWonder())
 	{
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
@@ -34293,15 +34295,6 @@ void CvPlayer::UpdateAreaEffectUnits()
 			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder() )
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
-	}
-
-	//cache the wars we have going - ignore barbarians
-	m_playersWeAreAtWarWith.clear();
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
 	}
 }
 
@@ -34320,6 +34313,49 @@ const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
 	return m_plotsAreaEffectPositiveFromTraits;
 }
 
+void CvPlayer::UpdateCurrentAndFutureWars()
+{
+	//cache the wars we have going - ignore barbarians
+	m_playersWeAreAtWarWith.clear();
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
+	}
+
+	//see if we're not at war yet but war is coming
+	m_playersAtWarWithInFuture.clear();
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian() && !IsAtWarWith(eLoopPlayer) )
+		{
+			bool bWarMayBeComing = false;
+
+			//do we want to start a war?
+			if(GetDiplomacyAI()->IsMusteringForAttack(eLoopPlayer) || GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+				bWarMayBeComing = true;
+
+			//do they want to start a war?
+			AggressivePostureTypes eMilitaryPosture = GetDiplomacyAI()->GetMilitaryAggressivePosture(eLoopPlayer);
+			ThreatTypes eWarmongerThreat = GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
+			if (eMilitaryPosture == AGGRESSIVE_POSTURE_INCREDIBLE || eWarmongerThreat == THREAT_SEVERE || eWarmongerThreat == THREAT_CRITICAL)
+				bWarMayBeComing = true;
+
+			//how is the general diplomatic climate?
+			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
+			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || 
+				eApproach == MAJOR_CIV_APPROACH_AFRAID || eOpinion == MAJOR_CIV_OPINION_ENEMY)
+				bWarMayBeComing = true;
+
+			if (bWarMayBeComing)
+				m_playersAtWarWithInFuture.push_back(eLoopPlayer);
+		}
+	}
+
+}
 #endif
 
 //	--------------------------------------------------------------------------------

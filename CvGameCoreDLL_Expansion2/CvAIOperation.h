@@ -283,10 +283,10 @@ public:
 	virtual const char* GetInfoString();
 #endif
 
-protected:
 	virtual bool VerifyTarget(CvArmyAI* pArmy)  { return true; }
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
+protected:
 	CvString GetLogFileName(CvString& playerName) const;
 	virtual CvString GetOperationName() const
 	{
@@ -510,9 +510,9 @@ public:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 #endif
 
-protected:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+protected:
 	virtual CvPlot* FindBestTarget();
 	bool m_bCivilianRescue;
 	int m_iUnitToRescue;
@@ -550,9 +550,9 @@ public:
 	}
 	virtual int GetDeployRange() const;
 
-protected:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+protected:
 	virtual CvPlot* FindBestTarget();
 };
 
@@ -615,9 +615,9 @@ public:
 
 	virtual bool ShouldAbort();
 
-protected:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+protected:
 
 #if defined(MOD_BALANCE_CORE)
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
@@ -688,9 +688,9 @@ public:
 		return MUFORMATION_MERCHANT_ESCORT;
 	}
 
-private:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
 
@@ -719,9 +719,9 @@ public:
 		return MUFORMATION_DIPLOMAT_ESCORT;
 	}
 
-private:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
 
@@ -782,9 +782,9 @@ public:
 		return MUFORMATION_CONCERT_TOUR;
 	}
 
-private:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
 
@@ -1051,9 +1051,9 @@ public:
 		return MUFORMATION_RAPID_RESPONSE_FORCE;
 	}
 
-private:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
+private:
 	bool RetargetDefensiveArmy(CvArmyAI* pArmy);
 	CvPlot* FindBestTarget();
 };

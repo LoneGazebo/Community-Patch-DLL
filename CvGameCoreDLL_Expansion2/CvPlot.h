@@ -237,8 +237,7 @@ public:
 	bool isVisibleToCivTeam() const;
 	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
 	bool isVisibleToWatchingHuman() const;
-	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug) const;
-	bool isAdjacentVisible(TeamTypes eTeam) const;
+	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
 	int  getNumAdjacentNonvisible(TeamTypes eTeam) const;
 

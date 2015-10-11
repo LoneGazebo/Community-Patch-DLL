@@ -955,6 +955,9 @@ bool CvAIOperation::CheckOnTarget()
 	}
 
 	case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
+#if defined(MOD_BALANCE_CORE)
+	case AI_OPERATION_MOVETYPE_STATIC:
+#endif
 	{
 		// Let each army perform its own check
 		for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
@@ -1552,7 +1555,7 @@ const char* CvAIOperation::GetInfoString()
 {
 	CvString strTemp0, strTemp1, strTemp2, strTemp3;
 	strTemp0 = GetOperationName();
-	strTemp1.Format(" / Target at %d,%d / Muster at %d,%d / ", m_iTargetX, m_iTargetY, m_iMusterX, m_iMusterY );
+	strTemp1.Format(" (%d) / Target at %d,%d / Muster at %d,%d / ", m_iID, m_iTargetX, m_iTargetY, m_iMusterX, m_iMusterY );
 
 	switch(m_eCurrentState)
 	{
@@ -6487,6 +6490,7 @@ void CvAIOperationAllyDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
 
 	if(iID != -1)
 	{
@@ -8384,6 +8388,7 @@ void CvAIOperationCityCloseDefensePeace::Init(int iID, PlayerTypes eOwner, Playe
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+	m_eMoveType = AI_OPERATION_MOVETYPE_STATIC;
 
 	if(iID != -1)
 	{
@@ -8513,6 +8518,7 @@ void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerType
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+	m_eMoveType = AI_OPERATION_MOVETYPE_STATIC;
 
 	if(iID != -1)
 	{

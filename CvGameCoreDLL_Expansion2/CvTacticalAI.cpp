@@ -3274,6 +3274,9 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
 				PlotFreeformNavalOperationMoves((CvAINavalOperation*)nextOp);
 				break;
+
+			default:
+				PlotGatherOnlyMoves(nextOp);
 			}
 
 			nextOp->SetLastTurnMoved(GC.getGame().getGameTurn());
@@ -6595,6 +6598,77 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 #endif
 }
 
+#ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
+/// Move a naval force that is roaming for targets
+void CvTacticalAI::PlotGatherOnlyMoves(CvAIOperation* pOperation)
+{
+	// Simplification - assume only 1 army per operation now
+	if(pOperation->GetFirstArmyID() == -1)
+	{
+		return;
+	}
+	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
+
+	m_OperationUnits.clear();
+	pThisArmy->UpdateCheckpointTurns();
+
+	// RECRUITING
+	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+	{
+		// If no estimate for when recruiting will end, let the rest of the AI use these units
+		if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+		{
+			return;
+		}
+		else
+		{
+			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+			{
+				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+				if(pSlot->GetUnitID() != NO_UNIT)
+				{
+					// See if we are just able to get to muster point in time.  If so, time for us to head over there
+					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+					if(pUnit && !pUnit->TurnProcessed())
+					{
+						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+						if(pkMultiUnitFormationInfo)
+						{
+							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
+
+							// Continue moving to target
+							if(pSlot->HasStartedOnOperation())
+							{
+								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
+							}
+							else
+							{
+								// See if we are just able to get to muster point in time.  If so, time for us to head over there
+								int iTurns = TurnsToReachTarget(pUnit, pOperation->GetMusterPlot(), true /*bReusePaths*/, true, true);
+								if (iTurns + GC.getGame().getGameTurn() <= pThisArmy->GetTurnAtNextCheckpoint())
+								{
+									pSlot->SetStartedOnOperation(true);
+									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
+								}
+							}
+						}
+					}
+				}
+			}
+			ExecuteGatherMoves(pThisArmy);
+		}
+	}
+
+	// GATHERING FORCES
+	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
+	{
+		// Get them moving to target without delay
+		pOperation->ArmyInPosition(pThisArmy);
+		ExecuteGatherMoves(pThisArmy);
+	}
+}
+#endif
+
 /// Move a naval force that is roaming for targets
 void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperation)
 {
@@ -6688,11 +6762,17 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 
 		pThisArmy->SetXY(pCurrentPosition->getX(), pCurrentPosition->getY());
 		ClearEnemiesNearArmy(pThisArmy);
-#endif
 
+		// check if we're there
+		pOperation->ArmyInPosition(pThisArmy);
+		// if we're still on the way, keep going
+		if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
+			ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
+#else
 		// Get them moving to target without delay
 		pOperation->ArmyInPosition(pThisArmy);
 		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
+#endif
 	}
 }
 
@@ -9461,6 +9541,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit, pBestPlot))
 					{
 #if defined(MOD_BALANCE_CORE)
+						TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer());
 						if(pUnit->getMoves() > 0 && pUnit->canPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -13372,8 +13453,10 @@ bool CvTacticalAI::NeedToRebase(CvUnit* pUnit) const
 			bNeedsToMove = true;
 	}
 
-	bool bAtPeace = m_pPlayer->GetPlayersAtWarWith().empty();
-	if (!bAtPeace)
+	bool bAtWar = !m_pPlayer->GetPlayersAtWarWith().empty();
+	bool bWarComing = !m_pPlayer->GetPlayersAtWarWithInFuture().empty();
+
+	if (bAtWar || bWarComing)
 	{
 		switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
 		{
@@ -13493,7 +13576,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
 					{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-						iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iBestValue);
+						iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true, true, iBestValue);
 #else
 						iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/);
 #endif

@@ -3162,7 +3162,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				}
 				else
 				{
-					iInitialPlotValue = pUnit->plot()->getFoundValue(m_pPlayer->GetID());
+					iInitialPlotValue = pUnit->canFound(pUnit->plot()) ? pUnit->plot()->getFoundValue(m_pPlayer->GetID()) : 0;
 
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
@@ -3226,19 +3226,20 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 
 					//apparently no good plot around. move in a random direction to explore
 					CvPlot* pLoopPlotSearch = NULL;
-					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					for (int iI = 0; iI < 3; iI++)
 					{
-						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random settler move");
+						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pLoopPlotSearch != NULL && pUnit->canFound(pLoopPlotSearch))
+							if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
 							}
 						}
 					}
-					if(pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && (pUnit->getMoves() > 0))
+					if(pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && pUnit->canFound(pLoopPlotSearch))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FOUND());
 						UnitProcessed(pUnit->GetID());
@@ -6900,6 +6901,9 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		return;
 	}
 
+	//see if we're not at war yet but war is coming
+	const std::vector<PlayerTypes>& vFutureEnemies = m_pPlayer->GetPlayersAtWarWithInFuture();
+
 	//in general we want to go to conflict zones but not if we are in danger of losing the base
 	//unfortunately it may be necessary to do the rebasing in multiple steps if the distance is too far
 	std::set<CvUnit*> vCarriersToFill, vCarriersMeh, vCarriersToAvoid;
@@ -6943,7 +6947,17 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			//for simplicity we don't do carrier to carrier rebasing, only carrier to city
 			CvCity* pRefCity = m_pPlayer->GetClosestCity(pLoopUnit->plot());
 			if (pRefCity)
+			{
 				pRefCity->AttachUnit(pLoopUnit);
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Linking %s (%d) at %d,%d to %s at %d,%d (for rebase)", 
+						pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->getX(), pLoopUnit->getY(),
+						pRefCity->getName().c_str(), pRefCity->getX(), pRefCity->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
 
 			//now look at the zone the unit is in
 			CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnitPlot->GetPlotIndex() );
@@ -6962,6 +6976,8 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			{
 				CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
 				if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
+					bInterestingNeighbor = true;
+				else if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 					bInterestingNeighbor = true;
 			}
 
@@ -7021,6 +7037,8 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
 			if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
 				bInterestingNeighbor = true;
+			else if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
+				bInterestingNeighbor = true;
 		}
 
 		if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
@@ -7043,25 +7061,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	//- try to ensure a good mix of cities and carriers
 	//- try to make space in the waypoints so that we don't block ourselves
 	//- score targets by importance (not only distance)
-
-	//fixme: PreparingForWar / check diploAI / tzone neutral strength
-	/*
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				bNeedsToMove = false;
-				if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if(m_pPlayer->GetDiplomacyAI()->IsMusteringForAttack(eLoopPlayer))
-					{
-						bNeedsToMove = true;
-						break;
-					}
-					if(m_pPlayer->GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
-					{
-						bNeedsToMove = true;
-						break;
-					}
-				}
-	*/
 
 	CvIgnoreUnitsPathFinder& pf = GC.GetRebasePathfinder();
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -7098,14 +7097,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			//make sure the unit fits the destination (ie missile to cruiser, fighter to carrier)
 			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
 				continue;
-
-			/*
-			if (pUnit->plot()==it->pPlot)
-			{
-				//could happen if no targets were found for air sweeps
-				OutputDebugString("Aircraft tagged for rebase, but current base is good!\n");
-			}
-			*/
 
 			pf.SetData(pUnit.pointer(),5);
 			if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))

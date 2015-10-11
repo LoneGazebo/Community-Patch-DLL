@@ -30,6 +30,7 @@ void CvPlayerManager::RefreshDangerPlots()
 		kPlayer.UpdateDangerPlots();
 		kPlayer.UpdateAreaEffectUnits();
 		kPlayer.UpdateFractionOriginalCapitalsUnderControl();
+		kPlayer.UpdateCurrentAndFutureWars();
 #else
 		if(kPlayer.m_pDangerPlots && kPlayer.m_pDangerPlots->IsDirty())
 			kPlayer.UpdateDangerPlots();
