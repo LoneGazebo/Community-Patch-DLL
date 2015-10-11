@@ -3354,15 +3354,21 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
-			GetCity()->ChangeWeLoveTheKingDayCounter(10);
-			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if(pNotifications)
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if(iWLTKD > 0)
 			{
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-				strText <<  newUnit->getNameKey() << GetCity()->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-				strSummary << GetCity()->getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
+				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				CvNotifications* pNotifications = kPlayer.GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+					strText <<  newUnit->getNameKey() << GetCity()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+					strSummary << GetCity()->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
+				}
 			}
 		}
 		if(newUnit != NULL)

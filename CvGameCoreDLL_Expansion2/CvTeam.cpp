@@ -6127,6 +6127,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												{
 													CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[ui], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[ui]);
 													bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+													if(bJumpSuccess)
+													{
+														pLoopCity->addProductionExperience(pNewUnit);
+													}
 													if (!bJumpSuccess)
 													{
 														pNewUnit->kill(false);

@@ -5694,24 +5694,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE)
 					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
 					{
-						int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-						CvPlot* pLoopPlot;
-						for(int iDX = -pImprovementInfo->GetGrantsVision(); iDX <= pImprovementInfo->GetGrantsVision(); iDX++)
-						{
-							for(int iDY = -pImprovementInfo->GetGrantsVision(); iDY <= pImprovementInfo->GetGrantsVision(); iDY++)
-							{
-								pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, pImprovementInfo->GetGrantsVision());
-
-								if(pLoopPlot != NULL)
-								{
-									pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-								}
-							}
-						}
-						if(GetPlayerThatBuiltImprovement() == GC.getGame().getActivePlayer())
-						{
-							GC.getMap().updateDeferredFog();
-						}
+						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
+						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 					}
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -5913,29 +5897,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					//Did someone else build this, and now you own it? Let's shift that around.
 					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
 					{
-						int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-						CvPlot* pLoopPlot;
-						for(int iDX = -pImprovementInfo->GetGrantsVision(); iDX <= pImprovementInfo->GetGrantsVision(); iDX++)
-						{
-							for(int iDY = -pImprovementInfo->GetGrantsVision(); iDY <= pImprovementInfo->GetGrantsVision(); iDY++)
-							{
-								pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, pImprovementInfo->GetGrantsVision());
-
-								if(pLoopPlot != NULL)
-								{
-									pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-									pLoopPlot->changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-								}
-							}
-						}
-						if(GetPlayerThatBuiltImprovement() == GC.getGame().getActivePlayer())
-						{
-							GC.getMap().updateDeferredFog();
-						}
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							GC.getMap().updateDeferredFog();
-						}
+						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
+						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
 					}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -7111,24 +7075,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE)
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
-					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-					CvPlot* pLoopPlot;
-					for(int iDX = -oldImprovementEntry.GetGrantsVision(); iDX <= oldImprovementEntry.GetGrantsVision(); iDX++)
-					{
-						for(int iDY = -oldImprovementEntry.GetGrantsVision(); iDY <= oldImprovementEntry.GetGrantsVision(); iDY++)
-						{
-							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, oldImprovementEntry.GetGrantsVision());
-
-							if(pLoopPlot != NULL)
-							{
-								pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-							}
-						}
-					}
-					if(eOldBuilder == GC.getGame().getActivePlayer())
-					{
-						GC.getMap().updateDeferredFog();
-					}
+					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
+					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 				}	
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -7171,24 +7119,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
-					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-					CvPlot* pLoopPlot;
-					for(int iDX = -oldImprovementEntry.GetGrantsVision(); iDX <= oldImprovementEntry.GetGrantsVision(); iDX++)
-					{
-						for(int iDY = -oldImprovementEntry.GetGrantsVision(); iDY <= oldImprovementEntry.GetGrantsVision(); iDY++)
-						{
-							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, oldImprovementEntry.GetGrantsVision());
-
-							if(pLoopPlot != NULL)
-							{
-								pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-							}
-						}
-					}
-					if(eOldBuilder == GC.getGame().getActivePlayer())
-					{
-						GC.getMap().updateDeferredFog();
-					}
+					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();
+					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 				}
 			}
 #endif
@@ -7341,24 +7273,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE)
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
-					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-					CvPlot* pLoopPlot;
-					for(int iDX = -newImprovementEntry.GetGrantsVision(); iDX <= newImprovementEntry.GetGrantsVision(); iDX++)
-					{
-						for(int iDY = -newImprovementEntry.GetGrantsVision(); iDY <= newImprovementEntry.GetGrantsVision(); iDY++)
-						{
-							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, newImprovementEntry.GetGrantsVision());
-
-							if(pLoopPlot != NULL)
-							{
-								pLoopPlot->changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-							}
-						}
-					}
-					if(eBuilder == GC.getGame().getActivePlayer())
-					{
-						GC.getMap().updateDeferredFog();
-					}
+					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
 				}	
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -7448,24 +7364,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
-					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-					CvPlot* pLoopPlot;
-					for(int iDX = -newImprovementEntry.GetGrantsVision(); iDX <= newImprovementEntry.GetGrantsVision(); iDX++)
-					{
-						for(int iDY = -newImprovementEntry.GetGrantsVision(); iDY <= newImprovementEntry.GetGrantsVision(); iDY++)
-						{
-							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, newImprovementEntry.GetGrantsVision());
-
-							if(pLoopPlot != NULL)
-							{
-								pLoopPlot->changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-							}
-						}
-					}
-					if(eBuilder == GC.getGame().getActivePlayer())
-					{
-						GC.getMap().updateDeferredFog();
-					}
+					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
 				}	
 			}
 #endif
@@ -8973,49 +8873,78 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		if(eRouteType != NO_ROUTE)
 		{
 #if defined(MOD_BALANCE_CORE_YIELDS)
-			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			bool bTrade = false;
-			for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+			if(ePlayer != NO_PLAYER)
 			{
-				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
-				if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				bool bTrade = false;
+				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
 				{
-					continue;
-				}
-				for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-				{
-					if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
-						bTrade = true;
-						break;
+						continue;
+					}
+					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+					{
+						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+						{
+							bTrade = true;
+							break;
+						}
 					}
 				}
-			}
-			if(IsTradeRoute(ePlayer))
-			{
-				if(IsRouteRailroad())
+				if(IsTradeRoute(ePlayer))
 				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					if(IsRouteRailroad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+					else if(IsRouteRoad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 				}
-				else if(IsRouteRoad())
+				if(bTrade)
 				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-				}
-			}
-			if(bTrade)
-			{
-				if(IsRouteRailroad())
-				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-				}
-				else if(IsRouteRoad())
-				{
-					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-				}
+					if(IsRouteRailroad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+					else if(IsRouteRoad())
+					{
+						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 #else
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 #endif
 			}
+#if defined(MOD_BALANCE_CORE)
+				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
+				{
+					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					{
+						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(iBonus > 0)
+						{
+							int iScale = 0;
+							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+							iScale = ((iBonus * iEra) / 4);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
+						}
+					}
+				}
+				else
+				{
+					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+#endif
 		}
 	}
 
@@ -12323,66 +12252,93 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		if(eImprovement != NO_IMPROVEMENT)
 		{
 #if defined(MOD_BALANCE_CORE)
-			int iRouteYield = 0;
-			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			bool bTrade = false;
-			for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+			if(ePlayer != NO_PLAYER)
 			{
-				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
-				if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+				int iRouteYield = 0;
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				bool bTrade = false;
+				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
 				{
-					continue;
-				}
-				for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-				{
-					if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
-						bTrade = true;
-						break;
+						continue;
+					}
+					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+					{
+						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+						{
+							bTrade = true;
+							break;
+						}
 					}
 				}
-			}
-			if(IsTradeRoute(ePlayer))
-			{
-				if(IsRouteRailroad())
+				if(IsTradeRoute(ePlayer))
 				{
-					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-					if(getRouteType() != NO_ROUTE)
+					if(IsRouteRailroad())
 					{
-						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						if(getRouteType() != NO_ROUTE)
+						{
+							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						}
+					}
+					else if(IsRouteRoad())
+					{
+						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						if(getRouteType() != NO_ROUTE)
+						{
+							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						}
 					}
 				}
-				else if(IsRouteRoad())
+				if(bTrade)
 				{
-					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					if(getRouteType() != NO_ROUTE)
+					if(IsRouteRailroad())
 					{
-						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						if(getRouteType() != NO_ROUTE)
+						{
+							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						}
+					}
+					else if(IsRouteRoad())
+					{
+						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						if(getRouteType() != NO_ROUTE)
+						{
+							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						}
 					}
 				}
-			}
-			if(bTrade)
-			{
-				if(IsRouteRailroad())
+				if(iRouteYield > 0)
 				{
-					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-					if(getRouteType() != NO_ROUTE)
+					iYield += iRouteYield;
+				}
+				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
+				{
+					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
 					{
-						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(iBonus > 0)
+						{
+							int iScale = 0;
+							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+							iScale = ((iBonus * iEra) / 4);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
+						}
 					}
 				}
-				else if(IsRouteRoad())
+				else
 				{
-					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					if(getRouteType() != NO_ROUTE)
-					{
-						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					}
+					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				}
-			}
-			if(iRouteYield > 0)
-			{
-				iYield += iRouteYield;
 			}
 #else
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)

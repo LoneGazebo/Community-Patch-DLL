@@ -7,10 +7,35 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>10</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERITOCRACY</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CITIZENSHIP</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_REPRESENTATION</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_REPUBLIC</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
 	</Policy_YieldFromTech>
 	<Policy_YieldFromConstruction>
 		<Row>
-			<PolicyType>POLICY_LIBERTY</PolicyType>
+			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>10</Yield>
 		</Row>
@@ -20,18 +45,25 @@
 			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromConstruction>
-	<Policy_YieldGPExpend>
+	<Policy_YieldChangeTradeRoute>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>50</Yield>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
 		</Row>
+	</Policy_YieldChangeTradeRoute>
+	<Policy_CityYieldChanges>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>50</Yield>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
 		</Row>
-	</Policy_YieldGPExpend>
+		<Row>
+			<PolicyType>POLICY_REPRESENTATION</PolicyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Policy_CityYieldChanges>
 	<Policy_YieldFromBirth>
 		<Row>
 			<PolicyType>POLICY_LIBERTY_FINISHER</PolicyType>
@@ -41,9 +73,9 @@
 	</Policy_YieldFromBirth>
 	<Policy_YieldFromBirthCapital>
 		<Row>
-			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 	<Policy_PrereqPolicies>

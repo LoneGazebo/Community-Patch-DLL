@@ -78,6 +78,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConversionModifier>-20</ConversionModifier>
@@ -102,6 +103,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -126,6 +128,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -156,8 +159,9 @@
 			<HolyCity>true</HolyCity>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>40</PortraitIndex>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
@@ -178,6 +182,7 @@
 			<NukeImmune>true</NukeImmune>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -200,6 +205,7 @@
 			<Strategy>TXT_KEY_BUILDING_SACRED_GARDEN_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<NeverCapture>true</NeverCapture>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -226,6 +232,7 @@
 			<NukeImmune>true</NukeImmune>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -249,6 +256,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -273,10 +281,10 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
+			<NeverCapture>true</NeverCapture>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>12</PortraitIndex>
 			<Cost>125</Cost>

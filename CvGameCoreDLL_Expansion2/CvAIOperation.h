@@ -859,6 +859,12 @@ public:
 	{
 		return CvString("AI_OPERATION_NAVAL_BOMBARDMENT");
 	}
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsAllNavalOperation() const
+	{
+		return true;
+	};
+#endif
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
@@ -897,7 +903,12 @@ public:
 		return true;
 #endif
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsAllNavalOperation() const
+	{
+		return true;
+	};
+#endif
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual bool ShouldAbort();
@@ -944,6 +955,12 @@ public:
 		return true;
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsAllNavalOperation() const
+	{
+		return true;
+	};
+#endif
 	virtual int GetDeployRange() const;
 
 	virtual bool ShouldAbort();
@@ -1092,10 +1109,17 @@ public:
 	{
 		return true;
 	};
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsCivilianRequired() const
+	{
+		return false;
+	};
+#else
 	virtual bool IsCivilianRequired() const
 	{
 		return true;
 	};
+#endif
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual CvUnit* FindBestCivilian();
@@ -1151,6 +1175,12 @@ public:
 	{
 		return false;
 	};
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsAllNavalOperation() const
+	{
+		return true;
+	};
+#endif
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
@@ -1185,6 +1215,12 @@ public:
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsMixedLandNavalOperation() const
+	{
+		return true;
+	};
 #endif
 	virtual int GetOperationType() const
 	{
@@ -1226,6 +1262,12 @@ public:
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsMixedLandNavalOperation() const
+	{
+		return true;
+	};
 #endif
 	virtual int GetOperationType() const
 	{
@@ -1294,6 +1336,7 @@ int GetGatherRangeForXUnits(int iTotalUnits);
 #if defined(MOD_BALANCE_CORE)
 bool FindBestBombardmentTarget(PlayerTypes ePlayer);
 bool FindBestBarbCamp(PlayerTypes ePlayer);
+bool NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, PlayerTypes eOwner);
 #endif
 }
 

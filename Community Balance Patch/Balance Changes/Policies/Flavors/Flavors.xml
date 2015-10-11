@@ -10,23 +10,18 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>4</Flavor>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>4</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_LIBERTY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>8</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
@@ -112,17 +107,12 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>5</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_TRADITION</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
@@ -188,7 +178,7 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>

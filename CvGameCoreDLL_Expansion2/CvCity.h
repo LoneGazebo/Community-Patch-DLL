@@ -816,6 +816,9 @@ public:
 
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromWLTKD(YieldTypes eIndex) const;
+	void ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange);
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -1379,6 +1382,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;

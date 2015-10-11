@@ -2,12 +2,6 @@
 <!-- Created by ModBuddy on 8/7/2014 3:30:27 PM -->
 <GameData>
 	<MultiUnitFormation_SlotEntries>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NUKE_ATTACK</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_MISSILE_AIR</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_MISSILE_AIR</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_EARLY_RUSH"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
@@ -419,7 +413,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -473,14 +467,14 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -540,35 +534,35 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>

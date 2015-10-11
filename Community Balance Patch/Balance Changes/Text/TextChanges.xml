@@ -58,6 +58,10 @@
 			<Text>Nennius</Text>
 		</Row>
 
+		<!-- WLTKD LUA -->
+		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
+			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
+		</Row>
 <!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
 			<Text>[COLOR_POSITIVE_TEXT]MARRIED[ENDCOLOR]</Text>

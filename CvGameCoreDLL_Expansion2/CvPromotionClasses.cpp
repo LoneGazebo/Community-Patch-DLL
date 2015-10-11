@@ -197,6 +197,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbTerrainHalfMove(NULL),
 	m_pbFeatureHalfMove(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_pbTerrainDoubleHeal(NULL),
+	m_pbFeatureDoubleHeal(NULL),
+#endif
 	m_pbTerrainImpassable(NULL),
 	m_piTerrainPassableTech(NULL),
 	m_pbFeatureImpassable(NULL),
@@ -231,6 +235,10 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	SAFE_DELETE_ARRAY(m_pbTerrainHalfMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureHalfMove);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_pbTerrainDoubleHeal);
+	SAFE_DELETE_ARRAY(m_pbFeatureDoubleHeal);
 #endif
 	SAFE_DELETE_ARRAY(m_pbTerrainImpassable);
 	SAFE_DELETE_ARRAY(m_piTerrainPassableTech);
@@ -475,6 +483,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
 #endif
+#if defined(MOD_BALANCE_CORE)
+		kUtility.InitializeArray(m_pbTerrainDoubleHeal, iNumTerrains, false);
+#endif
 		kUtility.InitializeArray(m_pbTerrainImpassable, iNumTerrains, false);
 
 		std::string sqlKey = "UnitPromotions_Terrains";
@@ -508,6 +519,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbTerrainHalfMove[iTerrainID] = bHalfMove;
 #endif
+#if defined(MOD_BALANCE_CORE)
+			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
+			m_pbTerrainDoubleHeal[iTerrainID] = bDoubleHeal;
+#endif
 
 			const bool bImpassable = pResults->GetBool("Impassable");
 			m_pbTerrainImpassable[iTerrainID] = bImpassable;
@@ -525,6 +540,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbFeatureDoubleMove, iNumFeatures, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
+#endif
+#if defined(MOD_BALANCE_CORE)
+		kUtility.InitializeArray(m_pbFeatureDoubleHeal, iNumFeatures, false);
 #endif
 		kUtility.InitializeArray(m_pbFeatureImpassable, iNumFeatures, false);
 
@@ -558,6 +576,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbFeatureHalfMove[iFeatureID] = bHalfMove;
+#endif
+#if defined(MOD_BALANCE_CORE)
+			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
+			m_pbFeatureDoubleHeal[iFeatureID] = bDoubleHeal;
 #endif
 
 			const bool bImpassable = pResults->GetBool("Impassable");
@@ -1977,7 +1999,35 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 	return false;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+/// Returns an array that indicates if a unit can move half as fast in a type of terrain
+bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
 
+	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainDoubleHeal)
+	{
+		return m_pbTerrainDoubleHeal[i];
+	}
+
+	return false;
+}
+
+/// Returns an array that indicates if a unit can move half as fast in a type of terrain feature
+bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureDoubleHeal)
+	{
+		return m_pbFeatureDoubleHeal[i];
+	}
+
+	return false;
+}
+#endif
 /// Returns an array that indicates if a terrain type is impassable
 bool CvPromotionEntry::GetTerrainImpassable(int i) const
 {

@@ -45,6 +45,12 @@
 			<FeatureType>FEATURE_MARSH</FeatureType>
 		</Row>
 	</Resource_FeatureBooleans>
+	<Feature_TerrainBooleans>
+		<Row>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+	</Feature_TerrainBooleans>
 	<Resource_YieldChanges>
 		<Update>
 			<Where YieldType="YIELD_GOLD" />

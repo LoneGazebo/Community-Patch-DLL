@@ -726,9 +726,16 @@ function HappinessTipHandler( control )
 		local pCity = UI.GetHeadSelectedCity();
 	
 		local iHappiness = pPlayer:GetExcessHappiness();
-
+		-- CBP EDITS HERE
+		local iTestHappiness = iHappiness;
+		if(iTestHappiness > 10)then
+			iTestHappiness = 10;
+		end
+		if(iTestHappiness < -30)then
+			iTestHappiness = -30;
+		end
 		if (not pPlayer:IsEmpireUnhappy()) then
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS", iHappiness);
+			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS", iHappiness, iTestHappiness);
 		elseif (pPlayer:IsEmpireVeryUnhappy()) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_4]", -iHappiness);
 		else
@@ -761,11 +768,11 @@ function HappinessTipHandler( control )
 			end
 		
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[/COLOR]";
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness) .. "[/COLOR]";
 		elseif (pPlayer:IsEmpireUnhappy()) then
 		
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[/COLOR]";
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness) .. "[/COLOR]";
 		end
 
 -- C4DF

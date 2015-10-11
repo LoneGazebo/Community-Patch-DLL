@@ -8,20 +8,13 @@
 			<PrereqPolicy>POLICY_ORGANIZED_RELIGION</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	<Policy_BuildingClassYieldChanges>
+	<Policy_BuildingClassCultureChanges>
 		<Row>
 			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>1</YieldChange>
+			<CultureChange>1</CultureChange>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
-		</Row>
-	</Policy_BuildingClassYieldChanges>
+	</Policy_BuildingClassCultureChanges>
 	<Policy_ReligionBuildingYieldMod>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>

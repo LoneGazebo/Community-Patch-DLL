@@ -93,5 +93,5 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFL
 WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVES] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_TWOKAY_FOODS';

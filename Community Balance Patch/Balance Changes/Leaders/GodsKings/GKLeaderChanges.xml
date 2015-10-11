@@ -246,7 +246,7 @@
 	</Belief_CoastalCityYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+21 [ICON_PEACE] Faith, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
+			<Text>+2 [ICON_PEACE] Faith, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>
@@ -481,4 +481,12 @@
 			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+	<!-- Ethiopia -->
+	<Building_GoldenAgeYieldMod>
+		<Row>
+			<BuildingType>BUILDING_STELE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_GoldenAgeYieldMod>
 </GameData>

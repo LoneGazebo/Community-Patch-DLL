@@ -1077,7 +1077,9 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Income
 
 	tips:insert( "[COLOR_WHITE]" )
-	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", totalIncome / 100 ) )
+
+	-- EDIT CBP (make two decimal)
+	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", Locale.ToNumber( (totalIncome / 100), "#.##") ) )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", goldPerTurnFromCities / 100 )
 
 	if bnw_mode then
@@ -1201,9 +1203,16 @@ if civ5_mode then
 		if g_isHappinessEnabled then
 			local tips = table()
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
-
+		-- CBP EDITS HERE
+			local iTestHappiness = excessHappiness;
+			if(iTestHappiness > 10)then
+				iTestHappiness = 10;
+			end
+			if(iTestHappiness < -30)then
+				iTestHappiness = -30;
+			end
 			if not g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( L("TXT_KEY_TP_TOTAL_HAPPINESS", excessHappiness) )
+				tips:insert( L("TXT_KEY_TP_TOTAL_HAPPINESS", excessHappiness, iTestHappiness) )
 			elseif g_activePlayer:IsEmpireVeryUnhappy() then
 				tips:insert( L("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_4]", -excessHappiness) )
 			else
@@ -1248,11 +1257,11 @@ if civ5_mode then
 				if g_activePlayer:IsEmpireSuperUnhappy() then
 					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY" .. "[ENDCOLOR]" )
 				else
-					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_VERY_UNHAPPY" .. "[ENDCOLOR]" )
+					tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness) .. "[ENDCOLOR]" )
 				end
 			elseif g_activePlayer:IsEmpireUnhappy() then
 
-				tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_UNHAPPY" .. "[ENDCOLOR]" )
+				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness) .. "[ENDCOLOR]" )
 			end
 			-- Basic explanation of Happiness
 

@@ -4174,7 +4174,20 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if((eOwningPlayer != NO_PLAYER && !m_pPlayer->isBarbarian() && !GET_PLAYER(eOwningPlayer).isBarbarian()) && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
+	{
+		// Notify Diplo AI that damage has been done
+		int iValue = iPlunderGoldValue;
+		if(iValue > 0)
+		{
+			// My viewpoint
+			m_pPlayer->GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eOwningPlayer, m_pPlayer->GetID(), iValue);
+			// Bad guy's viewpoint
+			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
+		}
+	}
+#endif
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
 	{

@@ -232,6 +232,10 @@ public:
 	bool GetTerrainHalfMove(int i) const;
 	bool GetFeatureHalfMove(int i) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool GetTerrainDoubleHeal(int i) const;
+	bool GetFeatureDoubleHeal(int i) const;
+#endif
 	bool GetTerrainImpassable(int i) const;
 	int  GetTerrainPassableTech(int i) const;
 	bool GetFeatureImpassable(int i) const;
@@ -435,6 +439,10 @@ protected:
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	bool* m_pbTerrainHalfMove;
 	bool* m_pbFeatureHalfMove;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool* m_pbTerrainDoubleHeal;
+	bool* m_pbFeatureDoubleHeal;
 #endif
 	bool* m_pbTerrainImpassable;
 	bool* m_pbFeatureImpassable;

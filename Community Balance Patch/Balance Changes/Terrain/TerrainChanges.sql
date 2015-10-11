@@ -1,3 +1,8 @@
+-- Railroads now more expensive (+1)
+UPDATE Routes
+SET GoldMaintenance = '3'
+WHERE Type = 'ROUTE_RAILROAD';
+
 -- Farm
 UPDATE Builds
 SET Help = 'TXT_KEY_BUILD_FARM_HELP'

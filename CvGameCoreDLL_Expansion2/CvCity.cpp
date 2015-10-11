@@ -247,6 +247,7 @@ CvCity::CvCity() :
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
+	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiCorporationYieldChange("CvCity::m_aiCorporationYieldChange", m_syncArchive)
 	, m_aiCorporationYieldModChange("CvCity::m_aiCorporationYieldModChange", m_syncArchive)
@@ -772,6 +773,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			const YieldTypes eYield = static_cast<YieldTypes>(iI);
 			int iYield = owningPlayer.GetPlayerTraits()->GetYieldFromSettle(eYield);
+			iYield += owningPlayer.getFounderYield(eYield);
 			if(iYield > 0)
 			{
 				iYield = (iEra * iYield);
@@ -1016,13 +1018,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	kPlayer.UpdateUnitProductionMaintenanceMod();
-
-	// Spread a pantheon here if one is active
-	CvPlayerReligions* pReligions = kPlayer.GetReligions();
-	if(pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
-	{
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
-	}
 #if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -1030,27 +1025,31 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		UpdateYieldPerXFeature(((YieldTypes)iI));
 		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
 	}
-	iRange = 2;
+	int iRange2 = 2;
 	int iMountain = 0;
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	for(int iDX = -iRange2; iDX <= iRange2; iDX++)
 	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		for(int iDY = -iRange2; iDY <= iRange2; iDY++)
 		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange2);
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot != NULL)
+				if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
 				{
-					if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
-					{
-						iMountain++;
-					}
+					iMountain++;
 				}
 			}
 		}
 	}
 	SetNearbyMountains(iMountain);
-#endif	
+#endif
+	// Spread a pantheon here if one is active
+	CvPlayerReligions* pReligions = kPlayer.GetReligions();
+	if(pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
+	{
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * getPopulation() * 2);
+	}
+	
 #if defined(MOD_API_EXTENSIONS)
 	if (bInitialFounding) {
 		if (eInitialReligion != NO_RELIGION) {
@@ -1415,6 +1414,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iBlockBuildingDestruction = 0;
@@ -1465,6 +1465,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 		m_aiChangeYieldFromVictory.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
+		m_aiYieldFromWLTKD.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
@@ -2461,7 +2462,7 @@ void CvCity::doTurn()
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
 										strSummary << pkResourceInfo->GetTextKey();
 										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+										pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
 									}
 								}
 							}
@@ -8158,6 +8159,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					CvUnit* pNewUnit = GET_PLAYER(m_eOwner).initUnit(aExtraUnits[ui], m_iX, m_iY, aExtraUnitAITypes[ui]);
 					bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+#if defined(MOD_BALANCE_CORE)
+					if(bJumpSuccess)
+					{
+						addProductionExperience(pNewUnit);
+					}
+#endif
 					if (!bJumpSuccess)
 					{
 						pNewUnit->kill(false);
@@ -8455,6 +8462,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
 		}
+		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLRKDTurns() > 0))
+		{
+			int iWLTKD = pBuildingInfo->GetWLRKDTurns();
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if(iWLTKD > 0)
+			{
+				ChangeWeLoveTheKingDayCounter(iWLTKD);
+			}
+		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 		if(MOD_BALANCE_CORE_SPIES)
@@ -8652,7 +8669,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE)
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromVictory(iI) > 0))
 			{
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(iI) * iChange);
 			}
@@ -8660,6 +8677,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(iI) > 0))
 			{
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(iI) * iChange);
+			}
+
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromWLTKD(iI) > 0))
+			{
+				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(iI) * iChange);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -12243,71 +12265,84 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldReligion = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-	if(pReligion)
+	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	if(eReligionFounded != NO_RELIGION)
 	{
-		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
 		{
-			TerrainTypes eTerrain = (TerrainTypes) iI;
-			iYield = 0;
-			if(eTerrain == NO_TERRAIN)
+			for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 			{
-				continue;
-			}
-			iValidTilesTerrain = 0;
-			int iRange = 2;
-			CvPlot* pLoopPlot = NULL;
-
-			for(int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for(int iDY = -iRange; iDY <= iRange; iDY++)
+				TerrainTypes eTerrain = (TerrainTypes) iI;
+				iYield = 0;
+				if(eTerrain == NO_TERRAIN)
 				{
-					pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-					if(!pLoopPlot)
+					continue;
+				}
+				iValidTilesTerrain = 0;
+				int iRange = 2;
+				CvPlot* pLoopPlot = NULL;
+
+				if(eTerrain != TERRAIN_MOUNTAIN)
+				{
+					for(int iDX = -iRange; iDX <= iRange; iDX++)
 					{
-						continue;
-					}
-					if(pLoopPlot->getTerrainType() == eTerrain && eTerrain != TERRAIN_MOUNTAIN)
-					{			
-						iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-						if(iBaseYieldReligion > 0)
+						for(int iDY = -iRange; iDY <= iRange; iDY++)
 						{
-							if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+							if(!pLoopPlot)
 							{
-								iValidTilesTerrain++;
+								continue;
 							}
-							else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
-							{
-								iValidTilesTerrain++;
-							}
-							else
-							{
-								iValidTilesTerrain++;
-							}
-						}
-					}
-					if(eTerrain == TERRAIN_MOUNTAIN && pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
-					{
-						if(pReligion)
-						{
-							iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-							if(iBaseYieldReligion > 0)
-							{
-								iValidTilesTerrain++;
+							if(pLoopPlot->getTerrainType() == eTerrain)
+							{			
+								iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+								if(iBaseYieldReligion > 0)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTilesTerrain++;
+									}
+									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
+									{
+										iValidTilesTerrain++;
+									}
+									else
+									{
+										iValidTilesTerrain++;
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-			iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-			if(iBaseYieldReligion > 0)
-			{
-				iYield += (iValidTilesTerrain / iBaseYieldReligion);
-			}
-			SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
-		}	
+				if(eTerrain == TERRAIN_MOUNTAIN)
+				{
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(TERRAIN_MOUNTAIN, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iValidTilesTerrain = GetNearbyMountains();
+					}
+					//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(TERRAIN_MOUNTAIN, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iYield += (iValidTilesTerrain / iBaseYieldReligion);
+					}
+					SetYieldPerXTerrainFromReligion(TERRAIN_MOUNTAIN, eYield, iYield);
+				}
+				else
+				{
+					//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+					if(iBaseYieldReligion > 0)
+					{
+						iYield += (iValidTilesTerrain / iBaseYieldReligion);
+					}
+					SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
+				}
+			}	
+		}
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -12527,58 +12562,61 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield)
 
 	int iValidTiles = 0;
 	int iBaseYield = 0;
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-	if(pReligion)
+	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	if(eReligionFounded != NO_RELIGION)
 	{
-
-		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
 		{
-			FeatureTypes eFeature = (FeatureTypes) iI;
-			if(eFeature == NO_FEATURE)
-			{
-				continue;
-			}
-			iYield = 0;
-			if(pReligion)
-			{
-				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
-				if(iBaseYield > 0)
-				{
-					iValidTiles = 0;
-					int iRange = 2;
-					CvPlot* pLoopPlot = NULL;
 
-					for(int iDX = -iRange; iDX <= iRange; iDX++)
+			for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+			{
+				FeatureTypes eFeature = (FeatureTypes) iI;
+				if(eFeature == NO_FEATURE)
+				{
+					continue;
+				}
+				iYield = 0;
+				if(pReligion)
+				{
+					iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+					if(iBaseYield > 0)
 					{
-						for(int iDY = -iRange; iDY <= iRange; iDY++)
+						iValidTiles = 0;
+						int iRange = 2;
+						CvPlot* pLoopPlot = NULL;
+
+						for(int iDX = -iRange; iDX <= iRange; iDX++)
 						{
-							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-							if(!pLoopPlot)
+							for(int iDY = -iRange; iDY <= iRange; iDY++)
 							{
-								continue;
-							}
-							if(pLoopPlot->getFeatureType() == eFeature)
-							{
-								if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+								pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+								if(!pLoopPlot)
 								{
-									iValidTiles++;
+									continue;
 								}
-								else
+								if(pLoopPlot->getFeatureType() == eFeature)
 								{
-									iValidTiles++;
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
 								}
 							}
 						}
-					}
-					if(iValidTiles > 0)
-					{
-						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-						iYield += (iValidTiles / iBaseYield);
+						if(iValidTiles > 0)
+						{
+							//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+							iYield += (iValidTiles / iBaseYield);
+						}
 					}
 				}
+				SetYieldPerXFeature(eFeature, eYield, iYield);
 			}
-			SetYieldPerXFeature(eFeature, eYield, iYield);
 		}
 	}
 }
@@ -15560,10 +15598,21 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 						iTempMod = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex);
 						iModifier += iTempMod;
 						if(toolTipSink){
-							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD", iTempMod);
+							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD_BELIEF", iTempMod);
 						}
 					}
 				}
+			}
+		}
+	}
+	if(GetYieldFromWLTKD(eIndex) > 0)
+	{
+		if(GetWeLoveTheKingDayCounter() > 0)
+		{
+			iTempMod = GetYieldFromWLTKD(eIndex);
+			iModifier += iTempMod;
+			if(toolTipSink){
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD_BUILDING", iTempMod);
 			}
 		}
 	}
@@ -16214,6 +16263,32 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 	if(iChange != 0)
 	{
 		m_aiGoldenAgeYieldMod.setAt(eIndex, m_aiGoldenAgeYieldMod[eIndex] + iChange);
+		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromWLTKD(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromWLTKD[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiYieldFromWLTKD.setAt(eIndex, m_aiYieldFromWLTKD[eIndex] + iChange);
 		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
 	}
 }
@@ -19448,7 +19523,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				{
 					iEra = 1;
 				}
-				if(MOD_BALANCE_CORE_POLICIES)
+				if(MOD_BALANCE_CORE_POLICIES && !IsResistance() && !IsRazing())
 				{
 					if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 					{
@@ -21861,6 +21936,7 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromWLTKD, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnitPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iBuildingPurchaseCooldown, 0);
@@ -22297,6 +22373,7 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromWLTKD);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnitPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iBuildingPurchaseCooldown);

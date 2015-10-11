@@ -251,16 +251,28 @@
 	</Policy_UnitCombatProductionModifiers>
 	<Policy_ConquerorYield>
 		<Row>
-			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Yield>50</Yield>
 		</Row>
 	</Policy_ConquerorYield>
+	<Policy_FounderYield>
+		<Row>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Policy_FounderYield>
 	<Policy_FreeUnitClasses>
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
@@ -289,11 +301,11 @@
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>

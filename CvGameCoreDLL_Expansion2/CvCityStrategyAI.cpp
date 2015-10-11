@@ -833,6 +833,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
 	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 	MilitaryAIStrategyTypes eNeedCarriers = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR_CARRIER");
+	MilitaryAIStrategyTypes eNeedBoatsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL");
 	bool bNoBoats = false;
 	if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 	{
@@ -876,6 +877,16 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	bool bWantWorkers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers);
 	bool bWantArch = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantArch);
 	bool bWantCarrier = GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eNeedCarriers);
+	bool bNeedBoatsCritical = false;
+	if(!bNoBoats)
+	{
+		bNeedBoatsCritical = GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eNeedBoatsCritical);
+		if(!bNeedBoatsCritical)
+		{
+			EconomicAIStrategyTypes eNeedReconSea = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA");
+			bNeedBoatsCritical = kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedReconSea);
+		}
+	}
 
 	if(!bEnoughSettlers)
 	{
@@ -1444,10 +1455,38 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #if defined(MOD_BALANCE_CORE)
 		//Forced some changes to make the AI a little more direct in its behavior.
 		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iRushIfMoreThanXTurns /= 100;
 		int iBest = -1;
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
 			selection = m_Buildables.GetElement(iI);
+			if(bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			{
+				UnitTypes eUnit = (UnitTypes)selection.m_iIndex;
+				if(eUnit != NO_UNIT)
+				{
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+					if(pUnitInfo && pUnitInfo->GetDomainType() == DOMAIN_SEA && pUnitInfo->GetCombat() > 0)
+					{
+						iBest = iI;
+						break;
+					}
+				}
+			}
+			if(bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			{
+				UnitTypes eUnit = (UnitTypes)selection.m_iIndex;
+				if(eUnit != NO_UNIT)
+				{
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+					if(pUnitInfo && pUnitInfo->GetDomainType() == DOMAIN_SEA && pUnitInfo->GetCombat() > 0)
+					{
+						iBest = iI;
+						break;
+					}
+				}
+			}
 			if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				iBest = iI;

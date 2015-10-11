@@ -120,7 +120,7 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
@@ -128,7 +128,7 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
@@ -143,21 +143,14 @@
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
-	<Building_LakePlotYieldChanges>
+	<Building_ImprovementYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Building_LakePlotYieldChanges>
-	<Building_FeatureYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
-			<FeatureType>FEATURE_OASIS</FeatureType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_FeatureYieldChanges>
+	</Building_ImprovementYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
 			<Text>Harappan Reservoir</Text>
@@ -168,10 +161,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Food from Flood Plains and, +1 [ICON_FOOD] Food from Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
-			<Text>Build these unique Aqueducts to rapidly increase your city's population size, and to boost the City's productivity.</Text>
+			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Dojo -->

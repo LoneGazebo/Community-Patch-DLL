@@ -3993,9 +3993,17 @@ function ShowOtherPlayerChooser( isUs, type )
 					elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
 
+					-- DOF YOU
+					elseif (pLoopPlayer:IsDoF(iToPlayer)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF_YOU");
+
 					-- DP
 					elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+
+					-- DP You
+					elseif (Teams[iLoopTeam]:IsDefensivePact(g_iUsTeam)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
 
 -- END
 					end

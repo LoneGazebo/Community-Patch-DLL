@@ -226,6 +226,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity(-1),
+	m_iWLTKDTurns(-1),
 #endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
@@ -266,6 +267,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromVictory(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piGoldenAgeYieldMod(NULL),
+	m_piYieldFromWLTKD(NULL),
+	m_piYieldFromGPExpend(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -351,6 +354,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
+	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -489,6 +494,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
+	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -764,6 +770,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	{
 		kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2019,7 +2027,10 @@ int CvBuildingEntry::GetBorderObstacleCity() const
 {
 	return m_iBorderObstacleCity;
 }
-
+int CvBuildingEntry::GetWLRKDTurns() const
+{
+	return m_iWLTKDTurns;
+}
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
 bool CvBuildingEntry::IsPlayerBorderObstacle() const
@@ -2274,6 +2285,34 @@ int* CvBuildingEntry::GetGoldenAgeYieldModArray() const
 {
 	return m_piGoldenAgeYieldMod;
 }
+
+/// Change to yield during WLTKD
+int CvBuildingEntry::GetYieldFromWLTKD(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromWLTKD ? m_piYieldFromWLTKD[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromWLTKDArray() const
+{
+	return m_piYieldFromWLTKD;
+}
+
+/// Free Yield from GP Expend
+int CvBuildingEntry::GetYieldFromGPExpend(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromGPExpend ? m_piYieldFromGPExpend[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromGPExpendArray() const
+{
+	return m_piYieldFromGPExpend;
+}
+
+
 #endif
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const

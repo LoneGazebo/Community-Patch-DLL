@@ -238,7 +238,11 @@ public:
 	WarProjectionTypes GetLastWarProjection(PlayerTypes ePlayer) const; // previous value of GetWarProjection
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
+#if defined(MOD_BALANCE_CORE)
+	int GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops = false);
+#else
 	int GetWarScore(PlayerTypes ePlayer);
+#endif
 
 	// War Goal: What is is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
 	WarGoalTypes GetWarGoal(PlayerTypes ePlayer) const;

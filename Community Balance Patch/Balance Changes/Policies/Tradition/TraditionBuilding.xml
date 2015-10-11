@@ -13,7 +13,6 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<CapitalOnly>true</CapitalOnly>
-			<CultureRateModifier>10</CultureRateModifier>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
@@ -43,7 +42,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Writing, and boosts [ICON_CULTURE] Culture in your [ICON_CAPITAL] Capital by 10%. Can only be constructed via the Majesty Policy.</Text>
+			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Writing. Can only be constructed via the Majesty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -132,7 +131,7 @@
 			<Text>Royal Guardhouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP">
-			<Text>Allows for an Engineer specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the Authority Policy.</Text>
+			<Text>Allows for an Engineer specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the Justice Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA">
 			<Text>A Royal Guard describes any group of military bodyguards, soldiers or armed retainers responsible for the protection of a royal person, such as Emperor/Empress, King/Queen, or Prince/Princess. They often are an elite unit of the regular armed forces, or are designated as such, and may maintain special rights or privileges.</Text>
@@ -184,7 +183,7 @@
 			<Text>Palace Gardens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
-			<Text>Allows for an Artist specialist in your [ICON_CAPITAL] Capital. Boosts the [ICON_CULTURE] Culture output of Gardens by +2 and Monuments by +1 in all Cities. Can only be constructed via the Splendor Policy.</Text>
+			<Text>Allows for an Artist specialist in your [ICON_CAPITAL] Capital. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the Splendor Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
 			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
@@ -201,7 +200,7 @@
 			<BuildingType>BUILDING_PALACE_GARDEN</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 	</Building_BuildingClassYieldChanges>
 	<Buildings>

@@ -4480,7 +4480,6 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 		{
 			// Best units have already had a full path check to the target, so just add the move
 			MoveToUsingSafeEmbark(pBestUnit, pTarget, true);
-			pBestUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 			pBestUnit->finishMoves();
 			UnitProcessed(pBestUnit->GetID());
 			return;
@@ -5731,6 +5730,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
 			continue;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//might have been used in tactical AI already
+		if (!pUnit->canMove())
+			continue;
+#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//might have been used in tactical AI already
@@ -7857,6 +7862,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 							bSuitableUnit = true;
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_SENTRY:
@@ -7889,6 +7901,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 						bHighPriority = true;
 					}
 #endif
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_MOBILE_RESERVE:
@@ -7906,6 +7925,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					{
 						bSuitableUnit = true;
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
+					}
+#endif
 					break;
 
 				case AI_HOMELAND_MOVE_ANCIENT_RUINS:
@@ -7927,6 +7953,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					else if(pLoopUnit->IsCombatUnit())
 					{
 						bSuitableUnit = true;
+					}
+#endif
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->getArmyID() != -1)
+					{
+						bSuitableUnit = false;
+						bHighPriority = false;
 					}
 #endif
 					break;
@@ -8571,24 +8604,16 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 #if defined(MOD_BALANCE_CORE)
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
-				//primary workers don't move into danger
-				if (!bSecondary && m_pPlayer->GetPlotDanger(*GC.getMap().plot(aDirective[0].m_sX, aDirective[0].m_sY),pUnit) > 0 )
-				{
-					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
-					if (pBestPlot)
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_BUILD, pPlot);
-				}
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
+
+				//do we have movement left?
+				if (pUnit->getMoves()>0)
+					eMission = CvTypes::getMISSION_BUILD();
 				else
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
-
-					//do we have movement left?
-					if (pUnit->getMoves()>0)
-						eMission = CvTypes::getMISSION_BUILD();
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
 				}
-
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
 			}
 
 			if(eMission == CvTypes::getMISSION_BUILD())

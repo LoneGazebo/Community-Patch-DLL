@@ -2871,7 +2871,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		{
 			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion))
 			{
-				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 15);
+				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
 				if (iPopReligionModifer != 0)
 				{
 					iPressure *= 100 + iPopReligionModifer;

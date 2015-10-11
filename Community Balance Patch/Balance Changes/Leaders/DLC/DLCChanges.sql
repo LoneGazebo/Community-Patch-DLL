@@ -330,7 +330,7 @@ Set ImprovementMaintenanceModifier = '0'
 WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Units ignore terrain costs when on Hills, and Roads on Hills do not incur maintenance. After researching The Wheel, Units may cross Mountains, and owned Mountains create [ICON_CONNECTED] City Connections.'
+SET Text = 'Units ignore terrain costs when on Hills, and Roads on Hills do not incur maintenance. After researching The Wheel, Units may cross Mountains, and Mountains create [ICON_CONNECTED] City Connections.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

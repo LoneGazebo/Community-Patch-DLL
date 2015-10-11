@@ -307,6 +307,7 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBorderObstacleCity() const;
+	int GetWLRKDTurns() const;
 #endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
@@ -357,6 +358,12 @@ public:
 
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
+
+	int GetYieldFromWLTKD(int i) const;
+	int* GetYieldFromWLTKDArray() const;
+
+	int GetYieldFromGPExpend(int i) const;
+	int* GetYieldFromGPExpendArray() const;
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
@@ -672,6 +679,7 @@ private:
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
 	int m_iBorderObstacleCity;
+	int m_iWLTKDTurns;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;
@@ -726,6 +734,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
 	int* m_piGoldenAgeYieldMod;
+	int* m_piYieldFromWLTKD;
+	int* m_piYieldFromGPExpend;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

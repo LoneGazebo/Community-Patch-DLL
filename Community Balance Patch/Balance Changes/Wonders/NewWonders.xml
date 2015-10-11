@@ -72,7 +72,7 @@
 				<Text>Slater Mill</Text>
 			</Row>
 			<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-				<Text>City must be built next to a River. Grants a free Factory in the city where it is built, and a large boost to [ICON_PRODUCTION] Production. Also grants two free [ICON_RES_COAL] Coal.</Text>
+				<Text>City must be built next to a River. Grants a free Factory in the city, and a large boost to [ICON_PRODUCTION] Production. Also grants two free [ICON_RES_COAL] Coal.</Text>
 			</Row>
 			<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
 				<Text>
@@ -147,7 +147,7 @@
 			<Text>The Motherland Calls</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
-			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Police Station in the city where it is built. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
+			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Police Station in the city. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>
@@ -225,7 +225,7 @@
 			<Text>Bletchley Park</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
-			<Text>Receive a free Research Lab in the city where it is built. Provides two additional spies and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness in all Cities.</Text>
+			<Text>Receive a free Research Lab in the city. Provides two additional spies and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
 			<Text>
@@ -342,7 +342,7 @@
 			<Text>Empire State Building</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP">
-			<Text>Receive a free Stock Exchange in the city where it is built, and a free Great Person of your choice. Specialists in all cities produce +1 [ICON_GOLD] Gold.</Text>
+			<Text>Receive a free Stock Exchange in the city, and a free Great Person of your choice. Specialists in all cities produce +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT">
 			<Text>

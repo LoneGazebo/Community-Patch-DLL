@@ -950,7 +950,7 @@ void CvBarbarians::DoUnits()
 						if(iTheft > 0)
 						{
 							pCity->changeDamage((iTheft / 3));
-							pUnit->changeDamage((iTheft / 3));
+							pUnit->changeDamage(20);
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else
