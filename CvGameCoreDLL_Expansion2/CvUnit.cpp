@@ -326,6 +326,10 @@ CvUnit::CvUnit() :
 	, m_eInvisibleType("CvUnit::m_eInvisibleType", m_syncArchive)
 	, m_eSeeInvisibleType("CvUnit::m_eSeeInvisibleType", m_syncArchive)
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
+	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
+#endif
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
@@ -403,7 +407,7 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 #if defined(MOD_BALANCE_CORE)
 	if(GC.getGame().getGameTurn() > 0)
 	{
-		GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+		GET_PLAYER(getOwner()).UpdateAreaEffectUnits(false);
 	}
 #endif
 }
@@ -2401,7 +2405,34 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
-
+#if defined(MOD_BALANCE_CORE)
+	if(IsGreatPerson())
+	{
+		int iTourism = kPlayer.GetEventTourism();
+		iTourism *= kPlayer.GetTotalJONSCulturePerTurn();
+		iTourism /= 100;
+		if(iTourism > 0)
+		{
+			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				CvNotifications* pNotification = kPlayer.GetNotifications();
+				if(pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP", iTourism);
+					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, getX(), getY(), kPlayer.GetID());
+				}
+			}
+		}
+	}
+#endif
 	// Update Unit Production Maintenance
 	kPlayer.UpdateUnitProductionMaintenanceMod();
 
@@ -6109,6 +6140,26 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+int CvUnit::addDamageReceivedThisTurn(int iDamage)
+{
+	m_iDamageTakenThisTurn+=iDamage;
+	return m_iDamageTakenThisTurn;
+}
+
+void CvUnit::flipDamageReceivedPerTurn()
+{
+	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	m_iDamageTakenThisTurn = 0;
+}
+
+bool CvUnit::isProjectedToDieNextTurn() const
+{
+	return (m_iDamageTakenLastTurn>GetCurrHitPoints());
+}
+#endif
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::canLoadUnit(const CvUnit& unit, const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
@@ -9148,7 +9199,10 @@ bool CvUnit::createGreatWork()
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pCity->GetCityCulture()->CalculateBaseTourism();
+#endif
 		if(IsGreatPerson())
 		{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -10042,7 +10096,7 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
+bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities) const
 {
 	VALIDATE_OBJECT
 	if(!m_pUnitInfo->IsFound())
@@ -10062,7 +10116,7 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
+	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities)))
 		return false;
 #else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
@@ -10791,6 +10845,8 @@ bool CvUnit::DoSpreadReligion()
 					iCSInfluence = pReligion->m_Beliefs.GetMissionaryInfluenceCS();
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM) * iEra;
+					iTourism *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iTourism /= 100;
 #endif
 #endif
 
@@ -11706,6 +11762,8 @@ bool CvUnit::trade()
 			}
 		}
 	}
+	//This keeps minor civs in the black, financially.
+	GET_PLAYER(eMinor).GetTreasury()->ChangeGold((iFriendship / 2));
 #endif
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iFriendship);
@@ -14699,7 +14757,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 	// Adjacent Friendly military Unit?
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true, pFromPlot))
+	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 #else
 	if(IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 #endif
@@ -17718,334 +17776,31 @@ int CvUnit::withdrawalProbability() const
 
 //	--------------------------------------------------------------------------------
 /// How many enemy Units are adjacent to this guy?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-#else
 int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
-#endif
-	int iNumEnemiesAdjacent = 0;
-
-	TeamTypes eMyTeam = getTeam();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-	TeamTypes eTheirTeam;
-
-#if defined(MOD_BALANCE_CORE)
-
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pAtPlot);
-#else
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-#endif
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		pLoopPlot = aPlotsToCheck[iCount];
-#else
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-#endif
-		if(pLoopPlot != NULL)
-		{
-			pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
-			{
-				pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
-				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
-					{
-						eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == getDomainType())
-							{
-								iNumEnemiesAdjacent++;
-							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (getDomainType() == DOMAIN_SEA && pLoopUnit->IsHoveringUnit()) {
-							
-								// Need to count adjacent hovering units as enemies regardless
-								iNumEnemiesAdjacent++;
-							}
-#endif
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iNumEnemiesAdjacent;
-}
-
-//	--------------------------------------------------------------------------------
-/// Is there any enemy city next to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsEnemyCityAdjacent(const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return false;
-	}
-#else
-bool CvUnit::IsEnemyCityAdjacent() const
-{
-#endif
-	TeamTypes eMyTeam = getTeam();
-	CvPlot* pLoopPlot;
-	CvCity* pCity;
-
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-		if(!pLoopPlot)
-		{
-			continue;
-		}
-
-		pCity = pLoopPlot->getPlotCity();
-		if(!pCity)
-		{
-			continue;
-		}
-
-		if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return plot()->GetNumEnemyUnitsAdjacent( getTeam(), getDomainType(), pUnitToExclude);
 }
 
 //	--------------------------------------------------------------------------------
 /// Is a particular enemy city next to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity, const CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return false;
-	}
-#else
 bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 {
-#endif
 	CvAssertMsg(pSpecifyCity, "City is NULL when checking if it is adjacent to a unit");
-	if (!pSpecifyCity)
-	{
-		return false;
-	}
-
-	TeamTypes eMyTeam = getTeam();
-	CvPlot* pLoopPlot;
-	CvCity* pCity;
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-		if(!pLoopPlot)
-		{
-			continue;
-		}
-
-		pCity = pLoopPlot->getPlotCity();
-		if(!pCity)
-		{
-			continue;
-		}
-
-		if (pCity->getX() == pSpecifyCity->getX() && pCity->getY() == pSpecifyCity->getY())
-		{
-			if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return plot()->IsEnemyCityAdjacent(getTeam(), pSpecifyCity);
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pUnitCompare, const CvPlot* pAtPlot) const
+int CvUnit::GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
 {
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-#else
-int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pUnitCompare) const
-{
-#endif
-	int iNumEnemiesAdjacent = 0;
-
-	TeamTypes eMyTeam = getTeam();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-	TeamTypes eTheirTeam;
-
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pAtPlot->getX(), pAtPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-		if(pLoopPlot != NULL)
-		{
-			pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
-			{
-				pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
-				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit())
-					{
-						eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-
-							if(pLoopUnit->getUnitType() == pUnitCompare->getUnitType())
-							{
-								iNumEnemiesAdjacent++;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iNumEnemiesAdjacent;
+	return plot()->GetNumSpecificPlayerUnitsAdjacent(getOwner(), pUnitToExclude, pExampleUnitType, bCombatOnly);
 }
 
 //	--------------------------------------------------------------------------------
 /// Is there a friendly Unit adjacent to us?
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit, const CvPlot* pPlot) const
-{
-	if (pPlot == NULL)
-	{
-		pPlot = plot();
-		if (pPlot == NULL)
-			return false;
-	}
-#else
 bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 {
-#endif
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-
-	CvUnit* pLoopUnit;
-
-#ifndef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvPlot* pPlot = plot();
-#endif
-
-	TeamTypes eTeam = getTeam();
-
-#if defined(MOD_BALANCE_CORE)
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		pLoopPlot = aPlotsToCheck[iCount];
-#else
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-#else
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
-
-#endif
-		if(pLoopPlot != NULL)
-		{
-			// Must be in same area
-			if(pLoopPlot->getArea() == pPlot->getArea())
-			{
-				pUnitNode = pLoopPlot->headUnitNode();
-
-				while(pUnitNode != NULL)
-				{
-					pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-					if(pLoopUnit && pLoopUnit->getTeam() == eTeam)
-					{
-						// Combat Unit?
-						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return false;
+	return plot()->IsFriendlyUnitAdjacent(getTeam(), bCombatUnit);
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAdjacentModifier() const
@@ -18484,6 +18239,23 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 	return iCount;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvUnit::isAircraftCarrier() const
+{
+	if(cargoSpace() > 0 && getDomainType()==DOMAIN_SEA && domainCargo() == DOMAIN_AIR)
+	{
+		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+		SpecialUnitTypes eSpecialUnitMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
+		if(specialCargo() == eSpecialUnitPlane || specialCargo() == eSpecialUnitMissile)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHasNoValidMove() const
 {
@@ -25856,6 +25628,12 @@ void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
 	m_iArmyId = iNewArmyID;
+
+	if (m_iArmyId!=-1 && GET_PLAYER(getOwner()).GetTacticalAI()->IsUnitHealing(GetID()))
+	{
+		//shouldn't happen
+		OutputDebugString("warning: damaged unit recruited into army!\n");
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -27177,6 +26955,8 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += strTemp1;
 	}
 
+	m_strMissionInfoString += " -----------------------";
+
 	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
 }
@@ -28281,6 +28061,24 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp /= 100;
 
 		iValue += iTemp + iFlavorOffense * 11;
+
+		//Raw power is better for mounted/armor units
+		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else
+		{
+			iValue *= 2;
+			iValue /= 3;
+		}
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
@@ -28289,6 +28087,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra * 11);
 		iTemp /= 100;
 		iValue += iTemp + iFlavorOffense * 11;
+
+		//Raw power is better for archer units than all others
+		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else
+		{
+			iValue *= 2;
+			iValue /= 3;
+		}
 	}
 #endif
 

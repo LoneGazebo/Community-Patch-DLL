@@ -280,6 +280,13 @@ public:
 	{
 		return m_iRecommendedMilitarySize;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetLandReservesAvailable() const
+	{
+		//don't put all our units in armies. however, we may fall below our mandatory minimum
+		return max(0, m_iNumLandUnits - m_iNumLandUnitsInArmies - m_iMandatoryReserveSize/2);
+	};
+#else
 	int GetMandatoryReserveSize() const
 	{
 		return m_iMandatoryReserveSize;
@@ -288,6 +295,7 @@ public:
 	{
 		return (m_iNumLandUnits - m_iNumLandUnitsInArmies - GetMandatoryReserveSize());
 	};
+#endif
 
 	CvCity* GetMostThreatenedCity(int iIndex = 0); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
 

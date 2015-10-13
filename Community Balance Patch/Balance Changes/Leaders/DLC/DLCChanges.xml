@@ -148,7 +148,7 @@
 		<Row>
 			<TraitType>TRAIT_SEVEN_CITIES</TraitType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>15</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Trait_YieldFromSettle>
 </GameData>

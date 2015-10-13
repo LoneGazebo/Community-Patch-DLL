@@ -1266,10 +1266,14 @@ void CvCitySpecializationAI::FindBestSites()
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
 	int iEvalDistance = (GC.getSETTLER_EVALUATION_DISTANCE() / 2) + iTimeOffset;
+
+	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	{
+		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		if (pPlot->getFoundValue(m_pPlayer->GetID())>0)
+		{
 #else
 	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;
-#endif
-
 	CvSiteEvaluatorForSettler* pSiteEval = GC.getGame().GetSettlerSiteEvaluator();
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
@@ -1277,6 +1281,8 @@ void CvCitySpecializationAI::FindBestSites()
 
 		if(pSiteEval->CanFound(pPlot, m_pPlayer, true))
 		{
+#endif
+
 			// Check if within range of any of our cities
 			pNearestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), m_pPlayer->GetID(), NO_TEAM, true /* bSameArea */);
 			if(pNearestCity != NULL)

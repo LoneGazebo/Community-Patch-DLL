@@ -7314,6 +7314,13 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		iWarScore += /*-15*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
 		break;
 	}
+
+	//If this is a prewar calc, double these values (should give us a better idea of how a war might go).
+	if(bIgnoreLoops)
+	{
+		iWarScore *= 2;
+	}
+
 	// How is the war going?
 	if(!bIgnoreLoops)
 	{
@@ -8771,6 +8778,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	iTargetValue += iMilitaryRatio;
 
 	//Multiply Target Value based on global things - this will push like-minded and/or competing civs to go after each other.
+	if(GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) > INFLUENCE_LEVEL_EXOTIC)
+	{
+		iTargetValue *= (int)GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID());
+	}
 	if(GetWarmongerThreat(ePlayer) > THREAT_MINOR)
 	{
 		iTargetValue *= (int)GetWarmongerThreat(ePlayer);
@@ -11907,12 +11918,6 @@ void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 	m_paiWarValueLost[ePlayer] = iValue;
 
 	// Reset War Damage
-#if defined(MOD_BALANCE_CORE)
-	if(m_paiWarValueLost[ePlayer] <= 0)
-	{
-		m_paeWarDamageLevel[ePlayer] = WAR_DAMAGE_LEVEL_NONE;
-	}
-#endif
 	if(iValue == 0)
 		m_paeWarDamageLevel[ePlayer] = WAR_DAMAGE_LEVEL_NONE;
 }
@@ -17783,31 +17788,7 @@ void CvDiplomacyAI::DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		bool bBuying = false;
-		if(GetPlayer()->IsCramped())
-		{
-			bBuying = true;
-		}
-		else if(GetPlayer()->getNumCities() < GET_PLAYER(ePlayer).getNumCities() && (GET_PLAYER(ePlayer).getNumCities() > 1))
-		{
-			bBuying = true;
-		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-		{
-			bBuying = true;
-		}
-#endif
-		else
-		{
-			int iChance = GC.getGame().getJonRandNumBinom(100, "Random Buyer");
-			if(iChance <= 20)
-			{
-				bBuying = true;
-			}
-		}
-
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForCity(ePlayer, /*pDeal can be modified in this function*/ pDeal, bBuying))
+		if(GetPlayer()->GetDealAI()->IsMakeOfferForCity(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TRADE_CITIES_REQUEST;
 			int iTurnsBetweenStatements = 30;
@@ -34037,8 +34018,8 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, Playe
 				}
 #endif
 #if defined(MOD_API_EXTENSIONS)
-					CUSTOMLOG("WarmongerTimes100: Att=%, Def=%i, 3rd=%i, Off=%i, Mod%%=%i, Agg%%=%i, App%%=%i, Total=%i", eConqueror, eConquered, eMajor, iWarmongerOffset, iWarmongerModifier, iWarmongerAggrievedModifier, iWarmongerApproachModifier, (iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000));
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000);
+				CUSTOMLOG("WarmongerTimes100: Att=%i, Def=%i, 3rd=%i, Off=%i, Mod%%=%i, Agg%%=%i, App%%=%i, Total=%i", eConqueror, eConquered, eMajor, iWarmongerOffset, iWarmongerModifier, iWarmongerAggrievedModifier, iWarmongerApproachModifier, (iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000));
+				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000);
 #else
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(eConqueror, iWarmongerOffset);
 #endif
@@ -34113,19 +34094,22 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// Can't hate the guy
-	if(GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
-		return false;
+	if(!IsAtWar(ePlayer))
+	{
+		if(GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+			return false;
 
-	// Don't want if there's been a denouncement in either direction
-	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-		return false;
+		// Don't want if there's been a denouncement in either direction
+		if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+			return false;
 
-	MajorCivApproachTypes eTrueApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eTrueApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	
-	// if we're planning on war, hostile, or guarded with this player, don't want to be his voluntary vassal
-	if(eTrueApproach == MAJOR_CIV_APPROACH_WAR ||
-		eTrueApproach == MAJOR_CIV_APPROACH_HOSTILE)
-		return false;
+		// if we're planning on war, hostile, or guarded with this player, don't want to be his voluntary vassal
+		if(eTrueApproach == MAJOR_CIV_APPROACH_WAR ||
+			eTrueApproach == MAJOR_CIV_APPROACH_HOSTILE)
+			return false;
+	}
 
 	int iWantsToBecomeVassal = 0;
 
@@ -34206,6 +34190,26 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 		iWantsToBecomeVassal += -120;
 		break;
 	}
+
+	//Influence?
+	switch(GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()))
+	{
+	case INFLUENCE_LEVEL_EXOTIC:
+		iWantsToBecomeVassal += 5;
+		break;
+	case INFLUENCE_LEVEL_FAMILIAR:
+		iWantsToBecomeVassal += 10;
+		break;
+	case INFLUENCE_LEVEL_POPULAR:
+		iWantsToBecomeVassal += 25;
+		break;
+	case INFLUENCE_LEVEL_INFLUENTIAL:
+		iWantsToBecomeVassal += 50;
+		break;
+	case INFLUENCE_LEVEL_DOMINANT:
+		iWantsToBecomeVassal += 100;
+		break;
+	}
 	
 	// If this guy's been in a lot of wars we lower his value because he'll drag us into them
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -34221,8 +34225,8 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 		}
 	}
 
-	// Slight boost if we're going for culture victory
-	if(IsGoingForCultureVictory())
+	// Slight boost if we're going for culture or science victory
+	if(IsGoingForCultureVictory() || IsGoingForSpaceshipVictory())
 	{
 		iWantsToBecomeVassal += 10;
 	}
@@ -34326,31 +34330,27 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 			break;
 	}
 
-	// We're going for culture and they're nice and strong and close to us
-	if(IsGoingForCultureVictory())
+	// We're going for culture or science and they're nice and strong and close to us
+	if(IsGoingForCultureVictory() || IsGoingForSpaceshipVictory())
 	{
 		if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE &&
 			GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()) == PLAYER_PROXIMITY_NEIGHBORS)
 		{
-			iChance = 0;
+			iChance -= 25;
 		}
 	}
-
-	// They're weak and we're going for conquest
-	if(IsGoingForWorldConquest())
+	// We're going for diplo or war, we need to be free!
+	if(IsGoingForDiploVictory() || IsGoingForWorldConquest())
 	{
-		if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_WEAK)
-		{
-			iChance += 25;
-		}
+		iChance += 25;
 	}
 
 	// Additional chance based on VictoryCompetitiveness
 	iChance += (GetVictoryCompetitiveness() / 2);	// ex: 8 compete = 4%, 5 compete = 2%
+	// And Diplo Balance
+	iChance += (GetDiploBalance() / 2);
 
-	int iRand = GC.getGame().getJonRandNum(100, "Diplomacy AI: Chance AI will end vassalage with ePlayer");
-
-	if(iRand < iChance)
+	if(iChance >= 100)
 		return true;
 
 	return false;
@@ -35831,6 +35831,13 @@ void CvDiplomacyAI::DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer)
 	int iTheirPolicies = GET_PLAYER(ePlayer).GetNumPolicies();
 			
 	iTempWeight = (iOurPolicies - iTheirPolicies) * /*3*/ GC.getGLOBAL_STATE_PER_POLICY_WEIGHT();
+
+	//Influential? Bring that in.
+
+	int iOurInfluence = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
+	int iTheirInfluence = GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn();
+
+	iTempWeight += (iOurInfluence - iTheirInfluence) * 10;
 
 	// Increase weight if going for culture victory
 	if(IsGoingForCultureVictory())

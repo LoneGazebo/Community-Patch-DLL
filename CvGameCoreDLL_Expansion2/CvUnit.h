@@ -238,7 +238,10 @@ public:
 	bool hasCargo() const;
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
-	//
+
+#if defined(MOD_BALANCE_CORE)
+	bool isAircraftCarrier() const;
+#endif
 
 	bool canHold(const CvPlot* pPlot) const; // skip turn
 	bool canSleep(const CvPlot* pPlot) const;
@@ -354,10 +357,7 @@ public:
 	bool canPillage(const CvPlot* pPlot) const;
 	bool pillage();
 
-	bool canFound(const CvPlot* pPlot, bool bTestVisible = false) const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	bool canFoundMid(const CvPlot* pPlot, bool bTestVisible = false) const;
-#endif
+	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false) const;
 	bool found();
 
 	bool canJoin(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
@@ -730,19 +730,10 @@ public:
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvPlot* pAtPlot = NULL) const;
-	bool IsEnemyCityAdjacent(const CvPlot* pAtPlot = NULL) const;
-	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity, const CvPlot* pAtPlot = NULL) const;
-	int GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, const CvPlot* pAtPlot = NULL) const;
-	bool IsFriendlyUnitAdjacent(bool bCombatUnit, const CvPlot* pAtPlot = NULL) const;
-#else
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
-	bool IsEnemyCityAdjacent() const;
-	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const;
-	int GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL) const;
+	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
+	int GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
-#endif
 
 	int GetAdjacentModifier() const;
 	void ChangeAdjacentModifier(int iValue);
@@ -840,6 +831,13 @@ public:
 	int getDamage() const;
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	int addDamageReceivedThisTurn(int iDamage);
+	void flipDamageReceivedPerTurn();
+	bool isProjectedToDieNextTurn() const;
+#endif
+
 #if defined(SHOW_PLOT_POPUP)
 	void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 #else
@@ -1754,6 +1752,11 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
+	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
+#endif
 
 	FAutoVariable<TacticalAIMoveTypes, CvUnit> m_eTacticalMove;
 	FAutoVariable<PlayerTypes, CvUnit> m_eCapturingPlayer;

@@ -29,7 +29,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS' AND EXISTS (SELECT * FROM COMMUNI
 -- Futurism
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE]+250 [ICON_TOURISM] Tourism with all known civs when a [ICON_GREAT_PEOPLE] Great Person is born.'
+SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE]Amount of Empire-wide [ICON_CULTURE] Culture used for [ICON_TOURISM] Tourism boost from [ICON_CAPITAL] Palace increased by 20%.'
 WHERE Tag = 'TXT_KEY_POLICY_FUTURISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Industrial Espionage (now Lebensraum)

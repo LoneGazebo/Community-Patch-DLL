@@ -241,14 +241,9 @@ public:
 
 	virtual bool CheckOnTarget();
 #if defined(MOD_BALANCE_CORE)
-	virtual bool CheckTarget();
+	virtual bool VerifyTarget();
 #endif
 
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
-	virtual bool ArmyMoved(CvArmyAI* pArmy)
-	{
-		return false;
-	};
 	virtual int  PercentFromMusterPointToTarget();
 	virtual bool ShouldAbort();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
@@ -266,12 +261,12 @@ public:
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	virtual void FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit);
 #endif
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
-	virtual CvPlot* ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath) const;
+	virtual CvPlot* ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath=NULL) const;
 
 	bool HasOneMoreSlotToFill() const;
 	bool BuyFinalUnit();
@@ -288,6 +283,9 @@ public:
 	virtual const char* GetInfoString();
 #endif
 
+	virtual bool VerifyTarget(CvArmyAI* pArmy)  { return true; }
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+
 protected:
 	CvString GetLogFileName(CvString& playerName) const;
 	virtual CvString GetOperationName() const
@@ -298,7 +296,7 @@ protected:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
+	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit, bool* bRequired);
 #endif
 
 	std::vector<int> m_viArmyIDs;
@@ -507,19 +505,17 @@ public:
 	virtual int GetDeployRange() const;
 
 	virtual bool ShouldAbort();
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 #if defined(MOD_BALANCE_CORE)
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 #endif
 
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 protected:
 	virtual CvPlot* FindBestTarget();
 	bool m_bCivilianRescue;
 	int m_iUnitToRescue;
-#if defined(MOD_BALANCE_CORE)
-	bool m_bInitializedRun;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -555,8 +551,7 @@ public:
 	virtual int GetDeployRange() const;
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
-	virtual bool ArmyMoved(CvArmyAI* pArmy);
-
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 protected:
 	virtual CvPlot* FindBestTarget();
 };
@@ -617,8 +612,12 @@ public:
 	{
 		return MUFORMATION_SETTLER_ESCORT;
 	}
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+
 	virtual bool ShouldAbort();
+
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
+protected:
 
 #if defined(MOD_BALANCE_CORE)
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
@@ -688,8 +687,9 @@ public:
 	{
 		return MUFORMATION_MERCHANT_ESCORT;
 	}
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -718,8 +718,9 @@ public:
 	{
 		return MUFORMATION_DIPLOMAT_ESCORT;
 	}
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -780,8 +781,9 @@ public:
 	{
 		return MUFORMATION_CONCERT_TOUR;
 	}
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 private:
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -823,7 +825,6 @@ public:
 	};
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy) = 0;
-	virtual int GetMaximumRecruitTurns() const {return MAX_INT;};   // Let naval units come from afar
 
 protected:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
@@ -1068,8 +1069,7 @@ public:
 	}
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
-	virtual bool ArmyMoved(CvArmyAI* pArmy);
-
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 private:
 	bool RetargetDefensiveArmy(CvArmyAI* pArmy);
 	CvPlot* FindBestTarget();

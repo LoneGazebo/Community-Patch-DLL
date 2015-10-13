@@ -847,7 +847,8 @@
 	<Row Class="6" Name="MOD_BALANCE_YIELD_SCALE_ERA" Value="0"/>
 	<!-- Boost to GM and GD -->
 	<Row Class="6" Name="BALANCE_CORE_NEW_GP_ATTRIBUTES" Value="0"/>
-
+	<!-- Debugging -->
+	<Row Class="6" Name="BALANCE_CORE_DEBUGGING" Value="0"/>
   </CustomModOptions>
 
   <CustomModPostDefines>

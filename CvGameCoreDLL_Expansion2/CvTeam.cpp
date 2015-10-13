@@ -6012,6 +6012,43 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				//AddNotification(NOTIFICATION_VICTORY, strBuffer, strSummary);
 
 				SetCurrentEra(eNewEra);
+#if defined(MOD_BALANCE_CORE)
+				for(int iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+					CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+					if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
+					{
+						int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+						iTourism *= GET_PLAYER(eLoopPlayer).GetTotalJONSCulturePerTurn();
+						iTourism /= 100;
+						if(iTourism > 0)
+						{
+							GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+							if(eLoopPlayer == GC.getGame().getActivePlayer())
+							{
+								CvCity* pCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
+								if(pCity != NULL)
+								{
+									char text[256] = {0};
+									float fDelay = 0.5f;
+									sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+									DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+									CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if(pNotification)
+									{
+										CvString strMessage;
+										CvString strSummary;
+										strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ERA", iTourism);
+										strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+										pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eLoopPlayer);
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				for(int iI = 0; iI < MAX_PLAYERS; iI++)
 				{
@@ -8069,7 +8106,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 #endif
 		}
-
 		// Trait to provide free policies on era change?
 		PlayerTypes ePlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -8197,7 +8233,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
-
 #if defined(MOD_EVENTS_NEW_ERA)
 		if (MOD_EVENTS_NEW_ERA && GetCurrentEra() != GC.getGame().getStartEra()) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), ((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));

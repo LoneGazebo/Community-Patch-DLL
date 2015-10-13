@@ -12,6 +12,7 @@
 local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
 local L = Locale.ConvertTextKey
+local S = string.format
 
 include( "IconSupport" ); local IconHookup = IconHookup; local CivIconHookup = CivIconHookup
 include( "CityStateStatusHelper" ); local UpdateCityStateStatusUI = UpdateCityStateStatusUI; local GetCityStateStatusText = GetCityStateStatusText; local GetCityStateStatusToolTip = GetCityStateStatusToolTip; local GetAllyText = GetAllyText; local GetAllyToolTip = GetAllyToolTip; local GetActiveQuestText = GetActiveQuestText; local GetActiveQuestToolTip = GetActiveQuestToolTip; local GetCityStateTraitText = GetCityStateTraitText; local GetCityStateTraitToolTip = GetCityStateTraitToolTip
@@ -387,19 +388,19 @@ function OnDisplay()
 			local bFirstMajorCiv = m_PopupInfo.Option1
 			local strGiftString = ""
 
-			local strGiftTxtKey = string.format("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), m_PopupInfo.Text)
+			local strGiftTxtKey = S("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), m_PopupInfo.Text)
 	
 			if (m_PopupInfo.Data2 == 0) then
 				  if (m_PopupInfo.Data3 == 0) then
-					strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+					strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
 				  else
-					strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
+					strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
 				  end
 			else
 			  if (m_PopupInfo.Text == "UNIT") then
-				strGiftString = Locale.ConvertTextKey(strGiftTxtKey, GameInfo.Units[m_PopupInfo.Data2].Description, personalityInfo.title)
+				strGiftString = L(strGiftTxtKey, GameInfo.Units[m_PopupInfo.Data2].Description, personalityInfo.title)
 			  else
-				strGiftString = Locale.ConvertTextKey(strGiftTxtKey, m_PopupInfo.Data2, personalityInfo.title)
+				strGiftString = L(strGiftTxtKey, m_PopupInfo.Data2, personalityInfo.title)
 			  end
 			end
 			strText = strGiftString

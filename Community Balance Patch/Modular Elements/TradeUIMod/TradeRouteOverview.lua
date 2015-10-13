@@ -409,20 +409,20 @@ function LookAtOrRecall(instance, v)
   if (pPlayer) then
     local pUnit = pPlayer:GetUnitByID(v.UnitID)
 	if (pUnit) then
-	  if (UIManager:GetControl()) then
-	    if (pUnit:IsTrade() and not pUnit:IsRecalledTrader()) then
-		  local tr = Game.GetTradeRoute(pUnit:GetTradeRouteIndex())
+--	  if (UIManager:GetControl()) then
+--	    if (pUnit:IsTrade() and not pUnit:IsRecalledTrader()) then
+--		  local tr = Game.GetTradeRoute(pUnit:GetTradeRouteIndex())
 		  
-		  if (tr.FromID == tr.ToID) then
+	--	  if (tr.FromID == tr.ToID) then
 			-- Domestic TR, stop sending stuff immediately
-		    pUnit:EndTrader()
-		  else
+	--	    pUnit:EndTrader()
+--		  else
 			-- International TR, send a messenger to hold the shipments
-		    pUnit:RecallTrader(Teams[pPlayer:GetTeam()]:IsHasTech(iTechImmediateRecall))
-		  end
-		  instance.TurnsLeft:LocalizeAndSetText("TXT_KEY_TRO_RECALLED")
-		end
-	  end
+--		    pUnit:RecallTrader(Teams[pPlayer:GetTeam()]:IsHasTech(iTechImmediateRecall))
+	--	  end
+--		  instance.TurnsLeft:LocalizeAndSetText("TXT_KEY_TRO_RECALLED")
+--		end
+--	  end
 
 	  UI.LookAt(pUnit:GetPlot())
   	  Events.SerialEventUnitFlagSelected(v.FromID, v.UnitID)

@@ -25,6 +25,7 @@
 			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
 			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>
+			<EventTourism>50</EventTourism>
 			<EnhancedYieldTech>TECH_GUILDS</EnhancedYieldTech>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>32</DisplayPosition>
@@ -73,10 +74,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY">
-			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. Produces +5 [ICON_TOURISM] when you research Guilds. It does not contain a slot for a Great Work. [NEWLINE][NEWLINE]Enemy Spies in this City cannot perform Advanced Spy Actions.</Text>
+			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. Produces +5 [ICON_TOURISM] when you research Guilds, but does not contain a slot for a Great Work. [NEWLINE][NEWLINE]Enemy Spies in this City cannot perform Advanced Spy Actions, meaning that your Capital is well-defended against the theft of Gold, Science, and other important resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_HELP">
-			<Text>+15% Great Person rate and +5 [ICON_TOURISM] when you research Guilds. Enemy [ICON_SPY] Spies cannot perform Advanced Spy Actions in this City.</Text>
+			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate. +5 [ICON_TOURISM] when you research Guilds. Contains 1 slot for a Great Work of Art. Enemy [ICON_SPY] Spies cannot perform Advanced Spy Actions in this City.[NEWLINE][NEWLINE]When one of the following actions is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs equal to [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] of your [ICON_CULTURE] Culture rate:[NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Complete a City-State [ICON_INFLUENCE] Quest[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET]Enter a new [ICON_RESEARCH] Era[NEWLINE][NEWLINE][ICON_CONNECTED] Connecting other Cities to the [ICON_CAPITAL] Capital by Road will produce additional [ICON_GOLD] Gold.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

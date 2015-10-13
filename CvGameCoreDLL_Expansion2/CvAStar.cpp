@@ -336,7 +336,7 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
-	if (false)
+	if (MOD_BALANCE_CORE_DEBUGGING && false)
 	{
 		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -2912,7 +2912,7 @@ int WaterRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 		return TRUE;
 	}
 
-	PlayerTypes ePlayer = (PlayerTypes)(finder->GetInfo());
+	PlayerTypes ePlayer = (PlayerTypes)(finder->GetInfo() & 0xFF);
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
@@ -3508,14 +3508,12 @@ int CvIgnoreUnitsPathFinder::GetPathLength()
 
 //	--------------------------------------------------------------------------------
 /// Returns the last plot along the step path owned by a specific player
-CvPlot* CvIgnoreUnitsPathFinder::GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pEndPlot, PlayerTypes iOwner) const
+CvPlot* CvIgnoreUnitsPathFinder::GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pEndPlot, PlayerTypes iOwner)
 {
-	CvAStarNode* pNode;
-
 	// Generate path
-	if(GC.getIgnoreUnitsPathFinder().GeneratePath(pStartPlot->getX(), pStartPlot->getX(), pEndPlot->getX(), pEndPlot->getX(), 0, false))
+	if(GeneratePath(pStartPlot->getX(), pStartPlot->getX(), pEndPlot->getX(), pEndPlot->getX(), 0, false))
 	{
-		pNode = GC.getIgnoreUnitsPathFinder().GetLastNode();
+		CvAStarNode* pNode = GetLastNode();
 
 		// Starting at the end, loop until we find a plot from this owner
 		CvMap& kMap = GC.getMap();
@@ -3542,9 +3540,7 @@ CvPlot* CvIgnoreUnitsPathFinder::GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pE
 /// Retrieve first node of path
 CvPlot* CvIgnoreUnitsPathFinder::GetPathFirstPlot() const
 {
-	CvAStarNode* pNode;
-
-	pNode = GC.getIgnoreUnitsPathFinder().GetLastNode();
+	CvAStarNode* pNode = GetLastNode();
 
 	CvMap& kMap = GC.getMap();
 	if(pNode->m_pParent == NULL)
@@ -3571,9 +3567,7 @@ CvPlot* CvIgnoreUnitsPathFinder::GetPathFirstPlot() const
 /// Return the furthest plot we can get to this turn that is on the path
 CvPlot* CvIgnoreUnitsPathFinder::GetPathEndTurnPlot() const
 {
-	CvAStarNode* pNode;
-
-	pNode = GC.getIgnoreUnitsPathFinder().GetLastNode();
+	CvAStarNode* pNode = GetLastNode();
 
 	if(NULL != pNode)
 	{
@@ -3771,9 +3765,134 @@ int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder)
 	return AttackPathDestEval(iToX, iToY, pointer, finder, false, true);
 }
 
+#if defined(MOD_CORE_PATHFINDER)
 //	---------------------------------------------------------------------------
+int RebaseValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
+{
+	if(parent == NULL)
+		return TRUE;
+
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	CvUnit* pUnit = ((CvUnit*)pointer);
+	if (!pUnit)
+		return FALSE;
+
+	//distance
+	if (plotDistance(node->m_iX, node->m_iY, parent->m_iX, parent->m_iY) > pUnit->GetRange())
+		return FALSE;
+
+	//capacity
+	if (pNewPlot->isCity() && pNewPlot->getPlotCity()->getOwner()==pUnit->getOwner())
+	{
+		int iUnitsThere = pNewPlot->countNumAirUnits( GET_PLAYER(pUnit->getOwner()).getTeam() );
+		if (iUnitsThere < pNewPlot->getPlotCity()->GetMaxAirUnits())
+			return TRUE;
+	}
+	else
+	{
+		IDInfo* pUnitNode = pNewPlot->headUnitNode();
+
+		// Loop through all units on this plot
+		while(pUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
+			
+			if (pUnit->canLoad(*(pLoopUnit->plot())))
+				return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 //	---------------------------------------------------------------------------
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+int RebaseGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder)
+{
+	PlayerTypes ePlayer = ((PlayerTypes)(finder->GetInfo() & 0xFF));
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	TeamTypes eTeam = kPlayer.getTeam();
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+
+	if(!pPlot)
+	{
+		return 0;
+	}
+
+	CvCity* pCity = pPlot->getPlotCity();
+
+	//might be a carrier outside of a city
+	if (!pCity)
+		pCity = kPlayer.GetClosestCity(pPlot);
+
+	// if there is a city and the city is on our team
+	if(pCity && pCity->getTeam()==eTeam)
+	{
+		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
+
+		return (int)vNeighbors.size()+vAttachedUnits.size();
+	}
+
+	return 0;
+}
+
+//	---------------------------------------------------------------------------
+int RebaseGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar* finder)
+{
+	iX = -1;
+	iY = -1;
+
+	PlayerTypes ePlayer = ((PlayerTypes)(finder->GetInfo() & 0xFF));
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	TeamTypes eTeam = kPlayer.getTeam();
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+
+	if(!pPlot || iIndex<0)
+	{
+		return 0;
+	}
+
+	CvCity* pCity = pPlot->getPlotCity();
+
+	//might be a carrier outside of a city
+	if (!pCity)
+		pCity = kPlayer.GetClosestCity(pPlot);
+
+	// if there is a city and the city is on our team
+	if(pCity && pCity->getTeam()==eTeam)
+	{
+		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
+
+		if ( (size_t)iIndex<vNeighbors.size())
+		{
+			CvCity* pSecondCity = kPlayer.getCity(vNeighbors[iIndex]);
+			if (pSecondCity)
+			{
+				iX = pSecondCity->getX();
+				iY = pSecondCity->getY();
+				return 1;
+			}
+		}
+		else if ( (size_t)iIndex<vNeighbors.size()+vAttachedUnits.size() )
+		{
+			CvUnit* pCarrier = kPlayer.getUnit(vAttachedUnits[iIndex-vNeighbors.size()]);
+			if (pCarrier)
+			{
+				iX = pCarrier->plot()->getX();
+				iY = pCarrier->plot()->getY();
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+#else
+//	---------------------------------------------------------------------------
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
 	CvMap& theMap = GC.getMap();
@@ -4342,7 +4461,7 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 				return false;
 			}
 
-#if defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
 			GC.getPathFinder().SetData(pUnit.pointer(), iTargetTurns);
 			if( GC.getPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), iFlags, bReusePaths) )
 			{
@@ -4412,7 +4531,7 @@ struct TradePathCacheData
 //	--------------------------------------------------------------------------------
 void TradePathInitialize(const void* pointer, CvAStar* finder)
 {
-	PlayerTypes ePlayer = (PlayerTypes)finder->GetInfo();
+	PlayerTypes ePlayer = (PlayerTypes)(finder->GetInfo() & 0xFF);
 
 	TradePathCacheData* pCacheData = reinterpret_cast<TradePathCacheData*>(finder->GetScratchBuffer());
 
@@ -4455,7 +4574,7 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder)
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 20;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * 30;
 #else
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 100;
 #endif
@@ -4464,7 +4583,7 @@ int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 //	--------------------------------------------------------------------------------
 int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
-	PlayerTypes ePlayer = (PlayerTypes)finder->GetInfo();
+	PlayerTypes ePlayer = (PlayerTypes)(finder->GetInfo() & 0xFF);
 
 	CvMap& kMap = GC.getMap();
 	int iFromPlotX = parent->m_iX;
@@ -4484,9 +4603,9 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
 		iCost = iCost / 4;
-	// super low costs for moving along rivers
+	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
-		iCost = iCost / 4;
+		iCost = iCost / 2;
 	// Iroquios ability
 	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())
 		iCost = iCost / 2;
@@ -4517,22 +4636,6 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	{
 		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*10;
 	}
-
-	if (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater())
-	{
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
-	}
-	
-	// Penalty for ending a turn on a mountain
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pToPlot->isImpassable())
-#else
-	if(pToPlot->isImpassable() || pToPlot->isMountain())
-#endif
-	{
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
-	}
-
 #else
 	int iBaseCost = 100;
 	int iCost = iBaseCost;
@@ -4620,6 +4723,13 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 	{
 		return FALSE;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (pNewPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	{
+		return FALSE;
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pNewPlot->isImpassable())
 #else
@@ -4932,7 +5042,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 
 	if (bIgnoreHarbors)
 	{
-		// reconnect the land route pathfinder water methods
+		// restore the harbor route pathfinder
 		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
 		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
 	}

@@ -731,7 +731,7 @@ bool CvMinorCivQuest::IsComplete()
 			return true;
 		}
 		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
-		PlayerTypes eOriginalAlly = (PlayerTypes) GetPrimaryData();
+		PlayerTypes eOriginalAlly = (PlayerTypes) m_iData1;
 		if(eAlly != eOriginalAlly)
 		{
 			return true;
@@ -1876,6 +1876,32 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
+	{
+		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
+		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetTotalJONSCulturePerTurn();
+		iTourism /= 100;
+		if(iTourism > 0)
+		{
+			GET_PLAYER(m_eAssignedPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(m_eAssignedPlayer == GC.getGame().getActivePlayer() && GET_PLAYER(m_eAssignedPlayer).getCapitalCity() != NULL)
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getX(),GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getY(), text, fDelay);
+				CvNotifications* pNotification = GET_PLAYER(m_eAssignedPlayer).GetNotifications();
+				if(pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_CS", iTourism);
+					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getX(), GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getY(), m_eAssignedPlayer);
+				}
+			}
+		}
+	}
 	if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
 	{
 		iInfluence *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
@@ -5455,7 +5481,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 		}
 
-		if(SpawnHorde() == NO_PLAYER)
+		if(SpawnHorde() == NO_PLAYER && !IsRebellionActive())
 		{
 			return false;
 		}
@@ -5467,7 +5493,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
-		if(SpawnRebels() == NO_PLAYER)
+		if(SpawnRebels() == NO_PLAYER && !IsRebellionActive())
 		{
 			return false;
 		}
@@ -7135,18 +7161,20 @@ bool CvMinorCivAI::IsValidRebellion()
 			}
 		}
 	}
-
-	int iActivePlayers = GC.getGame().countMajorCivsAlive();
-	//Let's make this more granular.
-	iActiveRebellions  *= 100;
-	iActivePlayers *= 10;
-
-	int iMaxQuests = (iActiveRebellions / iActivePlayers);
-
-	//If there are more quests active than 40% of all civs, the quest should abort, as that's too many for the AI to handle.
-	if(iMaxQuests >= 4)
+	if(iActiveRebellions > 0)
 	{
-		return false;
+		int iActivePlayers = GC.getGame().countMajorCivsAlive();
+		//Let's make this more granular.
+		iActiveRebellions  *= 100;
+		iActivePlayers *= 10;
+
+		int iMaxQuests = (iActiveRebellions / iActivePlayers);
+
+		//If there are more quests active than 20% of all civs, the quest should abort, as that's too many for the AI to handle.
+		if(iMaxQuests >= 2)
+		{
+			return false;
+		}
 	}
 	return true;
 }
@@ -9366,7 +9394,6 @@ void CvMinorCivAI::DoDefection()
 		}
 	}
 	CvCity* pCity = GetPlayer()->getCapitalCity();
-	CvPlot* pPlot;
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 	//Let's kill off any barbs remaining.
 #if defined(MOD_GLOBAL_CITY_WORKING)
@@ -9375,9 +9402,9 @@ void CvMinorCivAI::DoDefection()
 	for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 	{
-		pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
-		if(pPlot->getNumUnits() > 0)
+		if(pPlot && pPlot->getNumUnits() > 0)
 		{
 			// Get the current list of units because we will possibly be moving them out of the plot's list
 			IDInfoVector currentUnits;

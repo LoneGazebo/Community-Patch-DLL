@@ -37,7 +37,7 @@
 		<Row>
 			<Type>BUILDING_BATH</Type>
 			<BuildingClass>BUILDINGCLASS_BATH</BuildingClass>
-			<Cost>200</Cost>
+			<Cost>225</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BATH</Description>
@@ -57,7 +57,7 @@
 		<Row>
 			<Type>BUILDING_WELL</Type>
 			<BuildingClass>BUILDINGCLASS_WELL</BuildingClass>
-			<Cost>70</Cost>
+			<Cost>75</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WELL</Description>
@@ -76,7 +76,7 @@
 		<Row>
 			<Type>BUILDING_GROCER</Type>
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
-			<Cost>350</Cost>
+			<Cost>400</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_GROCER</Description>
@@ -94,7 +94,7 @@
 		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
-			<Cost>1100</Cost>
+			<Cost>1300</Cost>
 			<GoldMaintenance>6</GoldMaintenance>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
@@ -130,7 +130,7 @@
 		<Row>
 			<Type>BUILDING_COAL_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
-			<Cost>900</Cost>
+			<Cost>1000</Cost>
 			<GoldMaintenance>5</GoldMaintenance>
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_COAL_PLANT</Description>

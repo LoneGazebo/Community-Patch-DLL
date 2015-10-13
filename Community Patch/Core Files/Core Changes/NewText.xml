@@ -308,7 +308,7 @@
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
-			<Text>{1_Num} [ICON_TOURISM] Tourism from Buildings</Text>
+			<Text>{1_Num} [ICON_TOURISM] Tourism from City</Text>
 		</Row>
 		<!-- City Over Resource Need Notification -->
 		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
@@ -3208,6 +3208,186 @@
 			<Text>Choosing this option may alert the targeted player to your war preparations if the AI refuses to help and has a positive relationship with the targeted player.</Text>
 		</Row>
 
+		<!-- Tourism and League Stuff -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP">
+			<Text>Prevented by an active or proposed resolution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
+			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
+		</Row>
+
+		<!-- Tourism -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_EMPIRE_SIZE">
+			<Text>+{1_Num}% Bonus for having fewer Cities[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_BOREDOM">
+			<Text>+{1_Num}% Bonus from Boredom in their Empire[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">
+			<Text>[COLOR_POSITIVE_TEXT]Active Theme Bonus:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS_NEEDED">
+			<Text>[COLOR_POSITIVE_TEXT]If you meet Theme requirements on this Building, gain:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY">
+			<Text>Historic Moment</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_ERA">
+			<Text>Because your Civilization entered a new Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
+			<Text>Because your Civilization won a War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
+			<Text>Because a Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WW">
+			<Text>Because your Civilization constructed a World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_CS">
+			<Text>Because your Civilization completed a City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE">
+			<Text>Tourism and Trade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+		</Row>
+		
+		<!-- Great Work Gold (LUA)-->
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
+			<Text>{1_Num} {2_IconString} from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP_CULTURE">
+			<Text>+{1_Num} [ICON_CULTURE] from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP_FAITH">
+			<Text>+{1_Num} [ICON_PEACE] from Great Works and Themes</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE">
+			<Text>+{1_Num}% Bonus due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE_NEGATIVE">
+			<Text>{1_Num}% Penalty due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_NO_LONGER_INFLUENTIAL">
+			<Text>Global Influence Shift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_NO_LONGER_INFLUENTIAL_TT">
+			<Text>{1_CivName} {1_CivName: plural 1?is; other?are;} are no longer Influential over another player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_UNMET_NO_LONGER_INFLUENTIAL_TT">
+			<Text>An unmet civilization is no longer Influential over another player.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FAMILIAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_POPULAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_INFLUENTIAL_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_DOMINANT_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_STATIC_THEM">
+			<Text>[NEWLINE]Influence Trend: Static</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_SLOWLY_THEM">
+			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_THEM">
+			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FALLING_THEM">
+			<Text>[NEWLINE]Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
+		</Row>
+		
+		
+		
+		<!-- Tourism Update -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SUMMARY">
+			<Text>Influence Shift!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}! A great start!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}! Keep up the pressure!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}! Almost there!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}! We did it!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}! They didn't stand a chance.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}! We are but a memory...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}! Oh no!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}! Our influence fades...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}! We must reverse this trend!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}! This is not good!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to us! Uh oh.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to us! This is not good.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to us! Be careful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to us! Dang!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to us! Tragic.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to us! Good riddance!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to us! Wonderful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to us! Thank goodness!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to us! Whew!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to us! Keep it up!</Text>
+		</Row>		
+		
 		<!-- Anarchy -->
 		<Row Tag="TXT_KEY_ANARCHY_BEGINS_SUMMARY">
 			<Text>Anarchy!</Text>
@@ -3221,6 +3401,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
+			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
 
 

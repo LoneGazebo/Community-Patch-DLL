@@ -2,7 +2,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_TRO_LOCATE_RECALL_TT">
-			<Text>Click to view, Control-Click to recall</Text>
+			<Text>Click to view Unit</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TRO_RECALLED">

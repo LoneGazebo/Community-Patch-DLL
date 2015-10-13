@@ -36,7 +36,7 @@ public:
 		m_bStartedOnOperation = false;
 	};
 
-	int GetUnitID()
+	int GetUnitID() const
 	{
 		return m_iUnitID;
 	};
@@ -44,7 +44,7 @@ public:
 	{
 		m_iUnitID = iValue;
 	};
-	int GetTurnAtCheckpoint()
+	int GetTurnAtCheckpoint() const
 	{
 		return m_iEstimatedTurnAtCheckpoint;
 	};
@@ -52,7 +52,7 @@ public:
 	{
 		m_iEstimatedTurnAtCheckpoint = iValue;
 	};
-	bool HasStartedOnOperation()
+	bool HasStartedOnOperation() const
 	{
 		return m_bStartedOnOperation;
 	};
@@ -147,8 +147,6 @@ public:
 	// Position accessors
 	int GetX() const;
 	int GetY() const;
-	void SetX(int iX);
-	void SetY(int iY);
 	void SetXY(int iX, int iY);
 	CvPlot* Plot() const;
 	int GetArea() const;

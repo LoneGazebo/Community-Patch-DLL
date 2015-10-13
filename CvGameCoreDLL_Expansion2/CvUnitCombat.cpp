@@ -354,6 +354,11 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 		iAttackerDamageDelta = pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner(), -1.f);		// Signal that we don't want the popup text.  It will be added later when the unit is at its final location
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+		//don't count the "self-inflicted" damage on the attacker
+		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+#endif
+
 		// Update experience for both sides.
 		pkDefender->changeExperience(
 		    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
@@ -883,6 +888,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					//set damage but don't update entity damage visibility
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+					pkDefender->addDamageReceivedThisTurn(iDamage);
+#endif
+
 					// Update experience
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
@@ -910,6 +919,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 				{
 					bBarbarian = pCity->isBarbarian();
 					pCity->changeDamage(iDamage);
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+					pCity->addDamageReceivedThisTurn(iDamage);
+#endif
 
 					if(pCity->getOwner() == GC.getGame().getActivePlayer())
 					{
@@ -1033,6 +1046,10 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 					//set damage but don't update entity damage visibility
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+					pkDefender->addDamageReceivedThisTurn(iDamage);
+#endif
+
 					// Update experience
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
@@ -1090,6 +1107,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	{
 		pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 		pkDefender->changeDamage(iAttackerDamageInflicted);
+
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+#endif
 
 		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
@@ -1505,6 +1526,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 					pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+					//don't count the "self-inflicted" damage on the attacker
+					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+#endif
+
 					// Update experience
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
@@ -1607,9 +1633,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						}
 					}
 				}
-
-				//set damage but don't update entity damage visibility
-				//pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
 				pkDefender->setCombatUnit(NULL);
 				if(!CvUnitMission::IsHeadMission(pkDefender, CvTypes::getMISSION_WAIT_FOR()))		// If the top mission was not a 'wait for', then clear it.
@@ -3749,7 +3772,11 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 		//Napoleon's Special Achievement
 		if(szUnitType == "UNIT_FRENCH_MUSKETEER")
 		{
-			if(pkLoser->GetNumSpecificEnemyUnitsAdjacent(pkLoser, pkWinner) >=3)
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser->GetOwner(), pkLoser, pkWinner) >=3)
+#else
+			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
+#endif
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_MUSKETEERS);
 			}

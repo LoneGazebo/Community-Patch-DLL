@@ -5,7 +5,7 @@
 	<Builds>
 		<Row>
 			<Type>BUILD_EKI</Type>
-			<Time>900</Time>
+			<Time>800</Time>
 			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
 			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
 			<Description>TXT_KEY_BUILD_EKI</Description>
@@ -153,7 +153,7 @@
 	<Builds>
 		<Row>
 			<Type>BUILD_KUNA</Type>
-			<Time>1000</Time>
+			<Time>700</Time>
 			<ImprovementType>IMPROVEMENT_KUNA</ImprovementType>
 			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<Description>TXT_KEY_BUILD_KUNA</Description>

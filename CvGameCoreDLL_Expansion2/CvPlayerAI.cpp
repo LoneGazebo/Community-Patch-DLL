@@ -315,7 +315,9 @@ void CvPlayerAI::AI_unitUpdate()
 	// but this will allow selective control in case one type of pather is causing out-of-syncs.
 	bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
 	bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
+#else
 	bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 	bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
@@ -369,9 +371,12 @@ void CvPlayerAI::AI_unitUpdate()
 
 	GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
 	GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
+#else
 	GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
+
 	GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
@@ -936,8 +941,11 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 
 	launch(eVictory);
 }
-
+#if defined(MOD_BALANCE_CORE)
+OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity)
+#else
 OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
+#endif
 {
 	OperationSlot thisSlot;
 
@@ -948,6 +956,31 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation())
+			{
+				CvArea* pArea = GC.getMap().getArea(iAreaID);
+				if(pArea && !pArea->isWater())
+				{
+					if(pCity && pCity->isCoastal())
+					{
+						CvPlot* pPlot = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+						if(pPlot != NULL)
+						{
+							iAreaID = pPlot->getArea();
+						}
+						else
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
+				}
+			}				
+#endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild(iAreaID);
 			if(thisSlot.IsValid())
 			{
@@ -966,6 +999,7 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 #if defined(MOD_BALANCE_CORE)
 	CvAIOperation* pBestOperation = NULL;
 	int iBestScore = -1;
+	int iBestArea = -1;
 #endif
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
@@ -975,13 +1009,48 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
+			if(iAreaID == -1)
+			{
+				iAreaID = pCity->getArea();
+			}
+
+			int iArea = pThisOperation->GetDefaultArea();
 			int iScore = 0;
+			if(iArea == -1 && pThisOperation->GetMusterPlot() != NULL)
+			{
+				iArea = pThisOperation->GetMusterPlot()->getArea();
+			}
+
+			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation()) 
+			{
+				if(!pCity->isCoastal())
+				{
+					continue;
+				}
+				CvPlot* pCoastal = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+				if(pCoastal != NULL)
+				{
+					if(iAreaID != -1 && (iArea != pCoastal->getArea()))
+					{
+						continue;
+					}
+					else
+					{
+						iBestArea = pCoastal->getArea();
+					}
+				}
+			}
 			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
 			{
 				iScore = 100;
 			}
 
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+
+			if(!pThisOperation->IsAllNavalOperation() && !pThisOperation->IsMixedLandNavalOperation() && (iAreaID != -1) && (iArea != iAreaID))
+			{
+				iScore /= 2;
+			}
 
 			if(iScore > iBestScore)
 			{
@@ -992,20 +1061,19 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 	}
 	if(pBestOperation != NULL)
 	{
+		thisSlot = pBestOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
+		if(thisSlot.IsValid())
 		{
-			thisSlot = pBestOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
-			if(thisSlot.IsValid())
-			{
-				return thisSlot;
-			}
+			return thisSlot;
+		}
 #else
 			thisSlot = pThisOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
 			if(thisSlot.IsValid())
 			{
 				break;
 			}
-#endif
 		}
+#endif
 	}
 
 	return thisSlot;
@@ -1562,26 +1630,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
-	int iFriendlies = 0;
-	if(bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
-	{
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
-				{
-					iFriendlies++;
-				}
-			}
-		}
-	}
+	if(bWar)
 
-	if(bWar && iFriendlies > 3)
 	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
+		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
+		if(iFriendlies > 3)
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
 	int iGreatGeneralCount = 0;
@@ -2455,11 +2510,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 #ifdef AUI_ASTAR_TURN_LIMITER
-			if(pLoopPlot->isWater())
-			{
-				continue;
-			}
-			if(pLoopPlot->isImpassable())
+			if(pLoopPlot->isWater() || pLoopPlot->isImpassable())
 			{
 				continue;
 			}
@@ -2467,6 +2518,16 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
+			// Make sure this is still owned by target and is revealed to us
+			bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+			bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+			if(!bRightOwner || !bIsRevealed)
+			{
+				continue;
+			}
+			// Don't be captured
+			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+				continue;
 
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
 			if(iTurns < MAX_INT)
@@ -2679,6 +2740,9 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 			continue;
 
+		if(!pGeneral->canMoveOrAttackInto(*pPlot))
+			continue;
+
 		if(!pPlot->canBuild(eCitadel, GetID()))
 			continue;
 
@@ -2699,6 +2763,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			// can't build on some plots
 			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+				continue;
+			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;
 
 			if(!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))

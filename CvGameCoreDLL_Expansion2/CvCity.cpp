@@ -248,11 +248,14 @@ CvCity::CvCity() :
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
+	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiCorporationYieldChange("CvCity::m_aiCorporationYieldChange", m_syncArchive)
 	, m_aiCorporationYieldModChange("CvCity::m_aiCorporationYieldModChange", m_syncArchive)
 	, m_aiCorporationResourceQuantity("CvCity::m_aiCorporationResourceQuantity", m_syncArchive)
 	, m_iCorporationGPChange("CvCity::m_iCorporationGPChange", m_syncArchive)
+	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
+	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iBlockBuildingDestruction("CvCity::m_iBlockBuildingDestruction", m_syncArchive)
@@ -305,6 +308,9 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
+#endif
 	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
 	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
 	, m_bRouteToCapitalConnectedLastTurn(false)
@@ -350,10 +356,15 @@ CvCity::CvCity() :
 	, m_iNationalMissionaries("CvCity::m_iNationalMissionaries", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
+	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
+#endif
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
+	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
 {
 	OBJECT_ALLOCATED
@@ -767,6 +778,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			const YieldTypes eYield = static_cast<YieldTypes>(iI);
 			int iYield = owningPlayer.GetPlayerTraits()->GetYieldFromSettle(eYield);
 			iYield += owningPlayer.getFounderYield(eYield);
+			if(owningPlayer.getNumCities() <= 1 && owningPlayer.GetPlayerTraits()->IsReconquista() && eYield == YIELD_FAITH)
+			{
+				iYield = 0;
+			}
 			if(iYield > 0)
 			{
 				iYield = (iEra * iYield);
@@ -1398,6 +1413,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNationalMissionaries = 0;
 	m_iBorderObstacleCity = 0;
 	m_iNumNearbyMountains = 0;
+	m_iLocalUnhappinessMod = 0;
 	m_iUnhappyCitizen = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -1408,6 +1424,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
+	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iBlockBuildingDestruction = 0;
@@ -1421,6 +1438,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCorporationGPChange = 0;
 	m_bHasOffice = false;
 	m_iExtraBuildingMaintenance = 0;
+	m_iLandTourismBonus = 0;
+	m_iSeaTourismBonus = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -1459,6 +1478,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiChangeYieldFromVictory.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
+		m_aiThemingYieldBonus.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
@@ -2349,6 +2369,12 @@ void CvCity::doTurn()
 		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
 		iBuildingDefense /= 100;
 		iHitsHealed += iBuildingDefense / 500;
+#if defined(MOD_BALANCE_CORE)
+		if(!GET_PLAYER(getOwner()).IsAtWar())
+		{
+			iHitsHealed *= 2;
+		}
+#endif
 		changeDamage(-iHitsHealed);
 	}
 	if(getDamage() < 0)
@@ -7746,7 +7772,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			// Capital
 			if(pBuildingInfo->IsCapital())
 				owningPlayer.setCapitalCity(this);
-
+#if defined(MOD_BALANCE_CORE)
+			if(::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			{
+				int iTourism = owningPlayer.GetEventTourism();
+				iTourism *= owningPlayer.GetTotalJONSCulturePerTurn();
+				iTourism /= 100;
+				owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+				if(iTourism > 0)
+				{
+					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						float fDelay = 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						CvNotifications* pNotification = owningPlayer.GetNotifications();
+						if(pNotification)
+						{
+							CvString strMessage;
+							CvString strSummary;
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WW", iTourism);
+							strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+							pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, getX(), getY(), owningPlayer.GetID());
+						}
+					}
+				}
+			}
+#endif
 			// Free Units
 			CvUnit* pFreeUnit;
 
@@ -8090,6 +8143,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				GreatWorkClass eClass = CultureHelpers::GetGreatWorkClass(eGWType);
 				int iGWindex = 	GC.getGame().GetGameCulture()->CreateGreatWork(eGWType, eClass, m_eOwner, owningPlayer.GetCurrentEra(), pBuildingInfo->GetDescription());
 				m_pCityBuildings->SetBuildingGreatWork(eBuildingClass, 0, iGWindex);
+#if defined(MOD_BALANCE_CORE)
+				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				GetCityCulture()->CalculateBaseTourism();
+#endif
 			}
 
 			// Tech boost for science buildings in capital
@@ -8341,7 +8398,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			owningPlayer.ChangeUnhappinessMod(pBuildingInfo->GetUnhappinessModifier() * iChange);
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if (pBuildingInfo->GetLocalUnhappinessModifier() != 0)
+		{
+			ChangeLocalUnhappinessMod(pBuildingInfo->GetLocalUnhappinessModifier() * iChange);
+		}
+#endif
 		int iBuildingCulture = pBuildingInfo->GetYieldChange(YIELD_CULTURE);
 		if(iBuildingCulture > 0)
 		{
@@ -8454,15 +8516,23 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
 		}
-		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLRKDTurns() > 0))
+		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLTKDTurns() > 0))
 		{
-			int iWLTKD = pBuildingInfo->GetWLRKDTurns();
+			int iWLTKD = pBuildingInfo->GetWLTKDTurns();
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
 			if(iWLTKD > 0)
 			{
 				ChangeWeLoveTheKingDayCounter(iWLTKD);
 			}
+		}
+		if(MOD_BALANCE_CORE && pBuildingInfo->GetLandTourismEnd() > 0)
+		{
+			ChangeLandTourismBonus(pBuildingInfo->GetLandTourismEnd() * iChange);
+		}
+		if(MOD_BALANCE_CORE && pBuildingInfo->GetSeaTourismEnd() > 0)
+		{
+			ChangeSeaTourismBonus(pBuildingInfo->GetSeaTourismEnd() * iChange);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -8661,29 +8731,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromVictory(iI) > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromVictory(eYield) > 0))
 			{
-				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(iI) * iChange);
+				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(iI) > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
 			{
-				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(iI) * iChange);
+				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromWLTKD(iI) > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromWLTKD(eYield) > 0))
 			{
-				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(iI) * iChange);
+				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
+			}
+
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
+			{
+				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationYieldChange(iI) > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationYieldChange(eYield) > 0))
 			{
-				ChangeCorporationYieldChange(eYield, pBuildingInfo->GetCorporationYieldChange(iI) * iChange);
+				ChangeCorporationYieldChange(eYield, pBuildingInfo->GetCorporationYieldChange(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationYieldModTrade(iI) > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationYieldModTrade(eYield) > 0))
 			{
-				ChangeCorporationYieldModChange(eYield, pBuildingInfo->GetCorporationYieldModTrade(iI) * iChange);
+				ChangeCorporationYieldModChange(eYield, pBuildingInfo->GetCorporationYieldModTrade(eYield) * iChange);
 			}
 #endif
 			changeSeaPlotYield(eYield, (pBuildingInfo->GetSeaPlotYieldChange(eYield) * iChange));
@@ -9498,8 +9573,11 @@ void CvCity::CheckForOperationUnits()
 	{
 		bAppend = false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
+#else
 	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
+#endif
 
 	if(thisOperationSlot.IsValid())
 	{
@@ -9561,10 +9639,12 @@ void CvCity::CheckForOperationUnits()
 						}
 						else
 						{
-							// Always try to rush units for operational AI if possible
-							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, true /*bRush*/);
-							OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
-							m_unitBeingBuiltForOperation = thisOperationSlot2;
+							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
+							if(!bAppend)
+							{
+								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
+								m_unitBeingBuiltForOperation = thisOperationSlot2;
+							}
 							//Log it
 							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
 							if(pkUnitEntry)
@@ -9584,69 +9664,69 @@ void CvCity::CheckForOperationUnits()
 			}
 		}
 	}
+	eBestUnit = kPlayer.GetMilitaryAI()->GetUnitForArmy(this);
+	if(eBestUnit != NO_UNIT)
+	{
+		if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
+		{
+			return;
+		}
+	}
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner())
 		{
-			if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer) || bAppend)
-			{
-				eBestUnit = kPlayer.GetMilitaryAI()->GetUnitForArmy(this);
+			if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+			{			
 				if(eBestUnit != NO_UNIT)
 				{
-					if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
-					{
+					int iGoldCost = GetPurchaseCost(eBestUnit);
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+					if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+					{	
+						//Log it
+						CvString strLogString;
+						strLogString.Format("MOD - Buying unit for sneak attack (or at war) from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+							pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+
+						//take the money...
+						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
+						//and train it!
+						UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+						int iResult = CreateUnit(eBestUnit, eUnitAI, false);
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+						if (iResult != -1)
+						{
+							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+							{
+								pUnit->setMoves(0);
+							}
+							CleanUpQueue();
+						}
 						return;
 					}
 					else
 					{
-						int iGoldCost = GetPurchaseCost(eBestUnit);
-						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-						{	
-							//Log it
-							CvString strLogString;
-							strLogString.Format("MOD - Buying unit for sneak attack (or at war) from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-
-							//take the money...
-							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
-
-							//and train it!
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
-							CvAssertMsg(iResult != -1, "Unable to create unit");
-							if (iResult != -1)
-							{
-								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-								{
-									pUnit->setMoves(0);
-								}
-								CleanUpQueue();
-								return;
-							}
-						}
-						else
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
+						if(pkUnitEntry)
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
-							if(pkUnitEntry)
+							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
+							if(GC.getLogging() && GC.getAILogging())
 							{
-								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
-								pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
-										pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
-									kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-								}
+								CvString strLogString;
+								strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
+									pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
+								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 							}
-							return;
 						}
+						return;
 					}
 				}
 			}
@@ -9687,6 +9767,12 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 			iFoodReduction /= 2;
 			iNum -= iFoodReduction;
 		}
+		else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		{
+			int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+			iFoodReduction /= 2;
+			iNum -= iFoodReduction;
+		}
 		return iNum;
 	}
 	else
@@ -9704,6 +9790,14 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+	{
+		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+		iFoodReduction /= 2;
+		iNum -= iFoodReduction;
+	}
+#endif
 	return iNum;
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	}
@@ -9787,6 +9881,36 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			iTotalMod += iPolicyMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) 
+			{
+				if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) 
+				{
+					continue;
+				}
+
+				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+				CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
+				CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+				if(pFromCity != NULL && pFromCity == this)
+				{
+					if (pToCity != NULL && pToCity->getOwner() != getOwner() && pToCity->getOwner() != NO_PLAYER && GET_PLAYER(pToCity->getOwner()).isMajorCiv()) 
+					{
+						int iGrowthTourism = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceTradeRouteGrowthBonus(pToCity->getOwner());
+						if(iGrowthTourism != 0)
+						{
+							iTotalMod += iGrowthTourism;
+							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
+						}
+
+					}
+				}
+			}
 		}
 #endif
 
@@ -14768,7 +14892,19 @@ void CvCity::ChangeUnmoddedHappinessFromBuildings(int iChange)
 {
 	m_iUnmoddedHappinessFromBuildings += iChange;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::GetLocalUnhappinessMod() const
+{
+	return m_iLocalUnhappinessMod;
+}
 
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeLocalUnhappinessMod(int iChange)
+{
+	m_iLocalUnhappinessMod += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Used when gathering info for "Annex/Puppet/Raze" popup
 bool CvCity::IsIgnoreCityForHappiness() const
@@ -15107,7 +15243,7 @@ bool CvCity::IsBlockaded() const
 bool CvCity::IsBlockadedTest() const
 {
 	VALIDATE_OBJECT
-	int iRange = 3;
+	int iRange = 1;
 	int iFriendly = 0;
 	int iEnemy = 0;
 	CvPlot* pLoopPlot = NULL;
@@ -16284,6 +16420,32 @@ void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
 		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
 	}
 }
+
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetThemingYieldBonus(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiThemingYieldBonus[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeThemingYieldBonus(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiThemingYieldBonus.setAt(eIndex, m_aiThemingYieldBonus[eIndex] + iChange);
+		CvAssert(GetThemingYieldBonus(eIndex) >= 0);
+	}
+}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //	--------------------------------------------------------------------------------
@@ -16714,6 +16876,48 @@ void CvCity::SetFreeBuildingTradeTargetCity(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iFreeBuildingTradeTargetCity = iValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetLandTourismBonus() const
+{
+	VALIDATE_OBJECT
+	return m_iLandTourismBonus;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeLandTourismBonus(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iLandTourismBonus = (m_iLandTourismBonus + iChange);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetLandTourismBonus(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iLandTourismBonus = iChange;
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetSeaTourismBonus() const
+{
+	VALIDATE_OBJECT
+	return m_iSeaTourismBonus;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeSeaTourismBonus(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iSeaTourismBonus = (m_iSeaTourismBonus + iChange);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetSeaTourismBonus(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iSeaTourismBonus = iChange;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -17778,8 +17982,6 @@ void CvCity::updateStrengthValue()
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
 	{
-		iStrengthValue *= (100 + GC.getBALANCE_CS_ALLIANCE_DEFENSE_BONUS());
-		iStrengthValue /= 100;
 		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
 		if(eAlly != NO_PLAYER)
 		{
@@ -19480,33 +19682,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
 				}
 				
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-				if (MOD_TRADE_WONDER_RESOURCE_ROUTES) {
-					// If the AI has just finished building a World Wonder, cancel any marble trade routes into this city
-					if (!GetPlayer()->isHuman()) {
-						const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
-						CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
-						if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass)) {
-							CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-							for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++) {
-								if (pGameTrade->IsTradeRouteIndexEmpty(ui)) {
-									continue;
-								}
-
-								TradeConnection kConnection = pGameTrade->m_aTradeConnections[ui];
-
-								if (kConnection.m_eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE) {
-									CvCity* pDestCity = CvGameTrade::GetDestCity(kConnection);
-
-									if (pDestCity->getX() == getX() && pDestCity->getY() == getY()) {
-										kConnection.m_iCircuitsCompleted = kConnection.m_iCircuitsToComplete;
-									}
-								}
-							}
-						}
-					}
-				}
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 				float fDelay = 0.0f;
 				CvPlayer& owningPlayer = GET_PLAYER(getOwner());
@@ -20011,6 +20186,32 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		thisPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
 		m_unitBeingBuiltForOperation.Invalidate();
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Check existing armies this unit could fit into if it wasn't automatically added to one.
+	if(pUnit && pUnit->getArmyID() == -1)
+	{
+		int iLoop;
+		CvArmyAI* pLoopArmyAI;
+		for(pLoopArmyAI = GET_PLAYER(getOwner()).firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = GET_PLAYER(getOwner()).nextArmyAI(&iLoop))
+		{
+			if(pLoopArmyAI != NULL && pLoopArmyAI->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+			{
+				if(pLoopArmyAI->Plot() != NULL && pLoopArmyAI->GetGoalPlot() != NULL)
+				{
+					CvAIOperation* pOperation = GET_PLAYER(getOwner()).getAIOperation(pLoopArmyAI->GetOperationID());
+					if(pOperation)
+					{
+						pOperation->FillWithUnitsFromTheReserves(pLoopArmyAI->Plot(), pLoopArmyAI->GetGoalPlot(), pUnit);
+						if(pUnit->getArmyID() != -1)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
 	else if(!pUnit->isHuman() && !thisPlayer.isMinorCiv())
@@ -21929,6 +22130,7 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromWLTKD, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiThemingYieldBonus, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnitPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iBuildingPurchaseCooldown, 0);
@@ -21941,7 +22143,8 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiCorporationYieldModChange, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiCorporationResourceQuantity, GC.getNumResourceInfos(), 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iCorporationGPChange, 0);
-
+	MOD_SERIALIZE_READ(66, kStream, m_iLandTourismBonus, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iSeaTourismBonus, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(66, kStream, m_iBlockBuildingDestruction, 0);
@@ -22192,6 +22395,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iNationalMissionaries;
 	kStream >> m_iBorderObstacleCity;
 	kStream >> m_iNumNearbyMountains;
+	kStream >> m_iLocalUnhappinessMod;
 #endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -22366,6 +22570,7 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromWLTKD);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiThemingYieldBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnitPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iBuildingPurchaseCooldown);
@@ -22378,6 +22583,8 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiCorporationYieldModChange);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiCorporationResourceQuantity);
 	MOD_SERIALIZE_WRITE(kStream, m_iCorporationGPChange);
+	MOD_SERIALIZE_WRITE(kStream, m_iLandTourismBonus);
+	MOD_SERIALIZE_WRITE(kStream, m_iSeaTourismBonus);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iBlockBuildingDestruction);
@@ -22548,6 +22755,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iNationalMissionaries;
 	kStream << m_iBorderObstacleCity;
 	kStream << m_iNumNearbyMountains;
+	kStream << m_iLocalUnhappinessMod;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
@@ -23941,9 +24149,11 @@ bool CvCity::CommitToBuildingUnitForOperation()
 	UnitAITypes eUnitAI;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
+#if defined(MOD_BALANCE_CORE)
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
+#else
 	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
-
+#endif
 	if(thisOperationSlot.IsValid())
 	{
 
@@ -24035,8 +24245,11 @@ UnitTypes CvCity::GetUnitForOperation()
 	UnitAITypes eUnitAI;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
+#if defined(MOD_BALANCE_CORE)
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
+#else
 	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
+#endif
 
 	if(thisOperationSlot.IsValid())
 	{
@@ -24825,5 +25038,82 @@ bool CvCity::IsAdjacentToTerrain(TerrainTypes iTerrainType) const
 bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const
 {
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+int CvCity::addDamageReceivedThisTurn(int iDamage)
+{
+	m_iDamageTakenThisTurn+=iDamage;
+	return m_iDamageTakenThisTurn;
+}
+
+void CvCity::flipDamageReceivedPerTurn()
+{
+	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	m_iDamageTakenThisTurn = 0;
+}
+
+bool CvCity::isInDangerOfFalling() const
+{
+	int iHitpoints = GetMaxHitPoints() - getDamage();
+	//be conservative here ...
+	return (m_iDamageTakenLastTurn*1.5 > iHitpoints);
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+//the closest friendly cities - up to 4 entries 
+const std::vector<int>& CvCity::GetClosestNeighboringCities() const
+{
+	return m_vClosestNeighbors;
+}
+
+void CvCity::UpdateClosestNeighbors()
+{
+	struct SCityWithScore
+	{
+		CvCity* city;
+		int score;
+		SCityWithScore(CvCity* ptr, int i) : city(ptr), score(i) {}
+		bool operator<(const SCityWithScore& rhs) { return score<rhs.score; }
+	};
+
+	std::vector<SCityWithScore> allNeighbors;
+
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	int iLoop = 0;
+	for(CvCity* pCity = kOwner.firstCity(&iLoop); pCity != NULL; pCity = kOwner.nextCity(&iLoop))
+	{
+		//we are not our own neighbor
+		if (pCity==this)
+			continue;
+
+		int iDistance = plotDistance( this->getX(), this->getY(), pCity->getX(), pCity->getY() );
+		allNeighbors.push_back( SCityWithScore(pCity,iDistance) );
+	}
+
+	std::sort(allNeighbors.begin(), allNeighbors.end());
+
+	m_vClosestNeighbors.clear();
+	for (size_t i=0; i<min<size_t>(4,allNeighbors.size()); i++)
+		m_vClosestNeighbors.push_back(allNeighbors[i].city->GetID());
+}
+
+void CvCity::AttachUnit(CvUnit* pUnit)
+{
+	if (pUnit)
+		m_vAttachedUnits.push_back( pUnit->GetID() );
+}
+
+void CvCity::ClearAttachedUnits()
+{
+	m_vAttachedUnits.clear();
+}
+
+const std::vector<int>& CvCity::GetAttachedUnits() const
+{
+	return m_vAttachedUnits;
 }
 #endif

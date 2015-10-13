@@ -217,7 +217,9 @@ public:
 	CvAStar& GetBuildRouteFinder();
 	CvAStar& GetInternationalTradeRouteLandFinder();
 	CvAStar& GetInternationalTradeRouteWaterFinder();
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+	CvIgnoreUnitsPathFinder& GetRebasePathfinder();
+#else
 	CvTwoLayerPathFinder& GetTacticalAnalysisMapFinder();
 #endif
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
@@ -7360,6 +7362,10 @@ public:
 	{
 		return m_iBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD;
 	}
+	inline int getBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC()
+	{
+		return m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC;
+	}
 	inline int getBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR()
 	{
 		return m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR;
@@ -7419,6 +7425,26 @@ public:
 	inline int getBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC()
 	{
 		return m_iBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC;
+	}
+	inline int getBALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR()
+	{
+		return m_iBALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR;
+	}
+	inline int getBALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR()
+	{
+		return m_iBALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR;
+	}
+	inline int getBALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL()
+	{
+		return m_iBALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL;
+	}
+	inline int getBALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT()
+	{
+		return m_iBALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT;
+	}
+	inline int getBALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC()
+	{
+		return m_iBALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC;
 	}
 	inline int getBALANCE_EMBARK_DEFENSE_DIVISOR()
 	{
@@ -8695,7 +8721,11 @@ public:
 	void SetBuildRouteFinder(CvAStar* pVal);
 	void SetInternationalTradeRouteLandFinder(CvAStar* pVal);
 	void SetInternationalTradeRouteWaterFinder(CvAStar* pVal);
+#if defined(MOD_CORE_PATHFINDER)
+	void SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal);
+#else
 	void SetTacticalAnalysisMapFinder(CvTwoLayerPathFinder* pVal);
+#endif
 
 	// So that CvEnums are moddable in the DLL
 	int getNumDirections() const;
@@ -8757,7 +8787,12 @@ protected:
 	CvAStar* m_buildRouteFinder;
 	CvAStar* m_internationalTradeRouteLandFinder;
 	CvAStar* m_internationalTradeRouteWaterFinder;
+
+#if defined(MOD_CORE_PATHFINDER)
+	CvIgnoreUnitsPathFinder* m_rebasePathFinder;
+#else
 	CvTwoLayerPathFinder* m_tacticalAnalysisMapFinder;
+#endif
 
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
 #if defined(MOD_BALANCE_CORE)
@@ -10694,6 +10729,7 @@ protected:
 	int m_iBALANCE_SCIENCE_PERCENTAGE_VALUE;
 	int m_iBALANCE_FAITH_PERCENTAGE_VALUE;
 	int m_iBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD;
+	int m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC;
 	int m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR;
 	int m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR;
 	int m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL;
@@ -10709,6 +10745,11 @@ protected:
 	int m_iBALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL;
 	int m_iBALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT;
 	int m_iBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC;
+	int m_iBALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR;
+	int m_iBALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR;
+	int m_iBALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL;
+	int m_iBALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT;
+	int m_iBALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC;
 	int m_iBALANCE_EMBARK_DEFENSE_DIVISOR;
 	int m_iBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER;
 	int m_iSETTLER_MOVE_ON_START;

@@ -137,6 +137,18 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_RiverPlotYieldChanges>
+	<Trait_YieldFromKills>
+		<Row>
+			<TraitType>TRAIT_CULTURE_FROM_KILLS</TraitType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>150</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CULTURE_FROM_KILLS</TraitType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>150</Yield>
+		</Row>
+	</Trait_YieldFromKills>
 	<!-- Askia -->
 	<Building_ResourceYieldChanges>
 		<Row>

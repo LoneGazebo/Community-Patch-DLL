@@ -620,7 +620,7 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 			int iNumRequiredSlots;
 			int iLandReservesUsed;
 			int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MilitaryAIHelpers::GetBestFormationType(), target.m_bAttackBySea, target.m_bOcean, &iNumRequiredSlots, &iLandReservesUsed);
-			if(iFilledSlots >= iNumRequiredSlots)
+			if(iFilledSlots >= iNumRequiredSlots && iLandReservesUsed <= GetLandReservesAvailable())
 #else
 			if(IsAttackReady((GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, AI_OPERATION_SNEAK_CITY_ATTACK))
 #endif
@@ -685,7 +685,7 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 			int iNumRequiredSlots;
 			int iLandReservesUsed;
 			int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MilitaryAIHelpers::GetBestFormationType(), target.m_bAttackBySea, target.m_bOcean, &iNumRequiredSlots, &iLandReservesUsed);
-			if(iFilledSlots >= iNumRequiredSlots)
+			if(iFilledSlots >= iNumRequiredSlots && iLandReservesUsed <= GetLandReservesAvailable())
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 				if(pOperation != NULL && !pOperation->ShouldAbort())
@@ -888,7 +888,7 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 			int iNumRequiredSlots;
 			int iLandReservesUsed;
 			int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MilitaryAIHelpers::GetBestFormationType(), target.m_bAttackBySea, target.m_bOcean, &iNumRequiredSlots, &iLandReservesUsed);
-			if(iFilledSlots >= iNumRequiredSlots)
+			if(iFilledSlots >= iNumRequiredSlots && iLandReservesUsed <= GetLandReservesAvailable())
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 				if(pOperation != NULL && !pOperation->ShouldAbort())
@@ -3088,18 +3088,10 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 				}
 			}
 		}
-		if(iNeutral > 0)
-		{
-			iThreatValue += (iNeutral * 5);
-		}
-		if(iBad > 0)
-		{
-			iThreatValue += (iBad * 10);
-		}
-		if(iSuperBad > 0)
-		{
-			iThreatValue += (iSuperBad * 25);
-		}
+
+		iThreatValue += (iNeutral * 5);
+		iThreatValue += (iBad * 10);
+		iThreatValue += (iSuperBad * 25);
 
 		//scale it a bit with city value and remaining hitpoints
 		float fScale = 1000 * sqrt((float)pLoopCity->getPopulation() + iNeutral + iBad + iSuperBad) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
@@ -4892,17 +4884,7 @@ void CvMilitaryAI::UpdateOperations()
 								bHasOperationUnderway = (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID) || m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID));
 								if (!bHasOperationUnderway)
 								{
-									bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID);
-									if (!bHasOperationUnderway)
-									{	
-										iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, false, &iNumRequiredSlots);
-
-										// Not willing to build units to get this off the ground
-										if (iFilledSlots >= iNumRequiredSlots)
-										{
-											m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
-										}
-									}
+									RequestPillageAttack(eLoopPlayer);
 								}
 							}
 							else
@@ -5384,114 +5366,6 @@ void CvMilitaryAI::UpdateOperations()
 					LogChosenTarget(AI_OPERATION_BASIC_CITY_ATTACK, m_pPlayer->GetID(), chosenTarget);
 				}
 			}
-			/*
-			for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				// Is this a player we have relations with?
-				if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-				{
-					eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
-
-					switch(eWarState)
-					{
-						// If roughly equal in number, let's try to annoy him with raids
-					case WAR_STATE_STALEMATE:
-						//iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, &iNumRequiredSlots, &iLandReservesUsed);
-
-						//// Not willing to build units to get this off the ground
-						//if(iFilledSlots >= iNumRequiredSlots && iLandReservesUsed <= GetLandReservesAvailable())
-						//{
-						//	m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
-						//}
-						//break;
-
-						// If we are dominant, time to take down one of his cities
-					case WAR_STATE_NEARLY_WON:
-					case WAR_STATE_OFFENSIVE:
-						RequestBasicAttack(eLoopPlayer, 1);
-						break;
-
-						// No one near the other, let's look at a strength comparison before deciding what to do
-					case WAR_STATE_CALM:
-						{
-							bool bRequestAttack = false;
-
-							// slewis - add callbacks here to see if we need to attack anyways
-							StrengthTypes eMilitaryStrength = m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer);
-
-							bool bAttackAnyway = true;
-
-							if(eMilitaryStrength <= STRENGTH_AVERAGE || bAttackAnyway)
-							{
-								TargetValueTypes eTargetType = m_pPlayer->GetDiplomacyAI()->GetPlayerTargetValue(eLoopPlayer);
-								if(eTargetType > TARGET_VALUE_IMPOSSIBLE)
-								{
-									bRequestAttack = true;
-								}
-							}
-
-							if(bRequestAttack)
-							{
-								RequestBasicAttack(eLoopPlayer, 1);
-							}
-							//else
-							//{
-							//	iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, &iNumRequiredSlots, &iLandReservesUsed);
-
-							//	// Not willing to build units to get this off the ground
-							//	if(iFilledSlots >= iNumRequiredSlots && iLandReservesUsed <= GetLandReservesAvailable())
-							//	{
-							//		m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
-							//	}
-							//}
-						}
-
-					case WAR_STATE_DEFENSIVE:
-					case WAR_STATE_NEARLY_DEFEATED:
-						{
-							//CvCity *pThreatenedCity;
-							//int iOperationID;
-
-							//// Start by seeing if we have a city that needs defense
-							//for (int iI = 0; iI < m_pPlayer->getNumCities(); iI++)
-							//{
-							//	pThreatenedCity = GetMostThreatenedCity(iI);
-							//	if (pThreatenedCity == NULL)
-							//	{
-							//		break;
-							//	}
-
-							//	// Do we already have an operation protecting this city?
-							//	if (!m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, NO_PLAYER, pThreatenedCity->plot()))
-							//	{
-							//		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, &iNumRequiredSlots);
-
-							//		// Not willing to build units to get this off the ground
-							//		if (iFilledSlots >= iNumRequiredSlots)
-							//		{
-							//			m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer);
-							//		}
-							//	}
-							//}
-
-							//// With any extra defensive bandwidth let's add rapid response forces
-							//iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, &iNumRequiredSlots);
-
-							//// Not willing to build units to get this off the ground
-							//if (iFilledSlots >= iNumRequiredSlots)
-							//{
-							//	m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
-							//}
-						}
-						break;
-
-					default:
-						break;
-					}
-				}
-			}*/
 		}
 	}
 	//
@@ -6050,11 +5924,11 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	return eType;
 }
 
+#if !defined(MOD_BALANCE_CORE)
 /// Do we want to move this air unit to a new base?
 bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 {
 	CvPlot* pUnitPlot = pUnit->plot();
-
 	CvPlot* pBestPlot = NULL;
 
 	// Is this unit in a base in danger?
@@ -6087,86 +5961,6 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 			bNeedsToMove = true;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY)
-	{
-		//Is this a bomber that lacks useful missions?
-		if (pUnit->canAirAttack() && !pUnit->canAirSweep())
-		{
-			int iDX, iDY;
-			int iRange = pUnit->GetRange();
-			bool bEnemyCity = false;
-			bool bEnemyUnit = false;
-			for(iDX = -(iRange); iDX <= iRange; iDX++)
-			{
-				for(iDY = -(iRange); iDY <= iRange; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iDX, iDY, iRange);
-
-					if(pLoopPlot != NULL)
-					{
-						//Is there an enemy city nearby?
-						if(pLoopPlot->isCity() && (pLoopPlot->getOwner() != pUnit->getOwner()))
-						{
-							if(atWar(GET_PLAYER(pLoopPlot->getOwner()).getTeam(), m_pPlayer->getTeam()))
-							{
-								//There's a target here.
-								bEnemyCity = true;
-								break;
-							}
-						}
-						//What about a unit?
-						if(pLoopPlot->getNumUnits() > 0)
-						{
-							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-							if(pUnit->getOwner() != m_pPlayer->GetID())
-							{
-								if(atWar(GET_PLAYER(pUnit->getOwner()).getTeam(), m_pPlayer->getTeam()))
-								{
-									//There's a target here.
-									bEnemyUnit = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
-			if(bEnemyCity || bEnemyUnit)
-			{
-				bNeedsToMove = false;
-			}
-			else
-			{
-				bNeedsToMove = true;
-			}
-		}
-		//Let's stop peace-time shifting of units. It is absurd. Only shift if mustering for an attack or at war.
-		if(!m_pPlayer->IsAtWar())
-		{
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				bNeedsToMove = false;
-				if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if(m_pPlayer->GetDiplomacyAI()->IsMusteringForAttack(eLoopPlayer))
-					{
-						bNeedsToMove = true;
-						break;
-					}
-					if(m_pPlayer->GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
-					{
-						bNeedsToMove = true;
-						break;
-					}
-				}
-			}
-		}
-	}
-#endif
-
 	if (!bNeedsToMove)
 	{
 		return false;
@@ -6253,6 +6047,7 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 
 	return false;
 }
+#endif
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 /// AMS: Get all possible interceptions on that plot, doesn't use visibility to offset AI inability to remember air attacks.
@@ -6351,34 +6146,6 @@ int CvMilitaryAI::GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int /*iRange*/
 						}
 					}
 				}
-
-				// Loop through each of their cities
-				//int iLoop;
-				//CvCity* pLoopCity;
-				//for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-				//{
-				//	CvPlot *pCityPlot = pLoopCity->plot();
-				//	if (pCityPlot->isRevealed(m_pPlayer->getTeam()) && plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopCity->getX(), pLoopCity->getY()) <= iRange)
-				//	{
-				//		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
-				//		{
-				//			CvUnit *pUnit = pCityPlot->getUnitByIndex(iUnitLoop);
-				//			{
-				//				if (pUnit->getDomainType() == DOMAIN_AIR)
-				//				{
-				//					if (pUnit->IsAirSweepCapable() || pUnit->canAirDefend())
-				//					{
-				//						if (bCountFighters) iRtnValue++;
-				//					}
-				//					else
-				//					{
-				//						if (bCountBombers) iRtnValue++;
-				//					}
-				//				}
-				//			}
-				//		}
-				//	}
-				//}
 			}
 		}
 	}
@@ -6874,19 +6641,7 @@ void CvMilitaryAI::MinorAttackTest()
 							}
 							else if(target.m_pTargetCity)
 							{
-								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID);
-								if (!bHasOperationUnderway)
-								{
-									int iNumRequiredSlots;
-									int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, target.m_bAttackBySea, target.m_bOcean, &iNumRequiredSlots);
-
-									// Not willing to build units to get this off the ground
-									if(iFilledSlots >= iNumRequiredSlots)
-									{
-										m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
-										break;
-									}
-								}
+								RequestPillageAttack(eLoopPlayer);
 							}
 						}
 					}
@@ -7473,6 +7228,35 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAntiAirUnits(CvPlayer* pPlayer, int i
 /// "Need Air Carrier" Player Strategy: If a player needs some aircraft carriers
 bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	int iNumLoadableAirUnits = 0;
+	int iNumTotalCargoSpace = 0;
+	int iNumEmptyCarriers = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+	SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+	for(pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
+	{
+		if (pLoopUnit->getSpecialUnitType() == eSpecialUnitPlane)
+		{
+			iNumLoadableAirUnits += 1;
+		}
+		else if (pLoopUnit->isAircraftCarrier())
+		{
+			iNumTotalCargoSpace += pLoopUnit->cargoSpace();
+			if (pLoopUnit->getCargo()==0)
+				iNumEmptyCarriers++;
+
+			iNumTotalCargoSpace += pLoopUnit->cargoSpace();
+		}
+	}
+
+	if (iNumEmptyCarriers==0 && iNumLoadableAirUnits>2*iNumTotalCargoSpace)
+		return true;
+	else
+		return false;
+#else
 	int iNumLoadableAirUnits = 0;
 	int iNumTotalCargoSpace = 0;
 
@@ -7524,6 +7308,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 	{
 		return false;
 	}
+#endif
 }
 
 // MORE NON-MEMBER FUNCTIONS
@@ -7676,8 +7461,8 @@ MultiunitFormationTypes MilitaryAIHelpers::GetBestFormationType()
 	return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE)
-/// How many slots in this army can we fill right now with available units?
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
 	FStaticVector< CvFormationSlotEntry, 30, false, c_eCiv5GameplayDLL > slotsToFill;
@@ -7694,214 +7479,156 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iThisSlotIndex);
 		slotsToFill.push_back(thisSlotEntry);
 	}
-	for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+	int iLoop = 0;
+	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 	{
-		CvFormationSlotEntry thisSlotEntry = *it;
+		// Make sure he's not needed by the tactical AI or already in an army
 
-		int iLoop = 0;
-		for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
+		//don't recruit if currently healing
+		if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
 		{
-			// Make sure he's not needed by the tactical AI or already in an army
-
-			//don't recruit if currently healing
-			if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+			continue;
+		}
+		if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
+		{
+			// Is this unit one of the requested types?
+			CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+			if(unitInfo == NULL)
 			{
 				continue;
 			}
-			if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
+
+			bool bValid = false;
+
+			//Run out of slots to test? Break!
+			if(slotsToFill.empty())
 			{
-				// Is this unit one of the requested types?
-				CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-				if(unitInfo == NULL)
+				break;
+			}
+			//NONCOMBAT LAND UNITS
+			if(!pLoopUnit->IsCombatUnit())
+			{
+				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
 				{
-					continue;
-				}
-
-				// PRIMARY UNIT TYPE (ONLY)
-				if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
-				{
-					//NONCOMBAT LAND UNITS
-					if(!pLoopUnit->IsCombatUnit())
+					// Not finishing up an operation?
+					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
 					{
-						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-						{
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-							{
-								continue;
-							}
-							if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
-							{
-								continue;
-							}
-
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-						}
-						//NONCOMBAT SEA UNITS
-						else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-						{
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-							{
-								continue;
-							}
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-						}
+						continue;
 					}
-					//COMBAT LAND UNITS
-					else if(pLoopUnit->IsCombatUnit())
+					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
 					{
-						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-						{
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-							{
-								continue;
-							}
-							if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
-							{
-								continue;
-							}
+						continue;
+					}
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+					{
+						continue;
+					}
 
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							iWillBeFilled++;
-							iLandReservesUsed++;
-						}
-						//COMBAT SEA UNITS
-						else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-						{
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-							{
-								continue;
-							}
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-						}
+					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					{
+						continue;
 					}
 				}
-				// SECONDARY UNIT TYPE (ONLY)
-				else if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+				//NONCOMBAT SEA UNITS
+				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 				{
-					//NONCOMBAT LAND UNITS
-					if(!pLoopUnit->IsCombatUnit())
+					// Not finishing up an operation?
+					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
 					{
-						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-						{
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-							{
-								continue;
-							}
+						continue;
+					}
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+					{
+						continue;
+					}
+					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					{
+						continue;
+					}
+				}
+			}
+			//COMBAT LAND UNITS
+			else if(pLoopUnit->IsCombatUnit())
+			{
+				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
+				{
+					// Not finishing up an operation?
+					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+					{
+						continue;
+					}
+					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
+					{
+						continue;
+					}
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+					{
+						continue;
+					}
 
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-						}
-						//NONCOMBAT SEA UNITS
-						else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					{
+						continue;
+					}
+					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+					{
+						continue;
+					}
+				}
+				//COMBAT SEA UNITS
+				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+				{
+					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
+					{
+						continue;
+					}
+					// Not finishing up an operation?
+					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
+					{
+						continue;
+					}
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+					{
+						continue;
+					}
+					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					{
+						continue;
+					}
+				}
+				//Do we fit in any primary slot?
+				for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+				{
+					CvFormationSlotEntry thisSlotEntry = *it;
+					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
+					{
+						slotsToFill.erase(it);
+						bValid = true;
+						break;
+					}
+				}
+				//What about secondary slots?
+				if(!bValid)
+				{
+					for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+					{
+						CvFormationSlotEntry thisSlotEntry = *it;
+						if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
 						{
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
+							slotsToFill.erase(it);
+							bValid = true;
+							break;
 						}
 					}
-					//COMBAT LAND UNITS
-					else if(pLoopUnit->IsCombatUnit())
+				}
+				// Made it this far? You did it!
+				if(bValid)
+				{
+					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 					{
-						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-						{
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-							if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-							iLandReservesUsed++;
-						}
-						//COMBAT SEA UNITS
-						else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-						{
-							if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-							{
-								continue;
-							}
-							// Not finishing up an operation?
-							if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-							{
-								continue;
-							}
-
-							if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-							{
-								continue;
-							}
-							iWillBeFilled++;
-						}
+						iLandReservesUsed++;
 					}
+					iWillBeFilled++;
 				}
 			}
 		}
@@ -7910,7 +7637,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 	// Now go back through remaining slots and see how many were required, we'll need that many more units
 	if(piNumberSlotsRequired != NULL)
 	{
-		(*piNumberSlotsRequired) = 0;
+		(*piNumberSlotsRequired) = iWillBeFilled;
 		for(int iThisSlotIndex = 0; iThisSlotIndex < (int)slotsToFill.size(); iThisSlotIndex++)
 		{
 			if(slotsToFill[iThisSlotIndex].m_requiredSlot)
@@ -7923,7 +7650,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 	{
 		CvString strTemp;
 		CvString strLogString;
-		strLogString.Format("Tallying up units for operation. Needed: %d. Found: %d.", *piNumberSlotsRequired, iWillBeFilled);
+		strLogString.Format("Tallying up units for %s formation. Needed: %d. Found: %d.", thisFormation->GetType(), *piNumberSlotsRequired, iWillBeFilled);
 		pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
 	if(piNumberLandReservesUsed != NULL)
@@ -7954,6 +7681,12 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 
 	for(pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
 	{
+		//don't recruit if currently healing
+		if (pPlayer->GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+		{
+			continue;
+		}
+
 		// Don't count scouts
 		if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 		{

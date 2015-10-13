@@ -651,6 +651,10 @@ public:
 	void ChangeBaseHappinessFromBuildings(int iChange);
 	int GetUnmoddedHappinessFromBuildings() const;
 	void ChangeUnmoddedHappinessFromBuildings(int iChange);
+#if defined(MOD_BALANCE_CORE)
+	void ChangeLocalUnhappinessMod(int iChange);
+	int GetLocalUnhappinessMod() const;
+#endif
 
 	bool IsIgnoreCityForHappiness() const;
 	void SetIgnoreCityForHappiness(bool bValue);
@@ -819,6 +823,9 @@ public:
 
 	int GetYieldFromWLTKD(YieldTypes eIndex) const;
 	void ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange);
+
+	int GetThemingYieldBonus(YieldTypes eIndex) const;
+	void ChangeThemingYieldBonus(YieldTypes eIndex, int iChange);
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -890,6 +897,14 @@ public:
 	int GetCorporationResourceQuantity(ResourceTypes eResource) const;
 	void ChangeCorporationResourceQuantity(ResourceTypes eResource, int iChange);
 	void SetCorporationResourceQuantity(ResourceTypes eResource, int iValue);
+
+	int GetLandTourismBonus() const;
+	void ChangeLandTourismBonus(int iChange);
+	void SetLandTourismBonus(int iValue);
+
+	int GetSeaTourismBonus() const;
+	void ChangeSeaTourismBonus(int iChange);
+	void SetSeaTourismBonus(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1234,6 +1249,23 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	int addDamageReceivedThisTurn(int iDamage);
+	void flipDamageReceivedPerTurn();
+	bool isInDangerOfFalling() const;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	//the closest friendly cities - up to 4 entries 
+	const std::vector<int>& GetClosestNeighboringCities() const;
+	void UpdateClosestNeighbors();
+
+	//temporary mapping from city to related units. not serialized!
+	void AttachUnit(CvUnit* pUnit);
+	void ClearAttachedUnits();
+	const std::vector<int>& GetAttachedUnits() const;
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1366,6 +1398,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
+	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
@@ -1376,6 +1409,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
+	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
@@ -1410,6 +1444,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldModChange;
 	FAutoVariable<int, CvCity> m_iCorporationGPChange;
 	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationResourceQuantity;
+	FAutoVariable<int, CvCity> m_iLandTourismBonus;
+	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -1432,6 +1468,11 @@ protected:
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
+#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+	FAutoVariable<int, CvCity> m_iDamageTakenThisTurn;
+	FAutoVariable<int, CvCity> m_iDamageTakenLastTurn;
+#endif
+
 	FAutoVariable<std::vector<int>, CvCity> m_paiNoResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreeResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourcesLocal;
@@ -1449,6 +1490,11 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
+	std::vector<int> m_vAttachedUnits;
 #endif
 
 	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;

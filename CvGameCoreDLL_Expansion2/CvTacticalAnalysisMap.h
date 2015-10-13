@@ -524,6 +524,23 @@ public:
 	{
 		return m_iEnemyMeleeUnitCount;
 	};
+	inline void AddNeutralUnitCount(int iUnitCount)
+	{
+		m_iNeutralUnitCount += iUnitCount;
+	};
+	inline void AddNeutralStrength(int iUnitStrength)
+	{
+		m_iNeutralUnitStrength += iUnitStrength;
+	};
+	inline int GetNeutralUnitCount() const
+	{
+		return m_iNeutralUnitCount;
+	};
+	inline int GetNeutralStength() const
+	{
+		return m_iNeutralUnitStrength;
+	};
+
 #endif
 	inline int GetEnemyRangedUnitCount() const
 	{
@@ -580,6 +597,9 @@ public:
 	int GetCenterX() const { return m_iAvgX; }
 	int GetCenterY() const { return m_iAvgY; }
 	int GetNumPlots() const { return m_iPlotCount; }
+	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
+	void AddNeighboringZone(int iZoneID);
+	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
 #endif
 
 private:
@@ -599,6 +619,8 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iFriendlyMeleeUnitCount;
 	int m_iEnemyMeleeUnitCount;
+	int m_iNeutralUnitCount;
+	int m_iNeutralUnitStrength;
 #endif
 	int m_iEnemyRangedUnitCount;
 	int m_iEnemyNavalUnitCount;
@@ -611,6 +633,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;
+	std::vector<int> m_vNeighboringZones;
 #endif
 };
 
@@ -665,6 +688,12 @@ public:
 
 	void Init(int iNumPlots);
 	void RefreshDataForNextPlayer(CvPlayer* pPlayer);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	PlayerTypes GetCurrentPlayer() const;
+	void EstablishZoneNeighborhood();
+#endif
+
 	bool IsBuilt() const
 	{
 		return m_bIsBuilt;
@@ -711,12 +740,6 @@ public:
 	void ClearDynamicFlags();
 	void SetTargetBombardCells(CvPlot* pTarget, int iRange, bool bIgnoreLOS);
 	void SetTargetFlankBonusCells(CvPlot* pTarget);
-
-	// Get the player the map was built for
-	CvPlayer* GetPlayer()
-	{
-		return m_pPlayer;
-	}
 
 	// Range variable to keep dominance zones and tactical AI in sync
 	int GetTacticalRange() const {return m_iTacticalRange;};

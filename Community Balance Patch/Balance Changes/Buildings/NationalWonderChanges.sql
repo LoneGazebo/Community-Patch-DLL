@@ -1,5 +1,19 @@
 -- NATIONAL WONDERS
 
+-- Guilds - now buildable in three Cities, give a bit more stuff
+UPDATE BuildingClasses
+SET MaxPlayerInstances = '3'
+WHERE Type = 'BUILDINGCLASS_WRITERS_GUILD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE BuildingClasses
+SET MaxPlayerInstances = '3'
+WHERE Type = 'BUILDINGCLASS_ARTISTS_GUILD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE BuildingClasses
+SET MaxPlayerInstances = '3'
+WHERE Type = 'BUILDINGCLASS_MUSICIANS_GUILD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+
 -- National Epic -- Change Name, give art
 UPDATE Buildings
 SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
@@ -42,6 +56,10 @@ WHERE Type = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHE
 UPDATE Buildings
 SET ExtraLuxuries = 'true'
 WHERE Type = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Building_ClassesNeededInCity
+SET BuildingClassType = 'BUILDINGCLASS_MINT'
+WHERE BuildingType = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Circus Maximus
 
@@ -293,7 +311,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in t
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Must have built a Market in the city.[NEWLINE][NEWLINE]Receive an additional copy of all Luxury Resources around this City.[NEWLINE][NEWLINE] Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Must have built a Customs House in the city.[NEWLINE][NEWLINE]Receive an additional copy of all Luxury Resources around this City.[NEWLINE][NEWLINE] Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -305,11 +323,11 @@ SET Text = 'Must have built a Workshop in the city.[NEWLINE][NEWLINE]Requires a 
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed. [NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. Requires a national population of at least 65 before it can be constructed.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

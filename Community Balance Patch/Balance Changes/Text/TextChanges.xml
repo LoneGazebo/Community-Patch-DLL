@@ -98,10 +98,7 @@
 		<Row Tag="TXT_KEY_YOUR_CAPITAL_CBP_SPY">
 			<Text>{1_CityName} is your [ICON_CAPITAL] Capital. It is a high priority target for enemy [ICON_SPY] Spies.</Text>
 		</Row>
-<!-- Great Work Gold (LUA)-->
-		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
-			<Text>{1_Num} {2_IconString} from Great Works</Text>
-		</Row>
+
 		<!-- Resource Wonder Improvement -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
@@ -131,10 +128,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{3_CivName} controls over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{2_CivName} has a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+			<Text>{2_CivName} {2_CivName: plural 1?has; other?have;} a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_LOST">
@@ -212,10 +209,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
-			<Text>{3_CivName} controls over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
-			<Text>{2_CivName} has a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+			<Text>{2_CivName} {3_CivName: plural 1?has; other?have;} a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST">
@@ -385,5 +382,6 @@
 		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
 			<Text>{1_SpecialistName:textkey} base {2_YieldType:textkey} increased by {3_Num}.</Text>
 		</Row>
+
 	</Language_en_US>
 </GameData>

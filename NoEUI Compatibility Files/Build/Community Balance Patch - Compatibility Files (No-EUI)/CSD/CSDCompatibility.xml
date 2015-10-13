@@ -125,13 +125,6 @@
 			<Happiness>1</Happiness>
 		</Row>
 	</Policy_BuildingClassHappiness>
-	<Policy_TourismOnUnitCreation>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-	</Policy_TourismOnUnitCreation>
 	<!-- Brazil -->
 	<Trait_GoldenAgeGreatPersonRateModifier>
 		<Row>
@@ -149,7 +142,7 @@
 			<Help>TXT_KEY_PROMOTION_EMISSARY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-80</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -163,7 +156,7 @@
 			<Help>TXT_KEY_PROMOTION_ENVOY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-70</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-50</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -178,7 +171,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-40</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>41</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -192,7 +185,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-50</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-30</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

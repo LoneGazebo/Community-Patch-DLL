@@ -129,7 +129,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_BALANCE_CORE)
-	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(8, "Barb Spawn Rand call");
+	int iNumTurnsToSpawn = 12 + kGame.getJonRandNum(10, "Barb Spawn Rand call");
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -910,12 +910,9 @@ void CvBarbarians::DoUnits()
 			
 			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
 			{
-				if((pUnit->getFortifyTurns() > 0) && (pLoopPlot->getImprovementType() == eCamp))
+				if( ( !pUnit->hasMoved() && pUnit->IsHurt() ) && (pLoopPlot->getImprovementType() == eCamp) )
 				{
-					if(pUnit->getDamage() > 0)
-					{
-						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
-					}
+					pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
 				}
 			}
 		}
@@ -952,8 +949,8 @@ void CvBarbarians::DoUnits()
 
 						if(iTheft > 0)
 						{
-							pCity->changeDamage((iTheft / 3));
-							pUnit->changeDamage(20);
+							pCity->changeDamage((iTheft / 4));
+							pUnit->changeDamage((iTheft / 4));
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else

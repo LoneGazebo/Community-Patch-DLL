@@ -341,7 +341,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		// DoF has not been made with this player
 #if defined(MOD_BALANCE_CORE)
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 #else
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 #endif
@@ -356,9 +356,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 #if defined(MOD_BALANCE_CORE)
-		// Can't exchange GPT for lump Gold - we aren't a bank.
-		if(GetGoldPerTurnTrade(ePlayer) > 0 || GetGoldPerTurnTrade(eToPlayer) > 0)
-			return false;
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+			// Can't exchange GPT for lump Gold - we aren't a bank.
+			if(GetGoldPerTurnTrade(ePlayer) > 0 || GetGoldPerTurnTrade(eToPlayer) > 0)
+				return false;
+		}
 #endif
 	}
 	// Gold per Turn
@@ -370,9 +373,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 #if defined(MOD_BALANCE_CORE)
-		// Can't exchange GPT for lump Gold - we aren't a bank.
-		if(GetGoldTrade(ePlayer) > 0 || GetGoldTrade(eToPlayer) > 0)
-			return false;
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+			// Can't exchange GPT for lump Gold - we aren't a bank.
+			if(GetGoldTrade(ePlayer) > 0 || GetGoldTrade(eToPlayer) > 0)
+				return false;
+		}
 #endif
 
 		//int iDuration = iData2;
@@ -2626,13 +2632,76 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					{
 						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
 						{
-							GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory());
+							int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
+							iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iTurns /= 100;
+							GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
 							bDone = true;
+
+							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
+							iTourism *= GET_PLAYER(eAcceptedToPlayer).GetTotalJONSCulturePerTurn();
+							iTourism /= 100;
+							if(iTourism > 0)
+							{
+								GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+								if(eAcceptedToPlayer == GC.getGame().getActivePlayer())
+								{
+									CvCity* pCity = GET_PLAYER(eAcceptedToPlayer).getCapitalCity();
+									if(pCity != NULL)
+									{
+										char text[256] = {0};
+										float fDelay = 0.5f;
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+										DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+										CvNotifications* pNotification = GET_PLAYER(eAcceptedToPlayer).GetNotifications();
+										if(pNotification)
+										{
+											CvString strMessage;
+											CvString strSummary;
+											strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
+											strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+											pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedToPlayer);
+										}
+									}
+								}
+							}
+
 						}
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
-							GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory());
+							int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
+							iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iTurns /= 100;
+							GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
 							bDone = true;
+
+							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
+							iTourism *= GET_PLAYER(eAcceptedFromPlayer).GetTotalJONSCulturePerTurn();
+							iTourism /= 100;
+							if(iTourism > 0)
+							{
+								GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+								if(eAcceptedFromPlayer == GC.getGame().getActivePlayer())
+								{
+									CvCity* pCity = GET_PLAYER(eAcceptedFromPlayer).getCapitalCity();
+									if(pCity != NULL)
+									{
+										char text[256] = {0};
+										float fDelay = 0.5f;
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+										DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+										CvNotifications* pNotification = GET_PLAYER(eAcceptedFromPlayer).GetNotifications();
+										if(pNotification)
+										{
+											CvString strMessage;
+											CvString strSummary;
+											strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
+											strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+											pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedFromPlayer);
+										}
+									}
+								}
+							}
 						}
 					}
 #endif

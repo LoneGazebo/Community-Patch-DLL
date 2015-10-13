@@ -105,7 +105,11 @@ CvGlobals::CvGlobals() :
 	m_buildRouteFinder(NULL),
 	m_internationalTradeRouteLandFinder(NULL),
 	m_internationalTradeRouteWaterFinder(NULL),
+#if defined(MOD_CORE_PATHFINDER)
+	m_rebasePathFinder(NULL),
+#else
 	m_tacticalAnalysisMapFinder(NULL),
+#endif
 	m_pDLL(NULL),
 	m_pEngineUI(NULL),
 
@@ -1862,6 +1866,7 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_SCIENCE_PERCENTAGE_VALUE(5),
 	m_iBALANCE_FAITH_PERCENTAGE_VALUE(10),
 	m_iBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD(-25),
+	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC(1),
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR(1),
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR(1),
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL(1),
@@ -1877,6 +1882,11 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL(1),
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT(1),
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC(1),
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR(1),
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR(1),
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL(1),
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT(1),
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC(1),
 	m_iBALANCE_EMBARK_DEFENSE_DIVISOR(4),
 	m_iBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER(75),
 	m_iSETTLER_MOVE_ON_START(1),
@@ -2243,7 +2253,6 @@ PlayerTypes GetCurrentPlayer()
 	}
 	return NO_PLAYER;
 }
-
 #endif
 
 #if defined(MOD_DEBUG_MINIDUMP)
@@ -2260,13 +2269,16 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	/* Try to log the callstack */
-	FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
-	if (pLog)
+	if(MOD_BALANCE_CORE_DEBUGGING)
 	{
-		gStackWalker.SetLog(pLog);	
-		gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
-		pLog->Close();
+		/* Try to log the callstack */
+		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			gStackWalker.SetLog(pLog);	
+			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			pLog->Close();
+		}
 	}
 #endif
 
@@ -2571,7 +2583,11 @@ void CvGlobals::init()
 	SetBuildRouteFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetInternationalTradeRouteLandFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 	SetInternationalTradeRouteWaterFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
+#if defined(MOD_CORE_PATHFINDER)
+	SetRebasePathFinder(FNEW(CvIgnoreUnitsPathFinder, c_eCiv5GameplayDLL, 0));
+#else
 	SetTacticalAnalysisMapFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	getPathFinder().SetName("generic pf");
@@ -2579,6 +2595,7 @@ void CvGlobals::init()
 	getIgnoreUnitsPathFinder().SetName("ignore units pf");
 	getStepFinder().SetName("stepfinder");
 	getRouteFinder().SetName("routefinder");
+	GetRebasePathfinder().SetName("rebasefinder");
 	GetWaterRouteFinder().SetName("water routefinder");
 	getAreaFinder().SetName("area finder");
 	getInfluenceFinder().SetName("influence finder");
@@ -2645,7 +2662,11 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_buildRouteFinder);
 	SAFE_DELETE(m_internationalTradeRouteLandFinder);
 	SAFE_DELETE(m_internationalTradeRouteWaterFinder);
+#if defined(MOD_CORE_PATHFINDER)
+	SAFE_DELETE(m_rebasePathFinder);
+#else
 	SAFE_DELETE(m_tacticalAnalysisMapFinder);
+#endif
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
@@ -2659,8 +2680,11 @@ void CvGlobals::uninit()
 	m_buildRouteFinder = NULL;
 	m_internationalTradeRouteLandFinder = NULL;
 	m_internationalTradeRouteWaterFinder = NULL;
+#if defined(MOD_CORE_PATHFINDER)
+	m_rebasePathFinder = NULL;
+#else
 	m_tacticalAnalysisMapFinder = NULL;
-
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -2779,7 +2803,12 @@ CvAStar& CvGlobals::GetInternationalTradeRouteWaterFinder()
 	return *m_internationalTradeRouteWaterFinder;
 }
 
-#if !defined(MOD_CORE_NO_TACTMAP_PATHFINDER)
+#if defined(MOD_CORE_PATHFINDER)
+CvIgnoreUnitsPathFinder& CvGlobals::GetRebasePathfinder()
+{
+	return *m_rebasePathFinder;
+}
+#else
 CvTwoLayerPathFinder& CvGlobals::GetTacticalAnalysisMapFinder()
 {
 	return *m_tacticalAnalysisMapFinder;
@@ -6364,6 +6393,7 @@ void CvGlobals::cacheGlobals()
 	m_iBALANCE_SCIENCE_PERCENTAGE_VALUE = getDefineINT("BALANCE_SCIENCE_PERCENTAGE_VALUE");
 	m_iBALANCE_FAITH_PERCENTAGE_VALUE = getDefineINT("BALANCE_FAITH_PERCENTAGE_VALUE");
 	m_iBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD = getDefineINT("BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD");
+	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC = getDefineINT("BALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC");
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR = getDefineINT("BALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR");
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR = getDefineINT("BALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR");
 	m_iBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL = getDefineINT("BALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL");
@@ -6379,6 +6409,11 @@ void CvGlobals::cacheGlobals()
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL = getDefineINT("BALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL");
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT = getDefineINT("BALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT");
 	m_iBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC = getDefineINT("BALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC");
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR = getDefineINT("BALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR");
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR = getDefineINT("BALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR");
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL = getDefineINT("BALANCE_GROWTH_INFLUENCE_LEVEL_INFLUENTIAL");
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT = getDefineINT("BALANCE_GROWTH_INFLUENCE_LEVEL_DOMINANT");
+	m_iBALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC = getDefineINT("BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC");
 	m_iBALANCE_EMBARK_DEFENSE_DIVISOR = getDefineINT("BALANCE_EMBARK_DEFENSE_DIVISOR");
 	m_iBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER = getDefineINT("BALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER");
 	m_iSETTLER_MOVE_ON_START = getDefineINT("SETTLER_MOVE_ON_START");
@@ -7059,11 +7094,17 @@ void CvGlobals::SetInternationalTradeRouteWaterFinder(CvAStar* pVal)
 {
 	m_internationalTradeRouteWaterFinder = pVal;
 }
+#if defined(MOD_CORE_PATHFINDER)
+void CvGlobals::SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal)
+{
+	m_rebasePathFinder = pVal;
+}
+#else
 void CvGlobals::SetTacticalAnalysisMapFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_tacticalAnalysisMapFinder = pVal;
 }
-
+#endif
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)
 {
 	m_bOutOfSyncDebuggingEnabled = isEnabled;

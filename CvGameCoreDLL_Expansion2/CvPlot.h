@@ -237,8 +237,7 @@ public:
 	bool isVisibleToCivTeam() const;
 	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
 	bool isVisibleToWatchingHuman() const;
-	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug) const;
-	bool isAdjacentVisible(TeamTypes eTeam) const;
+	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
 	int  getNumAdjacentNonvisible(TeamTypes eTeam) const;
 
@@ -917,8 +916,16 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL) const;
+	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
+	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
+
 	int GetDefenseBuildValue(PlayerTypes eOwner);
+	void UpdatePlotsWithLOS();
+	bool GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult);
 #endif
+
 protected:
 	class PlotBoolField
 	{
@@ -999,6 +1006,8 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
+	std::vector<CvPlot*> m_vPlotsWithLOSatRange2;
+	std::vector<CvPlot*> m_vPlotsWithLOSatRange3;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

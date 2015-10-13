@@ -2192,6 +2192,34 @@ function RefreshPlayerInfluence()
 							playerInfluence.TrendTooltip = Locale.Lookup("TXT_KEY_CO_INFLUENTIAL_TURNS_TT", pSelectedPlayer:GetTurnsToInfluential(iPlayer));
 						end
 					end
+
+					-- Their Influence (CBP)
+					local iInfluenceLevel2 = pPlayer:GetInfluenceLevel(g_iSelectedPlayerID);
+    				if (iInfluenceLevel2 ~= InfluenceLevelTypes.NO_INFLUENCE_LEVEL and iInfluenceLevel2 ~= InfluenceLevelTypes.INFLUENCE_LEVEL_UNKNOWN) then
+						if (iInfluenceLevel2 == 1) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.ConvertTextKey("TXT_KEY_CO_EXOTIC_THEY", pSelectedPlayer:GetCivilizationShortDescriptionKey());
+						elseif (iInfluenceLevel2 == 2) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.ConvertTextKey("TXT_KEY_CO_FAMILIAR_THEY", pSelectedPlayer:GetCivilizationShortDescriptionKey());
+						elseif (iInfluenceLevel2 == 3) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.ConvertTextKey("TXT_KEY_CO_POPULAR_THEY", pSelectedPlayer:GetCivilizationShortDescriptionKey());
+						elseif (iInfluenceLevel2 == 4) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.ConvertTextKey("TXT_KEY_CO_INFLUENTIAL_THEY", pSelectedPlayer:GetCivilizationShortDescriptionKey());
+						elseif (iInfluenceLevel2 == 5) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.ConvertTextKey("TXT_KEY_CO_DOMINANT_THEY", pSelectedPlayer:GetCivilizationShortDescriptionKey());
+						end
+					
+						-- Their Trend
+						local iTrend2 = pPlayer:GetInfluenceTrend(g_iSelectedPlayerID);				
+    					if( iTrend2 == InfluenceLevelTrend.INFLUENCE_TREND_FALLING ) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.Lookup( "TXT_KEY_CO_FALLING_THEM" );
+						elseif( iTrend2 == InfluenceLevelTrend.INFLUENCE_TREND_STATIC ) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.Lookup( "TXT_KEY_CO_STATIC_THEM");	
+						elseif (iTrend2 == InfluenceLevelTrend.INFLUENCE_TREND_RISING and pPlayer:GetTurnsToInfluential(g_iSelectedPlayerID) == 999) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.Lookup( "TXT_KEY_CO_RISING_SLOWLY_THEM");		
+						elseif( iTrend2 == InfluenceLevelTrend.INFLUENCE_TREND_RISING and iInfluenceLevel2 < InfluenceLevelTypes.INFLUENCE_LEVEL_DOMINANT) then
+							playerInfluence.LevelToolTip = playerInfluence.LevelToolTip .. Locale.Lookup("TXT_KEY_CO_RISING_THEM");
+						end
+					end
 					
 					table.insert(g_InfluenceByPlayer.PlayerInfluence, playerInfluence);
     			end

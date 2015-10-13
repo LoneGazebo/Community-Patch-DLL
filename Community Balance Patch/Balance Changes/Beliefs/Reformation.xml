@@ -43,5 +43,23 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>4</Yield>
 		</Row>
+		<Row>
+			<BeliefType>BELIEF_DEFENDER_FAITH</BeliefType>
+			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
 	</Belief_ImprovementYieldChanges>
+	<Belief_YieldFromConquest>
+		<Row>
+			<BeliefType>BELIEF_EVANGELISM</BeliefType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_EVANGELISM</BeliefType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Belief_YieldFromConquest>
 </GameData>

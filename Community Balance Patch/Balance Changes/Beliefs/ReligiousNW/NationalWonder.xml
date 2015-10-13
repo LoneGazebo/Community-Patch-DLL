@@ -288,7 +288,7 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>12</PortraitIndex>
 			<Cost>125</Cost>
-			<ReligiousPressureModifier>50</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>15</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
