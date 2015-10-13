@@ -4765,10 +4765,10 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	VALIDATE_OBJECT
 	TeamTypes ePlotTeam;
 
-
+	//nothing to do
 	if(atPlot(plot))
 	{
-		return false;
+		return true;
 	}
 
 	// Cannot move around in unrevealed land freely

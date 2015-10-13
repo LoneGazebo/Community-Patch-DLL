@@ -7103,6 +7103,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
 				continue;
 
+			//if the unit is supposed to rebase, it can't stay where it is, even if the location is desirable
+			if (pUnit->plot() == it->pPlot)
+				continue;
+
 			pf.SetData(pUnit.pointer(),5);
 			if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))
 			{

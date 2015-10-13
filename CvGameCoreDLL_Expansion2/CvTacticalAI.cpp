@@ -5128,6 +5128,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		// the escort leads the way
 		bool bHavePathEscort = false;
 		bool bPathFound = false;
+		bool bSaveMoves = false;
 		if(pEscort)
 		{
 			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), MOVE_UNITS_IGNORE_DANGER);
@@ -5139,10 +5140,14 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 					int iTurns = INT_MAX;
 					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
 					bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
-					if (bHavePathCivilian && iTurns <= 1)
+					if (bHavePathCivilian)
 					{
-						//nice, both can move to the same plot
 						bPathFound = true;
+
+						if (iTurns>1)
+							//strange, escort seems to be faster than the civilian, let's hope it's better the other way around
+							pCommonPlot = pCivilian->GetPathEndTurnPlot();
+
 						ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
 						ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
 						if(GC.getLogging() && GC.getAILogging())
@@ -5165,11 +5170,15 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 					{
 						int iTurns = INT_MAX;
 						bool bHavePathEscort = pEscort->GeneratePath(pCommonPlot, MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
-						bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
-						if (bHavePathEscort && iTurns <= 1)
+						bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+						if (bHavePathEscort)
 						{
 							bPathFound = true;
-							//nice, both can move to the same plot
+
+							if (iTurns>1)
+								//strange, civilian seems to be faster than the civilian, let's hope it's better the other way around
+								pCommonPlot = pEscort->GetPathEndTurnPlot();
+
 							ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
 							ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
 							if(GC.getLogging() && GC.getAILogging())
@@ -5212,7 +5221,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 				CvPlot* pCommonPlot = pCivilian->GetPathEndTurnPlot();
 				if(pCommonPlot != NULL)
 				{
-					bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+					bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
 					ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves); 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -5223,8 +5232,6 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			else
 			{
 				MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot());
-				pCivilian->finishMoves();
-				UnitProcessed(pCivilian->GetID());
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -5233,8 +5240,9 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		}
 
 		// now we're done
-		pCivilian->finishMoves();
 		UnitProcessed(pCivilian->GetID());
+		if (!bSaveMoves)
+			pCivilian->finishMoves();
 
 		if (pEscort)
 		{
@@ -9510,9 +9518,30 @@ void CvTacticalAI::ExecuteHeals()
 				//land unit on land should move away from danger
 				if (m_pPlayer->GetPlotDanger(*pUnit->plot(),pUnit.pointer())>0 && !pUnit->isEmbarked())
 				{
-					CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),false);
-					if (pBetterPlot)
-						ExecuteMoveToPlot( pUnit, pBetterPlot );
+					//unless we can eliminate the danger!
+					bool bFlee = true;
+					if (m_pPlayer->GetNumPossibleAttackers(*pUnit->plot())==1)
+					{
+						CvUnit* pAttacker = m_pPlayer->GetPossibleAttackers(*pUnit->plot())[0];
+						//try to turn the tables on him
+						if (TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(), pAttacker))
+						{
+							bFlee = false;
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->GetID(), pAttacker->getX(), pAttacker->getY());
+								LogTacticalMessage(strLogString);
+							}
+						}
+					}
+
+					if (bFlee)
+					{
+						CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),false);
+						if (pBetterPlot)
+							ExecuteMoveToPlot( pUnit, pBetterPlot );
+					}
 				}
 				else if (pUnit->isEmbarked())
 				{
@@ -16107,6 +16136,108 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(CvPlot* pTarget, CvUnit* pUnit, 
 
 	return true;
 }
+
+//helper function for city threat calculation
+int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker)
+{
+	if (!pAttacker || !pCity || pAttacker->isDelayedDeath() || pAttacker->IsDead())
+		return 0;
+		
+	int iDamage = 0;
+	if (pAttacker->IsCanAttackRanged())
+	{
+		if (pAttacker->getDomainType() == DOMAIN_AIR)
+			iDamage += pAttacker->GetAirCombatDamage(NULL, pCity, false);
+		else
+			iDamage += pAttacker->GetRangeCombatDamage(NULL, pCity, false);
+	}
+	else
+	{
+		if (pAttacker->isRangedSupportFire())
+			iDamage += pAttacker->GetRangeCombatDamage(NULL, pCity, false);
+
+		//just assume the unit can attack from it's current location - modifiers might be different, but thats acceptable
+		iDamage += pAttacker->getCombatDamage(pAttacker->GetMaxAttackStrength(pAttacker->plot(), pCity->plot(), NULL),
+			pCity->getStrengthValue(), pAttacker->getDamage(), false, false, true);
+
+	}
+
+	return iDamage;
+}
+
+//helper function for unit threat calculation
+int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker)
+{
+	if (!pAttacker || !pDefender || pDefender->isDelayedDeath() || pDefender->IsDead() || pAttacker->isDelayedDeath() || pAttacker->IsDead())
+		return 0;
+		
+	int iDamage = 0;
+	if (pAttacker->IsCanAttackRanged())
+	{
+		if (pAttacker->getDomainType() == DOMAIN_AIR)
+			iDamage += pAttacker->GetAirCombatDamage(pDefender, NULL, false);
+		else
+			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false);
+	}
+	else
+	{
+		if (pAttacker->isRangedSupportFire())
+			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false);
+
+		//just assume the unit can attack from it's current location - modifiers might be different, but thats acceptable
+		iDamage += pAttacker->getCombatDamage(pAttacker->GetMaxAttackStrength(pAttacker->plot(), pDefender->plot(), pDefender),
+			pDefender->GetMaxDefenseStrength(pDefender->plot(), pAttacker), pAttacker->getDamage(), false, false, false);
+	}
+
+	return iDamage;
+}
+
+bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
+{
+	if (!pAttacker || !pDefender)
+		return false;
+
+	//aircraft are different
+	if (pAttacker->getDomainType()==DOMAIN_AIR || pDefender->getDomainType()==DOMAIN_AIR)
+		return false;
+
+	if ( TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker) > pDefender->GetCurrHitPoints()  )
+	{
+		if (pAttacker->isRanged())
+		{
+			//can we attack directly
+			if (pAttacker->canRangeStrikeAt(pDefender->getX(),pDefender->getX()))
+			{
+				pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getX());
+				return true;
+			}
+			
+			//need to move and shoot
+			std::vector<CvPlot*> vAttackPlots;
+			pDefender->plot()->GetPlotsAtRangeX(pAttacker->GetRange(),true,vAttackPlots);
+			for (std::vector<CvPlot*>::iterator it=vAttackPlots.begin(); it!=vAttackPlots.end(); ++it)
+			{
+				if (TurnsToReachTarget(pAttacker,*it,false,false,false,1)==0)
+				{
+					pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),(*it)->getX(),(*it)->getY());
+					pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getX());
+					return true;
+				}
+			}
+		}
+		else //melee
+		{
+			if (TurnsToReachTarget(pAttacker,pDefender->plot(),false,false,false,1)==0)
+			{
+				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getX());
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 
 const char* barbarianMoveNames[] =
 {

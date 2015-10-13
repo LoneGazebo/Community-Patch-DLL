@@ -1903,6 +1903,8 @@ public:
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	bool CouldAttackHere(CvPlot& Plot, CvUnit* pUnit) const;
 	bool CouldAttackHere(CvPlot& Plot, CvCity* pCity) const;
+	int GetNumPossibleAttackers(CvPlot& Plot) const;
+	std::vector<CvUnit*> GetPossibleAttackers(CvPlot& Plot) const;
 #else
 	int GetPlotDanger(CvPlot& Plot) const;
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;

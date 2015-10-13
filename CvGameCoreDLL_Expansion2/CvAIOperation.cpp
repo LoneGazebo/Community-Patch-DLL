@@ -2245,7 +2245,7 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 				int iPathDistance = MAX_INT;
 				if(pNavalMuster != NULL)
 				{
-					if (!kPathFinder.DoesPathExist(*pkLoopUnit, pkLoopUnit->plot(), pNavalMuster))
+					if (!kPathFinder.DoesPathExist(*pkLoopUnit, pkLoopUnit->plot(), pNavalMuster, 12))
 					{
 						continue;
 					}
@@ -2352,7 +2352,7 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 			else if(pkLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				int iPathDistance = MAX_INT;
-				if (!kPathFinder.DoesPathExist(*pkLoopUnit, pkLoopUnit->plot(), pkMusterPlot))
+				if (!kPathFinder.DoesPathExist(*pkLoopUnit, pkLoopUnit->plot(), pkMusterPlot, 10))
 				{
 					continue;
 				}
@@ -5817,25 +5817,9 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 		if(pSettler != NULL)
 		{
 #if defined(MOD_BALANCE_CORE_SETTLER)
-			bool bCanFound = pSettler->canFound( GetTargetPlot() );
-			if(!bCanFound && (plotDistance(GetTargetPlot()->getX(),GetTargetPlot()->getY(),pSettler->getX(),pSettler->getY()) <= 3))
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					strMsg.Format("Retargeting. We are close, but we can no longer settle at target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-					LogOperationSpecialMessage(strMsg);
-				}
-				RetargetCivilian(pSettler, pArmy);
-				pSettler->finishMoves();
-				iUnitID = pArmy->GetNextUnitID();
-				if(iUnitID != -1)
-				{
-					pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-					pEscort->finishMoves();
-				}
-			}
+			bool bCanFound = pSettler->canFound( GetTargetPlot() ); //move to verify target
 			// If the settler made it, we don't care about the entire army
-			else if(pSettler->plot() == GetTargetPlot() && pSettler->canMove())
+			if(bCanFound && pSettler->plot() == GetTargetPlot() && pSettler->canMove())
 			{
 				CvPlot* pCityPlot = pSettler->plot();
 				int iPlotValue = pCityPlot->getFoundValue(m_eOwner);
@@ -5846,11 +5830,52 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				int iAltValue = pAltPlot ? pAltPlot->getFoundValue(m_eOwner) : 0;
 				int iDelta = pAltPlot ? ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY()) : 0;
 				//Must be much better to be worth it.
-				if((iAltValue * 2) <= (GetTargetPlot()->getFoundValue(m_eOwner) * 3))
-				{
+				if( iAltValue < GetTargetPlot()->getFoundValue(m_eOwner)*1.2 )
 					iDelta = 0;
-				}
+
+				bool bDoFound = false;
 				if (iDelta == 0 || iDelta > 3 || m_iRetargetCount >= 1)
+					//found here
+					bDoFound = true;
+				else
+				{
+					//alternative plot is better!
+					m_iRetargetCount += 1;
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						strMsg.Format("Retargeting to adjacent plot. Target was (X=%d Y=%d value=%d), new target (X=%d Y=%d value=%d)", 
+							GetTargetPlot()->getX(), GetTargetPlot()->getY(), iPlotValue, pAltPlot->getX(),pAltPlot->getY(), iAltValue );
+						LogOperationSpecialMessage(strMsg);
+					}
+
+					if (TurnsToReachTarget(pSettler,pAltPlot)==0)
+					{
+						//we can both move and found this turn!
+						pSettler->PushMission(CvTypes::getMISSION_MOVE_TO(),pAltPlot->getX(),pAltPlot->getY());
+						bDoFound=true;
+					}
+					else
+					{
+						//taken from RetargetCivilian()
+						SetTargetPlot(pAltPlot);
+						pArmy->SetGoalPlot(pAltPlot);
+						pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+						m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+						//start moving right away
+						pSettler->PushMission(CvTypes::getMISSION_MOVE_TO(),pAltPlot->getX(),pAltPlot->getY());
+						pSettler->finishMoves();
+						iUnitID = pArmy->GetNextUnitID();
+						if(iUnitID != -1)
+						{
+							pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+							pEscort->PushMission(CvTypes::getMISSION_MOVE_TO(),pAltPlot->getX(),pAltPlot->getY());
+							pEscort->finishMoves();
+						}
+					}
+				}
+
+				if (bDoFound)
 				{
 					pSettler->PushMission(CvTypes::getMISSION_FOUND());
 
@@ -5881,29 +5906,6 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					}
 #endif
 					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
-				}
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						strMsg.Format("Retargeting to adjacent plot. Target was (X=%d Y=%d value=%d), new target (X=%d Y=%d value=%d)", 
-							GetTargetPlot()->getX(), GetTargetPlot()->getY(), iPlotValue, pAltPlot->getX(),pAltPlot->getY(), iAltValue );
-						LogOperationSpecialMessage(strMsg);
-					}
-					m_iRetargetCount += 1;
-					//taken from RetargetCivilian()
-					SetTargetPlot(pAltPlot);
-					pArmy->SetGoalPlot(pAltPlot);
-					pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-					m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-					
-					pSettler->finishMoves();
-					iUnitID = pArmy->GetNextUnitID();
-					if(iUnitID != -1)
-					{
-						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-						pEscort->finishMoves();
-					}
 				}
 			}
 		}
@@ -11095,8 +11097,16 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 
 	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 
-	if (GetTargetPlot()==NULL || !pCivilian->canFound( GetTargetPlot() ))
+	if ( GetTargetPlot()==NULL || !pCivilian->canFound(GetTargetPlot()) || !pCivilian->canMoveInto(*GetTargetPlot()) )
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Retargeting. WCan no longer settle at target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+			LogOperationSpecialMessage(strMsg);
+		}
 		RetargetCivilian(pCivilian, pArmy);
+	}
 
 	return (GetTargetPlot() != NULL);
 }

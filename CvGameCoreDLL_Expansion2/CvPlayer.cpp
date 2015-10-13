@@ -34175,6 +34175,17 @@ bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvCity* pCity) const
 {
 	return m_pDangerPlots->CouldAttackHere(pPlot, pCity);
 }
+
+int CvPlayer::GetNumPossibleAttackers(CvPlot& Plot) const
+{
+	return m_pDangerPlots->GetNumPossibleAttackers(Plot);
+}
+
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(CvPlot& Plot) const
+{
+	return m_pDangerPlots->GetPossibleAttackers(Plot);
+}
+
 #else
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
@@ -34776,7 +34787,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			}
 		}
 
-		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable())
+		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
 		{
 			//--------------
 			if (bLogging) 

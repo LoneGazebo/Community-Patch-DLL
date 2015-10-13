@@ -2689,8 +2689,6 @@ int RouteGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar*
 /// This function does not require the global Tactical Analysis Map.
 int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
-	CvPlot* pNewPlot;
-
 	if(parent == NULL)
 	{
 		return TRUE;
@@ -2698,7 +2696,7 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 
 	int iFlags = finder->GetInfo();
 	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
-	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	if((iFlags & MOVE_ROUTE_ALLOW_UNEXPLORED) == 0 && !(pNewPlot->isRevealed(kPlayer.getTeam())))
@@ -4574,7 +4572,7 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder)
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 30;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
 #else
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 100;
 #endif
@@ -4758,7 +4756,7 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	int iCost = 0;
 
 	if (pToPlot->isWater())
 	{
@@ -4769,8 +4767,10 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 
 		//try to stick to coast
 		bool bIsAdjacentToLand = pFromPlot->isAdjacentToLand_Cached() && pToPlot->isAdjacentToLand_Cached();
-		if (!bIsAdjacentToLand)
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+		if (bIsAdjacentToLand)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/2;
+		else
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 	}
 	else
 	{
@@ -4780,6 +4780,8 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 		bool bIsCityOrPassable = (pToPlot->isCity() || bIsPassable);
 		if(!bIsCityOrPassable)
 			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+		else
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 #else
 		if (!pToPlot->isCity())
 			iCost += 10000;

@@ -1117,6 +1117,9 @@ namespace TacticalAIHelpers
 	CvPlot* FindSafestPlotInReach(CvUnit* pUnit, bool bAllowEmbark);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
 	bool GetPlotsForRangedAttack(CvPlot* pTarget, CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
+	int GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker);
+	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker);
+	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 }
 
 extern const char* barbarianMoveNames[];

@@ -1929,12 +1929,6 @@ void CvGame::updateSelectionList()
 				GC.GetEngineUserInterface()->ClearSelectionList();
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		else //there is no unit to select
-		{
-			GC.GetEngineUserInterface()->ClearSelectionList();
-		}
-#endif
 	}
 }
 
