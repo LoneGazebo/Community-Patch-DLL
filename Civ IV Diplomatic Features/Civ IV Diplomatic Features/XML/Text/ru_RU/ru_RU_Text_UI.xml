@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/25/2013 11:35:27 PM -->
+<GameData>
+	<Language_ru_RU>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
+			<Text>Что вы думаете о...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
+			<Text>Карта мира</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
+			<Text>Открывает все исследованные этой цивилизацией территории на карте.[NEWLINE][NEWLINE]Внимание: Не приведет к встрече с неизвестными цивилизациями и городами-государствами.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
+			<Text>[NEWLINE][NEWLINE]Они еще не открыли необходимую технологию (Астрономия), чтобы торговать этим товаром.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
+			<Text>[NEWLINE][NEWLINE]Вы еще не открыли необходимую технологию (Астрономия), чтобы торговать этим товаром.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
+			<Text>Отключить торговлю технологиями</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP">
+			<Text>Отключает торговлю технологиями между цивилизациями.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS">
+			<Text>Включить договоры об исследованиях.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP">
+			<Text>Если активно, то вы можете подписывать договоры об исследованиях с другими цивилизациями.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
+			<Text>Отключить техологическое посредничество.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP">
+			<Text>Если параметр активен, то вы не можете продать технологии другим цивилизациям до тех пор, пока не изучите их самостоятельно.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES">
+			<Text>Технологии</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECHNOLOGIES">
+			<Text>Технологии</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES">
+			<Text>Вам доступны технологии для обмена.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO">
+			<Text>У вас отсутствуют технологии для обмена.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM">
+			<Text>У правителя имеются доступные для обмена технологии.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM">
+			<Text>У правителя отсутствуют доступные для обмена технологии.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
+			<Text>[NEWLINE][NEWLINE]Они еще не открыли необходимую технологию (Образование), чтобы торговать этим товаром..</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
+			<Text>[NEWLINE][NEWLINE]Вы еще не открыли необходимую технологию (Образование), чтобы торговать этим товаром.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_SCIENCE_OFF">
+			<Text>[NEWLINE][NEWLINE]Система науки и технологии отключена в этом сценарии.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECH_TRADING_NOT_ACTIVE">
+			<Text>[NEWLINE][NEWLINE]Торговля технологиями отключена!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
+			<Text>Запросить помощь</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
+			<Text>Запросить помощь от игрока, с которым вы заключили пакт о взаимопомощи. Не изменяет дипломатических отношений.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
+			<Text>Потребовать дань у этой цивилизации. Приводит к штрафу в отношениях с державой</Text>
+		</Row>
+		<Update>
+			<Where Tag="TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP"/>
+			<Set Text="[COLOR_POSITIVE_TEXT]Научная революция[ENDCOLOR][NEWLINE]Увеличивает [ICON_RESEARCH] Получение баллов науки от исследовательских соглашений на 50%. Если договоры об исследованях отключены, добавляет +25% [ICON_RESEARCH] науки в городе."/>
+		</Update>
+		<Update>
+			<Where Tag="TXT_KEY_WONDER_PORCELAIN_TOWER_HELP"/>
+			<Set Text="Великий ученый появляется возле города. На 50% увеличивает получаемые от договоров об исследованиях [ICON_RESEARCH] баллы науки. При включенной торговле технологиями также увеличивает на 25% баллы [ICON_RESEARCH] науки в том городе, где было построено чудо."/>
+		</Update>
+		<!-- Vassalage -->
+		<!-- Opinion Weights -->
+		<Row Tag="TXT_KEY_DIPLO_WE_ARE_MASTER">
+			<Text>Вы их подданый и им это нравится!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WE_ARE_VASSAL">
+			<Text>Они ваши подданые.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WE_ARE_VOLUNTARY_VASSAL">
+			<Text>Они добровольно стали вашими поддаными</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_PROTECT">
+			<Text>Вы защитили их города, находящиеся под вашей защитой!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT">
+			<Text>Вы не смогли защитить их города, находящиеся под вашей защитой!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_PEACEFULLY_REVOKED">
+			<Text>Вы предоставили им независимость!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_FORCEFULLY_REVOKED">
+			<Text>Вы отказались предоставить им независимость!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_MY_VASSAL">
+			<Text>Вы объявили войну их вассалам!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_VASSAL_ME">
+			<Text>Вы объявили войну своему вассалу!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DONT_LIKE_VASSAL">
+			<Text>Им не нравятся ваши подданые вассалы.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TOO_MANY_VASSALS">
+			<Text>Их страшит то, что у вас слишком много вассалов!</Text>
+		</Row>
+		<!-- Diplomacy Screen -->
+		<Row Tag="TXT_KEY_YOUR_CIV">
+			<Text>ваша цивилизация</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE">
+			<Text>ВАССАЛЬНОЕ ГОСУДАРСТВО</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE_TT">
+			<Text>Добровольно стать вассалом другой цивилизации. Добровольно ставший вассалом может покинуть своего повелителя в любой момент после того, как пройдет {1_Num} ходов.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE">
+			<Text>КАПИТУЛЯЦИЯ</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_TT">
+			<Text>Эта цивилизация сдается другому игроку и становится их вассалом.Сдавшаяся цивилизация не может покинуть своего повелителя до того, как пройдет {1_Num} ходов.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_HAVE">
+			<Text>[NEWLINE][NEWLINE]Они уже принесли вассальную клятву {1_PlayerName:textkey} и не могут сдаться.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_DONT_WANT_TT">
+			<Text>[NEWLINE][NEWLINE]Они не желают стать вашими поддаными.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED_OTHER_PLAYER">
+			<Text>[NEWLINE][NEWLINE]Чтобы обзаводиться вассалами, они должны перейти в эпоху средневековья.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_NO_POPULATION">
+			<Text>[NEWLINE][NEWLINE]Они не могут сдаться, поскольку не имеют населения!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_HAVE">
+			<Text>[NEWLINE][NEWLINE]Вы уже принесли вассальную клятву {1_PlayerName:textkey} и не можете сдаться.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON">
+			<Text>[NEWLINE][NEWLINE]Вы не можете сдаться в течение {1_Num} ходов, потому что еще не прошло достаточно времени с прошлой капитуляции.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED">
+			<Text>[NEWLINE][NEWLINE]Чтобы обзаводиться вассалами, вы должны перейти в эпоху средневековья.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_NO_POPULATION">
+			<Text>[NEWLINE][NEWLINE]Вы не можете сдаться, поскольку не имеете населения!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_TOO_SOON">
+			<Text>[NEWLINE][NEWLINE]Этот игрок не может сдаться в течение {1_Num} ходов, потому что еще не прошло достаточно времени с прошлой капитуляции.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED">
+			<Text>[NEWLINE][NEWLINE]Невозможно сдаться, потому что опция "Включить вассальную систему" отключена.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL">
+			<Text>Освободить от вассальной клятвы {1_PlayerName:textkey}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL_TT">
+			<Text>Отменяет вассальные отношения между вами и {1_PlayerName:textkey}, обеспечивая им независимость от вашей власти. Правитель этой страны будет благодарен за это, но вы перестанете получать преимущества от их зависимости.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL">
+			<Text>Даруй нам независимость или мы отвоюем ее сами!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL_TT">
+			<Text>Отменяет вассальные отношения между вами и {1_PlayerName:textkey}, обеспечивая вам независимость от их власти. У вашего повелителя есть возможность отказаться или согласиться. Отказ мгновенно приведет к войне.[NEWLINE][NEWLINE]Ваш шанс мирно получить независимость зависит от ваших отношений с повелителем и силы вашей армии по сравнению с ним.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_CANT_END_VASSAL">
+			<Text>[NEWLINE][NEWLINE]На данный момент невозможно прекратить ваш вассалитет по отношению к {1_PlayerName:textkey}. Обратитесь к Цивилопедии для получения информации.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_DONT_ALLOW_VASSAL_INDEPENDENCE">
+			<Text>Время нучить вас уважению! (ОБЪЯВИТЬ ВОЙНУ!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE">
+			<Text>Понятно. Мы даруем вам независимость.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
+			<Text>Не может объявлять войну являясь вассалом другой цивилизации</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
+			<Text>Не может объявлять перемирие (мирный договор автоматически заключается, когда ваш  правитель заключает мир с другой цивилизацией).</Text>
+		</Row>
+		<!-- Notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_VASSALAGE_ALLOWED">
+			<Text>Вассальная система активирована!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_VASSALAGE_ALLOWED">
+			<Text>Поскольку вы перешли в {1_EraName}, то можете обзавестись вассалами!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSALAGE_NOW_VASSAL_YOU">
+			<Text>{1_TeamName} теперь наш вассал!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSALAGE_YOU_NOW_VASSAL">
+			<Text>Теперь вы вассал {1_TeamName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_NOW_VASSAL">
+			<Text>{1_PlyrName} теперь вассал {2_PlyrName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU">
+			<Text>{1_TeamName} больше не ваш вассал!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU">
+			<Text>Вы больше не вассал {1_TeamName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE">
+			<Text>{1_PlyrName} больше не вассал {2_PlyrName}!</Text>
+		</Row>
+		<!-- UI -->
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
+			<Text>Отключить вассальную систему</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP">
+			<Text>Отключает вассальную систему. Невозможно обзавестись вассалами.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS">
+			<Text>Разрешить игрокам становится вассалами</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS_HELP">
+			<Text>Разрешает игрокам становится вассалами.[NEWLINE][NEWLINE]Note: При отключенной вассальной системы ничего не произойдет.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_OF">
+			<Text>[COLOR_GREY]Вассал {1_CivName:textkey}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_YOU_ARE_VASSAL">
+			<Text>[COLOR_GREY]Вы их вассал[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_VASSALS">
+			<Text>{1_Num} очков от Вассалов</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_VASSALS">
+			<Text>{1_Num} счастья от Вассала.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_CULTURE_VASSALS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] от Вассалов.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_SCIENCE_VASSALS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] от Повелителя.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
+			<Text>{1_Num} потрачено на содержание Вассала.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DECLARE_WAR_MASTERS">
+			<Text>ПОВЕЛИТЕЛИ</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DECLARE_WAR_VASSALS">
+			<Text>ВАССАЛЫ</Text>
+		</Row>
+	</Language_ru_RU>
+</GameData>

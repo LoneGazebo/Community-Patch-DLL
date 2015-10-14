@@ -23,12 +23,12 @@
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>100</Flavor>
 		</Row>
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>200</Flavor>
 		</Row>
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_FAITH</CitySpecializationType>
@@ -65,7 +65,7 @@
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>150</Yield>
+			<Yield>250</Yield>
 		</Row>
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
@@ -75,7 +75,7 @@
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_FAITH</CitySpecializationType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>250</Yield>
 		</Row>
 		<Row>
 			<CitySpecializationType>CITYSPECIALIZATION_FAITH</CitySpecializationType>

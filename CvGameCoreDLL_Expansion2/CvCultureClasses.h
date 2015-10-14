@@ -226,6 +226,13 @@ public:
  
 	// Cultural Influence
 	void DoTurn();
+#if defined(MOD_BALANCE_CORE)
+	int GetLastUpdate() const;
+	void SetLastUpdate(int iValue);
+
+	int GetLastThemUpdate() const;
+	void SetLastThemUpdate(int iValue);
+#endif
 	int GetLastTurnLifetimeCulture() const;
 	void SetLastTurnLifetimeCulture(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
@@ -240,6 +247,7 @@ public:
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
+	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
 #endif
 	int GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const;
@@ -288,6 +296,8 @@ public:
 	int m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int m_iWarWeariness;
+	int m_iLastUpdate;
+	int m_iLastThemUpdate;
 #endif
 	CvString m_strOpinionTooltip;
 	CvString m_strOpinionUnhappinessTooltip;

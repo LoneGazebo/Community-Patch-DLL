@@ -266,6 +266,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWoundedUnitDamageMod);
 	Method(SetCapitalCity);
 	Method(SetOriginalCapitalXY);
+	Method(GetNumWonders);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
@@ -2771,6 +2772,15 @@ int CvLuaPlayer::lSetOriginalCapitalXY(lua_State* L)
 	
 	pkPlayer->setOriginalCapitalXY(pkCity);
 	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumWonders(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	const int iResult = pkPlayer->GetNumWonders();
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)

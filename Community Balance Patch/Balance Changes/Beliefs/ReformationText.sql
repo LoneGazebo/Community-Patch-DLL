@@ -9,16 +9,16 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT' AND EXISTS (SELECT * FROM
 
 -- Evangelism (Now Crusader Zeal)
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players that follow an opposing Faith.'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players that follow an opposing Faith. Receive [ICON_CULTURE] Culture and [ICON_GOLD] Gold when you conquer Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Holy War'
+SET Text = 'Crusaders'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Defender Faith
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in own lands versus players that follow an opposing Faith.'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength in own lands versus players that follow an opposing Faith. +10 [ICON_PEACE] Faith from Citadels.'
 WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Jesuit Education 
@@ -29,7 +29,7 @@ SET Text = 'Receive 1 additional Delegate in the World Congress for every 8 City
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The One True Faith'
+SET Text = 'One World, One Religion'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Sites

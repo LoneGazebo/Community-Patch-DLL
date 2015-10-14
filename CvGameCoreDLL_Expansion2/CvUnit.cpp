@@ -2405,7 +2405,34 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	m_iArmyId = -1;
 
 	m_eUnitAIType = eUnitAI;
-
+#if defined(MOD_BALANCE_CORE)
+	if(IsGreatPerson())
+	{
+		int iTourism = kPlayer.GetEventTourism();
+		iTourism *= kPlayer.GetTotalJONSCulturePerTurn();
+		iTourism /= 100;
+		if(iTourism > 0)
+		{
+			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				CvNotifications* pNotification = kPlayer.GetNotifications();
+				if(pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP", iTourism);
+					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, getX(), getY(), kPlayer.GetID());
+				}
+			}
+		}
+	}
+#endif
 	// Update Unit Production Maintenance
 	kPlayer.UpdateUnitProductionMaintenanceMod();
 
@@ -9172,7 +9199,10 @@ bool CvUnit::createGreatWork()
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pCity->GetCityCulture()->CalculateBaseTourism();
+#endif
 		if(IsGreatPerson())
 		{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -10815,6 +10845,8 @@ bool CvUnit::DoSpreadReligion()
 					iCSInfluence = pReligion->m_Beliefs.GetMissionaryInfluenceCS();
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM) * iEra;
+					iTourism *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iTourism /= 100;
 #endif
 #endif
 
@@ -11730,6 +11762,8 @@ bool CvUnit::trade()
 			}
 		}
 	}
+	//This keeps minor civs in the black, financially.
+	GET_PLAYER(eMinor).GetTreasury()->ChangeGold((iFriendship / 2));
 #endif
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iFriendship);
@@ -19657,9 +19691,13 @@ if (!bDoEvade)
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
 							float fDelay = 0.5f;
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								if(iCulturePoints <= 0)
+								{
+									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+								}
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 								{
@@ -28027,6 +28065,24 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp /= 100;
 
 		iValue += iTemp + iFlavorOffense * 11;
+
+		//Raw power is better for mounted/armor units
+		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else
+		{
+			iValue *= 2;
+			iValue /= 3;
+		}
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
@@ -28035,6 +28091,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra * 11);
 		iTemp /= 100;
 		iValue += iTemp + iFlavorOffense * 11;
+
+		//Raw power is better for archer units than all others
+		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
+		{
+			iValue *= 3;
+			iValue /= 2;
+		}
+		else
+		{
+			iValue *= 2;
+			iValue /= 3;
+		}
 	}
 #endif
 

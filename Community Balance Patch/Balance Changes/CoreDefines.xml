@@ -11,22 +11,22 @@
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CONQUEST"/>
 			<Set FlavorType="FLAVOR_OFFENSE"
-			Flavor="15"/>
+			Flavor="20"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
 			<Set FlavorType="FLAVOR_CULTURE"
-			Flavor="15"/>
+			Flavor="20"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_UNITED_NATIONS"/>
 			<Set FlavorType="FLAVOR_DIPLOMACY"
-			Flavor="15"/>
+			Flavor="20"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
 			<Set FlavorType="FLAVOR_SPACESHIP"
-			Flavor="15"/>
+			Flavor="20"/>
 		</Update>
 	</AIGrandStrategy_Flavors>
 	<AIGrandStrategy_Yields>
@@ -75,7 +75,7 @@
 		<Row>
 			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>200</Yield>
+			<Yield>250</Yield>
 		</Row>
 		<Row>
 			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
@@ -91,7 +91,7 @@
 		<!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.99"/>
+			<Set Value="2.05"/>
 			<!-- 2.01 -->
 		</Update>
 		<Update>

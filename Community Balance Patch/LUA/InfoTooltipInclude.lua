@@ -254,7 +254,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_FAITH )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_FAITH)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_FAITH)
 			if(corporatechange > 0) then
 				iFaith = iFaith + corporatechange;
 			end
@@ -286,7 +286,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_FOOD )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_FOOD)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_FOOD)
 			if(corporatechange > 0) then
 				iFood = iFood + corporatechange;
 			end
@@ -904,7 +904,13 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WLTKD", iAmount);
 		end
 		-- END
-		
+-- CBP Yield from Great Works
+		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(YieldTypes.YIELD_CULTURE);
+		if (iYieldFromGreatWorks ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP_CULTURE", iYieldFromGreatWorks);
+		end
+-- END		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
 			iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
@@ -1020,6 +1026,13 @@ function GetFaithTooltip(pCity)
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GOLDEN_AGE", iFaithGoldenAgeMod));
 		end
 		-- END
+
+-- CBP Yield from Great Works
+		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(YieldTypes.YIELD_FAITH);
+		if (iYieldFromGreatWorks ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", iYieldFromGreatWorks));
+		end
+-- END
 
 		-- CBP -- Resource Monopoly
 		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
@@ -1358,12 +1371,12 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 
--- CBP Gold from Great Works
-	local iGoldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
-	if (iGoldFromGreatWorks ~= 0) then
-		if (iYieldType == YieldTypes.YIELD_GOLD) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iGoldFromGreatWorks, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+-- CBP Yield from Great Works
+	if (iYieldType ~= YieldTypes.YIELD_CULTURE) then
+		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
+		if (iYieldFromGreatWorks ~= 0) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iYieldFromGreatWorks, strIconString);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 		end
 	end
 -- END

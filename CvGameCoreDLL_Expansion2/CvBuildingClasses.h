@@ -226,6 +226,10 @@ public:
 	int GetHappiness() const;
 	int GetUnmoddedHappiness() const;
 	int GetUnhappinessModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetLocalUnhappinessModifier() const;
+	int GetGlobalBuildingGoldMaintenanceMod() const;
+#endif
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
 	int GetCityCountUnhappinessMod() const;
@@ -307,7 +311,10 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBorderObstacleCity() const;
-	int GetWLRKDTurns() const;
+	int GetWLTKDTurns() const;
+	int GetEventTourism() const;
+	int GetLandTourismEnd() const;
+	int GetSeaTourismEnd() const;
 #endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
@@ -364,6 +371,9 @@ public:
 
 	int GetYieldFromGPExpend(int i) const;
 	int* GetYieldFromGPExpendArray() const;
+
+	int GetThemingYieldBonus(int i) const;
+	int* GetThemingYieldBonusArray() const;
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
@@ -556,6 +566,10 @@ private:
 	int m_iHappiness;
 	int m_iUnmoddedHappiness;
 	int m_iUnhappinessModifier;
+#if defined(MOD_BALANCE_CORE)
+	int m_iLocalUnhappinessModifier;
+	int m_iGlobalBuildingGoldMaintenanceMod;
+#endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;
 	int m_iCityCountUnhappinessMod;
@@ -680,6 +694,9 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iBorderObstacleCity;
 	int m_iWLTKDTurns;
+	int m_iEventTourism;
+	int m_iLandTourism;
+	int m_iSeaTourism;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;
@@ -736,6 +753,7 @@ private:
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
+	int* m_piThemingYieldBonus;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

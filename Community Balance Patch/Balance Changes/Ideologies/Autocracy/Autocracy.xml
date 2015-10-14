@@ -217,6 +217,12 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_KUNA</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
 	</Policy_ImprovementYieldChanges>
 	<!-- Third Alternative -->
 	<Policy_CapitalYieldChanges>

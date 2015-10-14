@@ -1086,6 +1086,12 @@ public:
 	bool isHalfSpecialistFood() const;
 	void changeHalfSpecialistFoodCount(int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int getHalfSpecialistFoodCapitalCount() const;
+	bool isHalfSpecialistFoodCapital() const;
+	void changeHalfSpecialistFoodCapitalCount(int iChange);
+#endif
+
 	int getMilitaryFoodProductionCount() const;
 	bool isMilitaryFoodProduction() const;
 	void changeMilitaryFoodProductionCount(int iChange);
@@ -1182,6 +1188,14 @@ public:
 	void ChangeTRVisionBoost(int iValue);
 	int GetTRVisionBoost() const;
 	void SetTRVisionBoost(int iValue);
+
+	void ChangeBuildingMaintenanceMod(int iValue);
+	int GetBuildingMaintenanceMod() const;
+	void SetBuildingMaintenanceMod(int iValue);
+
+	void ChangeEventTourism(int iValue);
+	int GetEventTourism() const;
+	void SetEventTourism(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2148,8 +2162,11 @@ public:
 	virtual void AI_chooseResearch() = 0;
 	virtual int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int iRange = 0) = 0;
 	virtual void AI_launch(VictoryTypes eVictory) = 0;
-
+#if defined(MOD_BALANCE_CORE)
+	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity) = 0;
+#else
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(int iAreaID) = 0;
+#endif
 	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(int iAreaID, int iTurns, CvCity* pCity) = 0;
 	virtual void CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot) = 0;
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit) = 0;
@@ -2496,6 +2513,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessToScience;
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistUnhappinessCount;
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCount;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
+#endif
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;
 	FAutoVariable<int, CvPlayer> m_iSecondReligionPantheonCount;
@@ -2523,6 +2543,8 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
+	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
+	FAutoVariable<int, CvPlayer> m_iEventTourism;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

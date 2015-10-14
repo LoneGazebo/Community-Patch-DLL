@@ -829,6 +829,11 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 	iMaintenance *= (100 + m_pPlayer->GetBuildingGoldMaintenanceMod());
 	iMaintenance /= 100;
 
+#if defined(MOD_BALANCE_CORE)
+	iMaintenance *= (100 + m_pPlayer->GetBuildingMaintenanceMod());
+	iMaintenance /= 100;
+#endif
+
 	// Modifier for difficulty level
 	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	//iMaintenance *= playerHandicap->getBuildingCostPercent();

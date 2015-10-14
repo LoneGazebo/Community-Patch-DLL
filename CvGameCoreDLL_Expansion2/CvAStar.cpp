@@ -336,7 +336,7 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
-	if (false)
+	if (MOD_BALANCE_CORE_DEBUGGING && false)
 	{
 		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -2689,6 +2689,8 @@ int RouteGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar*
 /// This function does not require the global Tactical Analysis Map.
 int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
+	CvPlot* pNewPlot;
+
 	if(parent == NULL)
 	{
 		return TRUE;
@@ -2696,7 +2698,7 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 
 	int iFlags = finder->GetInfo();
 	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
-	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	if((iFlags & MOVE_ROUTE_ALLOW_UNEXPLORED) == 0 && !(pNewPlot->isRevealed(kPlayer.getTeam())))

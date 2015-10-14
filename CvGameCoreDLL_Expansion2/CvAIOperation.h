@@ -261,7 +261,7 @@ public:
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	virtual void FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit);
 #endif
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
@@ -296,7 +296,7 @@ protected:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
+	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit, bool* bRequired);
 #endif
 
 	std::vector<int> m_viArmyIDs;

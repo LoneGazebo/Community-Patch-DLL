@@ -239,6 +239,14 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<!-- Mint -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<!-- Market -->
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -286,13 +294,25 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
-	<!-- Mint -->
+	<!-- Bank -->
 	<Building_ResourceYieldChanges>
 		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
+			<BuildingType>BUILDING_BANK</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BANK</BuildingType>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BANK</BuildingType>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	<!-- Forge -->
 		<Row>
@@ -339,12 +359,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
-	<Building_LocalResourceOrs>
-		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
-			<ResourceType>RESOURCE_GEMS</ResourceType>
-		</Row>
-	</Building_LocalResourceOrs>
 	<!-- University, Windmill, Research Lab -->
 	<Building_FeatureYieldChanges>
 		<Row>
@@ -575,4 +589,94 @@
 			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era and the City's Civilization [NEWLINE]2.) Both from other Civilizations (aside from the City owner) and the same Era [NEWLINE]3.) Both from different Eras and Civilizations.</Text>
 		</Row>
 	</Language_en_US>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HARBOR</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HANSE</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Building_Flavors>
+	<!-- Tourism Buildings -->
+	<Building_ThemingYieldBonus>
+		<Row>
+			<BuildingType>BUILDING_MUSEUM</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HERMITAGE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_OXFORD_UNIVERSITY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SISTINE_CHAPEL</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LOUVRE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>8</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_LIBRARY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SYDNEY_OPERA_HOUSE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_UFFIZI</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GLOBE_THEATER</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BROADWAY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RELIQUARY</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_ThemingYieldBonus>
 </GameData>

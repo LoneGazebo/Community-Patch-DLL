@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>225</Cost>
+			<Cost>250</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
@@ -98,7 +98,7 @@
 		<Row>
 			<Type>BUILDING_JELLING_STONES</Type>
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
-			<Cost>125</Cost>
+			<Cost>140</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_OPTICS</PrereqTech>
@@ -202,7 +202,7 @@
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
-			<Cost>250</Cost>
+			<Cost>275</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>
@@ -300,7 +300,7 @@
 		<Row>
 			<Type>BUILDING_YURT</Type>
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
-			<Cost>60</Cost>
+			<Cost>65</Cost>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_YURT_HELP</Help>

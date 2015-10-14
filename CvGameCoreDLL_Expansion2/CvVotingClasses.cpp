@@ -265,6 +265,9 @@ CvResolutionEffects::CvResolutionEffects(void)
 	iIsWorldWar = 0;
 	bEmbargoIdeology = false;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	iChangeTourism = 0;
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	iVassalMaintenanceGoldPercent = 0;
@@ -309,6 +312,9 @@ CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
 		iLimitSpaceshipPurchase				= pInfo->GetSpaceShipPurchaseMod();
 		iIsWorldWar							= pInfo->GetWorldWar();
 		bEmbargoIdeology					= pInfo->IsEmbargoIdeology();
+#endif
+#if defined(MOD_BALANCE_CORE)
+		iChangeTourism						= pInfo->GetTourismMod();
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -400,6 +406,10 @@ bool CvResolutionEffects::HasOngoingEffects() const
 			return true;
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(iChangeTourism != 0)
+		return true;
+#endif
 
 	return false;
 }
@@ -437,6 +447,9 @@ void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEff
 	iLimitSpaceshipPurchase					+= pOtherEffects->iLimitSpaceshipPurchase; //Global
 	iIsWorldWar								+= pOtherEffects->iIsWorldWar; //Global
 	bEmbargoIdeology						|= pOtherEffects->bEmbargoIdeology; // target ideology
+#endif
+#if defined(MOD_BALANCE_CORE)
+	iChangeTourism							+= pOtherEffects->iChangeTourism; //Global
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -547,6 +560,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iIsWorldWar, 0);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, loadFrom, writeTo.iChangeTourism, 0);
+#endif
 
 	if (uiVersion >= 8)
 	{
@@ -606,6 +622,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iScienceyGreatPersonRateMod;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iIsWorldWar);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.iChangeTourism);
 #endif
 	saveTo << readFrom.iGreatPersonTileImprovementCulture;
 	saveTo << readFrom.iLandmarkCulture;
@@ -1731,7 +1750,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
-	
+#if defined(MOD_BALANCE_CORE)
+	if (GetEffects()->iChangeTourism != 0)
+	{
+	}
+#endif
 #if defined (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
 		if (GetEffects()->iLimitSpaceshipProduction != 0)
@@ -1998,7 +2021,11 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
-	
+#if defined(MOD_BALANCE_CORE)
+	if (GetEffects()->iChangeTourism != 0)
+	{
+	}
+#endif	
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
 		if (GetEffects()->iLimitSpaceshipProduction != 0)
@@ -3066,6 +3093,66 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 					}
 				bValid = false;
 				}
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if (pInfo->GetTourismMod() > 0)
+	{
+		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+		{
+			if (it->GetEffects()->iChangeTourism < 0)
+			{
+				if (sTooltipSink != NULL)
+				{
+					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP").toUTF8();
+					(*sTooltipSink) += "[ENDCOLOR]";
+				}
+				bValid = false;
+			}
+		}
+		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+		{
+			if (it->GetEffects()->iChangeTourism < 0)
+			{
+				if (sTooltipSink != NULL)
+				{
+					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP").toUTF8();
+					(*sTooltipSink) += "[ENDCOLOR]";
+				}
+				bValid = false;
+			}
+		}
+	}
+	if (pInfo->GetTourismMod() < 0)
+	{
+		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+		{
+			if (it->GetEffects()->iChangeTourism > 0)
+			{
+				if (sTooltipSink != NULL)
+				{
+					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP").toUTF8();
+					(*sTooltipSink) += "[ENDCOLOR]";
+				}
+				bValid = false;
+			}
+		}
+		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+		{
+			if (it->GetEffects()->iChangeTourism > 0)
+			{
+				if (sTooltipSink != NULL)
+				{
+					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP").toUTF8();
+					(*sTooltipSink) += "[ENDCOLOR]";
+				}
+				bValid = false;
 			}
 		}
 	}
@@ -5190,7 +5277,20 @@ bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 	return false;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+int CvLeague::GetTourismMod()
+{
+	int iMod = 0;
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	{
+		if (it->GetEffects()->iChangeTourism != 0)
+		{
+			iMod += it->GetEffects()->iChangeTourism;
+		}
+	}
+	return iMod;
+}
+#endif
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {
 	CvString s = "";
@@ -6049,6 +6149,14 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 	{
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WAR_PEACE");
 		sTemp << effects.iUnitMaintenanceGoldPercent;
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(effects.iChangeTourism != 0)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM");
+		sTemp << effects.iChangeTourism;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
 #endif
@@ -12000,7 +12108,130 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	//Reducing Tourism
+	if(pProposal->GetEffects()->iChangeTourism < 0)
+	{
+		if(bSeekingCultureVictory)
+		{
+			//Boo!
+			iScore -= 1000;
+		}
+		else
+		{
+			int iTotalCivs = GC.getGame().countMajorCivsAlive();
+			int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
+			int iMyPercent = ((iCivs * 100) / iTotalCivs);		
+			if(iCivs > 0)
+			{
+				iScore -= 25 * iCivs;
+			}
+			if(iMyPercent >= 25)
+			{
+				iScore -= 100;
+			}
+			if(iMyPercent >= 50)
+			{
+				iScore -= 500;
+			}
+			if(iMyPercent >= 75)
+			{
+				iScore -= 1000;
+			}
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian() && GET_PLAYER(eLoopPlayer).isAlive())
+				{
+					//Do they have more influence than us?
+					int iTheirInfluence = GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn();
+					int iTheirPercent = ((iTheirInfluence * 100) / iTotalCivs);
+					if(GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > iCivs)
+					{
+						iScore += 25;
+					}
+					if(iTheirPercent >= 75)
+					{
+						iScore += 500;
+					}
+					if(iTheirPercent >= 50)
+					{
+						iScore += 300;
+					}
+					if(iTheirPercent >= 25)
+					{
+						iScore += 50;
+					}
+					if(GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() > GetPlayer()->GetCulture()->GetTourism())
+					{
+						iScore += 50;
+					}
+				}
+			}
+		}
+	}
+	//Increasing Tourism
+	if(pProposal->GetEffects()->iChangeTourism > 0)
+	{
+		if(bSeekingCultureVictory)
+		{
+			//Yay!
+			iScore += 1000;
+		}
+		else
+		{
+			int iTotalCivs = GC.getGame().countMajorCivsAlive();
+			int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
+			int iMyPercent = ((iCivs * 100) / iTotalCivs);		
+			if(iCivs > 0)
+			{
+				iScore += 10 * iCivs;
+			}
+			if(iMyPercent >= 25)
+			{
+				iScore += 25;
+			}
+			if(iMyPercent >= 50)
+			{
+				iScore += 75;
+			}
+			if(iMyPercent >= 75)
+			{
+				iScore += 250;
+			}
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian() && GET_PLAYER(eLoopPlayer).isAlive())
+				{
+					//Do they have more influence than us?
+					int iTheirInfluence = GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn();
+					int iTheirPercent = ((iTheirInfluence * 100) / iTotalCivs);
+					if(GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > iCivs)
+					{
+						iScore -= 50;
+					}
+					if(iTheirPercent >= 75)
+					{
+						iScore -= 1000;
+					}
+					if(iTheirPercent >= 50)
+					{
+						iScore -= 500;
+					}
+					if(iTheirPercent >= 25)
+					{
+						iScore -= 100;
+					}
+					if(GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() > GetPlayer()->GetCulture()->GetTourism())
+					{
+						iScore -= 50;
+					}
+				}
+			}
+		}
+	}
+#endif
 	// == Diplomat knowledge, Vote Commitments we secured ==
 
 	// == Alignment with Proposer ==
@@ -13093,6 +13324,9 @@ CvResolutionEntry::CvResolutionEntry(void)
 	m_iIsWorldWar						= 0;
 	m_bEmbargoIdeology					= false;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iTourismMod						= 0;
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iVassalMaintenanceGoldPercent		= 0;
 #endif
@@ -13156,6 +13390,9 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_iVassalMaintenanceGoldPercent		= kResults.GetInt("VassalMaintenanceGoldPercent");
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iTourismMod					= kResults.GetInt("TourismMod");
 #endif
 
 	return true;
@@ -13356,7 +13593,12 @@ bool CvResolutionEntry::IsEmbargoIdeology() const
 	return m_bEmbargoIdeology;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+int CvResolutionEntry::GetTourismMod() const
+{
+	return m_iTourismMod;
+}
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 int CvResolutionEntry::GetVassalMaintenanceGoldPercent() const
 {

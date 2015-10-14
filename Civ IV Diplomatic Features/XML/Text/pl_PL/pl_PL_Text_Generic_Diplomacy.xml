@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/25/2013 4:03:12 PM -->
+<GameData>
+	<Language_pl_PL>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_1">
+			<Text>Czemu nadal marnujesz mój czas na ten nonsens? Precz!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_2">
+			<Text>Nie słyszysz co mówię? Odejdź!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_3">
+			<Text>Czy ja mówię niewyraźnie? Odpowiedź brzmi "nie"!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_1">
+			<Text>Nie mogę obecnie spełnić takiej prośby. Proszę, przestań pytać.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_2">
+			<Text>Już o tym rozmawialiśmy. Nie podzielimy się informacjami o naszych stosunkach. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_3">
+			<Text>Odpowiedź nadal brzmi "nie". Nie podzielimy się szczegółami dotyczącymi naszej dyplomacji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_1">
+			<Text>Nie będziemy dzielić się naszymi tajemnicami dyplomatycznymi ze zbrodniarzami!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_2">
+			<Text>Naprawdę uważasz, że powiem coś o naszej polityce zagranicznej złoczyńcy?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_3">
+			<Text>Czemu marnujesz mój czas pytając o moje stosunki z innymi przywódcami? To nie twój interes!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_1">
+			<Text>Wybaczcie, ale wolelibyśmy zatrzymać nasze tajemnice dyplomatyczne dla siebie. Spróbujcie kiedy indziej.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_2">
+			<Text>Moi doradcy uważają za istotne by nie dzielić się szczegółami naszej polityki zagranicznej. Może innym razem?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_3">
+			<Text>Wolimy póki co nie rozgłaszać naszych stosunków z innymi przywódcami. Może kiedy indziej.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_1">
+			<Text>{1_PlayerName:textkey} jest prawdziwym przyjaciele i ma moje pełne zaufanie. (PRZYJAŹŃ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_2">
+			<Text>Nasza relacja z {@1_PlayerName[4]} jest bardzo satysfakcjonująca i mam nadzieję, że będziemy ją kontynuować. (PRZYJAŹŃ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_3">
+			<Text>{1_PlayerName:textkey} i ja jesteśmy w dobrych stosunkach. Nie widzę też powodu, dla którego miałoby się to zmienić. (PRZYJAŹŃ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_1">
+			<Text>Naprawdę nie mam opinii na temat {@1_PlayerName[1]}. (NEUTRALNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_2">
+			<Text>{1_PlayerName:textkey} nie jest ani moim wrogiem, ani przyjacielem. (NEUTRALNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_3">
+			<Text>{1_PlayerName:textkey} zupełnie mnie nie interesuje. (NEUTRALNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_1">
+			<Text>Szczerze, to ani trochę nie ufam {@1_PlayerName[2]}. (OSTROŻNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_2">
+			<Text>Działania {@1_PlayerName[1]} zaniepokoiły moich doradców i teraz monitorujemy sytuację. (OSTROŻNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_3">
+			<Text>Mamy oko na {@1_PlayerName[3]} ze względu na ostatnie wydarzenia. (OSTROŻNY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_1">
+			<Text>Rządy {@1_PlayerName[1]} są skazą dla świata i ucieszyłoby mnie, gdyby się skończyły. (WROGOŚĆ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_2">
+			<Text>{1_PlayerName:textkey} to przykład tyrana i zbrodniarza, którym ktoś powinien się zająć. (WROGOŚĆ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_3">
+			<Text>Nawet mi nie przypominaj, że {1_PlayerName:textkey} nadal kroczy po tej ziemi... (WROGOŚĆ)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_1">
+			<Text>Spoglądam na {@1_PlayerName[3]} z wielką zazdrością! (OBAWA)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_2">
+			<Text>Zdumiewa mnie sukces {@1_PlayerName[1]}. (OBAWA)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_3">
+			<Text>Może pewnego dnia będę tak wielkim przywódcą jak {1_PlayerName:textkey}. (OBAWA)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_1">
+			<Text>Ja i {1_PlayerName:textkey} prowadzimy wojnę! ([COLOR_NEGATIVE_TEXT]WOJNA![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_2">
+			<Text>{1_PlayerName:textkey} i ja toczymy zbrojny konflikt.  ([COLOR_NEGATIVE_TEXT]WOJNA![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_3">
+			<Text>Jestem obecnie w trakcie sporu z {@1_PlayerName[4]}.  ([COLOR_NEGATIVE_TEXT]WOJNA![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_1">
+			<Text>Wierzę, że zachowasz w sekrecie, iż planuję atak na {@1_PlayerName[3]}. (SZYKUJE ATAK!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_2">
+			<Text>Nie daj się zwieść pozorom. Planuję zmieść {@1_PlayerName:[3]} z powierzchni ziemi. (SZYKUJE ATAK!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_3">
+			<Text>Mam już dość {@1_PlayerName[1]} i doprowadzę do tego, że tragicznie skończy swoje panowanie. (SZYKUJE ATAK!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_1">
+			<Text>It may appear that I am friendly with Może ci się wydawać, że między mną i {@1_PlayerName[4]} panuje przyjaźń, ale to tylko przedstawienie. (SPISKUJE)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_2">
+			<Text>Dotrzymasz sekretu? Planuję oszukać {@1_PlayerName[3]} przy najbliższej okazji. (SPISKUJE)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_3">
+			<Text>Wszędzie mówię, że przyjaźnimy się z {@1_PlayerName[4]}. Powiem ci w sekrecie, że to nieprawda. (SPISKUJE)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MAPS_EXCHANGE">
+			<Text>Powinniśmy wzajemnie wymienić się naszymi mapami świata by odkryć sekrety tej planety. Co o tym myślisz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MAPS_OFFER">
+			<Text>Co myślisz o sprzedaniu nam swojej mapy świata?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TECH_OFFER">
+			<Text>Zgodzisz się na sprzedanie nam swojej technologii?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_1">
+			<Text>Przyjacielu, zaakceptuj ten drobny dowód przyjaźni!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_2">
+			<Text>W czasie kryzysu ofiaruję ci prezent.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_3">
+			<Text>By okazać naszą przyjaźń i wsparcie, ofiaruję twoim ludziom ten upominek z nadzieją, że możemy liczyć na wzajemność.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_1">
+			<Text>Miło było ci pomóc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_2">
+			<Text>Niech ten upominek dobrze służy twojemu ludowi.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_3">
+			<Text>Z przyjemnością pomagam potrzebującym.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_1">
+			<Text>Jest mi bardzo przykro, ale obawiam się, że moja szczodrość nie jest aż tak wielka.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_2">
+			<Text>Obawiam się, że prosisz o zbyt dużo. Nie mogę ci pomóc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_3">
+			<Text>W żadnym wypadku. Jestem hojny, ale prosisz o zbyt dużo.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_1">
+			<Text>Jest mi przykro, ale nie mogę cię bardziej wesprzeć w tym momencie. Może innym razem.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_2">
+			<Text>Minęło zbyt mało czasu od ostatniego podarunku. Wybacz, ale muszę odmówić.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_3">
+			<Text>Nie mogę w tym momencie spełnić twojej prośby. Przepraszam.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_1">
+			<Text>Wybacz, ale znamy się zbyt krótko by przekazać ci nasze sekrety dyplomatyczne. Wróć za jakiś czas.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_2">
+			<Text>Nie znamy się wystarczająco długo by móc się z tobą dzielić moimi relacjami z innymi przywódcami. Odpowiedź brzmi "nie".</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_3">
+			<Text>Dzielę się szczegółami mojej polityki zagranicznej tylko z tymi, którym ufam. Nie mogę rozpowiadać ich każdemu, kogo ledwo spotkam.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_1">
+			<Text>Niewola, w której trzymasz mój lud, przynosi hańbę nam wszystkim. Czego chcesz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_2">
+			<Text>Oto tyran znowu pokazał swą twarz! Jak tym razem chcesz nas wyzyskiwać?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_3">
+			<Text>Cóż sprowadza tyrana w moje skromne progi? Czy przybywasz by znowu na nas splunąć?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_1">
+			<Text>Witam cię w mych skromnych włościach. Jak mogę ci służyć?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_2">
+			<Text>Witaj! Mam nadzieję, że ucieszy cię wiadomość, iż moi robotnicy ciężko dla ciebie pracują.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_3">
+			<Text>Chylę czoła! Czego od nas pragniesz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_1">
+			<Text>Mamy już dość twoich nieudolnych rządów nad nami i będziemy walczyć do ostatniej kropli krwi o niepodległość!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_2">
+			<Text>Oddaj kontrolę nad naszym imperium albo ponieś konsekwencje. Która opcja brzmi bardziej kusząco?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_3">
+			<Text>Moi ludzie pragną wolności i nic nas nie powstrzyma by ją zdobyć. Możesz nam ją oddać po dobroci albo sami ją odbierzemy. Wybór należy do ciebie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_1">
+			<Text>Nadszedł czas by mój lud zaczął podążać własną drogą. Pragniemy niepodległego państwa. Co o tym myślisz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_2">
+			<Text>Moi poddani nie będą dłużej tolerować tej okupacji, więc wysuwam oficjalną prośbę o przyznanie moim ludziom własnego suwerennego państwa.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_3">
+			<Text>Uznaliśmy, że nadszedł czas by zakończyć nasz stosunek wasalny. Nasi ludzie pragną niepodległości. Zgodzisz się na to?</Text>
+		</Row>
+		<!-- AI revokes Human Vassalage -->
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_1">
+			<Text>Mój lud jest wdzięczny za przyznanie nam niepodległości.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_2">
+			<Text>Zwrócenie wolności moim ludziom to wielki gest z twojej strony. Masz moją wdzięczność.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_3">
+			<Text>Przywrócenie nam niepodległości jest godne wszelkich pochwał. Ten dzień przejdzie do historii.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_1">
+			<Text>Niech więc tak będzie. Nasi ludzie będą walczyć do śmierci by wywalczyć niepodległość.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_2">
+			<Text>Zdecydowałeś się bezmyślnie przelać krew swoich ludzi. Wiedz, że nie zawahamy się by walczyć o wolność.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_3">
+			<Text>Jak sobie życzysz. Będziemy o to walczyć na śmierć i życie.</Text>
+		</Row>
+		<!-- Human asks AI to revoke his vassalage, what is his response? -->
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_1">
+			<Text>VJak sobie życzysz. Przyznajemy tobie oraz twojemu ludowi niepodległość.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_2">
+			<Text>Zgoda. Jesteście wolni spod władzy mojego imperium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_3">
+			<Text>Zrozumiałem. Uznajemy wasze prawo do niepodległości.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_1">
+			<Text>Czy wiesz z kim rozmawiasz? Moi poddani tak po prostu mnie nie opuszczają. Zaraz stłumię to wasze powstanie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_2">
+			<Text>Naprawdę myśleliście, że pozwolę wam tak po prostu odejść? Ha! Wasze niedoczekanie! Szykujcie się na śmierć.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_3">
+			<Text>To szaleństwo! Naprawdę macie mnie za taką ofiarę? Z przyjemnością zgniotę waszą armię.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_1">
+			<Text>Żałuję, że kiedykolwiek ci zaufaliśmy. To było do przewidzenia, że nas zdradzisz.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_2">
+			<Text>Ty barbarzyńco! Obiecałeś chronić naszych ludzi, a nie atakować! Zapamiętaj, zginiesz za to w straszliwych męczarniach!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_3">
+			<Text>Byłeś naszym obrońcom. Miałeś zniszczyć naszych wrogów, a nie przyłączyć się do nich! Miałeś zaprowadzić nas w erę dobrobytu, a nie pogrążyć w ciemnościach! Z pewnością poniesiesz konsekwencje tej decyzji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_1">
+			<Text>Proszę! Kundel przyszedł zobaczyć swojego pana! Czego chcesz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_2">
+			<Text>Lepiej żeby twoi ludzie ciężko pracowali by mnie zadowolić. Czego chcesz?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_3">
+			<Text>Na kolana przed możniejszymi od siebie!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_1">
+			<Text>Czyżby mój wasal przyszedł złożyć mi wizytę? Czyżby po to, by złożyć mi hołd?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_2">
+			<Text>Witaj sługo! Co chcesz mi zaoferować?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_3">
+			<Text>Obiecuję, że moi żołnierze będą chronić ciebie i twój kraj. O czym chcesz rozmawiać?</Text>
+		</Row>
+	</Language_pl_PL>
+</GameData>

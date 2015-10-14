@@ -148,6 +148,9 @@ ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' INTEGER DEFAULT 0;
 
+-- Half specialist food in just capital
+ALTER TABLE Policies ADD COLUMN 'HalfSpecialistFoodCapital' BOOLEAN DEFAULT 0;
+
 -- Flat boosts to city yield for happiness sources (buildings) - values should be positive to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' INTEGER DEFAULT 0;
@@ -344,6 +347,12 @@ ALTER TABLE Beliefs ADD COLUMN 'HalvedFollowers' BOOLEAN DEFAULT 0;
 
 -- New Buildings
 
+-- Building Modifies amount of unhappiness provided by an individual city
+ALTER TABLE Buildings ADD COLUMN 'LocalUnhappinessModifier' INTEGER DEFAULT 0;
+
+-- Building Modifies amount of maintenance buildings cost in your empire.
+ALTER TABLE Buildings ADD COLUMN 'GlobalBuildingGoldMaintenanceMod' INTEGER DEFAULT 0;
+
 -- National Religious Followers Needed for a Building
 ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' INTEGER DEFAULT 0;
 
@@ -382,6 +391,21 @@ ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' TEXT DEFAULT NULL;
 
 -- Allows you to define a number of WLTKD turns for the City -- 
 ALTER TABLE Buildings ADD COLUMN 'WLTKDTurns' INTEGER DEFAULT 0;
+
+-- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+ALTER TABLE Buildings ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
+
+-- Tourism Mod, global, from WC
+ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;
+
+-- When a City with this building finishes a land ITR, gain tourism with the target civ.
+ALTER TABLE Buildings ADD COLUMN 'FinishLandTRTourism' INTEGER DEFAULT 0;
+
+-- When a City with this building finishes a sea ITR, gain tourism with the target civ.
+ALTER TABLE Buildings ADD COLUMN 'FinishSeaTRTourism' INTEGER DEFAULT 0;
+
+-- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;

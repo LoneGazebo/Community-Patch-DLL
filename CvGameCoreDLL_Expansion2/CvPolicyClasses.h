@@ -175,6 +175,10 @@ public:
 	int GetNumCitiesFreeFoodBuilding() const;
 	bool IsHalfSpecialistUnhappiness() const;
 	bool IsHalfSpecialistFood() const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsHalfSpecialistFoodCapital() const;
+	int GetEventTourism() const;
+#endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
 	int GetUnitUpgradeCostMod() const;
@@ -467,6 +471,10 @@ private:
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bHalfSpecialistFoodCapital;
+	int m_iEventTourism;
+#endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
 	bool m_bRevealAllCapitals;

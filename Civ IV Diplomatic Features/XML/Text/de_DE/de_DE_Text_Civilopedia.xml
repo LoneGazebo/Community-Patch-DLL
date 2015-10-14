@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/5/2013 12:20:29 PM -->
+<GameData>
+	<Language_de_DE>
+		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
+			<Text>Erlaubt die Weltkarte mit anderen Zivilisationen zu Handeln.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
+			<Text>Erlaubt rivalisierende Zivilisationen zum Vasallenstaat zu machen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
+			<Text>Erlaubt Technologien mit anderen Zivilisationen zu Handeln.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
+			<Text>Erlaubt Kartenhandel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
+			<Text>Erlaubt Techhandel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
+			<Text>Erlaubt Vasallentum</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
+			<Text>Kartenhandel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_SUMMARY">
+			<Text>Die Weltkarte enth&#228;lt Details über jede Insel, Ozeane, Naturwunder und Zivilisationen die bisher entdeckt und Kartographiert wurden. Der Kartenhandel wird durch die Entdeckung der Astronomie möglich, und zeigt jedes Stück Land welches die Zivilisationen bisher entdeckt haben.  Gehandelte Weltkarten, stellen kein Kontakt zu bisher unentdecketen Zivilisation her, zeigen aber dessen Position!  Der Wert einer Weltkarte, h&#228;ngt von noch unentdeckten Land der jeweiligen Zivilisationen ab: Naturwunder und Ressourcen, sind deutlich mehr Wert als einfacher Ozean. Weltkarten, können sehr teuer sein! Erforsche die Weltkarte und verdiene Gold mit deinen Entdeckungen!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_ADVISOR_QUESTION">
+			<Text>Was ist Kartenhandel?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC">
+			<Text>Techhandel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
+			<Text>Wenn du die Technologie Bildungswesen entdeckt hast, kannst du selbst erforschte Technologien mit anderen Zivilisationen handeln.
+Dafür, ist einen Botschaft in ihrer Hauptstadt von nöten.[NEWLINE][NEWLINE]Ist der Techhandel aktiviert, können keine Forschungsabkommen geschlossen werden.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
+			<Text>Was ist Techhandel?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
+			<Text>Vasallentum</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
+			<Text>Was ist Vasallentum?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_SUMMARY">
+			<Text>Vasallentum beschreibt eine "asymmetrische Allianz", Wo der Hegemon regelm&#228;&#223;igen Tribut von einer anderen Zivilisation (dem Vasall) bekommt. Vasallentum, ist nach dem fortschreiten in das Mittelalter möglich. Der Vasall, kann keinen Krieg erkl&#228;ren oder Frieden schlie&#223;en, wird aber dafür von seinem Hegemon beschützt.  Vasallenstaaten können denunzieren, Freundschaftspakte schlie&#223;en, Handeln, und ihren Hegemon auspionieren. Man kann das Spiel ebenfalls als Vasall gewinnen, wenn auch in Schande.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_ADV_QUEST">
+			<Text>Was ist Vasallentum?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC">
+			<Text>Zum Vasall machen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_SUMMARY">
+			<Text>Vasallentum, ist nach dem fortschreiten in das Mittelalter möglich.  Es gibt zwei unterschiedlich Arten des Vasallentums: Freiwillig und Kapitulation.  Im Handelsbildschirm, in Friedenszeiten, ist die Vasallenstaat Option verfügbar (zu Kriegszeiten wird der Button durch "Kapitulation" ersetzt). Vasallentum in Friedenszeiten, kann nur durch Einwilligung der jeweiligen Zivilisation erfolgen. Das passiert in der Regel dann, wenn man diese Zivilisation dominiert
+oder sie einfach nur beschützt werden möchte. Die andere Form des Vasallentums, ist die Kapitulation in Kriegszeiten. Bei diesem Ereignis, hat der Verlierer die Möglichkeit zu kapitulieren, wenn die Lage aussichtslos erscheint. Nach der Kapitulation, wird der Vasall augenblicklich Frieden schlie&#223;en (mit allen Zivilisation, mit der sich der Hegemon nicht im Krieg befindet),
+und jeder Zivilisation den Krieg erkl&#228;ren (mit der sich der Hegemon im Krieg befindet).[NEWLINE][NEWLINE]Eine Zivilisation, kann nicht kapitulieren wenn ein Vasallentum erst vor kurzem zu Ende gegangen ist.  Die Standard Zeit betr&#228;gt 100 Runden bevor die Kapitulation wieder verfügbar ist.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_ADVISOR_QUESTION">
+			<Text>Wie mache ich jemanden zum Vasallen?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC">
+			<Text>Vasallentum beenden</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_SUMMARY">
+			<Text>Ein Vasall ist für eine mindest Anzahl an Runden, an seinen Hegemon gebunden, abh&#228;ngig von der Art der Vereinbarung. Freiwillige Vasallen können jeder Zeit nach Ablauf von 10 Runden (auf Normal) wieder Unabh&#228;ngig werden. Eine Zivilisation die kapituliert hat, mu&#223; dagegen 50 Runden (auf Normal) warten. In diesem Zeitraum, kann der Hegemon seinen Vasall nicht freigeben, und der Vasall kann vom Hegemon nicht seine Unabh&#228;ngigkeit verlangen. Nach Ablauf dieser Frist kann ein Vasall, die Bedingungen für seine Unabh&#228;ngigkeit vom Hegemon festlegen:der Vasall w&#228;chst auf 50% des Landes und der Bevölkerung des Hegemons, oder der Vasall verliert mehr als die H&#228;lfte der St&#228;dte, die der Vasall zum Zeitpunkt der vereinbarung hatte.  Ist eine dieser Bedingungen erfüllt, kann der Vasall seine Unabh&#228;ngigkeit von seinem Hegemon fordern.  In diesem Fall wird der Vertrag mit sofortiger Wirkung aufgehoben, und der Hegemon kann seinen Vasall friedlich entlassen (der Vasall wird sehr dankbar sein), oder den Krieg erkl&#228;ren (der Vasall wird sehr &#228;rgerlich sein).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_ADVISOR_QUESTION">
+			<Text>Wie beende ich das Vasallentum?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC">
+			<Text>Vorteile von Vasallen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_SUMMARY">
+			<Text>Es gibt viele Vorteile, die man als Hegemon hat.  Der Hegemon, erh&#228;lt einen Anteil der Kultur, proportionale Bonus Zufriedenheit (in Abh&#228;ngigkeit der Bevölkerung in den St&#228;dten), und bekommt einen Punktebonus (die H&#228;lfte) seiner Vasallen. Zus&#228;tzlich besitzt der Hegemon  offene Grenzen bei seinem Vasallen (dies ist keine gegenseitige Vereinbarung), und kann s&#228;mtliches gebiet des Vasallen einsehen.[NEWLINE][NEWLINE]Für Vasallenstaaten, wird eine kleine Aufwandsentsch&#228;digung f&#228;llig. Die Entsch&#228;digung, ist abh&#228;ngig von der Anzahl der St&#228;dte des Vasallen, es ist billiger und demnach zu bevorzugen seinen Vasall Bevölkerungswachstum zu erlauben, aber keine neuen St&#228;dte gründen zu lassen (Wachstum erhöht die Aufwandsentsch&#228;digung, aber mehr St&#228;dte haben ein höheres Gewicht). Der Hegemon, zahlt auch einen Teil des Einheiten Unterhalts des Vasallen (dies wird vom Unterhalt für Einheiten des Vasallen abgezogen).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_ADVISOR_QUESTION">
+			<Text>Welche Vorteile habe ich als Vasall?</Text>
+		</Row>
+	</Language_de_DE>
+</GameData>

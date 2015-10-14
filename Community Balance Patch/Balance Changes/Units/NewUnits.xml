@@ -16,7 +16,7 @@
 			<PrereqTech>TECH_ARCHERY</PrereqTech>
 			<Combat>18</Combat>
 			<Cost>125</Cost>
-			<FaithCost>250</FaithCost>
+			<FaithCost>200</FaithCost>
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>2</Moves>
 			<HurryCostModifier>20</HurryCostModifier>
@@ -124,7 +124,7 @@
 			<Type>UNIT_EXPLORER</Type>
 			<Combat>16</Combat>
 			<Cost>180</Cost>
-			<FaithCost>360</FaithCost>
+			<FaithCost>200</FaithCost>
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>3</Moves>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>

@@ -292,16 +292,20 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iOriginScience > 0) then
 		local iNumTechs = pOriginPlayer:GetNumTechDifference(iOtherPlayer);
 		local iInfluenceScience = pOriginPlayer:GetInfluenceTradeRouteScienceBonus(iOtherPlayer);
+		local iTotal = (iOriginScience - iInfluenceScience);
+		if(iTotal < 0) then
+			iTotal = (iTotal * -1);
+		end
 		if (iPlayer == Game.GetActivePlayer()) then	
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN");
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED", strOtherLeaderName, iNumTechs, iInfluenceScience);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED", strOtherLeaderName, iNumTechs, iInfluenceScience, iTotal);
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_TOTAL", iOriginScience);
 		else
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_GAIN");
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED", iNumTechs, strOriginLeaderName, iInfluenceScience);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED", iNumTechs, strOriginLeaderName, iInfluenceScience, iTotal);
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_TOTAL", strOriginLeaderName, iOriginScience);				
 		end
@@ -314,16 +318,20 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 	
 		local iNumTechs = pOtherPlayer:GetNumTechDifference(iPlayer);
 		local iInfluenceScience = pOtherPlayer:GetInfluenceTradeRouteScienceBonus(iPlayer);
+		local iTotal = (iDestScience - iInfluenceScience);
+		if(iTotal < 0) then
+			iTotal = (iTotal * -1);
+		end
 		if (iPlayer == Game.GetActivePlayer()) then
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_GAIN");
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED", iNumTechs, strOtherLeaderName, iInfluenceScience);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED", iNumTechs, strOtherLeaderName, iInfluenceScience, iTotal);
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_TOTAL", strOtherLeaderName, iDestScience);		
 		else
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN");
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED", strOriginLeaderName, iNumTechs, iInfluenceScience);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED", strOriginLeaderName, iNumTechs, iInfluenceScience, iTotal);
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_TOTAL", iDestScience);		
 		end

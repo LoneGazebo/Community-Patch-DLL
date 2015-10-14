@@ -2,10 +2,6 @@
 <GameData>
 	<Features>
 		<Update>
-			<Where Type="FEATURE_EL_DORADO" />
-			<Set FirstFinderGold="100" />
-		</Update>
-		<Update>
 			<Where Type="FEATURE_FOUNTAIN_YOUTH" />
 			<Set AdjacentUnitFreePromotion="NULL"
 				 InBorderHappiness="1"

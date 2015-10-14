@@ -37,12 +37,16 @@ UPDATE Units
 SET CityAttackOnly = 'true'
 WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Units
+SET Combat = '15'
+WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Unit_Flavors
-SET Flavor = '20'
+SET Flavor = '35'
 WHERE FlavorType = 'FLAVOR_RANGED' AND UnitType = 'UNIT_HUN_BATTERING_RAM';
 
 UPDATE Unit_Flavors
-SET Flavor = '5'
+SET Flavor = '20'
 WHERE FlavorType = 'FLAVOR_OFFENSE' AND UnitType = 'UNIT_HUN_BATTERING_RAM';	
 -- Eki
 
@@ -218,7 +222,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'When selecting a Pantheon, choose from a set of powerful, unique Beliefs. Cities with your Pantheon neither generate nor receive foreign Religious Pressure. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
+SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon neither generate nor receive foreign Religious Pressure. +5 [ICON_PEACE] Faith in [ICON_CAPITAL] if your Pantheon is present, and [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits

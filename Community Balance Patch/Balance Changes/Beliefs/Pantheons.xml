@@ -201,7 +201,7 @@
 			<BeliefType>BELIEF_GOD_SEA</BeliefType>
 			<FeatureType>FEATURE_ATOLL</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_FeatureYieldChanges>
 	<Belief_LakePlotYield>

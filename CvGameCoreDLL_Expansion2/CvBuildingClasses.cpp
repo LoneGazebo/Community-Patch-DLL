@@ -105,6 +105,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iHappiness(0),
 	m_iUnmoddedHappiness(0),
 	m_iUnhappinessModifier(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iLocalUnhappinessModifier(0),
+	m_iGlobalBuildingGoldMaintenanceMod(0),
+#endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
 	m_iCityCountUnhappinessMod(0),
@@ -227,6 +231,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity(-1),
 	m_iWLTKDTurns(-1),
+	m_iEventTourism(0),
+	m_iLandTourism(0),
+	m_iSeaTourism(0),
 #endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
@@ -269,6 +276,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
+	m_piThemingYieldBonus(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -356,6 +364,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
+	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -495,6 +504,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
+	m_iEventTourism = kResults.GetInt("EventTourism");
+	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
+	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -542,6 +554,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iUnmoddedHappiness = kResults.GetInt("UnmoddedHappiness");
 	m_iUnhappinessModifier = kResults.GetInt("UnhappinessModifier");
+#if defined(MOD_BALANCE_CORE)
+	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
+	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
+#endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
 	m_iCityCountUnhappinessMod = kResults.GetInt("CityCountUnhappinessMod");
@@ -772,6 +788,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -1619,7 +1636,18 @@ int CvBuildingEntry::GetUnhappinessModifier() const
 {
 	return m_iUnhappinessModifier;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Get percentage modifier to overall player happiness
+int CvBuildingEntry::GetLocalUnhappinessModifier() const
+{
+	return m_iLocalUnhappinessModifier;
+}
+/// Get percentage modifier to overall player happiness
+int CvBuildingEntry::GetGlobalBuildingGoldMaintenanceMod() const
+{
+	return m_iGlobalBuildingGoldMaintenanceMod;
+}
+#endif
 /// HappinessPerCity provided by this building
 int CvBuildingEntry::GetHappinessPerCity() const
 {
@@ -2027,9 +2055,21 @@ int CvBuildingEntry::GetBorderObstacleCity() const
 {
 	return m_iBorderObstacleCity;
 }
-int CvBuildingEntry::GetWLRKDTurns() const
+int CvBuildingEntry::GetWLTKDTurns() const
 {
 	return m_iWLTKDTurns;
+}
+int CvBuildingEntry::GetEventTourism() const
+{
+	return m_iEventTourism;
+}
+int CvBuildingEntry::GetLandTourismEnd() const
+{
+	return m_iLandTourism;
+}
+int CvBuildingEntry::GetSeaTourismEnd() const
+{
+	return m_iSeaTourism;
 }
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
@@ -2312,7 +2352,18 @@ int* CvBuildingEntry::GetYieldFromGPExpendArray() const
 	return m_piYieldFromGPExpend;
 }
 
-
+/// Array of yield changes
+int CvBuildingEntry::GetThemingYieldBonus(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piThemingYieldBonus ? m_piThemingYieldBonus[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetThemingYieldBonusArray() const
+{
+	return m_piThemingYieldBonus;
+}
 #endif
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const
@@ -4291,7 +4342,20 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		iRtnValue += GetThemingBonuses();
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo)
+		{
+			int iValue = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
+			if (iValue > 0)
+			{
+				iRtnValue += pkInfo->GetThemingYieldBonus(eYield);
+			}
+		}
+	}
+#endif
 	return iRtnValue;
 }
 #endif

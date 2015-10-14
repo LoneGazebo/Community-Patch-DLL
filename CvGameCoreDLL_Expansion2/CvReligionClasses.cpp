@@ -8386,7 +8386,14 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 		if (!m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pEntry->GetYieldFromForeignSpread(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldFromForeignSpread(iI) * iFlavorReligion);
+			if(iI == YIELD_TOURISM)
+			{
+				iRtnValue += (pEntry->GetYieldFromForeignSpread(iI) * iFlavorCulture);
+			}
+			else
+			{
+				iRtnValue += (pEntry->GetYieldFromForeignSpread(iI) * iFlavorReligion);
+			}
 			if(bIndia)
 			{
 				iRtnValue /= 5;

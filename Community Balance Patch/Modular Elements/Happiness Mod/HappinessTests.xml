@@ -65,9 +65,24 @@
 			<Flavor>20</Flavor>
 		</Row>
 		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>60</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>

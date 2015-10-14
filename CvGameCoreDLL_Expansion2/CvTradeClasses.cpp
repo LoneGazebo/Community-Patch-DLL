@@ -2519,6 +2519,124 @@ void CvPlayerTrade::MoveUnits (void)
 							}
 						}
 					}
+					//Tourism Bonus from Buildings
+					if(pDestCity != NULL && pOriginCity != NULL)
+					{
+						if(!GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
+						{
+							if(pTradeConnection->m_eDomain == DOMAIN_LAND)
+							{
+								if(pOriginCity->GetLandTourismBonus() > 0)
+								{
+									int iBonus = pOriginCity->GetLandTourismBonus();
+									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+									iBonus /= 100;
+									if(iBonus > 0)
+									{
+										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
+										// Show tourism spread
+										if (pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+										{
+											CvString strInfluenceText;
+											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
+
+											if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
+											else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
+											else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
+											else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
+											else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
+											else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+
+ 											char text[256] = {0};
+											sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
+ 											fDelay += 0.5f;
+ 											DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+											CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+											if(pNotification)
+											{
+												Localization::String strSummary;
+												Localization::String strMessage;
+												strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_LAND");
+												strMessage << iBonus;
+												strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationAdjectiveKey();
+												strMessage << pOriginCity->getNameKey();
+												strMessage << pDestCity->getNameKey();
+												strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+												if(GC.getGame().isGameMultiPlayer() &&GET_PLAYER(pDestCity->getOwner()).isHuman())
+												{
+													strMessage << GET_PLAYER(pDestCity->getOwner()).getNickName();
+												}
+												else
+												{
+													strMessage << GET_PLAYER(pDestCity->getOwner()).getNameKey();
+												}
+												strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
+												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+											}
+ 										}
+									}
+								}
+							}
+							else if(pTradeConnection->m_eDomain == DOMAIN_SEA)
+							{
+								if(pOriginCity->GetSeaTourismBonus() > 0)
+								{
+									int iBonus = pOriginCity->GetSeaTourismBonus();
+									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+									iBonus /= 100;
+									if(iBonus > 0)
+									{
+										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
+										// Show tourism spread
+										if (pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+										{
+											CvString strInfluenceText;
+											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
+
+											if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
+											else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
+											else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
+											else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
+											else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
+											else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+
+ 											char text[256] = {0};
+											sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
+ 											fDelay += 0.5f;
+ 											DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+
+											CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+											if(pNotification)
+											{
+												Localization::String strSummary;
+												Localization::String strMessage;
+												strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_SEA");
+													strMessage << iBonus;
+													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationAdjectiveKey();
+													strMessage << pOriginCity->getNameKey();
+													strMessage << pDestCity->getNameKey();
+													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+												strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
+												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+											}
+ 										}
+									}
+								}
+							}
+						}
+					}
 				}	
 #endif
 
@@ -2568,15 +2686,14 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
+					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-					if(iCeilTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
-						iCeilTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+						iAdjustedTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}
 #endif
-					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 				}
-
 				// Cultural influence bump
 				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
 
@@ -5273,9 +5390,6 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
 			{
 				iDangerValue += 1000;
-#if defined(MOD_BALANCE_CORE)
-				iDangerValue += 10000;
-#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			int iRange = 3;
@@ -5293,7 +5407,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 							if(pUnit && pUnit->IsCombatUnit() && GET_TEAM(pUnit->getTeam()).isAtWar(m_pPlayer->getTeam()))
 							{
-									iDangerValue += 1000;
+									iDangerValue += 100;
 							}
 						}
 					}
@@ -5306,13 +5420,46 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
 	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
-		if(pFromCity->getUnhappinessFromGold() > 0)
+	{		
+		if(pFromCity != NULL && pFromCity->getUnhappinessFromGold() > 0)
 		{
 			iGoldAmount *= (pFromCity->getUnhappinessFromGold() + 1);
+		}
+	}
+	//If we are somewhat influential, let's count that here.
+	if(bHaveTourism && !GET_PLAYER(pFromCity->getOwner()).isMinorCiv())
+	{
+		if(pFromCity != NULL)
+		{
+			//If we get a bonus for tourism, let's count that.
+			if(kTradeConnection.m_eDomain == DOMAIN_LAND)
+			{
+				if(pFromCity->GetLandTourismBonus() > 0)
+				{
+					iGoldAmount += pFromCity->GetLandTourismBonus();
+					//If our influence is pretty good, double the bonus. Not if we're already influential, though.
+					if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
+					{
+						iGoldAmount += pFromCity->GetLandTourismBonus();
+					}
+				}
+			}
+			//If we get a bonus for tourism, let's count that.
+			else if(kTradeConnection.m_eDomain == DOMAIN_SEA)
+			{
+				if(pFromCity->GetSeaTourismBonus() > 0)
+				{
+					iGoldAmount += pFromCity->GetSeaTourismBonus();
+					//If our influence is pretty good, double the bonus. Not if we're already influential, though.
+					if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
+					{
+						iGoldAmount += pFromCity->GetSeaTourismBonus();
+					}
+				}
+			}
 		}
 	}
 #endif

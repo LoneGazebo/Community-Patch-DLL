@@ -16,6 +16,7 @@
 #include "cvStopWatch.h"
 #if defined(MOD_BALANCE_CORE)
 #include "cvMilitaryAI.h"
+#include "CvTypes.h"
 #endif
 
 // must be included after all other headers
@@ -750,7 +751,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
 		iFaithYieldValue *= 2;
-		iCultureYieldValue *= 2;
+		iCultureYieldValue *= 6;
 	}
 #endif
 
@@ -1000,7 +1001,11 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 				// Can't add more than the max
 				if(IsCanAddSpecialistToBuilding(eBuilding))
 				{
+#if defined(MOD_BALANCE_CORE)
+					iWeight *= 5;
+#else
 					iWeight *= 3;
+#endif
 					break;
 				}
 			}
@@ -1025,7 +1030,11 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 						if(pSpecialistInfo && pSpecialistInfo->getCulturePerTurn() > 0)
 						{
+#if defined(MOD_BALANCE_CORE)
+							iWeight *= 5;
+#else
 							iWeight *= 3;
+#endif
 							break;
 						}
 					}
@@ -1234,6 +1243,13 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		iWeight *= 150;
 		iWeight /= 100;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(m_pCity->GetPlayer()->isHalfSpecialistFoodCapital() && m_pCity->isCapital())
+	{
+		iWeight *= 150;
+		iWeight /= 100;
+	}
+#endif
 
 	// Does the AI want it enough?
 	if(iWeight >= 150)
@@ -1314,13 +1330,19 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 
 	// factor in the fact that specialists may need less food
 	int iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFood()) ? 1 : 0;
+#if defined(MOD_BALANCE_CORE)
+	if(iFoodConsumptionBonus == 0 && m_pCity->isCapital())
+	{
+		iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFoodCapital ()) ? 1 : 0;
+	}
+#endif
 
 	// Yield Values
 	int iFoodYieldValue = (GC.getAI_CITIZEN_VALUE_FOOD() * (pPlayer->specialistYield(eSpecialist, YIELD_FOOD) + iFoodConsumptionBonus));
 	int iProductionYieldValue = (GC.getAI_CITIZEN_VALUE_PRODUCTION() * pPlayer->specialistYield(eSpecialist, YIELD_PRODUCTION));
 	int iGoldYieldValue = (GC.getAI_CITIZEN_VALUE_GOLD() * pPlayer->specialistYield(eSpecialist, YIELD_GOLD));
 	int iScienceYieldValue = (GC.getAI_CITIZEN_VALUE_SCIENCE() * pPlayer->specialistYield(eSpecialist, YIELD_SCIENCE));
-	int iCultureYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * m_pCity->GetCultureFromSpecialist(eSpecialist)); 
+	int iCultureYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * (m_pCity->GetCultureFromSpecialist(eSpecialist))); 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	iCultureYieldValue += (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_CULTURE));
 #endif
@@ -1548,9 +1570,32 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
 		if(eUnitClass != NO_UNITCLASS)
 		{
-			if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST") || eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER") || eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+			if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 			{
-				iValue += iFlavorCulture;
+				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
+				iValue += (iFlavorCulture * iEmptySlots);
+				if(iEmptySlots == 0)
+				{
+					iValue /= 10;
+				}
+			}
+			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+			{
+				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+				iValue += (iFlavorCulture * iEmptySlots);
+				if(iEmptySlots == 0)
+				{
+					iValue /= 10;
+				}
+			}
+			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+			{
+				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+				iValue += (iFlavorCulture * iEmptySlots);
+				if(iEmptySlots == 0)
+				{
+					iValue /= 10;
+				}
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 			{
@@ -1639,6 +1684,12 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	{
 		iSpecialistYield *= 2;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if (m_pCity->isCapital() && m_pCity->GetPlayer()->isHalfSpecialistFoodCapital())
+	{
+		iSpecialistYield *= 2;
+	}
+#endif
 
 	return (iSpecialistYield >= iDefaultSpecialistYield); // Unless default Specialist has strictly more, this Specialist is better
 }

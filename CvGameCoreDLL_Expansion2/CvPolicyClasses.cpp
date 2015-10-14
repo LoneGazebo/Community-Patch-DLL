@@ -170,6 +170,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iNumCitiesFreeFoodBuilding(0),
 	m_bHalfSpecialistUnhappiness(false),
 	m_bHalfSpecialistFood(false),
+#if defined(MOD_BALANCE_CORE)
+	m_bHalfSpecialistFoodCapital(false),
+	m_iEventTourism(0),
+#endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
 	m_iUnitUpgradeCostMod(0),
@@ -473,6 +477,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iNumCitiesFreeFoodBuilding = kResults.GetInt("NumCitiesFreeFoodBuilding");
 	m_bHalfSpecialistUnhappiness = kResults.GetBool("HalfSpecialistUnhappiness");
 	m_bHalfSpecialistFood = kResults.GetBool("HalfSpecialistFood");
+#if defined(MOD_BALANCE_CORE)
+	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
+	m_iEventTourism = kResults.GetInt("EventTourism");
+#endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
 	m_iWoundedUnitDamageMod = kResults.GetInt("WoundedUnitDamageMod");
@@ -1905,7 +1913,17 @@ bool CvPolicyEntry::IsHalfSpecialistFood() const
 {
 	return m_bHalfSpecialistFood;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Specialists don't eat food
+bool CvPolicyEntry::IsHalfSpecialistFoodCapital() const
+{
+	return m_bHalfSpecialistFoodCapital;
+}
+int CvPolicyEntry::GetEventTourism() const
+{
+	return m_iEventTourism;
+}
+#endif
 /// Military units now all produced with food
 bool CvPolicyEntry::IsMilitaryFoodProduction() const
 {

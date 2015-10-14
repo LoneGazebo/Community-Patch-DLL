@@ -143,6 +143,9 @@ struct CvResolutionEffects
 	int iIsWorldWar;
 	bool bEmbargoIdeology;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int iChangeTourism;
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int iVassalMaintenanceGoldPercent;
 #endif
@@ -596,6 +599,9 @@ public:
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTourismMod();
 #endif
 
 	// Text composition for UI
@@ -1294,6 +1300,9 @@ public:
 	int GetWorldWar() const;
 	bool IsEmbargoIdeology() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTourismMod() const;
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalMaintenanceGoldPercent() const;
 #endif
@@ -1332,6 +1341,9 @@ protected:
 	int m_iScienceyGreatPersonRateMod;
 	int m_iGreatPersonTileImprovementCulture;
 	int m_iLandmarkCulture;
+#if defined(MOD_BALANCE_CORE)
+	int m_iTourismMod;
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	bool m_bRaiseCityStateInfluenceToAlly;
 	bool m_bRaiseCityStateInfluenceToFriend;

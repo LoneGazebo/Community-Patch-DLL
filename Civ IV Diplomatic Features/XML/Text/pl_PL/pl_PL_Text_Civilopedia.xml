@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/5/2013 12:20:29 PM -->
+<GameData>
+	<Language_pl_PL>
+		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
+			<Text>Pozwala sprzedawać mapy świata innym cywilizacjom.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
+			<Text>Pozwala sprzedawać technologie innym cywilizacjom.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
+			<Text>Pozwala uczynić z innej cywilizacji swojego wasala.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
+			<Text>Umożliwia handel mapami</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
+			<Text>Umożliwia handel technologiami</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
+			<Text>Umożliwia utworzenie stosunku wasalnego</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
+			<Text>Handel mapami</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_SUMMARY">
+			<Text>Mapa świata danej cywilizacji opisuje każdą wyspę, ocean, cud natury oraz inną cywilizację, które dana cywilizacja odkryła. Handel mapami jest możliwy po odkryciu technologii "nawigacja" i ukazuje każde pole odkryte przez daną cywilizację. Mapy świata nie gwarantują kontaktu z innymi cywilizacjami, ale wskazują ich lokalizację umożliwiając ich spotkanie! Wartość mapy świata rośnie razem z powierzchnią niezbadanego terytorium, którą dana cywilizacja może dla ciebie odkryć, przy czym cuda natury i surowce są warte znacznie więcej niż pusty ocean. Mapy świata potrafią być bardzo drogie, więc postaraj się zbadać jak największy obszar by zarobić na swoich odkryciach!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_ADVISOR_QUESTION">
+			<Text>Co to jest "handel mapami"?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC">
+			<Text>Handel technologiami</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
+			<Text>Po odkryciu technologii "edukacja" możesz sprzedawać odkryte technologie innym cywilizacjom, o ile mają one ambasadę w twojej stolicy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
+			<Text>Co to jest "handel technologiami"?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
+			<Text>Stosunek wasalny</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
+			<Text>Co to jest "stosunek wasalny"?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_SUMMARY">
+			<Text>Stosunek wasalny może być opisane jako "nierówny sojusz", gdzie jedna cywilizacja pobiera hołd od słabszej cywilizacji, czyli swojego wasala. Cywilizacja może tworzyć wasali po wkroczeniu w średniowiecze. Wasal traci część opcji dyplomatycznych, takich jak możliwość samodzielnego wypowiadania wojny czy zawierania pokoju, w zamian za opiekę swojego seniora. Państwo będące wasalem może prowadzić inne czynności dyplomatyczne, takie jak potępianie innych przywódców, zawieranie deklaracji przyjaźni, na własną rękę, a nawet może szpiegować swojego seniora. Można także wygrać grę będąc wasalem, choć jest to bardzo utrudnione.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_ADV_QUEST">
+			<Text>Co to jest "stosunek wasalny"?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC">
+			<Text>Tworzenie wasali</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_SUMMARY">
+			<Text>Cywilizacja może utworzyć stosunek wasalny po wejściu w średniowiecze. Stosunek wasalny może powstać w różnych warunkach: dobrowolnie lub podczas wojny. Podczas pokoju na ekranie handlu dostępna jest opcja "WASAL". Podczas wojny w tym miejscu pojawia się opcja "KAPITULACJA". Zawarcie stosunku wasalnego podczas pokoju może mieć miejsce tylko za zgodą drugiej cywilizacji, co następuje zwykle wtedy, gdy twoja cywilizacja nad nią dominuje lub gdy potrzebują ochrony próbując osiągnąć inny warunek zwycięstwa. Inną formą zawarcia stosunku wasalnego jest kapitulacja podczas wojny. W takim wypadku przegrana strona może chcieć poddać się wygranym, jeśli uznają, że dalsza wojna nie ma sensu. W obydwu wypadkach zaraz po zawarciu umowy wasal zawiera pokój z wszystkimi cywilizacjami, z którymi prowadzi wojnę, a nie prowadzi jej senior. Tak samo wypowiada wojnę wszystkim cywilizacjom, z którymi ma pokój, a wojnę prowadzi senior.[NEWLINE][NEWLINE]Cywilizacja nie może kapitulować zbyt szybko po skończeniu się stosunku wasalnego między nią a inną cywilizacją. Domyślny czas przed ponowną możliwością kapitulacji wynosi 100 tur.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_ADVISOR_QUESTION">
+			<Text>Jak tworzy się stosunek wasalny?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC">
+			<Text>Rozwiązanie stosunku wasalnego</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_SUMMARY">
+			<Text>Wasal nie może wyjść ze stosunku wasalnego przez pewien określony czas, który zależy od sposobu zawarcia umowy. Dobrowolni wasale mogą zerwać umowę już po 10 turach, natomiast cywilizacje, które skapitulowały, muszą na to czekać 50 tur. W tym czasie sernior nie może zrzec się swoich uprawnień, a wasal nie może żądać niezależności. Po tym czasie wasal może zażądać niezależności o ile spełnione zostały następujące warunki: populacja i terytorium wasala wynoszą przynajmniej 50% populacji oraz terytorium seniora lub wasal utracił ponad połowę miast, które posiadał wchodząc w stosunek wasalny. W takim wypadku stosunek wasalny zostaje natychmiast rozwiązany, a senior ma możliwość odejść wasalowi w pokoju, za co uzyska jego wdzięczność, lub wypowiedzieć mu wojnę.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_ADVISOR_QUESTION">
+			<Text>Jak mogę rozwiązać stosunek wasalny?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC">
+			<Text>Korzyści z posiadania wasali</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_SUMMARY">
+			<Text>Posiadanie wasala daje wiele korzyści. Senior otrzymuje pewien procent kultury wasala, bonus do zadowolenia wprost proporcjonalny do populacji w miastach wasala oraz bonus do punktacji równy połowie punktów wasala. Dodatkowo granice wasala stają się otwarte dla seniora (nie działa to w drugą stronę) oraz terytorium wasala natychmiast zostaje odkryte na mapie świata seniora.[NEWLINE][NEWLINE]Senior ponosi pewną karę związaną z kosztem utrzymania miast wasala. Kara ta jest w znacznej mierze zależna od ilości posiadanych przez wasala miast, więc bardziej opłacalne jest pozwalanie wasalowi na rozwój istniejących miast niż zakładanie nowych. Co prawda populacja także podnosi koszt, ale w mniejszym stopniu niż liczba miast. Senior opłaca także pewien odsetek kosztów utrzymania jednostek wasala.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_ADVISOR_QUESTION">
+			<Text>Jakie korzyści otrzymuję z posiadania wasali?</Text>
+		</Row>
+	</Language_pl_PL>
+</GameData>

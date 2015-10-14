@@ -56,14 +56,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
-<!-- Hanse -->
-	<Building_YieldChangesPerPop>
-		<Row>
-			<BuildingType>BUILDING_HANSE</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
-		</Row>
-	</Building_YieldChangesPerPop>
 <!-- Satrap -->
 	<Building_YieldChangesPerPop>
 		<Row>
@@ -77,7 +69,7 @@
 		<Row>
 			<Type>BUILDING_INDUS_CANAL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Cost>175</Cost>
+			<Cost>200</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
@@ -172,7 +164,7 @@
 		<Row>
 			<Type>BUILDING_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Cost>250</Cost>
+			<Cost>275</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
@@ -285,7 +277,7 @@
 			<Type>BUILDING_ODEON</Type>
 			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Cost>125</Cost>
+			<Cost>140</Cost>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<Description>TXT_KEY_BUILDING_ODEON</Description>
 			<GoldMaintenance>1</GoldMaintenance>
@@ -386,7 +378,7 @@
 			<Type>BUILDING_FLAVIAN_COLOSSEUM</Type>
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Cost>125</Cost>
+			<Cost>140</Cost>
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<GoldMaintenance>1</GoldMaintenance>
 			<Description>TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM</Description>
@@ -396,6 +388,8 @@
 			<CityConnectionTradeRouteModifier>2</CityConnectionTradeRouteModifier>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_CONSTRUCTION</EnhancedYieldTech>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>23</PortraitIndex>
@@ -475,7 +469,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
+			<Text>+2 [ICON_TOURISM] Tourism. Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
@@ -486,7 +480,7 @@
 		<Row>
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
-			<Cost>550</Cost>
+			<Cost>700</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
@@ -578,7 +572,7 @@
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
-			<Cost>125</Cost>
+			<Cost>140</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP</Help>
@@ -691,6 +685,7 @@
 			<Strategy>TXT_KEY_BUILDING_MOMA_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<ThemingBonusHelp>TXT_KEY_MOMA_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<NukeImmune>true</NukeImmune>
 			<NumCityCostMod>15</NumCityCostMod>
 			<NationalPopRequired>65</NationalPopRequired>
@@ -741,9 +736,38 @@
 			<BuildingType>BUILDING_MOMA</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
+	<Building_ThemingBonuses>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_MOMA</Description>
+			<Bonus>10</Bonus>
+			<UniqueEras>true</UniqueEras>
+			<MustBeArt>true</MustBeArt>
+			<RequiresUniquePlayers>true</RequiresUniquePlayers>
+			<AIPriority>8</AIPriority>
+		</Row>
+	</Building_ThemingBonuses>
+	<Building_ThemingYieldBonus>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_ThemingYieldBonus>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_MOMA">
 			<Text>Museum of Modern Art</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_MOMA">
+			<Text>Museum of Modern Art</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MOMA_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Art from different Eras and different Civilizations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT">
 			<Text>
@@ -751,7 +775,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_HELP">
-			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Museum of Modern Art. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.</Text>
+			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Museum of Modern Art. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold and +5 [ICON_CULTURE] Culture if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
 			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, The Museum of Modern Art boosts Culture and Tourism in the City greatly. The Museum of Modern Art also boosts the Culture output of all Museums in your Empire. The Museum of Modern Art is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65.</Text>
