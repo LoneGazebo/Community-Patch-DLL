@@ -3731,6 +3731,9 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 				if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					iMultiplier += iCommonFoeMod;
+#if defined(MOD_BALANCE_CORE)
+					break;
+#endif
 				}
 			}
 		}

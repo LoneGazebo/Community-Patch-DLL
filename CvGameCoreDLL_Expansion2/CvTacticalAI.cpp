@@ -1061,6 +1061,46 @@ void CvTacticalAI::UpdatePostures()
 			{
 				CvString szPostureMsg;
 				szPostureMsg.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
+#if defined(MOD_BALANCE_CORE)
+				if(pZone->GetClosestCity() != NULL)
+				{
+					szPostureMsg += pZone->GetClosestCity()->getName();
+				}
+				if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				{
+					szPostureMsg += ", Friendly  ";
+				}
+				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				{
+					szPostureMsg += ", Enemy  ";
+				}
+				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+				{
+					szPostureMsg += ", Even  ";
+				}
+				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE)
+				{
+					szPostureMsg += ", No Units Visible  ";
+				}
+
+				if(pZone->IsWater())
+				{
+					szPostureMsg += ", Water  ";
+				}
+				else
+				{
+					szPostureMsg += ", Land  ";
+				}
+
+				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
+				{
+					szPostureMsg += ", Temporary Zone  ";
+				}
+				if(pZone->GetOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(pZone->GetOwner()).getTeam()).isAtWar(m_pPlayer->getTeam()))
+				{
+					szPostureMsg += ", WARZONE  ";
+				}
+#endif
 				switch(eNewPosture)
 				{
 				case AI_TACTICAL_POSTURE_SIT_AND_BOMBARD:
@@ -1169,11 +1209,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			if(pZone->IsWater())
 			{
-				if(pZone->GetFriendlyStrength() > 0)
-				{
-					eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-				}
-				else
+				if(pZone->GetFriendlyStrength() < 0)
 				{
 					eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 				}
@@ -1230,10 +1266,6 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 		else if(pZone->GetEnemyStrength() <= 0 && pZone->GetFriendlyStrength() > 0)
 		{
-			if(pZone->IsWater())
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-			}
 			eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
 		}
 		else
@@ -1288,11 +1320,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1318,11 +1346,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1340,11 +1364,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1434,10 +1454,6 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		else if(pZone->GetEnemyStrength() <= 0 && pZone->GetFriendlyStrength() > 0)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-			if(pZone->IsWater())
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-			}
 		}
 		else
 		{
@@ -1468,11 +1484,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1498,11 +1510,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1527,11 +1535,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 				}
 				if(pZone->IsWater())
 				{
-					if(pZone->GetFriendlyStrength() > 0)
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-					}
-					else
+					if(pZone->GetFriendlyStrength() < 0)
 					{
 						eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 					}
@@ -1573,72 +1577,61 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(pZone->IsWater())
+		if(pZone->GetEnemyStrength() <= 0)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
+			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 		}
 		else
 		{
-			if(pZone->GetEnemyStrength() <= 0)
+			if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 			{
-				eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-			}
-			else
-			{
-				if(pZone->IsWater())
+				if(pZone->GetFriendlyStrength() > pZone->GetEnemyStrength())
 				{
-					eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
+					eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 				}
-				if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				else if(pZone->GetFriendlyMeleeUnitCount() > pZone->GetEnemyMeleeUnitCount())
 				{
-					if(pZone->GetFriendlyStrength() > pZone->GetEnemyStrength())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-					}
-					else if(pZone->GetFriendlyMeleeUnitCount() > pZone->GetEnemyMeleeUnitCount())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-					}
-					else if(pZone->GetFriendlyRangedUnitCount() > pZone->GetEnemyRangedUnitCount())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-					}
-					else
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-					}
+					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				else if(pZone->GetFriendlyRangedUnitCount() > pZone->GetEnemyRangedUnitCount())
 				{
-					if(pZone->GetEnemyStrength() > pZone->GetFriendlyStrength())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-					}
-					else if(pZone->GetEnemyMeleeUnitCount() > pZone->GetFriendlyMeleeUnitCount())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-					}
-					else if(pZone->GetEnemyRangedUnitCount() > pZone->GetFriendlyRangedUnitCount())
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-					}
-					else
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-					}
+					eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
 				}
 				else
 				{
-					if(eLastPosture != AI_TACTICAL_POSTURE_NONE)
-					{
-						eChosenPosture = eLastPosture;
-					}
-					else
-					{
-						eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-					}
-
+					eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 				}
+			}
+			else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			{
+				if(pZone->GetEnemyStrength() > pZone->GetFriendlyStrength())
+				{
+					eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+				}
+				else if(pZone->GetEnemyMeleeUnitCount() > pZone->GetFriendlyMeleeUnitCount())
+				{
+					eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
+				}
+				else if(pZone->GetEnemyRangedUnitCount() > pZone->GetFriendlyRangedUnitCount())
+				{
+					eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+				}
+				else
+				{
+					eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
+				}
+			}
+			else
+			{
+				if(eLastPosture != AI_TACTICAL_POSTURE_NONE)
+				{
+					eChosenPosture = eLastPosture;
+				}
+				else
+				{
+					eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
+				}
+
 			}
 		}
 		break;
@@ -1692,18 +1685,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Land or water?
 		if(pZone->IsWater())
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pZone->GetEnemyStrength() > 0)
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-			}
-			else
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-			}
-#else
 			eChosenPosture = AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT;
-#endif
 		}
 		else
 		{
@@ -6282,9 +6264,19 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 		{
 			int iBestDistance = MAX_INT;
 			int iDistance;
-			CvPlot *pBestPlot = NULL;
 			int iSlowestMovementRate = MAX_INT;
 			UnitHandle pClosestUnitAtSea;
+			if(pOperation->GetTargetPlot() == NULL)
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("No target, aborting!");
+					pOperation->LogOperationSpecialMessage(strMsg);
+				}
+				pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+			}
+			CvPlot *pBestPlot = pOperation->GetTargetPlot();
 			// Update army's current location
 			CvPlot* pThisTurnTarget;
 			CvPlot* pClosestCurrentCOMonPath = NULL;
@@ -7020,7 +7012,11 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			ExecuteGatherMoves(pThisArmy);
+#else
 			ExecuteNavalFormationMoves(pThisArmy, pOperation->GetMusterPlot());
+#endif
 		}
 	}
 
@@ -7028,8 +7024,66 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
 		// Get them moving to target without delay
+#if defined(MOD_BALANCE_CORE)
+		ClearEnemiesNearArmy(pThisArmy);
+		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pThisArmy->GetOperationID());
+		UnitHandle pUnit;
+		pUnit = pThisArmy->GetFirstUnit();
+		while(pUnit && !pUnit->TurnProcessed())
+		{
+			if(pUnit->plot()->getOwner() == pOperation->GetEnemy())
+			{
+				if(pUnit->pillage())
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Pillagers be pillaging! Go AI go! (X=%d Y=%d)", pUnit->plot()->getX(), pUnit->plot()->getY());
+						pOperation->LogOperationSpecialMessage(strMsg);
+					}
+				}
+			}
+			pUnit = pThisArmy->GetNextUnit();
+		}
+		// Request moves for all units
+		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+		{
+			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+			if(pSlot->GetUnitID() != NO_UNIT)
+			{
+				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+				if(pUnit && !pUnit->TurnProcessed())
+				{
+					// Great general or admiral?
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					{
+						if(pUnit->getMoves() > 0)
+						{
+							CvOperationUnit operationUnit;
+							operationUnit.SetUnitID(pUnit->GetID());
+							operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
+							m_GeneralsToMove.push_back(operationUnit);
+						}
+					}
+
+					else
+					{
+						pSlot->SetStartedOnOperation(true);
+						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+						if(pkMultiUnitFormationInfo)
+						{
+							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
+							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
+						}
+					}
+				}
+			}
+		}
+		ExecuteGatherMoves(pThisArmy);
+#else
 		pOperation->ArmyInPosition(pThisArmy);
 		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
+#endif
 	}
 
 	// MOVING TO TARGET
@@ -7037,9 +7091,10 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		// Update army's current location
-		CvPlot* pCurrentPosition = pOperation->ComputeCenterOfMassForTurn(pThisArmy);
+		CvPlot* pClosestCurrentCOMonPath = NULL;
+		CvPlot* pThisTurnTarget = pOperation->ComputeCenterOfMassForTurn(pThisArmy, &pClosestCurrentCOMonPath);
 
-		if(pCurrentPosition == NULL)
+		if(pThisTurnTarget == NULL)
 		{
 			if(pOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
 			{
@@ -7051,20 +7106,54 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 			return;
 		}
 
-		pThisArmy->SetXY(pCurrentPosition->getX(), pCurrentPosition->getY());
+		pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
 		ClearEnemiesNearArmy(pThisArmy);
 
-		// check if we're there
-		pOperation->ArmyInPosition(pThisArmy);
-		// if we're still on the way, keep going
-		if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
-			ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
+		// Request moves for all units
+		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+		{
+			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+			if(pSlot->GetUnitID() != NO_UNIT)
+			{
+				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+				if(pUnit && !pUnit->TurnProcessed())
+				{
+					// Great general?
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					{
+						if(pUnit->getMoves() > 0)
+						{
+							CvOperationUnit operationUnit;
+							operationUnit.SetUnitID(pUnit->GetID());
+							operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
+							m_GeneralsToMove.push_back(operationUnit);
+						}
+					}
+					else
+					{
+						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+						if(pkMultiUnitFormationInfo)
+						{
+							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
+							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
+						}
+					}
+				}
+			}
+		}
+		ExecuteFormationMoves(pThisArmy, pClosestCurrentCOMonPath);
+	}
+
+	if(m_GeneralsToMove.size() > 0)
+	{
+		MoveGreatGeneral(pThisArmy);
+	}
 #else
 		// Get them moving to target without delay
 		pOperation->ArmyInPosition(pThisArmy);
 		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
-#endif
 	}
+#endif
 }
 
 /// Queues up attacks on enemy units on or adjacent to army's desired center
@@ -7369,6 +7458,10 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 		// First loop for melee units who should be out front
 		int iMeleeUnitsToPlace = iMeleeUnits;
 		bool bDone = false;
+#if defined(MOD_BALANCE_CORE)
+		if(iMeleeUnitsToPlace > 0)
+		{
+#endif
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			eTargetType = m_TempTargets[iI].GetTargetType();
@@ -7386,7 +7479,21 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Deploying melee unit %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+						strMsg.Format("Deploying melee unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+						LogTacticalMessage(strMsg);
+					}
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+					TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
+					pInnerUnit->finishMoves();
+					iMeleeUnitsToPlace--;
+				}
+				else if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/, 3, 10, true))
+				{
+					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Deploying melee unit (second pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 						LogTacticalMessage(strMsg);
 					}
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
@@ -7414,8 +7521,11 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				bDone = true;
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		// Log if someone in army didn't get a move assigned
+#if !defined(MOD_BALANCE_CORE)
 		if (iMeleeUnitsToPlace > 0)
 		{
 			if(GC.getLogging() && GC.getAILogging())
@@ -7424,18 +7534,15 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				strMsg.Format("No army deployment move for %d melee units", iMeleeUnitsToPlace);
 				LogTacticalMessage(strMsg);
 			}
-#if defined(MOD_BALANCE_CORE)
-			CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-			if(pOperation)
-			{
-				pOperation->SetToAbort(AI_ABORT_NO_ROOM_DEPLOY);
-				return;
-			}
-#endif
 		}
+#endif
 
 		// Second loop for ranged units
 		int iRangedUnitsToPlace = iRangedUnits;
+#if defined(MOD_BALANCE_CORE)
+		if(iRangedUnitsToPlace > 0)
+		{
+#endif
 		bDone = false;
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
@@ -7455,7 +7562,21 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
-							strMsg.Format("Deploying ranged unit %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+							strMsg.Format("Deploying ranged unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+							LogTacticalMessage(strMsg);
+						}
+						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+						TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
+						pInnerUnit->finishMoves();
+						iRangedUnitsToPlace--;
+					}
+					else if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 3, 10, true))
+					{
+						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Deploying ranged unit (second pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 							LogTacticalMessage(strMsg);
 						}
 						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
@@ -7484,8 +7605,10 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				bDone = true;
 			}
 		}
-
-		// Third loop for ranged units we couldn't put in an ideal spot
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
+		// Third loop for all units we couldn't put in an ideal spot
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			eTargetType = m_TempTargets[iI].GetTargetType();
@@ -7497,19 +7620,27 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 			{
 #if defined(MOD_BALANCE_CORE)
 				//find a unit that's a little bit further back, and then try to move it to this good plot
-				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 3, 10, true))
+				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bSafeForRanged*/, false /*bMustBeRangedUnit*/, 3, 10, true))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Deploying ranged unit %d (%s), second pass, to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+						strMsg.Format("Deploying third wave unit %d (%s), second pass, to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 						LogTacticalMessage(strMsg);
 					}
 
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
 					TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
 					pInnerUnit->finishMoves();
+					if(!pInnerUnit->isRanged())
+					{
+						iMeleeUnitsToPlace--;
+					}
+					else
+					{
+						iRangedUnitsToPlace--;
+					}
 #else
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 				{
@@ -7523,23 +7654,36 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 						strMsg.Format("Deploying ranged unit (Pass 2), %s, To X: %d, To Y: %d, At X: %d, At Y: %d", pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 						LogTacticalMessage(strMsg);
 					}
-#endif
 					iRangedUnitsToPlace--;
+#endif
+					
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (iRangedUnitsToPlace == 0 && iMeleeUnitsToPlace == 0)
+#else
 			if (iRangedUnitsToPlace == 0)
+#endif
 			{
 				bDone = true;
 			}
 		}
 
 		// Log if someone in army didn't get a move assigned
+#if defined(MOD_BALANCE_CORE)
+		if (iRangedUnitsToPlace > 0 || iMeleeUnitsToPlace > 0)
+#else
 		if (iRangedUnitsToPlace > 0)
+#endif
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
+#if defined(MOD_BALANCE_CORE)
+				strMsg.Format("No army deployment move for %d ranged units, %d melee units. ABORTING.", iRangedUnitsToPlace, iMeleeUnitsToPlace);
+#else
 				strMsg.Format("No army deployment move for %d ranged units", iRangedUnitsToPlace);
+#endif
 				LogTacticalMessage(strMsg);
 			}
 #if defined(MOD_BALANCE_CORE)

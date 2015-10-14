@@ -1876,7 +1876,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
+	if(iInfluence > 0 && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
 		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetTotalJONSCulturePerTurn();

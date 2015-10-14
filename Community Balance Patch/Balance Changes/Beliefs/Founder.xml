@@ -59,7 +59,7 @@
 		<Row>
 			<BeliefType>BELIEF_TITHE</BeliefType>
 			<YieldType>YIELD_TOURISM</YieldType>
-			<Yield>15</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromForeignSpread>
 

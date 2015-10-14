@@ -19691,9 +19691,13 @@ if (!bDoEvade)
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
 							float fDelay = 0.5f;
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								if(iCulturePoints <= 0)
+								{
+									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+								}
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 								{

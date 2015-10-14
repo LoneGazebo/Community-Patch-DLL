@@ -34801,13 +34801,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
 	int iBestArea, iSecondBestArea;
-	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-
-	if(iNumSettleAreas == 0)
-	{
-		return NULL;
-	}
-	//start with a predefined base value
+//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 
 	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
@@ -34815,6 +34809,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	{
 		iBestFoundValue -= (iSettlers * 1000);
 	}
+	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
+
+	if(iNumSettleAreas == 0)
+	{
+		return NULL;
+	}
+
 	int iTurnsWaiting = 0;
 	if(pUnit)
 	{

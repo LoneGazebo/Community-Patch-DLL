@@ -2806,6 +2806,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										{
 											iDistance *= 2;
 										}
+										if(iDistance > 10)
+										{
+											continue;
+										}
 										if(iDistance == -1)
 										{
 											CvAssertMsg(0, "No muster or target!");
@@ -2855,6 +2859,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 											{
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
+											}
+											if(iDistance > 10)
+											{
+												continue;
 											}
 										}
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -2911,6 +2919,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
 											}
+											if(iDistance > 10)
+											{
+												continue;
+											}
 										}
 
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -2959,6 +2971,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 											{
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
+											}
+											if(iDistance > 10)
+											{
+												continue;
 											}
 										}
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -3080,6 +3096,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 											CvAssertMsg(0, "No muster or target!");
 											iDistance = MAX_INT;
 										}
+										if(iDistance > 10)
+										{
+											continue;
+										}
 									}
 
 									kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -3124,6 +3144,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 											{
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
+											}
+											if(iDistance > 10)
+											{
+												continue;
 											}
 										}
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -3180,6 +3204,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
 											}
+											if(iDistance > 10)
+											{
+												continue;
+											}
 										}
 
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -3228,6 +3256,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 											{
 												CvAssertMsg(0, "No muster or target!");
 												iDistance = MAX_INT;
+											}
+											if(iDistance > 10)
+											{
+												continue;
 											}
 										}
 										kSearchList.push_back(CvOperationSearchUnit(pLoopUnit, iDistance));
@@ -3631,16 +3663,6 @@ void CvAIEnemyTerritoryOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 					}
 					else
 					{
-#if defined(MOD_BALANCE_CORE)
-						CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();	
-						int iUnitID;
-						CvUnit* pFirstUnit = NULL;
-						iUnitID = pArmyAI->GetFirstUnitID();
-						if(iUnitID != -1)
-						{
-							pFirstUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-						}
-#endif
 
 						CvPlot* pDeployPt;
 						pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), GetMusterPlot(), GetTargetPlot(), (GetDeployRange() / 2), true);
@@ -3649,10 +3671,13 @@ void CvAIEnemyTerritoryOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 							pArmyAI->SetGoalPlot(pDeployPt);
 						}
 #if defined(MOD_BALANCE_CORE)
-
-						else if(GetTargetPlot() != NULL && pFirstUnit != NULL && kPathFinder.DoesPathExist(*(pFirstUnit), pFirstUnit->plot(), GetTargetPlot()))
+						else if(GetMusterPlot() != NULL && GetTargetPlot() != NULL)
 						{
-							pArmyAI->SetGoalPlot(GetTargetPlot());
+							bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(GetMusterPlot()->getX(), GetMusterPlot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY(), m_eOwner, false);
+							if(bPathfinderSuccess)
+							{
+								pArmyAI->SetGoalPlot(GetTargetPlot());
+							}
 						}
 #endif
 						else
@@ -3879,16 +3904,6 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 #if defined(MOD_BALANCE_CORE)
 				SetTurnStarted(GC.getGame().getGameTurn());
 #endif
-#if defined(MOD_BALANCE_CORE)
-				CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();	
-				int iUnitID;
-				CvUnit* pFirstUnit = NULL;
-				iUnitID = pArmyAI->GetFirstUnitID();
-				if(iUnitID != -1)
-				{
-					pFirstUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-				}
-#endif
 				// Reset our destination to be a few plots shy of the final target
 				CvPlot* pDeployPt;
 				pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), GetMusterPlot(), GetTargetPlot(), (GetDeployRange() / 2), true);
@@ -3913,26 +3928,29 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 					LogOperationStart();
 				}
 #if defined(MOD_BALANCE_CORE)
-
-				else if(GetTargetPlot() != NULL && pFirstUnit != NULL && kPathFinder.DoesPathExist(*(pFirstUnit), pFirstUnit->plot(), GetTargetPlot()))
+				else if(GetMusterPlot() != NULL && GetTargetPlot() != NULL)
 				{
-					pArmyAI->SetGoalPlot(GetTargetPlot());
-
-					// Find the list of units we need to build before starting this operation in earnest
-					BuildListOfUnitsWeStillNeedToBuild();
-
-					// try to get as many units as possible from existing units that are waiting around
-					if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+					bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(GetMusterPlot()->getX(), GetMusterPlot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY(), m_eOwner, false);
+					if(bPathfinderSuccess)
 					{
-						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-					}
-					else
-					{
-						m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
-					}
+						pArmyAI->SetGoalPlot(GetTargetPlot());
 
-					LogOperationStart();
+						// Find the list of units we need to build before starting this operation in earnest
+						BuildListOfUnitsWeStillNeedToBuild();
+
+						// try to get as many units as possible from existing units that are waiting around
+						if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+						{
+							pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+							m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+						}
+						else
+						{
+							m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+						}
+
+						LogOperationStart();
+					}
 				}
 #endif
 				else
@@ -8004,6 +8022,27 @@ bool CvAIOperationPureNavalCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if(plotDistance(pArmy->Plot()->getX(), pArmy->Plot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) < GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
+			{
+				// Notify Diplo AI we're in place for attack
+				GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
+
+				// Notify tactical AI to focus on this area
+				CvTemporaryZone zone;
+				zone.SetX(GetTargetPlot()->getX());
+				zone.SetY(GetTargetPlot()->getY());
+				zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+				zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+				zone.SetNavalInvasion(true);
+				GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				return true;
+			}
+		}
+		break;
+#else
 			if (plotDistance(pArmy->Plot()->getX(), pArmy->Plot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) < 2)
 			{
 				// Notify tactical AI to focus on this area
@@ -8018,7 +8057,7 @@ bool CvAIOperationPureNavalCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 			}
 		}
 		break;
-
+#endif
 		// In all other cases use base class version
 	case AI_OPERATION_STATE_ABORTED:
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
