@@ -8921,7 +8921,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #if defined(MOD_BALANCE_CORE)
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if((IsTradeRoute(ePlayer) || bTrade) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
 					{
 						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 						if(iBonus > 0)

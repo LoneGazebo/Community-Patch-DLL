@@ -432,6 +432,7 @@
 #define MOD_BALANCE_YIELD_SCALE_ERA					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_YIELD_SCALE_ERA())
 #define MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_NEW_GP_ATTRIBUTES())
 #define MOD_BALANCE_CORE_DEBUGGING					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DEBUGGING())
+#define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 
 #endif
 
@@ -1053,6 +1054,11 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_UnitPrekill				"UnitPrekill",					"iiiiibi"
 #define GAMEEVENT_UnitPromoted				"UnitPromoted",					"iii"
 #define GAMEEVENT_UnitUpgraded				"UnitUpgraded",					"iiib"
+#define GAMEEVENT_PietyChanged              "PietyChange",                  "iiibi"
+#define GAMEEVENT_PietyRateChanged          "PietyRateChange",              "iiibbi"
+#define GAMEEVENT_PlayerSecularizes         "PlayerSecularizes",            "iiibii"
+#define GAMEEVENT_StateReligionAdopted      "PlayerStateReligionAdopted",   "iiibiii"
+#define GAMEEVENT_StateReligionChanged      "PlayerStateReligionChanged",   "iiibbii"
 
 
 // Serialization wrappers
@@ -1235,6 +1241,7 @@ public:
 	MOD_OPT_DECL(BALANCE_YIELD_SCALE_ERA);
 	MOD_OPT_DECL(BALANCE_CORE_NEW_GP_ATTRIBUTES);
 	MOD_OPT_DECL(BALANCE_CORE_DEBUGGING);
+	MOD_OPT_DECL(BALANCE_CORE_JFD);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 

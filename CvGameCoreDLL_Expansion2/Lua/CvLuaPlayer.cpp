@@ -1230,6 +1230,24 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasCapturedHolyCity);
 	Method(HasEmbassyWith);
 	Method(DoForceDefPact);
+	Method(GetMajorCivOpinion);
+	Method(GetMajorityReligion);
+	Method(GetStateReligion);
+	Method(GetNumCitiesWithStateReligion);
+	Method(SetStateReligion);
+
+	Method(SetPiety);
+	Method(ChangePiety);
+	Method(GetPiety);
+	Method(GetPietyRate);
+	Method(SetPietyRate);
+	Method(ChangePietyRate);
+	Method(GetTurnsSinceConversion);
+	Method(SetTurnsSinceConversion);
+	Method(HasStateReligion);
+	Method(HasSecularized);
+	Method(SetHasSecularized);
+	Method(IsPagan);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -12994,6 +13012,135 @@ int CvLuaPlayer::lDoForceDefPact(lua_State* L)
 		GET_TEAM(pkPlayer->getTeam()).SetHasDefensivePact(pOtherTeam.GetID(), true);
 		pOtherTeam.SetHasDefensivePact(pkPlayer->getTeam(), true);
 	}
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lGetMajorCivOpinion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetMajorityReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
+	lua_pushinteger(L, eReligion);
+	return 1;
+}
+int CvLuaPlayer::lGetStateReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetStateReligion();
+	lua_pushinteger(L, eReligion);
+	return 1;
+}
+int CvLuaPlayer::lGetNumCitiesWithStateReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	const int iValue = pkPlayer->GetReligions()->GetNumCitiesWithStateReligion(eReligion);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lSetStateReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	pkPlayer->GetReligions()->SetStateReligion(eReligion);
+	return 1;
+}
+int CvLuaPlayer::lGetPiety(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetPiety();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetPiety(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetPiety(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangePiety(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangePiety(iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetPietyRate(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetPietyRate();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetPietyRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetPietyRate(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangePietyRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangePietyRate(iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetTurnsSinceConversion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetTurnsSinceConversion();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetTurnsSinceConversion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetTurnsSinceConversion(iValue);
+	return 1;
+}
+int CvLuaPlayer::lHasStateReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->HasStateReligion();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lHasSecularized(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->HasSecularized();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lSetHasSecularized(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bValue = lua_toboolean(L, 2);
+
+	pkPlayer->SetHasSecularized(bValue);
+	return 1;
+}
+int CvLuaPlayer::lIsPagan(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->IsPagan();
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 #endif

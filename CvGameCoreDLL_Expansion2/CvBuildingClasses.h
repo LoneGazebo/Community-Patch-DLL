@@ -416,6 +416,8 @@ public:
 	int GetLocalResourceAnd(int i) const;
 	int GetLocalResourceOr(int i) const;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int GetFeatureOr(int i) const;
+	int GetFeatureAnd(int i) const;
 	int GetResourceMonopolyAnd(int i) const;
 	int GetResourceMonopolyOr(int i) const;
 	int GetCorporationYieldChange(int i) const;
@@ -772,6 +774,8 @@ private:
 	int* m_piLocalResourceAnds;
 	int* m_piLocalResourceOrs;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int* m_piLocalFeatureOrs;
+	int* m_piLocalFeatureAnds;
 	int* m_piResourceMonopolyAnds;
 	int* m_piResourceMonopolyOrs;
 	int* m_piCorporationYield;
@@ -901,9 +905,13 @@ public:
 	void SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValue);
 
 	int GetNumRealBuilding(BuildingTypes eIndex) const;
+#if defined(MOD_BALANCE_CORE)
+	void SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bool bNoBonus = false);
+	void SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus = false);
+#else
 	void SetNumRealBuilding(BuildingTypes eIndex, int iNewValue);
 	void SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime);
-
+#endif
 	int GetNumFreeBuilding(BuildingTypes eIndex) const;
 	void SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
 

@@ -374,7 +374,11 @@ public:
 	bool isTerrainTrade(TerrainTypes eIndex) const;
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
+#else
 	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);
+#endif
 	CvTeamTechs* GetTeamTechs() const;
 
 #if defined(MOD_API_UNIFIED_YIELDS)

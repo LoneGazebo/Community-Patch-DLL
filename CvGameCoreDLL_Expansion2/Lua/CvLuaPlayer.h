@@ -388,6 +388,23 @@ protected:
 	LUAAPIEXTN(GetWarDamageLevel, int);
 	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
+	LUAAPIEXTN(GetMajorCivOpinion, int);
+	LUAAPIEXTN(GetMajorityReligion, int);
+	LUAAPIEXTN(GetStateReligion, int);
+	LUAAPIEXTN(SetStateReligion, int);
+	LUAAPIEXTN(GetNumCitiesWithStateReligion, int);
+	LUAAPIEXTN(SetPiety, int);
+	LUAAPIEXTN(ChangePiety, int);
+	LUAAPIEXTN(GetPiety, int);
+	LUAAPIEXTN(GetPietyRate, int);
+	LUAAPIEXTN(SetPietyRate, int);
+	LUAAPIEXTN(ChangePietyRate, int);
+	LUAAPIEXTN(GetTurnsSinceConversion, int);
+	LUAAPIEXTN(SetTurnsSinceConversion, int);
+	LUAAPIEXTN(HasStateReligion, int);
+	LUAAPIEXTN(HasSecularized, int);
+	LUAAPIEXTN(SetHasSecularized, int);
+	LUAAPIEXTN(IsPagan, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

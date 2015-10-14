@@ -229,6 +229,7 @@ public:
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
+
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	int GetNumReligionsFounded(bool bIgnoreLocal = false) const;
 #else
@@ -365,6 +366,12 @@ public:
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
 	ReligionTypes GetReligionInMostCities() const;
+#if defined(MOD_BALANCE_CORE)
+	//JFD
+	void SetStateReligion(ReligionTypes eReligion);
+	ReligionTypes GetStateReligion() const;
+	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
+#endif
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion) const;
 	int GetCityStateInfluenceModifier() const;
 	int GetSpyPressure() const;
@@ -389,6 +396,9 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	ReligionTypes m_majorityPlayerReligion;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_PlayerStateReligion;
 #endif
 };
 

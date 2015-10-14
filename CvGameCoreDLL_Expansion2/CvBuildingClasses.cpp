@@ -295,6 +295,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piLocalResourceAnds(NULL),
 	m_piLocalResourceOrs(NULL),
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_piLocalFeatureOrs(NULL),
+	m_piLocalFeatureAnds(NULL),
 	m_piResourceMonopolyAnds(NULL),
 	m_piResourceMonopolyOrs(NULL),
 	m_piCorporationYield(NULL),
@@ -383,6 +385,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piLocalResourceAnds);
 	SAFE_DELETE_ARRAY(m_piLocalResourceOrs);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	SAFE_DELETE_ARRAY(m_piLocalFeatureOrs);
+	SAFE_DELETE_ARRAY(m_piLocalFeatureAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
 	SAFE_DELETE_ARRAY(m_piCorporationYield);
@@ -834,6 +838,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_piLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	kUtility.PopulateArrayByExistence(m_piLocalFeatureOrs, "Resources", "Building_LocalFeatureOrs", "FeatureType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByExistence(m_piLocalFeatureAnds, "Resources", "Building_LocalFeatureAnds", "FeatureType", "BuildingType", szBuildingType);
+
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
 
@@ -2648,6 +2655,20 @@ int CvBuildingEntry::GetLocalResourceOr(int i) const
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 /// Prerequisite resources with AND
+int CvBuildingEntry::GetFeatureAnd(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piLocalFeatureAnds ? m_piLocalFeatureAnds[i] : -1;
+}
+/// Prerequisite resources with AND
+int CvBuildingEntry::GetFeatureOr(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piLocalFeatureOrs ? m_piLocalFeatureOrs[i] : -1;
+}
+/// Prerequisite resources with AND
 int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
 {
 	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
@@ -3648,14 +3669,25 @@ int CvCityBuildings::GetNumRealBuilding(BuildingTypes eIndex) const
 }
 
 /// Accessor: Set number of these buildings that have been constructed in the city
+
+#if defined(MOD_BALANCE_CORE)
+void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bool bNoBonus)
+{
+	SetNumRealBuildingTimed(eIndex, iNewValue, true, m_pCity->getOwner(), GC.getGame().getGameTurnYear(), bNoBonus);
+}
+#else
 void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue)
 {
 	SetNumRealBuildingTimed(eIndex, iNewValue, true, m_pCity->getOwner(), GC.getGame().getGameTurnYear());
 
 }
-
+#endif
 /// Accessor: Set number of these buildings that have been constructed in the city (with date)
+#if defined(MOD_BALANCE_CORE)
+void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus)
+#else
 void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime)
+#endif
 {
 	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
 
@@ -3703,7 +3735,11 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		// Process building effects
 		if(iOldNumBuilding != GetNumBuilding(eIndex))
 		{
+#if defined(MOD_BALANCE_CORE)
+			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst, bNoBonus);
+#else
 			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst);
+#endif
 		}
 
 		// Maintenance cost

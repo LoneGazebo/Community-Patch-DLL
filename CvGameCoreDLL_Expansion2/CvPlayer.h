@@ -1163,6 +1163,23 @@ public:
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
 #if defined(MOD_BALANCE_CORE)
+	void SetPiety(int iValue);
+	void ChangePiety(int iValue);
+	int GetPiety() const;
+	int GetPietyRate() const;
+	void SetPietyRate(int iValue);
+	void ChangePietyRate(int iValue);
+	int GetTurnsSinceConversion() const;
+	void SetTurnsSinceConversion(int iValue);
+	void DoPiety();
+	bool HasStateReligion();
+	bool HasSecularized() const;
+	void SetHasSecularized(bool bValue);
+	bool IsPagan();
+
+
+	//DONE
+
 	bool CanUpgradeCSTerritory() const;
 	void ChangeUpgradeCSTerritory(int iChange);
 	int GetUpgradeCSTerritory() const;
@@ -1403,6 +1420,8 @@ public:
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+
+
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
 
@@ -2534,6 +2553,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iJFDPiety;
+	FAutoVariable<int, CvPlayer> m_iJFDPietyRate;
+	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
+	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;

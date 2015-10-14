@@ -1238,8 +1238,12 @@ int CvLuaTeam::lSetHasTech(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
 	const bool bFirst = lua_toboolean(L, 4);
 	const bool bAnnounce = lua_toboolean(L, 5);
-
+#if defined(MOD_BALANCE_CORE)
+	const bool bNoBonus = luaL_optbool(L, 6, false);
+	pkTeam->setHasTech(eIndex, bNewValue, ePlayer, bFirst, bAnnounce, bNoBonus);
+#else
 	pkTeam->setHasTech(eIndex, bNewValue, ePlayer, bFirst, bAnnounce);
+#endif
 	return 0;
 }
 
