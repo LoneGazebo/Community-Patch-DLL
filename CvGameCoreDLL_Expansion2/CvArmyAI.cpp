@@ -62,10 +62,10 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID, bool /* bCon
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_iOperationID = iOperationID;
-	m_iCurrentX = -1;
-	m_iCurrentY = -1;
-	m_iGoalX = -1;
-	m_iGoalY = -1;
+	m_iCurrentX = INVALID_PLOT_COORD;
+	m_iCurrentY = INVALID_PLOT_COORD;
+	m_iGoalX = INVALID_PLOT_COORD;
+	m_iGoalY = INVALID_PLOT_COORD;
 	m_eDomainType = DOMAIN_LAND;
 	m_iFormationIndex = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
@@ -515,7 +515,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pMusterPlot)
 			{
-				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, true /*bReusePaths*/, true, true);
+				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, false, true, true);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -691,8 +691,8 @@ void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 	}
 	else
 	{
-		m_iGoalX = -1;
-		m_iGoalY = -1;
+		m_iGoalX = INVALID_PLOT_COORD;
+		m_iGoalY = INVALID_PLOT_COORD;
 	}
 }
 

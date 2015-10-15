@@ -516,9 +516,9 @@ void CvTacticalAI::CommandeerUnits()
 			}
 			else
 			{
-				// Non-zero danger value and near enemy, or deploying out of an operation?
+				// Non-zero danger value or near enemy, or deploying out of an operation?
 				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()),pLoopUnit.pointer());
-				if((iDanger > 0 && NearVisibleEnemy(pLoopUnit, m_iRecruitRange)) ||
+				if((iDanger > 0 || NearVisibleEnemy(pLoopUnit, m_iRecruitRange)) ||
 				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 				{
 					if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
@@ -15929,7 +15929,7 @@ int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, Rea
 			if (moveCache == remainingMoves.end())
 			{
 				//can we go there?
-				if (!pUnit->canEnterTerrain(*pAdjacentPlot))
+				if (!pUnit->canEnterTerrain(*pAdjacentPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
 					continue;
 
 				//check territory on request
@@ -16303,7 +16303,10 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 			CvPlot* pPlot = it->pPlot;
 
 			//can we go there?
-			if (!pUnit->canEnterTerrain(*pPlot))
+			if (!pUnit->canEnterTerrain(*pPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+				continue;
+
+			if (!pUnit->canHeal(pPlot))
 				continue;
 
 			//this is for healing naval units

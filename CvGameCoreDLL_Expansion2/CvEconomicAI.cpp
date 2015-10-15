@@ -2393,8 +2393,8 @@ void CvEconomicAI::DoPlotPurchases()
 {
 	CvCity* pLoopCity = 0;
 	CvCity* pBestCity = NULL;
-	int iBestX = -1;
-	int iBestY = -1;
+	int iBestX = INVALID_PLOT_COORD;
+	int iBestY = INVALID_PLOT_COORD;
 	int iTempX = 0, iTempY = 0;
 
 	int iScore = 0;
@@ -2469,7 +2469,7 @@ void CvEconomicAI::DoPlotPurchases()
 
 		if(pBestCity != NULL)
 		{
-			if(iBestX != -1 && iBestY != -1)
+			if(iBestX != INVALID_PLOT_COORD && iBestY != INVALID_PLOT_COORD)
 			{
 #if defined(MOD_BALANCE_CORE)
 				pBestCity->BuyPlot(iBestX, iBestY);
@@ -4655,7 +4655,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
-	if(pPlayer->getNumCities() < 1)
+	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 	{
 		return false;
 	}

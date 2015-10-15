@@ -24727,7 +24727,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here))
+									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
 									{
 #if defined(MOD_BALANCE_CORE)
 										// Can the unit I am swapping with get to me this turn?

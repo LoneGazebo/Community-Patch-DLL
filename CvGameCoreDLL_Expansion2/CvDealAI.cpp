@@ -5581,18 +5581,11 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 	if(pLosingPlayer->getNumCities() == 1)
 		return;
 
-	//int iCityValue = 0;
-
 	int iCityDistanceFromWinnersCapital = 0;
-	int iWinnerCapitalX = -1, iWinnerCapitalY = -1;
+	//int iCityValue = 0;
 
 	// If winner has no capital then we can't use proximity - it will stay at 0
 	CvCity* pWinnerCapital = pWinningPlayer->getCapitalCity();
-	if(pWinnerCapital != NULL)
-	{
-		iWinnerCapitalX = pWinningPlayer->getCapitalCity()->getX();
-		iWinnerCapitalY = pWinningPlayer->getCapitalCity()->getY();
-	}
 
 	// Create vector of the losing players' Cities so we can see which are the closest to the winner
 	CvWeightedVector<int> viCityProximities;
@@ -5633,7 +5626,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 		// If winner has no capital, Distance defaults to 0
 		if(pWinnerCapital != NULL)
 		{
-			iCityDistanceFromWinnersCapital = plotDistance(iWinnerCapitalX, iWinnerCapitalY, pLoopCity->getX(), pLoopCity->getY());
+			iCityDistanceFromWinnersCapital = plotDistance(pWinnerCapital->getX(), pWinnerCapital->getY(), pLoopCity->getX(), pLoopCity->getY());
 		}
 		if(iCityValue == iBestCity)
 		{
@@ -5655,7 +5648,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 		// If winner has no capital, Distance defaults to 0
 		if(pWinnerCapital != NULL)
 		{
-			iCityDistanceFromWinnersCapital = plotDistance(iWinnerCapitalX, iWinnerCapitalY, pLoopCity->getX(), pLoopCity->getY());
+			iCityDistanceFromWinnersCapital = plotDistance(pWinnerCapital->getX(), pWinnerCapital->getY(), pLoopCity->getX(), pLoopCity->getY());
 		}
 
 		// Don't include the capital in the list of Cities the winner can receive
@@ -6561,15 +6554,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	{
 		int iTotalCityValue = 0;
 		int iCityDistanceFromWinnersCapital = 0;
-		int iWinnerCapitalX = -1, iWinnerCapitalY = -1;
 
 		// If winner has no capital then we can't use proximity - it will stay at 0
 		CvCity* pWinnerCapital = pWinningPlayer->getCapitalCity();
-		if(pWinnerCapital != NULL)
-		{
-			iWinnerCapitalX = pWinnerCapital->getX();
-			iWinnerCapitalY = pWinnerCapital->getY();
-		}
 
 		// Create vector of the losing players' Cities so we can see which are the closest to the winner
 		CvWeightedVector<int> viCityProximities;
@@ -6596,7 +6583,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			// If winner has no capital, Distance defaults to 0
 			if(pWinnerCapital != NULL)
 			{
-				iCityDistanceFromWinnersCapital = plotDistance(iWinnerCapitalX, iWinnerCapitalY, pLoopCity->getX(), pLoopCity->getY());
+				iCityDistanceFromWinnersCapital = plotDistance(pWinnerCapital->getX(), pWinnerCapital->getY(), pLoopCity->getX(), pLoopCity->getY());
 			}
 
 			// Divide the distance by three if the city was originally owned by the winning player to make these cities more likely

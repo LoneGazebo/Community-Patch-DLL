@@ -6009,6 +6009,16 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
 
+			int iUnitLoop = 0;
+			int iTotalGenerals = 0;
+			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
+				{
+					iTotalGenerals++;
+				}
+			}
+
 			// Score cities to move to
 			CvCity* pLoopCity;
 			int iLoopCity = 0;
@@ -6059,15 +6069,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						iNumCommanders++;
 					}
 				}
-				int iUnitLoop = 0;
-				int iTotalGenerals = 0;
-				for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-				{
-					if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
-					{
-						iTotalGenerals++;
-					}
-				}
+
 				if(iNumCommanders > 0)
 				{
 					bSkipCity = true;
@@ -6082,7 +6084,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 #if defined(MOD_BALANCE_CORE)
 				//don't care if it's more than 10 turns away - in that case we'll move in stages
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),true,true,false,10);
+				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),false,true,true,10);
 #else
 				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
 #endif

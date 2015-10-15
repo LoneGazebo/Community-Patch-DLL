@@ -112,8 +112,8 @@ void CvAIOperation::Reset()
 	m_iMusterX = 0;
 	m_iMusterY = 0;
 #endif
-	m_iStartCityX = -1;
-	m_iStartCityY = -1;
+	m_iStartCityX = INVALID_PLOT_COORD;
+	m_iStartCityY = INVALID_PLOT_COORD;
 	m_eMoveType = INVALID_AI_OPERATION_MOVE_TYPE;
 	m_iLastTurnMoved = -1;
 	m_viArmyIDs.clear();
@@ -682,7 +682,8 @@ bool CvAIOperation::CheckOnTarget()
 					{
 						case AI_OPERATION_STATE_RECRUITING_UNITS:
 						{
-							if (pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+							//invalid values are ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT and ARMYSLOT_NOT_INCLUDING_IN_OPERATION
+							if (pThisArmy->GetTurnAtNextCheckpoint() > ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 							{
 								int iTime = pThisArmy->GetTurnAtNextCheckpoint() - GC.getGame().getGameTurn();
 								if(iTime <= 2)
@@ -751,7 +752,7 @@ bool CvAIOperation::CheckOnTarget()
 						{					
 							if(bCivilian)
 							{
-								if (pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+								if (pThisArmy->GetTurnAtNextCheckpoint() > ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 								{
 									int iTime = pThisArmy->GetTurnAtNextCheckpoint() - GC.getGame().getGameTurn();
 									if(iTime <= 2)
@@ -764,7 +765,7 @@ bool CvAIOperation::CheckOnTarget()
 							}
 							else
 							{
-								if (pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+								if (pThisArmy->GetTurnAtNextCheckpoint() > ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 								{
 									int iTime = pThisArmy->GetTurnAtNextCheckpoint() - GC.getGame().getGameTurn();
 									if(iTime <= 2)
@@ -877,7 +878,7 @@ bool CvAIOperation::CheckOnTarget()
 					{
 						case AI_OPERATION_STATE_RECRUITING_UNITS:
 						{
-							if (pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+							if (pThisArmy->GetTurnAtNextCheckpoint() > ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 							{
 								int iTime = pThisArmy->GetTurnAtNextCheckpoint() - GC.getGame().getGameTurn();
 								if(iTime <= 2)
@@ -2523,18 +2524,18 @@ bool CvAIOperation::FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPl
 				bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(pMusterPlot, pTargetPlot, m_eOwner);
 			}
 			CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();
-			// Make sure he's not needed by the tactical AI or already in an army
 
-			//don't recruit if currently healing
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pUnit->getUnitType());
 			if(unitInfo == NULL)
 			{
 				return false;
 			}
+			//don't recruit if currently healing
 			if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pUnit->GetID()))
 			{
 				return false;
 			}
+			// Make sure he's not needed by the tactical AI or already in an army
 			if(pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == -1)
 			{
 				// UNIT TYPE (ONLY GET THIS FAR IF WE ARE THE RIGHT AI TYPE)
@@ -10637,12 +10638,15 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 	CvPlot* pTargetPlot = GetTargetPlot();
 
-	if ( pTargetPlot==NULL || !pCivilian->canFound(pTargetPlot) || !pCivilian->canMoveInto(*pTargetPlot) || !pCivilian->GeneratePath(pTargetPlot, MOVE_TERRITORY_NO_ENEMY, false) )
+	if ( pTargetPlot==NULL || 
+		!pCivilian->canFound(pTargetPlot) || 
+		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
+		!pCivilian->GeneratePath(pTargetPlot, MOVE_TERRITORY_NO_ENEMY, false) )
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Retargeting. WCan no longer settle at target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+			strMsg.Format("Retargeting. We can no longer settle at target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY());
 			LogOperationSpecialMessage(strMsg);
 		}
 		RetargetCivilian(pCivilian, pArmy);

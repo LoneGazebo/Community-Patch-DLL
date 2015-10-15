@@ -1090,7 +1090,7 @@ public:
 
 	// Plot acquisition
 
-	bool CanBuyPlot(int iPlotX = -1, int iPlotY = -1, bool bIgnoreCost = false);
+	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false);
 	bool CanBuyAnyPlot(void);
 #if defined(MOD_BALANCE_CORE)
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);

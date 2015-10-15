@@ -34917,7 +34917,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			}
 		}
 
-		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
+		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
 		{
 			//--------------
 			if (bLogging) 
