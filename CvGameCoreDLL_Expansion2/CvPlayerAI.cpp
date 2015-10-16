@@ -1974,7 +1974,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 				if(pAdjacentPlot != NULL)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(pAdjacentPlot->isImpassable())
+					if(pAdjacentPlot->isImpassable(getTeam()))
 					{
 						continue;
 					}
@@ -2510,7 +2510,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 #ifdef AUI_ASTAR_TURN_LIMITER
-			if(pLoopPlot->isWater() || pLoopPlot->isImpassable())
+			if(pLoopPlot->isWater() || pLoopPlot->isImpassable(getTeam()))
 			{
 				continue;
 			}
@@ -2586,7 +2586,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
-		if(pLoopPlot->isImpassable())
+		if(pLoopPlot->isImpassable(getTeam()))
 		{
 			continue;
 		}
@@ -2762,7 +2762,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable(getTeam()) )
 				continue;
 			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;

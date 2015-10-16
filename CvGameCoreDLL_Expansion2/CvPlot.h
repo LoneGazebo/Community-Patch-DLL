@@ -535,11 +535,14 @@ public:
 		return damage;
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
+#else
 	bool isImpassable()     const
 	{
 		return m_bIsImpassable;
 	}
-
+#endif
 	bool IsAllowsWalkWater() const;
 
 	bool isRoughGround() const
@@ -735,6 +738,10 @@ public:
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
 	bool IsResourceForceReveal(TeamTypes eTeam) const;
 	void SetResourceForceReveal(TeamTypes eTeam, bool bValue);
+#if defined(MOD_BALANCE_CORE)
+	bool IsTeamImpassable(TeamTypes eTeam) const;
+	void SetTeamImpassable(TeamTypes eTeam, bool bValue);
+#endif
 
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam, bool bDebug) const;
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam) const;
@@ -925,7 +932,9 @@ public:
 	void UpdatePlotsWithLOS();
 	bool GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	void updateImpassable(TeamTypes eTeam = NO_TEAM);
+#endif
 protected:
 	class PlotBoolField
 	{
@@ -1015,7 +1024,9 @@ protected:
 #endif
 
 	bool* m_abResourceForceReveal;
-
+#if defined(MOD_BALANCE_CORE)
+	bool* m_abIsImpassable;
+#endif
 
 	char* m_szScriptData;
 	short* m_paiBuildProgress;
@@ -1103,7 +1114,9 @@ protected:
 
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
+#if !defined(MOD_BALANCE_CORE)
 	void updateImpassable();
+#endif
 
 
 	// added so under cheat mode we can access protected stuff

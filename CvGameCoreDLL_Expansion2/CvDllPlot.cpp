@@ -148,7 +148,18 @@ bool CvDllPlot::IsTradeRoute(PlayerTypes ePlayer) const
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsImpassable() const
 {
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlot->getOwner() != NO_PLAYER)
+	{
+		return m_pPlot->isImpassable(GET_PLAYER(m_pPlot->getOwner()).getTeam());
+	}
+	else
+	{
+		return m_pPlot->isImpassable(BARBARIAN_TEAM);
+	}
+#else
 	return m_pPlot->isImpassable();
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllPlot::GetPosition(int& iX, int& iY) const

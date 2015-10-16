@@ -678,9 +678,11 @@ protected:
 	void updateTechShare();
 
 	void testCircumnavigated();
-
+#if defined(MOD_BALANCE_CORE)
+	void processTech(TechTypes eTech, int iChange, bool bNoBonus = false);
+#else
 	void processTech(TechTypes eTech, int iChange);
-
+#endif
 	void cancelDefensivePacts();
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 

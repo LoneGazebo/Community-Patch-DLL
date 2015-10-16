@@ -238,6 +238,9 @@ CvMap::CvMap()
 	m_pPlayerCityRadiusCount = NULL;
 	m_pVisibilityCount = NULL;
 	m_pRevealedOwner = NULL;
+#if defined(MOD_BALANCE_CORE)
+	m_pIsImpassable = NULL;
+#endif
 	m_pRevealed = NULL;
 	m_pRevealedImprovementType = NULL;
 	m_pRevealedRouteType = NULL;
@@ -281,6 +284,9 @@ void CvMap::InitPlots()
 	m_pPlayerCityRadiusCount	= FNEW(char[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pVisibilityCount			= FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pRevealedOwner			= FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE)
+	m_pIsImpassable				= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
+#endif
 	m_pRevealed					= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pRevealedImprovementType  = FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pRevealedRouteType		= FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
@@ -303,6 +309,9 @@ void CvMap::InitPlots()
 	memset(m_pPlayerCityRadiusCount, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(char));
 	memset(m_pVisibilityCount, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
 	memset(m_pRevealedOwner, -1 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
+#if defined(MOD_BALANCE_CORE)
+	memset(m_pIsImpassable, 0 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
+#endif
 	memset(m_pRevealed, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
 	memset(m_pRevealedImprovementType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
 	memset(m_pRevealedRouteType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
@@ -318,6 +327,9 @@ void CvMap::InitPlots()
 	char*  pPlayerCityRadiusCount   = m_pPlayerCityRadiusCount;
 	short* pVisibilityCount			= m_pVisibilityCount;
 	char*  pRevealedOwner			= m_pRevealedOwner;
+#if defined(MOD_BALANCE_CORE)
+	bool*  pIsImpassable			= m_pIsImpassable;
+#endif
 	short* pRevealedImprovementType = m_pRevealedImprovementType;
 	short* pRevealedRouteType		= m_pRevealedRouteType;
 	bool*  pNoSettling				= m_pNoSettling;
@@ -333,7 +345,9 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_aiPlayerCityRadiusCount= pPlayerCityRadiusCount;
 		m_pMapPlots[i].m_aiVisibilityCount		= pVisibilityCount;
 		m_pMapPlots[i].m_aiRevealedOwner		= pRevealedOwner;
-
+#if defined(MOD_BALANCE_CORE)
+		m_pMapPlots[i].m_abIsImpassable			= pIsImpassable;
+#endif
 		m_pMapPlots[i].m_aeRevealedImprovementType	= pRevealedImprovementType;
 		m_pMapPlots[i].m_aeRevealedRouteType		= pRevealedRouteType;
 		m_pMapPlots[i].m_abNoSettling				= pNoSettling;
@@ -350,6 +364,9 @@ void CvMap::InitPlots()
 		pPlayerCityRadiusCount  += REALLY_MAX_PLAYERS;
 		pVisibilityCount		+= REALLY_MAX_TEAMS;
 		pRevealedOwner			+= REALLY_MAX_TEAMS;
+#if defined(MOD_BALANCE_CORE)
+		pIsImpassable			+= REALLY_MAX_TEAMS;
+#endif
 		pRevealedImprovementType+= REALLY_MAX_TEAMS;
 		pRevealedRouteType		+= REALLY_MAX_TEAMS;
 		pNoSettling				+= MAX_MAJOR_CIVS;
@@ -465,6 +482,9 @@ void CvMap::uninit()
 	SAFE_DELETE_ARRAY(m_pPlayerCityRadiusCount);
 	SAFE_DELETE_ARRAY(m_pVisibilityCount);
 	SAFE_DELETE_ARRAY(m_pRevealedOwner);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_pIsImpassable);
+#endif
 	SAFE_DELETE_ARRAY(m_pRevealed);
 	SAFE_DELETE_ARRAY(m_pRevealedImprovementType);
 	SAFE_DELETE_ARRAY(m_pRevealedRouteType);
@@ -896,7 +916,11 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 			{
 				if(iFlags & RANDPLOT_PASSIBLE)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(pTestPlot->isImpassable(BARBARIAN_TEAM))
+#else
 					if(pTestPlot->isImpassable())
+#endif
 					{
 						bValid = false;
 					}

@@ -3736,7 +3736,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		if(iOldNumBuilding != GetNumBuilding(eIndex))
 		{
 #if defined(MOD_BALANCE_CORE)
-			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst, bNoBonus);
+			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst, false, false, bNoBonus);
 #else
 			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst);
 #endif

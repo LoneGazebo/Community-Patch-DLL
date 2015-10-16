@@ -5796,7 +5796,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
+#if defined(MOD_BALANCE_CORE)
+				if(pLoopPlot != NULL)
+				{
+					pLoopPlot->updateImpassable(m_eID);
+				}
+#endif
 				const ResourceTypes eResource = pLoopPlot->getResourceType();
 				if(eResource != NO_RESOURCE)
 				{
@@ -5915,8 +5920,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		processTech(eIndex, ((bNewValue) ? 1 : -1), bNoBonus);
+#else
 		processTech(eIndex, ((bNewValue) ? 1 : -1));
+#endif
 
 		//Antiquity site notifications.
 		//Notifications for Artifacts and Hidden Artifacts have to come AFTER processTech because they may not have been spawned yet.
@@ -7126,7 +7134,11 @@ void CvTeam::testCircumnavigated()
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
+#else
 void CvTeam::processTech(TechTypes eTech, int iChange)
+#endif
 {
 	CvCity* pCity;
 	CvPlot* pLoopPlot;
@@ -7502,78 +7514,81 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			int iEra = kPlayer.GetCurrentEra();
-			float fDelay = 0.0f;
-			if(iEra < 1)
+			if(!bNoBonus)
 			{
-				iEra = 1;
-			}
-			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
-			{
-				int iYield = kPlayer.getYieldFromTech(YIELD_CULTURE) * iEra;
-				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iYield /= 100;
-				kPlayer.changeJONSCulture(iYield);
-				if(kPlayer.getCapitalCity() != NULL)
+				int iEra = kPlayer.GetCurrentEra();
+				float fDelay = 0.0f;
+				if(iEra < 1)
 				{
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iYield);
+					iEra = 1;
 				}
-				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
 				{
-					char text[256] = {0};
-					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					int iYield = kPlayer.getYieldFromTech(YIELD_CULTURE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					kPlayer.changeJONSCulture(iYield);
+					if(kPlayer.getCapitalCity() != NULL)
+					{
+						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iYield);
+					}
+					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+						DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					}
 				}
-			}
-			if(kPlayer.getYieldFromTech(YIELD_GOLD) > 0)
-			{
-				int iYield = kPlayer.getYieldFromTech(YIELD_GOLD) * iEra;
-				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iYield /= 100;
-				kPlayer.GetTreasury()->ChangeGold(iYield);
-				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				if(kPlayer.getYieldFromTech(YIELD_GOLD) > 0)
 				{
-					char text[256] = {0};
-					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					int iYield = kPlayer.getYieldFromTech(YIELD_GOLD) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					kPlayer.GetTreasury()->ChangeGold(iYield);
+					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+						DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					}
 				}
-			}
-			if(kPlayer.getYieldFromTech(YIELD_FAITH) > 0)
-			{
-				int iYield = kPlayer.getYieldFromTech(YIELD_FAITH) * iEra;
-				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iYield /= 100;
-				kPlayer.ChangeFaith(iYield);
-				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				if(kPlayer.getYieldFromTech(YIELD_FAITH) > 0)
 				{
-					char text[256] = {0};
-					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					int iYield = kPlayer.getYieldFromTech(YIELD_FAITH) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					kPlayer.ChangeFaith(iYield);
+					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+						DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					}
 				}
-			}
-			if(kPlayer.getYieldFromTech(YIELD_SCIENCE) > 0)
-			{
-				int iYield = kPlayer.getYieldFromTech(YIELD_SCIENCE) * iEra;
-				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iYield /= 100;
-				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-				if(eCurrentTech == NO_TECH)
+				if(kPlayer.getYieldFromTech(YIELD_SCIENCE) > 0)
 				{
-					kPlayer.changeOverflowResearch(iYield);
-				}
-				else
-				{
-					GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, kPlayer.GetID());
-				}
-				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					int iYield = kPlayer.getYieldFromTech(YIELD_SCIENCE) * iEra;
+					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iYield /= 100;
+					TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						kPlayer.changeOverflowResearch(iYield);
+					}
+					else
+					{
+						GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, kPlayer.GetID());
+					}
+					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+						DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+					}
 				}
 			}
 #endif

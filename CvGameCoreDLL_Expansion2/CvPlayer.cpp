@@ -2305,7 +2305,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #if defined(MOD_BUGFIX_NAVAL_FREE_UNITS)
 						if (pkUnitInfo->GetDomainType() == DOMAIN_SEA) {
 							if (pLoopPlot != NULL && pLoopPlot->isWater()) {
-								if (!pLoopPlot->isImpassable()) {
+								if (!pLoopPlot->isImpassable(getTeam())) {
 									if (!(pLoopPlot->isUnit())) {
 										pBestPlot = pLoopPlot;
 										break;
@@ -2316,8 +2316,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-								if(!pLoopPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+								if(!pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isMountain())
 #else
 								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
 #endif
@@ -8982,8 +8982,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
+#if defined(MOD_BALANCE_CORE)
+								if(!(pLoopPlot->isImpassable(getTeam())) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #else
 								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #endif
@@ -9203,7 +9203,11 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit) const
+#else
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities) const
+#endif
 {
 	CvPlot* pPlot;
 
@@ -9229,7 +9233,11 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities) co
 			return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
+#else
 	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14895,8 +14903,8 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-			if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
 #else
 			if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -24182,8 +24190,8 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
+#if defined(MOD_BALANCE_CORE)
+						if(!pPlot->isOwned() && !pPlot->isImpassable(getTeam()) && !pPlot->isMountain() && !pPlot->isWater())
 #else
 						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
 #endif
@@ -29864,8 +29872,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-				if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())if(pPlot->isImpassable())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -30251,8 +30259,8 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-			if(pPlot->isImpassable() || pPlot->isWater())
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot->isImpassable(getTeam()) || pPlot->isWater() || pPlot->isMountain())
 #else
 			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
 #endif
@@ -35015,7 +35023,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			}
 		}
 
-		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable())
+		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable(getTeam()))
 		{
 			//--------------
 			if (bLogging) 

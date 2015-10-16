@@ -69,7 +69,11 @@ void CvCitySiteEvaluator::Init()
 }
 
 /// Is it valid for this player to found a city here?
+#if defined(MOD_BALANCE_CORE)
+bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit) const
+#else
 bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
+#endif
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -91,15 +95,47 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer != NULL)
+	{
+		if(pPlot->isImpassable(pPlayer->getTeam()) || pPlot->isMountain())
+		{
+			if(pUnit)
+			{
+				if(!pUnit->canEnterTerrain(*pPlot))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		if(pPlot->isImpassable() || pPlot->isMountain())
+		{
+			if(pUnit)
+			{
+				if(!pUnit->canEnterTerrain(*pPlot))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
 #else
 	if(pPlot->isImpassable() || pPlot->isMountain())
-#endif
 	{
 		return false;
 	}
-
+#endif
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
 		if(GC.getFeatureInfo(pPlot->getFeatureType())->isNoCity())
@@ -860,7 +896,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 											if(pLoopPlot)
 											{
 												//Let's look for good, empty land.
-												if(pLoopPlot->isImpassable() || pLoopPlot->isWater() || pLoopPlot->getOwner() != NO_PLAYER) 
+												if(pLoopPlot->isImpassable(pPlayer->getTeam()) || pLoopPlot->isWater() || pLoopPlot->getOwner() != NO_PLAYER) 
 												{
 													iNumNonFreePlots++;
 												}
@@ -1544,7 +1580,7 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
-	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain()) )
+	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable(BARBARIAN_TEAM) && !pPlot->isMountain()) )
 #else
 	if(!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain())
 #endif
@@ -1886,14 +1922,27 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pP
 	if(!pPlot) return rtnValue;
 
 	// Possible chokepoint if impassable terrain and exactly 2 plots from city
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(iPlotsFromCity == 2 && (pPlot->isImpassable()))
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer != NULL)
+	{
+		if(iPlotsFromCity == 2 && (pPlot->isImpassable(pPlayer->getTeam()) || pPlot->isMountain()))
+		{
+			rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
+		}
+	}
+	else
+	{
+		if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))
+		{
+			rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
+		}
+	}
 #else
 	if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))
-#endif
 	{
 		rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
 	}
+#endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	if (MOD_BALANCE_CORE_SETTLER) 
 	{

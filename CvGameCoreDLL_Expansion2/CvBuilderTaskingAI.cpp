@@ -1520,7 +1520,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 
-					if(pLoopPlot != NULL && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && pLoopPlot->isCity())
+					if(pLoopPlot != NULL && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(m_pPlayer->getTeam()) && pLoopPlot->isCity())
 					{
 						if(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
@@ -2207,8 +2207,8 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
 	// if plot is impassable, bail!
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	if(pPlot->isImpassable(m_pPlayer->getTeam()) || pPlot->isMountain())
 #else
 	if(pPlot->isImpassable() || pPlot->isMountain())
 #endif		

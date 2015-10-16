@@ -1575,6 +1575,9 @@ public:
 	bool isRequiresRiver() const;
 	bool isAddsFreshWater() const;
 	bool isImpassable() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetPrereqPassable() const;
+#endif
 	bool isNoCity() const;
 	bool isNoImprovement() const;
 	bool isVisibleAlways() const;
@@ -1644,6 +1647,9 @@ protected:
 	bool m_bRequiresRiver;
 	bool m_bAddsFreshWater;
 	bool m_bImpassable;
+#if defined(MOD_BALANCE_CORE)
+	int m_iPrereqTechPassable;
+#endif
 	bool m_bNoCity;
 	bool m_bNoImprovement;
 	bool m_bVisibleAlways;
@@ -1756,6 +1762,9 @@ public:
 
 	bool isWater() const;
 	bool isImpassable() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetPrereqPassable() const;
+#endif
 	bool isFound() const;
 	bool isFoundCoast() const;
 	bool isFoundFreshWater() const;
@@ -1800,6 +1809,9 @@ protected:
 
 	bool m_bWater;
 	bool m_bImpassable;
+#if defined(MOD_BALANCE_CORE)
+	int m_iPrereqTechPassable;
+#endif
 	bool m_bFound;
 	bool m_bFoundCoast;
 	bool m_bFoundFreshWater;
