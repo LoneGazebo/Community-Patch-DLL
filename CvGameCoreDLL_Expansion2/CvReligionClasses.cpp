@@ -3357,6 +3357,9 @@ CvPlayerReligions::CvPlayerReligions(void):
 #if defined(MOD_BALANCE_CORE)
 	m_majorityPlayerReligion(NO_RELIGION),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_PlayerStateReligion(NO_RELIGION),
+#endif
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
 {
@@ -3396,6 +3399,9 @@ void CvPlayerReligions::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_majorityPlayerReligion = NO_RELIGION;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_PlayerStateReligion = NO_RELIGION;
+#endif
 }
 
 /// Serialization read
@@ -3412,6 +3418,9 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 	kStream >> m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_majorityPlayerReligion;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_PlayerStateReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
@@ -3432,6 +3441,9 @@ void CvPlayerReligions::Write(FDataStream& kStream)
 	kStream << m_bFoundingReligion;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_majorityPlayerReligion;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_PlayerStateReligion;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
@@ -3721,7 +3733,70 @@ ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
 	return m_majorityPlayerReligion;
 }
+#if defined(MOD_BALANCE_CORE)
+	//JFD
+/// What is our state religion?
+ReligionTypes CvPlayerReligions::GetStateReligion() const
+{
+	return m_PlayerStateReligion;
+}
+/// What is our state religion?
+void CvPlayerReligions::SetStateReligion(ReligionTypes eReligion)
+{
+	if(GetStateReligion() == NO_RELIGION)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_StateReligionAdopted, m_pPlayer->GetID(), eReligion, GetStateReligion());
+	}
+	else
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_StateReligionChanged, m_pPlayer->GetID(), eReligion, GetStateReligion());
+	}
+	m_PlayerStateReligion = eReligion;
+}
+int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
+{
+	int iNum = 0;
+	if(eReligion == NO_RELIGION)
+	{
+		if(GetStateReligion() == NO_RELIGION)
+		{
+			return 0;
+		}
+		else
+		{
+			int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == GetStateReligion())
+					{
+						iNum++;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+					{
+						iNum++;
+					}
+				}
+			}
+	}
 
+	return iNum;
+}
+#endif
 /// What religion is followed in a majority of our cities?
 bool CvPlayerReligions::ComputeMajority()
 {

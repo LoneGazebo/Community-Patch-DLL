@@ -1089,7 +1089,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
 			if (eDomainType==DOMAIN_LAND && !bEmbarked)
 			{
-				if (pLoopPlot->isWater() || pLoopPlot->isImpassable() || pLoopPlot->isMountain())
+				if (pLoopPlot->isWater() || pLoopPlot->isImpassable(pPlayer->getTeam()) || pLoopPlot->isMountain())
 					//we're not very interested in these "useless" plots
 					iResultValue += iSmallScore;
 				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
@@ -1101,7 +1101,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			}
 			else
 			{
-				if (!pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+				if (!pLoopPlot->isWater() && !pLoopPlot->isImpassable(pPlayer->getTeam()) && !pLoopPlot->isMountain())
 					//we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
@@ -1390,8 +1390,8 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()) || pPlot->isCity() || pPlot->isMountain())
 #else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
 #endif
@@ -3067,8 +3067,8 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()) || pPlot->isCity() || pPlot->isMountain())
 #else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
 #endif

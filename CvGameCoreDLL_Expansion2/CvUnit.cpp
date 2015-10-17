@@ -4277,18 +4277,37 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE)
+	bool bFeatureTest = false;
+	bool bTerrainTest = false;
+	if(enterPlot.isImpassable(getTeam()) && !enterPlot.isMountain())
+#else
 	if(enterPlot.isImpassable())
+#endif
 	{
 		if(!(m_iCanMoveImpassableCount > 0) && !canMoveAllTerrain())
 		{
 #if defined(MOD_PATHFINDER_CROSS_ICE)
-			if (enterPlot.isIce() && canCrossIce()) {
+			if (enterPlot.isIce() && canCrossIce()) 
+			{
 				return true;
-			} else {
-#endif
-				return false;
-#if defined(MOD_PATHFINDER_CROSS_ICE)
 			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			else 
+			{
+				if(enterPlot.getFeatureType() != NO_FEATURE)
+				{
+					bFeatureTest = true;
+				}
+				if(enterPlot.getTerrainType() != NO_TERRAIN)
+				{
+					bTerrainTest = true;
+				}
+
+			}
+#else
+				return false;
 #endif
 		}
 	}
@@ -4360,20 +4379,35 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 	{
 		if(enterPlot.getFeatureType() != NO_FEATURE && enterPlot.getRouteType() == NO_ROUTE)  // assume that all units can use roads and rails
 		{
+#if defined(MOD_BALANCE_CORE)
+			bool bImpassable = false;
+			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(enterPlot.getFeatureType());
+			if(bFeatureTest)
+			{
+				if(pkFeatureInfo && pkFeatureInfo->isImpassable())
+				{
+					bImpassable = true;
+				}
+			}
+			else if(isFeatureImpassable(enterPlot.getFeatureType()))
+			{
+				bImpassable = true;
+			}
+			if(bImpassable)
+#else
 			if(isFeatureImpassable(enterPlot.getFeatureType()))
+#endif
 			{
 				bool bCanPass = false;
 
 #if defined(MOD_PATHFINDER_CROSS_ICE)
 				// We checked for passable ice much higher up
 #endif
-
 				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
 				if(m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
 				{
 					return true;
 				}
-
 				if(!bCanPass)
 				{
 					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
@@ -4389,9 +4423,27 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 		else
 		{
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
-		if (!(MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && (enterPlot.getRouteType() != NO_ROUTE))) {
+		if (!(MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && (enterPlot.getRouteType() != NO_ROUTE))) 
+		{
 #endif
+#if defined(MOD_BALANCE_CORE)
+			bool bImpassable = false;
+			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(enterPlot.getTerrainType());
+			if(bTerrainTest)
+			{
+				if(pkTerrainInfo && pkTerrainInfo->isImpassable())
+				{
+					bImpassable = true;
+				}
+			}
+			else if(isTerrainImpassable(enterPlot.getTerrainType()))
+			{
+				bImpassable = true;
+			}
+			if(bImpassable)
+#else
 			if(isTerrainImpassable(enterPlot.getTerrainType()))
+#endif
 			{
 				bool bCanPass = false;
 
@@ -9534,7 +9586,7 @@ bool CvUnit::sellExoticGoods()
 					{
 						
 						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
 						{
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
@@ -9556,7 +9608,7 @@ bool CvUnit::sellExoticGoods()
 #endif
 						{
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
 							{
 								//If we can build on an empty spot, do so.
 								if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)

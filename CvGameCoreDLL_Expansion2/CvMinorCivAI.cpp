@@ -1647,7 +1647,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 					{
 						int iNumRequiredSlots;
 						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, &iNumRequiredSlots);
-
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
@@ -6803,7 +6802,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 						{
 							iWater++;
 						}
-						if(pPlot->isImpassable())
+						if(pPlot->isImpassable(BARBARIAN_TEAM))
 						{
 							iImpassable++;
 						}
@@ -7027,7 +7026,7 @@ void CvMinorCivAI::DoRebellion()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable())
+			if(pPlot->isImpassable(BARBARIAN_TEAM))
 				continue;
 
 			// Can't be water

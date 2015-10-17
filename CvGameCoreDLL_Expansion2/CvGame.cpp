@@ -12348,7 +12348,11 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
 		const ResourceTypes eResource = pPlot->getResourceType();
 
+#if defined(MOD_BALANCE_CORE)
+		if (pPlot->isWater() || pPlot->isImpassable(BARBARIAN_TEAM))
+#else
 		if (pPlot->isWater() || pPlot->isImpassable())
+#endif
 		{
 			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
 			historicalDigSites[i].m_eEra = NO_ERA;

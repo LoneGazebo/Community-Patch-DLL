@@ -352,6 +352,10 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount("CvPlayer::m_iMinorResourceBonusCount", m_syncArchive)
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
+	, m_iJFDPiety("CvPlayer::m_iJFDPiety", m_syncArchive)
+	, m_iJFDPietyRate("CvPlayer::m_iJFDPietyRate", m_syncArchive)
+	, m_iJFDConversionTurn("CvPlayer::m_iJFDConversionTurn", m_syncArchive)
+	, m_bJFDSecularized("CvPlayer::m_bJFDSecularized", m_syncArchive)
 	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
 	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
@@ -1311,6 +1315,10 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iJFDPiety = 0;
+	m_iJFDPietyRate = 0;
+	m_iJFDConversionTurn = 0;
+	m_bJFDSecularized = false;
 	m_iUpgradeCSTerritory = 0;
 	m_iAbleToMarryCityStatesCount = 0;
 	m_iCorporateFounderID = 0;
@@ -2297,7 +2305,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #if defined(MOD_BUGFIX_NAVAL_FREE_UNITS)
 						if (pkUnitInfo->GetDomainType() == DOMAIN_SEA) {
 							if (pLoopPlot != NULL && pLoopPlot->isWater()) {
-								if (!pLoopPlot->isImpassable()) {
+								if (!pLoopPlot->isImpassable(getTeam())) {
 									if (!(pLoopPlot->isUnit())) {
 										pBestPlot = pLoopPlot;
 										break;
@@ -2308,8 +2316,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-								if(!pLoopPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+								if(!pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isMountain())
 #else
 								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
 #endif
@@ -5976,6 +5984,12 @@ void CvPlayer::doTurn()
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		DoPiety();
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -8968,8 +8982,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
+#if defined(MOD_BALANCE_CORE)
+								if(!(pLoopPlot->isImpassable(getTeam())) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #else
 								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #endif
@@ -9189,7 +9203,11 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit) const
+#else
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities) const
+#endif
 {
 	CvPlot* pPlot;
 
@@ -9215,7 +9233,11 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities) co
 			return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
+#else
 	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -9379,7 +9401,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 					const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
 					if(canConstruct(eFreeBuilding) && pCity->isValidBuildingLocation(eFreeBuilding))
 					{
-						pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
+						pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
 					}
 				}
 			}
@@ -14881,8 +14903,8 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-			if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
 #else
 			if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -21346,6 +21368,93 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+	//JFD
+void CvPlayer::SetPiety(int iValue)
+{
+	if(m_iJFDPiety != iValue)
+	{
+		m_iJFDPiety = iValue;
+	}
+}
+void CvPlayer::ChangePiety(int iValue)
+{
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyChanged, GetID(), GetPiety(), iValue);
+	m_iJFDPiety += iValue;
+}
+int CvPlayer::GetPiety() const
+{
+	return m_iJFDPiety;
+}
+int CvPlayer::GetPietyRate() const
+{
+	return m_iJFDPietyRate;
+}
+void CvPlayer::SetPietyRate(int iValue)
+{
+	if(m_iJFDPietyRate != iValue)
+	{
+		m_iJFDPietyRate = iValue;
+	}
+}
+void CvPlayer::ChangePietyRate(int iValue)
+{
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyRateChanged, GetID(), GetPietyRate(), iValue);
+	m_iJFDPietyRate += iValue;
+}
+int CvPlayer::GetTurnsSinceConversion() const
+{
+	return m_iJFDConversionTurn;
+}
+void CvPlayer::SetTurnsSinceConversion(int iValue)
+{
+	if(m_iJFDConversionTurn != iValue)
+	{
+		m_iJFDConversionTurn = iValue;
+	}
+}
+void CvPlayer::DoPiety()
+{
+	ReligionTypes eReligion = GetReligions()->GetStateReligion();
+	if(eReligion == NO_RELIGION)
+	{
+		return;
+	}
+	else
+	{
+		int iRate = GetPietyRate();
+		if(iRate != 0)
+		{
+			ChangePiety(iRate);
+		}
+	}
+}
+bool CvPlayer::HasStateReligion()
+{
+	if(GetReligions()->GetStateReligion() != NO_RELIGION)
+	{
+		return true;
+	}
+	return false;
+}
+bool CvPlayer::HasSecularized() const
+{
+	return m_bJFDSecularized;
+}
+void CvPlayer::SetHasSecularized(bool bValue)
+{
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerSecularizes, GetID(), GetReligions()->GetStateReligion(), bValue);
+	m_bJFDSecularized = bValue;
+}
+bool CvPlayer::IsPagan()
+{
+	if(GetReligions()->HasCreatedPantheon() && !HasStateReligion() && !HasSecularized())
+	{
+		return true;
+	}
+	return false;
+}
+	//JFD DONE
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::CanUpgradeCSTerritory() const
 {
@@ -24081,8 +24190,8 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
+#if defined(MOD_BALANCE_CORE)
+						if(!pPlot->isOwned() && !pPlot->isImpassable(getTeam()) && !pPlot->isMountain() && !pPlot->isWater())
 #else
 						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
 #endif
@@ -29763,8 +29872,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-				if(pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())if(pPlot->isImpassable())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -30150,8 +30259,8 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-			if(pPlot->isImpassable() || pPlot->isWater())
+#if defined(MOD_BALANCE_CORE)
+			if(pPlot->isImpassable(getTeam()) || pPlot->isWater() || pPlot->isMountain())
 #else
 			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
 #endif
@@ -32280,6 +32389,10 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iAbleToAnnexCityStatesCount = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_iJFDPiety;
+	kStream >> m_iJFDPietyRate;
+	kStream >> m_iJFDConversionTurn;
+	kStream >> m_bJFDSecularized;
 	kStream >> m_iUpgradeCSTerritory;
 	kStream >> m_iAbleToMarryCityStatesCount;
 	kStream >> m_iCorporateFounderID;
@@ -32992,6 +33105,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iMinorResourceBonusCount;
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_iJFDPiety;
+	kStream << m_iJFDPietyRate;
+	kStream << m_iJFDConversionTurn;
+	kStream << m_bJFDSecularized;
 	kStream << m_iUpgradeCSTerritory;
 	kStream << m_iAbleToMarryCityStatesCount;
 	kStream << m_iCorporateFounderID;

@@ -7570,7 +7570,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 				{
 					iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
 					//Only trade border cities, okay?
-					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
 					{
 						if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
 						{
@@ -7599,7 +7599,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 					{
 						iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
 						//Only trade border cities, okay?
-						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
 						{
 							if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 							{

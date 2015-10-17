@@ -996,7 +996,7 @@ private:
 	CvPlot* FindBarbarianExploreTarget(UnitHandle pUnit);
 	CvPlot* FindBarbarianGankTradeRouteTarget(UnitHandle pUnit);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL, bool bAllowDefensiveTargets=false);
+	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL, bool bAllowDefensiveTargets=false, bool bHighPriorityOnly = false);
 #else
 	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL);
 #endif

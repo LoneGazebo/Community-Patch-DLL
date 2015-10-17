@@ -2381,10 +2381,35 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 
 #if defined(MOD_BALANCE_CORE)
 	//first check if this terrain type is cached
+	if(m_terrainPassableCache.size() <= 0)
+	{
+		int iNumPromos = GC.getNumPromotionInfos();
+		for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
+		{
+			PromotionTypes ePromotion = (PromotionTypes) iLoop;
+			if(m_kHasPromotion.GetBit(ePromotion))
+			{
+				CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
+
+				if(promotion)
+				{
+					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(eTerrainType);
+					if(eTech != NO_TECH && teamTechs->HasTech(eTech))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+
 	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
 	for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
 		if (teamTechs->HasTech(*it_techs))
 			return true;
+	}
 
 	//have none of the techs?
 	return false;

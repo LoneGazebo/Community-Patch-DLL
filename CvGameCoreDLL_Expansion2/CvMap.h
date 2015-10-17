@@ -346,6 +346,9 @@ protected:
 	char*  m_pPlayerCityRadiusCount;
 	short* m_pVisibilityCount;
 	char*  m_pRevealedOwner;
+#if defined(MOD_BALANCE_CORE)
+	bool*  m_pIsImpassable;
+#endif
 	bool*  m_pRevealed;
 	short* m_pRevealedImprovementType;
 	short* m_pRevealedRouteType;

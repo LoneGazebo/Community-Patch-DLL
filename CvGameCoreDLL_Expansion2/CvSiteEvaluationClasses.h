@@ -38,7 +38,11 @@ public:
 
 	virtual void Init();
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
+#if defined(MOD_BALANCE_CORE)
+	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit = NULL) const;
+#else
 	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
+#endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
 	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);

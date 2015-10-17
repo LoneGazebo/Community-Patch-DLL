@@ -319,6 +319,12 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 		{
 			m_aiRevealedOwner[iI] = -1;
 		}
+#if defined(MOD_BALANCE_CORE)
+		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
+		{
+			m_abIsImpassable[iI] = false;
+		}
+#endif
 		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
 		{
 			//m_abRevealed[iI] = false;
@@ -1176,8 +1182,11 @@ bool CvPlot::isFreshWater() const
 	CvPlot* pLoopPlot;
 	int iDX, iDY;
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(isWater() || isImpassable(BARBARIAN_TEAM) || isMountain())
+#else
 	if(isWater() || isImpassable() || isMountain())
+#endif
 		return false;
 
 #if defined(MOD_BALANCE_CORE)
@@ -2203,8 +2212,15 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(eTeam == NULL)
+	{
+		eTeam = NO_TEAM;
+	}
+	if(isImpassable(eTeam) || isMountain())
+#else
 	if(isImpassable() || isMountain())
+#endif
 	{
 		return false;
 	}
@@ -3547,7 +3563,7 @@ int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if(!pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
+			if(!pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
@@ -3561,7 +3577,7 @@ int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 bool CvPlot::IsChokePoint() const
 {
 	//only passable land plots can be chokepoints
-	if(isWater() || isImpassable())
+	if(isWater() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
@@ -3618,7 +3634,7 @@ bool CvPlot::IsChokePoint() const
 bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 {
 	//only passable land plots can be chokepoints
-	if(isWater() || isImpassable())
+	if(isWater() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
 	const CvPlot *pFirstPlot = 0, *pSecondPlot = 0;
@@ -8366,7 +8382,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 
 #if defined(MOD_RELIGION_PLOT_YIELDS) || defined(MOD_API_PLOT_YIELDS)
 	// Impassable terrain and mountains have no base yield
-	if(isImpassable() || isMountain()) {
+	if(isImpassable(BARBARIAN_TEAM) || isMountain()) {
 		iYield = 0;
 	} else
 #endif
@@ -8921,7 +8937,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #if defined(MOD_BALANCE_CORE)
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if((IsTradeRoute(ePlayer) || bTrade) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
 					{
 						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 						if(iBonus > 0)
@@ -9267,7 +9283,11 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isWater())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!isImpassable(BARBARIAN_TEAM) && !isMountain())
+#else
 			if(!isImpassable() && !isMountain())
+#endif
 			{
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
 
@@ -9307,7 +9327,11 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isRiver())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!isImpassable(BARBARIAN_TEAM) && !isMountain())
+#else
 			if(!isImpassable() && !isMountain())
+#endif
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -9349,7 +9373,11 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pWorkingCity != NULL && !isImpassable(pWorkingCity->getTeam()) && !isMountain())
+#else
 			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
+#endif
 			{
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
@@ -10042,7 +10070,21 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abResourceForceReveal[eTeam] = bValue;
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
+{
+	return m_abIsImpassable[eTeam];
+}
+//	--------------------------------------------------------------------------------
+/// Set force reveal a Resource for a team (for Goody Huts)
+void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	m_abIsImpassable[eTeam] = bValue;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsNoSettling(PlayerTypes eMajor) const
 {
@@ -11647,7 +11689,11 @@ void CvPlot::read(FDataStream& kStream)
 
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
 		kStream >> m_abResourceForceReveal[i];
-
+#if defined(MOD_BALANCE_CORE)
+	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
+		kStream >> m_abIsImpassable[i];
+	
+#endif
 	if (uiVersion >= 6)
 	{
 		for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
@@ -11831,6 +11877,10 @@ void CvPlot::write(FDataStream& kStream) const
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
 		kStream << m_abResourceForceReveal[i];
 
+#if defined(MOD_BALANCE_CORE)
+	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
+		kStream << m_abIsImpassable[i];
+#endif
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
 	{
 		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);
@@ -12376,7 +12426,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Water plots
 		if(isWater())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!isImpassable(GET_PLAYER(ePlayer).getTeam()) && !isMountain())
+#else
 			if(!isImpassable() && !isMountain())
+#endif
 			{
 				// Player sea plot yield
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
@@ -12414,7 +12468,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Worked river plot
 		if(isRiver())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!isImpassable(GET_PLAYER(ePlayer).getTeam()) && !isMountain())
+#else
 			if(!isImpassable() && !isMountain())
+#endif
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -12452,7 +12510,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pWorkingCity != NULL && !isImpassable(pWorkingCity->getTeam()) && !isMountain())
+#else
 			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
+#endif
 			{
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
@@ -12974,53 +13036,89 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 #endif
 
 //	---------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvPlot::updateImpassable(TeamTypes eTeam)
+#else
 void CvPlot::updateImpassable()
+#endif
 {
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
 	m_bIsImpassable = false;
 
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	const PlotTypes ePlot = getPlotType();
-	bool bA = false, bB = false, bC = false;
-
-	if(ePlot != NO_PLOT)
-	{
-		CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
-		if(pkPlotInfo)
-			bA = pkPlotInfo->isImpassable();
-	}
-	if(eTerrain != NO_TERRAIN)
-	{
-		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-		if(pkTerrainInfo)
-			bB = pkTerrainInfo->isImpassable();
-	}
-	if(eFeature != NO_FEATURE)
-	{
-		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-		if(pkFeatureInfo)
-			bC = pkFeatureInfo->isImpassable();
-	}
-
-	m_bIsImpassable = bA || bB || bC;
-}
-#else
 	if(eTerrain != NO_TERRAIN)
 	{
 		if(eFeature == NO_FEATURE)
 		{
 			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 			if(pkTerrainInfo)
+#if defined(MOD_BALANCE_CORE)
+			{
+#endif
 				m_bIsImpassable = pkTerrainInfo->isImpassable();
+#if defined(MOD_BALANCE_CORE)
+				if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
+				{
+					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
+					{
+						SetTeamImpassable(eTeam, false);
+					}
+					else
+					{
+						SetTeamImpassable(eTeam, true);
+					}
+				}
+				else if(m_bIsImpassable)
+				{
+					SetTeamImpassable(eTeam, true);
+				}
+			}
+#endif
 		}
 		else
 		{
 			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
 			if(pkFeatureInfo)
+#if defined(MOD_BALANCE_CORE)
+			{
+#endif
 				m_bIsImpassable = pkFeatureInfo->isImpassable();
+#if defined(MOD_BALANCE_CORE)
+				if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
+				{
+					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
+					{
+						SetTeamImpassable(eTeam, false);
+					}
+					else
+					{
+						SetTeamImpassable(eTeam, true);
+					}
+				}
+				else if(m_bIsImpassable)
+				{
+					SetTeamImpassable(eTeam, true);
+				}
+			}
+#endif
 		}
+	}
+}
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::isImpassable(TeamTypes eTeam) const
+{
+	if(eTeam != NO_TEAM)
+	{
+		return m_abIsImpassable[eTeam];
+	}
+	else if(eTeam == BARBARIAN_TEAM && !isMountain() && !isIce())
+	{
+		return true;
+	}
+	else
+	{
+		return m_bIsImpassable;
 	}
 }
 #endif
@@ -13805,7 +13903,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 				//Adjacent to city? Break!
 				return 0;
 			}
-			else if(pLoopAdjacentPlot->isImpassable() || pLoopAdjacentPlot->isWater())
+			else if(pLoopAdjacentPlot->isImpassable(eTeam) || pLoopAdjacentPlot->isWater())
 			{
 				//don't consider impassable and water plots
 				continue;

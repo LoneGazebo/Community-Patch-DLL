@@ -3507,7 +3507,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 			{
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 				{
 					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
@@ -3531,7 +3531,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 				{
 					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
 						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{

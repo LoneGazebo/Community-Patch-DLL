@@ -2366,8 +2366,8 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pNewPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isImpassable(thisPlayer.getTeam()) || (pNewPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
 #else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
 #endif
@@ -2430,8 +2430,8 @@ int StepValidAnyArea(CvAStarNode* parent, CvAStarNode* node, int data, const voi
 	//	return FALSE;
 	//}
 
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pNewPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isImpassable(thisPlayer.getTeam()) || (pNewPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
 #else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
 #endif
@@ -3010,8 +3010,8 @@ int BuildRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pNewPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isImpassable(thisPlayer.getTeam()) || (pNewPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
 #else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
 #endif
@@ -3060,11 +3060,30 @@ int AreaValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	}
 
 	CvMap& kMap = GC.getMap();
+#if defined(MOD_BALANCE_CORE)
+	int iFromPlotX = parent->m_iX;
+	int iFromPlotY = parent->m_iY;
+	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
+	if(pFromPlot != NULL && pFromPlot->getOwner() != NO_PLAYER)
+	{
+		if(pFromPlot->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()) != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable(BARBARIAN_TEAM) != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable(BARBARIAN_TEAM))
+		{
+			return FALSE;
+		}
+	}
+#else
 	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable() != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable())
 	{
 		return FALSE;
 	}
-
+#endif	
 	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
 }
 
@@ -3416,13 +3435,13 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 						CvPlot* pAdjacentPlot = NULL;
 						if(currentPlot != NULL)
 						{
-							if(currentPlot->isImpassable())
+							if(currentPlot->isImpassable(GET_PLAYER(ePlayer).getTeam()))
 							{
 								// Find an adjacent tile
 								for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 								{
 									pAdjacentPlot = plotDirection(currentPlot->getX(), currentPlot->getY(), ((DirectionTypes)iDirectionLoop));
-									if(pAdjacentPlot != NULL && !pAdjacentPlot->isImpassable())
+									if(pAdjacentPlot != NULL && !pAdjacentPlot->isImpassable(GET_PLAYER(ePlayer).getTeam()))
 									{
 										currentPlot = pAdjacentPlot;
 										break;
@@ -4733,14 +4752,30 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
-	if(pNewPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE)
+	int iFromPlotX = parent->m_iX;
+	int iFromPlotY = parent->m_iY;
+	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
+	if(pFromPlot != NULL && pFromPlot->getOwner() != NO_PLAYER)
+	{
+		if(pNewPlot->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()) || (pNewPlot->isMountain() && !GET_PLAYER(pFromPlot->getOwner()).GetPlayerTraits()->IsMountainPass()))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if(pNewPlot->isMountain() || pNewPlot->isImpassable(BARBARIAN_TEAM))
+		{
+			return FALSE;
+		}
+	}
 #else
 	if(pNewPlot->isMountain() || pNewPlot->isImpassable())
-#endif
 	{
 		return FALSE;
 	}
+#endif
 
 	return TRUE;
 }
@@ -4792,11 +4827,21 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 			iCost += 10000;
 #endif
 	}
-
-	if(pToPlot->isImpassable())
+	if(pFromPlot != NULL && pFromPlot->getOwner() != NO_PLAYER)
 	{
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+		if(pToPlot->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()))
+		{
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+		}
 	}
+	else if(pFromPlot != NULL)
+	{
+		if(pToPlot->isImpassable(BARBARIAN_TEAM))
+		{
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+		}
+	}
+
 
 	// avoid enemy lands
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
@@ -4930,11 +4975,39 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 				return FALSE;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pParentPlot != NULL)
+		{
+			PlayerTypes ePlayer = pParentPlot->getOwner();
+			if(ePlayer != NO_PLAYER)
+			{
+				if(pParentPlot->isImpassable(GET_PLAYER(ePlayer).getTeam()))
+				{
+					return FALSE;
+				}
+			}
+			else
+			{
+				if(pParentPlot->isImpassable(BARBARIAN_TEAM))
+				{
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			if(pNewPlot->isImpassable(BARBARIAN_TEAM))
+			{
+				return FALSE;
+			}
+		}
 
+#else
 		if(pNewPlot->isImpassable())
 		{
 			return FALSE;
 		}
+#endif
 	}
 
 	return TRUE;

@@ -862,7 +862,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?
-			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isCity())
+			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(m_pPlayer->getTeam()) && !pLoopPlot->isCity())
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");

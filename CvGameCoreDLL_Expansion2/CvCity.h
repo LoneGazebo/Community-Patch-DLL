@@ -182,7 +182,9 @@ public:
 	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
 	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	bool IsHasFeatureLocal(FeatureTypes eFeature) const;
+#endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int GetNumResourceLocal(ResourceTypes eResource);
@@ -192,6 +194,9 @@ public:
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 #endif
 	// Resource Demanded
 
@@ -305,7 +310,11 @@ public:
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
 
 	void processResource(ResourceTypes eResource, int iChange);
+#if defined(MOD_BALANCE_CORE)
+	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false, bool bNoBonus = false);
+#else
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
+#endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 

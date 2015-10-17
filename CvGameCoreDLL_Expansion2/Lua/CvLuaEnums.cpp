@@ -1069,6 +1069,17 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(PEACE_TREATY_CAPITULATION);
 	RegisterEnum(PEACE_TREATY_UNCONDITIONAL_SURRENDER);
 	EnumEnd(L);
+
+	EnumStart(L, "MajorCivOpinionTypes");
+	RegisterEnum(NO_MAJOR_CIV_OPINION_TYPE);
+	RegisterEnum(MAJOR_CIV_OPINION_UNFORGIVABLE);
+	RegisterEnum(MAJOR_CIV_OPINION_ENEMY);
+	RegisterEnum(MAJOR_CIV_OPINION_COMPETITOR);
+	RegisterEnum(MAJOR_CIV_OPINION_NEUTRAL);
+	RegisterEnum(MAJOR_CIV_OPINION_FAVORABLE);
+	RegisterEnum(MAJOR_CIV_OPINION_FRIEND);
+	RegisterEnum(MAJOR_CIV_OPINION_ALLY);
+	EnumEnd(L);
 #endif
 
 	EnumStart(L, "ControlTypes");

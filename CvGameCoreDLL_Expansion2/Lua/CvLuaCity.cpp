@@ -4334,7 +4334,12 @@ int CvLuaCity::lSetNumRealBuilding(lua_State* L)
 	if(iIndex != NO_BUILDING)
 	{
 		const int iNewValue = lua_tointeger(L, 3);
+#if defined(MOD_BALANCE_CORE)
+		const bool bNoBonus = luaL_optbool(L, 4, false);
+		pkCity->GetCityBuildings()->SetNumRealBuilding(iIndex, iNewValue, bNoBonus);
+#else
 		pkCity->GetCityBuildings()->SetNumRealBuilding(iIndex, iNewValue);
+#endif
 	}
 
 	return 1;
