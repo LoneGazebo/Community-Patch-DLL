@@ -235,7 +235,8 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			}
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-			int iRange = pLoopCity->getBombardRange();
+			bool bIndirectFireAllowed = false;
+			int iRange = pLoopCity->getBombardRange(bIndirectFireAllowed);
 #else
 			int iRange = GC.getCITY_ATTACK_RANGE();
 #endif
@@ -260,6 +261,11 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 						continue;
 					}
 #endif // AUI_DANGER_PLOTS_REMADE
+
+#if defined(MOD_EVENTS_CITY_BOMBARD)
+					if (!bIndirectFireAllowed && !pCityPlot->canSeePlot(pLoopPlot, NO_TEAM, iRange, NO_DIRECTION))
+						continue;
+#endif
 
 					AssignCityDangerValue(pLoopCity, pLoopPlot);
 				}
@@ -346,7 +352,10 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 				{
 					const UnitHandle pEnemy = pEvalPlot->getBestDefender(NO_PLAYER, thisPlayer.GetID(), NULL, true);
 					if (pEnemy)
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy.pointer());
+					{
+						int iAttackerDamage = 0; //to be ignored
+						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy.pointer(),iAttackerDamage);
+					}
 				}
 			}
 #else

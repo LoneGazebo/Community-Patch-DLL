@@ -482,7 +482,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 				if (pUnit->isMustSetUpToRangedAttack())
 					iPlotMoves -= GC.getMOVE_DENOMINATOR();
 
-				//for ranged every tile we can enter with movement left is a base for attack
+				//for ranged every tile he can enter with movement left is a base for attack
 				if (iPlotMoves>0)
 				{
 					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
@@ -497,7 +497,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			}
 			else
 			{
-				//for melee every tile we can move into can be attacked
+				//for melee every tile he can move into can be attacked
 				m_pPlots[iPlotIndex].SetSubjectToAttack(true);
 				if (iPlotMoves>0)
 					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);

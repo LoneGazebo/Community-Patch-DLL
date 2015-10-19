@@ -3947,21 +3947,12 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-					if(NULL != pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
-					{
-						iBad++;
-					}
-					else if(NULL != pLoopUnit && pLoopUnit->isBarbarian())
+					if(pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
 					{
 						iBad++;
 					}
 				}
 			}
-			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-			{
-				iBad += 10;
-			}
-
 #else
 			if(pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 			{
@@ -3970,8 +3961,10 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 #endif
 		}
 	}
+
 #if defined(MOD_BALANCE_CORE)
-	if(iBad >= ((pArea->getNumTiles() * 90) / 100))
+	//allow one enemy unit per 25 tiles
+	if(iBad*100 > (pArea->getNumTiles()*100)/25 )
 	{
 		return false;
 	}

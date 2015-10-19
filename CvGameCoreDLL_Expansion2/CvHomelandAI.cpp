@@ -3495,7 +3495,30 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				continue;
 			//Ignore plots with units in them
 			if(pEvalPlot->getNumUnits() > 0)
-				continue;
+			{
+				//except if we can make an easy kill
+				CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
+				if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(),pEnemyUnit))
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						CvString strTemp = pUnit->getUnitInfo().GetDescription();
+						strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					// Only mark as done if out of movement
+					if(pUnit->getMoves() <= 0)
+					{
+						pUnit->finishMoves();
+						UnitProcessed(pUnit->GetID());
+						break;
+					}
+				}
+				else
+					continue;
+			}
 
 			//get contributions from yet-to-be revealed plots (and goodies)
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
@@ -3582,6 +3605,10 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 			}
 		}
+
+		//if we made an opportunity attack, we're done
+		if(!pUnit->canMove())
+			continue;
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)

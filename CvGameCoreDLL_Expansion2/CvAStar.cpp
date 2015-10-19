@@ -4408,6 +4408,9 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 {
 
 #if defined(MOD_BALANCE_CORE)
+	//make sure that iTargetTurns is valid
+	iTargetTurns = max(1,iTargetTurns);
+
 	//see how far we could move in optimal circumstances
 	int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
 
