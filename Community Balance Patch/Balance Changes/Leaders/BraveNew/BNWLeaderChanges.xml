@@ -362,6 +362,23 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_ThemingBonuses>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY</Description>
+			<Bonus>2</Bonus>
+			<RequiresAnyButOwner>true</RequiresAnyButOwner>
+			<AIPriority>2</AIPriority>
+		</Row>
+	</Building_ThemingBonuses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY">
+			<Text>Knowledge from Around the World</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ROYAL_LIBRARY_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works are from foreign Civilizations</Text>
+		</Row>
+	</Language_en_US>
  <!-- Kasbah -->
 	<Improvement_TechYieldChanges>
 		<Row>

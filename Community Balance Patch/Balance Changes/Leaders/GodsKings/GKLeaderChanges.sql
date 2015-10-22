@@ -222,8 +222,12 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon neither generate nor receive foreign Religious Pressure. +5 [ICON_PEACE] Faith in [ICON_CAPITAL] if your Pantheon is present, and [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
+SET Text = 'Has a unique set of powerful Pantheon Beliefs. Cities with your Pantheon or founded Religion neither generate nor receive foreign Religious Pressure. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Only the Celts may build this unit. Double movement and +25% defense in Hills, Snow, and Tundra. Can pillage enemy improvements at no additional movement cost, and earns 200% of opponents'' strength as [ICON_PEACE] Faith for kills.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET UniqueBeliefsOnly = 'true'
@@ -236,6 +240,18 @@ WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 UPDATE Traits
 SET FaithFromUnimprovedForest = 'false'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Unit_YieldFromKills
+SET Yield = '200'
+WHERE UnitType = 'UNIT_CELT_PICTISH_WARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Unit_FreePromotions
+SET PromotionType = 'PROMOTION_SKI_INFANTRY'
+WHERE UnitType = 'UNIT_CELT_PICTISH_WARRIOR' AND PromotionType = 'PROMOTION_FOREIGN_LANDS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Units
+SET PrereqTech = 'TECH_MINING'
+WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Dido -- Delete African Forest Elephant, remove mountain bonus (given to incans)
 UPDATE Language_en_US

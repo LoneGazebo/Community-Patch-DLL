@@ -2569,7 +2569,9 @@ int CvLuaCity::lGetCityYieldModFromMonopoly(lua_State* L)
 		{
 			if(GET_PLAYER(pkCity->getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eYieldType) > 0)
 			{
-				iModifier += pInfo->getCityYieldModFromMonopoly(eYieldType);
+				int iTemp = pInfo->getCityYieldModFromMonopoly(eYieldType);
+				iTemp += GET_PLAYER(pkCity->getOwner()).GetMonopolyModPercent();
+				iModifier += iTemp;
 			}
 		}
 	}

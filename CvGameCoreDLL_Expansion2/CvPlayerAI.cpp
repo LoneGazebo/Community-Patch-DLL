@@ -381,12 +381,19 @@ void CvPlayerAI::AI_unitUpdate()
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift)
+#else
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
+#endif
 {
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
-
+#if defined(MOD_BALANCE_CORE)
+	//Don't burn down gifts, that makes you look ungrateful.
+	if(!bGift)
+	{
+#endif
 	// Liberate a city?
 	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner))
 	{
@@ -482,7 +489,9 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	// Puppet the city
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -2098,12 +2107,6 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 		{
 			return iScore;
 		}
-	}
-
-	int iPathTurns;
-	if(!pUnit->GeneratePath(pCity->plot(), MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
-	{
-		return 0;
 	}
 
 	// Do we already have an embassy here?

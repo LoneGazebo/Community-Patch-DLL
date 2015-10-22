@@ -5,6 +5,10 @@ WHERE Type = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type=
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Units
+SET PrereqTech = 'TECH_REPLACEABLE_PARTS'
+WHERE Type = 'UNIT_AMERICAN_MINUTEMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Traits
 SET BuyOwnedTiles = '1'
 WHERE Type = 'TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -48,7 +52,7 @@ SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connections that pass over Desert and Plains tiles without Features gain [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Double Unit movement in Deserts, and double Unit healing in Plains.'
+SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connections that pass over Desert and Plains tiles gain [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Double Unit movement in Deserts, and double Unit healing in Plains.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -371,8 +375,12 @@ WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Bismarck -- Hanse Yield Per Pop
 UPDATE Language_en_US
-SET Text = 'Unique German Customs House replacement. +5% [ICON_PRODUCTION] Production for each Trade Route your civilization has with a City-State.[NEWLINE][NEWLINE]Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Trade Routes to or from this City gain +2 [ICON_GOLD] Gold.'
+SET Text = '+5% [ICON_PRODUCTION] Production for each Trade Route your civilization has with a City-State.[NEWLINE][NEWLINE]Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Trade Routes to or from this City gain +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires a Market.'
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'In addition to the regular abilities of the Customs House (additional [ICON_GOLD] Gold output, and additional [ICON_GOLD] Gold from Trade Routes), the Hanse provides [ICON_PRODUCTION] Production for each Trade Route within your civilization that connects to a City-State. The Trade Routes can come from any combination of cities, even cities without the Hanse (Example: If you have trade routes from Berlin to Geneva, Munich to Geneva, Munich to Berlin, and Berlin to Brussels, then all cities with the Hanse would get +15% [ICON_PRODUCTION] Production). Only Germany may build it.'
+WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Receive +2 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture in all owned cities for every City-State you are allied with. For every 2 City-State alliances, receive 1 additional Delegate in the World Congress.'
@@ -417,6 +425,10 @@ WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNIT
 UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_MINT'
 WHERE BuildingType = 'BUILDING_HANSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Buildings
+SET BuildingClass = 'BUILDINGCLASS_MINT'
+WHERE Type = 'BUILDING_HANSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Greece -- CS Alliances boost CS -- Odeon
 DELETE FROM Units
@@ -715,7 +727,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_SIAMESE_WARELEPHANT' AND EXISTS (SELECT * FROM CO
 -- Boost UA
 
 UPDATE Traits
-SET CityStateBonusModifier = '75'
+SET CityStateBonusModifier = '50'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -723,7 +735,7 @@ SET AllianceCSDefense = '25'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith from friendly City-States is increased by 75%. The [ICON_STRENGTH] Combat Strength of Allied City-State [ICON_CAPITAL] Capitals is increased by +25%.'
+SET Text = 'Yields from friendly and allied City-States increased by 50%. The [ICON_STRENGTH] Combat Strength of Allied City-State [ICON_CAPITAL] Capitals is increased by +25%.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- China

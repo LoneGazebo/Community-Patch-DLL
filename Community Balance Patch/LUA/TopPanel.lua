@@ -506,6 +506,18 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_RELIGION", iScienceFromReligion);
 		end
+		local iScienceFromMinors = pPlayer:GetSciencePerTurnFromMinorCivs();
+		if (iScienceFromMinors ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_MINORS", iScienceFromMinors);
+		end
 -- COMMUNITY PATCH CHANGE
 		-- Science % lost from unhappiness
 		local iScienceChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
@@ -566,7 +578,11 @@ function GoldTipHandler( control )
 	local fCityConnectionGold = pPlayer:GetCityConnectionGoldTimes100() / 100;
 	--local fInternationalTradeRouteGold = pPlayer:GetGoldPerTurnFromTradeRoutesTimes100() / 100;
 	local fTraitGold = pPlayer:GetGoldPerTurnFromTraits();
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold;
+	-- CBP
+	local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
+	local iMinorGold = pPlayer:GetGoldPerTurnFromMinorCivs();
+	-- END
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iGoldChange;
 	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
@@ -594,8 +610,11 @@ function GoldTipHandler( control )
 	end
 
 -- COMMUNITY PATCH CHANGE
+	if (iMinorGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
+	end
 		-- Gold gained from happiness
-		local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
+
 		if (iGoldChange > 0) then
 			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldChange);
 		end

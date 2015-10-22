@@ -492,7 +492,7 @@ SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_MINT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Trade Routes to or from this City gain +2 [ICON_GOLD] Gold.'
+SET Text = 'Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Trade Routes to or from this City gain +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have a Market.'
 WHERE Tag = 'TXT_KEY_BUILDING_MINT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -539,7 +539,7 @@ SET PrereqTech = 'TECH_CURRENCY'
 WHERE Type = 'BUILDING_CARAVANSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE] Nearby sources of [ICON_RES_TRUFFLES] Truffles, [ICON_RES_COTTON] Cotton, and [ICON_RES_FUR] Fur produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Receive a [ICON_TOURISM] Tourism boost equal to 25% of your current Empire-wide [ICON_CULTURE] Culture per turn when a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby sources of [ICON_RES_TRUFFLES] Truffles, [ICON_RES_COTTON] Cotton, and [ICON_RES_FUR] Fur produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 -- Library

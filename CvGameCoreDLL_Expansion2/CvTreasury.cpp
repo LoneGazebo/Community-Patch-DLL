@@ -535,6 +535,12 @@ int CvTreasury::CalculateGrossGoldTimes100()
 		iNetGold += (m_pPlayer->GetYieldPerTurnFromVassals(YIELD_GOLD) * 100);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
+	{
+		iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//Mod for national unhappiness
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
@@ -857,44 +863,47 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 	iMaintenance /= 100;
 
 #if defined(MOD_BALANCE_CORE)
-	CvCity* pLoopCity;
-
-	int iLoop;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
-		int iBad = 0;
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		CvCity* pLoopCity;
+
+		int iLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if (eResourceLoop != NO_RESOURCE)
+			int iBad = 0;
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
-				if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if (eResourceLoop != NO_RESOURCE)
 				{
-					if((m_pPlayer->getNumResourceAvailable(eResourceLoop, true) < 0) && (m_pPlayer->getNumResourceUsed(eResourceLoop) > 0))
-					{				
-						// See if there are any BuildingClass requirements
-						const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-						CvCivilizationInfo& thisCivilization = m_pPlayer->getCivilizationInfo();
-						for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-						{
-							const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-							CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-							if(!pkBuildingClassInfo)
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+					if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					{
+						if((m_pPlayer->getNumResourceAvailable(eResourceLoop, true) < 0) && (m_pPlayer->getNumResourceUsed(eResourceLoop) > 0))
+						{				
+							// See if there are any BuildingClass requirements
+							const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+							CvCivilizationInfo& thisCivilization = m_pPlayer->getCivilizationInfo();
+							for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 							{
-								continue;
-							}
-
-							const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-
-							if(pLoopCity->GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
-							{
-								CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
-								if(pkBuildingInfo)
+								const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(!pkBuildingClassInfo)
 								{
-									if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+									continue;
+								}
+
+								const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+								if(pLoopCity->GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
+								{
+									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
+									if(pkBuildingInfo)
 									{
-										iBad += (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 2);
+										if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+										{
+											iBad += (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 2);
+										}
 									}
 								}
 							}
@@ -902,23 +911,23 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 					}
 				}
 			}
+			if(iBad > 0)
+			{
+				 pLoopCity->SetExtraBuildingMaintenance(iBad);
+			}
+			else
+			{
+				 pLoopCity->SetExtraBuildingMaintenance(0);
+			}
 		}
-		if(iBad > 0)
+		iLoop = 0;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			 pLoopCity->SetExtraBuildingMaintenance(iBad);
-		}
-		else
-		{
-			 pLoopCity->SetExtraBuildingMaintenance(0);
-		}
-	}
-	iLoop = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		if(pLoopCity->GetExtraBuildingMaintenance() > 0)
-		{
-			iMaintenance *= (100 + pLoopCity->GetExtraBuildingMaintenance());
-			iMaintenance /= 100;
+			if(pLoopCity->GetExtraBuildingMaintenance() > 0)
+			{
+				iMaintenance *= (100 + pLoopCity->GetExtraBuildingMaintenance());
+				iMaintenance /= 100;
+			}
 		}
 	}
 #endif

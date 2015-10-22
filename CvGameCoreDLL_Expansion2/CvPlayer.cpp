@@ -365,6 +365,8 @@ CvPlayer::CvPlayer() :
 	, m_iTRVisionBoost("CvPlayer::m_iTRVisionBoost", m_syncArchive)
 	, m_iBuildingMaintenanceMod("CvPlayer::m_iBuildingMaintenanceMod", m_syncArchive)
 	, m_iEventTourism("CvPlayer::m_iEventTourism", m_syncArchive)
+	, m_iMonopolyModFlat("CvPlayer::m_iMonopolyModFlat", m_syncArchive)
+	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1328,6 +1330,8 @@ void CvPlayer::uninit()
 	m_iTRVisionBoost = 0;
 	m_iBuildingMaintenanceMod = 0;
 	m_iEventTourism = 0;
+	m_iMonopolyModFlat = 0;
+	m_iMonopolyModPercent = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -4092,7 +4096,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// AI decides what to do with a City
 			if(!isHuman())
 			{
+#if defined(MOD_BALANCE_CORE)
+				AI_conquerCity(pNewCity, eOldOwner, bGift); // could delete the pointer...
+#else
 				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
+#endif
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
 				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
@@ -4583,7 +4591,7 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", ";
-		strOutBuf.Format("Revolution! City restored to %d", GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription());
+		strOutBuf.Format("Revolution! City restored to %s", GET_PLAYER(pCity->getOwner()).getName());
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
@@ -13672,22 +13680,27 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 #if defined(MOD_BALANCE_CORE)
 	else
 	{
+		int iEra = GetCurrentEra();
+		if(iEra <= 1)
+		{
+			iEra = 1;
+		}
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(pConqueredCity->getPopulation() * 10);
+			changeOverflowResearch(pConqueredCity->getPopulation() * 10 * iEra);
 		}
 		else
 		{
-			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pConqueredCity->getPopulation() * 10, GetID());
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (pConqueredCity->getPopulation() * 10 * iEra), GetID());
 		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
 			Localization::String strSummary;
 			strMessage = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST");
-			strMessage << (pConqueredCity->getPopulation() * 10);
+			strMessage << (pConqueredCity->getPopulation() * 10 * iEra);
 			strMessage << strTargetNameKey;
 			strSummary = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY");
 
@@ -14262,7 +14275,56 @@ int CvPlayer::GetFaithPerTurnFromMinorCivs() const
 	}
 	return iFaithPerTurn;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Gold per turn from Minor Civs
+int CvPlayer::GetGoldPerTurnFromMinorCivs() const
+{
+	int iFaithPerTurn = 0;
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		iFaithPerTurn += GetGoldPerTurnFromMinor((PlayerTypes)iMinorLoop);
+	}
+	return iFaithPerTurn;
+}
+//	--------------------------------------------------------------------------------
+/// Science per turn from Minor Civs
+int CvPlayer::GetSciencePerTurnFromMinorCivs() const
+{
+	int iFaithPerTurn = 0;
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		iFaithPerTurn += GetSciencePerTurnFromMinor((PlayerTypes)iMinorLoop);
+	}
+	return iFaithPerTurn;
+}
+//	--------------------------------------------------------------------------------
+/// Gold per turn from a Minor Civ
+int CvPlayer::GetGoldPerTurnFromMinor(PlayerTypes eMinor) const
+{
+	int iGoldPerTurn = 0;
 
+	if(GET_PLAYER(eMinor).isAlive())
+	{
+		iGoldPerTurn += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentGoldBonus(GetID());
+	}
+
+	return iGoldPerTurn;
+}
+//	--------------------------------------------------------------------------------
+/// Science per turn from a Minor Civ
+int CvPlayer::GetSciencePerTurnFromMinor(PlayerTypes eMinor) const
+{
+	int iSciencePerTurn = 0;
+
+	if(GET_PLAYER(eMinor).isAlive())
+	{
+		iSciencePerTurn += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentScienceBonus(GetID());
+	}
+
+	return iSciencePerTurn;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Faith per turn from a Minor Civ
 int CvPlayer::GetFaithPerTurnFromMinor(PlayerTypes eMinor) const
@@ -15435,7 +15497,9 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 		{
 			if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
-				iTotalHappiness += pInfo->getMonopolyHappiness();
+				int iTemp = pInfo->getMonopolyHappiness();
+				iTemp += GetMonopolyModFlat();
+				iTotalHappiness += iTemp;
 			}
 		}
 	}
@@ -18535,7 +18599,9 @@ int CvPlayer::getGoldenAgeLength() const
 				{
 					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
-						iLengthModifier += pInfo->getMonopolyGALength();
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp += GetMonopolyModPercent();
+						iLengthModifier += iTemp;
 					}
 				}
 			}
@@ -21380,6 +21446,14 @@ void CvPlayer::ChangePiety(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyChanged, GetID(), GetPiety(), iValue);
 	m_iJFDPiety += iValue;
+	if(m_iJFDPiety > GC.getGame().getGameSpeedInfo().getPietyMax())
+	{
+		m_iJFDPiety = GC.getGame().getGameSpeedInfo().getPietyMax();
+	}
+	if(m_iJFDPiety < GC.getGame().getGameSpeedInfo().getPietyMin())
+	{
+		m_iJFDPiety = GC.getGame().getGameSpeedInfo().getPietyMin();
+	}
 }
 int CvPlayer::GetPiety() const
 {
@@ -21806,6 +21880,37 @@ int CvPlayer::GetEventTourism() const
 	return m_iEventTourism;
 }
 
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeMonopolyModFlat(int iChange)
+{
+	m_iMonopolyModFlat += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetMonopolyModFlat(int iChange)
+{
+	m_iMonopolyModFlat = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMonopolyModFlat() const
+{
+	return m_iMonopolyModFlat;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeMonopolyModPercent(int iChange)
+{
+	m_iMonopolyModPercent += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetMonopolyModPercent(int iChange)
+{
+	m_iMonopolyModPercent = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMonopolyModPercent() const
+{
+	return m_iMonopolyModPercent;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAbleToAnnexCityStatesCount() const
@@ -25245,7 +25350,12 @@ int CvPlayer::GetScienceTimes100() const
 		iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
+	{
+		iValue += GetSciencePerTurnFromMinorCivs() * 100;
+	}
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if (MOD_DIPLOMACY_CITYSTATES) {
 		//Science Funding Rate Boost
@@ -28997,6 +29107,43 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 		{
 			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
+				{
+					if(pOperation->GetTargetPlot() != NULL)
+					{
+						if(pOperation->GetTargetPlot() == pCity->plot())
+						{
+							// Naval attacks are mixed land/naval operations
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+							{
+								return true;
+							}
+
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+							{
+								return true;
+							}
+						}
+						else if(pOperation->GetTargetPlot()->getWorkingCity() != NULL)
+						{
+							if(pOperation->GetTargetPlot()->getWorkingCity() == pCity)
+							{
+								// Naval attacks are mixed land/naval operations
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+								{
+									return true;
+								}
+
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+#else
 				if(pOperation->GetTargetPlot() == pCity->plot() && pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
 				{
 					// Naval attacks are mixed land/naval operations
@@ -29010,6 +29157,7 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 						return true;
 					}
 				}
+#endif
 			}
 		}
 	}
@@ -29032,17 +29180,39 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 		{
 			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
 			{
-				if(pOperation->GetMusterPlot() == pCity->plot() && pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
+				if(pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
 				{
-					// Naval attacks are mixed land/naval operations
-					if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsMixedLandNavalOperation())
+					if(pOperation->GetMusterPlot() != NULL)
 					{
-						return true;
-					}
+						if(pOperation->GetMusterPlot() == pCity->plot())
+						{
+							// Naval attacks are mixed land/naval operations
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+							{
+								return true;
+							}
 
-					if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
-					{
-						return true;
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+							{
+								return true;
+							}
+						}
+						else if(pOperation->GetMusterPlot()->getWorkingCity() != NULL)
+						{
+							if(pOperation->GetMusterPlot()->getWorkingCity() == pCity)
+							{
+								// Naval attacks are mixed land/naval operations
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+								{
+									return true;
+								}
+
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+								{
+									return true;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -30696,6 +30866,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
 	ChangeEventTourism(pPolicy->GetEventTourism() * iChange);
+	ChangeMonopolyModFlat(pPolicy->GetMonopolyModFlat() * iChange);
+	ChangeMonopolyModPercent(pPolicy->GetMonopolyModPercent() * iChange);
 	
 	if(pPolicy->IsOrderCorp())
 	{
@@ -32402,6 +32574,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iTRVisionBoost;
 	kStream >> m_iBuildingMaintenanceMod;
 	kStream >> m_iEventTourism;
+	kStream >> m_iMonopolyModFlat;
+	kStream >> m_iMonopolyModPercent;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_READ(53, kStream, m_iPovertyUnhappinessMod, 0);
@@ -33118,6 +33292,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iTRVisionBoost;
 	kStream << m_iBuildingMaintenanceMod;
 	kStream << m_iEventTourism;
+	kStream << m_iMonopolyModFlat;
+	kStream << m_iMonopolyModPercent;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_WRITE(kStream, m_iPovertyUnhappinessMod);
@@ -34421,6 +34597,17 @@ bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvCity* pCity) const
 {
 	return m_pDangerPlots->CouldAttackHere(pPlot, pCity);
 }
+
+int CvPlayer::GetNumPossibleAttackers(CvPlot& Plot) const
+{
+	return m_pDangerPlots->GetNumPossibleAttackers(Plot);
+}
+
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(CvPlot& Plot) const
+{
+	return m_pDangerPlots->GetPossibleAttackers(Plot);
+}
+
 #else
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
@@ -34475,7 +34662,7 @@ int CvPlayer::GetNumPuppetCities() const
 
 	return iNum;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 // How many other Capital Cities does this player own
 int CvPlayer::GetNumCapitalCities() const
@@ -35023,7 +35210,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			}
 		}
 
-		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable(getTeam()))
+		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
 		{
 			//--------------
 			if (bLogging) 

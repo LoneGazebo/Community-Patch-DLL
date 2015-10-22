@@ -5472,11 +5472,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	//If we are friends with the player, let's not care about how much gold they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 	{
-		iOtherGoldAmount /= 2;
+		iOtherGoldAmount /= 10;
 	}
 	else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
 	{
-		iOtherGoldAmount /= 2;
+		iOtherGoldAmount /= 10;
 	}
 #endif
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
@@ -5508,7 +5508,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 		iTechDifferenceP2fromP1 = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-	//If we are friends with the player, let's not care about how much gold they make.
+	//If we are friends with the player, let's not care about how much science they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 	{
 		iTechDifferenceP2fromP1 /= 2;
@@ -5825,6 +5825,10 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 				{
 					iScore *= 2;
 				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
+				{
+					iScore *= 2;
+				}
 				if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
 				{
 					iScore *= 10;
@@ -5977,6 +5981,10 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 					iScore *= 2;
 				}
 				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 				{
 					iScore *= 2;
 				}
@@ -6143,6 +6151,10 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 					iScore *= 2;
 				}
 				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 				{
 					iScore *= 2;
 				}

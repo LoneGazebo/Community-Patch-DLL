@@ -364,6 +364,18 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_FAITH_BONUS", iFaithBonus);
 		end
 		
+		-- CBP
+		local iGoldBonus = pMinor:GetMinorCivCurrentGoldBonus(iMajor);
+		if (iGoldBonus ~= 0) then
+			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
+			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_GOLD_BONUS", iGoldBonus);
+		end
+		local iScienceBonus = pMinor:GetMinorCivCurrentScienceBonus(iMajor);
+		if (iScienceBonus ~= 0) then
+			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
+			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_SCIENCE_BONUS", iScienceBonus);
+		end
+		-- END
 		-- Resources
 		local strExportedResourceText = "";
 		

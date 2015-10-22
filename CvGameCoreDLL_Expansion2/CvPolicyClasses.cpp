@@ -173,6 +173,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
 	m_iEventTourism(0),
+	m_iMonopolyModFlat(0),
+	m_iMonopolyModPercent(0),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -480,6 +482,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
+	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
+	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -1922,6 +1926,14 @@ bool CvPolicyEntry::IsHalfSpecialistFoodCapital() const
 int CvPolicyEntry::GetEventTourism() const
 {
 	return m_iEventTourism;
+}
+int CvPolicyEntry::GetMonopolyModFlat() const
+{
+	return m_iMonopolyModFlat;
+}
+int CvPolicyEntry::GetMonopolyModPercent() const
+{
+	return m_iMonopolyModPercent;
 }
 #endif
 /// Military units now all produced with food

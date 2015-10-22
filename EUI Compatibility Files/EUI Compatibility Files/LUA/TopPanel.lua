@@ -896,8 +896,9 @@ g_toolTipHandler.SciencePerTurn = function( control )
 			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
 			
 			-- Science % lost from unhappiness
-			
+			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
 			local iScienceChange = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
+			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
 			if(iScienceChange > 0) then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS", iScienceChange / 100)
 			else
@@ -1047,10 +1048,11 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Total gold
 -- CBP
 		-- Gold gained from happiness
+	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
 	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors -- C4DF
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1098,6 +1100,7 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
 -- CBP
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
 	-- Gold gained from happiness
 	if(iGoldfromHappiness > 0) then
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldfromHappiness)

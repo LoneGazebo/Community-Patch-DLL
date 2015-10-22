@@ -197,21 +197,9 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer)
+	if(pPlayer && pPlot->IsAdjacentOwnedByOtherTeam(pPlayer->getTeam()))
 	{
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(eLoopPlayer != NO_PLAYER && pPlayer->GetID() != eLoopPlayer)
-			{
-				if(pPlot->isAdjacentPlayer(eLoopPlayer, true))
-				{
-					return false;
-				}
-			}
-		}
+		return false;
 	}
 #endif
 

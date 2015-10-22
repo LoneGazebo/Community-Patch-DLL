@@ -143,6 +143,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	m_ppiPlotYieldChange(NULL),
+	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
 #endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
@@ -971,7 +972,15 @@ bool CvBeliefEntry::IsFaithUnitPurchaseEra(int i) const
 	CvAssertMsg(i < GC.getNumEraInfos(), "Index out of bounds");
 	return m_pbFaithPurchaseUnitEraEnabled ? m_pbFaithPurchaseUnitEraEnabled[i] : false;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Can we buy units of this type with faith?
+bool CvBeliefEntry::IsFaithUnitPurchaseSpecific(int i) const
+{
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
+	return m_pbFaithPurchaseUnitSpecificEnabled ? m_pbFaithPurchaseUnitSpecificEnabled[i] : false;
+}
+#endif
 /// Can we buy units of this era with faith?
 bool CvBeliefEntry::IsBuildingClassEnabled(int i) const
 {
@@ -1104,6 +1113,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piYieldPerXFollowers, "Yields", "Belief_YieldPerXFollowers", "YieldType", "BeliefType", szBeliefType, "PerXFollowers");
 	kUtility.PopulateArrayByValue(m_piYieldPerOtherReligionFollower, "Yields", "Belief_YieldPerOtherReligionFollower", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_paiLakePlotYieldChange, "Yields", "Belief_LakePlotYield", "YieldType", "BeliefType", szBeliefType, "Yield");	
+	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitSpecificEnabled, "Units", "Belief_SpecificFaithUnitPurchase", "UnitType", "BeliefType", szBeliefType);
 #endif
 	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithUnitPurchase", "EraType", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
@@ -2632,7 +2642,26 @@ bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra) const
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Is there a belief that allows faith buying of specific units?
+bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->IsFaithUnitPurchaseSpecific((int)eUnit))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 /// Is there a belief that allows us to convert adjacent barbarians?
 bool CvReligionBeliefs::IsConvertsBarbarians() const
 {

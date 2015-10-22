@@ -73,12 +73,20 @@ SET Yield = '25'
 WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
  
 UPDATE Language_en_US
-SET Text = 'Unique Assyrian Library replacement. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in this City. Reduces [ICON_HAPPINESS_3] Illiteracy. Also has two slots for Great Works of Writing which, when filled, give extra XP to trained Units.'
+SET Text = '+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Has two slots for Great Works of Writing which, when filled, give extra XP to trained Units.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+ 
+UPDATE Language_en_US
+SET Text = 'In addition to the [ICON_RESEARCH] Science output of the Library it replaces, the Royal Library also has two Great Work of Writing slots. Once filled with a Great Work, each provides extra XP to Units trained in this city, so place Great Works here as soon as possible for the maximum benefit. Only the Assyrians may build it.'
+WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'When a city is conquered for the first time, gain a free Technology already discovered by its owner. If there are no Technologies to discover, receive a large sum of [ICON_RESEARCH] Science instead.'
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET ThemingBonusHelp = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_THEMING_BONUS_HELP'
+WHERE Type = 'BUILDING_ROYAL_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Ashurbanipal -- Earlier Siege Tower
 UPDATE Unit_Flavors

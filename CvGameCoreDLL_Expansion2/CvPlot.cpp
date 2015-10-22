@@ -8712,7 +8712,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasGlobalMonopoly(eResource))
 			{
-				iYield += GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+				iTemp += GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
+				iYield += iTemp;
 			}
 #endif
 			// Extra yield for religion

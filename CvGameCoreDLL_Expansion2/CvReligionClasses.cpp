@@ -6842,7 +6842,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					CvUnitEntry* pUnitEntry = GC.GetGameUnits()->GetEntry(eUnit);
 
 					// Check to make sure this is a war unit.
-					if(pUnitEntry && pUnitEntry->GetCombat() > 0)
+					if(pUnitEntry && !pUnitEntry->IsSpreadReligion() && !pUnitEntry->IsRemoveHeresy() && (pUnitEntry->GetFaithCost() > 0) && pUnitEntry->GetSpecialUnitType() == NO_SPECIALUNIT)
 					{
 						if(pCity->IsCanPurchase(true, true, eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH))
 						{
@@ -6851,7 +6851,24 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
 								{
-									strLogMsg += ", Bought a Non-Faith Unit";
+									strLogMsg += ", Bought a Non-Faith military Unit, %s", pUnitEntry->GetDescriptionKey();
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
+								if(GC.getLogging())
+								{
+									CvString strFaith;
+									strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+									strLogMsg += strFaith;
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
+								return;
+							}
+							else if(m_pPlayer->GetNumUnitsWithUnitAI((UnitAITypes)pUnitEntry->GetDefaultUnitAIType()) <= 4)
+							{
+								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+								if(GC.getLogging())
+								{
+									strLogMsg += ", Bought a Non-Faith civilian Unit %s (up to four)", pUnitEntry->GetDescriptionKey();
 									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 								}
 								if(GC.getLogging())

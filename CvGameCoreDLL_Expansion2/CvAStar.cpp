@@ -1916,6 +1916,9 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 
 	bAIControl = pCacheData->IsAutomated();
 
+	//---------
+	// comment this for a test - can't see what it's good for
+	/*
 	if(bAIControl)
 	{
 		if(pCacheData->getDomainType() == DOMAIN_LAND)
@@ -1930,6 +1933,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 			}
 		}
 	}
+	*/
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 
@@ -2000,9 +2004,12 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 		iMovesLeft = 0;
 	}
 
+	//base cost
+	iCost = (PATH_MOVEMENT_WEIGHT * iCost);
+
+	//extra cost for ending the turn on various types of undesirable plots
 	if(iMovesLeft == 0)
 	{
-		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 		bool bFromTerraFirma = pFromPlot->isTerraFirma(pUnit);
@@ -2066,10 +2073,6 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 		{
 			iCost += PATH_CITY_AVOID_WEIGHT; // slewis - this should be zeroed out currently
 		}
-	}
-	else
-	{
-		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 	}
 
 	if(finder->GetInfo() & MOVE_MAXIMIZE_EXPLORE)
@@ -3485,6 +3488,30 @@ int CvStepPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
 
 	return iCount;
 }
+//	--------------------------------------------------------------------------------
+/// Returns the last plot along the step path owned by a specific player
+int CvStepPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+	CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+
+	// Starting at the end, loop until we find a plot from this owner
+	CvMap& kMap = GC.getMap();
+	while(pNode != NULL)
+	{
+		CvPlot* currentPlot;
+		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+
+		// Check and see if this plot has an owner that isn't us.
+		if(currentPlot->getOwner() != ePlayer && currentPlot->getOwner() != NO_PLAYER)
+			iCount++;
+
+		// Move to the previous plot on the path
+		pNode = pNode->m_pParent;
+	}
+
+	return iCount;
+}
 #endif
 
 
@@ -4358,42 +4385,6 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	if (!pUnit || !pTarget)
 		return false;
 
-	int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
-
-	//default range
-	int iMoves = pUnit->baseMoves() + pUnit->getExtraMoves();
-	int iRange = iMoves * iTurns;
-
-	//catch stupid cases
-	if (iRange<=0)
-		return (pTarget==pUnit->plot());
-
-	//but routes increase it
-	if (pUnit->getDomainType()==DOMAIN_LAND && !pUnit->flatMovementCost() )
-	{
-		CvTeam& kTeam = GET_TEAM(pUnit->getTeam());
-		RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
-		if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
-		{
-			int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
-
-			if (pUnit->plot()->getRouteType()!=NO_ROUTE)
-				//standing directly on a route
-				iRange = iMoves * iTurns * iMultiplier;
-			else
-				//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
-				iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTurns-1)*iMultiplier;
-		}
-	}
-
-	if (iDistance>iRange)
-	{
-		if (piTurns)
-			*piTurns = INT_MAX;
-		return false;
-	}
-
 	int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, false, iTurns);
 	if (piTurns)
 		*piTurns = iTurnsCalculated;
@@ -4439,6 +4430,49 @@ int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReus
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 #endif // AUI_ASTAR_TURN_LIMITER
 {
+
+#if defined(MOD_BALANCE_CORE)
+	//make sure that iTargetTurns is valid
+	iTargetTurns = max(1,iTargetTurns);
+
+	//see how far we could move in optimal circumstances
+	int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
+
+	//default range
+	int iMoves = pUnit->baseMoves() + pUnit->getExtraMoves();
+	if(iMoves > 0 && pTarget == pUnit->plot())
+	{
+		return 0;
+	}
+	int iRange = iMoves * iTargetTurns;
+
+	//catch stupid cases
+	if (iRange<=0)
+		return pTarget==pUnit->plot() ? INT_MAX : 0;
+
+	//but routes increase it
+	if (pUnit->getDomainType()==DOMAIN_LAND && !pUnit->flatMovementCost() )
+	{
+		CvTeam& kTeam = GET_TEAM(pUnit->getTeam());
+		RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
+		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
+		if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
+		{
+			int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
+
+			if (pUnit->plot()->getRouteType()!=NO_ROUTE)
+				//standing directly on a route
+				iRange = iMoves * iTargetTurns * iMultiplier;
+			else
+				//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
+				iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier;
+		}
+	}
+
+	if (iDistance>iRange)
+		return INT_MAX;
+#endif
+
 	int rtnValue = MAX_INT;
 	CvAStarNode* pNode = NULL;
 
@@ -4593,7 +4627,7 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder)
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 30;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
 #else
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 100;
 #endif
@@ -4793,7 +4827,7 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
 #if defined(MOD_CORE_TRADE_NATURAL_ROUTES)
-	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	int iCost = 0;
 
 	if (pToPlot->isWater())
 	{
@@ -4804,8 +4838,10 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 
 		//try to stick to coast
 		bool bIsAdjacentToLand = pFromPlot->isAdjacentToLand_Cached() && pToPlot->isAdjacentToLand_Cached();
-		if (!bIsAdjacentToLand)
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+		if (bIsAdjacentToLand)
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/2;
+		else
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 	}
 	else
 	{
@@ -4815,6 +4851,8 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 		bool bIsCityOrPassable = (pToPlot->isCity() || bIsPassable);
 		if(!bIsCityOrPassable)
 			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*100;
+		else
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 #else
 		if (!pToPlot->isCity())
 			iCost += 10000;

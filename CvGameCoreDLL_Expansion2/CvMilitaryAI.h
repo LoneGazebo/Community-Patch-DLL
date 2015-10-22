@@ -250,6 +250,7 @@ public:
 
 	// Finding best cities to target
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	bool GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	CvMilitaryTarget FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 #endif
@@ -415,6 +416,9 @@ private:
 	int m_iNumNavalUnits;
 	int m_iNumLandUnitsInArmies;
 	int m_iNumNavalUnitsInArmies;
+#if defined(MOD_BALANCE_CORE)
+	int m_iRecNavySize;
+#endif
 	int m_iNumAirUnits;
 	int m_iNumAntiAirUnits;
 	int m_iBarbarianCampCount;
@@ -471,7 +475,7 @@ bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 // Functions that evaluate which operation to launch
 int ComputeRecommendedNavySize(CvPlayer* pPlayer);
 #if defined(MOD_BALANCE_CORE)
-int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
+int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 #else
 int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 #endif

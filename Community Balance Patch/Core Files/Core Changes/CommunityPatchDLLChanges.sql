@@ -198,5 +198,9 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_NEW_GP_ATTRIBUTES';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_MILITARY_RESISTANCE';
+
 UPDATE CustomModOptions SET Value=1 WHERE Name='GLOBAL_CS_GIFTS';  
 UPDATE CustomModOptions SET Value=1 WHERE Name='GLOBAL_CS_GIFT_SHIPS';  

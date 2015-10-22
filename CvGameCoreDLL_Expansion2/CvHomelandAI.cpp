@@ -3495,7 +3495,30 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				continue;
 			//Ignore plots with units in them
 			if(pEvalPlot->getNumUnits() > 0)
-				continue;
+			{
+				//except if we can make an easy kill
+				CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
+				if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(),pEnemyUnit))
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						CvString strTemp = pUnit->getUnitInfo().GetDescription();
+						strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					// Only mark as done if out of movement
+					if(pUnit->getMoves() <= 0)
+					{
+						pUnit->finishMoves();
+						UnitProcessed(pUnit->GetID());
+						break;
+					}
+				}
+				else
+					continue;
+			}
 
 			//get contributions from yet-to-be revealed plots (and goodies)
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
@@ -3582,6 +3605,10 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 			}
 		}
+
+		//if we made an opportunity attack, we're done
+		if(!pUnit->canMove())
+			continue;
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
@@ -6009,6 +6036,16 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
 
+			int iUnitLoop = 0;
+			int iTotalGenerals = 0;
+			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
+				{
+					iTotalGenerals++;
+				}
+			}
+
 			// Score cities to move to
 			CvCity* pLoopCity;
 			int iLoopCity = 0;
@@ -6059,15 +6096,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						iNumCommanders++;
 					}
 				}
-				int iUnitLoop = 0;
-				int iTotalGenerals = 0;
-				for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-				{
-					if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
-					{
-						iTotalGenerals++;
-					}
-				}
+
 				if(iNumCommanders > 0)
 				{
 					bSkipCity = true;
@@ -6082,7 +6111,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 #if defined(MOD_BALANCE_CORE)
 				//don't care if it's more than 10 turns away - in that case we'll move in stages
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),true,true,false,10);
+				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),false,true,true,10);
 #else
 				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
 #endif
@@ -7211,6 +7240,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		{
 			//make sure the unit fits the destination (ie missile to cruiser, fighter to carrier)
 			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
+				continue;
+
+			//if the unit is supposed to rebase, it can't stay where it is, even if the location is desirable
+			if (pUnit->plot() == it->pPlot)
 				continue;
 
 			pf.SetData(pUnit.pointer(),5);

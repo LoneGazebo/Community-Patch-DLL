@@ -178,6 +178,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetEventTourism() const;
+	int GetMonopolyModFlat() const;
+	int GetMonopolyModPercent() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -474,6 +476,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
+	int m_iMonopolyModFlat;
+	int m_iMonopolyModPercent;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;

@@ -294,6 +294,12 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<!-- Bank -->
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -677,6 +683,11 @@
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
 		</Row>
 	</Building_ThemingYieldBonus>
 </GameData>

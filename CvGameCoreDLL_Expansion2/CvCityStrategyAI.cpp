@@ -1308,11 +1308,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					iTempWeight = 0;
 				}
-				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetCombat() > 0)
 				{
 					iTempWeight *= 2;
 				}
-				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA && pkUnitEntry->GetCombat() > 0)
 				{
 					iTempWeight *= 2;
 				}
@@ -3368,13 +3368,19 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 
 	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 #if defined(MOD_BALANCE_CORE)
+	if(iNumWorkers <= 0)
+	{
+		return true;
+	}
 	int iCurrentNumCities = kPlayer.getNumCities();
 	if(iNumWorkers >= iCurrentNumCities)
+	{
+		return false;
+	}
 #else
 	if(iNumWorkers >= ((kPlayer.getNumCities() *  3) / 2) + 1)
-#endif
 		return false;
-
+#endif
 	// If we're under attack from Barbs and have 1 or fewer cities then training more Workers will only hurt us
 	//if (kPlayer.getNumCities() <= 1)
 	//{

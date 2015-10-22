@@ -3321,6 +3321,10 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iTradeRouteSpeedMod(100),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iPietyMax(0),
+	m_iPietyMin(0),
+#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3489,6 +3493,18 @@ int CvGameSpeedInfo::getTradeRouteSpeedMod() const
 	return m_iTradeRouteSpeedMod;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getPietyMax() const
+{
+	return m_iPietyMax;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getPietyMin() const
+{
+	return m_iPietyMin;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getLeaguePercent() const
 {
@@ -3551,6 +3567,10 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if (MOD_TRADE_ROUTE_SCALING) {
 		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iPietyMin						= kResults.GetInt("PietyMin");
+	m_iPietyMax						= kResults.GetInt("PietyMax");
 #endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 

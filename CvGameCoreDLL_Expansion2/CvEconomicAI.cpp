@@ -889,6 +889,7 @@ void CvEconomicAI::DoTurn()
 #endif
 #if defined(MOD_BALANCE_CORE)
 		DisbandUselessSettlers();
+		DisbandExtraWorkboats();
 #endif
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		YieldTypes eFocusYield = NO_YIELD;
@@ -2393,8 +2394,8 @@ void CvEconomicAI::DoPlotPurchases()
 {
 	CvCity* pLoopCity = 0;
 	CvCity* pBestCity = NULL;
-	int iBestX = -1;
-	int iBestY = -1;
+	int iBestX = INVALID_PLOT_COORD;
+	int iBestY = INVALID_PLOT_COORD;
 	int iTempX = 0, iTempY = 0;
 
 	int iScore = 0;
@@ -2469,7 +2470,7 @@ void CvEconomicAI::DoPlotPurchases()
 
 		if(pBestCity != NULL)
 		{
-			if(iBestX != -1 && iBestY != -1)
+			if(iBestX != INVALID_PLOT_COORD && iBestY != INVALID_PLOT_COORD)
 			{
 #if defined(MOD_BALANCE_CORE)
 				pBestCity->BuyPlot(iBestX, iBestY);
@@ -2996,6 +2997,142 @@ CvUnit* CvEconomicAI::FindSettlerToScrap()
 
 	return NULL;
 }
+void CvEconomicAI::DisbandExtraWorkboats()
+{
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
+	int iNumCities = m_pPlayer->getNumCities();
+
+	//If we want workers in any city, don't disband.
+	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
+	int iLoopCity = 0;
+	int iNumCitiesWithStrat = 0;
+	CvCity* pLoopCity = NULL;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(eWantWorkers != NO_AICITYSTRATEGY)
+			{
+				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
+				{
+					iNumCitiesWithStrat++;
+				}
+			}
+		}
+	}
+	//# of cities needing workers greater than number of workers? don't disband.
+	if(iNumCitiesWithStrat >= iNumWorkers)
+	{
+		return;
+	}
+	//Don't disband during the early game.
+	if(m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 100))
+	{
+		return;
+	}
+
+	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
+	int iNumValidPlots = 0;
+	int iNumUnimprovedPlots = 0;
+	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	{
+		if(aiPlots[ui] == -1)
+		{
+			continue;
+		}
+
+		const CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
+		if(!pPlot)
+		{
+			continue;
+		}
+		if(!pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()))
+		{
+			continue;
+		}
+
+		iNumValidPlots++;
+
+		if(pPlot->getImprovementType() == NO_IMPROVEMENT && pPlot->getResourceType(GetPlayer()->getTeam()) != NO_RESOURCE)
+		{
+			iNumUnimprovedPlots++;
+		}
+	}
+
+	if(iNumUnimprovedPlots > 0)
+	{
+		return;
+	}
+	else if(iNumUnimprovedPlots > iNumWorkers)
+	{
+		m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
+
+		CvUnit* pUnit = FindSeaWorkerToScrap();
+		if(!pUnit)
+		{
+			return;
+		}
+
+		pUnit->scrap();
+		LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumUnimprovedPlots, iNumValidPlots);
+	}
+}
+CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
+{
+	CvUnit* pLoopUnit = NULL;
+	int iUnitLoop = 0;
+
+	// Look at map for loose workers
+	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if(!pLoopUnit)
+		{
+			continue;
+		}
+		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKBOAT");
+		if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+		{
+			return pLoopUnit;
+		}
+	}
+
+	return NULL;
+}
+
+void CvEconomicAI::DisbandExtraArchaeologists(){
+	int iNumSites = GC.getGame().GetNumArchaeologySites();
+	double dMaxRatio = .5; //Ratio of archaeologists to sites
+	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
+	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
+	if (eExpFinisher != NO_POLICY)	
+	{
+		if (m_pPlayer->GetPlayerPolicies()->HasPolicy(eExpFinisher))
+		{
+			iNumSites += GC.getGame().GetNumHiddenArchaeologySites();
+		}
+	}
+	
+	CvUnit* pUnit;
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+	UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST", true);
+#else
+	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
+#endif
+	if(eArch == NO_UNIT){
+		return;
+	}
+	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
+		pUnit = FindArchaeologistToScrap();
+	
+		if(!pUnit)
+		{
+			return;
+		}
+	
+		pUnit->scrap();
+		LogScrapUnit(pUnit, iNumArchaeologists, iNumSites, 0, 0);
+	}
+}
 #endif
 void CvEconomicAI::DisbandExtraWorkers()
 {
@@ -3160,41 +3297,6 @@ void CvEconomicAI::DisbandExtraWorkers()
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
 }
-void CvEconomicAI::DisbandExtraArchaeologists(){
-	int iNumSites = GC.getGame().GetNumArchaeologySites();
-	double dMaxRatio = .5; //Ratio of archaeologists to sites
-	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
-	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
-	if (eExpFinisher != NO_POLICY)	
-	{
-		if (m_pPlayer->GetPlayerPolicies()->HasPolicy(eExpFinisher))
-		{
-			iNumSites += GC.getGame().GetNumHiddenArchaeologySites();
-		}
-	}
-	
-	CvUnit* pUnit;
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST", true);
-#else
-	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
-#endif
-	if(eArch == NO_UNIT){
-		return;
-	}
-	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
-		pUnit = FindArchaeologistToScrap();
-	
-		if(!pUnit)
-		{
-			return;
-		}
-	
-		pUnit->scrap();
-		LogScrapUnit(pUnit, iNumArchaeologists, iNumSites, 0, 0);
-	}
-}
-
 #if defined(MOD_AI_SMART_DISBAND)
 // Check for very long obsolete units that didn't get an upgrade (usual suspects are triremes and warriors)
 void CvEconomicAI::DisbandLongObsoleteUnits()
@@ -3947,21 +4049,12 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-					if(NULL != pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
-					{
-						iBad++;
-					}
-					else if(NULL != pLoopUnit && pLoopUnit->isBarbarian())
+					if(pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
 					{
 						iBad++;
 					}
 				}
 			}
-			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-			{
-				iBad += 10;
-			}
-
 #else
 			if(pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 			{
@@ -3970,8 +4063,10 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 #endif
 		}
 	}
+
 #if defined(MOD_BALANCE_CORE)
-	if(iBad >= ((pArea->getNumTiles() * 90) / 100))
+	//allow one enemy unit per 25 tiles
+	if(iBad*100 > (pArea->getNumTiles()*100)/25 )
 	{
 		return false;
 	}
@@ -4655,7 +4750,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
-	if(pPlayer->getNumCities() < 1)
+	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 	{
 		return false;
 	}

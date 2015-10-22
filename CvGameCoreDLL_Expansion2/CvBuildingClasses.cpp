@@ -3185,6 +3185,9 @@ CvCityBuildings::CvCityBuildings():
 	m_paiBuildingOriginalTime(NULL),
 	m_paiNumRealBuilding(NULL),
 	m_paiNumFreeBuilding(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_paiFirstTimeBuilding(NULL),
+#endif
 	m_iNumBuildings(0),
 	m_iBuildingProductionModifier(0),
 	m_iBuildingDefense(0),
@@ -3234,6 +3237,11 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity)
 	CvAssertMsg(m_paiNumFreeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiNumFreeBuilding");
 	m_paiNumFreeBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(m_paiFirstTimeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiFirstTimeBuilding");
+	m_paiFirstTimeBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
+#endif
+
 	m_aBuildingYieldChange.clear();
 	m_aBuildingGreatWork.clear();
 
@@ -3249,6 +3257,9 @@ void CvCityBuildings::Uninit()
 	SAFE_DELETE_ARRAY(m_paiBuildingOriginalTime);
 	SAFE_DELETE_ARRAY(m_paiNumRealBuilding);
 	SAFE_DELETE_ARRAY(m_paiNumFreeBuilding);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_paiFirstTimeBuilding);
+#endif
 }
 
 /// Reset status arrays to all false
@@ -3275,6 +3286,9 @@ void CvCityBuildings::Reset()
 		m_paiBuildingOriginalTime[iI] = MIN_INT;
 		m_paiNumRealBuilding[iI] = 0;
 		m_paiNumFreeBuilding[iI] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_paiFirstTimeBuilding[iI] = 0;
+#endif
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -3309,6 +3323,9 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	BuildingArrayHelpers::Read(kStream, m_paiBuildingOriginalTime);
 	BuildingArrayHelpers::Read(kStream, m_paiNumRealBuilding);
 	BuildingArrayHelpers::Read(kStream, m_paiNumFreeBuilding);
+#if defined(MOD_BALANCE_CORE)
+	BuildingArrayHelpers::Read(kStream, m_paiFirstTimeBuilding);
+#endif
 
 	kStream >> m_aBuildingYieldChange;
 	kStream >> m_aBuildingGreatWork;
@@ -3355,6 +3372,9 @@ void CvCityBuildings::Write(FDataStream& kStream)
 	BuildingArrayHelpers::Write(kStream, m_paiBuildingOriginalTime, iNumBuildings);
 	BuildingArrayHelpers::Write(kStream, m_paiNumRealBuilding, iNumBuildings);
 	BuildingArrayHelpers::Write(kStream, m_paiNumFreeBuilding, iNumBuildings);
+#if defined(MOD_BALANCE_CORE)
+	BuildingArrayHelpers::Write(kStream, m_paiFirstTimeBuilding, iNumBuildings);
+#endif
 
 	kStream << m_aBuildingYieldChange;
 	kStream << m_aBuildingGreatWork;
@@ -4016,6 +4036,23 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 #endif
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+int CvCityBuildings::IsFirstTimeBuilding(BuildingTypes eBuilding)
+{
+	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	return m_paiFirstTimeBuilding[eBuilding];
+}
+void CvCityBuildings::SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue)
+{
+	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	if(IsFirstTimeBuilding(eBuilding) != iValue)
+	{
+		m_paiFirstTimeBuilding[eBuilding] = iValue;
+	}
+}
+#endif
 /// Accessor: Get yield boost for a specific building by yield type
 int CvCityBuildings::GetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const
 {

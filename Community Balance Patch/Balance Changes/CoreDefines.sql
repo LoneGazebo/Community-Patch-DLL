@@ -80,7 +80,7 @@
 	WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 	UPDATE Defines
-	SET Value = '0.2'
+	SET Value = '0.1'
 	WHERE Name = 'UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA';
 
 	-- Barbarian Experience Cap raised to 45

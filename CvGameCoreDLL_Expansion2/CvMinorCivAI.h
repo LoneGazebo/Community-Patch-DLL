@@ -494,6 +494,20 @@ public:
 	int GetCurrentFaithFlatBonus(PlayerTypes ePlayer);
 	int GetCurrentFaithBonus(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE)
+	//Gold bonuses
+	int GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
+	int GetGoldFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
+	int GetCurrentGoldFlatBonus(PlayerTypes ePlayer);
+	int GetCurrentGoldBonus(PlayerTypes ePlayer);
+
+	//Science bonuses
+	int GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
+	int GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
+	int GetCurrentScienceFlatBonus(PlayerTypes ePlayer);
+	int GetCurrentScienceBonus(PlayerTypes ePlayer);
+#endif
+
 	// Food bonuses
 	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);

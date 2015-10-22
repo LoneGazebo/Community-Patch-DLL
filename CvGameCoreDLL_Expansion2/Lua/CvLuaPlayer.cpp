@@ -302,6 +302,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalFaithPerTurn);
 	Method(GetFaithPerTurnFromCities);
 	Method(GetFaithPerTurnFromMinorCivs);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetGoldPerTurnFromMinorCivs);
+	Method(GetSciencePerTurnFromMinorCivs);
+#endif
 	Method(GetFaithPerTurnFromReligion);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
@@ -665,6 +669,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentHappinessPerLuxuryBonus);
 	Method(GetMinorCivCurrentHappinessBonus);
 	Method(GetMinorCivCurrentFaithBonus);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetMinorCivCurrentGoldBonus);
+	Method(GetMinorCivCurrentScienceBonus);
+#endif
 	Method(GetCurrentCapitalFoodBonus);
 	Method(GetCurrentOtherCityFoodBonus);
 	Method(GetCurrentSpawnEstimate);
@@ -3060,6 +3068,20 @@ int CvLuaPlayer::lGetFaithPerTurnFromMinorCivs(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromMinorCivs);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetGoldPerTurnFromMinorCivs();
+int CvLuaPlayer::lGetGoldPerTurnFromMinorCivs(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetGoldPerTurnFromMinorCivs);
+}
+//------------------------------------------------------------------------------
+//int GetSciencePerTurnFromMinorCivs();
+int CvLuaPlayer::lGetSciencePerTurnFromMinorCivs(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivs);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion();
 int CvLuaPlayer::lGetFaithPerTurnFromReligion(lua_State* L)
@@ -7381,6 +7403,24 @@ int CvLuaPlayer::lGetMinorCivCurrentFaithBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentFaithBonus(ePlayer));
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentGoldBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentGoldBonus(ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCurrentCapitalFoodBonus(lua_State* L)
 {

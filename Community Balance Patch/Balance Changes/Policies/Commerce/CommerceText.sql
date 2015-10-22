@@ -45,7 +45,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercantilism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE] +1 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture from every Mint, Bank, and Stock Exchange. Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes increased by 33%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE] +1 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture from every Customs House, Bank, and Stock Exchange. Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes increased by 33%.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Entrepreneurship

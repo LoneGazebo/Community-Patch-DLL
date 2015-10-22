@@ -1005,6 +1005,10 @@ public:
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int getTradeRouteSpeedMod() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getPietyMax() const;
+	int getPietyMin() const;
+#endif
 	int getLeaguePercent() const;
 	int getNumTurnIncrements() const;
 
@@ -1056,6 +1060,10 @@ protected:
 	int m_iRelationshipDuration;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iTradeRouteSpeedMod;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iPietyMax;
+	int m_iPietyMin;
 #endif
 	int m_iLeaguePercent;
 

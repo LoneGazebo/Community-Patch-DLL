@@ -84,13 +84,13 @@
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
@@ -102,13 +102,13 @@
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>

@@ -188,14 +188,21 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Building_WLTKDYieldMod>
 	<Building_YieldFromGPExpend>
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>50</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Building_YieldFromGPExpend>
+	<Building_FreeUnits>
+		<Row>
+			<BuildingType>BUILDING_HANGING_GARDEN</BuildingType>
+			<UnitType>UNIT_WRITER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+	</Building_FreeUnits>
 </GameData>

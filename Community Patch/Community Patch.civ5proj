@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (10-13)</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (10-21)</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -378,16 +378,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/UI/CityExpansion.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/GoodyHuts.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/GoodyHuts.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -773,14 +763,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\Automates.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Core Values\GoodyHuts.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Core Values\GoodyHuts.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -346,6 +346,16 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 			if faithBonus ~= 0 then
 				table.insert( tips,  L("TXT_KEY_CSTATE_FAITH_BONUS", faithBonus) )
 			end
+
+			--CBP
+			local goldBonus = minorPlayer:GetMinorCivCurrentGoldBonus(majorPlayerID)
+			if goldBonus ~= 0 then
+				table.insert( tips,  L("TXT_KEY_CSTATE_GOLD_BONUS", goldBonus) )
+			end
+			local scienceBonus = minorPlayer:GetMinorCivCurrentScienceBonus(majorPlayerID)
+			if scienceBonus ~= 0 then
+				table.insert( tips,  L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonus) )
+			end
 		else
 			local cultureBonus = minorPlayer:GetCurrentCultureBonus(majorPlayerID);
 			if cultureBonus ~= 0 then

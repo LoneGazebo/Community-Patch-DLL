@@ -62,10 +62,10 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID, bool /* bCon
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_iOperationID = iOperationID;
-	m_iCurrentX = -1;
-	m_iCurrentY = -1;
-	m_iGoalX = -1;
-	m_iGoalY = -1;
+	m_iCurrentX = INVALID_PLOT_COORD;
+	m_iCurrentY = INVALID_PLOT_COORD;
+	m_iGoalX = INVALID_PLOT_COORD;
+	m_iGoalY = INVALID_PLOT_COORD;
 	m_eDomainType = DOMAIN_LAND;
 	m_iFormationIndex = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
@@ -483,11 +483,6 @@ int CvArmyAI::GetTurnAtNextCheckpoint() const
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
-			continue;
-#endif
-
 		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 		{
 			return ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
@@ -513,7 +508,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pMusterPlot)
 			{
-				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, true /*bReusePaths*/, true, true);
+				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, false, true, true);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -689,8 +684,8 @@ void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 	}
 	else
 	{
-		m_iGoalX = -1;
-		m_iGoalY = -1;
+		m_iGoalX = INVALID_PLOT_COORD;
+		m_iGoalY = INVALID_PLOT_COORD;
 	}
 }
 

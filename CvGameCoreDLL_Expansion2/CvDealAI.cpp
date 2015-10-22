@@ -2253,6 +2253,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				return 100000;
 			}
+			// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
+			if (pCity->IsOriginalMajorCapital())
+			{
+				return 100000;
+			}
 			CvCity* pLoopCity;
 			int iCityLoop;
 			bool bGood = false;
@@ -2262,7 +2267,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					int iTempDistance = plotDistance(pCity->getX(), pCity->getY(), pLoopCity->getX(), pLoopCity->getY());
 					//Only trade border cities, okay?
-					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
 					{
 						bGood = true;
 						break;
@@ -2276,6 +2281,34 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			int goldPerPlot = GetPlayer()->GetBuyPlotCost(); // this is how much ANY plot is worth to me right now
 			goldPerPlot *= 2;
 			goldPerPlot /= 3;
+
+			//Is this city objectively better than all his current cities? We don't want it (unless we founded it)
+			int iGoodValue = 0;
+			int iTestValue = pCity->getEconomicValue(GetPlayer()->GetID());
+
+			CvCity* pLoopCity2 = NULL;
+			int iCityLoop2;
+			for(pLoopCity2 = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iCityLoop2))
+			{
+				if(pLoopCity2 != NULL)
+				{
+					int iValue = pLoopCity2->getEconomicValue(GetPlayer()->GetID());
+					
+					//Is my city better than one of his cities? If so, that's troubling.
+					if(iTestValue > iValue)
+					{
+						iGoodValue++;
+					}
+				}
+			}
+			if(iGoodValue > 0)
+			{
+				iItemValue *= max(1, iGoodValue);
+			}
+			else
+			{
+				return 100000;
+			}
 
 			//first some amount for the pure territory
 	#if defined(MOD_GLOBAL_CITY_WORKING)
@@ -2360,13 +2393,9 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iDistance = 20;
 			}
-			iItemValue /= max(1, (iDistance / 4));
+			iItemValue /= max(1, iDistance);
 
-			// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
-			if (pCity->IsOriginalMajorCapital())
-			{
-				return 100000;
-			}
+
 			//Did we build this city? We like it.
 			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
 			{
@@ -2442,7 +2471,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					int iTempDistance = plotDistance(pCity->getX(), pCity->getY(), pLoopCity2->getX(), pLoopCity2->getY());
 					//Only trade border cities, okay?
-					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
 					{
 						bGood = true;
 						break;
@@ -2491,7 +2520,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 						iGoodValue++;
 					}
 					//Is the new city almost as good as one of our own cities? If so, we like it,  but it isn't that great.
-					else if((iTestValue * 2) > iValue)
+					else if((iTestValue * 3) > (iValue * 2))
 					{
 						iOkayValue++;
 					}
@@ -2581,7 +2610,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iDistance = 20;
 			}
-			iItemValue /= max(1, (iDistance / 4));
+			iItemValue /= max(1, iDistance);
 
 			// Opinion also matters
 			if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()))
@@ -6382,147 +6411,11 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 /// Add appropriate items to pDeal based on what type of PeaceTreaty eTreaty is
 void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* pDeal, PeaceTreatyTypes eTreaty, bool bMeSurrendering)
 {
-	int iPercentGoldToGive = 0;
-	int iPercentGPTToGive = 0;
-	bool bGiveOpenBorders = false;
-#if !defined(MOD_BALANCE_CORE)
-	bool bGiveOnlyOneCity = false;
-#endif
-	int iPercentCitiesGiveUp = 0; /* 100 = all but capital */
-	bool bGiveUpStratResources = false;
-	bool bGiveUpLuxuryResources = false;
 #if defined(MOD_BALANCE_CORE)
-	int iGiveUpLuxResources = 0;
-	int iGiveUpStratResources = 0;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bBecomeMyVassal = false;
-#endif
-
-
-	// Setup what needs to be given up based on the level of the treaty
-	switch (eTreaty)
+	if(eTreaty < PEACE_TREATY_ARMISTICE)
 	{
-	case PEACE_TREATY_WHITE_PEACE:
-		// White Peace: nothing changes hands
-		break;
-
-	case PEACE_TREATY_ARMISTICE:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 10;
-		iPercentGPTToGive = 10;
-#else
-		iPercentGoldToGive = 50;
-		iPercentGPTToGive = 50;
-#endif
-		break;
-
-	case PEACE_TREATY_SETTLEMENT:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 20;
-		iPercentGPTToGive = 20;
-		iGiveUpLuxResources = 10;
-		iGiveUpStratResources = 10;
-#else
-		iPercentGoldToGive = 100;
-		iPercentGPTToGive = 100;
-#endif
-		break;
-
-	case PEACE_TREATY_BACKDOWN:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 30;
-		iPercentGPTToGive = 30;
-		iGiveUpLuxResources = 20;
-		iGiveUpStratResources = 20;
-#else
-		iPercentGoldToGive = 100;
-		iPercentGPTToGive = 100;
-#endif
-		bGiveOpenBorders = true;
-		bGiveUpStratResources = true;
-		break;
-
-	case PEACE_TREATY_SUBMISSION:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 50;
-		iPercentGPTToGive = 50;
-		iGiveUpLuxResources = 30;
-		iGiveUpStratResources = 30;
-#else
-		iPercentGoldToGive = 100;
-		iPercentGPTToGive = 100;
-#endif
-		bGiveOpenBorders = true;
-		bGiveUpStratResources = true;
-		bGiveUpLuxuryResources = true;
-		break;
-
-	case PEACE_TREATY_SURRENDER:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 70;
-		iPercentGPTToGive = 70;
-		bGiveOpenBorders = true;
-		iGiveUpLuxResources = 40;
-		iGiveUpStratResources = 40;
-		iPercentCitiesGiveUp = 30;
-#else
-		bGiveOnlyOneCity = true;
-#endif
-		break;
-
-	case PEACE_TREATY_CESSION:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 80;
-		iPercentGPTToGive = 80;
-		bGiveOpenBorders = true;
-		iGiveUpLuxResources = 50;
-		iGiveUpStratResources = 50;
-		iPercentCitiesGiveUp = 40;
-#else
-		iPercentCitiesGiveUp = 25;
-		iPercentGoldToGive = 50;	
-#endif
-		break;
-
-	case PEACE_TREATY_CAPITULATION:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 90;
-		iPercentGPTToGive = 90;
-		bGiveOpenBorders = true;
-		iGiveUpLuxResources = 75;
-		iGiveUpStratResources = 75;
-		iPercentCitiesGiveUp = 50;
-#else
-		iPercentCitiesGiveUp = 33;
-		iPercentGoldToGive = 100;
-#endif
-		break;
-
-	case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 100;
-		iPercentGPTToGive = 100;
-		bGiveOpenBorders = true;
-		iGiveUpLuxResources = 100;
-		iGiveUpStratResources = 100;
-		if(GET_PLAYER(eOtherPlayer).isHuman() && !bMeSurrendering)
-		{
-			iPercentCitiesGiveUp = 100;
-		}
-		else
-		{
-#else
-		iPercentCitiesGiveUp = 100;
-		iPercentGoldToGive = 100;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		bBecomeMyVassal = true;
-		}
-#endif
-		break;
+		return;
 	}
-
 	int iDuration = GC.getGame().GetDealDuration();
 
 	PlayerTypes eLosingPlayer = bMeSurrendering ? GetPlayer()->GetID() : eOtherPlayer;
@@ -6530,34 +6423,33 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
 
-	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
-#if defined(MOD_BALANCE_CORE)
+	int iWarScore = pWinningPlayer->GetDiplomacyAI()->GetWarScore(eLosingPlayer);
+	int iPercentGoldToGive = iWarScore;
+	int iPercentGPTToGive = (iWarScore / 2);
+	bool bGiveUpCities = (iWarScore > 60);
+	int iPercentCitiesGiveUp = (iWarScore / 4);
+	bool bGiveUpStratResources = (iWarScore > 40);
+	bool bGiveUpLuxuryResources = (iWarScore > 20);
+	int iGiveUpLuxResources = iWarScore;
+	int iGiveUpStratResources = (iWarScore / 3);
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool bVassalageOK = (iWarScore > 95);
+	bool bBecomeMyVassal = false;
+#endif
 	pDeal->AddPeaceTreaty(eWinningPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	pDeal->AddPeaceTreaty(eLosingPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
-#endif
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
+	{
+		bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
+	}
+#endif
 	CvCity* pLoopCity;
 	int iCityLoop;
-#if defined(MOD_BALANCE_CORE)
-	//	Give up all but capital?
-	if (iPercentCitiesGiveUp == 100)
-	{
-		// All Cities but the capital
-		for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
-		{
-			if(pLoopCity->isCapital())
-			{
-				continue;
-			}
-
-			if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
-			{
-				pDeal->AddCityTrade(eLosingPlayer, pLoopCity->GetID());
-			}
-		}
-	}
 	// If the player only has one city then we can't get any more from him
-	else if (iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
+	if (bGiveUpCities && iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
 	{
 		int iTotalCityValue = 0;
 		int iCityDistanceFromWinnersCapital = 0;
@@ -6673,17 +6565,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		}
 	}
 
-	// Open Borders
-	if (bGiveOpenBorders)
-	{
-		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_OPEN_BORDERS))
-		{
-			pDeal->AddOpenBorders(eLosingPlayer, iDuration);
-		}
-	}
-
 	// Luxury Resources
-	if(iGiveUpLuxResources > 0)
+	if(bGiveUpLuxuryResources && iGiveUpLuxResources > 0)
 	{
 		ResourceUsageTypes eUsage;
 		ResourceTypes eResource;
@@ -6757,7 +6640,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		}
 	}
 	// Strategic Resources
-	if(iGiveUpStratResources > 0)
+	if(bGiveUpStratResources && iGiveUpStratResources > 0)
 	{
 		ResourceUsageTypes eUsage;
 		ResourceTypes eResource;
@@ -6835,18 +6718,86 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
 	{
-		bool bVassalageOK = GET_PLAYER(eLosingPlayer).GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer);
-		// AIs only want vassalage if winner is not going for conquest victory or the loser lost his capital
-		if(bVassalageOK)
+		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE))
 		{
-			if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE))
-			{
-				pDeal->AddVassalageTrade(eLosingPlayer);
-			}
+			pDeal->AddVassalageTrade(eLosingPlayer);
 		}
 	}
 #endif
 #else
+	int iPercentGoldToGive = 0;
+	int iPercentGPTToGive = 0;
+	bool bGiveOpenBorders = false;
+	bool bGiveOnlyOneCity = false;
+	int iPercentCitiesGiveUp = 0; /* 100 = all but capital */
+	bool bGiveUpStratResources = false;
+	bool bGiveUpLuxuryResources = false;
+	int iGiveUpLuxResources = 0;
+	int iGiveUpStratResources = 0;
+
+	// Setup what needs to be given up based on the level of the treaty
+	switch (eTreaty)
+	{
+	case PEACE_TREATY_WHITE_PEACE:
+		// White Peace: nothing changes hands
+		break;
+
+	case PEACE_TREATY_ARMISTICE:
+		iPercentGoldToGive = 50;
+		iPercentGPTToGive = 50;
+		break;
+
+	case PEACE_TREATY_SETTLEMENT:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		break;
+
+	case PEACE_TREATY_BACKDOWN:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		bGiveOpenBorders = true;
+		bGiveUpStratResources = true;
+		break;
+
+	case PEACE_TREATY_SUBMISSION:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		bGiveOpenBorders = true;
+		bGiveUpStratResources = true;
+		bGiveUpLuxuryResources = true;
+		break;
+
+	case PEACE_TREATY_SURRENDER:
+		bGiveOnlyOneCity = true;
+		break;
+
+	case PEACE_TREATY_CESSION:
+		iPercentCitiesGiveUp = 25;
+		iPercentGoldToGive = 50;	
+		break;
+
+	case PEACE_TREATY_CAPITULATION:
+		iPercentCitiesGiveUp = 33;
+		iPercentGoldToGive = 100;
+		break;
+
+	case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
+		iPercentCitiesGiveUp = 100;
+		iPercentGoldToGive = 100;
+		break;
+	}
+
+	int iDuration = GC.getGame().GetDealDuration();
+
+	PlayerTypes eLosingPlayer = bMeSurrendering ? GetPlayer()->GetID() : eOtherPlayer;
+	CvPlayer* pLosingPlayer = &GET_PLAYER(eLosingPlayer);
+	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
+	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
+	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
+
+
+	CvCity* pLoopCity;
+	int iCityLoop;
 	// Gold
 	int iGold = 0;
 	if (iPercentGoldToGive > 0)
@@ -7056,11 +7007,22 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 	int iPeaceDuration = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
 	PlayerTypes eMinor;
 	CvPlayer* pMinor;
+#if defined(MOD_BALANCE_CORE)
+	for(int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+#else
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+#endif
 	{
 		eMinor = (PlayerTypes) iMinorLoop;
 		pMinor = &GET_PLAYER(eMinor);
-
+#if defined(MOD_BALANCE_CORE)
+		if(eMinor == NO_PLAYER)
+		{
+			continue;
+		}
+		if(pMinor->isMinorCiv())
+		{
+#endif
 		// Minor not alive?
 		if(!pMinor->isAlive())
 			continue;
@@ -7110,6 +7072,49 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 				pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+		else
+		{
+			TeamTypes eMasterTeam = GET_TEAM(pMinor->getTeam()).GetMaster();
+			// master of other player
+			if (eMasterTeam == GET_PLAYER(eToPlayer).getTeam())
+			{
+				// if they are not at war with us, continue
+				if (!GET_TEAM(GetTeam()).isAtWar(pMinor->getTeam()))
+				{
+					continue;
+				}
+				// Add peace with this minor to the deal
+				// slewis - if there is not a peace deal with them already on the table and we can trade it
+				if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
+				{
+					pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
+				}
+			}
+			else if (eMasterTeam == GetPlayer()->getTeam())
+			{
+				// if they are not at war with the opponent, continue
+				if (!GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).isAtWar(pMinor->getTeam()))
+				{
+					continue;
+				}
+
+				// if they are always at war with them, continue
+				if (pMinor->GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eToPlayer).getTeam()))
+				{
+					continue;
+				}
+
+				// Add peace with this minor to the deal
+				// slewis - if there is not a peace deal with them already on the table and we can trade it
+				if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
+				{
+					pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
+				}
+			}
+		}
+#endif
 	}
 }
 
@@ -7499,7 +7504,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 				{
 					iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
 					//Only trade border cities, okay?
-					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() * 2))
+					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
 					{
 						if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 						{
@@ -8691,7 +8696,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 }
 
 /// How much is Vassalage worth?
-int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
+int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bWar)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -8702,14 +8707,25 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 	if(bFromMe)						
 	{
 		// Don't want to capitulate
-		if(!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
+		if(!bWar && !m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
 		{
 			return 100000;
 		}
 
-		// Initial Vassalage deal value at 500 -- edited to 400
+		// Initial Vassalage deal value at 500 -- edited to 350
 		iItemValue = 350;
 
+		if(bWar)
+		{
+			if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID()) > GetPlayer()->GetDiplomacyAI()->GetWarScore(eOtherPlayer))
+			{
+				iItemValue -= GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID());
+			}
+			else
+			{
+				iItemValue -= GetPlayer()->GetDiplomacyAI()->GetWarScore(eOtherPlayer);
+			}
+		}
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
@@ -8737,7 +8753,14 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 			case STRENGTH_WEAK:
 			case STRENGTH_PATHETIC:
 			default:
-				return 100000;
+				if(bWar)
+				{
+					iItemValue *= 100;
+				}
+				else
+				{
+					return 100000;
+				}
 				break;
 		}
 		iItemValue /= 100;

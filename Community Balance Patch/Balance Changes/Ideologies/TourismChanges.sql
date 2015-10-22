@@ -210,6 +210,14 @@ UPDATE Language_en_US
 SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes}[ENDCOLOR] {1_NumVotes: plural 1?Delegate; other?Delegates;} currently controlled by this player will support {2_ChoiceText} on the proposal to [COLOR_WARNING_TEXT]repeal[ENDCOLOR] these effects:[NEWLINE][NEWLINE]{3_ProposalText}[NEWLINE][NEWLINE]The number of delegates above is based on the number of delegates this player controls, and the rank of your [ICON_DIPLOMAT] Diplomat. Higher ranks allow you to trade for more delegates.'
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_REPEAL_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +1 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +1 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
 -- Theming Bonuses increased in all buildings
 		
 UPDATE Building_ThemingBonuses

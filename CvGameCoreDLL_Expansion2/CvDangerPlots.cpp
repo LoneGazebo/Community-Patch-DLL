@@ -93,34 +93,6 @@ void CvDangerPlots::Uninit()
 	m_bDirty = false;
 }
 
-//helper function for city threat calculation
-int SimulateDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pUnit)
-{
-	if (!pUnit || !pCity || pUnit->isDelayedDeath() || pUnit->IsDead())
-		return 0;
-		
-	int iDamage = 0;
-	if (pUnit->IsCanAttackRanged())
-	{
-		if (pUnit->getDomainType() == DOMAIN_AIR)
-			iDamage += pUnit->GetAirCombatDamage(NULL, pCity, false);
-		else
-			iDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
-	}
-	else
-	{
-		if (pUnit->isRangedSupportFire())
-			iDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
-
-		//just assume the unit can attack from it's current location - modifiers might be different, but thats acceptable
-		iDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pUnit->plot(), pCity->plot(), NULL),
-			pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
-
-	}
-
-	return iDamage;
-}
-
 #if defined(AUI_DANGER_PLOTS_REMADE)
 bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibility)
 {
@@ -263,7 +235,8 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			}
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-			int iRange = pLoopCity->getBombardRange();
+			bool bIndirectFireAllowed = false;
+			int iRange = pLoopCity->getBombardRange(bIndirectFireAllowed);
 #else
 			int iRange = GC.getCITY_ATTACK_RANGE();
 #endif
@@ -288,6 +261,11 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 						continue;
 					}
 #endif // AUI_DANGER_PLOTS_REMADE
+
+#if defined(MOD_EVENTS_CITY_BOMBARD)
+					if (!bIndirectFireAllowed && !pCityPlot->canSeePlot(pLoopPlot, NO_TEAM, iRange, NO_DIRECTION))
+						continue;
+#endif
 
 					AssignCityDangerValue(pLoopCity, pLoopPlot);
 				}
@@ -374,7 +352,10 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 				{
 					const UnitHandle pEnemy = pEvalPlot->getBestDefender(NO_PLAYER, thisPlayer.GetID(), NULL, true);
 					if (pEnemy)
-						iThreatValue += SimulateDamageFromAttackOnCity(pLoopCity,pEnemy.pointer());
+					{
+						int iAttackerDamage = 0; //to be ignored
+						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy.pointer(),iAttackerDamage);
+					}
 				}
 			}
 #else
@@ -485,6 +466,20 @@ bool CvDangerPlots::CouldAttackHere(const CvPlot& pPlot, CvCity* pCity)
 		return false;
 	}
 	return m_DangerPlots[idx].CouldAttackHere(pCity);
+}
+
+int CvDangerPlots::GetNumPossibleAttackers(CvPlot& Plot) const
+{
+	const int idx = Plot.getX() + Plot.getY() * GC.getMap().getGridWidth();
+
+	return m_DangerPlots[idx].GetNumPossibleAttackers();
+}
+
+std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(CvPlot& Plot) const
+{
+	const int idx = Plot.getX() + Plot.getY() * GC.getMap().getGridWidth();
+
+	return m_DangerPlots[idx].GetPossibleAttackers();
 }
 
 #else
@@ -1450,7 +1445,7 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 				}
 				iPlotDamage += pAttacker->getCombatDamage(
 					pAttacker->GetMaxAttackStrength(pAttackerPlot, m_pPlot, pUnit),
-					pUnit->GetMaxDefenseStrength(m_pPlot, pAttacker), pUnit->getDamage(), false, false, false);
+					pUnit->GetMaxDefenseStrength(m_pPlot, pAttacker), pAttacker->getDamage(), false, false, false);
 				if (pAttacker->isRangedSupportFire())
 				{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -1797,5 +1792,25 @@ int CvDangerPlotContents::GetDamageFromFeatures(PlayerTypes ePlayer) const
 
 	return 0;
 };
+
+int CvDangerPlotContents::GetNumPossibleAttackers() const
+{
+	//ignore cities
+	return (int)(m_apUnits.size());
+}
+
+std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
+{
+	//ignore cities
+	std::vector<CvUnit*> vResult;
+	for (DangerUnitVector::const_iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
+	{
+		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
+		if (pAttacker)
+			vResult.push_back(pAttacker);
+	}
+
+	return vResult;
+}
 
 #endif // AUI_DANGER_PLOTS_REMADE

@@ -2216,6 +2216,8 @@ void CvUnitPromotions::Uninit()
 	m_kHasPromotion.SetSize(0);
 
 #if defined(MOD_BALANCE_CORE)
+	m_unitClassDefenseMod.clear();
+	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
 #endif
 }
@@ -2226,6 +2228,8 @@ void CvUnitPromotions::Reset()
 	m_kHasPromotion.SetSize(0);
 
 #if defined(MOD_BALANCE_CORE)
+	m_unitClassDefenseMod.clear();
+	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
 #endif
 }
@@ -2338,6 +2342,8 @@ void CvUnitPromotions::UpdateCache()
 {
 	m_unitClassDefenseMod.clear();
 	m_unitClassAttackMod.clear();
+	m_terrainPassableCache.clear();
+
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		m_unitClassDefenseMod.push_back( GetUnitClassDefenseMod((UnitClassTypes)iI) );
