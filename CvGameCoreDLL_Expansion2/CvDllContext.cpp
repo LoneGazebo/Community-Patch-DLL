@@ -1320,7 +1320,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			CvDllPathFinderUpdateListData update;
 			update.iX = pathNode->m_iX;
 			update.iY = pathNode->m_iY;
-			update.iTurnNumber = pathNode->m_iData2;
+			update.iTurnNumber = pathNode->m_iTurns;
 
 			pUpdateData.push_back(update);
 

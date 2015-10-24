@@ -5111,7 +5111,7 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 						//todo: check if the city is in danger first?
 						bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
 
-						int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
+						int iTurns = bCanFindPath ? GC.getPathFinder().GetPathLength() : INT_MAX;
 						if(iTurns < iBestTurns)
 						{
 							iBestTurns = iTurns;

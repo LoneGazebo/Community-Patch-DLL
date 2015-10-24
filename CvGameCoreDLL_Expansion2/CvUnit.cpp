@@ -15076,13 +15076,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->isWater() && pFromPlot != plot() && getDomainType() == DOMAIN_LAND && !pFromPlot->isValidDomainForAction(*this)));
 	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->isWater() && bWouldNeedEmbark;
 
-	if (!bIsEmbarkedAttackingLand && bWouldNeedEmbark)
 #else
 	bool bIsEmbarkedAttackingLand = isEmbarked() && (pToPlot && !pToPlot->isWater());
 
 	if(isEmbarked() && !bIsEmbarkedAttackingLand)
-#endif
 		return GetEmbarkedUnitDefense();
+#endif
 
 	if(GetBaseCombatStrength(bIsEmbarkedAttackingLand) == 0)
 		return 0;
@@ -25210,6 +25209,13 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	bool bWouldNeedEmbark = (pSourcePlot && pSourcePlot->isWater() && getDomainType() == DOMAIN_LAND && !pSourcePlot->isValidDomainForAction(*this));
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->isWater() && bWouldNeedEmbark;
+	if (bIsEmbarkedAttackingLand)
+		return false;
+#endif
+
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	if(getUnitInfo().IsRangeAttackOnlyInDomain())
 	{
@@ -26668,13 +26674,13 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		const CvPathNode& kNode = m_kLastPath.front();
 		// If we were provided with a previous ETA, check against the new one and if it is two turns greater, cancel the move.
 		// We probably revealed something that is causing the unit to take longer to reach the target.
-		if(iPrevETA >= 0 && kNode.m_iData2 > iPrevETA + 2)
+		if(iPrevETA >= 0 && kNode.m_iTurns > iPrevETA + 2)
 		{
 			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iData2=") << kNode.m_iData2);
 			bRejectMove = true;
 		}
 
-		if(kNode.m_iData2 == 1 && !canMoveInto(*pDestPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))  // if we should end our turn there this turn, but can't move into that tile
+		if(kNode.m_iTurns == 1 && !canMoveInto(*pDestPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))  // if we should end our turn there this turn, but can't move into that tile
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -26714,22 +26720,22 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	uint uiCachedPathSize = m_kLastPath.size();
 	if (uiCachedPathSize)
 	{
-		iETA = m_kLastPath[ 0 ].m_iData2;
+		iETA = m_kLastPath[0].m_iTurns;
 		// Only do the shift if we actually moved
 		if (bMoved)
 		{
 			if(uiCachedPathSize > 1)
 			{
 				// Go back to front, adjusting the turns if needed
-				if (m_kLastPath[ uiCachedPathSize - 1 ].m_iData2 != m_kLastPath[ uiCachedPathSize - 2 ].m_iData2)
+				if (m_kLastPath[ uiCachedPathSize - 1 ].m_iTurns != m_kLastPath[ uiCachedPathSize - 2 ].m_iTurns)
 				{
 					// We have exhausted a turns worth of nodes.  Adjust all the others.
 					// KWG: It is unlikely that we will use this path again, because the unit is out of moves anyhow.  Should we just clear the path and save time?
 					for (uint uiIndex = uiCachedPathSize - 1; uiIndex--; )
 					{
 						CvPathNode* pNode = &m_kLastPath[uiIndex];
-						if (pNode->m_iData2 > 0)
-							pNode->m_iData2 -= 1;
+						if (pNode->m_iTurns > 0)
+							pNode->m_iTurns -= 1;
 					}
 				}
 
@@ -27011,7 +27017,7 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += strTemp1;
 	}
 
-	m_strMissionInfoString += " -----------------------";
+	m_strMissionInfoString += " -----------------------------";
 
 	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
@@ -27581,7 +27587,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 		{
 			if(m_kLastPath.size() != 0)
 			{
-				*piPathTurns = m_kLastPath.front().m_iData2;
+				*piPathTurns = m_kLastPath.front().m_iTurns;
 			}
 		}
 	}
@@ -27669,7 +27675,7 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 	{
 		const CvPathNode* pNode = &m_kLastPath[0];
 
-		if(m_kLastPath.size() == 1 || (pNode->m_iData2 == 1))
+		if(m_kLastPath.size() == 1 || (pNode->m_iTurns == 1))
 		{
 			return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 		}
@@ -27677,7 +27683,7 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 		for(uint uiIndex = 1; uiIndex < m_kLastPath.size(); ++uiIndex)
 		{
 			pNode = &m_kLastPath[uiIndex];
-			if(pNode->m_iData2 == 1)
+			if(pNode->m_iTurns == 1)
 			{
 				return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 			}

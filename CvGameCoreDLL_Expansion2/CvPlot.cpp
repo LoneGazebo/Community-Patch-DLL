@@ -4257,9 +4257,7 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode != NULL)
 	{
-		CvAssertMsg(ePlayer != NO_PLAYER, "Player must be valid");
 		int iCount = 0;
-
 		do
 		{
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4267,7 +4265,7 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 
 			if(pLoopUnit)
 			{
-				if(pLoopUnit->getOwner() == ePlayer && pLoopUnit->IsCanDefend())
+				if( (ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer) && pLoopUnit->IsCanDefend() )
 				{
 					++iCount;
 				}

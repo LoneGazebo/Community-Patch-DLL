@@ -279,8 +279,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if(!bCanFindPath)
 			continue;
 
-		CvAStarNode* pNode = GC.getPathFinder().GetLastNode();
-		int iDistance = pNode->m_iData2;
+		int iDistance = GC.getPathFinder().GetPathLength();
 		int iPlotScore = (1000 * iRating) / max(1,iDistance);
 
 		if (iPlotScore>iBestPlotScore)
@@ -4597,10 +4596,16 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 
 	if (pBestUnit)
 	{
-		if(pBestUnit->plot() == pTarget && pBestUnit->canFortify(pBestUnit->plot()))
+		if(pBestUnit->plot() == pTarget)
 		{
-			pBestUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-			pBestUnit->SetFortifiedThisTurn(true);
+			if (pBestUnit->canFortify(pBestUnit->plot()))
+			{
+				pBestUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pBestUnit->SetFortifiedThisTurn(true);
+			}
+			else
+				pBestUnit->PushMission(CvTypes::getMISSION_SKIP());
+
 			UnitProcessed(pBestUnit->GetID());
 #if defined(MOD_BALANCE_CORE)
 			if(GC.getLogging() && GC.getAILogging())
@@ -4611,7 +4616,6 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 			}
 #endif
 			return;
-
 		}
 		else
 		{

@@ -129,9 +129,9 @@ public:
 	inline int GetPathLength() const
 	{
 		if( udNotifyChild && GetLastNode() )
-			return GetLastNode()->m_iData2;
+			return GetLastNode()->m_iTurns;
 		else
-			return -1;
+			return INT_MAX;
 	}
 
 	virtual const char* GetName() const { return m_strName.c_str(); }
