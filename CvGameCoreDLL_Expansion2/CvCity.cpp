@@ -4439,7 +4439,7 @@ void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChang
 bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid resource index.");
 
 	// See if we have the resource linked to this city, but not connected yet
 
@@ -11361,7 +11361,13 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 											bBad = true;
 											break;
 										}
+										if(pkUnitEntry->GetResourceType() == eResource)
+										{
+											bBad = true;
+											break;
+										}	
 									}
+
 									if(bBad)
 									{
 										continue;

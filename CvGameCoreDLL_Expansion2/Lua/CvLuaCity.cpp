@@ -4562,9 +4562,8 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
 {
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
-
 	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	const int iResult = pkCity->getBuildingClassCultureChange((BuildingClassTypes)eBuildingClassType);
 
 	lua_pushinteger(L, iResult);
@@ -4645,7 +4644,7 @@ int CvLuaCity::lGetCorporationResourceQuantity(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iResource = lua_tointeger(L, 2);
 	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporateFranchisesWorldwide();
-	const int iResult = (pkCity->GetCorporationResourceQuantity((ResourceTypes)iResource) * iFranchises);
+	const int iResult = (iFranchises / pkCity->GetCorporationResourceQuantity((ResourceTypes)iResource));
 
 	lua_pushinteger(L, iResult);
 	return 1;

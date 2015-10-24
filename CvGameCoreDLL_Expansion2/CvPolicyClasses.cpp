@@ -253,6 +253,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iBestRangedUnitSpawnSettle(0),
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
+	m_iMaxCorporations(0),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
@@ -553,6 +554,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBestRangedUnitSpawnSettle = kResults.GetInt("BestRangedUnitSpawnSettle");
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
+	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
@@ -2490,6 +2492,11 @@ int CvPolicyEntry::GetFreePopulation() const
 int CvPolicyEntry::GetExtraMoves() const
 {
 	return m_iExtraMoves;
+}
+/// Does this Policy grant more corps?
+int CvPolicyEntry::GetMaxCorps() const
+{
+	return m_iMaxCorporations;
 }
 /// Does this Policy grant yields from conquering cities?
 int CvPolicyEntry::GetConquerorYield(int i) const

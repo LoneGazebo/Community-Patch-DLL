@@ -187,10 +187,12 @@ public:
 	int GetNumGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
 	bool ControlsGreatWork (int iIndex);
 	bool GetGreatWorkLocation(int iGreatWorkIndex, int &iCityID, BuildingTypes &eBuilding, int &iSlot);
-
+#if defined(MOD_BALANCE_CORE)
+	void DoSwapGreatWorksHuman(bool bSwap);
+#endif
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	void DoSwapGreatWorks(YieldTypes eFocusYield);
-	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield);
+	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
 #else
 	void DoSwapGreatWorks();
 	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);

@@ -276,6 +276,7 @@ protected:
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(DoSwapGreatWorks, void, iFocusYield);
+	LUAAPIEXTN(DoSwapGreatWorksHuman, void);
 #endif
 	static int lHasAvailableGreatWorkSlot(lua_State* L);
 	static int lGetCityOfClosestGreatWorkSlot(lua_State* L);
@@ -1161,6 +1162,8 @@ protected:
 	static int lGetNumberofOffices(lua_State* L);
 	static int lGetCorporationName(lua_State* L);
 	static int lGetCorporationHelper(lua_State* L);
+	static int lGetMaxFranchises(lua_State* L);
+	static int lGetCorpID(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);

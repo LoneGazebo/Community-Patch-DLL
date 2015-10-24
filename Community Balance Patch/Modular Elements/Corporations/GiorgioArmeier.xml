@@ -27,7 +27,7 @@
 		<Row>
 			<Type>BUILDING_GIORIO_ARMEIER_HQ</Type>
 			<BuildingClass>BUILDINGCLASS_GIORIO_ARMEIER_HQ</BuildingClass>
-			<Cost>1000</Cost>
+			<Cost>1300</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ</Description>
@@ -52,8 +52,8 @@
 		<Row>
 			<Type>BUILDING_GIORIO_ARMEIER</Type>
 			<BuildingClass>BUILDINGCLASS_GIORIO_ARMEIER</BuildingClass>
-			<Cost>800</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
+			<Cost>1100</Cost>
+			<GoldMaintenance>6</GoldMaintenance>
 			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_TEXT</Civilopedia>
@@ -274,7 +274,7 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, or [ICON_RES_FUR] Furs.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_GIORIO_ARMEIER">
-			<Text>Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, and [ICON_RES_FUR] Furs gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City's [ICON_CULTURE] Culture rate by +10%.</Text>
+			<Text>Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, and [ICON_RES_FUR] Furs gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE">
@@ -297,10 +297,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +3.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HELP">
-			<Text>+2 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +3 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+			<Text>+2 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +3 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -285,6 +285,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(DoSwapGreatWorks);
+	Method(DoSwapGreatWorksHuman);
 #endif
 	Method(HasAvailableGreatWorkSlot);
 	Method(GetCityOfClosestGreatWorkSlot);
@@ -1139,6 +1140,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumberofOffices);
 	Method(GetCorporationName);
 	Method(GetCorporationHelper);
+	Method(GetMaxFranchises);
+	Method(GetCorpID);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -2944,6 +2947,15 @@ int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 #endif
 	return 0;
 }
+//------------------------------------------------------------------------------
+//void DoSwapGreatWorksHuman();
+int CvLuaPlayer::lDoSwapGreatWorksHuman(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	bool bSwap = lua_toboolean(L, 2);
+	pkPlayer->GetCulture()->DoSwapGreatWorksHuman(bSwap);
+	return 0;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool HasAvailableGreatWorkSlot(eGreatWorkSlot);
@@ -4251,6 +4263,36 @@ int CvLuaPlayer::lGetCorporationHelper(lua_State* L)
 		}
 	}
 	return 0;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMaxFranchises(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iBase = (int)pkPlayer->GetTrade()->GetNumTradeRoutesPossible();
+	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+	iMax /= 100;
+	if(iMax > iBase)
+	{
+		iMax = iBase;
+	}
+	int iBonus = (iMax * (100 + pkPlayer->GetCorporationMaxFranchises()));
+	iBonus /= 100;
+	iBonus -= iMax;
+	if(iBonus <= 0)
+	{
+		iBonus  = 1;
+	}
+	iMax += iBonus;
+	lua_pushinteger(L, iMax);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorpID(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = pkPlayer->GetCorporateFounderID();
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------

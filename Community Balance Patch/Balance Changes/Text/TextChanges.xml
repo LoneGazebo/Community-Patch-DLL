@@ -57,6 +57,18 @@
 		<Row Tag="TXT_KEY_DUDE_25">
 			<Text>Nennius</Text>
 		</Row>
+		<Row Tag="TXT_KEY_OPTIMIZE">
+			<Text>Optimize</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OPTIMIZE_TT">
+			<Text>Rearrange owned Great Works into potential Themes. Does not swap Great Works with other Civilizations and removes any Great Works already up for trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OPTIMIZE_SWAP">
+			<Text>Swap &amp; Optimize</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OPTIMIZE_SWAP_TT">
+			<Text>Rearrange Great Works into potential Themes. Swaps Great Works with other Civilizations and may put excess Great Works up for trade (if needed).</Text>
+		</Row>
 		<!-- Minors -->
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_MINORS">
 			<Text>{1_Num} from [ICON_CITY_STATE] City-States.</Text>
@@ -124,11 +136,43 @@
 		<Row Tag="TXT_KEY_RESOURCE_CONTROLLED">
 			<Text>{1_Monopoly}%</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_GLOBAL">
+			<Text>[COLOR_CYAN]Your current Global Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_GLOBAL_AND_STRATEGIC">
+			<Text>[COLOR_CYAN]Your current Global and Strategic Monopoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_STRATEGIC">
+			<Text>[COLOR_CYAN]Your current Straegic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_BOTH">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Strategic and Global Monpoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Global Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Strategic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_POTENTIAL">
+			<Text>Potential Global Monopoly Bonus:[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_POTENTIAL_STRATEGIC">
+			<Text>Potential Strategic and Global Monopoly Bonuses:[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN">
+			<Text>{1_Num} of {2_Total} in World</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HOVER_INFO">
+			<Text>(Hover over Corporation Icon or Name for details.)</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_OTHER">
 			<Text>({2_CivName}) {1_Monopoly}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CONTROLLED">
-			<Text>Our Resources</Text>
+			<Text>Our Potential Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_GAINED">
 			<Text>You control over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
@@ -242,6 +286,9 @@
 		<Row Tag="TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY">
 			<Text>+{1_Num}% [ICON_PEACE] from Resource Monopolies</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MONOPOLIES_TT">
+			<Text>Global Resource Monopolies are achieved when you control over 50% of a Luxury or Strategic Resource. This value can exceed 100% if you produce more of a Resource than exists on the Map. More than one Civilization can, therefore, have a Global Monopoly (though this is quite rare).</Text>
+		</Row>
 		<!-- Tooltip for War Weariness-->
 		<Row Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS">
 			<Text>[NEWLINE][NEWLINE]War Weariness is generating {1_Num} [ICON_HAPPINESS_4][NEWLINE][NEWLINE]</Text>
@@ -273,7 +320,19 @@
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY">
 			<Text>{1_Happiness} from Resource Monopolies.</Text>
 		</Row>
-		
+		<Row Tag ="TXT_KEY_EO_MONOPOLIES">
+			<Text>Our Global Monopolies</Text>
+		</Row>
+		<Row Tag ="TXT_KEY_EO_MONOPOLIES_STRATEGIC">
+			<Text>Our Strategic Monopolies</Text>
+		</Row>
+		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN">
+			<Text>Foreign Global Monopolies</Text>
+		</Row>
+		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC">
+			<Text>Foreign Strategic Monopolies</Text>
+		</Row>
+
 		<!-- Tooltip for 'You'll Pay' Text -->
 		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
 			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>

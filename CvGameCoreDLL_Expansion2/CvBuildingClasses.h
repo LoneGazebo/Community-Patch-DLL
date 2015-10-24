@@ -423,6 +423,7 @@ public:
 	int GetCorporationYieldChange(int i) const;
 	int* GetCorporationYieldChangeArray() const;
 	int GetCorporationGPChange() const;
+	int GetCorporationMaxFranchises() const;
 	int GetCorporationResourceQuantity(int i) const;
 
 	int GetCorporationYieldModTrade(int i) const;
@@ -782,6 +783,7 @@ private:
 	int* m_piCorporationYieldModTrade;
 	int* m_piCorporationTradeRouteMod;
 	int m_iCorporationGPChange;
+	int m_iCorporationMaxFranchises;
 	int* m_piCorporationResourceQuantity;
 #endif
 	int* m_paiHurryModifier;

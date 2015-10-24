@@ -303,6 +303,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piCorporationYieldModTrade(NULL),
 	m_piCorporationTradeRouteMod(NULL),
 	m_iCorporationGPChange(0),
+	m_iCorporationMaxFranchises(0),
 	m_piCorporationResourceQuantity(NULL),
 #endif
 	m_paiHurryModifier(NULL),
@@ -838,8 +839,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_piLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kUtility.PopulateArrayByExistence(m_piLocalFeatureOrs, "Resources", "Building_LocalFeatureOrs", "FeatureType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piLocalFeatureAnds, "Resources", "Building_LocalFeatureAnds", "FeatureType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByExistence(m_piLocalFeatureOrs, "Features", "Building_LocalFeatureOrs", "FeatureType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByExistence(m_piLocalFeatureAnds, "Features", "Building_LocalFeatureAnds", "FeatureType", "BuildingType", szBuildingType);
 
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
@@ -849,8 +850,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piCorporationYieldModTrade, "Building_CorporationYieldModTrade", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piCorporationTradeRouteMod, "Building_CorporationTradeRouteMod", "BuildingType", szBuildingType);
 	m_iCorporationGPChange = kResults.GetInt("CorporationGPChange");
-	
-
+	m_iCorporationMaxFranchises = kResults.GetInt("CorporationMaxFranchises");
 #endif
 	//ResourceYieldChanges
 	{
@@ -2722,6 +2722,10 @@ int* CvBuildingEntry::GetCorporationTradeRouteModArray() const
 int CvBuildingEntry::GetCorporationGPChange() const
 {
 	return m_iCorporationGPChange;
+}
+int CvBuildingEntry::GetCorporationMaxFranchises() const
+{
+	return m_iCorporationMaxFranchises;
 }
 /// Resources provided once constructed
 int CvBuildingEntry::GetCorporationResourceQuantity(int i) const

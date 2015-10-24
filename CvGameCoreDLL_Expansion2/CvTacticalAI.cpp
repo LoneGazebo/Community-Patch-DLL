@@ -9243,11 +9243,15 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					{
 						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot());
 						if (pTargetCity)
+						{
 							MoveToEmptySpaceNearTarget(pUnit.pointer(),pTargetCity->plot(),false);
-						CvString strLogString;
-						strLogString.Format("%s cannot move to empty space to avoid being in the way,  moving to city instead (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-											pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
-						LogTacticalMessage(strLogString);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("%s cannot move to empty space to avoid being in the way,  moving to city instead (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(), pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
+								LogTacticalMessage(strLogString);
+							}
+						}
 					}
 				}
 

@@ -1027,7 +1027,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abIsImpassable;
 #endif
-
 	char* m_szScriptData;
 	short* m_paiBuildProgress;
 

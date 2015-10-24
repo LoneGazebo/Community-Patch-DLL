@@ -8874,13 +8874,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 		return iScore;
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int iPathTurns;
-	if(!pUnit->GeneratePath(pCity->plot(), MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
-	{
-		return iScore;
-	}
-#endif
 	// Base score based on if we are establishing majority
 	iScore = 100;
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))
@@ -8890,7 +8883,8 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 		// We don't actually need a missionary if passive pressure is enough to convert the city
 		if (ShouldBecomeNewMajority(pCity, eMyReligion, 0))
 		{
-			iScore /= AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH;
+			iScore /= 3;
+			iScore *= 2;
 		}
 #endif // AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH
 	}

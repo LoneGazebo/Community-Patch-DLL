@@ -1202,6 +1202,11 @@ public:
 	void SetCorporateFounderID(int iValue);
 	int GetCorporateFounderID() const;
 
+	void ChangeCorporationMaxFranchises(int iValue);
+	int GetCorporationMaxFranchises() const;
+
+	void DoFreedomCorp();
+
 	void CalculateCorporateFranchisesWorldwide();
 	int GetCorporateFranchisesWorldwide() const;
 	void SetCorporateFranchisesWorldwide(int iValue);
@@ -2585,6 +2590,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
+	FAutoVariable<int, CvPlayer> m_iCorporationMaxFranchises;
 	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;

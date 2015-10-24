@@ -1086,7 +1086,106 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 
 	return false;	
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
+{
+	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
 
+	vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
+	vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
+	vector<CvGreatWorkInMyEmpire> aGreatWorksArtifacts;
+	vector<CvGreatWorkInMyEmpire> aGreatWorksMusic;
+	vector<CvGreatWorkInMyEmpire> aNull;
+
+	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsWriting;
+	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsArt;
+	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsMusic;
+
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
+
+	// CUSTOMLOG("Processing Great Works by city -> building -> slot into art(ifact)/writing/music silos");
+	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+		{
+			CvCivilizationInfo& playerCivilizationInfo = m_pPlayer->getCivilizationInfo();
+			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+				if (pkBuilding)
+				{
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						CvGreatWorkBuildingInMyEmpire building;
+						building.m_eBuilding = eBuilding;
+						building.m_iCityID = pLoopCity->GetID();
+						building.m_bEndangered = (pLoopCity->getDamage() > 0);
+
+						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
+						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+						{
+							aGreatWorkBuildingsWriting.push_back(building);
+						}
+						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+						{
+							aGreatWorkBuildingsArt.push_back(building);
+						}
+						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
+						{
+							aGreatWorkBuildingsMusic.push_back(building);
+						}
+
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						for (int iI = 0; iI < iNumSlots; iI++)
+						{
+							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							if (iGreatWorkIndex != -1)
+							{
+								CvGreatWorkInMyEmpire work;
+								work.m_eBuilding = eBuilding;
+								work.m_iCityID = pLoopCity->GetID();
+								work.m_iGreatWorkIndex = iGreatWorkIndex;
+								work.m_iSlot = iI;
+								work.m_ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkCreator(iGreatWorkIndex);
+								work.m_eEra = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_eEra;
+
+								GreatWorkType eGreatWorkType = GC.getGame().GetGameCulture()->GetGreatWorkType(iGreatWorkIndex);
+								GreatWorkClass eGWClass = CultureHelpers::GetGreatWorkClass(eGreatWorkType);
+								if (eGWClass == eWritingClass)
+								{
+									aGreatWorksWriting.push_back(work);
+								}
+								else if (eGWClass == eArtClass)
+								{
+									aGreatWorksArt.push_back(work);
+								}
+								else if (eGWClass == eArtifactsClass)
+								{
+									aGreatWorksArtifacts.push_back(work);
+								}
+								else if (eGWClass == eMusicClass)
+								{
+									aGreatWorksMusic.push_back(work);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pLoopCity->GetCityCulture()->CalculateBaseTourism();
+	}
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, NO_YIELD, bSwap);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, NO_YIELD, bSwap);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, NO_YIELD, bSwap);
+}
+#endif
 /// AI routine to decide what Great Work swapping should take place (including placing Great Works up for swap from another player)
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 void CvPlayerCulture::DoSwapGreatWorks(YieldTypes eFocusYield)
@@ -1191,15 +1290,11 @@ void CvPlayerCulture::DoSwapGreatWorks()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pLoopCity->GetCityCulture()->CalculateBaseTourism();
-#endif
 	}
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, eFocusYield);
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, eFocusYield);
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, eFocusYield);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, eFocusYield, true);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, eFocusYield, true);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, eFocusYield, true);
 #else
 	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull);
 	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts);
@@ -1233,7 +1328,7 @@ static bool SortThemingBonus(const CvGreatWorkBuildingInMyEmpire& kEntry1, const
 
 /// Overall routine that orchestrates all the maneuvering of Great Works between buildings and players for one AI turn
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield)
+void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap)
 #else
 void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
 #endif
@@ -1285,7 +1380,10 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(bSwap)
+	{
+#endif
 	// One more pass through those that are not endangered to see if swapping with another player would help (as long as this isn't Music)
 	if (eType != CvTypes::getGREAT_WORK_SLOT_MUSIC())
 	{
@@ -1301,12 +1399,18 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	// Set the first work left that we haven't themed as something we'd be willing to trade
 	// CUSTOMLOG("Setting available swaps");
 	//    for Writing
 	if (eType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(bSwap)
+		{
+#endif
 		if (works1.size() > 0)
 		{
 			// CUSTOMLOG("  ... for writing to %i", works1[0].m_iGreatWorkIndex);
@@ -1316,6 +1420,13 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 		{
 			SetSwappableWritingIndex(-1);
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+		else
+		{
+			SetSwappableWritingIndex(-1);
+		}
+#endif
 	}
 
 	//    for Art and Artifacts
@@ -1323,6 +1434,10 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	{
 		if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(bSwap)
+			{
+#endif
 			if (works1.size() > 0)
 			{
 				// CUSTOMLOG("  ... for art(ifact) to %i", works1[0].m_iGreatWorkIndex);
@@ -1332,9 +1447,20 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			{
 				SetSwappableArtIndex(-1);
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+			{
+				SetSwappableArtIndex(-1);
+			}
+#endif
 		}
 		if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(bSwap)
+			{
+#endif
 			if (works2.size() > 0)
 			{
 				// CUSTOMLOG("  ... for art(ifact) to %i", works2[0].m_iGreatWorkIndex);
@@ -1344,9 +1470,15 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			{
 				SetSwappableArtifactIndex(-1);
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+			{
+				SetSwappableArtifactIndex(-1);
+			}
+#endif
 		}
 	}
-
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	MoveSingleWorks(buildings, works1, works2, eFocusYield);
 #else
@@ -1363,6 +1495,17 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 		if (itBuilding->m_bEndangered && !itBuilding->m_bThemed)
 		{
 			FillBuilding(itBuilding, works1, works2);
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	{
+		CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
+		if(pCity != NULL)
+		{
+			pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			pCity->GetCityCulture()->CalculateBaseTourism();
 		}
 	}
 #endif
@@ -2562,7 +2705,7 @@ void CvPlayerCulture::DoTurn()
 #if defined(MOD_BALANCE_CORE)
 	//Tourism Update
 	strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SUMMARY");
-	int iTurns = 40;
+	int iTurns = 25;
 	iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iTurns /= 100;
 	int iEra = m_pPlayer->GetCurrentEra();

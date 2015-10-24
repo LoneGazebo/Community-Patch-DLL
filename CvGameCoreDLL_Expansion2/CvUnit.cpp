@@ -3694,7 +3694,7 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && isHuman() && !IsHurt() && SentryAlert())
+	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}

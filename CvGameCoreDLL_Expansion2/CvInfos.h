@@ -1503,6 +1503,7 @@ protected:
 	int m_iMonopolyMovementBonus;
 	int m_iMonopolyHealBonus;
 	int m_iMonopolyXPBonus;
+	CvString m_strStrategicHelp;
 #endif
 
 	bool m_bPresentOnAllValidPlots;

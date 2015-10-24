@@ -273,6 +273,7 @@ public:
 	int GetGoldenAgeYieldMod(int i) const;
 	int GetFreePopulation() const;
 	int GetExtraMoves() const;
+	int GetMaxCorps() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -571,6 +572,7 @@ private:
 	int m_iBestRangedUnitSpawnSettle;
 	int m_iFreePopulation;
 	int m_iExtraMoves;
+	int m_iMaxCorporations;
 	bool m_bOrderCorporation;
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;

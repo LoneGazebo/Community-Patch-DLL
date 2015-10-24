@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 6/23/2015 5:58:37 PM -->
 <GameData>
+	<Language_en_US>
+		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_27">
+			<Text>Corporations and Monopolies</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Civlized Jewelers -->
 	<Building_ResourceMonopolyOrs>
 		<Row>
@@ -181,38 +187,19 @@
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_OLIVE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_COFFEE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_TEA</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<!-- Office -->
-		<Row>
-			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
-			<ResourceType>RESOURCE_OLIVE</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
-			<ResourceType>RESOURCE_COFFEE</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
-			<ResourceType>RESOURCE_TEA</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<!-- Franchise -->
 		<Row>

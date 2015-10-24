@@ -4984,6 +4984,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	const char* szAIStopTradingEra = kResults.GetText("AIStopTradingEra");
 	m_iAIStopTradingEra = GC.getInfoTypeForString(szAIStopTradingEra, true);
 
+#if defined(MOD_BALANCE_CORE)
+	const char* szTextVal = kResults.GetText("StrategicHelp");
+	m_strStrategicHelp = szTextVal;
+#endif
+
 	//Arrays
 	const char* szResourceType = GetType();
 	kUtility.SetYields(m_piYieldChange, "Resource_YieldChanges", "ResourceType", szResourceType);

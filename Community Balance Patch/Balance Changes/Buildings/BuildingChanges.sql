@@ -958,7 +958,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_WRITERS_GUILD_HELP' AND EXISTS (SELECT * FROM COMM
 -- Building Era reductions
 
 UPDATE Eras
-SET LaterEraBuildingConstructMod = '-5';
+SET LaterEraBuildingConstructMod = '-2';
 
 
 

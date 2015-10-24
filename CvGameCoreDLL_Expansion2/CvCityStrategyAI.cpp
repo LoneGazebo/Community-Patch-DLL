@@ -1193,14 +1193,17 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			if(GetCity()->IsPuppet())
 			{
 				const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-
+#if defined(MOD_BALANCE_CORE)
+				bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+				if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || (isLimitedWonderClass(kBuildingClassInfo) && !bIsVenice))
+#else
 				if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+#endif
 				{
 					iTempWeight = 0;
 				}
 				// it also avoids military training buildings - since it can't build units
 #if defined(MOD_BALANCE_CORE)
-				bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 				if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && bIsVenice)
 				{

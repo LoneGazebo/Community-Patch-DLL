@@ -3289,32 +3289,32 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_FAMILIAR_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_POPULAR_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_INFLUENTIAL_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_DOMINANT_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_STATIC_THEM">
-			<Text>[NEWLINE]Influence Trend: Static</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: Static</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_RISING_SLOWLY_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_RISING_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_FALLING_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
 		</Row>
 		
 		
