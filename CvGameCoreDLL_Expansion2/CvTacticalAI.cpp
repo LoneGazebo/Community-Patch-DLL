@@ -3086,19 +3086,19 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 			switch(nextOp->GetMoveType())
 			{
 			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
-				PlotSingleHexOperationMoves((CvAIEscortedOperation*)nextOp);
+				PlotSingleHexOperationMoves((CvAIOperationEscorted*)nextOp);
 				break;
 
 			case AI_OPERATION_MOVETYPE_ENEMY_TERRITORY:
-				PlotEnemyTerritoryOperationMoves((CvAIEnemyTerritoryOperation*)nextOp);
+				PlotEnemyTerritoryOperationMoves((CvAIOperationEnemyTerritory*)nextOp);
 				break;
 
 			case AI_OPERATION_MOVETYPE_NAVAL_ESCORT:
-				PlotNavalEscortOperationMoves((CvAINavalEscortedOperation*)nextOp);
+				PlotNavalEscortOperationMoves((CvAIOperationNavalEscorted*)nextOp);
 				break;
 
 			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
-				PlotFreeformNavalOperationMoves((CvAINavalOperation*)nextOp);
+				PlotFreeformNavalOperationMoves((CvAIOperationNaval*)nextOp);
 				break;
 
 			default:
@@ -4643,7 +4643,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 // OPERATIONAL AI SUPPORT FUNCTIONS
 
 /// Move a single stack (civilian plus escort) to its destination
-void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation)
+void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation)
 {
 #if defined(MOD_BALANCE_CORE)
 	UnitHandle pCivilian;
@@ -5256,7 +5256,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 }
 #endif
 /// Move a large army to its destination against an enemy target
-void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation* pOperation)
+void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory* pOperation)
 {
 	// Simplification - assume only 1 army per operation now
 	if(pOperation->GetFirstArmyID() == -1)
@@ -5476,14 +5476,14 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 }
 
 /// Move a large army to its destination against an enemy target
-void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOperation)
+void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOperation)
 {
 #if defined(MOD_BALANCE_CORE)
 	CvUnit* pCivilian = NULL; 
 	CvUnit* pEscort = NULL;
 
 	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
+	if (!pOperation || pOperation->GetFirstArmyID() == -1)
 	{
 		return;
 	}
@@ -6620,7 +6620,7 @@ void CvTacticalAI::PlotGatherOnlyMoves(CvAIOperation* pOperation)
 #endif
 
 /// Move a naval force that is roaming for targets
-void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperation)
+void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperation)
 {
 	// Simplification - assume only 1 army per operation now
 	if(pOperation->GetFirstArmyID() == -1)
@@ -7600,19 +7600,21 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 	m_TempTargets.clear();
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int iRange = 4;
-	if(pArmy)
+	if (pArmy)
 	{
 		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-		if(pOperation && pOperation->IsMixedLandNavalOperation())
+		if (pOperation && pOperation->IsMixedLandNavalOperation())
 		{
 			iRange += 1;
 		}
-		else if(pOperation && pOperation->IsAllNavalOperation())
+		else if (pOperation && pOperation->IsAllNavalOperation())
 		{
 			iRange += 2;
 		}
 	}
+	else
+		return false;
 #else
 	int iRange = 3;
 #endif
@@ -7801,22 +7803,24 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	// Range around turn target based on number of units we need to place
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNavalUnits + iEscortedUnits);
-	if(pArmy)
+	if (pArmy)
 	{
 		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-		if(pOperation && (pOperation->GetOperationType() != AI_OPERATION_COLONIZE))
+		if (pOperation && (pOperation->GetOperationType() != AI_OPERATION_COLONIZE))
 		{
-			if(pOperation && pOperation->IsMixedLandNavalOperation())
+			if (pOperation && pOperation->IsMixedLandNavalOperation())
 			{
 				iRange += 1;
 			}
-			else if(pOperation && pOperation->IsAllNavalOperation())
+			else if (pOperation && pOperation->IsAllNavalOperation())
 			{
 				iRange += 2;
 			}
 		}
 	}
+	else
+		return;
 #else
 	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iMostUnits);
 #endif
@@ -9150,14 +9154,16 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					{
 						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot());
 						if (pTargetCity)
-							MoveToEmptySpaceNearTarget(pUnit.pointer(),pTargetCity->plot(),false);
-
-						if(GC.getLogging() && GC.getAILogging())
 						{
-							CvString strLogString;
-							strLogString.Format("%s cannot move to empty space to avoid being in the way,  moving to city instead (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-												pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
+							MoveToEmptySpaceNearTarget(pUnit.pointer(), pTargetCity->plot(), false);
+
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("%s cannot move to empty space to avoid being in the way,  moving to city instead (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+									pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
+								LogTacticalMessage(strLogString);
+							}
 						}
 					}
 				}

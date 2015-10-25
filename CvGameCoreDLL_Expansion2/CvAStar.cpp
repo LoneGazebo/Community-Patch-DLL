@@ -663,11 +663,14 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		}
 
 		// we made it to the start of this list - insert it at the beginning - we shouldn't ever get here, but...
-		next->m_pPrev = addnode;
-		addnode->m_pNext = next;
-		m_pOpen = addnode;
+		if (next)
+		{
+			next->m_pPrev = addnode;
+			addnode->m_pNext = next;
+			m_pOpen = addnode;
 
-		udFunc(udNotifyList, m_pOpen->m_pNext, m_pOpen, ASNL_STARTOPEN, m_pData);
+			udFunc(udNotifyList, m_pOpen->m_pNext, m_pOpen, ASNL_STARTOPEN, m_pData);
+		}
 	}
 	else // let's start at the beginning as it should be closer
 	{
@@ -3272,7 +3275,7 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 			currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
 
 			// Was an enemy specified and we don't want this plot to be in enemy territory?
-			if (eEnemy != NO_PLAYER && bLeaveEnemyTerritory)
+			if (eEnemy != NO_PLAYER && bLeaveEnemyTerritory && currentPlot)
 			{
 				// Loop until we leave enemy territory
 				for (int i = 0; i < (iPathLen - iNumSteps) && currentPlot->getOwner() == eEnemy; i++)

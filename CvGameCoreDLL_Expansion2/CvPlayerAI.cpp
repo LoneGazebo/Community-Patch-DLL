@@ -1882,7 +1882,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 		}
 	}
 
-	if(GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	if (eDirective == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}

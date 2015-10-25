@@ -343,7 +343,7 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType,
 	case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
 		return FNEW(CvAIOperationPureNavalCityAttack(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_COLONIZE:
-		return FNEW(CvAINavalEscortedOperation(), c_eCiv5GameplayDLL, 0);
+		return FNEW(CvAIOperationNavalEscorted(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_QUICK_COLONIZE:
 		return FNEW(CvAIOperationQuickColonize(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_PILLAGE_ENEMY:
@@ -1695,7 +1695,11 @@ bool CvAIOperation::BuyFinalUnit()
 	{
 		OperationSlot thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
 		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
+		if (!pArmy)
+			return false;
 		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
+		if (!thisFormation)
+			return false;
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisSlot.m_iSlotID);
 
 		CvUnit* pUnit = GET_PLAYER(m_eOwner).GetMilitaryAI()->BuyEmergencyUnit((UnitAITypes)thisSlotEntry.m_primaryUnitType, pCity);
@@ -3721,7 +3725,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 				if(pBestUnit != NULL)
 				{
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pBestUnit->getUnitType());
-					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+					if (unitInfo && unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
 					{
 						pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
 						if(GC.getLogging() && GC.getAILogging())
@@ -4041,24 +4045,24 @@ FDataStream& operator>>(FDataStream& loadFrom, AIOperationMovementType& writeTo)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIEnemyTerritoryOperation
+// CvAIOperationEnemyTerritory
 ////////////////////////////////////////////////////////////////////////////////
-CvAIEnemyTerritoryOperation::CvAIEnemyTerritoryOperation()
+CvAIOperationEnemyTerritory::CvAIOperationEnemyTerritory()
 {
 }
 
-CvAIEnemyTerritoryOperation::~CvAIEnemyTerritoryOperation()
+CvAIOperationEnemyTerritory::~CvAIOperationEnemyTerritory()
 {
 }
 
 /// How long will we wait for a recruit to show up?
-int CvAIEnemyTerritoryOperation::GetMaximumRecruitTurns() const
+int CvAIOperationEnemyTerritory::GetMaximumRecruitTurns() const
 {
 	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY();
 }
 
 /// Kick off this operation
-void CvAIEnemyTerritoryOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /* iDefaultArea */, CvCity*, CvCity*)
+void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /* iDefaultArea */, CvCity*, CvCity*)
 {
 	Reset();
 	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
@@ -4157,7 +4161,7 @@ void CvAIEnemyTerritoryOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 }
 
 /// How close to target do we end up?
-int CvAIEnemyTerritoryOperation::GetDeployRange() const
+int CvAIOperationEnemyTerritory::GetDeployRange() const
 {
 	return GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
 }
@@ -4170,12 +4174,12 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::SelectInitialMusterPoint(CvArmyAI* pT
 		return GetMusterPlot();
 	}
 
-	return CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(pThisArmy);
+	return CvAIOperationEnemyTerritory::SelectInitialMusterPoint(pThisArmy);
 }
 #endif
 
 /// Figure out the initial rally point
-CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
+CvPlot* CvAIOperationEnemyTerritory::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 {
 	CvPlot* pMusterPt = NULL;
 	CvPlot* pStartCityPlot;
@@ -4279,7 +4283,7 @@ CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArm
 #endif
 	else
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging() && pThisArmy)
 		{
 			CvString szMsg;
 			szMsg.Format("No muster point found, Operation aborting, Target was, X: %d, Y: %d", pThisArmy->GetGoalPlot()->getX(), pThisArmy->GetGoalPlot()->getY());
@@ -5294,20 +5298,20 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIEscortedOperation
+// CvAIOperationEscorted
 ////////////////////////////////////////////////////////////////////////////////
-CvAIEscortedOperation::CvAIEscortedOperation()
+CvAIOperationEscorted::CvAIOperationEscorted()
 {
 	m_bEscorted = true;
 	m_iTargetArea = -1;
 }
 
-CvAIEscortedOperation::~CvAIEscortedOperation()
+CvAIOperationEscorted::~CvAIOperationEscorted()
 {
 }
 
 /// Kick off this operation
-void CvAIEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEnemy */, int /* iDefaultArea */, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEnemy */, int /* iDefaultArea */, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	CvUnit* pOurCivilian;
 	CvPlot* pTargetSite, *pNewTarget;
@@ -5428,7 +5432,7 @@ void CvAIEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 }
 
 /// Read serialized data
-void CvAIEscortedOperation::Read(FDataStream& kStream)
+void CvAIOperationEscorted::Read(FDataStream& kStream)
 {
 	// read the base class' entries
 	CvAIOperation::Read(kStream);
@@ -5445,7 +5449,7 @@ void CvAIEscortedOperation::Read(FDataStream& kStream)
 }
 
 /// Write serialized data
-void CvAIEscortedOperation::Write(FDataStream& kStream) const
+void CvAIOperationEscorted::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
 	CvAIOperation::Write(kStream);
@@ -5461,7 +5465,7 @@ void CvAIEscortedOperation::Write(FDataStream& kStream) const
 }
 
 /// Always abort if settler is removed
-void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
+void CvAIOperationEscorted::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
 	if(iSlotID == 0)
 	{
@@ -5475,7 +5479,7 @@ void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 }
 
 /// Find the civilian we want to use
-CvUnit* CvAIEscortedOperation::FindBestCivilian()
+CvUnit* CvAIOperationEscorted::FindBestCivilian()
 {
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
@@ -5498,7 +5502,7 @@ CvUnit* CvAIEscortedOperation::FindBestCivilian()
 }
 
 /// Start the civilian off to a new target plot
-bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
+bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
 	CvPlot* pBetterTarget;
 
@@ -6023,12 +6027,12 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
-void CvAIEscortedOperation::SetEscorted(bool bValue)
+void CvAIOperationEscorted::SetEscorted(bool bValue)
 {
 	m_bEscorted = bValue;
 }
 
-bool CvAIEscortedOperation::IsEscorted()
+bool CvAIOperationEscorted::IsEscorted()
 {
 	return m_bEscorted;
 }
@@ -6682,7 +6686,7 @@ void CvAIOperationAllyDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 			SetTargetPlot(pTargetPlot);
 			// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 			CvArmyAI* pArmyAI = GET_PLAYER(m_eOwner).addArmyAI();
-			if(pArmyAI)
+			if(pArmyAI && pTargetPlot)
 			{
 				m_viArmyIDs.push_back(pArmyAI->GetID());
 				pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
@@ -6960,21 +6964,21 @@ CvPlot* CvAIOperationConcertTour::FindBestTarget(CvUnit* pUnit, bool bOnlySafePa
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAINavalOperation
+// CvAIOperationNaval
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAINavalOperation::CvAINavalOperation()
+CvAIOperationNaval::CvAIOperationNaval()
 {
 }
 
 /// Destructor
-CvAINavalOperation::~CvAINavalOperation()
+CvAIOperationNaval::~CvAIOperationNaval()
 {
 }
 #if defined(MOD_BALANCE_CORE)
 /// Kick off this operation
-void CvAINavalOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iDefaultArea*/, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationNaval::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iDefaultArea*/, CvCity* pTarget, CvCity* pMuster)
 {
 	Reset();
 	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
@@ -7050,7 +7054,7 @@ void CvAINavalOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, i
 }
 
 /// Same as default version except if just gathered forces and this operation never reaches a final target (just keeps attacking until dead or the operation is ended)
-bool CvAINavalOperation::ArmyInPosition(CvArmyAI* pArmy)
+bool CvAIOperationNaval::ArmyInPosition(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
 
@@ -7195,7 +7199,7 @@ bool CvAINavalOperation::ArmyInPosition(CvArmyAI* pArmy)
 }
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
-bool CvAINavalOperation::ShouldAbort()
+bool CvAIOperationNaval::ShouldAbort()
 {
 	// If parent says we're done, don't even check anything else
 	bool rtnValue = CvAIOperation::ShouldAbort();
@@ -7218,7 +7222,7 @@ bool CvAINavalOperation::ShouldAbort()
 }
 #endif
 /// Read serialized data
-void CvAINavalOperation::Read(FDataStream& kStream)
+void CvAIOperationNaval::Read(FDataStream& kStream)
 {
 	// read the base class' entries
 	CvAIOperation::Read(kStream);
@@ -7230,7 +7234,7 @@ void CvAINavalOperation::Read(FDataStream& kStream)
 }
 
 /// Write serialized data
-void CvAINavalOperation::Write(FDataStream& kStream) const
+void CvAIOperationNaval::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
 	CvAIOperation::Write(kStream);
@@ -7242,13 +7246,13 @@ void CvAINavalOperation::Write(FDataStream& kStream) const
 }
 
 /// How close to target do we end up?
-int CvAINavalOperation::GetDeployRange() const
+int CvAIOperationNaval::GetDeployRange() const
 {
 	return GC.getAI_OPERATIONAL_NAVAL_BOMBARDMENT_DEPLOY_RANGE();
 }
 
 /// Find the port our operation will leave from
-CvCity* CvAINavalOperation::GetOperationStartCity() const
+CvCity* CvAIOperationNaval::GetOperationStartCity() const
 {
 	if(GetStartCityPlot())
 	{
@@ -7271,7 +7275,7 @@ CvCity* CvAINavalOperation::GetOperationStartCity() const
 }
 
 /// Figure out the initial rally point
-CvPlot* CvAINavalOperation::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
+CvPlot* CvAIOperationNaval::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 {
 	CvPlot* pMusterPt = NULL;
 	CvPlot* pStartCityPlot;
@@ -7347,7 +7351,7 @@ CvPlot* CvAINavalOperation::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 }
 
 /// Which unit would we like to use to kick off this operation?
-CvUnit* CvAINavalOperation::FindInitialUnit()
+CvUnit* CvAIOperationNaval::FindInitialUnit()
 {
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
@@ -7528,7 +7532,7 @@ void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerType
 void CvAIOperationNavalBombardment::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalOperation::Read(kStream);
+	CvAIOperationNaval::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -7540,7 +7544,7 @@ void CvAIOperationNavalBombardment::Read(FDataStream& kStream)
 void CvAIOperationNavalBombardment::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalOperation::Write(kStream);
+	CvAIOperationNaval::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;
@@ -8046,7 +8050,7 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 void CvAIOperationNavalSuperiority::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalOperation::Read(kStream);
+	CvAIOperationNaval::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -8058,7 +8062,7 @@ void CvAIOperationNavalSuperiority::Read(FDataStream& kStream)
 void CvAIOperationNavalSuperiority::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalOperation::Write(kStream);
+	CvAIOperationNaval::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;
@@ -8600,7 +8604,7 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 void CvAIOperationPureNavalCityAttack::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalOperation::Read(kStream);
+	CvAIOperationNaval::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -8612,7 +8616,7 @@ void CvAIOperationPureNavalCityAttack::Read(FDataStream& kStream)
 void CvAIOperationPureNavalCityAttack::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalOperation::Write(kStream);
+	CvAIOperationNaval::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;
@@ -9405,9 +9409,9 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAINavalEscortedOperation
+// CvAIOperationNavalEscorted
 ////////////////////////////////////////////////////////////////////////////////
-CvAINavalEscortedOperation::CvAINavalEscortedOperation()
+CvAIOperationNavalEscorted::CvAIOperationNavalEscorted()
 {
 	// *** Move into subclass later?
 	m_eCivilianType = UNITAI_SETTLE;
@@ -9416,15 +9420,15 @@ CvAINavalEscortedOperation::CvAINavalEscortedOperation()
 #endif
 }
 
-CvAINavalEscortedOperation::~CvAINavalEscortedOperation()
+CvAIOperationNavalEscorted::~CvAIOperationNavalEscorted()
 {
 }
 
 /// Kick off this operation
 #if defined(MOD_BALANCE_CORE)
-void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationNavalEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* pTarget, CvCity* pMuster)
 #else
-void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationNavalEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 #endif
 {
 	Reset();
@@ -9682,7 +9686,7 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 }
 #if !defined(MOD_BALANCE_CORE)
 /// Find the port our operation will leave from
-CvCity* CvAINavalEscortedOperation::GetOperationStartCity() const
+CvCity* CvAIOperationNavalEscorted::GetOperationStartCity() const
 {
 	if(GetStartCityPlot())
 	{
@@ -9711,7 +9715,7 @@ CvCity* CvAINavalEscortedOperation::GetOperationStartCity() const
 #endif
 #if !defined(MOD_BALANCE_CORE)
 /// Always abort if settler is removed
-void CvAINavalEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
+void CvAIOperationNavalEscorted::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
 	// Assumes civilian is in the first slot of the formation
 	if(iSlotID == 0)
@@ -9722,7 +9726,7 @@ void CvAINavalEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 }
 #endif
 /// Find the civilian we want to use
-CvUnit* CvAINavalEscortedOperation::FindBestCivilian()
+CvUnit* CvAIOperationNavalEscorted::FindBestCivilian()
 {
 	int iUnitLoop = 0;
 	CvUnit* pLoopUnit = NULL;
@@ -9746,7 +9750,7 @@ CvUnit* CvAINavalEscortedOperation::FindBestCivilian()
 }
 
 /// Read serialized data
-void CvAINavalEscortedOperation::Read(FDataStream& kStream)
+void CvAIOperationNavalEscorted::Read(FDataStream& kStream)
 {
 	// read the base class' entries
 	CvAIOperation::Read(kStream);
@@ -9759,7 +9763,7 @@ void CvAINavalEscortedOperation::Read(FDataStream& kStream)
 	kStream >> m_eCivilianType;
 }
 /// Write serialized data
-void CvAINavalEscortedOperation::Write(FDataStream& kStream) const
+void CvAIOperationNavalEscorted::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
 	CvAIOperation::Write(kStream);
@@ -9772,7 +9776,7 @@ void CvAINavalEscortedOperation::Write(FDataStream& kStream) const
 	kStream << m_eCivilianType;
 }
 /// If at target, found city; if at muster point, merge settler and escort and move out
-bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
+bool CvAIOperationNavalEscorted::ArmyInPosition(CvArmyAI* pArmy)
 {
 	int iUnitID;
 	bool bStateChanged = false;
@@ -10132,7 +10136,7 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
-CvPlot* CvAINavalEscortedOperation::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationNavalEscorted::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	//todo: better options
 	//a) return a list of possible targets and find the ones that are currently reachable
@@ -10148,7 +10152,7 @@ CvPlot* CvAINavalEscortedOperation::FindBestTargetIncludingCurrent(CvUnit* pUnit
 	return pResult;
 }
 
-CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationNavalEscorted::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea);
 	if (pResult == NULL)
@@ -10159,14 +10163,14 @@ CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit, bool bOnlySafe
 	return pResult;
 }
 #else
-CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit)
+CvPlot* CvAIOperationNavalEscorted::FindBestTarget(CvUnit* pUnit)
 {
 	return GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, true, -1);
 }
 #endif
 
 /// Start the civilian off to a new target plot
-bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
+bool CvAIOperationNavalEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
 #if defined(MOD_BALANCE_CORE)
 	// Find best city site (assuming we are escorted)
@@ -10330,14 +10334,14 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 		{
 			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
-		iDefaultArea = pMuster->getArea();
-		SetDefaultArea(iDefaultArea);
+
+		if (pMusterPlot != NULL)
+		{
+			iDefaultArea = pMusterPlot->getArea();
+			SetDefaultArea(iDefaultArea);
 #if defined(MOD_BALANCE_CORE)
 			SetTurnStarted(GC.getGame().getGameTurn());
 #endif
-
-		if(pMusterPlot != NULL)
-		{
 			SetStartCityPlot(pMusterPlot);
 
 			if(iID != -1)
@@ -10464,7 +10468,7 @@ void CvAIOperationNavalAttack::UnitWasRemoved(int iArmyID, int iSlotID)
 void CvAIOperationNavalAttack::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalEscortedOperation::Read(kStream);
+	CvAIOperationNavalEscorted::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -10476,7 +10480,7 @@ void CvAIOperationNavalAttack::Read(FDataStream& kStream)
 void CvAIOperationNavalAttack::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalEscortedOperation::Write(kStream);
+	CvAIOperationNavalEscorted::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;
@@ -10779,7 +10783,7 @@ void CvAIOperationNavalSneakAttack::UnitWasRemoved(int iArmyID, int iSlotID)
 void CvAIOperationNavalSneakAttack::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalEscortedOperation::Read(kStream);
+	CvAIOperationNavalEscorted::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -10791,7 +10795,7 @@ void CvAIOperationNavalSneakAttack::Read(FDataStream& kStream)
 void CvAIOperationNavalSneakAttack::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalEscortedOperation::Write(kStream);
+	CvAIOperationNavalEscorted::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;
@@ -11062,7 +11066,7 @@ void CvAIOperationNavalCityStateAttack::UnitWasRemoved(int iArmyID, int iSlotID)
 void CvAIOperationNavalCityStateAttack::Read(FDataStream& kStream)
 {
 	// read the base class' entries
-	CvAINavalEscortedOperation::Read(kStream);
+	CvAIOperationNavalEscorted::Read(kStream);
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -11074,7 +11078,7 @@ void CvAIOperationNavalCityStateAttack::Read(FDataStream& kStream)
 void CvAIOperationNavalCityStateAttack::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
-	CvAINavalEscortedOperation::Write(kStream);
+	CvAIOperationNavalEscorted::Write(kStream);
 
 	// Current version number
 	uint uiVersion = 1;

@@ -194,6 +194,9 @@ void CvHomelandAI::Update()
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
 {
+	if (!pUnit)
+		return NULL;
+
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 
 	const std::vector<SPlotWithScore>& vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
@@ -210,21 +213,16 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if(pUnit)
+		if (pUnit->getDomainType() == DOMAIN_SEA)
 		{
-			if (pUnit->getDomainType() == DOMAIN_SEA)
-			{
-				//sea units can typically not leave their area - catch this case, 
-				//else there will be a long and useless pathfinding operation
-				if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
-					continue;
-			}
-
-			if(vExplorePlots[ui].pPlot == pUnit->plot())
-			{
+			//sea units can typically not leave their area - catch this case, 
+			//else there will be a long and useless pathfinding operation
+			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
 				continue;
-			}
 		}
+
+		if(vExplorePlots[ui].pPlot == pUnit->plot())
+			continue;
 
 		//make sure our unit can actually go there
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
@@ -926,7 +924,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... empty barb camp?
-			else if(BARBARIAN_PLAYER != NULL && pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
+			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
 			{
 				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
 				if(pTargetUnit && !pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
@@ -1430,13 +1428,16 @@ void CvHomelandAI::PlotMovesToSafety()
 			CvPlot* pPlot = pUnit->plot();
 #if defined(MOD_BALANCE_CORE)
 			bool bFallout = false;
-			if(pPlot != NULL)
+			if (pPlot != NULL)
 			{
-				if(!pUnit->IsCanDefend() && pPlot->getFeatureType() == FEATURE_FALLOUT && (pUnit->ignoreFeatureDamage() || (pUnit->getDamage() <= (pUnit->GetMaxHitPoints() / 2))))
+				if (!pUnit->IsCanDefend() && pPlot->getFeatureType() == FEATURE_FALLOUT && (pUnit->ignoreFeatureDamage() || (pUnit->getDamage() <= (pUnit->GetMaxHitPoints() / 2))))
 				{
 					bFallout = true;
 				}
 			}
+			else
+				continue;
+
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
 #else
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);

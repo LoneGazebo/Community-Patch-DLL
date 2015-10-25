@@ -250,7 +250,7 @@ public:
 		PlayerTypes playerID = getOwner();
 		if(playerID != NO_PLAYER)
 		{
-			return CvPlayer::getTeam(playerID);
+			return ::getTeam(playerID);
 		}
 		else
 		{

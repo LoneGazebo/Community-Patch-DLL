@@ -1422,11 +1422,6 @@ public:
 		return m_eID;
 	}
 
-	static TeamTypes getTeam(PlayerTypes ePlayerID)
-	{
-		return CvPreGame::teamType(ePlayerID);
-	}
-
 	TeamTypes getTeam() const
 	{
 		return CvPreGame::teamType(m_eID);

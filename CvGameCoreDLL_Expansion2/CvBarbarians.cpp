@@ -859,7 +859,7 @@ void CvBarbarians::DoUnits()
 		CvPlot* pLoopPlot = kMap.plotByIndexUnchecked(iPlotLoop);
 
 		// Found a Camp to spawn near
-		if(pLoopPlot->getImprovementType() == eCamp)
+		if (pLoopPlot && pLoopPlot->getImprovementType() == eCamp)
 		{
 			if(ShouldSpawnBarbFromCamp(pLoopPlot))
 			{
@@ -878,7 +878,7 @@ void CvBarbarians::DoUnits()
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		// Found a city to spawn near
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pLoopPlot->isCity() && pLoopPlot->isBarbarian())
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS && pLoopPlot && pLoopPlot->isCity() && pLoopPlot->isBarbarian())
 		{
 			if(ShouldSpawnBarbFromCity(pLoopPlot))
 			{

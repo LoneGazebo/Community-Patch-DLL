@@ -4486,7 +4486,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 		return true;
 	}
 
-	if (plotDistance (pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
+	if (pCapital && pCity && plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
 	{
 		return true;
 	}

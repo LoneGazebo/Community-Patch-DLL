@@ -419,7 +419,6 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 {
 	VALIDATE_OBJECT
 	CvString strBuffer;
-	int iI;
 
 	CvAssert(NO_UNIT != eUnit);
 
@@ -437,7 +436,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 
 	// If this is a hovering unit, we must add that promotion before setting XY, or else it'll get the embark promotion (which we don't want)
 	PromotionTypes ePromotion;
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
@@ -476,7 +475,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		CvString strName = strKey;
 		int iNumNames = getUnitInfo().GetNumUnitNames();
 		//Look for units from previous and current eras.
-		for(iI = 0; iI < iNumNames; iI++)
+		for (int iI = 0; iI < iNumNames; iI++)
 		{
 			CvString strOtherName = getUnitInfo().GetUnitNames(iI);
 			if(strOtherName == strName)
@@ -536,7 +535,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	}
 
 	// Free Promotions from Unit XML
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
@@ -575,7 +574,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	}
 
 	// Free Promotions from Policies, Techs, etc.
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		ePromotion = (PromotionTypes) iI;
 
@@ -597,7 +596,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	
 	// Adjacent terrain/feature that provides free promotions?
 	CvPlot* pAdjacentPlot;
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
@@ -1294,7 +1293,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	// Message for World Unit being born
 	if(isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
 	{
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
 			if(GET_PLAYER((PlayerTypes)iI).isAlive() && GC.getGame().getActivePlayer())
 			{
@@ -3653,14 +3652,18 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 					if(kCaptureDef.eCapturingPlayer == GC.getGame().getActivePlayer())
 					{
 						CvString strBuffer;
-						if(kCaptureDef.eOriginalOwner == kCaptureDef.eCapturingPlayer){
-							//player recaptured a friendly unit
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_RECAPTURED_UNIT", GC.getUnitInfo(kCaptureDef.eCaptureUnitType)->GetTextKey());
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(kCaptureDef.eCaptureUnitType);
+						if (pkUnitInfo)
+						{
+							if (kCaptureDef.eOriginalOwner == kCaptureDef.eCapturingPlayer){
+								//player recaptured a friendly unit
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_RECAPTURED_UNIT", pkUnitInfo->GetTextKey());
+							}
+							else{
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CAPTURED_UNIT", pkUnitInfo->GetTextKey());
+							}
+							DLLUI->AddUnitMessage(0, IDInfo(kCaptureDef.eCapturingPlayer, pkCapturedUnit->GetID()), kCaptureDef.eCapturingPlayer, true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, GC.getUnitInfo(eCaptureUnitType)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
 						}
-						else{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CAPTURED_UNIT", GC.getUnitInfo(kCaptureDef.eCaptureUnitType)->GetTextKey());
-						}
-						DLLUI->AddUnitMessage(0, IDInfo(kCaptureDef.eCapturingPlayer, pkCapturedUnit->GetID()), kCaptureDef.eCapturingPlayer, true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, GC.getUnitInfo(eCaptureUnitType)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
 					}
 				}
 			}
@@ -7503,9 +7506,13 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
-		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
-						GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] );
-		GET_PLAYER( m_eOwner ).GetHomelandAI()->LogHomelandMessage( msg );
+		CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+		if (pkMoveInfo)
+		{
+			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+				GetID(), pkMoveInfo->GetType(), eMove == AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove]);
+			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
+		}
 	}
 
 	//clear tactical move, can't have both ...
@@ -16376,6 +16383,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
+	if (!pAttacker)
+		return 0;
 	if (pFromPlot == NULL && pAttacker)
 		pFromPlot = pAttacker->plot();
 	if (pTargetPlot == NULL)
@@ -23169,7 +23178,7 @@ PlayerTypes CvUnit::getCombatOwner(TeamTypes eForTeam, const CvPlot& whosePlot) 
 TeamTypes CvUnit::getTeam() const
 {
 	VALIDATE_OBJECT
-	return CvPlayer::getTeam( getOwner() );
+	return ::getTeam( getOwner() );
 }
 
 //	--------------------------------------------------------------------------------
@@ -24778,7 +24787,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
 							// A unit can't swap with itself (slewis)
-							if (pLoopUnit == this)
+							if (!pLoopUnit || pLoopUnit == this)
 							{
 								continue;
 							}
@@ -24885,7 +24894,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iEmbarkDefensiveModifier;
 
 #if defined(MOD_API_EXTENSIONS)
-	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0));
+	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? (m_pUnitInfo ? m_pUnitInfo->GetRangedCombat() : 0) : 0));
 #endif
 
 	kStream >> m_iCapitalDefenseModifier;
@@ -25362,6 +25371,9 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 			{
 				pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pTargetPlot->nextUnitNode(pUnitNode);
+
+				if (!pLoopUnit)
+					continue;
 
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
@@ -26999,9 +27011,13 @@ const char* CvUnit::GetMissionInfo()
 	{
 		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
 		{
-			m_strMissionInfoString =  (isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
-			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
-			m_strMissionInfoString += strTemp0;
+			CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+			if (pkMoveInfo)
+			{
+				m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
+				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+				m_strMissionInfoString += strTemp0;
+			}
 		}
 
 		if (m_eTacticalMove==NO_TACTICAL_MOVE)
@@ -28058,12 +28074,13 @@ void CvUnit::AI_promote()
 	{
 		promote(eBestPromotion, -1);
 		AI_promote();
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
-		if(GC.getLogging() && GC.getAILogging())
+		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
 			szMsg.Format("Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             GC.getPromotionInfo(eBestPromotion)->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+			             pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}
@@ -28073,12 +28090,13 @@ void CvUnit::AI_promote()
 	{
 		promote(eBestPromotion, -1);
 		AI_promote();
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
-		if(GC.getLogging() && GC.getAILogging())
+		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
 			szMsg.Format("Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             GC.getPromotionInfo(eBestPromotion)->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+			             pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}

@@ -292,7 +292,8 @@ int										 getActiveSlotCount();
 int										 readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion);
 
 extern const std::vector<TeamTypes>& sr_TeamTypes;
-static TeamTypes     teamType(PlayerTypes p)
+
+static TeamTypes teamType(PlayerTypes p)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 		return sr_TeamTypes[p];
@@ -300,5 +301,10 @@ static TeamTypes     teamType(PlayerTypes p)
 }
 
 };
+
+inline TeamTypes getTeam(PlayerTypes ePlayerID)
+{
+	return CvPreGame::teamType(ePlayerID);
+}
 
 #endif//_CvPreGame_H
