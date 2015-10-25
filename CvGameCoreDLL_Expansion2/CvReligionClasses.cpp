@@ -6851,7 +6851,9 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
 								{
-									strLogMsg += ", Bought a Non-Faith military Unit, %s", pUnitEntry->GetDescriptionKey();
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith military Unit, %s", pUnitEntry->GetDescriptionKey());
+									strLogMsg += strFaith;
 									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 								}
 								if(GC.getLogging())
@@ -6868,7 +6870,9 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
 								{
-									strLogMsg += ", Bought a Non-Faith civilian Unit %s (up to four)", pUnitEntry->GetDescriptionKey();
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith civilian Unit %s (up to four)", pUnitEntry->GetDescriptionKey());
+									strLogMsg += strFaith;
 									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 								}
 								if(GC.getLogging())

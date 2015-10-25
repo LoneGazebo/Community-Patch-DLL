@@ -25,19 +25,19 @@ public:
 	CvRandom(const CvRandom& source);
 	virtual ~CvRandom();
 
-	void init(unsigned long ulSeed);
+	void init(unsigned long long ulSeed);
 	void uninit();
-	void reset(unsigned long ulSeed = 0);
+	void reset(unsigned long long ulSeed = 0);
 
-	unsigned short get(unsigned short usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
+	unsigned long get(unsigned long usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
 #ifdef AUI_BINOM_RNG
-	unsigned short getBinom(unsigned short usNum, const char* pszLog = NULL); // Returns value from 0 to num-1 inclusive in binomial distribution
+	unsigned long getBinom(unsigned long usNum, const char* pszLog = NULL); // Returns value from 0 to num-1 inclusive in binomial distribution
 #endif // AUI_BINOM_RNG
 
 	float getFloat();
 
-	void reseed(unsigned long ulNewValue);
-	unsigned long getSeed() const;
+	void reseed(unsigned long long ulNewValue);
+	unsigned long long getSeed() const;
 	unsigned long getCallCount() const;
 	unsigned long getResetCount() const;
 
@@ -61,7 +61,7 @@ protected:
 
 protected:
 
-	unsigned long m_ulRandomSeed;
+	unsigned long long m_ullRandomSeed;
 
 	// for OOS checks/debugging
 	unsigned long m_ulCallCount;

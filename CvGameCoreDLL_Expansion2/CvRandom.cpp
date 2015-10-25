@@ -24,7 +24,7 @@
 #define RANDOM_SHIFT  (16)
 
 CvRandom::CvRandom() :
-	m_ulRandomSeed(0)
+	m_ullRandomSeed(0)
 	, m_ulCallCount(0)
 	, m_ulResetCount(0)
 	, m_bSynchronous(false)
@@ -39,7 +39,7 @@ CvRandom::CvRandom() :
 }
 
 CvRandom::CvRandom(bool extendedCallStackDebugging) :
-	m_ulRandomSeed(0)
+	m_ullRandomSeed(0)
 	, m_ulCallCount(0)
 	, m_ulResetCount(0)
 	, m_bSynchronous(true)
@@ -54,7 +54,7 @@ CvRandom::CvRandom(bool extendedCallStackDebugging) :
 }
 
 CvRandom::CvRandom(const CvRandom& source) :
-	m_ulRandomSeed(source.m_ulRandomSeed)
+	m_ullRandomSeed(source.m_ullRandomSeed)
 	, m_ulCallCount(source.m_ulCallCount)
 	, m_ulResetCount(source.m_ulResetCount)
 	, m_bSynchronous(source.m_bSynchronous)
@@ -69,7 +69,7 @@ CvRandom::CvRandom(const CvRandom& source) :
 
 bool CvRandom::operator==(const CvRandom& source) const
 {
-	return(m_ulRandomSeed == source.m_ulRandomSeed);
+	return(m_ullRandomSeed == source.m_ullRandomSeed);
 }
 
 bool CvRandom::operator!=(const CvRandom& source) const
@@ -83,11 +83,11 @@ CvRandom::~CvRandom()
 }
 
 
-void CvRandom::init(unsigned long ulSeed)
+void CvRandom::init(unsigned long long ullSeed)
 {
 	//--------------------------------
 	// Init saved data
-	reset(ulSeed);
+	reset(ullSeed);
 
 	//--------------------------------
 	// Init non-saved data
@@ -101,24 +101,24 @@ void CvRandom::uninit()
 
 // FUNCTION: reset()
 // Initializes data members that are serialized.
-void CvRandom::reset(unsigned long ulSeed)
+void CvRandom::reset(unsigned long long ullSeed)
 {
 	//--------------------------------
 	// Uninit class
 	uninit();
 
 	recordCallStack();
-	m_ulRandomSeed = ulSeed;
+	m_ullRandomSeed = ullSeed;
 	m_ulResetCount++;
 }
 
-unsigned short CvRandom::get(unsigned short usNum, const char* pszLog)
+unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 {
 	recordCallStack();
 	m_ulCallCount++;
 
-	unsigned long ulNewSeed = ((RANDOM_A * m_ulRandomSeed) + RANDOM_C);
-	unsigned short us = ((unsigned short)((((ulNewSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) * ((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1)));
+	unsigned long long ullNewSeed = ((RANDOM_A * m_ullRandomSeed) + RANDOM_C);
+	unsigned long ul = ((unsigned long)((((ullNewSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_INT) * (ulNum)) / (MAX_UNSIGNED_INT + 1LL)));
 
 	if(GC.getLogging())
 	{
@@ -138,7 +138,8 @@ unsigned short CvRandom::get(unsigned short usNum, const char* pszLog)
 				if(pLog)
 				{
 					char szOut[1024] = {0};
-					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), (uint)usNum, (uint)us, getSeed(), (uint)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
+					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), 
+						ulNum, ul, getSeed(), (void*)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
 					pLog->Msg(szOut);
 
 #if !defined(FINAL_RELEASE)
@@ -170,25 +171,25 @@ unsigned short CvRandom::get(unsigned short usNum, const char* pszLog)
 		}
 	}
 
-	m_ulRandomSeed = ulNewSeed;
-	return us;
+	m_ullRandomSeed = ullNewSeed;
+	return ul;
 }
 
 #ifdef AUI_BINOM_RNG
 #define BINOM_SHIFT (30)
-unsigned short CvRandom::getBinom(unsigned short usNum, const char* pszLog)
+unsigned long CvRandom::getBinom(unsigned long ulNum, const char* pszLog)
 {
 	recordCallStack();
 	m_ulCallCount++;
 	
-	unsigned short usRet = 0;
-	unsigned long ulNewSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
-	unsigned short usCounter;
-	for (usCounter = 1; usCounter < usNum; usCounter++) // starts at 1 because the generation is not inclusive (so we need one less cycle than normal)
+	unsigned long ulRet = 0;
+	unsigned long long ullNewSeed = (RANDOM_A * m_ullRandomSeed) + RANDOM_C;
+	unsigned long ulCounter;
+	for (ulCounter = 1; ulCounter < ulNum; ulCounter++) // starts at 1 because the generation is not inclusive (so we need one less cycle than normal)
 	{
 		// no need to worry about masking with MAX_UNSIGNED_SHORT, max cycle number takes care of it
-		usRet += (ulNewSeed >> BINOM_SHIFT) & 1; // need the shift so results only repeat after 2^BINOM_SHIFT iterations
-		ulNewSeed = (RANDOM_A * ulNewSeed) + RANDOM_C;
+		ulRet += (ullNewSeed >> BINOM_SHIFT) & 1; // need the shift so results only repeat after 2^BINOM_SHIFT iterations
+		ullNewSeed = (RANDOM_A * ullNewSeed) + RANDOM_C;
 	}
 
 	if (GC.getLogging())
@@ -209,7 +210,8 @@ unsigned short CvRandom::getBinom(unsigned short usNum, const char* pszLog)
 				if (pLog)
 				{
 					char szOut[1024] = { 0 };
-					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), (uint)usNum, (uint)usRet, getSeed(), (uint)this, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
+					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), 
+						ulNum, ulRet, getSeed(), (void*)this, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
 					pLog->Msg(szOut);
 
 #if !defined(FINAL_RELEASE)
@@ -241,28 +243,28 @@ unsigned short CvRandom::getBinom(unsigned short usNum, const char* pszLog)
 		}
 	}
 
-	m_ulRandomSeed = ulNewSeed;
-	return usRet;
+	m_ullRandomSeed = ullNewSeed;
+	return ulRet;
 }
 #endif // AUI_BINOM_RNG
 
 float CvRandom::getFloat()
 {
-	return (((float)(get(MAX_UNSIGNED_SHORT))) / ((float)MAX_UNSIGNED_SHORT));
+	return (((float)(get(MAX_UNSIGNED_INT))) / ((float)MAX_UNSIGNED_INT));
 }
 
 
-void CvRandom::reseed(unsigned long ulNewValue)
+void CvRandom::reseed(unsigned long long ullNewValue)
 {
 	recordCallStack();
 	m_ulResetCount++;
-	m_ulRandomSeed = ulNewValue;
+	m_ullRandomSeed = ullNewValue;
 }
 
 
-unsigned long CvRandom::getSeed() const
+unsigned long long CvRandom::getSeed() const
 {
-	return m_ulRandomSeed;
+	return m_ullRandomSeed;
 }
 
 unsigned long CvRandom::getCallCount() const
@@ -284,7 +286,7 @@ void CvRandom::read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	kStream >> m_ulRandomSeed;
+	kStream >> m_ullRandomSeed;
 	kStream >> m_ulCallCount;
 	kStream >> m_ulResetCount;
 #ifdef _DEBUG
@@ -308,7 +310,7 @@ void CvRandom::write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	kStream << m_ulRandomSeed;
+	kStream << m_ullRandomSeed;
 	kStream << m_ulCallCount;
 	kStream << m_ulResetCount;
 #ifdef _DEBUG

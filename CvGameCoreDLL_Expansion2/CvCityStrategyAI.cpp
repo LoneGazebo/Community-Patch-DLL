@@ -3042,11 +3042,11 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 
 		if(bRush)
 		{
-			strTemp.Format("SEED: %d, CHOSEN: %s, Rush if possible, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
+			strTemp.Format("SEED: %lld, CHOSEN: %s, Rush if possible, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
 		}
 		else
 		{
-			strTemp.Format("SEED: %d, CHOSEN: %s, Do not rush, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
+			strTemp.Format("SEED: %lld, CHOSEN: %s, Do not rush, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
 		}
 
 		strOutBuf = strBaseString + strTemp;

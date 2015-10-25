@@ -3011,7 +3011,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 			// if we get this due to a policy or wonder
 			else if(GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
-			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
+						::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
@@ -5577,7 +5577,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		if(pBestPlot != NULL)
 		{
 			strLogString.Format("Jump to nearest valid plot by %s , X: %d, Y: %d, From X: %d, From Y: %d", getName().GetCString(),
-			                    pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
+								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		else
@@ -5673,7 +5673,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		{
 			CvString strLogString;
 			strLogString.Format("Jump to nearest valid plot within range by %s , X: %d, Y: %d, From X: %d, From Y: %d", getName().GetCString(),
-			                    pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
+								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, pBestPlot->isVisibleToWatchingHuman(), false);
@@ -9979,7 +9979,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 
 	// Either nothing to pillage or everything is pillaged to its max
 	if((eImprovementType == NO_IMPROVEMENT || pPlot->IsImprovementPillaged()) &&
-	        (pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
+			(pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
 	{
 		return false;
 	}
@@ -11030,11 +11030,11 @@ bool CvUnit::DoSpreadReligion()
 						else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
 							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
 
- 						char text[256] = {0};
+						char text[256] = {0};
 						sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
- 						fDelay += 0.5f;
- 						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
- 					}
+						fDelay += 0.5f;
+						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+					}
 				}
 			}
 #endif
@@ -12729,9 +12729,9 @@ bool CvUnit::blastTourism()
 
 	kill(true);
  
- 	// Show tourism spread
- 	if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
- 	{
+	// Show tourism spread
+	if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+	{
 		CvString strInfluenceText;
 		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
 
@@ -12748,15 +12748,15 @@ bool CvUnit::blastTourism()
 		else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
 			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
 
- 		char text[256] = {0};
+		char text[256] = {0};
 		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
 #if defined(SHOW_PLOT_POPUP)
 		SHOW_PLOT_POPUP(pPlot, getOwner(), text, 0.0f);
 #else
- 		float fDelay = 0.0f;
- 		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+		float fDelay = 0.0f;
+		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
 #endif
- 	}
+	}
 
 #if !defined(NO_ACHIEVEMENTS)
 	// Achievements
@@ -12817,7 +12817,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool bValidBuildPlot = pPlot->isValidDomainForAction(*this) ||
-		                  (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
+						  (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
 	if(!bValidBuildPlot)
 #else
 	if(!pPlot->isValidDomainForAction(*this))
@@ -12826,8 +12826,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		return false;
 	}
 
- 	if (pPlot->isWater())
- 	{
+	if (pPlot->isWater())
+	{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		// Needs the associated SQL executing - UPDATE Builds SET CanBeEmbarked=1 WHERE Type='BUILD_FISHING_BOATS_NO_KILL';
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked()))
@@ -12835,9 +12835,9 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
 #endif
 		{
- 			return false;
+			return false;
 		}
- 	}
+	}
 
 	if(!bTestVisible)
 	{
@@ -13108,10 +13108,10 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 		// The command is always possible if it's coming from a Warlord unit that gives just experience points
 		UnitHandle pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
 		if(pWarlord &&
-		        NO_UNIT != pWarlord->getUnitType() &&
-		        pWarlord->getUnitInfo().GetLeaderExperience() > 0 &&
-		        NO_PROMOTION == pWarlord->getUnitInfo().GetLeaderPromotion() &&
-		        canAcquirePromotionAny())
+				NO_UNIT != pWarlord->getUnitType() &&
+				pWarlord->getUnitInfo().GetLeaderExperience() > 0 &&
+				NO_PROMOTION == pWarlord->getUnitInfo().GetLeaderPromotion() &&
+				canAcquirePromotionAny())
 		{
 			return true;
 		}
@@ -16927,10 +16927,10 @@ bool CvUnit::isWaiting() const
 	ActivityTypes eActivityType = GetActivityType();
 
 	return ((eActivityType == ACTIVITY_HOLD)||
-	        (eActivityType == ACTIVITY_SLEEP)   ||
-	        (eActivityType == ACTIVITY_HEAL)    ||
-	        (eActivityType == ACTIVITY_SENTRY)  ||
-	        (eActivityType == ACTIVITY_INTERCEPT));
+			(eActivityType == ACTIVITY_SLEEP)   ||
+			(eActivityType == ACTIVITY_HEAL)    ||
+			(eActivityType == ACTIVITY_SENTRY)  ||
+			(eActivityType == ACTIVITY_INTERCEPT));
 }
 
 
@@ -19225,7 +19225,7 @@ if (!bDoEvade)
 #else
 						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-						        (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							setHasPromotion(ePromotion, true);
 						}
@@ -20201,12 +20201,12 @@ int CvUnit::getDamage() const
 
 //	--------------------------------------------------------------------------------
 /**
-    Shows the damage delta text.
+	Shows the damage delta text.
 
-    @param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
-    @param [in]	pkPlot				The plot to show the text at.
-    @param	fAdditionalTextDelay	The additional text delay.
-    @param	pAppendText				The text to append or NULL.
+	@param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
+	@param [in]	pkPlot				The plot to show the text at.
+	@param	fAdditionalTextDelay	The additional text delay.
+	@param	pAppendText				The text to append or NULL.
  */
 void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay /* = 0.f */, const CvString* pAppendText /* = NULL */)
 {
@@ -20244,14 +20244,14 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 
 //	--------------------------------------------------------------------------------
 /**
-    Sets the damage.
+	Sets the damage.
 
-    @param	iNewValue				New damage value
-    @param	ePlayer					The player doing the damage, can be NO_PLAYER.
-    @param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
-    @param [in]	pAppendText 	If non-null, the text to append to the popup text.
+	@param	iNewValue				New damage value
+	@param	ePlayer					The player doing the damage, can be NO_PLAYER.
+	@param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
+	@param [in]	pAppendText 	If non-null, the text to append to the popup text.
 
-    @return	The difference in the damage.
+	@return	The difference in the damage.
  */
 int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
@@ -20410,12 +20410,12 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 	Change the damage by a delta. 
 	Damage is measured as an integer percent, from 100 (full health) to 0 (dead)
 
-    @param	iChange					Delta added to the current damage.
-    @param	ePlayer					The player doing the damage, can be NO_PLAYER
-    @param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
-    @param [in]	pAppendText 		If non-null, the text to append to the popup.
+	@param	iChange					Delta added to the current damage.
+	@param	ePlayer					The player doing the damage, can be NO_PLAYER
+	@param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
+	@param [in]	pAppendText 		If non-null, the text to append to the popup.
 
-    @return	the final delta change to the units damage.
+	@return	the final delta change to the units damage.
  */
 int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
@@ -28058,7 +28058,7 @@ void CvUnit::AI_promote()
 
 				CvString szMsg;
 				szMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
-				             szPromotionDesc, getName().GetCString(), iValue, getDamage());
+							 szPromotionDesc, getName().GetCString(), iValue, getDamage());
 				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 			}
 
@@ -28080,7 +28080,7 @@ void CvUnit::AI_promote()
 		{
 			CvString szMsg;
 			szMsg.Format("Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}
@@ -28096,7 +28096,7 @@ void CvUnit::AI_promote()
 		{
 			CvString szMsg;
 			szMsg.Format("Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}
@@ -28274,7 +28274,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetVisibilityChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE))
+			(AI_getUnitAIType() == UNITAI_EXPLORE))
 	{
 		iValue += iTemp * (50 + iFlavorRecon * 2);
 	}
@@ -28304,7 +28304,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp /= 100;
 		iValue += iTemp + iFlavorDefense * 2;
 		if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER))
+				(AI_getUnitAIType() == UNITAI_COUNTER))
 		{
 			iValue *= 2;
 		}
@@ -28331,7 +28331,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetEnemyHealChange();
 	if((AI_getUnitAIType() == UNITAI_PARADROP) ||
-	        (AI_getUnitAIType() == UNITAI_PIRATE_SEA))
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA))
 	{
 		iValue += iTemp * (50 + iFlavorOffense * 2);
 	}
@@ -28342,7 +28342,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetNeutralHealChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
 	{
 		iValue += iTemp * (40 + iFlavorRecon * 2);
 	}
@@ -28353,7 +28353,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetFriendlyHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-	        (AI_getUnitAIType() == UNITAI_COUNTER))
+			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
 		iValue += iTemp * (20 + iFlavorDefense * 2);
 	}
@@ -28364,7 +28364,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetAdjacentTileHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-	        (AI_getUnitAIType() == UNITAI_COUNTER))
+			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
 		iValue += iTemp * (40 + iFlavorDefense * 2);
 	}
@@ -28376,7 +28376,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsAmphib())
 	{
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK))
+				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			iValue += 50 + iFlavorOffense * 2;
@@ -28397,7 +28397,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsRiver())
 	{
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK))
+				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			iValue += 50 + iFlavorOffense * 2;
@@ -28464,15 +28464,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetMovesChange();
 	if((AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_ASSAULT_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_SETTLER_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-	        (AI_getUnitAIType() == UNITAI_ATTACK) ||
-	        (AI_getUnitAIType() == UNITAI_PARADROP))
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ASSAULT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_SETTLER_SEA) ||
+			(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_PARADROP))
 	{
 		iValue += iTemp * (50 + iFlavorMobile * 2);
 	}
@@ -28484,13 +28484,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsAlwaysHeal())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 50 + iFlavorMobile * 2;
 		}
@@ -28503,13 +28503,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsBlitz())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 50 + (iFlavorMobile + iFlavorOffense) * 2;
 		}
@@ -28522,13 +28522,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsCanMoveAfterAttacking())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 30 + (iFlavorMobile + iFlavorOffense) * 2;
 		}
@@ -28606,7 +28606,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorOffense * 2;
 				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				        (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
 					iValue *= 2;
 				}
@@ -28620,7 +28620,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorDefense * 2;
 				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-				        (AI_getUnitAIType() == UNITAI_COUNTER))
+						(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
 					iValue *= 2;
 				}
@@ -28676,7 +28676,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorOffense * 2;
 				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				        (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
 					iValue *= 2;
 				}
@@ -28690,7 +28690,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorDefense * 2;
 				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-				        (AI_getUnitAIType() == UNITAI_COUNTER))
+						(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
 					iValue *= 2;
 				}
@@ -28790,7 +28790,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += (iTemp * iCombatWeight) / 25;
 			}
 			else if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-			        (AI_getUnitAIType() == UNITAI_DEFENSE))
+					(AI_getUnitAIType() == UNITAI_DEFENSE))
 			{
 				iValue += (iTemp * iCombatWeight) / 50;
 			}
@@ -28809,7 +28809,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue += (iTemp * 2);
 		}
 		else if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_DEFENSE))
+				(AI_getUnitAIType() == UNITAI_DEFENSE))
 		{
 			iValue += iTemp;
 		}

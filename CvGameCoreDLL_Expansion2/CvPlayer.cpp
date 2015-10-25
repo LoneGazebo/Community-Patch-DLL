@@ -29344,7 +29344,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 				case AI_OPERATION_COLONIZE:
 				case AI_OPERATION_QUICK_COLONIZE:
 					{
-						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
 						{
 							return true;
 						}

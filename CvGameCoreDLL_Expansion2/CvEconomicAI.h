@@ -237,7 +237,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void DisbandExtraWorkboats();
 	void DisbandUselessSettlers();
-	CvUnit* FindSettlerToScrap();
+	CvUnit* FindSettlerToScrap(bool bMayBeInOperation);
 	CvUnit* FindSeaWorkerToScrap();
 #endif
 	void DisbandExtraArchaeologists();
