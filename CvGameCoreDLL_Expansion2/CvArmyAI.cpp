@@ -483,13 +483,8 @@ int CvArmyAI::GetTurnAtNextCheckpoint() const
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(m_FormationEntries[iI].GetUnitID() == ARMY_NO_UNIT)
 			continue;
-		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
-			continue;
-#endif
-
 		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 		{
 			return ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;

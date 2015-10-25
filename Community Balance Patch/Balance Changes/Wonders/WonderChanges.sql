@@ -80,7 +80,7 @@ SET FreeBuildingThisCity = 'BUILDINGCLASS_STONE_WORKS'
 WHERE Type = 'BUILDING_MAUSOLEUM_HALICARNASSUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +15%. [NEWLINE][NEWLINE]Receive 50 [ICON_CULTURE] Culture when a Great Person is expended, scaling with Era. Receive a free Stone Works in the City.'
+SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +10%. [NEWLINE][NEWLINE]Receive 30 [ICON_CULTURE] Culture when a Great Person is expended, scaling with Era. Receive a free Stone Works in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MAUSOLEUM_HALICARNASSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Artemis
@@ -134,6 +134,10 @@ WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUN
 UPDATE Buildings
 SET Cost = '200'
 WHERE Type = 'BUILDING_HANGING_GARDEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Requires Tradition. A Great Writer appears near your [ICON_CAPITAL] Capital. Provides a free Garden in the city in which it is built.'
+WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Great Lighthouse
 INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)

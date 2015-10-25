@@ -347,56 +347,18 @@ void CvCityCitizens::DoTurn()
 					bBuildingReligion = false;
 				}
 			}
-
-			ProcessTypes eProcess = m_pCity->getProductionProcess();
 			
+			ProcessTypes eProcess = m_pCity->getProductionProcess();
+			ProjectTypes eProject = m_pCity->getProductionProject();
 			if(bInDeficit)
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
 			}
-			else if(eProcess != NO_PROCESS)
+			else if((eProcess != NO_PROCESS) || (eProject != NO_PROJECT))
 			{
-				bool bFound = false;
-				// Contribute production to a League project
-				for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
-				{
-					LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
-					CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
-					if (pInfo)
-					{
-						if (pInfo->GetProcess() == eProcess)
-						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-							bFound = true;
-							break;
-						}
-					}
-				}
-				if(!bFound)
-				{
-					CvProcessInfo* pInfo = GC.getProcessInfo(eProcess);
-					if (pInfo)
-					{
-						if(pInfo->getProductionToYieldModifier(YIELD_CULTURE) > 0)
-						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-						}
-						else if(pInfo->getProductionToYieldModifier(YIELD_FOOD) > 0)
-						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-						}
-						else if(pInfo->getProductionToYieldModifier(YIELD_GOLD) > 0)
-						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-						}
-						else if(pInfo->getProductionToYieldModifier(YIELD_SCIENCE) > 0)
-						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-						}
-					}
-				}
+				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 			}
 			else // no special cases? Alright, let's pick a function to follow...
 			{

@@ -2399,60 +2399,79 @@ void CvPlayerTrade::MoveUnits (void)
 						//Origin spread
 						if(GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
 						{
-							BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
-							if(eBuildingClassDestCity != NO_BUILDINGCLASS)
+							int iFranchises = GET_PLAYER(pOriginCity->getOwner()).GetCorporateFranchisesWorldwide();;
+							int iBase = (int)GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetNumTradeRoutesPossible();
+							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+							iMax /= 100;
+							if(iMax > iBase)
 							{
-								CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
-								BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
-
-								if (eBuildingDestCity != NO_BUILDING && pDestCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+								iMax = iBase;
+							}
+							int iBonus = (iMax * (100 + GET_PLAYER(pOriginCity->getOwner()).GetCorporationMaxFranchises()));
+							iBonus /= 100;
+							iBonus -= iMax;
+							if(iBonus <= 0)
+							{
+								iBonus  = 1;
+							}
+							iMax += iBonus;
+							if(iFranchises < iMax)
+							{
+								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
+								if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 								{
-									CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
-									if(pBuildingInfo)
-									{
-										pDestCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
-										pDestCity->SetFranchised(pOriginCity->getOwner(), true);
-										// send notification to owner player and target player
-										CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-										if(pNotifications && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
-										{
-											Localization::String strSummary;
-											Localization::String strMessage;
+									CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
+									BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
-											strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
-											strSummary << pBuildingInfo->GetTextKey();
-											strSummary << pDestCity->getNameKey();
-											strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
-											strMessage << pDestCity->getNameKey();
-											strMessage << pBuildingInfo->GetTextKey();
-											strMessage << pOriginCity->getNameKey();
-											pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
-										}
-										else
+									if (eBuildingDestCity != NO_BUILDING && pDestCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+									{
+										CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+										if(pBuildingInfo)
 										{
-											CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
-											if(pNotifications2 && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+											pDestCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
+											pDestCity->SetFranchised(pOriginCity->getOwner(), true);
+											// send notification to owner player and target player
+											CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+											if(pNotifications && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
 											{
 												Localization::String strSummary;
 												Localization::String strMessage;
 
-												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
 												strSummary << pBuildingInfo->GetTextKey();
 												strSummary << pDestCity->getNameKey();
-												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
 												strMessage << pDestCity->getNameKey();
 												strMessage << pBuildingInfo->GetTextKey();
 												strMessage << pOriginCity->getNameKey();
-												pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
+												pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
 											}
+											else
+											{
+												CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
+												if(pNotifications2 && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+
+													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+													strSummary << pBuildingInfo->GetTextKey();
+													strSummary << pDestCity->getNameKey();
+													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+													strMessage << pDestCity->getNameKey();
+													strMessage << pBuildingInfo->GetTextKey();
+													strMessage << pOriginCity->getNameKey();
+													pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
+												}
+											}
+											if((GC.getLogging() && GC.getAILogging()))
+											{
+												CvString strLogString;
+												strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getName().c_str(), pBuildingInfo->GetText());
+												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+											}
+											GET_PLAYER(pOriginCity->getOwner()).CalculateCorporateFranchisesWorldwide();
 										}
-										if((GC.getLogging() && GC.getAILogging()))
-										{
-											CvString strLogString;
-											strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getNameKey(), pBuildingInfo->GetTextKey());
-											GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-										}
-										GET_PLAYER(pOriginCity->getOwner()).CalculateCorporateFranchisesWorldwide();
 									}
 								}
 							}
@@ -2460,60 +2479,79 @@ void CvPlayerTrade::MoveUnits (void)
 						//Foreign spread
 						else if(GET_PLAYER(pDestCity->getOwner()).GetCorporateFounderID() > 0)
 						{
-							BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
-							if(eBuildingClassDestCity != NO_BUILDINGCLASS)
+							int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();;
+							int iBase = (int)GET_PLAYER(pDestCity->getOwner()).GetTrade()->GetNumTradeRoutesPossible();
+							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+							iMax /= 100;
+							if(iMax > iBase)
 							{
-								CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
-								BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
-
-								if (eBuildingDestCity != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+								iMax = iBase;
+							}
+							int iBonus = (iMax * (100 + GET_PLAYER(pDestCity->getOwner()).GetCorporationMaxFranchises()));
+							iBonus /= 100;
+							iBonus -= iMax;
+							if(iBonus <= 0)
+							{
+								iBonus  = 1;
+							}
+							iMax += iBonus;
+							if(iFranchises < iMax)
+							{
+								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
+								if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 								{
-									CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
-									if(pBuildingInfo)
-									{
-										pOriginCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
-										pOriginCity->SetFranchised(pDestCity->getOwner(), true);
-										// send notification to owner player and target player
-										CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-										if(pNotifications && pDestCity->getOwner() == GC.getGame().getActivePlayer())
-										{
-											Localization::String strSummary;
-											Localization::String strMessage;
+									CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
+									BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
-											strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
-											strSummary << pBuildingInfo->GetTextKey();
-											strSummary << pOriginCity->getNameKey();
-											strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
-											strMessage << pOriginCity->getNameKey();
-											strMessage << pBuildingInfo->GetTextKey();
-											strMessage << pDestCity->getNameKey();
-											pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
-										}
-										else
+									if (eBuildingDestCity != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+									{
+										CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+										if(pBuildingInfo)
 										{
-											CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
-											if(pNotifications2 && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
+											pOriginCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
+											pOriginCity->SetFranchised(pDestCity->getOwner(), true);
+											// send notification to owner player and target player
+											CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+											if(pNotifications && pDestCity->getOwner() == GC.getGame().getActivePlayer())
 											{
 												Localization::String strSummary;
 												Localization::String strMessage;
 
-												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
 												strSummary << pBuildingInfo->GetTextKey();
 												strSummary << pOriginCity->getNameKey();
-												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
 												strMessage << pOriginCity->getNameKey();
 												strMessage << pBuildingInfo->GetTextKey();
 												strMessage << pDestCity->getNameKey();
-												pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
+												pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
 											}
+											else
+											{
+												CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
+												if(pNotifications2 && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+
+													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+													strSummary << pBuildingInfo->GetTextKey();
+													strSummary << pOriginCity->getNameKey();
+													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+													strMessage << pOriginCity->getNameKey();
+													strMessage << pBuildingInfo->GetTextKey();
+													strMessage << pDestCity->getNameKey();
+													pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
+												}
+											}
+											if((GC.getLogging() && GC.getAILogging()))
+											{
+												CvString strLogString;
+												strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getName().c_str(), pBuildingInfo->GetText());
+												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+											}
+											GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
 										}
-										if((GC.getLogging() && GC.getAILogging()))
-										{
-											CvString strLogString;
-											strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getNameKey(), pBuildingInfo->GetTextKey());
-											GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-										}
-										GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
 									}
 								}
 							}
@@ -2535,7 +2573,7 @@ void CvPlayerTrade::MoveUnits (void)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
 										// Show tourism spread
-										if (pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
 										{
 											CvString strInfluenceText;
 											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
@@ -2594,7 +2632,7 @@ void CvPlayerTrade::MoveUnits (void)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
 										// Show tourism spread
-										if (pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
 										{
 											CvString strInfluenceText;
 											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
@@ -5472,11 +5510,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	//If we are friends with the player, let's not care about how much gold they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 	{
-		iOtherGoldAmount /= 2;
+		iOtherGoldAmount /= 10;
 	}
 	else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
 	{
-		iOtherGoldAmount /= 2;
+		iOtherGoldAmount /= 10;
 	}
 #endif
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
@@ -5508,7 +5546,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 		iTechDifferenceP2fromP1 = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-	//If we are friends with the player, let's not care about how much gold they make.
+	//If we are friends with the player, let's not care about how much science they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 	{
 		iTechDifferenceP2fromP1 /= 2;
@@ -5671,6 +5709,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				}
 			}
 		}
+		
 		if(m_pPlayer->GetCorporateFounderID() > 0 && iScore > 0)
 		{
 			int iX = kTradeConnection.m_iDestX;
@@ -5690,25 +5729,41 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 					{
 						if(pOriginCity->HasOffice())
 						{
+							int iFranchises = m_pPlayer->GetCorporateFranchisesWorldwide();
+							int iBase = (int)m_pPlayer->GetTrade()->GetNumTradeRoutesPossible();
+							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+							iMax /= 100;
+							if(iMax > iBase)
+							{
+								iMax = iBase;
+							}
+							int iBonus = (iMax * (100 + m_pPlayer->GetCorporationMaxFranchises()));
+							iBonus /= 100;
+							iBonus -= iMax;
+							if(iBonus <= 0)
+							{
+								iBonus  = 1;
+							}
+							iMax += iBonus;
 							//Not franchised? Let's see what we get if we franchise it.
-							if(!m_pPlayer->IsOrderCorp() && !pDestCity->IsFranchised(m_pPlayer->GetID()))
+							if((iFranchises < iMax) && !m_pPlayer->IsOrderCorp() && !pDestCity->IsFranchised(m_pPlayer->GetID()))
 							{
 								int iGPYieldFromCorp = pOriginCity->GetCorporationGPChange();
 								if (iGPYieldFromCorp > 0)
 								{
-									iScore *= (iGPYieldFromCorp * 10);
+									iScore *= (iGPYieldFromCorp * 25);
 								}
 								for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 								{
 									int iYieldFromCorp = pOriginCity->GetCorporationYieldChange((YieldTypes)iYield);
 									if (iYieldFromCorp > 0)
 									{
-										iScore *= (iYieldFromCorp * 10);
+										iScore *= (iYieldFromCorp * 25);
 									}
 								}
 								if(m_pPlayer->GetCulture()->GetInfluenceLevel(pDestCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->IsAutocracyCorp())
 								{
-									iScore *= 5;
+									iScore *= 50;
 								}
 							}
 							//Franchised? Do we get a bonus for sending TRs here again?
@@ -5719,7 +5774,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 									int iYieldFromCorp = pOriginCity->GetCorporationYieldModChange((YieldTypes)iYield);
 									if (iYieldFromCorp > 0)
 									{
-										iScore *= (iYieldFromCorp * 5);
+										iScore *= (iYieldFromCorp * 15);
 									}
 								}
 								for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -5736,7 +5791,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 												// Has this Building
 												if(pOriginCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 												{
-													iScore *= (pkBuildingInfo->GetCorporationTradeRouteMod(iYield) * 5);
+													iScore *= (pkBuildingInfo->GetCorporationTradeRouteMod(iYield) * 15);
 												}
 											}
 										}
@@ -5745,17 +5800,17 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 							}
 						}
 						//Foreign city have an office? Let's reduce the score just a little to keep from feeding their corporation.
-						if(pDestCity->HasOffice())
+						else if(pDestCity->HasOffice() && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
 						{
-							int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();
+							int iFranchises = (GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide() / 2);
 							//Care less if we like this guy.
 							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 							{
-								iFranchises /= 2;
+								iFranchises /= 5;
 							}
 							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
 							{
-								iFranchises /= 2;
+								iFranchises /= 5;
 							}
 
 							iScore /= max(1, iFranchises);
@@ -5822,6 +5877,10 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 					iScore *= 2;
 				}
 				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 				{
 					iScore *= 2;
 				}
@@ -5977,6 +6036,10 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 					iScore *= 2;
 				}
 				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 				{
 					iScore *= 2;
 				}
@@ -6143,6 +6206,10 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 					iScore *= 2;
 				}
 				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 				{
 					iScore *= 2;
 				}

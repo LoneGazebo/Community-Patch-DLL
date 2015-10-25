@@ -294,6 +294,12 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<!-- Bank -->
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -469,18 +475,6 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Row>
-			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
-			<FeatureType>FEATURE_FOREST</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
 	</Building_FeatureYieldChanges>
 	<Building_ClassesNeededInCity>
 		<Row>
@@ -546,47 +540,35 @@
 			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL</Description>
 			<Bonus>4</Bonus>
 			<SameEra>true</SameEra>
-			<RequiresOwner>true</RequiresOwner>
-			<AIPriority>2</AIPriority>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
-			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_GLOBAL</Description>
-			<Bonus>4</Bonus>
-			<SameEra>true</SameEra>
-			<RequiresAnyButOwner>true</RequiresAnyButOwner>
 			<AIPriority>2</AIPriority>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS</Description>
 			<Bonus>4</Bonus>
-			<UniqueEras>true</UniqueEras>
-			<RequiresUniquePlayers>true</RequiresUniquePlayers>
+			<ConsecutiveEras>true</ConsecutiveEras>
 			<AIPriority>2</AIPriority>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL</Description>
-			<Bonus>2</Bonus>
-			<AIPriority>1</AIPriority>
+			<Bonus>4</Bonus>
+			<UniqueEras>true</UniqueEras>
+			<AIPriority>2</AIPriority>
 		</Row>
 	</Building_ThemingBonuses>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
-			<Text>KCIV 101.5FM - #1 for Classic Hits</Text>
-		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_GLOBAL">
-			<Text>KFXS 99.3FM - Your Source for World Music</Text>
+			<Text>KCIV 101.5FM - #1 for Classic Jams</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS">
 			<Text>KSID 107.7FM - Today's Hits, Yesterday's Favorites</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL">
-			<Text>KGAZ 89.5FM - The Hottest Music in Town</Text>
+			<Text>KGAZ 89.5FM - Eclectic Radio Mix</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BROADCAST_TOWER_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era and the City's Civilization [NEWLINE]2.) Both from other Civilizations (aside from the City owner) and the same Era [NEWLINE]3.) Both from different Eras and Civilizations.</Text>
+			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era [NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
 		</Row>
 	</Language_en_US>
 	<Building_Flavors>
@@ -677,6 +659,11 @@
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
 		</Row>
 	</Building_ThemingYieldBonus>
 </GameData>

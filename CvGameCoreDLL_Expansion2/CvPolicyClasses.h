@@ -178,6 +178,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetEventTourism() const;
+	int GetMonopolyModFlat() const;
+	int GetMonopolyModPercent() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -271,6 +273,7 @@ public:
 	int GetGoldenAgeYieldMod(int i) const;
 	int GetFreePopulation() const;
 	int GetExtraMoves() const;
+	int GetMaxCorps() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -474,6 +477,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
+	int m_iMonopolyModFlat;
+	int m_iMonopolyModPercent;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
@@ -567,6 +572,7 @@ private:
 	int m_iBestRangedUnitSpawnSettle;
 	int m_iFreePopulation;
 	int m_iExtraMoves;
+	int m_iMaxCorporations;
 	bool m_bOrderCorporation;
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;

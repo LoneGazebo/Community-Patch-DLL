@@ -439,6 +439,27 @@ Controls.CloseButton:RegisterCallback(Mouse.eLClick, OnClose);
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+-- CBP 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function OnOptimize()
+	if(g_PopupInfo ~= nil) then
+		local pPlayer = Players[Game.GetActivePlayer()];
+		pPlayer:DoSwapGreatWorksHuman(false);
+    end
+end
+Controls.OptimizeButton:RegisterCallback(Mouse.eLClick, OnOptimize);
+
+function OnOptimizeSwap()
+	if(g_PopupInfo ~= nil) then
+		local pPlayer = Players[Game.GetActivePlayer()];
+		pPlayer:DoSwapGreatWorksHuman(true);
+    end
+end
+Controls.OptimizeSwapButton:RegisterCallback(Mouse.eLClick, OnOptimizeSwap);
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

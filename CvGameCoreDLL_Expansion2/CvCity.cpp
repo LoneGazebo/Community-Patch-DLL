@@ -2413,7 +2413,7 @@ void CvCity::doTurn()
 	}
 	GetCityReligions()->ComputeReligiousMajority();
 
-	if(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).isMinorCiv() && !GET_PLAYER(getOwner()).isBarbarian())
 	{
 		int iNumAllies = 0;
 		// Loop through all minors and get the total number we've met.
@@ -2438,50 +2438,52 @@ void CvCity::doTurn()
 				SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
 			}
 		}
-	}
-
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-		if (eResourceLoop != NO_RESOURCE)
+		if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 		{
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
-			if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
-				{				
-					// See if there are any BuildingClass requirements
-					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-					CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
-					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if (eResourceLoop != NO_RESOURCE)
+				{
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+					if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 					{
-						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-						if(!pkBuildingClassInfo)
-						{
-							continue;
-						}
-
-						const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-
-						if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
-						{
-							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
-							if(pkBuildingInfo)
+						if((GET_PLAYER(getOwner()).getNumResourceAvailable(eResourceLoop, true) < 0) && (GET_PLAYER(getOwner()).getNumResourceUsed(eResourceLoop) > 0))
+						{				
+							// See if there are any BuildingClass requirements
+							const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+							CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
+							for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 							{
-								if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+								const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(!pkBuildingClassInfo)
 								{
-									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-									if(pNotifications)
+									continue;
+								}
+
+								const BuildingTypes eResourceBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+								if(GetCityBuildings()->GetNumBuilding(eResourceBuilding) > 0)
+								{
+									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eResourceBuilding);
+									if(pkBuildingInfo)
 									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
-										strText << pkResourceInfo->GetTextKey();
-										strText << getNameKey();
-										strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 2);
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
-										strSummary << pkResourceInfo->GetTextKey();
-										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+										if(pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) > 0)
+										{
+											CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+											if(pNotifications)
+											{
+												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
+												strText << pkResourceInfo->GetTextKey();
+												strText << getNameKey();
+												strText << (pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop) * 2);
+												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
+												strSummary << pkResourceInfo->GetTextKey();
+												strSummary << getNameKey();
+												pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+											}
+										}
 									}
 								}
 							}
@@ -4438,7 +4440,7 @@ void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChang
 bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid resource index.");
 
 	// See if we have the resource linked to this city, but not connected yet
 
@@ -4774,6 +4776,10 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			}
 			return false;
 		}
+		else if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
+		{
+			return false;
+		}
 	}
 
 	int iOrResources = 0;
@@ -4789,6 +4795,9 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if(pkResource == NULL)
+			continue;
+
+		if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
 			continue;
 
 		// City has resource locally - return true immediately
@@ -9119,85 +9128,90 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	{
 		iEra = 1;
 	}
+	//If a building is being processed, it has been here before. No more bonuses!
 	if(MOD_BALANCE_CORE_POLICIES && !IsResistance() && !IsRazing() && !bNoBonus && bFirst && (iChange > 0))
 	{
-		if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
+		if(GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{
-			int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra;
-			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iYield /= 100;
-			owningPlayer.changeJONSCulture(iYield);
-			ChangeJONSCultureStored(iYield);
-			if(getOwner() == GC.getGame().getActivePlayer())
+			GetCityBuildings()->SetFirstTimeBuilding(eBuilding, 1);
+			if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 			{
-				char text[256] = {0};
-				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				owningPlayer.changeJONSCulture(iYield);
+				ChangeJONSCultureStored(iYield);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				}
 			}
-		}
-		if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
-		{
-			int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD) * iEra;
-			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iYield /= 100;
-			owningPlayer.GetTreasury()->ChangeGold(iYield);
-			if(getOwner() == GC.getGame().getActivePlayer())
+			if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
 			{
-				char text[256] = {0};
-				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				owningPlayer.GetTreasury()->ChangeGold(iYield);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				}
 			}
-		}
-		if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
-		{
-			int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH) * iEra;
-			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iYield /= 100;
-			owningPlayer.ChangeFaith(iYield);
-			if(getOwner() == GC.getGame().getActivePlayer())
+			if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
 			{
-				char text[256] = {0};
-				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				owningPlayer.ChangeFaith(iYield);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				}
 			}
-		}
-		if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
-		{
-			int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD) * iEra;
-			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iYield /= 100;
-			changeFood(iYield);
-			if(getOwner() == GC.getGame().getActivePlayer())
+			if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
 			{
-				char text[256] = {0};
-				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				changeFood(iYield);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
+					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				}
 			}
-		}
-		if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
-		{
-			int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) * iEra;
-			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iYield /= 100;
-			TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-			if(eCurrentTech == NO_TECH)
+			if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
 			{
-				GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
-			}
-			else
-			{
-				GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
-			}
-			if(getOwner() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = {0};
-				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
+				}
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
+					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				}
 			}
 		}
 	}
@@ -9250,15 +9264,11 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
-#if defined(MOD_BALANCE_CORE)
-		if((YieldTypes)iI == YIELD_CULTURE || (YieldTypes)iI == YIELD_TOURISM)
-		{
-			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			GetCityCulture()->CalculateBaseTourism();
-		}
-#endif
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCityCulture()->CalculateBaseTourism();
+#endif
 	updateExtraSpecialistYield();
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
@@ -10154,6 +10164,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 					if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
 					{
 						iTempMod = pInfo->getCityYieldModFromMonopoly(YIELD_FOOD);
+						iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
 						iTotalMod += iTempMod;
 						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 					}
@@ -11351,12 +11362,18 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 											bBad = true;
 											break;
 										}
+										if(pkUnitEntry->GetResourceType() == eResource)
+										{
+											bBad = true;
+											break;
+										}	
 									}
+
 									if(bBad)
 									{
 										continue;
 									}
-									int iCombatStrength = pkUnitEntry->GetCombat();
+									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
 									if(iCombatStrength > iStrengthBest)
 									{
 										iStrengthBest = iCombatStrength;
@@ -14737,6 +14754,10 @@ int CvCity::getUnhappinessFromConnection() const
 	{
 		return 0;
 	}
+	if(GET_PLAYER(getOwner()).getCapitalCity() == NULL)
+	{
+		return 0;
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait takes away unhappiness from lack of connection.
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoConnectionUnhappiness())
@@ -15891,6 +15912,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
 				{
 					iTempMod = pInfo->getCityYieldModFromMonopoly(eIndex);
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
 					iModifier += iTempMod;
 					if(toolTipSink)
 					{
@@ -20845,8 +20867,19 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				{
 					return false;
 				}
-
-				
+#if defined(MOD_BALANCE_CORE)
+				const CvReligion *pReligion2 = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
+				if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType))
+				{
+					if(canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+					{
+						if(iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+						{
+							return true;
+						}
+					}
+				}
+#endif				
 				if (pkUnitInfo->IsRequiresFaithPurchaseEnabled())
 				{
 					TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();

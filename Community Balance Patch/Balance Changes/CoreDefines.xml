@@ -91,7 +91,7 @@
 		<!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="2.05"/>
+			<Set Value="2.10"/>
 			<!-- 2.01 -->
 		</Update>
 		<Update>
@@ -145,7 +145,7 @@
 		</Update>
 		<Update>
 			<Where Name="MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER" />
-			<Set Value="200" />
+			<Set Value="115" />
 		</Update>
 		<Update>
 			<Where Name="PLOT_INFLUENCE_WATER_COST" />
@@ -492,7 +492,7 @@
 		</Update>
 		<Update>
 			<Where name="RELIGION_MAX_MISSIONARIES" />
-			<Set Value="2" />
+			<Set Value="3" />
 			<!-- 4 -->
 		</Update>
 		<!--

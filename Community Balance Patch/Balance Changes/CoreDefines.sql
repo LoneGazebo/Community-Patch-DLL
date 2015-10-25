@@ -1,6 +1,6 @@
 ﻿-- Trade Route value reduction
 	UPDATE Defines
-	SET Value = '50'
+	SET Value = '60'
 	WHERE Name = 'INTERNATIONAL_TRADE_CITY_GPT_DIVISOR';
 
 -- Deal Durations
@@ -34,12 +34,12 @@
 
 	-- 1.5
 	UPDATE Defines
-	SET Value = '1.95'
+	SET Value = '2.05'
 	WHERE Name = 'CITY_GROWTH_EXPONENT';
 
 	-- 8
 	UPDATE Defines
-	SET Value = '10'
+	SET Value = '11'
 	WHERE Name = 'CITY_GROWTH_MULTIPLIER';
 
 -- More cost for first and second Great Prophets - push founding/enhancing dates back slightly
@@ -80,7 +80,7 @@
 	WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 	UPDATE Defines
-	SET Value = '0.2'
+	SET Value = '0.1'
 	WHERE Name = 'UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA';
 
 	-- Barbarian Experience Cap raised to 45
@@ -94,26 +94,26 @@
 	WHERE Name = 'GREAT_PERSON_THRESHOLD_BASE';
 
 	UPDATE Defines
-	SET Value = '150'
+	SET Value = '250'
 	WHERE Name = 'GREAT_PERSON_THRESHOLD_INCREASE';
 
 	-- Is a subtraction in the DLL, so keep this positive!
 	UPDATE Defines
-	SET Value = '50'
+	SET Value = '0'
 	WHERE Name = 'GWAM_THRESHOLD_DECREASE';
 	
 	-- Espionage Rates Increased
 	UPDATE Defines
-	SET Value =  '250'
+	SET Value =  '400'
 	WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
 	
 	UPDATE Defines
-	SET Value = '33'
+	SET Value = '25'
 	WHERE Name = 'ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT';
 
-	-- Reduction of Pop from conquest reduced to 10% (was 50%)
+	-- Reduction of Pop from conquest reduced to 25% (was 50%)
 	UPDATE Defines
-	SET Value = '90'
+	SET Value = '75'
 	WHERE Name = 'CITY_CAPTURE_POPULATION_PERCENT';
 
 	-- Unit Costs

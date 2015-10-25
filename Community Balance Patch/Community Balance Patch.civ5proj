@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (10-13)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (10-23)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -479,12 +479,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Terrain/ResourceChanges.xml</FileName>
+        <FileName>Balance Changes/Terrain/ResourceChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Terrain/ResourceChanges.sql</FileName>
+        <FileName>Balance Changes/Terrain/ResourceChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -499,12 +499,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.xml</FileName>
+        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</FileName>
+        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -529,12 +529,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.xml</FileName>
+        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</FileName>
+        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -544,12 +544,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.xml</FileName>
+        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</FileName>
+        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -895,6 +895,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Ideologies/TourismChanges.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Minors/GoodyHuts.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Minors/GoodyHuts.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -1543,6 +1553,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Minors\GoodyHuts.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Minors\GoodyHuts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Minors\MinorBonuses.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1923,6 +1941,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\EconomicOverview.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\EconomicOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\EnemyUnitPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1939,11 +1965,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\HappinessInfo.lua">
+    <Content Include="LUA\MonopoliesInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\HappinessInfo.xml">
+    <Content Include="LUA\MonopoliesInfo.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

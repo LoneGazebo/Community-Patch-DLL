@@ -3694,7 +3694,7 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && isHuman() && !IsHurt() && SentryAlert())
+	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
@@ -8110,7 +8110,12 @@ void CvUnit::DoAttrition()
 {
 	CvPlot* pPlot = plot();
 	CvString strAppendText;
-
+#if defined(MOD_BALANCE_CORE)
+	if(isTrade())
+	{
+		return;
+	}
+#endif
 	if(!IsInFriendlyTerritory())
 	{
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
@@ -14821,7 +14826,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
-	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pOtherUnit != NULL)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && pOtherUnit != NULL)
 	{
 		iModifier += GetResistancePower(pOtherUnit);
 	}			
@@ -15467,8 +15472,10 @@ int CvUnit::GetEmbarkedUnitDefense() const
 //	--------------------------------------------------------------------------------
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
-	if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+	{
 		return GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2;
+	}
 
 	return 0;
 }
@@ -19809,9 +19816,13 @@ if (!bDoEvade)
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
 							float fDelay = 0.5f;
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								if(iCulturePoints <= 0)
+								{
+									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+								}
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 								{

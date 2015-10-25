@@ -9,7 +9,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls and [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
+SET Text = 'Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls and [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS';
 
 -- Firaxite Materials
@@ -23,7 +23,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMIN
 WHERE Tag = 'TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, and [ICON_RES_JADE] Jade gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.'
+SET Text = 'Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, and [ICON_RES_JADE] Jade gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS';
 
 -- Giorgio Armeier
@@ -37,7 +37,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_SILK] Silk, [ICON_RES_COTTON
 WHERE Tag = 'TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, and [ICON_RES_LAPIS] Lapis Lazuli gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City''s [ICON_CULTURE] Culture rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, and [ICON_RES_LAPIS] Lapis Lazuli gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City''s [ICON_CULTURE] Culture rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_GIORIO_ARMEIER';
 
 -- Hexxon Refineries
@@ -51,7 +51,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] O
 WHERE Tag = 'TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, or [ICON_RES_PERFUME] Perfume needed.[NEWLINE][NEWLINE]Office Bonus: +2 [ICON_RES_OIL] Oil for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City''s [ICON_PRODUCTION] Production rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, or [ICON_RES_PERFUME] Perfume needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]3[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City''s [ICON_PRODUCTION] Production rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_HEXXON_REFINERY';
 
 -- LandSea Extractors
@@ -65,7 +65,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_HORSE] Horse, [ICON_RES_WHAL
 WHERE Tag = 'TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory, and [ICON_RES_CORAL] Coral gain additional [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_PRODUCTION] Production for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a LandSea Extractors Franchise increases the origin City''s [ICON_RESEARCH] Science rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory, and [ICON_RES_CORAL] Coral gain additional [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_PRODUCTION] Production for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a LandSea Extractors Franchise increases the origin City''s [ICON_RESEARCH] Science rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS';
 
 -- Trader Sid's
@@ -79,7 +79,7 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_SPICES] Spices, [ICON_RES_SU
 WHERE Tag = 'TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_GOLD] for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Trader Sid''s Franchise produce +50% [ICON_GOLD] Gold.'
+SET Text = 'Resource Bonus: [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_GOLD] for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Trader Sid''s Franchise produce +50% [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_TRADER_SIDS';
 
 -- TwoKay Foods
@@ -93,5 +93,5 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFL
 WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_TWOKAY_FOODS';

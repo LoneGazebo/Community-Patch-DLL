@@ -173,6 +173,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
 	m_iEventTourism(0),
+	m_iMonopolyModFlat(0),
+	m_iMonopolyModPercent(0),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -251,6 +253,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iBestRangedUnitSpawnSettle(0),
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
+	m_iMaxCorporations(0),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
@@ -480,6 +483,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
+	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
+	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -549,6 +554,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBestRangedUnitSpawnSettle = kResults.GetInt("BestRangedUnitSpawnSettle");
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
+	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
@@ -1923,6 +1929,14 @@ int CvPolicyEntry::GetEventTourism() const
 {
 	return m_iEventTourism;
 }
+int CvPolicyEntry::GetMonopolyModFlat() const
+{
+	return m_iMonopolyModFlat;
+}
+int CvPolicyEntry::GetMonopolyModPercent() const
+{
+	return m_iMonopolyModPercent;
+}
 #endif
 /// Military units now all produced with food
 bool CvPolicyEntry::IsMilitaryFoodProduction() const
@@ -2478,6 +2492,11 @@ int CvPolicyEntry::GetFreePopulation() const
 int CvPolicyEntry::GetExtraMoves() const
 {
 	return m_iExtraMoves;
+}
+/// Does this Policy grant more corps?
+int CvPolicyEntry::GetMaxCorps() const
+{
+	return m_iMaxCorporations;
 }
 /// Does this Policy grant yields from conquering cities?
 int CvPolicyEntry::GetConquerorYield(int i) const

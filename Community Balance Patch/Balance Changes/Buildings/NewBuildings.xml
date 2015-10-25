@@ -32,6 +32,11 @@
 			<DefaultBuilding>BUILDING_COAL_PLANT</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_COAL_PLANT</Description>
 		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_HERBALIST</Type>
+			<DefaultBuilding>BUILDING_HERBALIST</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HERBALIST</Description>
+		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<Row>
@@ -53,6 +58,23 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_HERBALIST</Type>
+			<BuildingClass>BUILDINGCLASS_HERBALIST</BuildingClass>
+			<Cost>110</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<Description>TXT_KEY_BUILDING_HERBALIST</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_HERBALIST_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_HERBALIST_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_HERBALIST_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>53</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_WELL</Type>
@@ -165,6 +187,16 @@
 			<Flavor>15</Flavor>
 		</Row>
 		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
 			<BuildingType>BUILDING_GROCER</BuildingType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
 			<Flavor>25</Flavor>
@@ -177,6 +209,16 @@
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>25</Flavor>
 		</Row>
 		<Row>
@@ -285,7 +327,36 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>5</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
 	</Building_YieldChanges>
+	<Building_LocalFeatureOrs>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+		</Row>
+	</Building_LocalFeatureOrs>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HERBALIST</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
 	<Building_TerrainYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
@@ -354,6 +425,9 @@
 		<Row Tag="TXT_KEY_BUILDING_BATH">
 			<Text>Baths</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST">
+			<Text>Herbalist</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL">
 			<Text>Well</Text>
 		</Row>
@@ -368,6 +442,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river. Requires an Aqueduct in order to be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
+			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles. Requires a nearby Forest or Jungle in order to be constructed. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
 			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
@@ -385,7 +462,10 @@
 			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_GROWTH] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+			<Text>+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
+			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a nearby, workable Forest or Jungle tile in its borders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
@@ -404,6 +484,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_HERBALIST_TEXT">
+			<Text>Herbalism is use of plants for medicinal purposes, and the study of such use. Plants have been the basis for medical treatments through much of human history, and such traditional medicine is still widely practiced today. Modern medicine recognizes herbalism as a form of alternative medicine, as the practice of herbalism is not strictly based on evidence gathered using the scientific method. Modern medicine, does, however, make use of many plant-derived compounds as the basis for evidence-tested pharmaceutical drugs, and phytotherapy works to apply modern standards of effectiveness testing to herbs and medicines that are derived from natural sources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WELL_TEXT">
 			<Text>Wood-lined wells are known from the early Neolithic Linear Pottery culture, for example in Kückhoven (an outlying centre of Erkelenz), dated 5090 BC and Eythra, dated 5200 BC in Schletz (an outlying centre of Asparn an der Zaya) in Austria. Australian Aborigines relied on wells to survive the harsh Australian desert. They would dig down, scooping out sand and mud to reach clean water, then cover the source with spinifex to prevent spoilage. Non-Aborigines call these native wells, soaks or soakages. Stepwells are common in the west of India. In these wells, the water may be reached by descending a set of steps. They may be covered and are often of architectural significance. Many stepwells were also used for leisure, providing relief from the daytime heat. A qanat is an ancient water collection system made up of a series of wells and linked underground water channels that collects flowing water from a source usually a distance away, stores it, and then brings the water to the surface using gravity. Much of the population of Iran and other arid countries in Asia and North Africa historically depended upon the water from qanats; the areas of population corresponded closely to the areas where qanats are possible. In Egypt, shadoofs and sakiehs are used. When compared to each other however, the Sakkieh is much more efficient, as it can bring up water from a depth of 10 metres (versus the 3 metres of the shadoof). The Sakieh is the Egyptian version of the Noria. From the Iron Age onwards, wells are common archaeological features, both with wooden shafts and shaft linings made from wickerwork. The world's oldest known wells, located in Cyprus, date to 7500 BC. Two wells from the Neolithic period, around 6500 BC, have been discovered in Israel. One is in Atlit, on the northern coast of Israel, and the other is the Jezreel Valley.</Text>

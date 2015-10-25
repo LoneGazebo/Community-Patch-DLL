@@ -940,7 +940,7 @@ public:
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer);
 	void ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange);
 
-	bool IsVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar = false);
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
 	bool IsHumanEndVassalageAcceptable(PlayerTypes eHuman);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);

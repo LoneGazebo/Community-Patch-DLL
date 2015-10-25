@@ -1646,7 +1646,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 					{
 						int iNumRequiredSlots;
-						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, &iNumRequiredSlots);
+						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
@@ -1723,7 +1723,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
 				int iNumRequiredSlots;
-				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, &iNumRequiredSlots);
+				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
 
 				CvCity* pMusterCity = pAssignedPlayer->getCapitalCity();
 				if(pMusterCity != NULL)
@@ -10430,6 +10430,273 @@ int CvMinorCivAI::GetCurrentFaithBonus(PlayerTypes ePlayer)
 	return iValue;
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvMinorCivAI::GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
+{
+	int iGoldBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Industrial era or later
+	if(eCurrentEra >= eIndustrial)
+	{
+		iGoldBonus += GC.getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL();
+	}
+
+	// Renaissance era
+	else if(eCurrentEra >= eRenaissance)
+	{
+		iGoldBonus += GC.getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE();
+	}
+
+	// Medieval era
+	else if(eCurrentEra >= eMedieval)
+	{
+		iGoldBonus += GC.getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL();
+	}
+
+	// Classical era
+	else if(eCurrentEra >= eClassical)
+	{
+		iGoldBonus += GC.getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL();
+	}
+
+	// Ancient era
+	else
+	{
+		iGoldBonus += GC.getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_ANCIENT();
+	}
+
+	return iGoldBonus;
+}
+
+int CvMinorCivAI::GetGoldFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
+{
+	int iGoldBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Industrial era or later
+	if(eCurrentEra >= eIndustrial)
+	{
+		iGoldBonus += GC.getALLIES_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL();
+	}
+
+	// Renaissance era
+	else if(eCurrentEra >= eRenaissance)
+	{
+		iGoldBonus += GC.getALLIES_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE();
+	}
+
+	// Medieval era
+	else if(eCurrentEra >= eMedieval)
+	{
+		iGoldBonus += GC.getALLIES_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL();
+	}
+
+	// Classical era
+	else if(eCurrentEra >= eClassical)
+	{
+		iGoldBonus += GC.getALLIES_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL();
+	}
+
+	// Ancient era
+	else
+	{
+		iGoldBonus += GC.getALLIES_GOLD_FLAT_BONUS_AMOUNT_ANCIENT();
+	}
+
+	return iGoldBonus;
+}
+
+int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
+
+	// Minor civ players do not get a bonus
+	if(ePlayer >= MAX_MAJOR_CIVS)
+		return 0;
+
+	// Only for Religious trait minors
+	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
+		return 0;
+
+	int iAmount = 0;
+	if(IsAllies(ePlayer))
+		iAmount += GetGoldFlatAlliesBonus(ePlayer);
+	if(IsFriends(ePlayer))
+		iAmount += GetGoldFlatFriendshipBonus(ePlayer);
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if(iModifier > 0)
+	{
+		iAmount *= (iModifier + 100);
+		iAmount /= 100;
+	}
+
+	return iAmount;
+}
+
+/// Total faith bonus from this minor civ for this player
+int CvMinorCivAI::GetCurrentGoldBonus(PlayerTypes ePlayer)
+{
+	int iValue = 0;
+
+	iValue += GetCurrentGoldFlatBonus(ePlayer);
+
+	return iValue;
+}
+
+int CvMinorCivAI::GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
+{
+	int iScienceBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Industrial era or later
+	if(eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += GC.getFRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL();
+	}
+
+	// Renaissance era
+	else if(eCurrentEra >= eRenaissance)
+	{
+		iScienceBonus += GC.getFRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE();
+	}
+
+	// Medieval era
+	else if(eCurrentEra >= eMedieval)
+	{
+		iScienceBonus += GC.getFRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL();
+	}
+
+	// Classical era
+	else if(eCurrentEra >= eClassical)
+	{
+		iScienceBonus += GC.getFRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL();
+	}
+
+	// Ancient era
+	else
+	{
+		iScienceBonus += GC.getFRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT();
+	}
+
+	return iScienceBonus;
+}
+
+int CvMinorCivAI::GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
+{
+	int iScienceBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Industrial era or later
+	if(eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += GC.getALLIES_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL();
+	}
+
+	// Renaissance era
+	else if(eCurrentEra >= eRenaissance)
+	{
+		iScienceBonus += GC.getALLIES_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE();
+	}
+
+	// Medieval era
+	else if(eCurrentEra >= eMedieval)
+	{
+		iScienceBonus += GC.getALLIES_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL();
+	}
+
+	// Classical era
+	else if(eCurrentEra >= eClassical)
+	{
+		iScienceBonus += GC.getALLIES_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL();
+	}
+
+	// Ancient era
+	else
+	{
+		iScienceBonus += GC.getALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT();
+	}
+
+	return iScienceBonus;
+}
+
+int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
+
+	// Minor civ players do not get a bonus
+	if(ePlayer >= MAX_MAJOR_CIVS)
+		return 0;
+
+	// Only for Religious trait minors
+	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
+		return 0;
+
+	int iAmount = 0;
+	if(IsAllies(ePlayer))
+		iAmount += GetScienceFlatAlliesBonus(ePlayer);
+	if(IsFriends(ePlayer))
+		iAmount += GetScienceFlatFriendshipBonus(ePlayer);
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if(iModifier > 0)
+	{
+		iAmount *= (iModifier + 100);
+		iAmount /= 100;
+	}
+
+	return iAmount;
+}
+
+/// Total faith bonus from this minor civ for this player
+int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
+{
+	int iValue = 0;
+
+	iValue += GetCurrentScienceFlatBonus(ePlayer);
+
+	return iValue;
+}
+#endif
 // Food bonus when Friends with a minor - additive with general city bonus
 int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {

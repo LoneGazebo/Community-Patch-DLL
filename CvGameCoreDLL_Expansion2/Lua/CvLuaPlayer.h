@@ -276,6 +276,7 @@ protected:
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(DoSwapGreatWorks, void, iFocusYield);
+	LUAAPIEXTN(DoSwapGreatWorksHuman, void);
 #endif
 	static int lHasAvailableGreatWorkSlot(lua_State* L);
 	static int lGetCityOfClosestGreatWorkSlot(lua_State* L);
@@ -291,6 +292,10 @@ protected:
 	static int lGetTotalFaithPerTurn(lua_State* L);
 	static int lGetFaithPerTurnFromCities(lua_State* L);
 	static int lGetFaithPerTurnFromMinorCivs(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetGoldPerTurnFromMinorCivs(lua_State* L);
+	static int lGetSciencePerTurnFromMinorCivs(lua_State* L);
+#endif
 	static int lGetFaithPerTurnFromReligion(lua_State* L);
 	static int lHasCreatedPantheon(lua_State* L);
 	static int lGetBeliefInPantheon(lua_State* L);
@@ -701,6 +706,10 @@ protected:
 	static int lGetMinorCivCurrentHappinessPerLuxuryBonus(lua_State* L);
 	static int lGetMinorCivCurrentHappinessBonus(lua_State* L);
 	static int lGetMinorCivCurrentFaithBonus(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetMinorCivCurrentGoldBonus(lua_State* L);
+	static int lGetMinorCivCurrentScienceBonus(lua_State* L);
+#endif
 	static int lGetCurrentCapitalFoodBonus(lua_State* L);
 	static int lGetCurrentOtherCityFoodBonus(lua_State* L);
 	static int lGetCurrentSpawnEstimate(lua_State* L);
@@ -1153,6 +1162,8 @@ protected:
 	static int lGetNumberofOffices(lua_State* L);
 	static int lGetCorporationName(lua_State* L);
 	static int lGetCorporationHelper(lua_State* L);
+	static int lGetMaxFranchises(lua_State* L);
+	static int lGetCorpID(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);

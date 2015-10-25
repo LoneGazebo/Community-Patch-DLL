@@ -95,6 +95,12 @@ ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
 
+-- Allows you to set a tech that makes an impassable terrain/feature element passable.
+ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
+
+-- Allows you to set a tech that makes an impassable terrain/feature element passable.
+ALTER TABLE Terrains ADD COLUMN 'PassableTechTerrain' TEXT DEFAULT NULL;
+
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
 ALTER TABLE Features ADD COLUMN 'LocationUnitFreePromotion' TEXT DEFAULT NULL;
@@ -479,6 +485,10 @@ ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
 
+-- Alters monopoly values below (except for strategic elements, like attack/defense/heal/etc.)
+ALTER TABLE Policies ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'MonopolyModPercent' INTEGER DEFAULT 0;
+
 -- Resource Changes for Monopolies
 ALTER TABLE Resources ADD COLUMN 'MonopolyHappiness' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'MonopolyGALength' INTEGER DEFAULT 0;
@@ -542,6 +552,8 @@ ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
 -- CORPORATIONS
+ALTER TABLE Policies ADD COLUMN 'MaxCorporations' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CorporationMaxFranchises' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'FreeBuildingTradeTargetCity' TEXT DEFAULT NULL;
 ALTER TABLE Buildings ADD COLUMN 'CorporationID' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'CorporationHQID' INTEGER DEFAULT 0;
@@ -550,7 +562,14 @@ ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'CorporationHelper' TEXT DEFAULT NULL;
+ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
 ALTER TABLE Policies ADD COLUMN 'OrderCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'AutocracyCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
+
+
+-- GameSpeed
+ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
+ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
+

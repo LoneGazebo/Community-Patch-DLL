@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 6/23/2015 5:58:37 PM -->
 <GameData>
+	<Language_en_US>
+		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_27">
+			<Text>Corporations and Monopolies</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Civlized Jewelers -->
 	<Building_ResourceMonopolyOrs>
 		<Row>

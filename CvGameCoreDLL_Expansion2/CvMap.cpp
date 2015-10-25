@@ -310,7 +310,7 @@ void CvMap::InitPlots()
 	memset(m_pVisibilityCount, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
 	memset(m_pRevealedOwner, -1 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
 #if defined(MOD_BALANCE_CORE)
-	memset(m_pIsImpassable, 0 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
+	memset(m_pIsImpassable, 0 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
 #endif
 	memset(m_pRevealed, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
 	memset(m_pRevealedImprovementType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));

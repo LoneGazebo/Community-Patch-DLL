@@ -757,8 +757,23 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		else
 		{
 			// Can't ask them to make peace with a human, because we have no way of knowing if the human wants peace
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if(MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				//Unless that human is a vassal of war party
+				if(pOtherPlayer->isHuman() && (!GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eFromTeam) || !GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eToTeam)))
+				{
+					return false;
+				}
+			}
+			else
+			{
+#endif
 			if(pOtherPlayer->isHuman())
 				return false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			}
+#endif
 
 			// Player does not want peace with eOtherPlayer
 			if(pFromPlayer->isHuman() || pFromPlayer->GetDiplomacyAI()->GetWarGoal(pOtherPlayer->GetID()) < WAR_GOAL_DAMAGE)

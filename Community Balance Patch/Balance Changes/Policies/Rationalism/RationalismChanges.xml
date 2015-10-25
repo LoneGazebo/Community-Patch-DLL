@@ -15,85 +15,78 @@
 		</Row>
 	</Policy_GoldenAgeYieldMod>
 	<!--Empiricism-->
-	<Policy_YieldFromTech>
-		<Row>
-			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>75</Yield>
-		</Row>
-	</Policy_YieldFromTech>
 	<!-- Scientific Revolution -->
 	<Policy_ResourceYieldChanges>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_COAL</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_COAL</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_OIL</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_OIL</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_URANIUM</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_SCIENTIFIC_REVOLUTION</PolicyType>
+			<PolicyType>POLICY_SOVEREIGNTY</PolicyType>
 			<ResourceType>RESOURCE_URANIUM</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Policy_ResourceYieldChanges>
@@ -106,4 +99,12 @@
 		</Row>
 	</Policy_SpecialistExtraYields>
 	<!-- Free Thought -->
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_FREE_THOUGHT</PolicyType>
+			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
 </GameData>

@@ -484,7 +484,7 @@
     <!-- Events sent by golden ages (v52) -->
 	<!--   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end) -->
     <Row Class="3" Name="EVENTS_GOLDEN_AGE" Value="0"/>
-
+	  
     <!-- Events sent after a city produces/buys/sells something (v19) -->
     <!--   GameEvents.CityTrained.Add(function(iPlayer, iCity, iUnit, bGold, bFaith) end) -->
     <!--   GameEvents.CityConstructed.Add(function(iPlayer, iCity, iBuilding, bGold, bFaith) end) -->
@@ -849,9 +849,23 @@
 	<Row Class="6" Name="BALANCE_CORE_NEW_GP_ATTRIBUTES" Value="0"/>
 	<!-- Debugging -->
 	<Row Class="6" Name="BALANCE_CORE_DEBUGGING" Value="0"/>
+	<!-- JFD's Mods -->
+	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
+	<!-- Resistance Mod for Units based on # of capitals controlled. -->
+	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
   </CustomModOptions>
 
-  <CustomModPostDefines>
+	<!-- Events for JFD Piety -->
+	<!--   GameEvents.PietyChange.Add(function(iPlayer, iCurrentPiety, iPietyChange) end) -->
+	<!--   GameEvents.PietyRateChange.Add(function(iPlayer, iCurrentPietyRate, iPietyRateChange) end) -->
+	<!--   GameEvents.PlayerSecularizes.Add(function(iPlayer, iStateReligion, bool bValue) end) -->
+				<!-- For secularizes, bValue = true when it secularizes, false when it de-secularizes -->
+	<!--   GameEvents.PlayerStateReligionAdopted.Add(function(iPlayer, iStateReligion, iOldReligion) end) -->
+			   <!-- iOldReligion will return NO_RELIGION here
+	<!--   GameEvents.PlayerStateReligionChanged.Add(function(iPlayer, iStateReligion, iOldReligion) end) -->
+				<!-- iStateReligion is the new state religion, iOldReligion is the old state religion -->
+
+	<CustomModPostDefines>
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
     <!-- See also: "Global - City Forest Bonus" -->
     <!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ --> <!-- Required tech (v47) -->

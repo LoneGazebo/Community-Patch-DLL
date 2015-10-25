@@ -423,6 +423,7 @@ public:
 	int GetCorporationYieldChange(int i) const;
 	int* GetCorporationYieldChangeArray() const;
 	int GetCorporationGPChange() const;
+	int GetCorporationMaxFranchises() const;
 	int GetCorporationResourceQuantity(int i) const;
 
 	int GetCorporationYieldModTrade(int i) const;
@@ -782,6 +783,7 @@ private:
 	int* m_piCorporationYieldModTrade;
 	int* m_piCorporationTradeRouteMod;
 	int m_iCorporationGPChange;
+	int m_iCorporationMaxFranchises;
 	int* m_piCorporationResourceQuantity;
 #endif
 	int* m_paiHurryModifier;
@@ -914,7 +916,10 @@ public:
 #endif
 	int GetNumFreeBuilding(BuildingTypes eIndex) const;
 	void SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
-
+#if defined(MOD_BALANCE_CORE)
+	int IsFirstTimeBuilding(BuildingTypes eBuilding);
+	void SetFirstTimeBuilding(BuildingTypes eBuilding, int bValue);
+#endif
 	int GetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	void SetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
 	void ChangeBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
@@ -994,6 +999,9 @@ private:
 	int* m_paiBuildingOriginalTime;
 	int* m_paiNumRealBuilding;
 	int* m_paiNumFreeBuilding;
+#if defined(MOD_BALANCE_CORE)
+	int* m_paiFirstTimeBuilding;
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	std::vector<BuildingTypes> m_buildingsThatExistAtLeastOnce;

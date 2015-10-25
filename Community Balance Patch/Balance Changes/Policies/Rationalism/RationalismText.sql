@@ -19,7 +19,7 @@ WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Scientific Revolution
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE]+2 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.'
+SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE]+10% to Global Monopoly Yield Modifiers (including [ICON_GOLDEN_AGE] Golden Ages), and +2 to Global Monopoly Yields (including [ICON_HAPPINESS_1] Happiness).'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Secularism
@@ -39,7 +39,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY
 -- Sovereignty
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every two [ICON_CONNECTED] City Connections with the [ICON_CAPITAL] Capital. Receive 50 [ICON_GOLD] Gold every time you research a Technology, scaling with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]+4 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -52,6 +52,6 @@ WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Free Thought
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE]+2 [ICON_RESEARCH] Science from every Village, and -50% [ICON_HAPPINESS_3] Religious Unrest in all cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE]+3 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture from Villages, and -100% [ICON_HAPPINESS_3] Religious Unrest in all cities.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 

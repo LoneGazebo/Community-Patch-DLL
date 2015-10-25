@@ -399,13 +399,13 @@
 		</Row>
 		<!-- Cities/3rd Party War and Peace Offers-->
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_1">
-			<Text>An exchange of territory is in order. I think you will find this offer quite suitable, no?</Text>
+			<Text>A sale of territory is in order. I think you will find this offer quite suitable, no?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_2">
 			<Text>It is better to resolve territorial disputes through trade instead of war. Tell me, what do you think of this offer?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_3">
-			<Text>A selection of choice lands are, I believe, up for trade. Here is my offer...what do you think?</Text>
+			<Text>A selection of choice lands owned by you are, I believe, up for trade. Here is my offer...what do you think?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_EXCHANGE_OFFER_1">
@@ -3289,32 +3289,32 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_FAMILIAR_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_POPULAR_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_INFLUENTIAL_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_DOMINANT_THEY">
-			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_STATIC_THEM">
-			<Text>[NEWLINE]Influence Trend: Static</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: Static</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_RISING_SLOWLY_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_RISING_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_FALLING_THEM">
-			<Text>[NEWLINE]Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
 		</Row>
 		
 		
@@ -3413,6 +3413,11 @@
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
 		</Row>
+		
+		<!-- Lua for Buildings -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_LOCAL_FEATURE">
+			<Text>[NEWLINE]Requires {1_FeatureName:textkey} near this City.</Text>
+		</Row>
 
 		<!-- LUA for Warscore -->
 		<Row Tag="TXT_KEY_WAR_SCORE">
@@ -3510,16 +3515,16 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Minor concessions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SURRENDER">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Major concessions.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Some concessions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CESSION">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Huge concessions.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Major concessions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Huge concessions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Capitulation!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

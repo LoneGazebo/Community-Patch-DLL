@@ -285,6 +285,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(DoSwapGreatWorks);
+	Method(DoSwapGreatWorksHuman);
 #endif
 	Method(HasAvailableGreatWorkSlot);
 	Method(GetCityOfClosestGreatWorkSlot);
@@ -302,6 +303,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalFaithPerTurn);
 	Method(GetFaithPerTurnFromCities);
 	Method(GetFaithPerTurnFromMinorCivs);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetGoldPerTurnFromMinorCivs);
+	Method(GetSciencePerTurnFromMinorCivs);
+#endif
 	Method(GetFaithPerTurnFromReligion);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
@@ -665,6 +670,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentHappinessPerLuxuryBonus);
 	Method(GetMinorCivCurrentHappinessBonus);
 	Method(GetMinorCivCurrentFaithBonus);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetMinorCivCurrentGoldBonus);
+	Method(GetMinorCivCurrentScienceBonus);
+#endif
 	Method(GetCurrentCapitalFoodBonus);
 	Method(GetCurrentOtherCityFoodBonus);
 	Method(GetCurrentSpawnEstimate);
@@ -1131,6 +1140,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumberofOffices);
 	Method(GetCorporationName);
 	Method(GetCorporationHelper);
+	Method(GetMaxFranchises);
+	Method(GetCorpID);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -2936,6 +2947,15 @@ int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 #endif
 	return 0;
 }
+//------------------------------------------------------------------------------
+//void DoSwapGreatWorksHuman();
+int CvLuaPlayer::lDoSwapGreatWorksHuman(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	bool bSwap = lua_toboolean(L, 2);
+	pkPlayer->GetCulture()->DoSwapGreatWorksHuman(bSwap);
+	return 0;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool HasAvailableGreatWorkSlot(eGreatWorkSlot);
@@ -3060,6 +3080,20 @@ int CvLuaPlayer::lGetFaithPerTurnFromMinorCivs(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromMinorCivs);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetGoldPerTurnFromMinorCivs();
+int CvLuaPlayer::lGetGoldPerTurnFromMinorCivs(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetGoldPerTurnFromMinorCivs);
+}
+//------------------------------------------------------------------------------
+//int GetSciencePerTurnFromMinorCivs();
+int CvLuaPlayer::lGetSciencePerTurnFromMinorCivs(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivs);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion();
 int CvLuaPlayer::lGetFaithPerTurnFromReligion(lua_State* L)
@@ -4229,6 +4263,36 @@ int CvLuaPlayer::lGetCorporationHelper(lua_State* L)
 		}
 	}
 	return 0;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMaxFranchises(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iBase = (int)pkPlayer->GetTrade()->GetNumTradeRoutesPossible();
+	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+	iMax /= 100;
+	if(iMax > iBase)
+	{
+		iMax = iBase;
+	}
+	int iBonus = (iMax * (100 + pkPlayer->GetCorporationMaxFranchises()));
+	iBonus /= 100;
+	iBonus -= iMax;
+	if(iBonus <= 0)
+	{
+		iBonus  = 1;
+	}
+	iMax += iBonus;
+	lua_pushinteger(L, iMax);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorpID(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = pkPlayer->GetCorporateFounderID();
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -7381,6 +7445,24 @@ int CvLuaPlayer::lGetMinorCivCurrentFaithBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentFaithBonus(ePlayer));
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentGoldBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentGoldBonus(ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCurrentCapitalFoodBonus(lua_State* L)
 {

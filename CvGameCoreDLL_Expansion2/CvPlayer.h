@@ -502,6 +502,13 @@ public:
 
 	int GetFaithPerTurnFromCities() const;
 	int GetFaithPerTurnFromMinorCivs() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetGoldPerTurnFromMinorCivs() const;
+	int GetGoldPerTurnFromMinor(PlayerTypes eMinor) const;
+
+	int GetSciencePerTurnFromMinorCivs() const;
+	int GetSciencePerTurnFromMinor(PlayerTypes eMinor) const;
+#endif
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
 	int GetFaithPerTurnFromReligion() const;
 	int GetFaith() const;
@@ -1195,6 +1202,11 @@ public:
 	void SetCorporateFounderID(int iValue);
 	int GetCorporateFounderID() const;
 
+	void ChangeCorporationMaxFranchises(int iValue);
+	int GetCorporationMaxFranchises() const;
+
+	void DoFreedomCorp();
+
 	void CalculateCorporateFranchisesWorldwide();
 	int GetCorporateFranchisesWorldwide() const;
 	void SetCorporateFranchisesWorldwide(int iValue);
@@ -1217,6 +1229,14 @@ public:
 	void ChangeEventTourism(int iValue);
 	int GetEventTourism() const;
 	void SetEventTourism(int iValue);
+
+	void ChangeMonopolyModFlat(int iValue);
+	int GetMonopolyModFlat() const;
+	void SetMonopolyModFlat(int iValue);
+
+	void ChangeMonopolyModPercent(int iValue);
+	int GetMonopolyModPercent() const;
+	void SetMonopolyModPercent(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -1950,7 +1970,7 @@ public:
 	CvCity* GetClosestFriendlyCity(CvPlot& plot, int iSearchRadius);
 
 	int GetNumPuppetCities() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 	int GetNumCapitalCities() const;
 #endif
 	int GetMaxEffectiveCities(bool bIncludePuppets = false);
@@ -2178,7 +2198,11 @@ public:
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_updateFoundValues(bool bStartingLoc = false) = 0;
 	virtual void AI_unitUpdate() = 0;
+#if defined(MOD_BALANCE_CORE)
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift) = 0;
+#else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
+#endif
 	virtual int AI_foundValue(int iX, int iY, int iMinUnitRange = -1, bool bStartingLoc = false) = 0;
 	virtual void AI_chooseFreeGreatPerson() = 0;
 	virtual void AI_chooseFreeTech() = 0;
@@ -2566,12 +2590,15 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
+	FAutoVariable<int, CvPlayer> m_iCorporationMaxFranchises;
 	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;
+	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
+	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

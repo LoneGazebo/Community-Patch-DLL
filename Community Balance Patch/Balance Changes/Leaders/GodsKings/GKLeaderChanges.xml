@@ -11,14 +11,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_MORRIGAN</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
 			<Text>Earn [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLDEN_AGE] Golden Age Points from kills</Text>
@@ -53,14 +45,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_EPONA</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerBorderGrowth>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
@@ -96,14 +80,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_NUADA</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerGPT>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
@@ -135,14 +111,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_CERNUNNOS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_FeatureYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_CERNUNNOS</BeliefType>
@@ -175,14 +143,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_LUGH</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldChangeAnySpecialist>
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
@@ -225,14 +185,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_RHIANNON</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerFollowingCity>
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
@@ -273,14 +225,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_MANANNAN</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_CoastalCityYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_MANANNAN</BeliefType>
@@ -316,14 +260,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_OGMA</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerPop>
 		<Row>
 			<BeliefType>BELIEF_OGMA</BeliefType>
@@ -358,14 +294,6 @@
 			<CityRangeStrikeModifier>25</CityRangeStrikeModifier>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_BRAN</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerFollowingCity>
 		<Row>
 			<BeliefType>BELIEF_BRAN</BeliefType>
@@ -375,13 +303,12 @@
 	</Belief_YieldPerFollowingCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+20% increase to the [ICON_RANGE_STRENGTH] Ranged Combat Strength, +20% [ICON_FOOD] Growth, and +2 [ICON_PEACE] Faith of every City</Text>
+			<Text>+20% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +20% [ICON_FOOD] Growth, and +2 [ICON_PEACE] Faith in every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>
 		</Row>
 	</Language_en_US>
-
 	<Beliefs>
 		<Row>
 			<Type>BELIEF_DAGDA</Type>
@@ -391,14 +318,6 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_DAGDA</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerXFollowers>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>

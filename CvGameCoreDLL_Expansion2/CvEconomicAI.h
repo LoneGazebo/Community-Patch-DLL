@@ -235,8 +235,10 @@ private:
 	void DoAntiquitySites();
 	void DisbandExtraWorkers();
 #if defined(MOD_BALANCE_CORE)
+	void DisbandExtraWorkboats();
 	void DisbandUselessSettlers();
 	CvUnit* FindSettlerToScrap();
+	CvUnit* FindSeaWorkerToScrap();
 #endif
 	void DisbandExtraArchaeologists();
 #if defined(MOD_AI_SMART_DISBAND)

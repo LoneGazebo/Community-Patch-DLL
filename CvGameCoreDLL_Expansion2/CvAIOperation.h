@@ -93,6 +93,7 @@ enum AIOperationAbortReason
 	AI_ABORT_LOST_PATH,
 #if defined(MOD_BALANCE_CORE)
 	AI_ABORT_TIMED_OUT,
+	AI_ABORT_NO_UNITS,
 #endif
 };
 
@@ -294,9 +295,13 @@ protected:
 	}
 
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit, bool* bRequired);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired, bool bMustNaval, bool bMustBeDeepWaterNaval, bool bNavalGood);
+#else
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit, bool* bRequired, bool bMustNaval, bool bMustBeDeepWaterNaval);
 #endif
 
 	std::vector<int> m_viArmyIDs;
@@ -423,10 +428,13 @@ class CvAIOperationQuickSneakCityAttack : public CvAIOperationSneakCityAttack
 {
 public:
 	CvAIOperationQuickSneakCityAttack();
+#if defined(MOD_BALANCE_CORE)
+#else
 	virtual MultiunitFormationTypes GetFormation() const
 	{
 		return MUFORMATION_EARLY_RUSH;
 	}
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1234,6 +1242,10 @@ public:
 	{
 		return MUFORMATION_NAVAL_INVASION;
 	}
+#if defined(MOD_BALANCE_CORE)
+private:
+	virtual bool ShouldAbort();
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1334,9 +1346,9 @@ namespace OperationalAIHelpers
 {
 int GetGatherRangeForXUnits(int iTotalUnits);
 #if defined(MOD_BALANCE_CORE)
-bool FindBestBombardmentTarget(PlayerTypes ePlayer);
+CvPlot* FindBestBombardmentTarget(PlayerTypes ePlayer);
 bool FindBestBarbCamp(PlayerTypes ePlayer);
-bool NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, PlayerTypes eOwner);
+bool NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 #endif
 }
 

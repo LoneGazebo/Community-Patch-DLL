@@ -98,7 +98,15 @@ void ClearPlotDeltas()
 		if(plot)
 		{
 			FAutoArchive& archive = plot->getSyncArchive();
+#if defined(MOD_BALANCE_CORE)
+			if(archive.hasDeltas())
+			{
+#endif
+
 			archive.clearDelta();
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 	}
 }
@@ -2213,11 +2221,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(eTeam == NULL)
-	{
-		eTeam = NO_TEAM;
-	}
-	if(isImpassable(eTeam) || isMountain())
+	if(isImpassable(BARBARIAN_TEAM) || isMountain())
 #else
 	if(isImpassable() || isMountain())
 #endif
@@ -8710,7 +8714,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasGlobalMonopoly(eResource))
 			{
-				iYield += GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+				iTemp += GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
+				iYield += iTemp;
 			}
 #endif
 			// Extra yield for religion
@@ -10072,6 +10078,8 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	return m_abIsImpassable[eTeam];
 }
 //	--------------------------------------------------------------------------------
@@ -10079,7 +10087,7 @@ bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
 #endif
@@ -11587,6 +11595,10 @@ void CvPlot::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(49, kStream, bitPackWorkaround, 0);
 	m_bImprovementEmbassy = bitPackWorkaround;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	kStream >> bitPackWorkaround;
+	m_bIsImpassable = bitPackWorkaround;
+#endif
 
 	kStream >> m_eOwner;
 	kStream >> m_ePlotType;
@@ -11689,8 +11701,9 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_abResourceForceReveal[i];
 #if defined(MOD_BALANCE_CORE)
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
+	{
 		kStream >> m_abIsImpassable[i];
-	
+	}
 #endif
 	if (uiVersion >= 6)
 	{
@@ -11808,6 +11821,9 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bImprovedByGiftFromMajor;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	MOD_SERIALIZE_WRITE(kStream, m_bImprovementEmbassy);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bIsImpassable;
 #endif
 	// m_bPlotLayoutDirty not saved
 	// m_bLayoutStateWorked not saved
@@ -13106,18 +13122,18 @@ void CvPlot::updateImpassable()
 #if defined(MOD_BALANCE_CORE)
 bool CvPlot::isImpassable(TeamTypes eTeam) const
 {
+	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be greater than or equal to 0");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
+
 	if(eTeam != NO_TEAM)
 	{
-		return m_abIsImpassable[eTeam];
+		return IsTeamImpassable(eTeam);
 	}
 	else if(eTeam == BARBARIAN_TEAM && !isMountain() && !isIce())
 	{
 		return true;
 	}
-	else
-	{
-		return m_bIsImpassable;
-	}
+	return m_bIsImpassable;
 }
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

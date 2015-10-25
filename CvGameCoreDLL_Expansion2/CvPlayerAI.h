@@ -44,8 +44,11 @@ public:
 	void AI_updateFoundValues(bool bStartingLoc = false);
 
 	void AI_unitUpdate();
-
+#if defined(MOD_BALANCE_CORE)
+	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift);
+#else
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner);
+#endif
 	bool AI_captureUnit(UnitTypes eUnit, CvPlot* pPlot);
 
 	int AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false);

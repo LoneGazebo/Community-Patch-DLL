@@ -982,4 +982,10 @@
 			<Yield>200</Yield>
 		</Row>
 	</AIGrandStrategy_Yields>
+	<Belief_SpecificFaithUnitPurchase>
+		<Row>
+			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
+			<UnitType>UNIT_SPEARMAN</UnitType>
+		</Row>
+	</Belief_SpecificFaithUnitPurchase>
 </GameData>

@@ -612,6 +612,7 @@ public:
 	CvPlot* GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot, int iPlotsFromEnd, bool bLeaveEnemyTerritory) const;
 #if defined(MOD_BALANCE_CORE)
 	int CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const;
+	int CountPlotsOwnedAnyoneInPath(PlayerTypes ePlayer) const;
 #endif
 
 };

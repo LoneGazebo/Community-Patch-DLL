@@ -2355,6 +2355,22 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			}
 #endif
 		}
+#if defined(MOD_BALANCE_CORE)
+		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
+		{
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+			{
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+				if(iNewResult >= 80)
+				{
+					LevelUpSpy(uiSpyIndex);
+				}
+			}
+#endif
+		}
+#endif
 		break;
 		}
 

@@ -356,6 +356,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	-- Production
 	local iProduction = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 	iProduction = iProduction + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+
+	if (iProduction ~= nil and iProduction ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION", iProduction));
+	end
+
+	-- Production Change
+	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 -- CBP
 	if (pCity ~= nil) then
 		iProduction = iProduction + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
@@ -363,17 +370,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		if (corporatechange > 0) then
 			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
 			if(corporatechange > 0) then
-				iProduction = iProduction + corporatechange;
+				iProd = iProd + corporatechange;
 			end
 		end
 	end
 -- END	
-	if (iProduction ~= nil and iProduction ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION", iProduction));
-	end
-
-	-- Production Change
-	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 	if (pCity ~= nil) then
 		iProd = iProd + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);

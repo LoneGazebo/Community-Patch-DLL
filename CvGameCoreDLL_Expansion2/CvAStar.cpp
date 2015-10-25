@@ -3339,6 +3339,30 @@ int CvStepPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
 
 	return iCount;
 }
+//	--------------------------------------------------------------------------------
+/// Returns the last plot along the step path owned by a specific player
+int CvStepPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+	CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+
+	// Starting at the end, loop until we find a plot from this owner
+	CvMap& kMap = GC.getMap();
+	while(pNode != NULL)
+	{
+		CvPlot* currentPlot;
+		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+
+		// Check and see if this plot has an owner that isn't us.
+		if(currentPlot->getOwner() != ePlayer && currentPlot->getOwner() != NO_PLAYER)
+			iCount++;
+
+		// Move to the previous plot on the path
+		pNode = pNode->m_pParent;
+	}
+
+	return iCount;
+}
 #endif
 
 
@@ -4291,6 +4315,7 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 			return INT_MAX;
 	}
 #endif
+
 
 	int rtnValue = MAX_INT;
 	CvAStarNode* pNode = NULL;

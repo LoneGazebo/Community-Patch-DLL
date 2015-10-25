@@ -167,6 +167,9 @@ public:
 	int GetYieldModifierNaturalWonder(int i) const;
 	int GetMaxYieldModifierPerFollower(int i) const;
 	bool IsFaithUnitPurchaseEra(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsFaithUnitPurchaseSpecific(int i) const;
+#endif
 	bool IsBuildingClassEnabled(int i) const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
@@ -280,6 +283,9 @@ protected:
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldModifierNaturalWonder;
 	int* m_piMaxYieldModifierPerFollower;
+#if defined(MOD_BALANCE_CORE)
+	bool* m_pbFaithPurchaseUnitSpecificEnabled;
+#endif
 	bool* m_pbFaithPurchaseUnitEraEnabled;
     bool* m_pbBuildingClassEnabled;
 
@@ -557,6 +563,9 @@ public:
 
 	bool IsBuildingClassEnabled(BuildingClassTypes eType) const;
 	bool IsFaithBuyingEnabled(EraTypes eEra) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit) const;
+#endif
 	bool IsConvertsBarbarians() const;
 	bool IsFaithPurchaseAllGreatPeople() const;
 
