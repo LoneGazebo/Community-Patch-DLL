@@ -8667,13 +8667,13 @@ int CvLuaPlayer::lGetNumUnitsNoCivlian(lua_State* L)
 //void AI_updateFoundValues(bool bStartingLoc);
 int CvLuaPlayer::lAI_updateFoundValues(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::AI_updateFoundValues);
+	return BasicLuaMethod(L, &CvPlayer::updatePlotFoundValues);
 }
 //------------------------------------------------------------------------------
 //int AI_foundValue(int iX, int iY, int iMinUnitRange/* = -1*/, bool bStartingLoc/* = false*/);
 int CvLuaPlayer::lAI_foundValue(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::AI_foundValue);
+	return BasicLuaMethod(L, &CvPlayer::getPlotFoundValue);
 }
 
 //------------------------------------------------------------------------------
@@ -10110,8 +10110,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			{
 				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
 
-				//iValue = pPlot->getFoundValue(pkPlayer->GetID());
-				iValue = pkPlayer->AI_foundValue(iPlotX, iPlotY, -1, false);
+				iValue = pkPlayer->getPlotFoundValue(iPlotX, iPlotY);
 
 				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;

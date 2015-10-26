@@ -288,7 +288,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			//it's still there, but moved out of sight - nevertheless count is, a human would do that as well
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-				UpdateDangerSingleUnit(pVanishedUnit, bIgnoreVisibility);
+				UpdateDangerSingleUnit(pVanishedUnit, true);
 		}
 	}
 #else
@@ -482,6 +482,10 @@ std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(CvPlot& Plot) const
 	return m_DangerPlots[idx].GetPossibleAttackers();
 }
 
+void CvDangerPlots::AddKnownUnit(PlayerTypes eOwner, int iUnitID)
+{
+	m_knownUnits.insert(std::make_pair(eOwner, iUnitID));
+}
 #else
 
 /// Returns if the unit is in immediate danger

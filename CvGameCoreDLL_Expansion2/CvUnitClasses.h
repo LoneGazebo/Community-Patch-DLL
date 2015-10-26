@@ -103,7 +103,7 @@ public:
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
-	int GetDomainType() const;
+	inline int CvUnitEntry::GetDomainType() const { return m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
 	int GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;

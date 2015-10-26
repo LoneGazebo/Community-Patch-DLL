@@ -234,7 +234,6 @@ CvMap::CvMap()
 
 
 	m_pYields = NULL;
-	m_pFoundValue = NULL;
 	m_pPlayerCityRadiusCount = NULL;
 	m_pVisibilityCount = NULL;
 	m_pRevealedOwner = NULL;
@@ -267,20 +266,11 @@ CvMap::~CvMap()
 //	--------------------------------------------------------------------------------
 void CvMap::InitPlots()
 {
-#if defined(MOD_BALANCE_CORE)
 	int iNumPlots = numPlots();
-
 	m_pMapPlots = FNEW(CvPlot[iNumPlots], c_eCiv5GameplayDLL, 0);
-#else
-	m_pMapPlots = FNEW(CvPlot[numPlots()], c_eCiv5GameplayDLL, 0);
 
-	int iNumPlots = numPlots();
-#endif
 	//allocate all the memory we need up front
-
-
 	m_pYields					= FNEW(short[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pFoundValue				= FNEW(int[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pPlayerCityRadiusCount	= FNEW(char[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pVisibilityCount			= FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pRevealedOwner			= FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
@@ -288,14 +278,15 @@ void CvMap::InitPlots()
 	m_pIsImpassable				= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 #endif
 	m_pRevealed					= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pRevealedImprovementType  = FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pRevealedRouteType		= FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
+	m_pRevealedImprovementType  = FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
+	m_pRevealedRouteType		= FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pNoSettling				= FNEW(bool[MAX_MAJOR_CIVS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pResourceForceReveal		= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_pAvoidMovement			= FNEW(bool[MAX_MAJOR_CIVS*iNumPlots], c_eCiv5GameplayDLL, 0);
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	//this will be used for fast lookup of neighbors
 	//the trick is that NO_DIRECTION is not -1 but NUM_DIRECTION_TYPES+1
@@ -305,7 +296,6 @@ void CvMap::InitPlots()
 	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES+2)*sizeof(CvPlot*));
 #endif
 	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(short));
-	memset(m_pFoundValue, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(int));
 	memset(m_pPlayerCityRadiusCount, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(char));
 	memset(m_pVisibilityCount, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
 	memset(m_pRevealedOwner, -1 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
@@ -313,8 +303,8 @@ void CvMap::InitPlots()
 	memset(m_pIsImpassable, 0 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
 #endif
 	memset(m_pRevealed, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
-	memset(m_pRevealedImprovementType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
-	memset(m_pRevealedRouteType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
+	memset(m_pRevealedImprovementType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
+	memset(m_pRevealedRouteType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
 	memset(m_pNoSettling, 0,MAX_MAJOR_CIVS*iNumPlots *sizeof(bool));
 	memset(m_pResourceForceReveal, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -323,15 +313,14 @@ void CvMap::InitPlots()
 
 
 	short* pYields					= m_pYields;
-	int*   pFoundValue				= m_pFoundValue;
 	char*  pPlayerCityRadiusCount   = m_pPlayerCityRadiusCount;
 	short* pVisibilityCount			= m_pVisibilityCount;
 	char*  pRevealedOwner			= m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  pIsImpassable			= m_pIsImpassable;
 #endif
-	short* pRevealedImprovementType = m_pRevealedImprovementType;
-	short* pRevealedRouteType		= m_pRevealedRouteType;
+	char* pRevealedImprovementType = m_pRevealedImprovementType;
+	char* pRevealedRouteType		= m_pRevealedRouteType;
 	bool*  pNoSettling				= m_pNoSettling;
 	bool*  pResourceForceReveal		= m_pResourceForceReveal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -341,7 +330,6 @@ void CvMap::InitPlots()
 	for(int i = 0; i < iNumPlots; i++)
 	{
 		m_pMapPlots[i].m_aiYield				= pYields;
-		m_pMapPlots[i].m_aiFoundValue			= pFoundValue;
 		m_pMapPlots[i].m_aiPlayerCityRadiusCount= pPlayerCityRadiusCount;
 		m_pMapPlots[i].m_aiVisibilityCount		= pVisibilityCount;
 		m_pMapPlots[i].m_aiRevealedOwner		= pRevealedOwner;
@@ -360,7 +348,6 @@ void CvMap::InitPlots()
 
 
 		pYields					+= NUM_YIELD_TYPES;
-		pFoundValue				+= REALLY_MAX_PLAYERS;
 		pPlayerCityRadiusCount  += REALLY_MAX_PLAYERS;
 		pVisibilityCount		+= REALLY_MAX_TEAMS;
 		pRevealedOwner			+= REALLY_MAX_TEAMS;
@@ -478,7 +465,6 @@ void CvMap::uninit()
 #endif
 
 	SAFE_DELETE_ARRAY(m_pYields);
-	SAFE_DELETE_ARRAY(m_pFoundValue);
 	SAFE_DELETE_ARRAY(m_pPlayerCityRadiusCount);
 	SAFE_DELETE_ARRAY(m_pVisibilityCount);
 	SAFE_DELETE_ARRAY(m_pRevealedOwner);

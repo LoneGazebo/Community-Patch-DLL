@@ -155,6 +155,7 @@ public:
 	int GetNumPossibleAttackers(CvPlot& Plot) const;
 	std::vector<CvUnit*> GetPossibleAttackers(CvPlot& Plot) const;
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);
+	void AddKnownUnit(PlayerTypes eOwner, int iUnitID);
 #else
 	void AddDanger(int iPlotX, int iPlotY, int iValue, bool bWithinOneMove);
 	int GetDanger(const CvPlot& pPlot) const;

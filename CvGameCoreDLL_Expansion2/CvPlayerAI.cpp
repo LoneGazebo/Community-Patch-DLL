@@ -113,8 +113,6 @@ void CvPlayerAI::AI_doTurnPre()
 		return;
 	}
 
-	AI_updateFoundValues();
-
 	AI_doResearch();
 	AI_considerAnnex();
 }
@@ -178,130 +176,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
-void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
-{
-	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
-	if (isMinorCiv() || isBarbarian() || bVenice)
-	{
-		return;
-	}
-
-	// important preparation
-	m_pCityDistance->Update();
-	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-
-	const PlayerTypes eID = GetID();
-	const TeamTypes eTeam = getTeam();
-
-	// reset the areas
-	int iLoop = 0;
-	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-	{
-		pLoopArea->setTotalFoundValue(0);
-	}
-
-	// first pass: precalculate found values
-	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-	const int iNumPlots = GC.getMap().numPlots();
-	for (int iI = 0; iI < iNumPlots; iI++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if (pLoopPlot->isRevealed(eTeam))
-		{
-			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
-			
-			//cache the result
-			pLoopPlot->setFoundValue(eID, iValue);
-		}
-		else
-		{
-			pLoopPlot->setFoundValue(eID, -1);
-		}
-	}
-
-	// second pass: non-maxima suppression and aggregation
-	for (int iI = 0; iI < iNumPlots; iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iRefValue = pPlot->getFoundValue(eID);
-
-		if (iRefValue < iGoodEnoughToBeWorthOurTime)
-			continue;
-
-		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-		{
-			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-
-			if(pLoopPlot==NULL)
-				continue;
-
-			if(pLoopPlot->getFoundValue(eID) > iRefValue)
-			{
-				//this is not a local maximum
-				pPlot = NULL;
-				break;
-			}
-		}
-
-		if (pPlot)
-		{
-			CvArea* pLoopArea = GC.getMap().getArea( pPlot->getArea() );
-			if(pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
-				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iRefValue );
-		}
-	}
-}
-
-#else
-
-void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
-{
-	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-	int iLoop;
-	const int iNumPlots = GC.getMap().numPlots();
-	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-	{
-		pLoopArea->setTotalFoundValue(0);
-	}
-
-	const PlayerTypes eID = GetID();
-	if(bStartingLoc)
-	{
-		for(int iI = 0; iI < iNumPlots; iI++)
-		{
-			GC.getMap().plotByIndexUnchecked(iI)->setFoundValue(eID, -1);
-		}
-	}
-	else
-	{
-		const TeamTypes eTeam = getTeam();
-		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-		for (int iI = 0; iI < iNumPlots; iI++)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pLoopPlot->isRevealed(eTeam))
-			{	
-				const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
-				pLoopPlot->setFoundValue(eID, iValue);
-				if (iValue >= iGoodEnoughToBeWorthOurTime)
-				{
-					CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
-					if(pLoopArea && !pLoopArea->isWater())
-					{
-						pLoopArea->setTotalFoundValue(pLoopArea->getTotalFoundValue() + iValue);
-					}
-				}
-			}
-			else
-			{
-				pLoopPlot->setFoundValue(eID, -1);
-			}
-		}
-	}
-}
-#endif
 
 //	---------------------------------------------------------------------------
 void CvPlayerAI::AI_unitUpdate()
@@ -333,8 +207,6 @@ void CvPlayerAI::AI_unitUpdate()
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerPreAIUnitUpdate", args.get(), bResult);
 	}
-
-	//GC.getGame().GetTacticalAnalysisMap()->RefreshDataForNextPlayer(this);
 
 	// this was a !hasBusyUnit around the entire rest of the function, so I tried to make it a bit flatter.
 	if(hasBusyUnitOrCity())
@@ -539,28 +411,6 @@ bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)
 
 	// I'd rather we grab it and run than destroy it
 	return true;
-}
-
-int CvPlayerAI::AI_foundValue(int iX, int iY, int, bool bStartingLoc)
-{
-	CvPlot* pPlot;
-	int rtnValue = 0;
-
-	pPlot = GC.getMap().plot(iX, iY);
-
-	if(bStartingLoc)
-	{
-		rtnValue =  GC.getGame().GetStartSiteEvaluator()->PlotFoundValue(pPlot, this);
-	}
-	else
-	{
-#if !defined(MOD_BALANCE_CORE)
-		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-#endif
-		rtnValue =  GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false);
-	}
-
-	return rtnValue;
 }
 
 void CvPlayerAI::AI_chooseFreeGreatPerson()

@@ -911,12 +911,6 @@ bool CvUnitEntry::IsSendCanMoveIntoEvent() const
 }
 #endif
 
-/// What domain does this unit operate in (land, air or sea)
-int CvUnitEntry::GetDomainType() const
-{
-	return m_iDomainType;
-}
-
 /// If this is a civilian, what is our priority to attack it?
 int CvUnitEntry::GetCivilianAttackPriority() const
 {

@@ -27,6 +27,7 @@ void CvPlayerManager::RefreshDangerPlots()
 
 #if defined(MOD_BALANCE_CORE)
 		//this is called after a declaration of war and after loading a savegame
+		kPlayer.updatePlotFoundValues();
 		kPlayer.UpdateDangerPlots();
 		kPlayer.UpdateAreaEffectUnits();
 		kPlayer.UpdateFractionOriginalCapitalsUnderControl();

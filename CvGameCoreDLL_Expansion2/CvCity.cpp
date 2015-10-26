@@ -9454,13 +9454,6 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					}
 #endif
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(MOD_BALANCE_CORE)
-				{
-					//Update for specialist changes.
-					updateExtraSpecialistYield();
-				}
-#endif
 
 				// Buildings
 				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)

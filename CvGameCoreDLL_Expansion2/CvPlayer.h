@@ -1957,6 +1957,7 @@ public:
 	bool CouldAttackHere(CvPlot& Plot, CvCity* pCity) const;
 	int GetNumPossibleAttackers(CvPlot& Plot) const;
 	std::vector<CvUnit*> GetPossibleAttackers(CvPlot& Plot) const;
+	void AddKnownAttacker(CvUnit* pAttacker);
 #else
 	int GetPlotDanger(CvPlot& Plot) const;
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;
@@ -2191,14 +2192,17 @@ public:
 	virtual void AI_doTurnPost() = 0;
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
-	virtual void AI_updateFoundValues(bool bStartingLoc = false) = 0;
 	virtual void AI_unitUpdate() = 0;
 #if defined(MOD_BALANCE_CORE)
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift) = 0;
 #else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
-	virtual int AI_foundValue(int iX, int iY, int iMinUnitRange = -1, bool bStartingLoc = false) = 0;
+
+	virtual void updatePlotFoundValues(bool bStartingLoc = false);
+	virtual int getPlotFoundValue(int iX, int iY);
+	virtual void setPlotFoundValue(int iX, int iY, int iValue);
+
 	virtual void AI_chooseFreeGreatPerson() = 0;
 	virtual void AI_chooseFreeTech() = 0;
 	virtual void AI_chooseResearch() = 0;
@@ -2822,6 +2826,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvDistanceMap* m_pCityDistance;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
+	std::vector<int> m_iPlotFoundValues;
 #endif
 
 	// Policies

@@ -5871,6 +5871,8 @@ void CvPlayer::doTurn()
 
 	doUpdateCacheOnTurn();
 
+	updatePlotFoundValues();
+
 	AI_doTurnPre();
 
 	if(getCultureBombTimer() > 0)
@@ -6022,8 +6024,6 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if(isAlive())
 	{
-		kGame.GetTacticalAnalysisMap()->RefreshDataForNextPlayer(this);
-
 		{
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
@@ -6038,6 +6038,9 @@ void CvPlayer::doTurnPostDiplomacy()
 			m_pDangerPlots->UpdateDanger();
 #endif
 		}
+		
+		//do this after updating the danger plots
+		kGame.GetTacticalAnalysisMap()->RefreshDataForNextPlayer(this);
 
 		if(!isBarbarian())
 		{
@@ -34693,6 +34696,12 @@ std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(CvPlot& Plot) const
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
+void CvPlayer::AddKnownAttacker(CvUnit* pAttacker)
+{
+	if (pAttacker)
+		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());
+}
+
 #else
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
@@ -37207,3 +37216,98 @@ void CvPlayer::DoForceDefPact(PlayerTypes eOtherPlayer)
 }
 #endif
 
+void CvPlayer::updatePlotFoundValues(bool bStartingLoc)
+{
+	m_iPlotFoundValues.clear();
+
+	if (bStartingLoc)
+	{
+		CvSiteEvaluatorForStart* pCalc = GC.getGame().GetStartSiteEvaluator();
+		m_iPlotFoundValues.resize(GC.getMap().numPlots(),-1);
+		for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+			m_iPlotFoundValues[iPlotLoop] = pCalc->PlotFoundValue(pPlot, this);
+		}
+	}
+	else
+	{
+		//don't need to update if never going to settle
+		bool bVenice = GetPlayerTraits()->IsNoAnnexing();
+		if (isMinorCiv() || isBarbarian() || bVenice)
+		{
+			return;
+		}
+
+		// important preparation
+		m_pCityDistance->Update();
+		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+
+		// reset the areas
+		int iLoop = 0;
+		for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+			pLoopArea->setTotalFoundValue(0);
+
+		// first pass: precalculate found values
+		CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
+		m_iPlotFoundValues.resize(GC.getMap().numPlots(), -1);
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+			if (pPlot->isRevealed(getTeam()))
+				m_iPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
+		}
+
+		// second pass: non-maxima suppression and aggregation
+		int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+			int iRefValue = m_iPlotFoundValues[iI];
+
+			if (iRefValue < iGoodEnoughToBeWorthOurTime)
+				continue;
+
+			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+			for (int iCount = 0; iCount<NUM_DIRECTION_TYPES; iCount++)
+			{
+				CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+
+				if (pLoopPlot == NULL)
+					continue;
+
+				if (m_iPlotFoundValues[pLoopPlot->GetPlotIndex()] > iRefValue)
+				{
+					//this is not a local maximum
+					pPlot = NULL;
+					break;
+				}
+			}
+
+			if (pPlot)
+			{
+				CvArea* pLoopArea = GC.getMap().getArea(pPlot->getArea());
+				if (pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
+					pLoopArea->setTotalFoundValue(pLoopArea->getTotalFoundValue() + iRefValue);
+			}
+		}
+	}
+}
+
+int CvPlayer::getPlotFoundValue(int iX, int iY)
+{
+	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
+
+	if (iIndex<m_iPlotFoundValues.size())
+		return m_iPlotFoundValues[iIndex];
+	else
+		return 0;
+}
+
+void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
+{
+	size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);
+
+	if (iIndex<m_iPlotFoundValues.size())
+		m_iPlotFoundValues[iIndex] = iValue;
+}

@@ -356,7 +356,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
 		//don't count the "self-inflicted" damage on the attacker
-		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
 
 		// Update experience for both sides.
@@ -889,7 +889,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
-					pkDefender->addDamageReceivedThisTurn(iDamage);
+					pkDefender->addDamageReceivedThisTurn(iDamage, pkAttacker);
 #endif
 
 					// Update experience
@@ -1528,7 +1528,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
 					//don't count the "self-inflicted" damage on the attacker
-					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
 
 					// Update experience

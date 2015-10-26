@@ -455,6 +455,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 							iProductionValue = 0;
 							iGoldValue = 0;
 							iScienceValue = 0;
+							iFaithValue = 0;
 							iHappinessValue = 0;
 							iResourceValue = 0;
 							iStrategicValue = 0;

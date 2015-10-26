@@ -313,10 +313,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 		}
 		for(int iI = 0; iI < REALLY_MAX_PLAYERS; ++iI)
 		{
-			m_aiFoundValue[iI] = -1;
-		}
-		for(int iI = 0; iI < REALLY_MAX_PLAYERS; ++iI)
-		{
 			m_aiPlayerCityRadiusCount[iI] = 0;
 		}
 		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
@@ -333,10 +329,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 			m_abIsImpassable[iI] = false;
 		}
 #endif
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
-			//m_abRevealed[iI] = false;
-		}
 		m_bfRevealed.ClearAll();
 		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
 		{
@@ -9591,19 +9583,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	if(m_aiFoundValue[eIndex] == -1)
-	{
-#ifdef MOD_BALANCE_CORE_SETTLER
-		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY() );
-#else
-		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true);
-#endif
-	}
-
-	return m_aiFoundValue[eIndex];
+	//this is just an indirection - the found values are not stored in the player class now
+	return GET_PLAYER(eIndex).getPlotFoundValue(getX(), getY() );
 }
 
 
@@ -9614,11 +9595,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 	int iI;
 
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
-#if defined(MOD_BALANCE_CORE)
 	int iPlotValue = getFoundValue(eIndex);
-#else
-	int iPlotValue = thisPlayer.AI_foundValue(getX(), getY());
-#endif
 
 	if(iPlotValue == 0)
 	{
@@ -9631,11 +9608,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 
 		if((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(thisPlayer.getTeam()))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pAdjacentPlot->getFoundValue(eIndex) > iPlotValue)
-#else
-			if(thisPlayer.AI_foundValue(pAdjacentPlot->getX(), pAdjacentPlot->getY()) > iPlotValue)
-#endif
 			{
 				return false;
 			}
@@ -9649,10 +9622,8 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	m_aiFoundValue[eIndex] = iNewValue;
+	//this is just an indirection - the found values are not stored in the player class now
+	GET_PLAYER(eIndex).setPlotFoundValue(getX(), getY(), iNewValue);
 }
 
 
@@ -11675,9 +11646,6 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_aiYield[i];
 
 	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
-		kStream >> m_aiFoundValue[i];
-
-	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
 		kStream >> m_aiPlayerCityRadiusCount[i];
 
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
@@ -11867,9 +11835,6 @@ void CvPlot::write(FDataStream& kStream) const
 		kStream << m_aiYield[i];
 
 	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
-		kStream << m_aiFoundValue[i];
-
-	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
 		kStream << m_aiPlayerCityRadiusCount[i];
 
 	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
@@ -11879,9 +11844,6 @@ void CvPlot::write(FDataStream& kStream) const
 		kStream << m_aiRevealedOwner[i];
 
 	kStream << m_cRiverCrossing;
-
-	//for(uint i = 0; i < REALLY_MAX_TEAMS;i++)
-	//	kStream << m_abRevealed[i];
 
 	for(uint i = 0; i<PlotBoolField::eCount; ++i)
 	{

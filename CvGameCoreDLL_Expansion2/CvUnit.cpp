@@ -2741,94 +2741,31 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	{
 		m_Promotions.Reset();
 
-		CvAssertMsg((0 < GC.getNumTerrainInfos()), "GC.getNumTerrainInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
-		m_terrainDoubleMoveCount.clear();
+		m_terrainDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_terrainHalfMoveCount.clear();
+		m_terrainHalfMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_terrainDoubleHeal.clear();
+		m_terrainDoubleHeal.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_PromotionDuration.clear();
-		m_TurnPromotionGained.clear();
+		m_PromotionDuration.dirtyGet().clear();
+		m_TurnPromotionGained.dirtyGet().clear();
 #endif
-		m_terrainImpassableCount.clear();
-		m_extraTerrainAttackPercent.clear();
-		m_extraTerrainDefensePercent.clear();
+		m_terrainImpassableCount.dirtyGet().clear();
+		m_extraTerrainAttackPercent.dirtyGet().clear();
+		m_extraTerrainDefensePercent.dirtyGet().clear();
 
-		m_terrainDoubleMoveCount.resize(GC.getNumTerrainInfos());
+		m_featureDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_terrainHalfMoveCount.resize(GC.getNumTerrainInfos());
+		m_featureHalfMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_PromotionDuration.resize(GC.getNumPromotionInfos());
-		m_TurnPromotionGained.resize(GC.getNumPromotionInfos());
+		m_featureDoubleHeal.dirtyGet().clear();
 #endif
-#if defined(MOD_BALANCE_CORE)
-		m_terrainDoubleHeal.resize(GC.getNumTerrainInfos());
-#endif
-		m_terrainImpassableCount.resize(GC.getNumTerrainInfos());
-		m_extraTerrainAttackPercent.resize(GC.getNumTerrainInfos());
-		m_extraTerrainDefensePercent.resize(GC.getNumTerrainInfos());
-
-		for(int i = 0; i < GC.getNumTerrainInfos(); i++)
-		{
-			m_terrainDoubleMoveCount.setAt(i,0);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			m_terrainHalfMoveCount.setAt(i,0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-			m_terrainDoubleHeal.setAt(i,0);
-#endif
-			m_terrainImpassableCount.setAt(i,0);
-			m_extraTerrainAttackPercent.setAt(i,0);
-			m_extraTerrainDefensePercent.setAt(i,0);
-		}
-#if defined(MOD_BALANCE_CORE)
-		for(int i = 0; i < GC.getNumPromotionInfos(); i++)
-		{
-			m_PromotionDuration.setAt(i,0);
-			m_TurnPromotionGained.setAt(i,0);
-		}
-#endif
-
-		CvAssertMsg((0 < GC.getNumFeatureInfos()), "GC.getNumFeatureInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
-		m_featureDoubleMoveCount.clear();
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_featureHalfMoveCount.clear();
-#endif
-#if defined(MOD_BALANCE_CORE)
-		m_featureDoubleHeal.clear();
-#endif
-		m_featureImpassableCount.clear();
-		m_extraFeatureDefensePercent.clear();
-		m_extraFeatureAttackPercent.clear();
-
-		m_featureDoubleMoveCount.resize(GC.getNumFeatureInfos());
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_featureHalfMoveCount.resize(GC.getNumFeatureInfos());
-#endif
-#if defined(MOD_BALANCE_CORE)
-		m_featureDoubleHeal.resize(GC.getNumFeatureInfos());
-#endif
-		m_featureImpassableCount.resize(GC.getNumFeatureInfos());
-		m_extraFeatureDefensePercent.resize(GC.getNumFeatureInfos());
-		m_extraFeatureAttackPercent.resize(GC.getNumFeatureInfos());
-
-		for(int i = 0; i < GC.getNumFeatureInfos(); i++)
-		{
-			m_featureDoubleMoveCount.setAt(i,0);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			m_featureHalfMoveCount.setAt(i,0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-			m_featureDoubleHeal.setAt(i,0);
-#endif
-			m_featureImpassableCount.setAt(i,0);
-			m_extraFeatureAttackPercent.setAt(i,0);
-			m_extraFeatureDefensePercent.setAt(i,0);
-		}
+		m_featureImpassableCount.dirtyGet().clear();
+		m_extraFeatureDefensePercent.dirtyGet().clear();
+		m_extraFeatureAttackPercent.dirtyGet().clear();
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_yieldFromKills.clear();
@@ -2941,27 +2878,27 @@ void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	m_terrainDoubleMoveCount.clear(); // BUG FIX
-	m_featureDoubleMoveCount.clear();
-	m_terrainHalfMoveCount.clear();
-	m_featureHalfMoveCount.clear();
+	m_terrainDoubleMoveCount.dirtyGet().clear(); // BUG FIX
+	m_featureDoubleMoveCount.dirtyGet().clear();
+	m_terrainHalfMoveCount.dirtyGet().clear();
+	m_featureHalfMoveCount.dirtyGet().clear();
 #else
 	m_featureDoubleMoveCount.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_PromotionDuration.clear();
-	m_TurnPromotionGained.clear();
+	m_PromotionDuration.dirtyGet().clear();
+	m_TurnPromotionGained.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_terrainDoubleHeal.clear();
-	m_featureDoubleHeal.clear();
+	m_terrainDoubleHeal.dirtyGet().clear();
+	m_featureDoubleHeal.dirtyGet().clear();
 #endif
-	m_terrainImpassableCount.clear();
-	m_featureImpassableCount.clear();
-	m_extraTerrainAttackPercent.clear();
-	m_extraTerrainDefensePercent.clear();
-	m_extraFeatureAttackPercent.clear();
-	m_extraFeatureDefensePercent.clear();
+	m_terrainImpassableCount.dirtyGet().clear();
+	m_featureImpassableCount.dirtyGet().clear();
+	m_extraTerrainAttackPercent.dirtyGet().clear();
+	m_extraTerrainDefensePercent.dirtyGet().clear();
+	m_extraFeatureAttackPercent.dirtyGet().clear();
+	m_extraFeatureDefensePercent.dirtyGet().clear();
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
@@ -3769,8 +3706,8 @@ void CvUnit::doTurn()
 		{
 			if(isHasPromotion(ePromotion) && pkPromotionInfo->PromotionDuration() > 0)
 			{
-				int iTurnsLeft = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
-				if(iTurnsLeft > getPromotionDuration(ePromotion))
+				int iTurnsElapsed = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
+				if(iTurnsElapsed > getPromotionDuration(ePromotion))
 				{
 					setHasPromotion(ePromotion, false);
 				}
@@ -6196,9 +6133,14 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
-int CvUnit::addDamageReceivedThisTurn(int iDamage)
+int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	m_iDamageTakenThisTurn+=iDamage;
+
+	if (pAttacker)
+		//remember the attacker for our danger calculation - in case he moves and becomes invisible
+		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
+
 	return m_iDamageTakenThisTurn;
 }
 
@@ -6749,39 +6691,47 @@ int CvUnit::getChangeDamageValue()
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::ChangePromotionDuration(PromotionTypes ePromotion, int iChange)
+void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_PromotionDuration.setAt(ePromotion, m_PromotionDuration[ePromotion] + iChange);
-	CvAssert(getPromotionDuration(ePromotion) >= 0);
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPromotionDuration(PromotionTypes ePromotion)
+int CvUnit::getPromotionDuration(PromotionTypes eIndex)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_PromotionDuration[ePromotion];
+	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration.get();
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::SetTurnPromotionGained(PromotionTypes ePromotion, int iChange)
+void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_TurnPromotionGained.setAt(ePromotion, m_TurnPromotionGained[ePromotion] + iChange);
-	CvAssert(getPromotionDuration(ePromotion) >= 0);
+	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.dirtyGet();
+	if (iValue>0)
+		m_map[eIndex] = iValue;
+	else
+		m_map.erase(eIndex);
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getTurnPromotionGained(PromotionTypes ePromotion)
+int CvUnit::getTurnPromotionGained(PromotionTypes eIndex)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_TurnPromotionGained[ePromotion];
+	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.get();
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -23643,62 +23593,78 @@ void CvUnit::setScenarioData(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainDoubleMoveCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainDoubleMove(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainDoubleMoveCount(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainDoubleMoveCount.setAt(eIndex, (m_terrainDoubleMoveCount[eIndex] + iChange));
-	CvAssert(getTerrainDoubleMoveCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureDoubleMoveCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureDoubleMove(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureDoubleMoveCount(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureDoubleMoveCount.setAt(eIndex, m_featureDoubleMoveCount[eIndex] + iChange);
-	CvAssert(getFeatureDoubleMoveCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
@@ -23706,124 +23672,156 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainHalfMoveCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainHalfMove(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainHalfMoveCount(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainHalfMoveCount.setAt(eIndex, (m_terrainHalfMoveCount[eIndex] + iChange));
-	CvAssert(getTerrainHalfMoveCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureHalfMoveCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureHalfMove(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureHalfMoveCount(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureHalfMoveCount.setAt(eIndex, m_featureHalfMoveCount[eIndex] + iChange);
-	CvAssert(getFeatureHalfMoveCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainDoubleHeal[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainDoubleHeal(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainDoubleHeal.setAt(eIndex, (m_terrainDoubleHeal[eIndex] + iChange));
-	CvAssert(getTerrainDoubleHeal(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureDoubleHeal[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureDoubleHeal(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureDoubleHeal.setAt(eIndex, m_featureDoubleHeal[eIndex] + iChange);
-	CvAssert(getFeatureDoubleHeal(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 #endif
 
@@ -23858,62 +23856,102 @@ int CvUnit::getImpassableCount() const
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainImpassableCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainImpassableCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
+{
+	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainImpassableCount.setAt(eIndex, m_terrainImpassableCount[eIndex] + iChange);
-	CvAssert(getTerrainImpassableCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureImpassableCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureImpassableCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
+{
+	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureImpassableCount.setAt(eIndex, m_featureImpassableCount[eIndex] + iChange);
-	CvAssert(getFeatureImpassableCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainAttackPercent(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraTerrainAttackPercent[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraTerrainAttackPercent.setAt(eIndex, m_extraTerrainAttackPercent[eIndex] + iChange);
+		std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23922,23 +23960,29 @@ void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainDefensePercent(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraTerrainDefensePercent[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraTerrainDefensePercent.setAt(eIndex, m_extraTerrainDefensePercent[eIndex] + iChange);
+		std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23947,23 +23991,29 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraFeatureAttackPercent[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraFeatureAttackPercent.setAt(eIndex, m_extraFeatureAttackPercent[eIndex] + iChange);
+		std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23972,23 +24022,29 @@ void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureDefensePercent(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraFeatureDefensePercent[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraFeatureDefensePercent.setAt(eIndex, m_extraFeatureDefensePercent[eIndex] + iChange);
+		std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -29153,4 +29209,3 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	writeTo.read(loadFrom);
 	return loadFrom;
 }
-
