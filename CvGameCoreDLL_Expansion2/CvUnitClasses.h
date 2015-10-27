@@ -66,6 +66,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
+	int GetBeliefUnlock() const;
 #endif
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
@@ -314,6 +315,7 @@ private:
 	bool m_bMinorCivGift;
 	bool m_bIsMounted;
 	int m_iCooldown;
+	int m_iBeliefUnlock;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;

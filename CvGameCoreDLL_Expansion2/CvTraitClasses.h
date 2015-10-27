@@ -180,6 +180,7 @@ public:
 	bool IsFaithFromUnimprovedForest() const;
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool IsAnyBelief() const;
+	bool IsAlwaysReligion() const;
 #endif
 	bool IsBonusReligiousBelief() const;
 	bool IsAbleToAnnexCityStates() const;
@@ -406,6 +407,7 @@ protected:
 	bool m_bFaithFromUnimprovedForest;
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
+	bool m_bAlwaysReligion;
 #endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;
@@ -966,6 +968,10 @@ public:
 	{
 		return m_bAnyBelief;
 	};
+	bool IsAlwaysReligion() const
+	{
+		return m_bAlwaysReligion;
+	};
 #endif
 	bool IsBonusReligiousBelief() const
 	{
@@ -1371,6 +1377,7 @@ private:
 	bool m_bFaithFromUnimprovedForest;
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
+	bool m_bAlwaysReligion;
 #endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;

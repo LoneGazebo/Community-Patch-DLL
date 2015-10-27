@@ -4626,6 +4626,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
+#if defined(MOD_BALANCE_CORE)
+	if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
+	{
+		ePlayer = pCity->getOriginalOwner();
+	}
+	if(ePlayer == NO_PLAYER)
+	{
+		return;
+	}
+#endif
+
 	// Set that this team has been liberated
 	TeamTypes eTeam = getTeam();
 	TeamTypes eLiberatedTeam = GET_PLAYER(ePlayer).getTeam();
@@ -4802,7 +4813,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	GET_PLAYER(ePlayer).setBeingResurrected(false);
 
 	// Is this a Minor we have liberated?
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
+#else
 	if(GET_PLAYER(ePlayer).isMinorCiv())
+#endif
 	{
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
 		{
@@ -31805,7 +31820,29 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		// Player modifier
 		int iLengthModifier = getGoldenAgeModifier();
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		// Do we get increased Golden Ages from a resource monopoly?
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+						{
+							int iTemp = pInfo->getMonopolyGALength();
+							iTemp += GetMonopolyModPercent();
+							iLengthModifier += iTemp;
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Trait modifier
 		iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
 
@@ -37248,11 +37285,6 @@ void CvPlayer::updatePlotFoundValues(bool bStartingLoc)
 		// important preparation
 		m_pCityDistance->Update();
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-
-		// reset the areas
-		int iLoop = 0;
-		for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-			pLoopArea->setTotalFoundValue(0);
 
 		// first pass: precalculate found values
 		CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();

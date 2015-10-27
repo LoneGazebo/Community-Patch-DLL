@@ -4644,7 +4644,12 @@ int CvLuaCity::lGetCorporationResourceQuantity(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iResource = lua_tointeger(L, 2);
 	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporateFranchisesWorldwide();
-	const int iResult = (iFranchises / pkCity->GetCorporationResourceQuantity((ResourceTypes)iResource));
+	int iCorpResource = pkCity->GetCorporationResourceQuantity((ResourceTypes)iResource);
+	int iResult = 0;
+	if(iCorpResource > 0)
+	{
+		iResult = (iFranchises / iCorpResource);
+	}
 
 	lua_pushinteger(L, iResult);
 	return 1;

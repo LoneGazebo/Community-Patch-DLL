@@ -10372,8 +10372,11 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsAlwaysReligion())
+#else
 	if(pReligions->GetNumReligionsStillToFound() <= 0)
+#endif
 	{
 		return false;
 	}
@@ -12475,6 +12478,29 @@ int CvUnit::GetGoldenAgeTurns() const
 	// Player mod
 	int iLengthModifier = kPlayer.getGoldenAgeModifier();
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Do we get increased Golden Ages from a resource monopoly?
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp += kPlayer.GetMonopolyModPercent();
+						iLengthModifier += iTemp;
+					}
+				}
+			}
+		}
+	}
+#endif
 	// Trait mod
 	iLengthModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
 	if(iLengthModifier > 0)

@@ -147,6 +147,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bFaithFromUnimprovedForest(false),
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief(false),
+	m_bAlwaysReligion(false),
 #endif
 	m_bBonusReligiousBelief(false),
 	m_bAbleToAnnexCityStates(false),
@@ -858,6 +859,10 @@ bool CvTraitEntry::IsAnyBelief() const
 {
 	return m_bAnyBelief;
 }
+bool CvTraitEntry::IsAlwaysReligion() const
+{
+	return m_bAlwaysReligion;
+}
 #endif
 
 /// Accessor: does this civ get a bonus religious belief?
@@ -1557,9 +1562,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bStaysAliveZeroCities = kResults.GetBool("StaysAliveZeroCities");
 	m_bFaithFromUnimprovedForest = kResults.GetBool("FaithFromUnimprovedForest");
 #if defined(MOD_TRAITS_ANY_BELIEF)
-	if (MOD_TRAITS_ANY_BELIEF) {
-		m_bAnyBelief = kResults.GetBool("AnyBelief");
-	}
+	m_bAnyBelief = kResults.GetBool("AnyBelief");
+	m_bAlwaysReligion = kResults.GetBool("AlwaysReligion");
 #endif
 	m_bBonusReligiousBelief = kResults.GetBool("BonusReligiousBelief");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
@@ -2410,6 +2414,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bAnyBelief = true;
 			}
+			if(trait->IsAlwaysReligion())
+			{
+				m_bAlwaysReligion = true;
+			}
 #endif
 			if(trait->IsBonusReligiousBelief())
 			{
@@ -2859,6 +2867,7 @@ void CvPlayerTraits::Reset()
 	m_bFaithFromUnimprovedForest = false;
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief = false;
+	m_bAlwaysReligion = false;
 #endif
 	m_bBonusReligiousBelief = false;
 	m_bAbleToAnnexCityStates = false;
@@ -3961,7 +3970,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 		// Don't have a religion and they can still be founded?
 		else
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
+#else
 			if(pReligions->GetNumReligionsStillToFound() > 0)
+#endif
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -4568,6 +4581,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	MOD_SERIALIZE_READ(46, kStream, m_bAnyBelief, false);
+	MOD_SERIALIZE_READ(46, kStream, m_bAlwaysReligion, false);
 #endif
 	kStream >> m_bBonusReligiousBelief;
 
@@ -4943,6 +4957,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_bFaithFromUnimprovedForest;
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	MOD_SERIALIZE_WRITE(kStream, m_bAnyBelief);
+	MOD_SERIALIZE_WRITE(kStream, m_bAlwaysReligion);
 #endif
 	kStream << m_bBonusReligiousBelief;
 	kStream << m_bAbleToAnnexCityStates;

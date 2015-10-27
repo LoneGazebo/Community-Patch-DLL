@@ -2294,20 +2294,18 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					int iValue = pLoopCity2->getEconomicValue(GetPlayer()->GetID());
 					
-					//Is my city better than one of his cities? If so, that's troubling.
+					//Is my city better than one of his cities? If so, that's good, but it means ours is worth more.
 					if(iTestValue > iValue)
 					{
 						iGoodValue++;
 					}
 				}
 			}
+			//If iGoodValue == 0, our city is worse than all his cities? Why does he want it? Oh well.
+			//If our city is better than any of his, increase the value by x amount.
 			if(iGoodValue > 0)
 			{
 				iItemValue *= max(1, iGoodValue);
-			}
-			else
-			{
-				return 100000;
 			}
 
 			//first some amount for the pure territory
@@ -2482,7 +2480,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				return 100000;
 			}
-			//Is this city objectively worse than all our non-capital current cities? We don't want it (unless we founded it)
+			//Is his city objectively worse than all our current cities? We don't want it (unless we founded it).
 			int iGoodValue = 0;
 			int iOkayValue = 0;
 			int iTestValue = pCity->getEconomicValue(GetPlayer()->GetID());
@@ -2494,7 +2492,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//Did we build this city? We like it.
 			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
 			{
-				iTestValue *= 5;
+				iTestValue *= 2;
 			}
 			//Did we build this city? We like it.
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2502,7 +2500,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
 				{
-					iTestValue /= 3;
+					iTestValue /= 2;
 				}
 			}
 #endif
@@ -2534,6 +2532,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				iItemValue *= max(1, (iOkayValue / 2));
 			}
+			//New city is worse than all our cities? We don't want it.
 			else
 			{
 				return 100000;
@@ -7573,19 +7572,14 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			{
 				if(pLoopMyCity != NULL)
 				{
-					iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
-					//Only trade border cities, okay?
-					if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
+					if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
 					{
-						if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
+						iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
+						if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestSellCity)
 						{
-							iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
-							if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestSellCity)
-							{
-								pBestSellCity = pLoopMyCity;
-								iBestSellCity = iItemValue;
-							}	
-						}
+							pBestSellCity = pLoopMyCity;
+							iBestSellCity = iItemValue;
+						}	
 					}
 				}
 			}
@@ -7600,21 +7594,16 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 				for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 				{
 					//Don't wnat to compare distances for cities we're about to sell, as that might give us a city outside our natural borders (and vice-versa)
-					if(pLoopMyCity != NULL && pLoopMyCity != pBestSellCity)
+					if(pLoopMyCity != NULL)
 					{
-						iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopCity->getX(), pLoopCity->getY());
-						//Only trade border cities, okay?
-						if(iTempDistance <= (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2))
+						if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 						{
-							if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+							iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
+							if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestBuyCity)
 							{
-								iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
-								if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestBuyCity)
-								{
-									pBestBuyCity = pLoopCity;
-									iBestBuyCity = iItemValue;
-								}	
-							}
+								pBestBuyCity = pLoopCity;
+								iBestBuyCity = iItemValue;
+							}	
 						}
 					}
 				}
@@ -7622,9 +7611,34 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 		}
 	}
 
+	//Distance sanity check.
 	if(pBestBuyCity == NULL || pBestSellCity == NULL)
 	{
 		return false;
+	}
+	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+	{
+		//Check distance for their cities to new city, but ignoring the one they'll sell.
+		if(pLoopCity != NULL && pLoopCity != pBestBuyCity)
+		{
+			iTempDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pBestSellCity->getX(), pBestSellCity->getY());
+			if(iTempDistance > GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2)
+			{
+				return false;
+			}
+		}
+	}
+	for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop2); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop2))
+	{
+		//Check distance for our cities to new city, but ignoring the one we'll sell.
+		if(pLoopMyCity != NULL && pLoopMyCity != pBestSellCity)
+		{
+			iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pBestBuyCity->getX(), pBestBuyCity->getY());
+			if(iTempDistance > GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + 2)
+			{
+				return false;
+			}
+		}
 	}
 	if(pBestBuyCity->getOwner() == eOtherPlayer)
 	{
@@ -7775,6 +7789,15 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		//Asking about a vassal? Abort!
 		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassalOfSomeone())
+		{
+			return false;
+		}
+		//No vassal/master war requests, please.
+		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GET_PLAYER(eAgainstPlayer).getTeam()))
+		{
+			return false;
+		}
+		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
 		{
 			return false;
 		}

@@ -16404,6 +16404,12 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(CvPlot* pTarget, CvUnit* pUnit, 
 	std::vector<SPlotWithScore> vIntermediate;
 	for (size_t i=0; i<vCandidates.size(); i++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pRefPlot == NULL)
+			continue;
+		if((vCandidates[i]) == NULL)
+			continue;
+#endif
 		int iDistance = plotDistance(*pRefPlot,*(vCandidates[i]));
 		if (iDistance>iRefDist)
 			continue;

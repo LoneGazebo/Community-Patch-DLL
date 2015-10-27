@@ -1245,6 +1245,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorityReligion);
 	Method(GetStateReligion);
 	Method(GetNumCitiesWithStateReligion);
+	Method(GetNumCitiesWithoutStateReligion);
 	Method(SetStateReligion);
 
 	Method(SetPiety);
@@ -1414,28 +1415,13 @@ int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 // ---------------------------------------------------------------------
-//PlayerTypes CvPlayer::GetResourceMonopolyPlayer(ResourceTypes eResource)
+//bool CvPlayer::GetResourceMonopolyPlayer(ResourceTypes eResource)
 int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes ePlayer = NO_PLAYER;
-	if(pkPlayer)
-	{
-		const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
-			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).isHasMet(pkPlayer->getTeam()) && (GET_PLAYER(ePlayerLoop).GetID() != pkPlayer->GetID()))
-			{
-				if(GET_PLAYER(ePlayerLoop).HasGlobalMonopoly(eResource))
-				{
-					ePlayer = ePlayerLoop;
-					break;
-				}
-			}
-		}
-	}
-	lua_pushinteger(L, ePlayer);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->HasGlobalMonopoly(eResource);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 #endif
@@ -13124,6 +13110,16 @@ int CvLuaPlayer::lGetNumCitiesWithStateReligion(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
 	const int iValue = pkPlayer->GetReligions()->GetNumCitiesWithStateReligion(eReligion);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumCitiesWithoutStateReligion(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	int iCities = pkPlayer->getNumCities();
+	int iReligious = pkPlayer->GetReligions()->GetNumCitiesWithStateReligion(eReligion);
+	int iValue = (iCities - iReligious);
 	lua_pushinteger(L, iValue);
 	return 1;
 }

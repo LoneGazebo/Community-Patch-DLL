@@ -98,15 +98,8 @@ void ClearPlotDeltas()
 		if(plot)
 		{
 			FAutoArchive& archive = plot->getSyncArchive();
-#if defined(MOD_BALANCE_CORE)
-			if(archive.hasDeltas())
-			{
-#endif
 
 			archive.clearDelta();
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 	}
 }
@@ -7307,7 +7300,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || newImprovementEntry.IsCreatedByGreatPerson())
+						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || newImprovementEntry.IsCreatedByGreatPerson() || newImprovementEntry.IsAdjacentCity())
 #else
 						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -7328,7 +7321,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || newImprovementEntry.IsCreatedByGreatPerson())
+					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || newImprovementEntry.IsCreatedByGreatPerson() || newImprovementEntry.IsAdjacentCity())
 #else
 					if(newImprovementEntry.IsImprovementResourceTrade(eResource))
 #endif
@@ -7394,7 +7387,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson() || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
 #else
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -7413,7 +7406,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson() || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
 #else
 					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource))
 #endif
@@ -7534,7 +7527,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 #else
 					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -7633,6 +7626,13 @@ bool CvPlot::HasSpecialImprovement() const
 		{
 			return true;
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Works like GP improvement.
+		if (pImprovementInfo && pImprovementInfo->IsAdjacentCity())
+		{
+			return true;
+		}
+#endif
 	}
 
 	return false;
@@ -8068,7 +8068,7 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 		if(isCity() || getImprovementType() != NO_IMPROVEMENT)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 #else
 			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -8707,8 +8707,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasGlobalMonopoly(eResource))
 			{
 				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
-				iTemp += GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
-				iYield += iTemp;
+				if(iTemp > 0)
+				{
+					iTemp += GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
+					iYield += iTemp;
+				}
 			}
 #endif
 			// Extra yield for religion
@@ -9030,7 +9033,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 				int iReligionChange = 0;
 				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
-				if(pImprovement->IsCreatedByGreatPerson())
+				if(pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
 				{
 					bRequiresResource = false;
 				}
@@ -9053,7 +9056,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 					bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
-					if(pImprovement->IsCreatedByGreatPerson())
+					if(pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
 					{
 						bRequiresResource = false;
 					}

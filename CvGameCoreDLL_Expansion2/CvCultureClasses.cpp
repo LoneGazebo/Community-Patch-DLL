@@ -1178,12 +1178,10 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 				}
 			}
 		}
-		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pLoopCity->GetCityCulture()->CalculateBaseTourism();
 	}
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, NO_YIELD, bSwap);
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, NO_YIELD, bSwap);
-	MoveWorks (CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, NO_YIELD, bSwap);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, YIELD_CULTURE, bSwap);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, YIELD_CULTURE, bSwap);
+	MoveWorks (CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, YIELD_CULTURE, bSwap);
 }
 #endif
 /// AI routine to decide what Great Work swapping should take place (including placing Great Works up for swap from another player)
@@ -1535,6 +1533,9 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 	// Try each of the theming bonuses for this building
 	for (int iI = 0; iI < pkEntry->GetNumThemingBonuses(); iI++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		bool bThemedProperly = false;
+#endif
 		CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(iI);
 		if (pkBonusInfo->IsMustBeArt())
 		{
@@ -1602,12 +1603,277 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 			}
 
 			// Did we theme it properly?
+#if defined(MOD_BALANCE_CORE)
+			bThemedProperly = false;
+#else
 			bool bThemedProperly = false;
+#endif
 			if (aWorksChosen.size() == iCountSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iI)
 			{
 				bThemedProperly = true;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (!bThemedProperly && bConsiderOtherPlayers && (pkEntry->GetGreatWorkSlotType() != CvTypes::getGREAT_WORK_SLOT_MUSIC()))
+			{
+				//Let's look at every applicable GW in the world.
+				vector<int> aForeignWorksToConsider;
+				CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> aGreatWorkPairs;
+				vector<int> aWorksToDiscard;
+				vector<PlayerTypes> aForeignPlayersSeen;
+				vector<EraTypes> aForeignErasSeen;
 
+				aGreatWorkPairs.clear();
+				aForeignWorksToConsider.clear();
+				aWorksToDiscard.clear();
+				aForeignPlayersSeen.clear();
+				aForeignErasSeen.clear();
+				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+				{
+					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+					if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer))
+					{
+						int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
+
+						if (pkEntry->GetGreatWorkSlotType() == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+						{
+							if (pkBonusInfo->IsMustBeArt())
+							{
+								iToBeAcquiredWorkIndex = kPlayer.GetCulture()->GetSwappableArtIndex();
+							}
+							else if (pkBonusInfo->IsMustBeArtifact())
+							{
+								iToBeAcquiredWorkIndex = kPlayer.GetCulture()->GetSwappableArtifactIndex();
+							}
+						}
+						else
+						{
+							iToBeAcquiredWorkIndex = kPlayer.GetCulture()->GetSwappableWritingIndex();
+						}
+
+						// Does this work fit?
+						if (iToBeAcquiredWorkIndex != NO_GREAT_WORK)
+						{
+							//Push back into a global consideration pool of all foreign works on offer.
+							aForeignWorksToConsider.push_back(iToBeAcquiredWorkIndex);
+							aForeignPlayersSeen.push_back(pkGameCulture->GetGreatWorkCreator(iToBeAcquiredWorkIndex));
+							aForeignErasSeen.push_back(pkGameCulture->m_CurrentGreatWorks[iToBeAcquiredWorkIndex].m_eEra);
+						}
+					}
+				}
+				//Okay, we have a list of all GWs available right now now. Let's look at the list and figure out what we can do with it.
+				if(aForeignWorksToConsider.size() > 0)
+				{
+					//Add chosen works (if any) to a discard pool so we know exactly what we have to offer, and what we don't have to offer.
+					if(aWorksChosen.size() > 0)
+					{
+						for (uint ui = 0; ui < aWorksChosen.size(); ui++)
+						{
+							aWorksToDiscard.push_back(aWorksChosen[ui]);
+						}
+					}
+					for (uint ui = 0; ui < aForeignWorksToConsider.size(); ui++)
+					{
+						//We found enough pairs? Cool.
+						//Shouldn't go above, but it might.
+						if((aWorksChosen.size() + aGreatWorkPairs.size()) >= (unsigned int)iCountSlots)
+						{
+							break;
+						}
+						int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
+						int iToBeDiscardedWorkIndex = NO_GREAT_WORK;
+						iToBeAcquiredWorkIndex = aForeignWorksToConsider[ui];
+
+						if(iToBeAcquiredWorkIndex == NO_GREAT_WORK)
+						{
+							continue;
+						}
+						PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+						//Bwa?
+						if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+						{
+							continue;
+						}
+
+						if (pkEntry->GetGreatWorkSlotType() == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+						{
+							if (pkBonusInfo->IsMustBeArt())
+							{
+								iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works1, aWorksToDiscard);
+							}
+							else if (pkBonusInfo->IsMustBeArtifact())
+							{
+								iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works2, aWorksToDiscard);
+							}
+						}
+						else
+						{
+							iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works1, aWorksToDiscard);
+						}
+				
+						PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+						//Bwa?
+						if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+						{
+							continue;
+						}
+
+						//We have a swappable Great Work and a target Great Work? Cool.
+						if (iToBeAcquiredWorkIndex != NO_GREAT_WORK && iToBeDiscardedWorkIndex != NO_GREAT_WORK)
+						{
+							EraTypes eEra = pkGameCulture->m_CurrentGreatWorks[iToBeAcquiredWorkIndex].m_eEra;
+							PlayerTypes ePlayer = pkGameCulture->GetGreatWorkCreator(iToBeAcquiredWorkIndex);
+
+							//We need to know if it matches local GWs, but we also need to know if it matches the foreign ones we've already seen... 
+							if (CultureHelpers::IsValidForForeignThemingBonus(pkBonusInfo, eEra, aForeignErasSeen, aErasSeen, ePlayer, aForeignPlayersSeen, aPlayersSeen, m_pPlayer->GetID()))
+							{
+								//If it does match, add to actual list of things to grab and discard (paired up).
+								aGreatWorkPairs.push_back(iToBeAcquiredWorkIndex, iToBeDiscardedWorkIndex);
+								//And add our discarded work to our list of things to discard so we don't assume it still exists.
+								aWorksToDiscard.push_back(iToBeDiscardedWorkIndex);
+							}
+						}
+					}
+				}
+				//We've got at least one work swap pair? Awesome.
+				if(aGreatWorkPairs.size() > 0)
+				{
+					for (int ui = 0; ui < aGreatWorkPairs.size(); ui++)
+					{
+						//Grab our data for swap and discard item.
+						int iToBeAcquiredWorkIndex = aGreatWorkPairs.GetElement(ui);
+						int iToBeDiscardedWorkIndex = aGreatWorkPairs.GetWeight(ui);
+
+						//Can't move forward if either are invalid.
+						if(iToBeAcquiredWorkIndex == NO_GREAT_WORK || iToBeDiscardedWorkIndex == NO_GREAT_WORK)
+						{
+							continue;
+						}
+						PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+						//Bwa?
+						if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+						{
+							continue;
+						}
+						PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+						//Bwa?
+						if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+						{
+							continue;
+						}
+						//Push all the valid foreign works into our list.
+						aWorksChosen.push_back(iToBeAcquiredWorkIndex);
+					}
+					//We've got the theme we want?
+					if (CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iI)
+					{
+						//Now loop back through for the actual swapping.
+						for (int ui = 0; ui < aGreatWorkPairs.size(); ui++)
+						{
+							//Grab our data for swap and discard item.
+							int iToBeAcquiredWorkIndex = aGreatWorkPairs.GetElement(ui);
+							int iToBeDiscardedWorkIndex = aGreatWorkPairs.GetWeight(ui);
+
+							//Can't move forward if either are invalid.
+							if(iToBeAcquiredWorkIndex == NO_GREAT_WORK || iToBeDiscardedWorkIndex == NO_GREAT_WORK)
+							{
+								continue;
+							}
+							PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+							//Bwa?
+							if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+							{
+								continue;
+							}
+							PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+							//Bwa?
+							if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+							{
+								continue;
+							}										
+							pkGameCulture->SwapGreatWorks(m_pPlayer->GetID(), iToBeDiscardedWorkIndex, eForeignOwner, iToBeAcquiredWorkIndex);
+
+							LogSwapMultipleWorks(eOwner, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
+
+							// Update works list for the swapped items.
+							tempWorks.clear();
+							if (!pkBonusInfo->IsMustBeArtifact())
+							{
+								for (it3 = works1.begin(); it3 != works1.end(); it3++)
+								{
+									if (it3->m_iGreatWorkIndex == iToBeDiscardedWorkIndex)
+									{
+										it3->m_iGreatWorkIndex = iToBeAcquiredWorkIndex;
+										GetGreatWorkLocation(it3->m_iGreatWorkIndex, it3->m_iCityID, it3->m_eBuilding, it3->m_iSlot);
+									}
+									tempWorks.push_back(*it3);
+								}
+								works1 = tempWorks;
+							}
+							else
+							{
+								for (it3 = works2.begin(); it3 != works2.end(); it3++)
+								{
+									if (it3->m_iGreatWorkIndex == iToBeDiscardedWorkIndex)
+									{
+										it3->m_iGreatWorkIndex = iToBeAcquiredWorkIndex;
+										GetGreatWorkLocation(it3->m_iGreatWorkIndex, it3->m_iCityID, it3->m_eBuilding, it3->m_iSlot);
+									}
+									tempWorks.push_back(*it3);
+								}
+								works2 = tempWorks;
+							}
+
+							CultureHelpers::SendArtSwapNotification(pkEntry->GetGreatWorkSlotType(), pkBonusInfo->IsMustBeArt(), m_pPlayer->GetID(), eForeignOwner, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
+							// Themed it through acquisition
+						}
+						bThemedProperly = true;
+					}
+				}
+			}
+			if (bThemedProperly)
+			{
+				for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
+				{
+					for (int kK = 0; kK < (int)worksToConsider.size(); kK++)
+					{
+						if (worksToConsider[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
+						{
+							MoveWorkIntoSlot(worksToConsider[kK], buildingIt->m_iCityID, buildingIt->m_eBuilding, jJ);
+							break;
+						}
+					}
+				}
+
+				// Remove these works from those to consider later
+				tempWorks.clear();
+				for (it3 = works1.begin(); it3 != works1.end(); it3++)
+				{
+					// Copy it over if not chosen, updating its location
+					if (find(aWorksChosen.begin(), aWorksChosen.end(), it3->m_iGreatWorkIndex) == aWorksChosen.end())
+					{
+						GetGreatWorkLocation(it3->m_iGreatWorkIndex, it3->m_iCityID, it3->m_eBuilding, it3->m_iSlot);
+						tempWorks.push_back(*it3);
+					}
+				}
+				works1 = tempWorks;
+
+				tempWorks.clear();
+				for (it3 = works2.begin(); it3 != works2.end(); it3++)
+				{
+					// Copy it over if not chosen, updating its location
+					if (find(aWorksChosen.begin(), aWorksChosen.end(), it3->m_iGreatWorkIndex) == aWorksChosen.end())
+					{
+						GetGreatWorkLocation(it3->m_iGreatWorkIndex, it3->m_iCityID, it3->m_eBuilding, it3->m_iSlot);
+						tempWorks.push_back(*it3);
+					}
+				}
+				works2 = tempWorks;
+
+				// All done
+				LogThemedBuilding(buildingIt->m_iCityID, buildingIt->m_eBuilding, pkBonusInfo->GetBonus());
+				return true;
+			}
+#else
 			// If we are one work short, let's look to other players
 			else if (bConsiderOtherPlayers && aWorksChosen.size() == (iCountSlots - 1) && (pkEntry->GetGreatWorkSlotType() != CvTypes::getGREAT_WORK_SLOT_MUSIC()))
 			{
@@ -1693,7 +1959,6 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 					}
 				}
 			}
-
 			if (bThemedProperly)
 			{
 				for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
@@ -1737,6 +2002,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 				LogThemedBuilding(buildingIt->m_iCityID, buildingIt->m_eBuilding, pkBonusInfo->GetBonus());
 				return true;
 			}
+#endif
 		}
 	}
 	return false;
@@ -1801,7 +2067,9 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				aArtifactsErasSeen.push_back(it2->m_eEra);
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		bool bThemedProperly = false;
+#endif
 		// Do we have the right amount of art?
 		if (aArtifactsChosen.size() == iWorksInHalf)
 		{
@@ -1855,61 +2123,186 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				}
 
 				// Did we theme it properly?
+#if defined(MOD_BALANCE_CORE)
+				bThemedProperly = false;
+#else
 				bool bThemedProperly = false;
+#endif
 				if (aWorksChosen.size() == iNumSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
 				{
 					bThemedProperly = true;
 				}
-
-				// If we are one work short, let's look to other players for a last piece of art
-				else if (aWorksChosen.size() == (iNumSlots - 1))
+#if defined(MOD_BALANCE_CORE)
+				if (!bThemedProperly && (pkEntry->GetGreatWorkSlotType() != CvTypes::getGREAT_WORK_SLOT_MUSIC()))
 				{
+					//Let's look at every applicable GW in the world.
+					vector<int> aForeignWorksToConsider;
+					CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> aGreatWorkPairs;
+					vector<int> aWorksToDiscard;
+					vector<PlayerTypes> aForeignPlayersSeen;
+					vector<EraTypes> aForeignErasSeen;
+
+					aForeignWorksToConsider.clear();
+					aForeignPlayersSeen.clear();
+					aForeignErasSeen.clear();
+
 					for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 					{
 						CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
 						if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer))
 						{
 							int iToBeAcquiredWorkIndex = kPlayer.GetCulture()->GetSwappableArtIndex();
-							int iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works1, aWorksChosen);
 
 							// Does this work fit?
+							if (iToBeAcquiredWorkIndex != NO_GREAT_WORK)
+							{
+								//Push back into a global consideration pool of all foreign works on offer.
+								aForeignWorksToConsider.push_back(iToBeAcquiredWorkIndex);
+								aForeignPlayersSeen.push_back(pkGameCulture->GetGreatWorkCreator(iToBeAcquiredWorkIndex));
+								aForeignErasSeen.push_back(pkGameCulture->m_CurrentGreatWorks[iToBeAcquiredWorkIndex].m_eEra);
+							}
+						}
+					}
+					//Okay, we have a list of all GWs available right now now. Let's look at the list and figure out what we can do with it.
+					if(aForeignWorksToConsider.size() > 0)
+					{
+						//Add chosen works (if any) to a discard pool so we know exactly what we have to offer, and what we don't have to offer.
+						if(aWorksChosen.size() > 0)
+						{
+							for (uint ui = 0; ui < aWorksChosen.size(); ui++)
+							{
+								aWorksToDiscard.push_back(aWorksChosen[ui]);
+							}
+						}
+						for (uint ui = 0; ui < aForeignWorksToConsider.size(); ui++)
+						{
+							//We found enough pairs? Cool.
+							//Shouldn't go above, but it might.
+							if((aWorksChosen.size() + aGreatWorkPairs.size()) >= (unsigned int)iNumSlots)
+							{
+								break;
+							}
+							int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
+							int iToBeDiscardedWorkIndex = NO_GREAT_WORK;
+							iToBeAcquiredWorkIndex = aForeignWorksToConsider[ui];
+
+							if(iToBeAcquiredWorkIndex == NO_GREAT_WORK)
+							{
+								continue;
+							}
+							PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+							//Bwa?
+							if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+							{
+								continue;
+							}
+
+							iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works1, aWorksToDiscard);
+				
+							PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+							//Bwa?
+							if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+							{
+								continue;
+							}
+
+							//We have a swappable Great Work and a target Great Work? Cool.
 							if (iToBeAcquiredWorkIndex != NO_GREAT_WORK && iToBeDiscardedWorkIndex != NO_GREAT_WORK)
 							{
 								EraTypes eEra = pkGameCulture->m_CurrentGreatWorks[iToBeAcquiredWorkIndex].m_eEra;
 								PlayerTypes ePlayer = pkGameCulture->GetGreatWorkCreator(iToBeAcquiredWorkIndex);
-								if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, eEra, aErasSeen, ePlayer, aPlayersSeen, m_pPlayer->GetID()))
+
+								//We need to know if it matches local GWs, but we also need to know if it matches the foreign ones we've already seen... 
+								if (CultureHelpers::IsValidForForeignThemingBonus(pkBonusInfo, eEra, aForeignErasSeen, aErasSeen, ePlayer, aForeignPlayersSeen, aPlayersSeen, m_pPlayer->GetID()))
 								{
-									aWorksChosen.push_back(iToBeAcquiredWorkIndex);
-									if (CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
-									{
-										bool bSwapSuccessful = pkGameCulture->SwapGreatWorks(m_pPlayer->GetID(), iToBeDiscardedWorkIndex, ePlayer, iToBeAcquiredWorkIndex);
-										if (bSwapSuccessful)
-										{
-											bThemedProperly = true;
-
-											// Update works list
-											tempWorks.clear();
-											for (it5 = works1.begin(); it5 != works1.end(); it5++)
-											{
-												if (it5->m_iGreatWorkIndex == iToBeDiscardedWorkIndex)
-												{
-													it5->m_iGreatWorkIndex = iToBeAcquiredWorkIndex;
-													GetGreatWorkLocation(it5->m_iGreatWorkIndex, it5->m_iCityID, it5->m_eBuilding, it5->m_iSlot);
-												}
-												tempWorks.push_back(*it5);
-											}
-											works1 = tempWorks;
-
-											CultureHelpers::SendArtSwapNotification(pkEntry->GetGreatWorkSlotType(), pkBonusInfo->IsMustBeArt(), m_pPlayer->GetID(), ePlayer, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
-											break;  // Themed it through acquisition
-										}
-									}
+									//If it does match, add to actual list of things to grab and discard (paired up).
+									aGreatWorkPairs.push_back(iToBeAcquiredWorkIndex, iToBeDiscardedWorkIndex);
+									//And add our discarded work to our list of things to discard so we don't assume it still exists.
+									aWorksToDiscard.push_back(iToBeDiscardedWorkIndex);
 								}
 							}
 						}
 					}
-				}
+					//We've got at least one work swap pair? Awesome.
+					if(aGreatWorkPairs.size() > 0)
+					{
+						for (int ui = 0; ui < aGreatWorkPairs.size(); ui++)
+						{
+							//Grab our data for swap and discard item.
+							int iToBeAcquiredWorkIndex = aGreatWorkPairs.GetElement(ui);
+							int iToBeDiscardedWorkIndex = aGreatWorkPairs.GetWeight(ui);
 
+							//Can't move forward if either are invalid.
+							if(iToBeAcquiredWorkIndex == NO_GREAT_WORK || iToBeDiscardedWorkIndex == NO_GREAT_WORK)
+							{
+								continue;
+							}
+							PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+							//Bwa?
+							if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+							{
+								continue;
+							}
+							PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+							//Bwa?
+							if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+							{
+								continue;
+							}
+							//Push all the valid foreign works into our list.
+							aWorksChosen.push_back(iToBeAcquiredWorkIndex);
+						}
+						//We've got the theme we want?
+						if (CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
+						{
+							//Now loop back through for the actual swapping.
+							for (int ui = 0; ui < aGreatWorkPairs.size(); ui++)
+							{
+								//Grab our data for swap and discard item.
+								int iToBeAcquiredWorkIndex = aGreatWorkPairs.GetElement(ui);
+								int iToBeDiscardedWorkIndex = aGreatWorkPairs.GetWeight(ui);
+
+								//Can't move forward if either are invalid.
+								if(iToBeAcquiredWorkIndex == NO_GREAT_WORK || iToBeDiscardedWorkIndex == NO_GREAT_WORK)
+								{
+									continue;
+								}
+								PlayerTypes eForeignOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeAcquiredWorkIndex);
+								//Bwa?
+								if(eForeignOwner == m_pPlayer->GetID() || eForeignOwner == NO_PLAYER)
+								{
+									continue;
+								}
+								PlayerTypes eOwner = GC.getGame().GetGameCulture()->GetGreatWorkController(iToBeDiscardedWorkIndex);
+								//Bwa?
+								if(eOwner != m_pPlayer->GetID() || eOwner == NO_PLAYER)
+								{
+									continue;
+								}										
+								pkGameCulture->SwapGreatWorks(m_pPlayer->GetID(), iToBeDiscardedWorkIndex, eForeignOwner, iToBeAcquiredWorkIndex);
+
+								LogSwapMultipleWorks(eOwner, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
+
+								// Update works list
+								tempWorks.clear();
+								for (it5 = works1.begin(); it5 != works1.end(); it5++)
+								{
+									if (it5->m_iGreatWorkIndex == iToBeDiscardedWorkIndex)
+									{
+										it5->m_iGreatWorkIndex = iToBeAcquiredWorkIndex;
+										GetGreatWorkLocation(it5->m_iGreatWorkIndex, it5->m_iCityID, it5->m_eBuilding, it5->m_iSlot);
+									}
+									tempWorks.push_back(*it5);
+								}
+								works1 = tempWorks;
+
+								CultureHelpers::SendArtSwapNotification(pkEntry->GetGreatWorkSlotType(), pkBonusInfo->IsMustBeArt(), m_pPlayer->GetID(), eForeignOwner, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
+								// Themed it through acquisition
+							}
+							bThemedProperly = true;
+						}
+					}
+				}
 				if (bThemedProperly)
 				{
 					for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
@@ -1961,6 +2354,107 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 					LogThemedBuilding(kBldg.m_iCityID, kBldg.m_eBuilding, pkBonusInfo->GetBonus());
 					return true;
 				}
+#else
+				// If we are one work short, let's look to other players for a last piece of art
+				else if (aWorksChosen.size() == (iNumSlots - 1))
+				{
+					for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+					{
+						CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+						if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer))
+						{
+							int iToBeAcquiredWorkIndex = kPlayer.GetCulture()->GetSwappableArtIndex();
+							int iToBeDiscardedWorkIndex = CultureHelpers::FindWorkNotChosen(works1, aWorksChosen);
+
+							// Does this work fit?
+							if (iToBeAcquiredWorkIndex != NO_GREAT_WORK && iToBeDiscardedWorkIndex != NO_GREAT_WORK)
+							{
+								EraTypes eEra = pkGameCulture->m_CurrentGreatWorks[iToBeAcquiredWorkIndex].m_eEra;
+								PlayerTypes ePlayer = pkGameCulture->GetGreatWorkCreator(iToBeAcquiredWorkIndex);
+								if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, eEra, aErasSeen, ePlayer, aPlayersSeen, m_pPlayer->GetID()))
+								{
+									aWorksChosen.push_back(iToBeAcquiredWorkIndex);
+									if (CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
+									{
+										bool bSwapSuccessful = pkGameCulture->SwapGreatWorks(m_pPlayer->GetID(), iToBeDiscardedWorkIndex, ePlayer, iToBeAcquiredWorkIndex);
+										if (bSwapSuccessful)
+										{
+											bThemedProperly = true;
+
+											// Update works list
+											tempWorks.clear();
+											for (it5 = works1.begin(); it5 != works1.end(); it5++)
+											{
+												if (it5->m_iGreatWorkIndex == iToBeDiscardedWorkIndex)
+												{
+													it5->m_iGreatWorkIndex = iToBeAcquiredWorkIndex;
+													GetGreatWorkLocation(it5->m_iGreatWorkIndex, it5->m_iCityID, it5->m_eBuilding, it5->m_iSlot);
+												}
+												tempWorks.push_back(*it5);
+											}
+											works1 = tempWorks;
+
+											CultureHelpers::SendArtSwapNotification(pkEntry->GetGreatWorkSlotType(), pkBonusInfo->IsMustBeArt(), m_pPlayer->GetID(), ePlayer, iToBeDiscardedWorkIndex, iToBeAcquiredWorkIndex);
+											break;  // Themed it through acquisition
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (bThemedProperly)
+				{
+					for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
+					{
+						for (int kK = 0; kK < (int)works1.size(); kK++)
+						{
+							if (works1[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
+							{
+								MoveWorkIntoSlot(works1[kK], kBldg.m_iCityID, kBldg.m_eBuilding, jJ);
+								break;
+							}
+						}
+						for (int kK = 0; kK < (int)works2.size(); kK++)
+						{
+							if (works2[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
+							{
+								MoveWorkIntoSlot(works2[kK], kBldg.m_iCityID, kBldg.m_eBuilding, jJ);
+								break;
+							}
+						}
+					}
+
+					// Remove these works from those to consider later
+					tempWorks.clear();
+					for (it5 = works1.begin(); it5 != works1.end(); it5++)
+					{
+						// Copy it over if not chosen, updating its location
+						if (find(aWorksChosen.begin(), aWorksChosen.end(), it5->m_iGreatWorkIndex) == aWorksChosen.end())
+						{
+							GetGreatWorkLocation(it5->m_iGreatWorkIndex, it5->m_iCityID, it5->m_eBuilding, it5->m_iSlot);
+							tempWorks.push_back(*it5);
+						}
+					}
+					works1 = tempWorks;
+
+					tempWorks.clear();
+					for (it5 = works2.begin(); it5 != works2.end(); it5++)
+					{
+						// Copy it over if not chosen, updating its location
+						if (find(aWorksChosen.begin(), aWorksChosen.end(), it5->m_iGreatWorkIndex) == aWorksChosen.end())
+						{
+							GetGreatWorkLocation(it5->m_iGreatWorkIndex, it5->m_iCityID, it5->m_eBuilding, it5->m_iSlot);
+							tempWorks.push_back(*it5);
+						}
+					}
+					works2 = tempWorks;
+
+					// All done
+					LogThemedBuilding(kBldg.m_iCityID, kBldg.m_eBuilding, pkBonusInfo->GetBonus());
+					return true;
+				}
+#endif
 			}
 		}
 	}
@@ -5035,7 +5529,28 @@ void CvPlayerCulture::LogThemedBuilding(int iCityID, BuildingTypes eBuilding, in
 		pLog->Msg(strLine);
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayerCulture::LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired)
+{
+	if(!(GC.getLogging() && GC.getAILogging()))
+	{
+		return;
+	}
 
+	CvString strLog;
+	FILogFile* pLog;
+	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
+	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+
+	CvString strLine;
+	strLine.Format ("Acquiring Multiple Works from Players: %d, Discarded: %d, Acquired: %d", (int)eOtherPlayer, iWorkDiscarded, iWorkAcquired);
+	CvString strTurn;
+	strTurn.Format (", %d,", GC.getGame().getGameTurn());
+	strLine = strPlayerName + strTurn + strLine;
+
+	pLog->Msg(strLine);
+}
+#endif
 void CvPlayerCulture::LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired)
 {
 	if(!(GC.getLogging() && GC.getAILogging()))
@@ -7033,7 +7548,65 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	}
 	return -1;
 }
+#if defined(MOD_BALANCE_CORE)
+bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
+{
+	bool bValid = true;
 
+	// Can we rule this out based on era?
+	if (bValid && pBonusInfo->IsSameEra())
+	{
+		//Are local or foreign eras matched? Good.
+		if ((eEra != aErasSeen[0]) && (eEra != aForeignErasSeen[0]))
+		{
+			bValid = false;
+		}
+	}
+	if (bValid && pBonusInfo->IsUniqueEras())
+	{
+		//Are local or foreign eras unmatched? Good.
+		if ((std::find(aErasSeen.begin(), aErasSeen.end(), eEra) != aErasSeen.end()) && (std::find(aForeignErasSeen.begin(), aForeignErasSeen.end(), eEra) != aForeignErasSeen.end()))
+		{
+			bValid = false;
+		}
+	}
+
+	// Can we rule this out based on player?
+	if (bValid && pBonusInfo->IsRequiresOwner())
+	{
+		if (ePlayer != eOwner)
+		{
+			bValid = false;
+		}
+	}
+	if (bValid && pBonusInfo->IsRequiresAnyButOwner())
+	{
+		if (ePlayer == eOwner)
+		{
+			bValid = false;
+		}
+	}
+	if (bValid && pBonusInfo->IsRequiresSamePlayer())
+	{
+		//Are local or foreign players matched? Good.
+		if ((ePlayer != aPlayersSeen[0]) && (ePlayer != aForeignPlayersSeen[0]))
+		{
+			bValid = false;
+		}
+
+	}
+	if (bValid && pBonusInfo->IsRequiresUniquePlayers())
+	{
+		//Are local or foreign players unmatched? Good.
+		if ((std::find(aPlayersSeen.begin(), aPlayersSeen.end(), ePlayer) != aPlayersSeen.end()) && (std::find(aForeignPlayersSeen.begin(), aPlayersSeen.end(), ePlayer) != aForeignPlayersSeen.end()))
+		{
+			bValid = false;
+		}
+	}
+
+	return bValid;
+}
+#endif
 bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;

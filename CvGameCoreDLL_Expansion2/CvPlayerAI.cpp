@@ -1608,7 +1608,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	else
 	{
 		// Locked out?
+#if defined(MOD_BALANCE_CORE)
+		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && !GetPlayerTraits()->IsAlwaysReligion())
+#else
 		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0)
+#endif
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}

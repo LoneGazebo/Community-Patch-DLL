@@ -1116,7 +1116,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					iTempWeight *= 1000;
 				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 				{
 					iTempWeight *= 100;
 				}
@@ -1212,7 +1212,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					{
 						iTempWeight *= 10;
 					}
-					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 					{
 						iTempWeight *= 100;
 					}
@@ -1510,7 +1510,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					iBest = iI;
 					break;
 				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 				{
 					iBest = iI;
 					break;

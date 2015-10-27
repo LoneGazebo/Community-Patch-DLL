@@ -4262,7 +4262,11 @@ bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 	// Also true if created a pantheon and there are religions left to create
 	if(pReligions->HasCreatedPantheon(pPlayer->GetID()))
 	{
+#if defined(MOD_BALANCE_CORE)
+		if (pReligions->GetNumReligionsStillToFound() > 0 || pPlayer->GetPlayerTraits()->IsAlwaysReligion())
+#else
 		if(pReligions->GetNumReligionsStillToFound() > 0)
+#endif
 		{
 			return true;
 		}

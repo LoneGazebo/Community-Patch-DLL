@@ -681,6 +681,32 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
 				owningPlayer.SetFaith(iFaith);
+				if(GC.getGame().GetGameReligions()->CanCreatePantheon(owningPlayer.GetID(), true) == 0)
+				{
+					// Create the pantheon
+					if(owningPlayer.isHuman())
+					{
+						//If the player is human then a net message will be received which will pick the pantheon.
+						CvNotifications* pNotifications = owningPlayer.GetNotifications();
+						if(pNotifications)
+						{
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_PANTHEON");
+
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON");
+							pNotifications->Add(NOTIFICATION_FOUND_PANTHEON, strBuffer, strSummary, -1, -1, -1);
+						}
+					}
+					else
+					{
+		#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
+						const BeliefTypes eBelief = owningPlayer.GetReligionAI()->ChoosePantheonBelief(getOwner());
+		#else
+						const BeliefTypes eBelief = owningPlayer.GetReligionAI()->ChoosePantheonBelief();
+		#endif
+
+						GC.getGame().GetGameReligions()->FoundPantheon(getOwner(), eBelief);
+					}
+				}
 			}
 		}
 #endif
@@ -10134,6 +10160,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace);
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+#if defined(MOD_BALANCE_CORE)
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+				{
+					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+					iReligionGrowthMod += (iFollowers * 3);
+				}
+#endif
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
@@ -20875,6 +20908,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 #endif				
 				if (pkUnitInfo->IsRequiresFaithPurchaseEnabled())
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
+					{
+						if(!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
+						{
+							return false;
+						}
+					}
+#endif
 					TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
 					if (ePrereqTech == -1)
 					{
@@ -20912,6 +20954,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 #if defined(MOD_BUGFIX_MINOR)
 				else
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
+					{
+						if(!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
+						{
+							return false;
+						}
+					}
+#endif
 					// Missionaries, Inquisitors and Prophets
 					// We need a full religion and not just a pantheon,
 					// and also to test that the player can build the unit, specifically the check for a civ specific version of the unit
