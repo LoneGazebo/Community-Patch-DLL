@@ -531,7 +531,11 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	switch (kPlayer.GetFaithPurchaseType())
 	{
 	case FAITH_PURCHASE_SAVE_PROPHET:
+#if defined(MOD_BALANCE_CORE)
+		if (eReligion <= RELIGION_PANTHEON && GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
+#else
 		if (eReligion <= RELIGION_PANTHEON && GetNumReligionsStillToFound() <= 0)
+#endif
 		{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
@@ -1246,7 +1250,11 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 /// Can the supplied religion be created?
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+#else
 	if(GetNumReligionsStillToFound() <= 0)
+#endif
 		return FOUNDING_NO_RELIGIONS_AVAILABLE;
 
 	if(ePlayer == NO_PLAYER)
@@ -1660,6 +1668,36 @@ void CvGameReligions::SetFounder(ReligionTypes eReligion, PlayerTypes eFounder)
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Switch founder for a religion (useful for scenario scripting)
+void CvGameReligions::SetFoundYear(ReligionTypes eReligion, int iValue)
+{
+	ReligionList::iterator it;
+	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		// If talking about a pantheon, make sure to match the player
+		if(it->m_eReligion == eReligion)
+		{
+			it->m_iTurnFounded = iValue;
+			break;
+		}
+	}
+}
+/// Switch founder for a religion (useful for scenario scripting)
+int CvGameReligions::GetFoundYear(ReligionTypes eReligion)
+{
+	ReligionList::iterator it;
+	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		// If talking about a pantheon, make sure to match the player
+		if(it->m_eReligion == eReligion)
+		{
+			return it->m_iTurnFounded;
+		}
+	}
+	return -1;
+}
+#endif
 
 /// After a religion is enhanced, the newly chosen beliefs need to be turned on in all cities
 void CvGameReligions::UpdateAllCitiesThisReligion(ReligionTypes eReligion)
@@ -1715,6 +1753,10 @@ bool CvGameReligions::IsInSomeReligion(BeliefTypes eBelief) const
 #endif
 {
 #if defined(MOD_TRAITS_ANY_BELIEF)
+	if(ePlayer == NO_PLAYER)
+	{
+		ePlayer = GC.getGame().getActivePlayer();
+	}
 	bool bAnyBelief = (ePlayer == NO_PLAYER) ? false : GET_PLAYER(ePlayer).GetPlayerTraits()->IsAnyBelief();
 #endif
 
@@ -3076,7 +3118,11 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	}
 
 	// If player hasn't founded a religion yet, drop out of this if all religions have been founded
+#if defined(MOD_BALANCE_CORE)
+	else if(GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
+#else
 	else if(GetNumReligionsStillToFound() <= 0)
+#endif
 	{
 		return false;
 	}
@@ -6851,7 +6897,9 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
 								{
-									strLogMsg += ", Bought a Non-Faith military Unit, %s", pUnitEntry->GetDescriptionKey();
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith military Unit, %s", pUnitEntry->GetDescriptionKey());
+									strLogMsg += strFaith;
 									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 								}
 								if(GC.getLogging())
@@ -6868,7 +6916,9 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
 								{
-									strLogMsg += ", Bought a Non-Faith civilian Unit %s (up to four)", pUnitEntry->GetDescriptionKey();
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith civilian Unit %s (up to four)", pUnitEntry->GetDescriptionKey());
+									strLogMsg += strFaith;
 									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 								}
 								if(GC.getLogging())

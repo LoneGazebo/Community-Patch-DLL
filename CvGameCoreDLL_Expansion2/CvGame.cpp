@@ -9627,7 +9627,7 @@ CvRandom& CvGame::getJonRand()
 /// Allows for logging.
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
-	return m_jonRand.get(iNum, pszLog);
+	return m_jonRand.get((unsigned long)iNum, pszLog);
 }
 
 #if defined(AUI_BINOM_RNG)
@@ -9636,7 +9636,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 /// Allows for logging.
 int CvGame::getJonRandNumBinom(int iNum, const char* pszLog)
 {
-	return m_jonRand.getBinom(iNum, pszLog);
+	return m_jonRand.getBinom((unsigned long)iNum, pszLog);
 }
 #endif // AUI_BINOM_RNG
 
@@ -9677,7 +9677,7 @@ int CvGame::calculateSyncChecksum()
 	CvUnit* pLoopUnit;
 #if defined(MOD_BALANCE_CORE)
 	unsigned int iMultiplier;
-	unsigned int iValue;
+	unsigned long long iValue;
 	int iLoop;
 	int iI, iJ;
 #else
@@ -9774,7 +9774,7 @@ int CvGame::calculateSyncChecksum()
 	debugSyncChecksum();
 #endif
 
-	return iValue;
+	return iValue & 0xFFFFFFFF;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -9786,8 +9786,8 @@ void CvGame::debugSyncChecksum()
 		return;
 
 	pLog->Msg( "----global-----\n" );
-	pLog->Msg( CvString::format("MapRandSeed: %d\n",getMapRand().getSeed()).c_str() );
-	pLog->Msg( CvString::format("GameRandSeed: %d\n",getJonRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("MapRandSeed: %lld\n",getMapRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("GameRandSeed: %lld\n",getJonRand().getSeed()).c_str() );
 	pLog->Msg( CvString::format("NCities: %d\n",getNumCities()).c_str() );
 	pLog->Msg( CvString::format("TotalPop: %d\n",getTotalPopulation()).c_str() );
 	pLog->Msg( CvString::format("OwnedPlots: %d\n",GC.getMap().getOwnedPlots()).c_str() );

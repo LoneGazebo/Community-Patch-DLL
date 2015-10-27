@@ -276,7 +276,7 @@ public:
 	void ChangePromotionDuration(PromotionTypes ePromotion, int iChange);
 
 	int getTurnPromotionGained(PromotionTypes ePromotion);
-	void SetTurnPromotionGained(PromotionTypes ePromotion, int iChange);
+	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
 #endif
 
 	bool canEmbark(const CvPlot* pPlot) const;
@@ -833,7 +833,7 @@ public:
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
-	int addDamageReceivedThisTurn(int iDamage);
+	int addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker=NULL);
 	void flipDamageReceivedPerTurn();
 	bool isProjectedToDieNextTurn() const;
 #endif
@@ -1268,20 +1268,12 @@ public:
 	int getImpassableCount() const;
 
 	int getTerrainImpassableCount(TerrainTypes eIndex) const;
+	bool isTerrainImpassable(TerrainTypes eIndex) const;
 	void changeTerrainImpassableCount(TerrainTypes eIndex, int iChange);
 
 	int getFeatureImpassableCount(FeatureTypes eIndex) const;
+	bool isFeatureImpassable(FeatureTypes eIndex) const;
 	void changeFeatureImpassableCount(FeatureTypes eIndex, int iChange);
-
-	bool isTerrainImpassable(TerrainTypes eIndex) const
-	{
-		return m_terrainImpassableCount[eIndex] > 0;
-	}
-
-	bool isFeatureImpassable(FeatureTypes eIndex) const
-	{
-		return m_featureImpassableCount[eIndex] > 0;
-	}
 
 	int getExtraTerrainAttackPercent(TerrainTypes eIndex) const;
 	void changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange);
@@ -1614,8 +1606,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
 	FAutoVariable<int, CvUnit> m_iForcedDamage;
 	FAutoVariable<int, CvUnit> m_iChangeDamage;
-	FAutoVariable<std::vector<int>, CvUnit> m_PromotionDuration;
-	FAutoVariable<std::vector<int>, CvUnit> m_TurnPromotionGained;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_PromotionDuration;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_TurnPromotionGained;
 #endif
 	FAutoVariable<int, CvUnit> m_iRangedSupportFireCount;
 	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;
@@ -1782,22 +1774,22 @@ protected:
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
 
-	FAutoVariable<std::vector<int>, CvUnit> m_terrainDoubleMoveCount;
-	FAutoVariable<std::vector<int>, CvUnit> m_featureDoubleMoveCount;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleMoveCount;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleMoveCount;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	FAutoVariable<std::vector<int>, CvUnit> m_terrainHalfMoveCount;
-	FAutoVariable<std::vector<int>, CvUnit> m_featureHalfMoveCount;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainHalfMoveCount;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureHalfMoveCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<int>, CvUnit> m_terrainDoubleHeal;
-	FAutoVariable<std::vector<int>, CvUnit> m_featureDoubleHeal;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleHeal;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleHeal;
 #endif
-	FAutoVariable<std::vector<int>, CvUnit> m_terrainImpassableCount;
-	FAutoVariable<std::vector<int>, CvUnit> m_featureImpassableCount;
-	FAutoVariable<std::vector<int>, CvUnit> m_extraTerrainAttackPercent;
-	FAutoVariable<std::vector<int>, CvUnit> m_extraTerrainDefensePercent;
-	FAutoVariable<std::vector<int>, CvUnit> m_extraFeatureAttackPercent;
-	FAutoVariable<std::vector<int>, CvUnit> m_extraFeatureDefensePercent;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainImpassableCount;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureImpassableCount;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainAttackPercent;
+	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainDefensePercent;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
+	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromKills;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromBarbarianKills;
@@ -1874,6 +1866,34 @@ private:
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);
 FDataStream& operator>>(FDataStream&, CvUnit&);
+
+template<typename T>
+FDataStream & operator<<(FDataStream & writeTo, const std::map<T, int> & readFrom)
+{
+	writeTo << readFrom.size();
+	for (std::map<T, int>::const_iterator it = readFrom.begin(); it != readFrom.end(); it++)
+	{
+		writeTo << (int)it->first;
+		writeTo << it->second;
+	}
+	return writeTo;
+}
+
+template<typename T>
+FDataStream & operator>>(FDataStream & readFrom, std::map<T, int> & writeTo)
+{
+	int nItems;
+	readFrom >> nItems;
+
+	for (int i = 0; i<nItems; i++)
+	{
+		int first, second;
+		readFrom >> first;
+		readFrom >> second;
+		writeTo[(T)first] = second;
+	}
+	return readFrom;
+}
 
 namespace FSerialization
 {

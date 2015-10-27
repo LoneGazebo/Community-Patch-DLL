@@ -904,9 +904,9 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 
 		char formatBuf[128] = {"\0"};
 		std::string rngLogMessage = "Game Random Number Generators are out of sync : local.seed=";
-		rngLogMessage += _itoa_s(localSimRandomNumberGenerator.getSeed(), formatBuf, 10);
+		rngLogMessage += _i64toa_s(localSimRandomNumberGenerator.getSeed(), formatBuf, 127, 10);
 		rngLogMessage += ", remote.seed=";
-		rngLogMessage += _itoa_s(pkRandom->getSeed(), formatBuf, 10);
+		rngLogMessage += _i64toa_s(pkRandom->getSeed(), formatBuf, 127, 10);
 		rngLogMessage += "\n\tlocal.callCount=";
 		rngLogMessage += _itoa_s(localSimRandomNumberGenerator.getCallCount(), formatBuf, 10);
 		rngLogMessage += ", remote.callCount=";
@@ -1320,7 +1320,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			CvDllPathFinderUpdateListData update;
 			update.iX = pathNode->m_iX;
 			update.iY = pathNode->m_iY;
-			update.iTurnNumber = pathNode->m_iData2;
+			update.iTurnNumber = pathNode->m_iTurns;
 
 			pUpdateData.push_back(update);
 

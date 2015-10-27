@@ -3982,6 +3982,21 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
 		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
 		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
+		{
+			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
+			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+			{
+				if(!target.m_bAttackBySea)
+				{
+					bTargetLand = true;
+				}
+				else
+				{
+					bTargetSea = true;
+				}
+			}
+		}
 		//No target? Abort!
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{

@@ -227,7 +227,7 @@ public:
 	int DLLCALL readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion);
 
 	StorageLocation DLLCALL LoadFileStorage();
-	void DLLCALL SetLoadFileName(_In_z_ const char* szFileName, StorageLocation eStorage);
+	void DLLCALL SetLoadFileName(const char* szFileName, StorageLocation eStorage);
 
 	ICvEnumerator* DLLCALL GetDLCAllowed();
 	ICvEnumerator* DLLCALL GetDLCAvailable(PlayerTypes p);

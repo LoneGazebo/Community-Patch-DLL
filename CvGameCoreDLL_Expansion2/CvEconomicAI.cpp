@@ -2968,7 +2968,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 		return;
 	}
 
-	CvUnit* pUnit = FindSettlerToScrap();
+	CvUnit* pUnit = FindSettlerToScrap(false);
 	if(!pUnit)
 	{
 		return;
@@ -2977,7 +2977,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumSettlers, iNumCities, -1, 0);
 }
-CvUnit* CvEconomicAI::FindSettlerToScrap()
+CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 {
 	CvUnit* pLoopUnit = NULL;
 	int iUnitLoop = 0;
@@ -2991,7 +2991,8 @@ CvUnit* CvEconomicAI::FindSettlerToScrap()
 		}
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
 		{
-			return pLoopUnit;
+			if (bMayBeInOperation || pLoopUnit->getArmyID()!=-1)
+				return pLoopUnit;
 		}
 	}
 
@@ -4261,7 +4262,11 @@ bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 	// Also true if created a pantheon and there are religions left to create
 	if(pReligions->HasCreatedPantheon(pPlayer->GetID()))
 	{
+#if defined(MOD_BALANCE_CORE)
+		if (pReligions->GetNumReligionsStillToFound() > 0 || pPlayer->GetPlayerTraits()->IsAlwaysReligion())
+#else
 		if(pReligions->GetNumReligionsStillToFound() > 0)
+#endif
 		{
 			return true;
 		}

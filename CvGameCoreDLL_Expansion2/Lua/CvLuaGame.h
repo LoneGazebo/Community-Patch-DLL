@@ -364,6 +364,10 @@ protected:
 	static int lSetHolyCity(lua_State* L);
 	static int lGetFounder(lua_State* L);
 	static int lSetFounder(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lSetFoundYear(lua_State* L);
+	static int lGetFoundYear(lua_State* L);
+#endif
 
 	static int lGetTurnsBetweenMinorCivElections(lua_State* L);
 	static int lGetTurnsUntilMinorCivElection(lua_State* L);

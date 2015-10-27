@@ -2467,7 +2467,7 @@ void CvPlayerTrade::MoveUnits (void)
 											if((GC.getLogging() && GC.getAILogging()))
 											{
 												CvString strLogString;
-												strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getNameKey(), pBuildingInfo->GetTextKey());
+												strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getName().c_str(), pBuildingInfo->GetText());
 												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 											}
 											GET_PLAYER(pOriginCity->getOwner()).CalculateCorporateFranchisesWorldwide();
@@ -2547,7 +2547,7 @@ void CvPlayerTrade::MoveUnits (void)
 											if((GC.getLogging() && GC.getAILogging()))
 											{
 												CvString strLogString;
-												strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getNameKey(), pBuildingInfo->GetTextKey());
+												strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getName().c_str(), pBuildingInfo->GetText());
 												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 											}
 											GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();

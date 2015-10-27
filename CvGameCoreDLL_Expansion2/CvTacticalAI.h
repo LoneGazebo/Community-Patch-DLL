@@ -890,10 +890,10 @@ private:
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
-	void PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation);
-	void PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation* pOperation);
-	void PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOperation);
-	void PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperation);
+	void PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation);
+	void PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory* pOperation);
+	void PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOperation);
+	void PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperation);
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void PlotGatherOnlyMoves(CvAIOperation* pOperation);
 #endif

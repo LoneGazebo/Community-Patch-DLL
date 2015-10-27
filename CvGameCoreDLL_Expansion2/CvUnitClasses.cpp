@@ -51,6 +51,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
+	m_iBeliefUnlock(NO_BELIEF),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -339,6 +340,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iCooldown = kResults.GetInt("PurchaseCooldown");
 
 	m_bIsMounted = kResults.GetBool("IsMounted");
+
+	szTextVal = kResults.GetText("BeliefRequired");
+	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -732,6 +736,11 @@ int CvUnitEntry::GetNumFreeLux() const
 {
 	return m_iNumFreeLux;
 }
+/// Belief Unlock only (if faith purchasing enabled)
+int CvUnitEntry::GetBeliefUnlock() const
+{
+	return m_iBeliefUnlock;
+}
 #endif
 /// Can this Unit Spread Religion to a City?
 bool CvUnitEntry::IsSpreadReligion() const
@@ -910,12 +919,6 @@ bool CvUnitEntry::IsSendCanMoveIntoEvent() const
 	return m_bSendCanMoveIntoEvent;
 }
 #endif
-
-/// What domain does this unit operate in (land, air or sea)
-int CvUnitEntry::GetDomainType() const
-{
-	return m_iDomainType;
-}
 
 /// If this is a civilian, what is our priority to attack it?
 int CvUnitEntry::GetCivilianAttackPriority() const

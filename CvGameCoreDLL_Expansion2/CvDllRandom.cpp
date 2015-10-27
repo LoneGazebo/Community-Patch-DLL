@@ -99,7 +99,8 @@ void CvDllRandom::CopyFrom(ICvRandom1* pOther)
 //------------------------------------------------------------------------------
 unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)
 {
-	return m_pRandom->get(usNum, pszLog);
+	//don't think we can change the signature here, so we need to truncate
+	return m_pRandom->get(usNum, pszLog) & 0xFFFF;
 }
 //------------------------------------------------------------------------------
 float CvDllRandom::GetFloat()
@@ -109,7 +110,8 @@ float CvDllRandom::GetFloat()
 //------------------------------------------------------------------------------
 unsigned long CvDllRandom::GetSeed() const
 {
-	return m_pRandom->getSeed();
+	//don't think we can change the signature here, so we need to truncate
+	return m_pRandom->getSeed() & 0xFFFFFFFF;
 }
 //------------------------------------------------------------------------------
 void CvDllRandom::Read(FDataStream& kStream)

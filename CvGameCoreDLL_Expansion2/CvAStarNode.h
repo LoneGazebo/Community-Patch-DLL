@@ -103,8 +103,8 @@ public:
 		m_iKnownCost = 0;
 		m_iHeuristicCost = 0;
 		m_iNumChildren = 0;
-		m_iData1 = 0;
-		m_iData2 = 0;
+		m_iMoves = 0;
+		m_iTurns = 0;
 
 		m_bOnStack = false;
 
@@ -122,8 +122,8 @@ public:
 		m_iKnownCost = 0;
 		m_iHeuristicCost = 0;
 		m_iNumChildren = 0;
-		m_iData1 = 0;
-		m_iData2 = 0;
+		m_iMoves = 0;
+		m_iTurns = 0;
 
 		m_bOnStack = false;
 
@@ -144,8 +144,8 @@ public:
 	int m_iTotalCost;	  // Fitness (f)
 	int m_iKnownCost;	  // Goal (g)
 	int m_iHeuristicCost; // Heuristic (h)
-	int m_iData1;
-	int m_iData2;
+	int m_iMoves;
+	int m_iTurns;
 
 	CvAStarListType m_eCvAStarListType;
 
@@ -186,8 +186,8 @@ public:
 	{
 		m_iX = -1;
 		m_iY = -1;
-		m_iData1 = 0;
-		m_iData2 = 0;
+		m_iMoves = 0;
+		m_iTurns = 0;
 		m_iFlags = 0;
 	}
 
@@ -202,8 +202,8 @@ public:
 		PLOT_ADJACENT_INVISIBLE				= (1 << 1)
 	};
 
-	int m_iData1;
-	int m_iData2;
+	int m_iMoves;
+	int m_iTurns;
 	int m_iFlags;
 	short m_iX, m_iY;         // Coordinate position
 
@@ -215,8 +215,8 @@ public:
 	{
 		m_iX = rhs.m_iX;
 		m_iY = rhs.m_iY;
-		m_iData1 = rhs.m_iData1;
-		m_iData2 = rhs.m_iData2;
+		m_iMoves = rhs.m_iMoves;
+		m_iTurns = rhs.m_iTurns;
 		m_iFlags = 0;
 		return *this;
 	}

@@ -33,8 +33,6 @@
 class CvArea;
 class CvMap;
 class CvRoute;
-class CvRiver;
-class CvCity;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
 typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
@@ -250,7 +248,7 @@ public:
 		PlayerTypes playerID = getOwner();
 		if(playerID != NO_PLAYER)
 		{
-			return CvPlayer::getTeam(playerID);
+			return ::getTeam(playerID);
 		}
 		else
 		{
@@ -1003,14 +1001,12 @@ protected:
 
 	friend class CvMap;
 	short* m_aiYield;
-	int* m_aiFoundValue;
 	char* m_aiPlayerCityRadiusCount;
 	short* m_aiVisibilityCount;
 	char* m_aiRevealedOwner;
-	//bool *m_abRevealed;
 
-	short /*ImprovementTypes*/ *m_aeRevealedImprovementType;
-	short /*RouteTypes*/ *m_aeRevealedRouteType;
+	char /*ImprovementTypes*/ *m_aeRevealedImprovementType;
+	char /*RouteTypes*/ *m_aeRevealedRouteType;
 	bool* m_abNoSettling;
 
 #if defined(MOD_BALANCE_CORE)

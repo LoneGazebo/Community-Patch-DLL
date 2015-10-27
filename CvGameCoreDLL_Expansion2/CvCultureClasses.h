@@ -322,6 +322,9 @@ private:
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);
 	void LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
+#if defined(MOD_BALANCE_CORE)
+	void LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
+#endif
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue);
@@ -400,6 +403,9 @@ namespace CultureHelpers
 	CvString GetGreatWorkAudio(GreatWorkType eGreatWorkType);
 	int GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, vector<int> &aGreatWorkIndices);
 	bool IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
+#if defined(MOD_BALANCE_CORE)
+	bool IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
+#endif
 	int FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen);
 	void SendArtSwapNotification(GreatWorkSlotType eType, bool bArt, PlayerTypes eOriginator, PlayerTypes eReceipient, int iWorkFromOriginator, int iWorkFromRecipient);
 }

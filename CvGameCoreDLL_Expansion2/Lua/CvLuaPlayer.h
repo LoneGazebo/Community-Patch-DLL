@@ -395,9 +395,11 @@ protected:
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
 	LUAAPIEXTN(GetMajorCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
+	//JFD
 	LUAAPIEXTN(GetStateReligion, int);
 	LUAAPIEXTN(SetStateReligion, int);
 	LUAAPIEXTN(GetNumCitiesWithStateReligion, int);
+	LUAAPIEXTN(GetNumCitiesWithoutStateReligion, int);
 	LUAAPIEXTN(SetPiety, int);
 	LUAAPIEXTN(ChangePiety, int);
 	LUAAPIEXTN(GetPiety, int);

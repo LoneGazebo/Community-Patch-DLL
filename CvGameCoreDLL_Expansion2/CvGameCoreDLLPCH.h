@@ -16,10 +16,14 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
-//  [5/18/2009 dbaker]
-// Disables warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning( disable : 4800 )
-#pragma warning( disable : 4355 )
+#pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+#pragma warning(disable:4355) //'this' used for base member initialization
+#pragma warning(disable:28251) //inconsistent annotation
+#pragma warning(disable:6387) //specification violated
+#pragma warning(disable:6246) //local declaration hiding outer declaration
+#pragma warning(disable:6001) //using uninitialized memory
+#pragma warning(disable:28199) //using possibly uninitialized memory
+#pragma warning(disable:4091) //typedef ignored
 
 // Take off iterator security checks in release mode
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300) && !defined(_DEBUG))
@@ -37,7 +41,7 @@
 #endif
 
 //Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
-#define DEBUG_VARIABLE(x) (void)(sizeof(x))
+#define DEBUG_VARIABLE(x) (x)
 
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
@@ -53,6 +57,7 @@
 #include <tchar.h>
 #include <assert.h>
 #include <map>
+#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 #include <hash_map>
 #include <limits>
 #include <unordered_set>

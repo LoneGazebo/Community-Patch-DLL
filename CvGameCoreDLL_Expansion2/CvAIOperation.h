@@ -224,7 +224,7 @@ public:
 	};
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool HasTargetPlot() const { return (m_iTargetX!=INVALID_PLOT_COORD && m_iTargetX!=INVALID_PLOT_COORD); }
+	bool HasTargetPlot() const { return (m_iTargetX!=INVALID_PLOT_COORD && m_iTargetY!=INVALID_PLOT_COORD); }
 	bool HasMusterPlot() const { return (m_iMusterX!=INVALID_PLOT_COORD && m_iMusterY!=INVALID_PLOT_COORD); }
 #endif
 
@@ -346,16 +346,16 @@ FDataStream& operator>>(FDataStream&, AIOperationMovementType&);
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIEnemyTerritoryOperation
+//  CLASS:      CvAIOperationEnemyTerritory
 //!  \brief		Base class for operations that involve large collection of forces
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #define SAFE_ESTIMATE_MAX_PATH_LEN 200
 
-class CvAIEnemyTerritoryOperation : public CvAIOperation
+class CvAIOperationEnemyTerritory : public CvAIOperation
 {
 public:
-	CvAIEnemyTerritoryOperation();
-	virtual ~CvAIEnemyTerritoryOperation();
+	CvAIOperationEnemyTerritory();
+	virtual ~CvAIOperationEnemyTerritory();
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
@@ -371,7 +371,7 @@ protected:
 //  CLASS:      CvAIOperationBasicCityAttack
 //!  \brief		Attack a city with a small force
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationBasicCityAttack : public CvAIEnemyTerritoryOperation
+class CvAIOperationBasicCityAttack : public CvAIOperationEnemyTerritory
 {
 public:
 
@@ -488,7 +488,7 @@ public:
 //  CLASS:      CvAIOperationDestroyBarbarianCamp
 //!  \brief		Send out a squad of units to take out a barbarian camp
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationDestroyBarbarianCamp : public CvAIEnemyTerritoryOperation
+class CvAIOperationDestroyBarbarianCamp : public CvAIOperationEnemyTerritory
 {
 public:
 
@@ -530,7 +530,7 @@ protected:
 //  CLASS:      CvAIOperationPillageEnemy
 //!  \brief		Create a fast strike team to harass the enemy
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationPillageEnemy : public CvAIEnemyTerritoryOperation
+class CvAIOperationPillageEnemy : public CvAIOperationEnemyTerritory
 {
 public:
 
@@ -565,15 +565,15 @@ protected:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIEscortedOperation
+//  CLASS:      CvAIOperationEscorted
 //!  \brief		Base class for operations that are one military unit and one civilian
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIEscortedOperation : public CvAIOperation
+class CvAIOperationEscorted : public CvAIOperation
 {
 public:
 
-	CvAIEscortedOperation();
-	virtual ~CvAIEscortedOperation();
+	CvAIOperationEscorted();
+	virtual ~CvAIOperationEscorted();
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
@@ -599,7 +599,7 @@ protected:
 //  CLASS:      CvAIOperationFoundCity
 //!  \brief		Find a place to utilize a new settler
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationFoundCity : public CvAIEscortedOperation
+class CvAIOperationFoundCity : public CvAIOperationEscorted
 {
 public:
 
@@ -676,7 +676,7 @@ private:
 //  CLASS:      CvAIOperationMerchantDelegation
 //!  \brief		Send a merchant to a city state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationMerchantDelegation : public CvAIEscortedOperation
+class CvAIOperationMerchantDelegation : public CvAIOperationEscorted
 {
 public:
 
@@ -707,7 +707,7 @@ private:
 //  CLASS:      CvAIOperationDiplomatDelegation
 //!  \brief		Send a diplomat to a city state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationDiplomatDelegation : public CvAIEscortedOperation
+class CvAIOperationDiplomatDelegation : public CvAIOperationEscorted
 {
 public:
 
@@ -770,7 +770,7 @@ private:
 //  CLASS:      CvAIOperationConcertTour
 //!  \brief		Send a merchant to a city state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationConcertTour : public CvAIEscortedOperation
+class CvAIOperationConcertTour : public CvAIOperationEscorted
 {
 public:
 
@@ -797,15 +797,15 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAINavalOperation
+//  CLASS:      CvAIOperationNaval
 //!  \brief		Send out a squadron of naval units to bomb enemy forces on the coast
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAINavalOperation : public CvAIEnemyTerritoryOperation
+class CvAIOperationNaval : public CvAIOperationEnemyTerritory
 {
 public:
 
-	CvAINavalOperation();
-	virtual ~CvAINavalOperation();
+	CvAIOperationNaval();
+	virtual ~CvAIOperationNaval();
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual int GetOperationType() const
 	{
@@ -844,7 +844,7 @@ protected:
 //  CLASS:      CvAIOperationNavalBombardment
 //!  \brief		Send out a squadron of naval units to bomb enemy forces on the coast
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationNavalBombardment : public CvAINavalOperation
+class CvAIOperationNavalBombardment : public CvAIOperationNaval
 {
 public:
 
@@ -884,7 +884,7 @@ protected:
 //  CLASS:      CvAIOperationNavalSuperiority
 //!  \brief		Send out a squadron of naval units to rule the seas
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationNavalSuperiority : public CvAINavalOperation
+class CvAIOperationNavalSuperiority : public CvAIOperationNaval
 {
 public:
 
@@ -933,7 +933,7 @@ protected:
 //  CLASS:      CvAIOperationPureNavalCityAttack
 //!  \brief		Try to take out an enemy city from the sea
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationPureNavalCityAttack : public CvAINavalOperation
+class CvAIOperationPureNavalCityAttack : public CvAIOperationNaval
 {
 public:
 
@@ -1084,15 +1084,15 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAINavalEscortedOperation
+//  CLASS:      CvAIOperationNavalEscorted
 //!  \brief		Base class for operations that require a naval escort for land units
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAINavalEscortedOperation : public CvAIOperation
+class CvAIOperationNavalEscorted : public CvAIOperation
 {
 public:
 
-	CvAINavalEscortedOperation();
-	virtual ~CvAINavalEscortedOperation();
+	CvAIOperationNavalEscorted();
+	virtual ~CvAIOperationNavalEscorted();
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
@@ -1155,7 +1155,7 @@ protected:
 //  CLASS:      CvAIOperationNavalAttack
 //!  \brief		Attack a city from the sea
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationNavalAttack : public CvAINavalEscortedOperation
+class CvAIOperationNavalAttack : public CvAIOperationNavalEscorted
 {
 public:
 
@@ -1202,9 +1202,9 @@ protected:
 //!  \brief		Same as basic naval attack except allowed when not at war
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #if defined(MOD_BALANCE_CORE_MILITARY)
-class CvAIOperationNavalSneakAttack : public CvAINavalEscortedOperation
+class CvAIOperationNavalSneakAttack : public CvAIOperationNavalEscorted
 #else
-class CvAIOperationNavalSneakAttack : public CvAIOperationNavalAttack
+//class CvAIOperationNavalSneakAttack : public CvAIOperationNavalAttack
 #endif
 {
 public:
@@ -1253,9 +1253,9 @@ private:
 //!  \brief		Same as basic naval attack except allowed when not at war
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #if defined(MOD_BALANCE_CORE_MILITARY)
-class CvAIOperationNavalCityStateAttack : public CvAINavalEscortedOperation
+class CvAIOperationNavalCityStateAttack : public CvAIOperationNavalEscorted
 #else
-class CvAIOperationNavalCityStateAttack : public CvAIOperationNavalAttack
+//class CvAIOperationNavalCityStateAttack : public CvAIOperationNavalAttack
 #endif
 {
 public:

@@ -1116,7 +1116,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					iTempWeight *= 1000;
 				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 				{
 					iTempWeight *= 100;
 				}
@@ -1212,7 +1212,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					{
 						iTempWeight *= 10;
 					}
-					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 					{
 						iTempWeight *= 100;
 					}
@@ -1510,7 +1510,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					iBest = iI;
 					break;
 				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
 				{
 					iBest = iI;
 					break;
@@ -3042,11 +3042,11 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 
 		if(bRush)
 		{
-			strTemp.Format("SEED: %d, CHOSEN: %s, Rush if possible, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
+			strTemp.Format("SEED: %lld, CHOSEN: %s, Rush if possible, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
 		}
 		else
 		{
-			strTemp.Format("SEED: %d, CHOSEN: %s, Do not rush, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
+			strTemp.Format("SEED: %lld, CHOSEN: %s, Do not rush, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
 		}
 
 		strOutBuf = strBaseString + strTemp;
@@ -4486,7 +4486,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 		return true;
 	}
 
-	if (plotDistance (pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
+	if (pCapital && pCity && plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
 	{
 		return true;
 	}

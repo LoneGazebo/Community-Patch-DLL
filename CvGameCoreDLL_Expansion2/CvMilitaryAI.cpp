@@ -1553,9 +1553,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 							new_target.m_pMusterCity ? new_target.m_pMusterCity->getName().c_str() : "NONE");
 						FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
 						if (pLog)
-						{
 							pLog->Msg(strOutBuf);
-						}
 					}
 				}
 			}
@@ -1632,7 +1630,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 #if !defined(MOD_BALANCE_CORE)
 	CvUnit* pLoopUnit;
 #endif
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> weightedTargetList;
+	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> weightedTargetList;
 	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
 
@@ -1733,7 +1731,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	}
 
 	// Build a list of all the possible start city/target city pairs
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
+	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> prelimWeightedTargetList;
 	for(pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
 		for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
@@ -3297,7 +3295,7 @@ int CvMilitaryAI::GetPercentOfRecommendedMilitarySize() const
 }
 
 /// Log all potential attacks
-void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true>& weightedTargetList)
+void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -7728,7 +7726,10 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
 	return iWillBeFilled;
+}
+
 #else
+
 /// How many slots in this army can we fill right now with available units?
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
@@ -7814,8 +7815,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 		*piNumberLandReservesUsed = iLandReservesUsed;
 	}
 	return iWillBeFilled;
-#endif
 }
+
+#endif
 
 /// Army needs more units, which should we build next?
 UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit)

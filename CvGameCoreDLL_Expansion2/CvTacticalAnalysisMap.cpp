@@ -468,7 +468,10 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 	{
 		CvUnit* pUnit = m_EnemyUnits[iUnitIndex];
 		TacticalAIHelpers::ReachablePlotSet tiles;
-		TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),tiles);
+
+		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
+		//therefore we later do a dilation filter on the cells
+		TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),tiles,false,true);
 
 		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
@@ -504,6 +507,39 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			}
 		}
 	}
+
+	//do the dilation
+	std::vector<int> vCellsToMark;
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	{
+		//nothing to do
+		if (m_pPlots[iPlotLoop].IsSubjectToAttack())
+			continue;
+
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+
+		//danger plots are calculated without ZOC
+		if (m_pPlayer->GetNumPossibleAttackers(*pPlot)>0)
+		{
+			//check whether neighbors are subject to attack with ZOC
+			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+				if (pAdjacentPlot)
+				{
+					if (m_pPlots[pAdjacentPlot->GetPlotIndex()].IsSubjectToAttack())
+					{
+						vCellsToMark.push_back(iPlotLoop);
+						break;
+					}
+				}
+			}
+		}
+	}
+	//this should give a nice compromise
+	for (size_t iI = 0; iI < vCellsToMark.size(); iI++)
+		m_pPlots[vCellsToMark[iI]].SetSubjectToAttack(true);
 #endif
 
 	// Look at every cell on the map

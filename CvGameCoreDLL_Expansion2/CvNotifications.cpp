@@ -1817,7 +1817,11 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
+#if defined(MOD_BALANCE_CORE)
+		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(m_ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+#else
 		if (pkReligions->GetNumReligionsStillToFound() <= 0)
+#endif
 			return true;	// None left, dismiss the notification
 
 		return pkReligions->HasCreatedReligion(m_ePlayer);

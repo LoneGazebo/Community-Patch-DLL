@@ -369,6 +369,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(SetHolyCity);
 	Method(GetFounder);
 	Method(SetFounder);
+#if defined(MOD_BALANCE_CORE)
+	Method(SetFoundYear);
+	Method(GetFoundYear);
+#endif
 
 	Method(GetTurnsBetweenMinorCivElections);
 	Method(GetTurnsUntilMinorCivElection);
@@ -2806,6 +2810,29 @@ int CvLuaGame::lSetFounder(lua_State* L)
 
 	return 0;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaGame::lSetFoundYear(lua_State* L)
+{
+	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 1));
+	const int iFoundYear = lua_tointeger(L, 2);
+
+	GC.getGame().GetGameReligions()->SetFoundYear(eReligion, iFoundYear);
+
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetFoundYear(lua_State* L)
+{
+	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 1));
+	const PlayerTypes eFounder = static_cast<PlayerTypes>(luaL_checkint(L, 2));
+
+	const int iValue = GC.getGame().GetGameReligions()->GetFoundYear(eReligion);
+
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetTurnsBetweenMinorCivElections(lua_State* L)
 {

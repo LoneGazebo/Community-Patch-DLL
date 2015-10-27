@@ -419,7 +419,6 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 {
 	VALIDATE_OBJECT
 	CvString strBuffer;
-	int iI;
 
 	CvAssert(NO_UNIT != eUnit);
 
@@ -437,7 +436,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 
 	// If this is a hovering unit, we must add that promotion before setting XY, or else it'll get the embark promotion (which we don't want)
 	PromotionTypes ePromotion;
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
@@ -476,7 +475,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		CvString strName = strKey;
 		int iNumNames = getUnitInfo().GetNumUnitNames();
 		//Look for units from previous and current eras.
-		for(iI = 0; iI < iNumNames; iI++)
+		for (int iI = 0; iI < iNumNames; iI++)
 		{
 			CvString strOtherName = getUnitInfo().GetUnitNames(iI);
 			if(strOtherName == strName)
@@ -536,7 +535,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	}
 
 	// Free Promotions from Unit XML
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
@@ -575,7 +574,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	}
 
 	// Free Promotions from Policies, Techs, etc.
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		ePromotion = (PromotionTypes) iI;
 
@@ -597,7 +596,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	
 	// Adjacent terrain/feature that provides free promotions?
 	CvPlot* pAdjacentPlot;
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
@@ -1294,7 +1293,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	// Message for World Unit being born
 	if(isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
 	{
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
 			if(GET_PLAYER((PlayerTypes)iI).isAlive() && GC.getGame().getActivePlayer())
 			{
@@ -2742,94 +2741,31 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	{
 		m_Promotions.Reset();
 
-		CvAssertMsg((0 < GC.getNumTerrainInfos()), "GC.getNumTerrainInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
-		m_terrainDoubleMoveCount.clear();
+		m_terrainDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_terrainHalfMoveCount.clear();
+		m_terrainHalfMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_terrainDoubleHeal.clear();
+		m_terrainDoubleHeal.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_PromotionDuration.clear();
-		m_TurnPromotionGained.clear();
+		m_PromotionDuration.dirtyGet().clear();
+		m_TurnPromotionGained.dirtyGet().clear();
 #endif
-		m_terrainImpassableCount.clear();
-		m_extraTerrainAttackPercent.clear();
-		m_extraTerrainDefensePercent.clear();
+		m_terrainImpassableCount.dirtyGet().clear();
+		m_extraTerrainAttackPercent.dirtyGet().clear();
+		m_extraTerrainDefensePercent.dirtyGet().clear();
 
-		m_terrainDoubleMoveCount.resize(GC.getNumTerrainInfos());
+		m_featureDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_terrainHalfMoveCount.resize(GC.getNumTerrainInfos());
+		m_featureHalfMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-		m_PromotionDuration.resize(GC.getNumPromotionInfos());
-		m_TurnPromotionGained.resize(GC.getNumPromotionInfos());
+		m_featureDoubleHeal.dirtyGet().clear();
 #endif
-#if defined(MOD_BALANCE_CORE)
-		m_terrainDoubleHeal.resize(GC.getNumTerrainInfos());
-#endif
-		m_terrainImpassableCount.resize(GC.getNumTerrainInfos());
-		m_extraTerrainAttackPercent.resize(GC.getNumTerrainInfos());
-		m_extraTerrainDefensePercent.resize(GC.getNumTerrainInfos());
-
-		for(int i = 0; i < GC.getNumTerrainInfos(); i++)
-		{
-			m_terrainDoubleMoveCount.setAt(i,0);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			m_terrainHalfMoveCount.setAt(i,0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-			m_terrainDoubleHeal.setAt(i,0);
-#endif
-			m_terrainImpassableCount.setAt(i,0);
-			m_extraTerrainAttackPercent.setAt(i,0);
-			m_extraTerrainDefensePercent.setAt(i,0);
-		}
-#if defined(MOD_BALANCE_CORE)
-		for(int i = 0; i < GC.getNumPromotionInfos(); i++)
-		{
-			m_PromotionDuration.setAt(i,0);
-			m_TurnPromotionGained.setAt(i,0);
-		}
-#endif
-
-		CvAssertMsg((0 < GC.getNumFeatureInfos()), "GC.getNumFeatureInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
-		m_featureDoubleMoveCount.clear();
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_featureHalfMoveCount.clear();
-#endif
-#if defined(MOD_BALANCE_CORE)
-		m_featureDoubleHeal.clear();
-#endif
-		m_featureImpassableCount.clear();
-		m_extraFeatureDefensePercent.clear();
-		m_extraFeatureAttackPercent.clear();
-
-		m_featureDoubleMoveCount.resize(GC.getNumFeatureInfos());
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-		m_featureHalfMoveCount.resize(GC.getNumFeatureInfos());
-#endif
-#if defined(MOD_BALANCE_CORE)
-		m_featureDoubleHeal.resize(GC.getNumFeatureInfos());
-#endif
-		m_featureImpassableCount.resize(GC.getNumFeatureInfos());
-		m_extraFeatureDefensePercent.resize(GC.getNumFeatureInfos());
-		m_extraFeatureAttackPercent.resize(GC.getNumFeatureInfos());
-
-		for(int i = 0; i < GC.getNumFeatureInfos(); i++)
-		{
-			m_featureDoubleMoveCount.setAt(i,0);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			m_featureHalfMoveCount.setAt(i,0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-			m_featureDoubleHeal.setAt(i,0);
-#endif
-			m_featureImpassableCount.setAt(i,0);
-			m_extraFeatureAttackPercent.setAt(i,0);
-			m_extraFeatureDefensePercent.setAt(i,0);
-		}
+		m_featureImpassableCount.dirtyGet().clear();
+		m_extraFeatureDefensePercent.dirtyGet().clear();
+		m_extraFeatureAttackPercent.dirtyGet().clear();
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_yieldFromKills.clear();
@@ -2942,27 +2878,27 @@ void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	m_terrainDoubleMoveCount.clear(); // BUG FIX
-	m_featureDoubleMoveCount.clear();
-	m_terrainHalfMoveCount.clear();
-	m_featureHalfMoveCount.clear();
+	m_terrainDoubleMoveCount.dirtyGet().clear(); // BUG FIX
+	m_featureDoubleMoveCount.dirtyGet().clear();
+	m_terrainHalfMoveCount.dirtyGet().clear();
+	m_featureHalfMoveCount.dirtyGet().clear();
 #else
 	m_featureDoubleMoveCount.clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_PromotionDuration.clear();
-	m_TurnPromotionGained.clear();
+	m_PromotionDuration.dirtyGet().clear();
+	m_TurnPromotionGained.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_terrainDoubleHeal.clear();
-	m_featureDoubleHeal.clear();
+	m_terrainDoubleHeal.dirtyGet().clear();
+	m_featureDoubleHeal.dirtyGet().clear();
 #endif
-	m_terrainImpassableCount.clear();
-	m_featureImpassableCount.clear();
-	m_extraTerrainAttackPercent.clear();
-	m_extraTerrainDefensePercent.clear();
-	m_extraFeatureAttackPercent.clear();
-	m_extraFeatureDefensePercent.clear();
+	m_terrainImpassableCount.dirtyGet().clear();
+	m_featureImpassableCount.dirtyGet().clear();
+	m_extraTerrainAttackPercent.dirtyGet().clear();
+	m_extraTerrainDefensePercent.dirtyGet().clear();
+	m_extraFeatureAttackPercent.dirtyGet().clear();
+	m_extraFeatureDefensePercent.dirtyGet().clear();
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
@@ -3012,7 +2948,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 			// if we get this due to a policy or wonder
 			else if(GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
-			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
+						::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
@@ -3653,14 +3589,18 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 					if(kCaptureDef.eCapturingPlayer == GC.getGame().getActivePlayer())
 					{
 						CvString strBuffer;
-						if(kCaptureDef.eOriginalOwner == kCaptureDef.eCapturingPlayer){
-							//player recaptured a friendly unit
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_RECAPTURED_UNIT", GC.getUnitInfo(kCaptureDef.eCaptureUnitType)->GetTextKey());
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(kCaptureDef.eCaptureUnitType);
+						if (pkUnitInfo)
+						{
+							if (kCaptureDef.eOriginalOwner == kCaptureDef.eCapturingPlayer){
+								//player recaptured a friendly unit
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_RECAPTURED_UNIT", pkUnitInfo->GetTextKey());
+							}
+							else{
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CAPTURED_UNIT", pkUnitInfo->GetTextKey());
+							}
+							DLLUI->AddUnitMessage(0, IDInfo(kCaptureDef.eCapturingPlayer, pkCapturedUnit->GetID()), kCaptureDef.eCapturingPlayer, true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, GC.getUnitInfo(eCaptureUnitType)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
 						}
-						else{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CAPTURED_UNIT", GC.getUnitInfo(kCaptureDef.eCaptureUnitType)->GetTextKey());
-						}
-						DLLUI->AddUnitMessage(0, IDInfo(kCaptureDef.eCapturingPlayer, pkCapturedUnit->GetID()), kCaptureDef.eCapturingPlayer, true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, GC.getUnitInfo(eCaptureUnitType)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
 					}
 				}
 			}
@@ -3766,8 +3706,8 @@ void CvUnit::doTurn()
 		{
 			if(isHasPromotion(ePromotion) && pkPromotionInfo->PromotionDuration() > 0)
 			{
-				int iTurnsLeft = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
-				if(iTurnsLeft > getPromotionDuration(ePromotion))
+				int iTurnsElapsed = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
+				if(iTurnsElapsed > getPromotionDuration(ePromotion))
 				{
 					setHasPromotion(ePromotion, false);
 				}
@@ -4844,10 +4784,10 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	VALIDATE_OBJECT
 	TeamTypes ePlotTeam;
 
-
+	//nothing to do
 	if(atPlot(plot))
 	{
-		return false;
+		return true;
 	}
 
 	// Cannot move around in unrevealed land freely
@@ -5574,7 +5514,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		if(pBestPlot != NULL)
 		{
 			strLogString.Format("Jump to nearest valid plot by %s , X: %d, Y: %d, From X: %d, From Y: %d", getName().GetCString(),
-			                    pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
+								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		else
@@ -5670,7 +5610,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		{
 			CvString strLogString;
 			strLogString.Format("Jump to nearest valid plot within range by %s , X: %d, Y: %d, From X: %d, From Y: %d", getName().GetCString(),
-			                    pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
+								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, pBestPlot->isVisibleToWatchingHuman(), false);
@@ -6193,9 +6133,14 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
-int CvUnit::addDamageReceivedThisTurn(int iDamage)
+int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	m_iDamageTakenThisTurn+=iDamage;
+
+	if (pAttacker)
+		//remember the attacker for our danger calculation - in case he moves and becomes invisible
+		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
+
 	return m_iDamageTakenThisTurn;
 }
 
@@ -6746,39 +6691,47 @@ int CvUnit::getChangeDamageValue()
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::ChangePromotionDuration(PromotionTypes ePromotion, int iChange)
+void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_PromotionDuration.setAt(ePromotion, m_PromotionDuration[ePromotion] + iChange);
-	CvAssert(getPromotionDuration(ePromotion) >= 0);
+	std::map<PromotionTypes, int>& m_map = m_PromotionDuration.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPromotionDuration(PromotionTypes ePromotion)
+int CvUnit::getPromotionDuration(PromotionTypes eIndex)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_PromotionDuration[ePromotion];
+	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration.get();
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::SetTurnPromotionGained(PromotionTypes ePromotion, int iChange)
+void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_TurnPromotionGained.setAt(ePromotion, m_TurnPromotionGained[ePromotion] + iChange);
-	CvAssert(getPromotionDuration(ePromotion) >= 0);
+	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.dirtyGet();
+	if (iValue>0)
+		m_map[eIndex] = iValue;
+	else
+		m_map.erase(eIndex);
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getTurnPromotionGained(PromotionTypes ePromotion)
+int CvUnit::getTurnPromotionGained(PromotionTypes eIndex)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_TurnPromotionGained[ePromotion];
+	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained.get();
+	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -7503,9 +7456,13 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
-		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
-						GetID(), GC.getTacticalMoveInfo(m_eTacticalMove)->GetType(), eMove==AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove] );
-		GET_PLAYER( m_eOwner ).GetHomelandAI()->LogHomelandMessage( msg );
+		CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+		if (pkMoveInfo)
+		{
+			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+				GetID(), pkMoveInfo->GetType(), eMove == AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove]);
+			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
+		}
 	}
 
 	//clear tactical move, can't have both ...
@@ -9972,7 +9929,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 
 	// Either nothing to pillage or everything is pillaged to its max
 	if((eImprovementType == NO_IMPROVEMENT || pPlot->IsImprovementPillaged()) &&
-	        (pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
+			(pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
 	{
 		return false;
 	}
@@ -10415,8 +10372,11 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsAlwaysReligion())
+#else
 	if(pReligions->GetNumReligionsStillToFound() <= 0)
+#endif
 	{
 		return false;
 	}
@@ -11023,11 +10983,11 @@ bool CvUnit::DoSpreadReligion()
 						else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
 							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
 
- 						char text[256] = {0};
+						char text[256] = {0};
 						sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
- 						fDelay += 0.5f;
- 						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
- 					}
+						fDelay += 0.5f;
+						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+					}
 				}
 			}
 #endif
@@ -12518,6 +12478,29 @@ int CvUnit::GetGoldenAgeTurns() const
 	// Player mod
 	int iLengthModifier = kPlayer.getGoldenAgeModifier();
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Do we get increased Golden Ages from a resource monopoly?
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp += kPlayer.GetMonopolyModPercent();
+						iLengthModifier += iTemp;
+					}
+				}
+			}
+		}
+	}
+#endif
 	// Trait mod
 	iLengthModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
 	if(iLengthModifier > 0)
@@ -12722,9 +12705,9 @@ bool CvUnit::blastTourism()
 
 	kill(true);
  
- 	// Show tourism spread
- 	if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
- 	{
+	// Show tourism spread
+	if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+	{
 		CvString strInfluenceText;
 		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
 
@@ -12741,15 +12724,15 @@ bool CvUnit::blastTourism()
 		else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
 			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
 
- 		char text[256] = {0};
+		char text[256] = {0};
 		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
 #if defined(SHOW_PLOT_POPUP)
 		SHOW_PLOT_POPUP(pPlot, getOwner(), text, 0.0f);
 #else
- 		float fDelay = 0.0f;
- 		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+		float fDelay = 0.0f;
+		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
 #endif
- 	}
+	}
 
 #if !defined(NO_ACHIEVEMENTS)
 	// Achievements
@@ -12810,7 +12793,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool bValidBuildPlot = pPlot->isValidDomainForAction(*this) ||
-		                  (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
+						  (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
 	if(!bValidBuildPlot)
 #else
 	if(!pPlot->isValidDomainForAction(*this))
@@ -12819,8 +12802,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		return false;
 	}
 
- 	if (pPlot->isWater())
- 	{
+	if (pPlot->isWater())
+	{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		// Needs the associated SQL executing - UPDATE Builds SET CanBeEmbarked=1 WHERE Type='BUILD_FISHING_BOATS_NO_KILL';
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked()))
@@ -12828,9 +12811,9 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
 #endif
 		{
- 			return false;
+			return false;
 		}
- 	}
+	}
 
 	if(!bTestVisible)
 	{
@@ -13101,10 +13084,10 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 		// The command is always possible if it's coming from a Warlord unit that gives just experience points
 		UnitHandle pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
 		if(pWarlord &&
-		        NO_UNIT != pWarlord->getUnitType() &&
-		        pWarlord->getUnitInfo().GetLeaderExperience() > 0 &&
-		        NO_PROMOTION == pWarlord->getUnitInfo().GetLeaderPromotion() &&
-		        canAcquirePromotionAny())
+				NO_UNIT != pWarlord->getUnitType() &&
+				pWarlord->getUnitInfo().GetLeaderExperience() > 0 &&
+				NO_PROMOTION == pWarlord->getUnitInfo().GetLeaderPromotion() &&
+				canAcquirePromotionAny())
 		{
 			return true;
 		}
@@ -15081,13 +15064,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->isWater() && pFromPlot != plot() && getDomainType() == DOMAIN_LAND && !pFromPlot->isValidDomainForAction(*this)));
 	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->isWater() && bWouldNeedEmbark;
 
-	if (!bIsEmbarkedAttackingLand && bWouldNeedEmbark)
 #else
 	bool bIsEmbarkedAttackingLand = isEmbarked() && (pToPlot && !pToPlot->isWater());
 
 	if(isEmbarked() && !bIsEmbarkedAttackingLand)
-#endif
 		return GetEmbarkedUnitDefense();
+#endif
 
 	if(GetBaseCombatStrength(bIsEmbarkedAttackingLand) == 0)
 		return 0;
@@ -16377,6 +16359,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
+	if (!pAttacker)
+		return 0;
 	if (pFromPlot == NULL && pAttacker)
 		pFromPlot = pAttacker->plot();
 	if (pTargetPlot == NULL)
@@ -16919,10 +16903,10 @@ bool CvUnit::isWaiting() const
 	ActivityTypes eActivityType = GetActivityType();
 
 	return ((eActivityType == ACTIVITY_HOLD)||
-	        (eActivityType == ACTIVITY_SLEEP)   ||
-	        (eActivityType == ACTIVITY_HEAL)    ||
-	        (eActivityType == ACTIVITY_SENTRY)  ||
-	        (eActivityType == ACTIVITY_INTERCEPT));
+			(eActivityType == ACTIVITY_SLEEP)   ||
+			(eActivityType == ACTIVITY_HEAL)    ||
+			(eActivityType == ACTIVITY_SENTRY)  ||
+			(eActivityType == ACTIVITY_INTERCEPT));
 }
 
 
@@ -19217,7 +19201,7 @@ if (!bDoEvade)
 #else
 						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-						        (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							setHasPromotion(ePromotion, true);
 						}
@@ -20193,12 +20177,12 @@ int CvUnit::getDamage() const
 
 //	--------------------------------------------------------------------------------
 /**
-    Shows the damage delta text.
+	Shows the damage delta text.
 
-    @param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
-    @param [in]	pkPlot				The plot to show the text at.
-    @param	fAdditionalTextDelay	The additional text delay.
-    @param	pAppendText				The text to append or NULL.
+	@param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
+	@param [in]	pkPlot				The plot to show the text at.
+	@param	fAdditionalTextDelay	The additional text delay.
+	@param	pAppendText				The text to append or NULL.
  */
 void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay /* = 0.f */, const CvString* pAppendText /* = NULL */)
 {
@@ -20236,14 +20220,14 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 
 //	--------------------------------------------------------------------------------
 /**
-    Sets the damage.
+	Sets the damage.
 
-    @param	iNewValue				New damage value
-    @param	ePlayer					The player doing the damage, can be NO_PLAYER.
-    @param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
-    @param [in]	pAppendText 	If non-null, the text to append to the popup text.
+	@param	iNewValue				New damage value
+	@param	ePlayer					The player doing the damage, can be NO_PLAYER.
+	@param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
+	@param [in]	pAppendText 	If non-null, the text to append to the popup text.
 
-    @return	The difference in the damage.
+	@return	The difference in the damage.
  */
 int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
@@ -20402,12 +20386,12 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 	Change the damage by a delta. 
 	Damage is measured as an integer percent, from 100 (full health) to 0 (dead)
 
-    @param	iChange					Delta added to the current damage.
-    @param	ePlayer					The player doing the damage, can be NO_PLAYER
-    @param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
-    @param [in]	pAppendText 		If non-null, the text to append to the popup.
+	@param	iChange					Delta added to the current damage.
+	@param	ePlayer					The player doing the damage, can be NO_PLAYER
+	@param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
+	@param [in]	pAppendText 		If non-null, the text to append to the popup.
 
-    @return	the final delta change to the units damage.
+	@return	the final delta change to the units damage.
  */
 int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
@@ -23170,7 +23154,7 @@ PlayerTypes CvUnit::getCombatOwner(TeamTypes eForTeam, const CvPlot& whosePlot) 
 TeamTypes CvUnit::getTeam() const
 {
 	VALIDATE_OBJECT
-	return CvPlayer::getTeam( getOwner() );
+	return ::getTeam( getOwner() );
 }
 
 //	--------------------------------------------------------------------------------
@@ -23635,62 +23619,78 @@ void CvUnit::setScenarioData(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainDoubleMoveCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainDoubleMove(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainDoubleMoveCount(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainDoubleMoveCount.setAt(eIndex, (m_terrainDoubleMoveCount[eIndex] + iChange));
-	CvAssert(getTerrainDoubleMoveCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureDoubleMoveCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureDoubleMove(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureDoubleMoveCount(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureDoubleMoveCount.setAt(eIndex, m_featureDoubleMoveCount[eIndex] + iChange);
-	CvAssert(getFeatureDoubleMoveCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
@@ -23698,124 +23698,156 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainHalfMoveCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainHalfMove(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainHalfMoveCount(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainHalfMoveCount.setAt(eIndex, (m_terrainHalfMoveCount[eIndex] + iChange));
-	CvAssert(getTerrainHalfMoveCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureHalfMoveCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureHalfMove(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureHalfMoveCount(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureHalfMoveCount.setAt(eIndex, m_featureHalfMoveCount[eIndex] + iChange);
-	CvAssert(getFeatureHalfMoveCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex]==0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainDoubleHeal[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getTerrainDoubleHeal(eIndex) > 0);
+	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainDoubleHeal.setAt(eIndex, (m_terrainDoubleHeal[eIndex] + iChange));
-	CvAssert(getTerrainDoubleHeal(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureDoubleHeal[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return (getFeatureDoubleHeal(eIndex) > 0);
+	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureDoubleHeal.setAt(eIndex, m_featureDoubleHeal[eIndex] + iChange);
-	CvAssert(getFeatureDoubleHeal(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 #endif
 
@@ -23850,62 +23882,102 @@ int CvUnit::getImpassableCount() const
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainImpassableCount(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_terrainImpassableCount[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
+{
+	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_terrainImpassableCount.setAt(eIndex, m_terrainImpassableCount[eIndex] + iChange);
-	CvAssert(getTerrainImpassableCount(eIndex) >= 0);
+	std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureImpassableCount(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_featureImpassableCount[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
+{
+	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second > 0;
+	else
+		return false;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_featureImpassableCount.setAt(eIndex, m_featureImpassableCount[eIndex] + iChange);
-	CvAssert(getFeatureImpassableCount(eIndex) >= 0);
+	std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.dirtyGet();
+	if (m_map.find(eIndex) != m_map.end())
+	{
+		m_map[eIndex] += iChange;
+		if (m_map[eIndex] == 0)
+			m_map.erase(eIndex);
+	}
+	else
+		m_map[eIndex] = iChange;
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainAttackPercent(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraTerrainAttackPercent[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraTerrainAttackPercent.setAt(eIndex, m_extraTerrainAttackPercent[eIndex] + iChange);
+		std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23914,23 +23986,29 @@ void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainDefensePercent(TerrainTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraTerrainDefensePercent[eIndex];
+	const std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.get();
+	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraTerrainDefensePercent.setAt(eIndex, m_extraTerrainDefensePercent[eIndex] + iChange);
+		std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23939,23 +24017,29 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraFeatureAttackPercent[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraFeatureAttackPercent.setAt(eIndex, m_extraFeatureAttackPercent[eIndex] + iChange);
+		std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -23964,23 +24048,29 @@ void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureDefensePercent(FeatureTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_extraFeatureDefensePercent[eIndex];
+	const std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.get();
+	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
 	if(iChange != 0)
 	{
-		m_extraFeatureDefensePercent.setAt(eIndex, m_extraFeatureDefensePercent[eIndex] + iChange);
+		std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.dirtyGet();
+		if (m_map.find(eIndex) != m_map.end())
+		{
+			m_map[eIndex] += iChange;
+			if (m_map[eIndex] == 0)
+				m_map.erase(eIndex);
+		}
+		else
+			m_map[eIndex] = iChange;
 
 		setInfoBarDirty(true);
 	}
@@ -24779,7 +24869,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
 							// A unit can't swap with itself (slewis)
-							if (pLoopUnit == this)
+							if (!pLoopUnit || pLoopUnit == this)
 							{
 								continue;
 							}
@@ -24886,7 +24976,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iEmbarkDefensiveModifier;
 
 #if defined(MOD_API_EXTENSIONS)
-	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0));
+	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? (m_pUnitInfo ? m_pUnitInfo->GetRangedCombat() : 0) : 0));
 #endif
 
 	kStream >> m_iCapitalDefenseModifier;
@@ -25221,6 +25311,13 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	bool bWouldNeedEmbark = (pSourcePlot && pSourcePlot->isWater() && getDomainType() == DOMAIN_LAND && !pSourcePlot->isValidDomainForAction(*this));
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->isWater() && bWouldNeedEmbark;
+	if (bIsEmbarkedAttackingLand)
+		return false;
+#endif
+
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	if(getUnitInfo().IsRangeAttackOnlyInDomain())
 	{
@@ -25356,6 +25453,9 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 			{
 				pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pTargetPlot->nextUnitNode(pUnitNode);
+
+				if (!pLoopUnit)
+					continue;
 
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
@@ -26679,13 +26779,13 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		const CvPathNode& kNode = m_kLastPath.front();
 		// If we were provided with a previous ETA, check against the new one and if it is two turns greater, cancel the move.
 		// We probably revealed something that is causing the unit to take longer to reach the target.
-		if(iPrevETA >= 0 && kNode.m_iData2 > iPrevETA + 2)
+		if(iPrevETA >= 0 && kNode.m_iTurns > iPrevETA + 2)
 		{
 			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iData2=") << kNode.m_iData2);
 			bRejectMove = true;
 		}
 
-		if(kNode.m_iData2 == 1 && !canMoveInto(*pDestPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))  // if we should end our turn there this turn, but can't move into that tile
+		if(kNode.m_iTurns == 1 && !canMoveInto(*pDestPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))  // if we should end our turn there this turn, but can't move into that tile
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -26725,22 +26825,22 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	uint uiCachedPathSize = m_kLastPath.size();
 	if (uiCachedPathSize)
 	{
-		iETA = m_kLastPath[ 0 ].m_iData2;
+		iETA = m_kLastPath[0].m_iTurns;
 		// Only do the shift if we actually moved
 		if (bMoved)
 		{
 			if(uiCachedPathSize > 1)
 			{
 				// Go back to front, adjusting the turns if needed
-				if (m_kLastPath[ uiCachedPathSize - 1 ].m_iData2 != m_kLastPath[ uiCachedPathSize - 2 ].m_iData2)
+				if (m_kLastPath[ uiCachedPathSize - 1 ].m_iTurns != m_kLastPath[ uiCachedPathSize - 2 ].m_iTurns)
 				{
 					// We have exhausted a turns worth of nodes.  Adjust all the others.
 					// KWG: It is unlikely that we will use this path again, because the unit is out of moves anyhow.  Should we just clear the path and save time?
 					for (uint uiIndex = uiCachedPathSize - 1; uiIndex--; )
 					{
 						CvPathNode* pNode = &m_kLastPath[uiIndex];
-						if (pNode->m_iData2 > 0)
-							pNode->m_iData2 -= 1;
+						if (pNode->m_iTurns > 0)
+							pNode->m_iTurns -= 1;
 					}
 				}
 
@@ -26993,9 +27093,13 @@ const char* CvUnit::GetMissionInfo()
 	{
 		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
 		{
-			m_strMissionInfoString =  (isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
-			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
-			m_strMissionInfoString += strTemp0;
+			CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+			if (pkMoveInfo)
+			{
+				m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
+				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+				m_strMissionInfoString += strTemp0;
+			}
 		}
 
 		if (m_eTacticalMove==NO_TACTICAL_MOVE)
@@ -27022,7 +27126,7 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += strTemp1;
 	}
 
-	m_strMissionInfoString += " -----------------------";
+	m_strMissionInfoString += " -----------------------------";
 
 	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
@@ -27592,7 +27696,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 		{
 			if(m_kLastPath.size() != 0)
 			{
-				*piPathTurns = m_kLastPath.front().m_iData2;
+				*piPathTurns = m_kLastPath.front().m_iTurns;
 			}
 		}
 	}
@@ -27680,7 +27784,7 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 	{
 		const CvPathNode* pNode = &m_kLastPath[0];
 
-		if(m_kLastPath.size() == 1 || (pNode->m_iData2 == 1))
+		if(m_kLastPath.size() == 1 || (pNode->m_iTurns == 1))
 		{
 			return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 		}
@@ -27688,7 +27792,7 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 		for(uint uiIndex = 1; uiIndex < m_kLastPath.size(); ++uiIndex)
 		{
 			pNode = &m_kLastPath[uiIndex];
-			if(pNode->m_iData2 == 1)
+			if(pNode->m_iTurns == 1)
 			{
 				return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 			}
@@ -28036,7 +28140,7 @@ void CvUnit::AI_promote()
 
 				CvString szMsg;
 				szMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
-				             szPromotionDesc, getName().GetCString(), iValue, getDamage());
+							 szPromotionDesc, getName().GetCString(), iValue, getDamage());
 				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 			}
 
@@ -28052,12 +28156,13 @@ void CvUnit::AI_promote()
 	{
 		promote(eBestPromotion, -1);
 		AI_promote();
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
-		if(GC.getLogging() && GC.getAILogging())
+		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
 			szMsg.Format("Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             GC.getPromotionInfo(eBestPromotion)->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}
@@ -28067,12 +28172,13 @@ void CvUnit::AI_promote()
 	{
 		promote(eBestPromotion, -1);
 		AI_promote();
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
-		if(GC.getLogging() && GC.getAILogging())
+		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
 			szMsg.Format("Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-			             GC.getPromotionInfo(eBestPromotion)->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}
@@ -28250,7 +28356,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetVisibilityChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE))
+			(AI_getUnitAIType() == UNITAI_EXPLORE))
 	{
 		iValue += iTemp * (50 + iFlavorRecon * 2);
 	}
@@ -28280,7 +28386,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp /= 100;
 		iValue += iTemp + iFlavorDefense * 2;
 		if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER))
+				(AI_getUnitAIType() == UNITAI_COUNTER))
 		{
 			iValue *= 2;
 		}
@@ -28307,7 +28413,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetEnemyHealChange();
 	if((AI_getUnitAIType() == UNITAI_PARADROP) ||
-	        (AI_getUnitAIType() == UNITAI_PIRATE_SEA))
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA))
 	{
 		iValue += iTemp * (50 + iFlavorOffense * 2);
 	}
@@ -28318,7 +28424,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetNeutralHealChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
 	{
 		iValue += iTemp * (40 + iFlavorRecon * 2);
 	}
@@ -28329,7 +28435,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetFriendlyHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-	        (AI_getUnitAIType() == UNITAI_COUNTER))
+			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
 		iValue += iTemp * (20 + iFlavorDefense * 2);
 	}
@@ -28340,7 +28446,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetAdjacentTileHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-	        (AI_getUnitAIType() == UNITAI_COUNTER))
+			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
 		iValue += iTemp * (40 + iFlavorDefense * 2);
 	}
@@ -28352,7 +28458,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsAmphib())
 	{
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK))
+				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			iValue += 50 + iFlavorOffense * 2;
@@ -28373,7 +28479,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsRiver())
 	{
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK))
+				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			iValue += 50 + iFlavorOffense * 2;
@@ -28440,15 +28546,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetMovesChange();
 	if((AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_ASSAULT_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_SETTLER_SEA) ||
-	        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-	        (AI_getUnitAIType() == UNITAI_ATTACK) ||
-	        (AI_getUnitAIType() == UNITAI_PARADROP))
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ASSAULT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_SETTLER_SEA) ||
+			(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_PARADROP))
 	{
 		iValue += iTemp * (50 + iFlavorMobile * 2);
 	}
@@ -28460,13 +28566,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsAlwaysHeal())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 50 + iFlavorMobile * 2;
 		}
@@ -28479,13 +28585,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsBlitz())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 50 + (iFlavorMobile + iFlavorOffense) * 2;
 		}
@@ -28498,13 +28604,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsCanMoveAfterAttacking())
 	{
 		if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
-		        (AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_COUNTER) ||
-		        (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
-		        (AI_getUnitAIType() == UNITAI_PARADROP))
+				(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+				(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+				(AI_getUnitAIType() == UNITAI_COUNTER) ||
+				(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
 			iValue += 30 + (iFlavorMobile + iFlavorOffense) * 2;
 		}
@@ -28582,7 +28688,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorOffense * 2;
 				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				        (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
 					iValue *= 2;
 				}
@@ -28596,7 +28702,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorDefense * 2;
 				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-				        (AI_getUnitAIType() == UNITAI_COUNTER))
+						(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
 					iValue *= 2;
 				}
@@ -28652,7 +28758,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorOffense * 2;
 				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				        (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
 					iValue *= 2;
 				}
@@ -28666,7 +28772,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iTemp /= 100;
 				iValue += iTemp + iFlavorDefense * 2;
 				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-				        (AI_getUnitAIType() == UNITAI_COUNTER))
+						(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
 					iValue *= 2;
 				}
@@ -28766,7 +28872,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += (iTemp * iCombatWeight) / 25;
 			}
 			else if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-			        (AI_getUnitAIType() == UNITAI_DEFENSE))
+					(AI_getUnitAIType() == UNITAI_DEFENSE))
 			{
 				iValue += (iTemp * iCombatWeight) / 50;
 			}
@@ -28785,7 +28891,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue += (iTemp * 2);
 		}
 		else if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		        (AI_getUnitAIType() == UNITAI_DEFENSE))
+				(AI_getUnitAIType() == UNITAI_DEFENSE))
 		{
 			iValue += iTemp;
 		}
@@ -29129,4 +29235,3 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	writeTo.read(loadFrom);
 	return loadFrom;
 }
-

@@ -41,8 +41,6 @@ public:
 	void AI_doTurnUnitsPre();
 	void AI_doTurnUnitsPost();
 
-	void AI_updateFoundValues(bool bStartingLoc = false);
-
 	void AI_unitUpdate();
 #if defined(MOD_BALANCE_CORE)
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift);
@@ -50,8 +48,6 @@ public:
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner);
 #endif
 	bool AI_captureUnit(UnitTypes eUnit, CvPlot* pPlot);
-
-	int AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false);
 
 	void AI_chooseFreeGreatPerson();
 	void AI_chooseFreeTech();
