@@ -5533,7 +5533,8 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
 {
-	m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false);
+	if (m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false))
+		AddKnownAttacker(pUnit);
 }
 
 #else
@@ -37233,10 +37234,15 @@ void CvPlayer::updatePlotFoundValues(bool bStartingLoc)
 	else
 	{
 		//don't need to update if never going to settle
-		bool bVenice = GetPlayerTraits()->IsNoAnnexing();
-		if (isMinorCiv() || isBarbarian() || bVenice)
-		{
+		if (isBarbarian())
 			return;
+
+		//don't need to update if never going to settle again
+		bool bVenice = GetPlayerTraits()->IsNoAnnexing();
+		if (isMinorCiv() || bVenice)
+		{
+			if (GetNumCitiesFounded()>0)
+				return;
 		}
 
 		// important preparation

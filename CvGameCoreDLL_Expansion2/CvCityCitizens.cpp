@@ -2917,14 +2917,10 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 
 #if defined(MOD_BALANCE_CORE)
 		GetCity()->processSpecialist(eSpecialist, 1);
+
 		//we added the first specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 1)
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
-		if (MOD_BALANCE_CORE)
-		{
-			//Update for specialist changes.
-			GetCity()->updateExtraSpecialistYield();
-		}
 #else
 		GetCity()->processSpecialist(eSpecialist, 1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
@@ -2990,12 +2986,6 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount()==0)
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
-
-		if (MOD_BALANCE_CORE)
-		{
-			//Update for specialist changes.
-			GetCity()->updateExtraSpecialistYield();
-		}
 #else
 		GetCity()->processSpecialist(eSpecialist, -1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
