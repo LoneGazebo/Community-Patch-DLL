@@ -4538,6 +4538,10 @@ void CvPlayerPolicies::SetPolicyBranchBlocked(PolicyBranchTypes eBranchType, boo
 		{
 			m_pabPolicyBranchBlocked[eBranchType] = bValue;
 
+#if defined(MOD_BALANCE_CORE)
+			UpdateModifierCache();
+#endif
+
 			int iPolicyEffectChange = bValue ? -1 : 1;
 
 			if(iPolicyEffectChange != 0)

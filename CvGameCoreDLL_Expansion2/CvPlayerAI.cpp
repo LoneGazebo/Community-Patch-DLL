@@ -1920,8 +1920,13 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
 					if(iScore > iBestScore)
 					{
-						iBestScore = iScore;
-						pBestCity = pLoopCity;
+						//check if we can actually go there only if the city is promising
+						int iPathTurns;
+						if (pUnit->GeneratePath(pLoopCity->plot(), MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
+						{
+							iBestScore = iScore;
+							pBestCity = pLoopCity;
+						}
 					}
 				}
 			}
@@ -2071,12 +2076,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		{
 			return 0;
 		}
-	}
-
-	int iPathTurns;
-	if(!pUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
-	{
-		return 0;
 	}
 
 	int iOtherMajorLoop;
