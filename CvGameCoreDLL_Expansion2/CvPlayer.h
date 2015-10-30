@@ -1953,10 +1953,7 @@ public:
 	int GetPlotDanger(CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot, CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
-	bool CouldAttackHere(CvPlot& Plot, CvUnit* pUnit) const;
-	bool CouldAttackHere(CvPlot& Plot, CvCity* pCity) const;
-	int GetNumPossibleAttackers(CvPlot& Plot) const;
-	std::vector<CvUnit*> GetPossibleAttackers(CvPlot& Plot) const;
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void AddKnownAttacker(CvUnit* pAttacker);
 #else
 	int GetPlotDanger(CvPlot& Plot) const;
@@ -1993,7 +1990,7 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
+	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;

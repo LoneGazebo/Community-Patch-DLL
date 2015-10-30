@@ -1020,8 +1020,13 @@ private:
 	bool IsInChosenMoves(CvPlot* pPlot);
 	bool ChooseRemainingAssignments(int iNumUnitsDesired, int iNumUnitsAcceptable);
 	int ScoreAssignments(bool bCanLeaveOpenings);
+#if defined(MOD_CORE_TACTICAL_PLOTSCORE)
+	int ScoreCloseOnPlots(CvPlot* pTarget);
+	int ScoreHedgehogPlots(CvPlot* pTarget);
+#else
 	int ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly);
-	void ScoreHedgehogPlots(CvPlot* pTarget);
+	int ScoreHedgehogPlots(CvPlot* pTarget);
+#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget);

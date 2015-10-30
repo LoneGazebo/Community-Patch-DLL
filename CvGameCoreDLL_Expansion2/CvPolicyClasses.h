@@ -879,6 +879,11 @@ public:
 private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 
+#if defined(MOD_BALANCE_CORE)
+	void UpdateModifierCache();
+	std::vector<int> m_vBuildingClassTourismModifier;
+#endif
+
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 

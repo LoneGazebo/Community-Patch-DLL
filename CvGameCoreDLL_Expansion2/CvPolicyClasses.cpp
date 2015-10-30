@@ -3203,6 +3203,10 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
 	kStream >> wrapm_piLatestFlavorValues;
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateModifierCache();
+#endif
 }
 
 /// Serialization write
@@ -3257,6 +3261,31 @@ CvPlayer* CvPlayerPolicies::GetPlayer()
 	return m_pPlayer;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//could be extended for other modifiers as well ...
+void CvPlayerPolicies::UpdateModifierCache()
+{
+	m_vBuildingClassTourismModifier.clear();
+	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+
+	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
+	{
+		int iValue = 0;
+		for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+		{
+			// Do we have this policy?
+			if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+			{
+				iValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
+			}
+		}
+
+		m_vBuildingClassTourismModifier[j] = iValue;
+	}
+}
+#endif
+
+
 /// Accessor: does a player have a policy
 bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 {
@@ -3281,6 +3310,10 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 
 		int iChange = bNewValue ? 1 : -1;
 		GetPlayer()->ChangeNumPolicies(iChange);
+
+#if defined(MOD_BALANCE_CORE)
+		UpdateModifierCache();
+#endif
 
 		if(bNewValue)
 		{
@@ -3709,6 +3742,10 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 /// Get tourism modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
 {
+
+#if defined(MOD_BALANCE_CORE)
+	return m_vBuildingClassTourismModifier[eBuildingClass];
+#else
 	int rtnValue = 0;
 
 	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
@@ -3721,6 +3758,7 @@ int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildi
 	}
 
 	return rtnValue;
+#endif
 }
 
 /// Does any policy owned give benefit for garrisons?

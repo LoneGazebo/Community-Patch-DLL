@@ -1174,8 +1174,12 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
 		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
-	else if(eItem == TRADE_ITEM_RESOURCES)
-		iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes) iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer);
+	else if (eItem == TRADE_ITEM_RESOURCES)
+	{
+		// precalculate, it's expensive
+		int iCurrentNetGoldOfReceivingPlayer = bFromMe ? GET_PLAYER(eOtherPlayer).GetTreasury()->CalculateBaseNetGold() : m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+		iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes)iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
+	}
 	else if(eItem == TRADE_ITEM_CITIES)
 		iItemValue = GetCityValue(/*iX*/ iData1, /*iY*/ iData2, bFromMe, eOtherPlayer, bUseEvenValue);
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
@@ -1500,7 +1504,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 }
 
 /// How much is a Resource worth?
-int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer)
+int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -1548,7 +1552,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
 				if(bFromMe)
 				{
-					int iGPT = GET_PLAYER(eOtherPlayer).GetTreasury()->CalculateBaseNetGold();
+					int iGPT = iCurrentNetGoldOfReceivingPlayer;
 					//Every 5 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 					iGPT /= 5;
 					if((iGPT > 0) && (iGPT > iItemValue))
@@ -1562,7 +1566,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 				else if(!bFromMe)
 				{
-					int iGPT = GetPlayer()->GetTreasury()->CalculateBaseNetGold();
+					int iGPT = iCurrentNetGoldOfReceivingPlayer;
 					//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 					iGPT /= 10;
 					if((iGPT > 0) && (iGPT > iItemValue))
@@ -6551,6 +6555,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		}
 	}
 
+	// precalculate, it's expensive
+	int iCurrentNetGoldOfReceivingPlayer = GET_PLAYER(eOtherPlayer).GetTreasury()->CalculateBaseNetGold();
+
 	// Luxury Resources
 	if(bGiveUpLuxuryResources && iGiveUpLuxResources > 0)
 	{
@@ -6589,7 +6596,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				iResourceQuantity = 1;
 			}
 
-			int iCurrentResourceValue = GetResourceValue(eResource, iResourceQuantity, GC.getGame().GetDealDuration(), true, eOtherPlayer);
+			int iCurrentResourceValue = GetResourceValue(eResource, iResourceQuantity, GC.getGame().GetDealDuration(), true, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 
 			if(iCurrentResourceValue > 0)
 			{
@@ -6611,7 +6618,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			{
 				ResourceTypes eResourceList = (ResourceTypes)viResourceValue.GetElement(iSortedResourceIndex);
 
-				int iCurrentResourceValue = GetResourceValue(eResourceList, 1,  GC.getGame().GetDealDuration(), true, eOtherPlayer);
+				int iCurrentResourceValue = GetResourceValue(eResourceList, 1,  GC.getGame().GetDealDuration(), true, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCurrentResourceValue <= iResourceValueToSurrender && iCurrentResourceValue > 0)
@@ -6662,7 +6669,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				iResourceQuantity = 3;
 			}
 
-			int iCurrentResourceValue = GetResourceValue(eResource, iResourceQuantity,  GC.getGame().GetDealDuration(), true, eOtherPlayer);
+			int iCurrentResourceValue = GetResourceValue(eResource, iResourceQuantity, GC.getGame().GetDealDuration(), true, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 
 			if(iCurrentResourceValue > 0)
 			{
@@ -6688,7 +6695,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				{
 					iResourceQuantity = 3;
 				}
-				int iCurrentResourceValue = GetResourceValue(eResourceList, iResourceQuantity,  GC.getGame().GetDealDuration(), true, eOtherPlayer);
+				int iCurrentResourceValue = GetResourceValue(eResourceList, iResourceQuantity, GC.getGame().GetDealDuration(), true, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCurrentResourceValue < iResourceValueToSurrender && iCurrentResourceValue > 0)
 				{
@@ -7202,6 +7209,10 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 #if defined(MOD_BALANCE_CORE)
 	int iBestValue = 0;
 #endif
+
+	// precalculate, it's expensive
+	int iCurrentNetGoldOfReceivingPlayer = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+
 	// See if the other player has a Resource to trade
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -7225,7 +7236,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		{
 #if defined(MOD_BALANCE_CORE)
 			//Let's try to get their best resource :)
-			int iItemValue = GetResourceValue(eResource, 1, GC.getGame().GetDealDuration(), false, eOtherPlayer);
+			int iItemValue = GetResourceValue(eResource, 1, GC.getGame().GetDealDuration(), false, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 			if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestValue)
 			{
 				eLuxuryFromThem = eResource;

@@ -446,36 +446,7 @@ bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, CvUnit* pUnit)
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 }
 
-/// Returns if the unit is in immediate danger
-bool CvDangerPlots::CouldAttackHere(const CvPlot& pPlot, CvUnit* pUnit)
-{
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-	if (!pUnit)
-	{
-		return false;
-	}
-	return m_DangerPlots[idx].CouldAttackHere(pUnit);
-}
-
-/// Returns if the unit is in immediate danger
-bool CvDangerPlots::CouldAttackHere(const CvPlot& pPlot, CvCity* pCity)
-{
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-	if (!pCity)
-	{
-		return false;
-	}
-	return m_DangerPlots[idx].CouldAttackHere(pCity);
-}
-
-int CvDangerPlots::GetNumPossibleAttackers(CvPlot& Plot) const
-{
-	const int idx = Plot.getX() + Plot.getY() * GC.getMap().getGridWidth();
-
-	return m_DangerPlots[idx].GetNumPossibleAttackers();
-}
-
-std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(CvPlot& Plot) const
+std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) const
 {
 	const int idx = Plot.getX() + Plot.getY() * GC.getMap().getGridWidth();
 
@@ -1595,49 +1566,6 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
 	return false;
 }
 
-bool CvDangerPlotContents::CouldAttackHere(CvUnit* pAttacker)
-{
-	if (!m_pPlot || !pAttacker)
-		return false;
-
-	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
-	{
-		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
-		if (pUnit == pAttacker)
-		{
-			if ((m_pPlot->getPlotCity() && GET_TEAM(pAttacker->getTeam()).isAtWar(m_pPlot->getPlotCity()->getTeam())) ||
-				m_pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker, true))
-			{
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
-}
-
-bool CvDangerPlotContents::CouldAttackHere(CvCity* pAttacker)
-{
-	if (!m_pPlot || !pAttacker)
-		return false;
-
-	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
-	{
-		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
-		if (pCity == pAttacker)
-		{
-			if ((m_pPlot->getPlotCity() && GET_TEAM(pAttacker->getTeam()).isAtWar(m_pPlot->getPlotCity()->getTeam())) ||
-				m_pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), NULL, true))
-			{
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
-}
-
 // Get the maximum damage city could receive this turn if it were in this plot
 int CvDangerPlotContents::GetDanger(CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts)
 {
@@ -1796,12 +1724,6 @@ int CvDangerPlotContents::GetDamageFromFeatures(PlayerTypes ePlayer) const
 
 	return 0;
 };
-
-int CvDangerPlotContents::GetNumPossibleAttackers() const
-{
-	//ignore cities
-	return (int)(m_apUnits.size());
-}
 
 std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 {

@@ -832,7 +832,7 @@ public:
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker=NULL);
 	void flipDamageReceivedPerTurn();
 	bool isProjectedToDieNextTurn() const;
@@ -1745,7 +1745,7 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
 	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
 #endif

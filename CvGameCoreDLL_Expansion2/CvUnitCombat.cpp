@@ -354,7 +354,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 		iAttackerDamageDelta = pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner(), -1.f);		// Signal that we don't want the popup text.  It will be added later when the unit is at its final location
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 		//don't count the "self-inflicted" damage on the attacker
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
@@ -888,7 +888,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					//set damage but don't update entity damage visibility
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 					pkDefender->addDamageReceivedThisTurn(iDamage, pkAttacker);
 #endif
 
@@ -920,7 +920,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					bBarbarian = pCity->isBarbarian();
 					pCity->changeDamage(iDamage);
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 					pCity->addDamageReceivedThisTurn(iDamage);
 #endif
 
@@ -1046,7 +1046,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 					//set damage but don't update entity damage visibility
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 					pkDefender->addDamageReceivedThisTurn(iDamage);
 #endif
 
@@ -1108,7 +1108,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 		pkDefender->changeDamage(iAttackerDamageInflicted);
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
 #endif
 
@@ -1526,7 +1526,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 					pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 					//don't count the "self-inflicted" damage on the attacker
 					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif

@@ -362,7 +362,7 @@ CvCity::CvCity() :
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
 #endif
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
 	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
@@ -2940,10 +2940,12 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 
 	case TASK_REMOVE_SPECIALIST:
-		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes) iData2, true);
-		GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+	{
+		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, true);
+		std::map<SpecialistTypes, int> specialistValueCache;
+		GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
 		break;
-
+	}
 	case TASK_CHANGE_WORKING_PLOT:
 		GetCityCitizens()->DoAlterWorkingPlot(/*CityPlotIndex*/ iData1);
 		break;
@@ -11476,7 +11478,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Add Citizens
 				for(int iNewPopLoop = 0; iNewPopLoop < iPopChange; iNewPopLoop++)
 				{
-					GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+					std::map<SpecialistTypes, int> specialistValueCache;
+					GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
 				}
 			}
 		}
@@ -25234,7 +25237,7 @@ bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 #endif
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 int CvCity::addDamageReceivedThisTurn(int iDamage)
 {
 	m_iDamageTakenThisTurn+=iDamage;

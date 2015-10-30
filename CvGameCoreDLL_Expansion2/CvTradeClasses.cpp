@@ -3994,9 +3994,11 @@ bool CvPlayerTrade::IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity,
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eDomain)
+int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eDomain, bool bNeedOnlyOne)
 {
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
+
+	CvWeightedVector<CvCity*> vPossibleTargets;
 
 	int iNumValid = 0;
 	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
@@ -4008,33 +4010,46 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 			continue;
 		}
 
-		if (GET_PLAYER(ePlayer).isBarbarian())
+		if (GET_PLAYER(ePlayer).IsAtWarWith(m_pPlayer->GetID()))
 		{
 			continue;
 		}
 
 		int iLoop;
-		CvCity* pLoopCity;
-		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			bool bCheckPath = true;
-			for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
+			int iDistance = ::plotDistance(pFromCity->getX(), pFromCity->getY(), pLoopCity->getX(), pLoopCity->getY());
+			vPossibleTargets.push_back(pLoopCity, 1000 - iDistance);
+		}
+	}
+
+	//this should put the closest cities first
+	vPossibleTargets.SortItems();
+
+	for (int i = 0; i < vPossibleTargets.size(); i++)
+	{
+		CvCity* pLoopCity = vPossibleTargets.GetElement(i);
+
+		bool bCheckPath = true;
+		for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
+		{
+			// Check the trade route, ignoring the path for now
+			if (CanCreateTradeRoute(pFromCity, pLoopCity, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
 			{
-				// Check the trade route, ignoring the path for now
-				if (CanCreateTradeRoute(pFromCity, pLoopCity, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
+				// Now test the path
+				if (bCheckPath)
 				{
-					// Now test the path
-					if (bCheckPath)
-					{
-						bool bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pFromCity, pLoopCity, eDomain);
-						if (!bTradeAvailable)
-							break;		// If there is no path for this domain, just skip the rest of the connection tests.
+					bool bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pFromCity, pLoopCity, eDomain);
+					if (!bTradeAvailable)
+						break;		// If there is no path for this domain, just skip the rest of the connection tests.
 
-						bCheckPath = false;		// No need to check the path for this domain again
-					}
-
-					iNumValid++;
+					bCheckPath = false;		// No need to check the path for this domain again
 				}
+
+				iNumValid++;
+
+				if (bNeedOnlyOne)
+					return 1;
 			}
 		}
 	}

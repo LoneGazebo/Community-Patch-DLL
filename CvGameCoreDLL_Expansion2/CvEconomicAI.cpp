@@ -3996,7 +3996,7 @@ int EconomicAIHelpers::GetWeightThresholdModifier(EconomicAIStrategyTypes eStrat
 }
 
 /// Do we have an island clear of hostile units to settle on?
-bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
+bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, const CvPlayer* pPlayer)
 {
 	if(iAreaID == -1)
 	{
@@ -4004,7 +4004,7 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 	}
 
 	// Can't be capitals area
-	CvCity* pCapitalCity = pPlayer->getCapitalCity();
+	const CvCity* pCapitalCity = pPlayer->getCapitalCity();
 	if(pCapitalCity != NULL)
 	{
 		if(iAreaID == pCapitalCity->getArea())

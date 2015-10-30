@@ -6403,13 +6403,13 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pLoopUnit->flipDamageReceivedPerTurn();
 #endif
 	}
 
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->flipDamageReceivedPerTurn();
@@ -6449,7 +6449,7 @@ void CvPlayer::DoUnitReset()
 		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
 #endif
 		}
@@ -14113,9 +14113,10 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				if(GetTreasury()->CalculateBaseNetGold() > 0)
+				int iNetGold = GetTreasury()->CalculateBaseNetGold();
+				if (iNetGold> 0)
 				{
-					iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+					iYieldPerTurn += (iNetGold / iYieldPerGPT);
 				}
 			}
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
@@ -14185,9 +14186,10 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 				int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 				if(iYieldPerGPT > 0)
 				{
-					if(GetTreasury()->CalculateBaseNetGold() > 0)
+					int iNetGold = GetTreasury()->CalculateBaseNetGold();
+					if(iNetGold > 0)
 					{
-						iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+						iYieldPerTurn += (iNetGold / iYieldPerGPT);
 					}
 				}
 				int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
@@ -24558,10 +24560,17 @@ bool CvPlayer::IsAITeammateOfHuman() const
 {
 	bool bRtnValue = false;
 
+#if defined(MOD_BALANCE_CORE)
+	const std::vector<PlayerTypes>& teammates = GET_TEAM(getTeam()).getPlayers();
+	for (size_t i = 0; i < teammates.size(); ++i)
+	{
+		CvPlayer& player = GET_PLAYER(teammates[i]);
+#else
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		CvPlayer& player = GET_PLAYER(static_cast<PlayerTypes>(i));
-		if(player.isHuman() && player.isAlive())
+#endif
+		if (player.isHuman() && player.isAlive())
 		{
 			if(player.getTeam() == getTeam())
 			{
@@ -34715,21 +34724,7 @@ bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, CvUnit* pUnit) const
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, pUnit);
 }
 
-bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvUnit* pUnit) const
-{
-	return m_pDangerPlots->CouldAttackHere(pPlot, pUnit);
-}
-bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvCity* pCity) const
-{
-	return m_pDangerPlots->CouldAttackHere(pPlot, pCity);
-}
-
-int CvPlayer::GetNumPossibleAttackers(CvPlot& Plot) const
-{
-	return m_pDangerPlots->GetNumPossibleAttackers(Plot);
-}
-
-std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(CvPlot& Plot) const
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
 {
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
@@ -35051,11 +35046,16 @@ int CvPlayer::GetFoundValueOfCapital() const
 
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID) const
 {
-	// Check if there are good plots to settle nearby
-	CvPlot* pBestSettlePlot = GetBestSettlePlot(NULL,false,iAreaID,NULL);
-	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetID() ) : 0;
-	int iRefFoundValue = GetFoundValueOfCapital();
-	return (iBestFoundValue >= ((iRefFoundValue * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY()) / 100) );
+	// Check if there are good plots to settle somewhere
+	int iRefValue = ((GetFoundValueOfCapital() * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY()) / 100);
+	int iFirstArea, iSecondArea;
+	if (iAreaID==-1)
+		return GetBestSettleAreas(iRefValue, iFirstArea, iSecondArea) > 0; 
+	else
+	{
+		GetBestSettleAreas(iRefValue, iFirstArea, iSecondArea);
+		return (iFirstArea == iAreaID || iSecondArea == iAreaID);
+	}
 }
 
 #endif
@@ -35084,7 +35084,7 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Find best continents to settle next two cities; returns number found over minimum
-int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea)
+int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const
 {
 	CvArea* pLoopArea;
 	int iLoop;

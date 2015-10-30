@@ -222,7 +222,10 @@
 #define MOD_CORE_PATHFINDER
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
-#define MOD_BALANCE_CORE_PER_TURN_DAMAGE
+#define MOD_CORE_PER_TURN_DAMAGE
+
+// swap out all tactical plot scoring functions
+#define MOD_CORE_TACTICAL_PLOTSCORE
 
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS

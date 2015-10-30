@@ -10,6 +10,7 @@
 
 //Defines to reduce the amount included by the standard Windows.h
 #define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
 #define NOGDICAPMASKS    
 #define NOVIRTUALKEYCODES
 #define NOWINMESSAGES    

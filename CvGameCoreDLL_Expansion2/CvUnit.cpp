@@ -326,7 +326,7 @@ CvUnit::CvUnit() :
 	, m_eInvisibleType("CvUnit::m_eInvisibleType", m_syncArchive)
 	, m_eSeeInvisibleType("CvUnit::m_eSeeInvisibleType", m_syncArchive)
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
 	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
@@ -6132,7 +6132,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	m_iDamageTakenThisTurn+=iDamage;
@@ -27177,26 +27177,13 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !GC.getMap().plot(iData1,iData2)->getBestDefender(getOwner()))
 	{
-		int iFromDanger = GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this);
-		int iToDanger = GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this);
+		CvPlot* pFromPlot = plot();
+		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
+		int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
+		int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
 		if(iFromDanger<iToDanger)
 			OutputDebugString(CvString::format("%s moving into danger!\n",getName().c_str()).c_str());
 	}
-
-	//if (GC.getLogging() && GC.getAILogging()) 
-	//{
-	//	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	//	CvPlot* pPlot = plot();
-	//	CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
-	//	if (pPlot)
-	//	{
-	//		CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
-	//			GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
-	//			pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
-	//		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
-	//		pLog->Msg( info.c_str() );
-	//	}
-	//}
 #endif
 
 }

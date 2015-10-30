@@ -1223,7 +1223,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = -1;
@@ -1248,7 +1248,14 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue)
 				{
 					eSpecialist = (SpecialistTypes) pkBuildingInfo->GetSpecialistType();
 
-					iValue = GetSpecialistValue(eSpecialist);
+					std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
+					if (it != specialistValueCache.end())
+						iValue = specialistValueCache[eSpecialist];
+					else
+					{
+						iValue = GetSpecialistValue(eSpecialist);
+						specialistValueCache[eSpecialist] = iValue;
+					}
 
 					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
 #if defined(MOD_BALANCE_CORE)
@@ -1682,7 +1689,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
@@ -1712,7 +1719,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 		if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 		{
-			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue,specialistValueCache);
 		}
 
 		int iBestPlotValue = 0;
@@ -2045,11 +2052,14 @@ void CvCityCitizens::DoReallocateCitizens()
 		ChangeNumDefaultSpecialists(-1);
 	}
 
+	// don't calculate specialist value over and over ...
+	std::map<SpecialistTypes, int> specialistValueCache;
+
 	// Now put all of the unallocated guys back
 	int iNumToAllocate = GetNumUnassignedCitizens();
 	for(int iUnallocatedLoop = 0; iUnallocatedLoop < iNumToAllocate; iUnallocatedLoop++)
 	{
-		DoAddBestCitizenFromUnassigned();
+		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -2608,7 +2618,8 @@ void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
 			if(!IsCanWork(pPlot))
 			{
 				SetWorkingPlot(pPlot, false);
-				DoAddBestCitizenFromUnassigned();
+				std::map<SpecialistTypes, int> specialistValueCache;
+				DoAddBestCitizenFromUnassigned(specialistValueCache);
 			}
 		}
 	}

@@ -1258,7 +1258,7 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);
 	void flipDamageReceivedPerTurn();
 	bool isInDangerOfFalling() const;
@@ -1477,7 +1477,7 @@ protected:
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvCity> m_iDamageTakenThisTurn;
 	FAutoVariable<int, CvCity> m_iDamageTakenLastTurn;
 #endif

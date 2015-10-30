@@ -76,16 +76,12 @@ struct CvDangerPlotContents
 
 	int GetDanger(CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
 	int GetDanger(CvCity* pCity, CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
-
-	int GetNumPossibleAttackers() const;
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
 	bool IsUnderImmediateThreat(CvUnit* pUnit);
 	bool IsUnderImmediateThreat(PlayerTypes ePlayer);
-	bool CouldAttackHere(CvUnit* pAttacker);
-	bool CouldAttackHere(CvCity* pAttacker);
 	int GetDamageFromFeatures(PlayerTypes ePlayer) const;
 
 	CvPlot* m_pPlot;
@@ -150,10 +146,7 @@ public:
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, CvUnit* pUnit);
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
-	bool CouldAttackHere(const CvPlot& pPlot, CvUnit* pAttacker);
-	bool CouldAttackHere(const CvPlot& pPlot, CvCity* pAttacker);
-	int GetNumPossibleAttackers(CvPlot& Plot) const;
-	std::vector<CvUnit*> GetPossibleAttackers(CvPlot& Plot) const;
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);
 	void AddKnownUnit(PlayerTypes eOwner, int iUnitID);
 #else
