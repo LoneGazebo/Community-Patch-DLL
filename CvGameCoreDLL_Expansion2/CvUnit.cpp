@@ -8196,7 +8196,7 @@ void CvUnit::DoAttrition()
 					GetReligionData()->SetReligiousStrength(iStrength - iStrengthLoss);
 					if (pPlot && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 					{
-						Localization::String string = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+						Localization::String string = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION").c_str();
 
 						char text[256];
 						sprintf_s (text, "%s [COLOR_WHITE]-%d [ICON_PEACE][ENDCOLOR]", string.toUTF8(), iStrengthLoss);
@@ -27175,14 +27175,23 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !GC.getMap().plot(iData1,iData2)->getBestDefender(getOwner()))
+	if (eMission==CvTypes::getMISSION_MOVE_TO())
 	{
+		SetMissionAI(NO_MISSIONAI, GC.getMap().plot(iData1, iData2), NULL);
+
 		CvPlot* pFromPlot = plot();
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
-		int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
-		int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
-		if(iFromDanger<iToDanger)
-			OutputDebugString(CvString::format("%s moving into danger!\n",getName().c_str()).c_str());
+
+		if (!pFromPlot || !pToPlot)
+			return;
+
+		if (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner()))
+		{
+			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
+			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
+			if (iFromDanger < iToDanger)
+				OutputDebugString(CvString::format("%s moving into danger!\n", getName().c_str()).c_str());
+		}
 	}
 #endif
 

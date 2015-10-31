@@ -29332,14 +29332,17 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 #if defined(MOD_BALANCE_CORE)
 bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
 {
+	if (!pPlot)
+		return false;
+
 	// Loop through our units
 	int iLoop = 0;
 	for(const CvUnit* pUnit = firstUnit(&iLoop); pUnit; pUnit = nextUnit(&iLoop))
 	{
-		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
-			    pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE)
+		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_EXPLORE) )
 		{
-			if (pUnit->GetMissionAIPlot() == pPlot)
+			CvPlot* pMissionPlot = pUnit->GetMissionAIPlot();
+			if (pMissionPlot && ::plotDistance(*pMissionPlot,*pPlot)<3)
 				return true;
 		}
 	}

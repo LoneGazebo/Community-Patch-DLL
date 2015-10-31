@@ -55,6 +55,7 @@ CvTradedItem::CvTradedItem()
 	m_eFromPlayer = NO_PLAYER;
 	m_bFromRenewed = false;
 	m_bToRenewed = false;
+	m_iValue = INT_MAX;
 }
 
 /// Equals operator
@@ -1203,6 +1204,12 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
+	if (!pCity)
+	{
+		OutputDebugString("invalid city ID!\n");
+		return;
+	}
+
 	int x = pCity->getX();
 	int y = pCity->getY();
 
@@ -3638,8 +3645,14 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Resource Trade: ID %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_CITIES:
-				strTemp.Format("***** City Trade: ID %d %d *****", itemIter->m_iData1, itemIter->m_iData2);
+			{
+				CvPlot* pPlot = GC.getMap().plot(itemIter->m_iData1, itemIter->m_iData2);
+				CvCity* pCity = 0;
+				if (pPlot)
+					pCity = pPlot->getPlotCity();
+				strTemp.Format("***** City Trade: ID %s *****", pCity ? pCity->getName().c_str() : "unknown" );
 				break;
+			}
 			case TRADE_ITEM_OPEN_BORDERS:
 				strTemp.Format("Open Borders Trade");
 				break;
@@ -3675,7 +3688,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade *****", itemIter->m_iData1);
+				strTemp.Format("***** Tech Trade ***** ID %d", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
@@ -3691,6 +3704,14 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				break;
 			}
 			strOutBuf += ", " + strTemp;
+
+#if defined(MOD_BALANCE_CORE)
+			if (itemIter->m_iValue != INT_MAX)
+			{
+				strTemp.Format("(value %d)", itemIter->m_iValue);
+				strOutBuf += ", " + strTemp;
+			}
+#endif
 
 			pLog->Msg(strOutBuf);
 #if !defined(MOD_BALANCE_CORE)
