@@ -10110,7 +10110,7 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities) const
+bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	VALIDATE_OBJECT
 	if(!m_pUnitInfo->IsFound())
@@ -10130,16 +10130,17 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities)))
-		return false;
+	if (pPlot)
+		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
+	else
+		return true;
 #else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
 	{
 		return false;
 	}
-#endif
-
 	return true;
+#endif
 }
 
 

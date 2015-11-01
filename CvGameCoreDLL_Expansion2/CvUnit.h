@@ -357,7 +357,7 @@ public:
 	bool canPillage(const CvPlot* pPlot) const;
 	bool pillage();
 
-	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false) const;
+	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
 	bool found();
 
 	bool canJoin(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;

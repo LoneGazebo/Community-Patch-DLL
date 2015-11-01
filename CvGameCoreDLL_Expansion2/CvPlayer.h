@@ -261,10 +261,10 @@ public:
 	void doGoody(CvPlot* pPlot, CvUnit* pUnit);
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
+
 #if defined(MOD_BALANCE_CORE)
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities = false, CvUnit* pUnit = NULL) const;
-#else
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities = false) const;
+	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
+	bool canFound(int iX, int iY) const;
 #endif
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
@@ -1818,8 +1818,7 @@ public:
 	CvCity* nextCity(const CvCity* pCurrent, bool bRev=false);
 #endif
 	int getNumCities() const;
-	CvCity* getCity(int iID);
-	const CvCity* getCity(int iID) const;
+	CvCity* getCity(int iID) const;
 	CvCity* addCity();
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
@@ -1828,14 +1827,13 @@ public:
 	int getNumUnits() const;
 	const CvUnit* firstUnit(int* pIterIdx, bool bRev=false) const;
 	const CvUnit* nextUnit(int* pIterIdx, bool bRev=false) const;
-	const CvUnit* getUnit(int iID) const;
 	CvUnit* firstUnit(int* pIterIdx, bool bRev=false);
 	CvUnit* nextUnit(int* pIterIdx, bool bRev=false);
 #if defined(MOD_BALANCE_CORE)
 	CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev);
 	const CvUnit* nextUnit(const CvCity* pCurrent, bool bRev) const;
 #endif
-	CvUnit* getUnit(int iID);
+	CvUnit* getUnit(int iID) const;
 	CvUnit* addUnit();
 	void deleteUnit(int iID);
 
@@ -2196,7 +2194,7 @@ public:
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
 
-	virtual void updatePlotFoundValues(bool bStartingLoc = false);
+	virtual void updatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
 
@@ -2252,7 +2250,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	int GetCityDistance( const CvPlot* pPlot ) const;
-	CvCity* GetClosestCity( const CvPlot* pPlot );
+	CvCity* GetClosestCity( const CvPlot* pPlot ) const;
 #endif
 
 protected:

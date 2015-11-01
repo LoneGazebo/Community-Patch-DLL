@@ -56,6 +56,7 @@ CvTradedItem::CvTradedItem()
 	m_bFromRenewed = false;
 	m_bToRenewed = false;
 	m_iValue = INT_MAX;
+	m_bValueIsEven = false;
 }
 
 /// Equals operator
@@ -3708,7 +3709,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #if defined(MOD_BALANCE_CORE)
 			if (itemIter->m_iValue != INT_MAX)
 			{
-				strTemp.Format("(value %d)", itemIter->m_iValue);
+				strTemp.Format("(value %d - %s)", itemIter->m_iValue, itemIter->m_bValueIsEven ? "equalized" : "raw");
 				strOutBuf += ", " + strTemp;
 			}
 #endif

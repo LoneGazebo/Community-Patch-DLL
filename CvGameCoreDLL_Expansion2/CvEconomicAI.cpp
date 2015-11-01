@@ -2947,11 +2947,19 @@ void CvEconomicAI::DisbandUselessSettlers()
 	EconomicAIStrategyTypes eNoMoreSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 	int iNumCities = m_pPlayer->GetNumCitiesFounded();
+
 	bool bNoMoreSettlers = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreSettlers);
 	if(!bNoMoreSettlers)
 	{
 		return;
 	}
+
+	//two settlers are ok
+	if (iNumSettlers <= 2)
+	{
+		return;
+	}
+
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(!pCapital)
 	{
@@ -2977,6 +2985,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumSettlers, iNumCities, -1, 0);
 }
+
 CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 {
 	CvUnit* pLoopUnit = NULL;
@@ -2998,6 +3007,7 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 
 	return NULL;
 }
+
 void CvEconomicAI::DisbandExtraWorkboats()
 {
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
@@ -4483,12 +4493,13 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
+
 	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 	if (iNumSettleAreas == 0)
 	{
 		return true;
 	}
-	if(pPlayer->IsEmpireUnhappy())
+	if(pPlayer->IsEmpireVeryUnhappy())
 	{
 		return true;
 	}
@@ -4496,10 +4507,11 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
-	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) >= 2)
+	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 2)
 	{
 		return true;
 	}
+
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
@@ -4510,6 +4522,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return false;
 	}
+
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
 	EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (eExpandOther != NO_ECONOMICAISTRATEGY)
@@ -4529,6 +4542,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
+
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
 	EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
 	if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
@@ -4764,6 +4778,12 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
+	EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+	{
+		return false;
+	}
+
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{

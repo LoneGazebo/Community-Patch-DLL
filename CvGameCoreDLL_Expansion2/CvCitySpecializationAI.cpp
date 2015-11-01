@@ -1270,7 +1270,7 @@ void CvCitySpecializationAI::FindBestSites()
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pPlot->getFoundValue(m_pPlayer->GetID())>0)
+		if (m_pPlayer->getPlotFoundValue( pPlot->getX(),pPlot->getY() )>0)
 		{
 #else
 	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;

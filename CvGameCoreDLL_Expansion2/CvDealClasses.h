@@ -68,6 +68,7 @@ struct CvTradedItem
 	bool m_bFromRenewed;		    // Was this trade item used in a renewal?
 	bool m_bToRenewed;				// Was this trade item
 	int m_iValue;					// not serialized, only temporary
+	bool m_bValueIsEven;			// not serialized, only temporary
 };
 FDataStream& OldLoad(FDataStream&, CvTradedItem&);
 FDataStream& operator>>(FDataStream&, CvTradedItem&);

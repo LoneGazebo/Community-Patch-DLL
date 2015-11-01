@@ -70,7 +70,7 @@ void CvCitySiteEvaluator::Init()
 
 /// Is it valid for this player to found a city here?
 #if defined(MOD_BALANCE_CORE)
-bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit) const
+bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
 #else
 bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 #endif
@@ -201,9 +201,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		return false;
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		// look at same land mass
