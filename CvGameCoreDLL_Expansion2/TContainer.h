@@ -93,10 +93,13 @@ T* TContainer<T>::Get(int iID) const
 template <class T>
 T* TContainer<T>::GetAt(int iIndex) const
 {
-	std::map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
+	if (iIndex >= 0 && iIndex < (int)m_order.size())
+	{
+		std::map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
 
-	if (it != m_items.end())
-		return it->second;
+		if (it != m_items.end())
+			return it->second;
+	}
 
 	return NULL;
 }
