@@ -998,9 +998,9 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		bool bUseEvenValue = true;
 
 #if defined(MOD_BALANCE_CORE)
-		DoAddCitiesToThem(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-		DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
-		DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+		DoAddCitiesToThem(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+		DoAddThirdPartyWarToThem(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+		DoAddThirdPartyPeaceToThem(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 #endif
 
 		DoAddVoteCommitmentToThem(pCounterDeal, eOtherPlayer, /*bDontChangeTheirExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
@@ -1014,11 +1014,11 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			DoAddTechToThem(pDeal, eOtherPlayer, /*bDontChangeTheirExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-			DoAddTechToUs(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+			DoAddTechToThem(pCounterDeal, eOtherPlayer, /*bDontChangeTheirExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddTechToUs(pCounterDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 
-			DoAddMapsToThem(pDeal, eOtherPlayer, /*bDontChangeTheirExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-			DoAddMapsToUs(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+			DoAddMapsToThem(pCounterDeal, eOtherPlayer, /*bDontChangeTheirExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddMapsToUs(pCounterDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 		}
 #endif
 
@@ -1029,9 +1029,9 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		DoAddGoldToUs(pCounterDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, bUseEvenValue);
 
 #if defined(MOD_BALANCE_CORE)
-		DoAddCitiesToUs(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
-		DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
-		DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+		DoAddCitiesToUs(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+		DoAddThirdPartyWarToUs(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
+		DoAddThirdPartyPeaceToUs(pCounterDeal, eOtherPlayer, false, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 #endif
 
 		DoRemoveGPTFromThem(pCounterDeal, eOtherPlayer, iTotalValue, iEvenValueImOffering, iEvenValueTheyreOffering, iDealDuration, bUseEvenValue);
@@ -1054,7 +1054,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 			}
 
 			int iValueTheyThinkTheyreOffering, iValueTheyThinkTheyreGetting;
-			GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pDeal, iValueTheyThinkTheyreOffering, iValueTheyThinkTheyreGetting, /*bUseEvenValue*/ false);
+			GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pCounterDeal, iValueTheyThinkTheyreOffering, iValueTheyThinkTheyreGetting, /*bUseEvenValue*/ false);
 
 			// They don't think they're getting enough for what's on their side of the table
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -2257,7 +2257,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value
-	int iItemValue = pCity->getEconomicValue(buyingPlayer.GetID());
+	int iItemValue = 1000 + pCity->getEconomicValue(buyingPlayer.GetID());
 	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT()+2;
 
 	//first some amount for the territory
@@ -2265,7 +2265,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iCityTiles = 0;
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iI = 1; iI < pCity->GetNumWorkablePlots(); iI++)
+	for(int iI = 1; iI < MAX_CITY_PLOTS; iI++)
 #else
 	for (int iI = 1; iI < NUM_CITY_PLOTS; iI++)
 #endif
@@ -2276,22 +2276,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 
 		//if it belongs to the city
 		if (pCity->GetID() == pLoopPlot->GetCityPurchaseID())
-		{
 			iCityTiles++;
-
-			//check the neighboring cities
-			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pLoopPlot);
-			for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
-			{
-				CvPlot* pAdjacentPlot = aPlotsToCheck[iJ];
-				if (!pAdjacentPlot)
-					continue;
-
-				//bordering on another of the buyer's cities - important!
-				if (pAdjacentPlot->getOwner() == buyingPlayer.GetID() && pCity->GetID() != pAdjacentPlot->GetCityPurchaseID())
-					iInternalBorderCount++; //each neighbor can potentially count multiple times, but that's ok
-			}
-		}
+		else if (pLoopPlot->getOwner() == buyingPlayer.GetID())
+			//belongs to another one of the buyer's cities
+			iInternalBorderCount++;
 	}
 
 	//this is how much ANY plot is worth to the buyer right now
@@ -2376,8 +2364,8 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		int iTemp = plotDistance(pRefCity->getX(), pRefCity->getY(), pCity->getX(), pCity->getY());
 		iBuyerDistance = min(iTemp, iBuyerDistance);
 	}
-	//buyer likes it close to home
-	iItemValue *= 100 + MapToPercent(iBuyerDistance, iRefDist * 2, iRefDist);
+	//buyer likes it close to home (up to 55% bonus) - this is in addition to the tile overlap above
+	iItemValue *= 100 + MapToPercent(iBuyerDistance, iRefDist * 2, iRefDist)/2;
 	iItemValue /= 100;
 
 	// AI players should be less willing to trade cities when at war (unless at war with the target)
@@ -2396,19 +2384,32 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 
 	//Did we build this city? We like it.
 	if (pCity->getOriginalOwner() == buyingPlayer.GetID())
-		iItemValue *= 2;
+	{
+		iItemValue *= 110;
+		iItemValue /= 100;
+	}
 
 	//if we currently own the city, the price is higher.
 	if (pCity->getOwner() == buyingPlayer.GetID())
-		iItemValue *= 2;
+	{
+		iItemValue *= 110;
+		iItemValue /= 100;
+
+		//check traderoutes
+		if (pCity->IsConnectedToTradeNetwork())
+		{
+			iItemValue *= 110;
+			iItemValue /= 100;
+		}
+	}
 
 	//Resistance? Reduces the value
-	iItemValue *= 120 - MapToPercent(pCity->GetResistanceTurns(), 3, 9)/5;
+	iItemValue *= 100 - MapToPercent(pCity->GetResistanceTurns(), 3, 9)/5;
 	iItemValue /= 100;
 
 	// Original capitals are very valuable
 	if (pCity->IsOriginalMajorCapital())
-		iItemValue *= 5;
+		iItemValue *= 4;
 
 	// so here's the tricky part - convert to gold
 	iItemValue /= 6;
@@ -5371,93 +5372,46 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 	if(iTotalValue <= 0)
 		return;
 
-	CvPlayer* pLosingPlayer = GetPlayer();
-	CvPlayer* pWinningPlayer = &GET_PLAYER(eThem);
+	CvPlayer* pSellingPlayer = GetPlayer();
 
 	// If the player only has 1 City then we can't get any more from him
-	if(pLosingPlayer->getNumCities() == 1)
+	if(pSellingPlayer->getNumCities() == 1)
 		return;
 
-	int iCityDistanceFromWinnersCapital = 0;
-	//int iCityValue = 0;
-
-	// If winner has no capital then we can't use proximity - it will stay at 0
-	CvCity* pWinnerCapital = pWinningPlayer->getCapitalCity();
-
 	// Create vector of the losing players' Cities so we can see which are the closest to the winner
-	CvWeightedVector<int> viCityProximities;
+	CvWeightedVector<int> viCityPriceRatio;
 
 	// Loop through all of the loser's Cities
 	CvCity* pLoopCity;
 	int iCityLoop;
-#if defined(MOD_BALANCE_CORE)
-	int iBestCity = 0;
-	for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
+	for(pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
-		// Get total city value of the loser
-		int iCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, /*bUseEvenValue*/ false);
-		if (iCityValue == INT_MAX)
+		int iWhatTheyWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, /*bUseEvenValue*/ false);
+		int iWhatIWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eThem, /*bUseEvenValue*/ false);
+
+		if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
 		{
 			continue;
 		}
 
-		if(iCityValue > iBestCity)
+		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+
+		// Don't include the capital in the list of Cities the buyer can receive
+		if(!pLoopCity->isCapital() && iRatio>50)
 		{
-			iBestCity = iCityValue;
+			viCityPriceRatio.push_back(pLoopCity->GetID(), iRatio);
 		}
 	}
-	for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
-	{
-		int iCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, /*bUseEvenValue*/ false);
-		if (iCityValue == INT_MAX)
-		{
-			continue;
-		}
 
-		// If winner has no capital, Distance defaults to 0
-		if(pWinnerCapital != NULL)
-		{
-			iCityDistanceFromWinnersCapital = plotDistance(pWinnerCapital->getX(), pWinnerCapital->getY(), pLoopCity->getX(), pLoopCity->getY());
-		}
-		if(iCityValue == iBestCity)
-		{
-			iCityDistanceFromWinnersCapital = 1;
-		}
-		// Don't include the capital in the list of Cities the winner can receive
-		if(!pLoopCity->isCapital())
-		{
-			viCityProximities.push_back(pLoopCity->GetID(), iCityDistanceFromWinnersCapital);
-		}
-	}
-#else
-	for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
-	{
-		// Get total city value of the loser
-		//iCityValue += GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, bUseEvenValue);
-		//iCityValue += GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, /*bUseEvenValue*/ true);
+	// Sort the vector based on the price ratio we can achieve
+	viCityPriceRatio.SortItems();
 
-		// If winner has no capital, Distance defaults to 0
-		if(pWinnerCapital != NULL)
-		{
-			iCityDistanceFromWinnersCapital = plotDistance(pWinnerCapital->getX(), pWinnerCapital->getY(), pLoopCity->getX(), pLoopCity->getY());
-		}
-
-		// Don't include the capital in the list of Cities the winner can receive
-		if(!pLoopCity->isCapital())
-		{
-			viCityProximities.push_back(pLoopCity->GetID(), iCityDistanceFromWinnersCapital);
-		}
-	}
-#endif
-	// Sort the vector based on distance from winner's capital
-	viCityProximities.SortItems();
-
-	// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
+	// Loop through sorted Cities
 	int iSortedCityID;
-	for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+	for(int iSortedCityIndex = 0; iSortedCityIndex < viCityPriceRatio.size(); iSortedCityIndex++)
 	{
-		iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
-		pLoopCity = pLosingPlayer->getCity(iSortedCityID);
+		iSortedCityID = viCityPriceRatio.GetElement(iSortedCityIndex);
+		pLoopCity = pSellingPlayer->getCity(iSortedCityID);
 
 		// See if we can actually trade it to them
 		if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
@@ -5497,19 +5451,6 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 			}
 		}
 
-		// City is worth less than what is left to be added to the deal, so add it
-		//if (iCityValue < iCityValueToSurrender)
-		//{
-		//	if (pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
-		//	{
-		//		pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
-
-		//		// Remove GPT from this City so we don't give more than we can support
-		//		iGPTToGive -= pLoopCity->getYieldRate(YIELD_GOLD);
-
-		//		iCityValueToSurrender -= iCityValue;
-		//	}
-		//}
 	}
 }
 #if defined(MOD_BALANCE_CORE)
@@ -5534,80 +5475,46 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 	if(iTotalValue > 0)
 		return;
 
-	CvPlayer* pWinningPlayer= GetPlayer();
-	CvPlayer* pLosingPlayer  = &GET_PLAYER(eThem);
+	CvPlayer* pSellingPlayer  = &GET_PLAYER(eThem);
 
 	// If the player only has 1 City then we can't get any more from him
-	if(pLosingPlayer->getNumCities() == 1)
+	if(pSellingPlayer->getNumCities() == 1)
 		return;
 
-	//int iCityValue = 0;
-
-	int iCityDistanceFromWinnersCapital = 0;
-	int iWinnerCapitalX = -1, iWinnerCapitalY = -1;
-
-	// If winner has no capital then we can't use proximity - it will stay at 0
-	CvCity* pWinnerCapital = pWinningPlayer->getCapitalCity();
-	if(pWinnerCapital != NULL)
-	{
-		iWinnerCapitalX = pWinningPlayer->getCapitalCity()->getX();
-		iWinnerCapitalY = pWinningPlayer->getCapitalCity()->getY();
-	}
-
 	// Create vector of the losing players' Cities so we can see which are the closest to the winner
-	CvWeightedVector<int> viCityProximities;
+	CvWeightedVector<int> viCityPriceRatio;
 
 	// Loop through all of the loser's Cities
 	CvCity* pLoopCity;
 	int iCityLoop;
-	int iBestCity = 0;
-	for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
+	for(pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
-		// Get total city value of the loser
-		int iCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eThem, /*bUseEvenValue*/ false);
-		if (iCityValue == INT_MAX)
+		int iWhatTheyWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eThem, /*bUseEvenValue*/ false);
+		int iWhatIWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eThem, /*bUseEvenValue*/ false);
+
+		if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
 		{
 			continue;
 		}
 
-		if(iCityValue > iBestCity)
-		{
-			iBestCity = iCityValue;
-		}
-	}
-	for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
-	{
-		int iCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eThem, /*bUseEvenValue*/ false);
-		if (iCityValue == INT_MAX)
-		{
-			continue;
-		}
+		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
 
-		// If winner has no capital, Distance defaults to 0
-		if(pWinnerCapital != NULL)
+		// Don't include the capital in the list of Cities the buyer can receive
+		if (!pLoopCity->isCapital() && iRatio>50) 
 		{
-			iCityDistanceFromWinnersCapital = plotDistance(iWinnerCapitalX, iWinnerCapitalY, pLoopCity->getX(), pLoopCity->getY());
-		}
-		if(iCityValue == iBestCity)
-		{
-			iCityDistanceFromWinnersCapital = 1;
-		}
-		// Don't include the capital in the list of Cities the winner can receive
-		if(!pLoopCity->isCapital())
-		{
-			viCityProximities.push_back(pLoopCity->GetID(), iCityDistanceFromWinnersCapital);
+			viCityPriceRatio.push_back(pLoopCity->GetID(), iRatio);
 		}
 	}
 
-	// Sort the vector based on distance from winner's capital
-	viCityProximities.SortItems();
+	// Sort the vector based on price ratio we can get
+	viCityPriceRatio.SortItems();
 
-	// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
+	// Loop through sorted Cities.
 	int iSortedCityID;
-	for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+	for (int iSortedCityIndex = 0; iSortedCityIndex < viCityPriceRatio.size(); iSortedCityIndex++)
 	{
-		iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
-		pLoopCity = pLosingPlayer->getCity(iSortedCityID);
+		iSortedCityID = viCityPriceRatio.GetElement(iSortedCityIndex);
+		pLoopCity = pSellingPlayer->getCity(iSortedCityID);
 
 		// See if we can actually trade it to them
 		if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
@@ -5646,20 +5553,6 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 #endif
 			}
 		}
-
-		// City is worth less than what is left to be added to the deal, so add it
-		//if (iCityValue < iCityValueToSurrender)
-		//{
-		//	if (pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
-		//	{
-		//		pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
-
-		//		// Remove GPT from this City so we don't give more than we can support
-		//		iGPTToGive -= pLoopCity->getYieldRate(YIELD_GOLD);
-
-		//		iCityValueToSurrender -= iCityValue;
-		//	}
-		//}
 	}
 }
 #endif
@@ -7224,10 +7117,9 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	CvCity* pLoopCity;
 	int iCityLoop;
-	int iItemValue = 0;
 	int iTempDistance = 0;
 	CvCity* pBestCity = NULL;
-	int iBestCity = 0;
+	int iBestCity = 50;
 	//Buy a City?
 	for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
@@ -7239,11 +7131,18 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			{
 				if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 				{
-					iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
-					if(iItemValue > iBestCity && iItemValue!=INT_MAX)
+					int iWhatTheyWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eOtherPlayer, /*bUseEvenValue*/ false);
+					int iWhatIWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eOtherPlayer, /*bUseEvenValue*/ false);
+					if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
+					{
+						continue;
+					}
+
+					int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+					if(iRatio > iBestCity)
 					{
 						pBestCity = pLoopCity;
-						iBestCity = iItemValue;
+						iBestCity = iRatio;
 					}	
 				}
 			}
@@ -7298,12 +7197,12 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	CvCity* pLoopMyCity;
 	int iCityLoop;
 	int iMyCityLoop;
-	int iItemValue = 0;
 	int iTempDistance = 0;
+
 	CvCity* pBestBuyCity = NULL;
-	int iBestBuyCity = 0;
+	int iBestBuyCity = 50;
 	CvCity* pBestSellCity = NULL;
-	int iBestSellCity = 0;
+	int iBestSellCity = 50;
 
 	for(pLoopMyCity = m_pPlayer->firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = m_pPlayer->nextCity(&iMyCityLoop))
 	{
@@ -7315,12 +7214,19 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			{
 				if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pLoopMyCity->getX(), pLoopMyCity->getY()))
 				{
-					iItemValue = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), true, eOtherPlayer, false);
-					if (iItemValue > iBestSellCity && iItemValue != INT_MAX)
+					int iWhatTheyWouldPay = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), /*bFromMe*/ true, eOtherPlayer, /*bUseEvenValue*/ false);
+					int iWhatIWouldPay = GetCityValue(pLoopMyCity->getX(), pLoopMyCity->getY(), /*bFromMe*/ false, eOtherPlayer, /*bUseEvenValue*/ false);
+					if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
+					{
+						continue;
+					}
+
+					int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+					if (iRatio > iBestSellCity)
 					{
 						pBestSellCity = pLoopMyCity;
-						iBestSellCity = iItemValue;
-					}	
+						iBestSellCity = iRatio;
+					}
 				}
 			}
 		}
@@ -7338,12 +7244,19 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 				{
 					if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 					{
-						iItemValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), false, eOtherPlayer, false);
-						if (iItemValue > iBestBuyCity && iItemValue != INT_MAX)
+						int iWhatTheyWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ false, eOtherPlayer, /*bUseEvenValue*/ false);
+						int iWhatIWouldPay = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), /*bFromMe*/ true, eOtherPlayer, /*bUseEvenValue*/ false);
+						if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
+						{
+							continue;
+						}
+
+						int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+						if (iRatio > iBestBuyCity)
 						{
 							pBestBuyCity = pLoopCity;
-							iBestBuyCity = iItemValue;
-						}	
+							iBestBuyCity = iRatio;
+						}
 					}
 				}
 			}

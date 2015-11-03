@@ -14801,29 +14801,9 @@ int CvCity::getUnhappinessFromConnection() const
 		return 0;
 	}
 #endif
-	if(HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
-	{
-		return 0;
-	}
-	int iLoop = 0;
-	CvCity* pLoopCity;
-	for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity != this)
-		{
-			if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
-			{
-				if(pLoopCity->HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || pLoopCity->HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
-				{
-					return 0;
-				}
-				else if (pLoopCity->IsConnectedToCapital())
-				{
-					return 0;
-				}
-			}
-		}
-	}
+
+	if (IsConnectedToTradeNetwork())
+		return false;
 
 	float fUnhappiness = 0.0f;
 	
@@ -15118,6 +15098,36 @@ int CvCity::getUnhappinessFromMinority() const
 
 	return 0;
 }
+
+bool CvCity::IsConnectedToTradeNetwork() const
+{
+	if (HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
+	{
+		return true;
+	}
+	int iLoop = 0;
+	CvCity* pLoopCity;
+	for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity != this)
+		{
+			if (HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
+			{
+				if (pLoopCity->HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || pLoopCity->HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
+				{
+					return true;
+				}
+				else if (pLoopCity->IsConnectedToCapital())
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 int CvCity::GetHappinessFromBuildings() const

@@ -654,6 +654,7 @@ public:
 	int getUnhappinessFromPillaged() const;
 	int getUnhappinessFromStarving() const;
 	int getUnhappinessFromMinority() const;
+	bool IsConnectedToTradeNetwork() const;
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;

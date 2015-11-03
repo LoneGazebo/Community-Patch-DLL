@@ -5192,10 +5192,18 @@ void CvPlayer::killUnits()
 		unitsToKill.push_back(pLoopUnit->GetID());
 	}
 
+	//debugging ...
+	for (std::vector<int>::iterator it = unitsToKill.begin(); it != unitsToKill.end(); ++it)
+	{
+		if (std::count(unitsToKill.begin(), unitsToKill.end(),*it)>1)
+			OutputDebugString("inconsistent state: non-unique unit ID to kill!\n");
+	}
+
 	for (std::vector<int>::iterator it=unitsToKill.begin(); it!=unitsToKill.end(); ++it)
 	{
 		CvUnit* pLoopUnit = getUnit(*it);
-		pLoopUnit->kill(false);
+		if (pLoopUnit)
+			pLoopUnit->kill(false);
 	}
 }
 
@@ -28958,7 +28966,16 @@ CvUnit* CvPlayer::getUnit(int iID) const
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlayer::addUnit()
 {
-	return (m_units.Add());
+	CvUnit* pResult = m_units.Add();
+
+	//debugging ...
+	for (int iIdx = 0; iIdx < m_units.GetCount()-1; iIdx++)
+	{
+		if (m_units.GetAt(iIdx)==pResult)
+			OutputDebugString("inconsistent state: double unit pointer!\n");
+	}
+
+	return pResult;
 }
 
 

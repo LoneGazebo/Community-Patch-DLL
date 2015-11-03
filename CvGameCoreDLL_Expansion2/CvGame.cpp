@@ -8810,7 +8810,11 @@ void CvGame::updateMoves()
 						else
 						{
 							const CvUnit* pReadyUnit = player.GetFirstReadyUnit();
+#if defined(MOD_BALANCE_CORE)
+							if (pReadyUnit) //there was a hang with a queued attack on autoplay so setAutoMoves(true) was never called
+#else
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
+#endif
 							{
 								int iWaitTime = 100;
 								if(!isNetworkMultiPlayer())

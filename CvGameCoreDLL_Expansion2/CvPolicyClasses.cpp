@@ -3016,6 +3016,9 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pPolicies(NULL),
 	m_pPlayer(NULL)
 {
+#if defined(MOD_BALANCE_CORE)
+	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+#endif
 }
 
 /// Destructor
@@ -3744,7 +3747,10 @@ int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildi
 {
 
 #if defined(MOD_BALANCE_CORE)
-	return m_vBuildingClassTourismModifier[eBuildingClass];
+	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
+		return m_vBuildingClassTourismModifier[eBuildingClass];
+	else
+		return 0;
 #else
 	int rtnValue = 0;
 

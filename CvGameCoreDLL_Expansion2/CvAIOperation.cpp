@@ -11645,10 +11645,8 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	if (GET_PLAYER(m_eOwner).IsEmpireVeryUnhappy())
 	{
 		//return to muster plot ...
-		SetTargetPlot( GetMusterPlot() );
-		pArmy->SetGoalPlot( GetMusterPlot() );
-		pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-		m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+		pArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+		m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
 	}
 	else if ( pTargetPlot==NULL || 
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!

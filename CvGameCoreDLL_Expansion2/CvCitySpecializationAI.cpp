@@ -996,7 +996,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 void CvCitySpecializationAI::SelectSpecializations()
 {
 	CitySpecializationTypes eSpecialization;
-	unsigned int iSpecializationsToAssign = (unsigned int)m_pPlayer->getNumCities() - (unsigned int) m_pPlayer->GetNumPuppetCities() + 1;
+	int iSpecializationsToAssign = m_pPlayer->getNumCities() - m_pPlayer->GetNumPuppetCities() + 1;
 	int iOldWeight;
 	int iNewWeight;
 	int iReductionAmount;
@@ -1040,7 +1040,7 @@ void CvCitySpecializationAI::SelectSpecializations()
 	}
 
 	// LOOP as many times as we have cities PLUS ONE
-	while(m_SpecializationsNeeded.size() < iSpecializationsToAssign)
+	while(m_SpecializationsNeeded.size() < (size_t)iSpecializationsToAssign)
 	{
 		// Find highest weighted specialization
 		m_YieldWeights.SortItems();
