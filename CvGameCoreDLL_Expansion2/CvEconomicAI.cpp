@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2947,11 +2947,19 @@ void CvEconomicAI::DisbandUselessSettlers()
 	EconomicAIStrategyTypes eNoMoreSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 	int iNumCities = m_pPlayer->GetNumCitiesFounded();
+
 	bool bNoMoreSettlers = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreSettlers);
 	if(!bNoMoreSettlers)
 	{
 		return;
 	}
+
+	//two settlers are ok
+	if (iNumSettlers <= 2)
+	{
+		return;
+	}
+
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(!pCapital)
 	{
@@ -3996,7 +4004,7 @@ int EconomicAIHelpers::GetWeightThresholdModifier(EconomicAIStrategyTypes eStrat
 }
 
 /// Do we have an island clear of hostile units to settle on?
-bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
+bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, const CvPlayer* pPlayer)
 {
 	if(iAreaID == -1)
 	{
@@ -4004,7 +4012,7 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 	}
 
 	// Can't be capitals area
-	CvCity* pCapitalCity = pPlayer->getCapitalCity();
+	const CvCity* pCapitalCity = pPlayer->getCapitalCity();
 	if(pCapitalCity != NULL)
 	{
 		if(iAreaID == pCapitalCity->getArea())
@@ -4488,7 +4496,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
-	if(pPlayer->IsEmpireUnhappy())
+	if(pPlayer->IsEmpireVeryUnhappy())
 	{
 		return true;
 	}
@@ -4496,10 +4504,11 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
-	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) >= 2)
+	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 2)
 	{
 		return true;
 	}
+
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
@@ -4510,6 +4519,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return false;
 	}
+
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
 	EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (eExpandOther != NO_ECONOMICAISTRATEGY)
@@ -4764,6 +4774,12 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
+	EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+	{
+		return false;
+	}
+
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{

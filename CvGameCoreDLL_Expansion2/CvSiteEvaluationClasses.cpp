@@ -70,7 +70,7 @@ void CvCitySiteEvaluator::Init()
 
 /// Is it valid for this player to found a city here?
 #if defined(MOD_BALANCE_CORE)
-bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit) const
+bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
 #else
 bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 #endif
@@ -201,14 +201,24 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		return false;
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		// look at same land mass
-		iRange = GC.getMIN_CITY_RANGE();
 
+		//2
+		iRange = GC.getMIN_CITY_RANGE();
+		if(pPlayer && pPlayer->isMinorCiv())
+		{
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+			}
+		}
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+		{
+			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+		}
 		for(iDX = -(iRange); iDX <= iRange; iDX++)
 		{
 			for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -914,9 +924,21 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
 
 		// Human
+		int iRange = GC.getMIN_CITY_RANGE();
+		if(pPlayer && pPlayer->isMinorCiv())
+		{
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+			}
+		}
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+		{
+			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+		}
 		if (pPlayer->isHuman())
 		{
-			if (iClosestCityOfMine == GC.getMIN_CITY_RANGE())
+			if (iClosestCityOfMine == iRange)
 			{
 				iValueModifier -= iTotalPlotValue / 2;
 				vQualifiersNegative.push_back("(V) too close to existing cities");
@@ -959,9 +981,21 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (iBoldness <= 5) iSweetMax--;
 			if (iBoldness > 5) iSweetMin++;
 
-			if(iSweetMin < GC.getMIN_CITY_RANGE())
+			int iRange = GC.getMIN_CITY_RANGE();
+			if(pPlayer && pPlayer->isMinorCiv())
 			{
-				iSweetMin = GC.getMIN_CITY_RANGE();
+				if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+				{
+					iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+				}
+			}
+			else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+			}
+			if(iSweetMin < iRange)
+			{
+				iSweetMin = iRange;
 			}
 
 			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 

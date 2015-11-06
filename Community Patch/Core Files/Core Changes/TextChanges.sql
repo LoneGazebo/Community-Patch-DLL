@@ -17,6 +17,10 @@ UPDATE Language_en_US
 SET Text = 'You received tribute recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'Action can only be performed in City-State territory. If the City-State is at war with you OR another Major Civilization (and you are not the City-State''s current Ally), you cannot perform this action.'
+WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_DISABLED_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4471,6 +4471,14 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 }
 
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvGame::isReallyNetworkMultiPlayer() const
+{
+	return CvPreGame::isReallyNetworkMultiPlayer();
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvGame::isNetworkMultiPlayer() const
 {
@@ -4499,6 +4507,10 @@ void CvGame::ReviveActivePlayer()
 	if(!(GET_PLAYER(getActivePlayer()).isAlive()))
 	{
 		setAIAutoPlay(0, m_eAIAutoPlayReturnPlayer);
+
+#if defined(MOD_BALANCE_CORE)
+		DLLUI->SetDontShowPopups(false);
+#endif
 
 		// If no player specified, returning as an observer
 		if(m_eAIAutoPlayReturnPlayer == NO_PLAYER)
@@ -5217,6 +5229,10 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 
 		if((iOldValue == 0) && (getAIAutoPlay() > 0))
 		{
+#if defined(MOD_BALANCE_CORE)
+			DLLUI->SetDontShowPopups(true);
+#endif
+
 			if(CanMoveActivePlayerToObserver())
 			{
 				ActivateObserverSlot();
@@ -8134,7 +8150,11 @@ void CvGame::doTurn()
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
 		// Don't show this stuff in MP
+#if defined(MOD_API_EXTENSIONS)
+		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
+#else
 		if(!isGameMultiPlayer())
+#endif
 		{
 			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
 
@@ -8802,7 +8822,11 @@ void CvGame::updateMoves()
 						else
 						{
 							const CvUnit* pReadyUnit = player.GetFirstReadyUnit();
+#if defined(MOD_BALANCE_CORE)
+							if (pReadyUnit) //there was a hang with a queued attack on autoplay so setAutoMoves(true) was never called
+#else
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
+#endif
 							{
 								int iWaitTime = 100;
 								if(!isNetworkMultiPlayer())

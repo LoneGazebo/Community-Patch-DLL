@@ -76,6 +76,9 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsHuman);
 	Method(IsBarbarian);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsMajorCiv);
+#endif
 	Method(IsMinorCiv);
 	Method(IsMinorCivWarmonger);
 
@@ -501,6 +504,15 @@ int CvLuaTeam::lIsBarbarian(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::isBarbarian);
 }
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isMajorCiv();
+int CvLuaTeam::lIsMajorCiv(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::isMajorCiv);
+}
+#endif
 
 //------------------------------------------------------------------------------
 //bool isMinorCiv();

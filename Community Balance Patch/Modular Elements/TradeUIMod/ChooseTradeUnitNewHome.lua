@@ -134,17 +134,73 @@ function RefreshList()
 		
 		local itemInstance = g_ItemManager:GetInstance();
 		CivIconHookup(pTargetPlayer:GetID(), 45, itemInstance.CivIcon, itemInstance.CivIconBG, itemInstance.CivIconShadow, false, true );
+
+		local sTT = "";
+		local sTTTradeHeader = Locale.Lookup("TXT_KEY_TRADE_BUILDINGS");
+		local sTTTrade = "";
 		local sCityDetails = Locale.Lookup("TXT_KEY_CHANGE_TRADE_UNIT_HOME_CITY_ITEM_CITY", pTargetCity:GetName());
 		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_CARAVANSARY)) then
 		  sCityDetails = sCityDetails .. " [ICON_MOVES]";
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_CARAVANSARY");
 		end
 		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_HARBOR)) then
 		  sCityDetails = sCityDetails .. " [ICON_TRADE_WHITE]";
+		  if(sTTTrade ~= "") then
+			sTTTrade = sTTTrade .. ", ";
+		  end
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_HARBOR");
 		end
-		itemInstance.CityName:SetText(sCityDetails);
 
-		local potentialRoutes = pPlayer:GetPotentialInternationalTradeRouteDestinationsFrom(pUnit, pTargetCity)
-		local sTT = Locale.Lookup("TXT_KEY_CHANGE_TRADE_UNIT_HOME_CITY_ITEM_CITY_TT", #potentialRoutes, pTargetCity:GetName())
+		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_GRANARY)) then
+		  sCityDetails = sCityDetails .. " [ICON_FOOD]";
+		  if(sTTTrade ~= "") then
+			sTTTrade = sTTTrade .. ", ";
+		  end
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_GRANARY");
+		end
+
+		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_WORKSHOP)) then
+		  sCityDetails = sCityDetails .. " [ICON_PRODUCTION]";
+		  if(sTTTrade ~= "") then
+			sTTTrade = sTTTrade .. ", ";
+		  end
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_WORKSHOP");
+		end
+
+		if (pTargetCity.IsHasBuildingClass and pTargetCity:HasOffice()) then
+		  sCityDetails = sCityDetails .. " [ICON_INVEST]";
+		  if(sTTTrade ~= "") then
+			sTTTrade = sTTTrade .. ", ";
+		  end
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_CORPORATE_OFFICE");
+		end
+
+		itemInstance.CityName:SetText(sCityDetails);
+		if(sTTTrade ~= "") then
+			sTT = sTT .. sTTTradeHeader .. "[NEWLINE]" .. sTTTrade .. "[NEWLINE][NEWLINE]";
+		end
+	
+-- CBP
+		local sTTHappinessHeader = Locale.Lookup("TXT_KEY_TRADE_UNIT_HAPPINESS");
+		local sTTHappiness = "";
+		local iPoverty = pTargetCity:GetUnhappinessFromGold();
+		if(iPoverty > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY", iPoverty);
+		end
+		local iIlliteracy = pTargetCity:GetUnhappinessFromScience();
+		if(iIlliteracy > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY", iIlliteracy);
+		end
+		local iIsolation = pTargetCity:GetUnhappinessFromConnection();
+		if(iIsolation > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION", iIsolation);
+		end
+		if(sTTHappiness ~= "") then
+			sTT = sTT .. sTTHappinessHeader .. sTTHappiness .. "[NEWLINE][NEWLINE]"
+		end
+		sTT = sTT .. Locale.Lookup("TXT_KEY_CHANGE_TRADE_UNIT_HOME_CITY_ITEM_CITY_TT", pTargetCity:GetName());
+-- END 
+		local potentialRoutes = pPlayer:GetPotentialInternationalTradeRouteDestinationsFrom(pUnit, pTargetCity);	
 		for _,r in ipairs(potentialRoutes) do
 		  local pDestCity = Map.GetPlot(r.X, r.Y):GetPlotCity()
 		  if (pDestCity) then
@@ -161,7 +217,8 @@ function RefreshList()
 			end
 		  end
 		end
-		itemInstance.CityName:LocalizeAndSetToolTip(sTT);
+
+		itemInstance.Button:LocalizeAndSetToolTip(sTT);
 
 		itemInstance.Button:RegisterCallback(Mouse.eLClick, function() SelectNewHome(v.X, v.Y); end);
 		-- Leave the definition of the instance to the XML!!!

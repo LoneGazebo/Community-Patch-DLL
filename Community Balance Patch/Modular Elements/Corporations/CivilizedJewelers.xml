@@ -38,6 +38,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CorporationHQID>6</CorporationHQID>
 			<Happiness>3</Happiness>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationID>6</CorporationID>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_CIVILIZED_JEWELERS</FreeBuildingThisCity>

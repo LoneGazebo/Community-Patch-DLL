@@ -39,10 +39,10 @@
 	DELETE FROM Units
 	WHERE Type = 'UNIT_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Great Writer culture boost nerfed slightly.
+-- Great Writer culture boost boosted slightly.
 
 	UPDATE Units
-	SET BaseCultureTurnsToCount = '6'
+	SET BaseCultureTurnsToCount = '10'
 	WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Great Scientist science boost nerfed slightly.

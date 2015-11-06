@@ -306,6 +306,9 @@ enum CvReligiousFollowChangeReason
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	FOLLOWER_CHANGE_ADOPT_FULLY,
 #endif
+#if defined(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
+	FOLLOWER_CHANGE_PANTHEON_OBSOLETE,
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

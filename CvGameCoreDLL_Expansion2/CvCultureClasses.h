@@ -324,6 +324,7 @@ private:
 	void LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 #if defined(MOD_BALANCE_CORE)
 	void LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
+	void LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 #endif
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);

@@ -359,7 +359,8 @@ void CvStartPositioner::ComputeTileFertilityValues()
 			// Add to total for area
 			CvArea* pArea = GC.getMap().getArea(pLoopPlot->getArea());
 			CvAssert(pArea);
-			if(!pArea) continue;
+			if(!pArea) 
+				continue;
 			pArea->setTotalFoundValue(pArea->getTotalFoundValue() + uiFertility);
 		}
 	}

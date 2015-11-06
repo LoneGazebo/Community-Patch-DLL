@@ -32,6 +32,10 @@ UPDATE Belief_ImprovementYieldChanges
 SET Yield = '2'
 WHERE BeliefType = 'BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+UPDATE Beliefs
+SET RequiresNoImprovementFeature = 'true'
+WHERE Type = 'BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- Messenger of the Gods
 
 -- One With Nature

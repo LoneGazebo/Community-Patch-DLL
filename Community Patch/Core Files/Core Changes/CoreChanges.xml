@@ -889,6 +889,13 @@
 			<Flavor>300</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
+	<AIEconomicStrategy_Player_Flavors>
+		<Row>
+			<AIEconomicStrategyType>ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS</AIEconomicStrategyType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</AIEconomicStrategy_Player_Flavors>
 	<!-- Resource Change for Iron-->
 	<Resource_FeatureBooleans>
 		<Row>

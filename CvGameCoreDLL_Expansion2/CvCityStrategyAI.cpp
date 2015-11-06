@@ -4373,7 +4373,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute (CvCi
 		return false;
 	}
 
-	if (pTrade->GetNumPotentialConnections(pCity, eDomain) <= 0)
+	if (pTrade->GetNumPotentialConnections(pCity, eDomain, true) <= 0)
 	{
 		return false;
 	}
@@ -4391,7 +4391,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute (Cv
 		return true;
 	}
 
-	if (pTrade->GetNumPotentialConnections(pCity, eDomain) <= 0)
+	if (pTrade->GetNumPotentialConnections(pCity, eDomain, true) <= 0)
 	{
 		return true;
 	}

@@ -79,6 +79,22 @@
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
+		
+		<!-- Pantheons -->
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE">
+			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide yield bonus will remain inactive until you convert a majority of Cities to your new Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S">
+			<Text>Decline of Your Pantheon</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_B">
+			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide yield bonus will remain inactive until you convert a majority of Cities to your new Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S_B">
+			<Text>Decline of Your Pantheon</Text>
+		</Row>
+		
 
 		<!-- WLTKD LUA -->
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
@@ -451,6 +467,37 @@
 		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
 			<Text>{1_SpecialistName:textkey} base {2_YieldType:textkey} increased by {3_Num}.</Text>
 		</Row>
+		
+		<!-- Trade LUA -->
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_ISOLATION_OTHER">
+			<Text>Highest Isolation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY">
+			<Text>[ICON_GOLD] Poverty: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY">
+			<Text>[ICON_RESEARCH] Illiteracy: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION">
+			<Text>[ICON_BLOCKADED] Isolation: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER">
+			<Text>, [ICON_BLOCKADED] Isolation: {1_Num}</Text>
+		</Row>
+		
+		<!-- Partisans -->
+		<Row Tag="TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY">
+			<Text>Because you are burning their city to the ground, partisans have spawned near {1_Name}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S">
+			<Text>Partisans near {1_Name}!</Text>
+		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY">
+			<Text>Because your captured city is being burned to the ground, friendly partisans have spawned near {1_Name}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S">
+			<Text>Friendly partisans near {1_Name}!</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -326,7 +326,7 @@ CvUnit::CvUnit() :
 	, m_eInvisibleType("CvUnit::m_eInvisibleType", m_syncArchive)
 	, m_eSeeInvisibleType("CvUnit::m_eSeeInvisibleType", m_syncArchive)
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
 	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
@@ -6132,7 +6132,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE_PER_TURN_DAMAGE)
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	m_iDamageTakenThisTurn+=iDamage;
@@ -8196,7 +8196,7 @@ void CvUnit::DoAttrition()
 					GetReligionData()->SetReligiousStrength(iStrength - iStrengthLoss);
 					if (pPlot && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 					{
-						Localization::String string = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+						Localization::String string = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION").c_str();
 
 						char text[256];
 						sprintf_s (text, "%s [COLOR_WHITE]-%d [ICON_PEACE][ENDCOLOR]", string.toUTF8(), iStrengthLoss);
@@ -9232,7 +9232,11 @@ bool CvUnit::createGreatWork()
 		Localization::String localizedText;
 
 		// Notification in MP games
+#if defined(MOD_API_EXTENSIONS)
+		if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
+#else
 		if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
+#endif
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if(pNotifications)
@@ -9251,6 +9255,9 @@ bool CvUnit::createGreatWork()
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatWorkCreated, GetID(), iGWindex);
+#endif
 
 		return true;
 	}
@@ -10110,7 +10117,7 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities) const
+bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	VALIDATE_OBJECT
 	if(!m_pUnitInfo->IsFound())
@@ -10130,16 +10137,17 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities)))
-		return false;
+	if (pPlot)
+		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
+	else
+		return true;
 #else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
 	{
 		return false;
 	}
-#endif
-
 	return true;
+#endif
 }
 
 
@@ -11687,6 +11695,12 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 		{
 			return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(pPlot->getOwner()).IsAtWarAnyMajor() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetAlly() != getOwner())
+		{
+			return false;
+		}
+#endif
 	}
 
 	return true;
@@ -19777,7 +19791,11 @@ if (!bDoEvade)
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							// Don't show in MP
+#if defined(MOD_API_EXTENSIONS)
+							if(!GC.getGame().isReallyNetworkMultiPlayer())
+#else
 							if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
 							{
 								CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
 								DLLUI->AddPopup(kPopupInfo);
@@ -27175,28 +27193,24 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO() && !IsCombatUnit() && !GC.getMap().plot(iData1,iData2)->getBestDefender(getOwner()))
+	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
 	{
-		int iFromDanger = GET_PLAYER(getOwner()).GetPlotDanger(*plot(),this);
-		int iToDanger = GET_PLAYER(getOwner()).GetPlotDanger(*GC.getMap().plot(iData1,iData2),this);
-		if(iFromDanger<iToDanger)
-			OutputDebugString(CvString::format("%s moving into danger!\n",getName().c_str()).c_str());
-	}
+		SetMissionAI(NO_MISSIONAI, GC.getMap().plot(iData1, iData2), NULL);
 
-	//if (GC.getLogging() && GC.getAILogging()) 
-	//{
-	//	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	//	CvPlot* pPlot = plot();
-	//	CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
-	//	if (pPlot)
-	//	{
-	//		CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
-	//			GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
-	//			pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
-	//		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
-	//		pLog->Msg( info.c_str() );
-	//	}
-	//}
+		CvPlot* pFromPlot = plot();
+		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
+
+		if (!pFromPlot || !pToPlot)
+			return;
+
+		if (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner()))
+		{
+			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
+			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
+			if (iFromDanger < iToDanger)
+				OutputDebugString(CvString::format("%s moving into danger!\n", getName().c_str()).c_str());
+		}
+	}
 #endif
 
 }

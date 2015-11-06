@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -689,6 +689,13 @@ bool CvAIOperation::CheckOnTarget()
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -767,7 +774,7 @@ bool CvAIOperation::CheckOnTarget()
 							}
 							if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 							{
-								ArmyInPosition(pThisArmy);
+								pAIOp->ArmyInPosition(pThisArmy);
 								return true;
 							}
 							break;
@@ -787,6 +794,13 @@ bool CvAIOperation::CheckOnTarget()
 
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -829,7 +843,7 @@ bool CvAIOperation::CheckOnTarget()
 							if(pCenterOfMass && GetTargetPlot() != NULL && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance
 							&& pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
 							{
-								ArmyInPosition(pThisArmy);
+								pAIOp->ArmyInPosition(pThisArmy);
 								return true;
 							}
 							break;
@@ -850,6 +864,13 @@ bool CvAIOperation::CheckOnTarget()
 				bool bCivilian = false;
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -969,7 +990,7 @@ bool CvAIOperation::CheckOnTarget()
 									{
 										if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 										{
-											ArmyInPosition(pThisArmy);
+											pAIOp->ArmyInPosition(pThisArmy);
 											return true;
 										}
 									}
@@ -983,7 +1004,7 @@ bool CvAIOperation::CheckOnTarget()
 									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance &&
 									pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
 								{
-									ArmyInPosition(pThisArmy);
+									pAIOp->ArmyInPosition(pThisArmy);
 									return true;
 								}
 							}
@@ -1009,6 +1030,13 @@ bool CvAIOperation::CheckOnTarget()
 
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -1035,7 +1063,7 @@ bool CvAIOperation::CheckOnTarget()
 						case AI_OPERATION_STATE_MOVING_TO_TARGET:
 						{
 							// We want to recompute a new target each turn.  So call ArmyInPosition() regardless of return status
-							ArmyInPosition(pThisArmy);
+							pAIOp->ArmyInPosition(pThisArmy);
 
 							pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 							if(pCenterOfMass && GetTargetPlot() != NULL &&
@@ -4622,7 +4650,7 @@ bool CvAIOperationBasicCityAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
 				return true;
@@ -8787,7 +8815,7 @@ bool CvAIOperationPureNavalCityAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
 				return true;
@@ -10754,15 +10782,19 @@ bool CvAIOperationNavalSneakAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
+				m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+				m_eAbortReason = AI_ABORT_TARGET_ALREADY_CAPTURED;
 				return true;
 			}
 			if(GetTargetPlot()->getWorkingCity() != NULL)
 			{
 				if(GetTargetPlot()->getWorkingCity()->getOwner() != m_eEnemy)
 				{
+					m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+					m_eAbortReason = AI_ABORT_TARGET_ALREADY_CAPTURED;
 					return true;
 				}
 			}
@@ -11641,8 +11673,15 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 	CvPlot* pTargetPlot = GetTargetPlot();
 
-	if ( pTargetPlot==NULL || 
-		!pCivilian->canFound(pTargetPlot) || 
+	//cannot settle at the moment
+	if (GET_PLAYER(m_eOwner).IsEmpireVeryUnhappy())
+	{
+		//return to muster plot ...
+		pArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+		m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+	}
+	else if ( pTargetPlot==NULL || 
+		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
 		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
 		!pCivilian->GeneratePath(pTargetPlot, MOVE_TERRITORY_NO_ENEMY, false) )
 	{

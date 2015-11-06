@@ -695,11 +695,21 @@ function HappinessTipHandler( control )
 		local iHappiness = pPlayer:GetExcessHappiness();
 		-- CBP EDITS HERE
 		local iTestHappiness = iHappiness;
+		local iMilitaryHappiness = iHappiness;
 		if(iTestHappiness > 10)then
 			iTestHappiness = 10;
 		end
 		if(iTestHappiness < -30)then
 			iTestHappiness = -30;
+		end
+		if(iMilitaryHappiness < -20)then
+			iMilitaryHappiness = -20;
+		end
+		if(iTestHappiness < 0) then
+			iTestHappiness = (iTestHappiness * -1);
+		end
+		if(iMilitaryHappiness < 0) then
+			iMilitaryHappiness = (iMilitaryHappiness * -1);
 		end
 		if (not pPlayer:IsEmpireUnhappy()) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS", iHappiness, iTestHappiness);
@@ -735,11 +745,11 @@ function HappinessTipHandler( control )
 			end
 		
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness) .. "[/COLOR]";
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[/COLOR]";
 		elseif (pPlayer:IsEmpireUnhappy()) then
 		
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness) .. "[/COLOR]";
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[/COLOR]";
 		end
 
 		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;

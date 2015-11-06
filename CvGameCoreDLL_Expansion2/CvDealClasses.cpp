@@ -55,6 +55,8 @@ CvTradedItem::CvTradedItem()
 	m_eFromPlayer = NO_PLAYER;
 	m_bFromRenewed = false;
 	m_bToRenewed = false;
+	m_iValue = INT_MAX;
+	m_bValueIsEven = false;
 }
 
 /// Equals operator
@@ -1203,6 +1205,12 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
+	if (!pCity)
+	{
+		OutputDebugString("invalid city ID!\n");
+		return;
+	}
+
 	int x = pCity->getX();
 	int y = pCity->getY();
 
@@ -2648,8 +2656,39 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
 						{
 							int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-							iTurns /= 100;
+							// Player modifier
+							int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
+
+							// Trait modifier
+							iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+							// Do we get increased Golden Ages from a resource monopoly?
+							if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+							{
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+									if(eResourceLoop != NO_RESOURCE)
+									{
+										CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+										if (pInfo && pInfo->isMonopoly())
+										{
+											if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+											{
+												int iTemp = pInfo->getMonopolyGALength();
+												iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
+												iLengthModifier += iTemp;
+											}
+										}
+									}
+								}
+							}
+#endif
+							if(iLengthModifier != 0)
+							{
+								iTurns = iTurns * (100 + iLengthModifier) / 100;
+							}
 							GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
 							bDone = true;
 
@@ -2685,8 +2724,39 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
 							int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-							iTurns /= 100;
+							// Player modifier
+							int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
+
+							// Trait modifier
+							iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+							// Do we get increased Golden Ages from a resource monopoly?
+							if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+							{
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+									if(eResourceLoop != NO_RESOURCE)
+									{
+										CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+										if (pInfo && pInfo->isMonopoly())
+										{
+											if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+											{
+												int iTemp = pInfo->getMonopolyGALength();
+												iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
+												iLengthModifier += iTemp;
+											}
+										}
+									}
+								}
+							}
+#endif
+							if(iLengthModifier != 0)
+							{
+								iTurns = iTurns * (100 + iLengthModifier) / 100;
+							}
 							GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
 							bDone = true;
 
@@ -3638,8 +3708,14 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Resource Trade: ID %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_CITIES:
-				strTemp.Format("***** City Trade: ID %d %d *****", itemIter->m_iData1, itemIter->m_iData2);
+			{
+				CvPlot* pPlot = GC.getMap().plot(itemIter->m_iData1, itemIter->m_iData2);
+				CvCity* pCity = 0;
+				if (pPlot)
+					pCity = pPlot->getPlotCity();
+				strTemp.Format("***** City Trade: ID %s *****", pCity ? pCity->getName().c_str() : "unknown" );
 				break;
+			}
 			case TRADE_ITEM_OPEN_BORDERS:
 				strTemp.Format("Open Borders Trade");
 				break;
@@ -3675,7 +3751,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade *****", itemIter->m_iData1);
+				strTemp.Format("***** Tech Trade ***** ID %d", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
@@ -3691,6 +3767,14 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				break;
 			}
 			strOutBuf += ", " + strTemp;
+
+#if defined(MOD_BALANCE_CORE)
+			if (itemIter->m_iValue != INT_MAX)
+			{
+				strTemp.Format("(value %d - %s)", itemIter->m_iValue, itemIter->m_bValueIsEven ? "equalized" : "raw");
+				strOutBuf += ", " + strTemp;
+			}
+#endif
 
 			pLog->Msg(strOutBuf);
 #if !defined(MOD_BALANCE_CORE)

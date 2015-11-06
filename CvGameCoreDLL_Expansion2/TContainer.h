@@ -28,13 +28,11 @@ public:
 	virtual ~TContainer();
 	
 	//access the items directly by ID
-	T* Get(int iID);
-	const T* Get(int iID) const;
+	T* Get(int iID) const;
 	bool Remove(int iID);
 
 	//access the items indirectly by index
-	T* GetAt(int iIndex);
-	const T* GetAt(int iIndex) const;
+	T* GetAt(int iIndex) const;
 	bool RemoveAt(int iIndex);
 	int GetIndexForID(const int iID) const;
 
@@ -82,18 +80,7 @@ TContainer<T>::~TContainer()
 }
 
 template <class T>
-T* TContainer<T>::Get(int iID)
-{
-	std::map<int,T*>::iterator it=m_items.find(iID);
-
-	if (it!=m_items.end())
-		return it->second;
-
-	return NULL;
-}
-
-template <class T>
-const T* TContainer<T>::Get(int iID) const
+T* TContainer<T>::Get(int iID) const
 {
 	std::map<int,T*>::const_iterator it=m_items.find(iID);
 
@@ -104,21 +91,13 @@ const T* TContainer<T>::Get(int iID) const
 }
 
 template <class T>
-T* TContainer<T>::GetAt(int iIndex)
+T* TContainer<T>::GetAt(int iIndex) const
 {
-	if (iIndex>=0 && iIndex < (int)m_order.size())
-		return m_items[ m_order[iIndex] ];
-
-	return NULL;
-}
-
-template <class T>
-const T* TContainer<T>::GetAt(int iIndex) const
-{
-	if (iIndex>=0 && iIndex < (int)m_order.size())
+	if (iIndex >= 0 && iIndex < (int)m_order.size())
 	{
-		std::map<int,T*>::const_iterator it=m_items.find(m_order[iIndex]);
-		if (it!=m_items.end())
+		std::map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
+
+		if (it != m_items.end())
 			return it->second;
 	}
 

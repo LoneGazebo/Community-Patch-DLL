@@ -131,6 +131,9 @@ public:
 	TeamTypes getActiveTeam();
 	CivilizationTypes getActiveCivilizationType();
 
+#if defined(MOD_API_EXTENSIONS)
+	bool isReallyNetworkMultiPlayer() const;
+#endif
 	bool isNetworkMultiPlayer() const;
 	bool isGameMultiPlayer() const;
 	bool isTeamGame() const;

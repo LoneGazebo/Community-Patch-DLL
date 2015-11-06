@@ -3215,6 +3215,11 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
 			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
 		</Row>
+		
+		<!-- Razing -->
+		<Row Tag="TXT_KEY_DIPLO_RAZED">
+			<Text>[COLOR_NEGATIVE_TEXT]You razed their Cities![ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Tourism -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_EMPIRE_SIZE">
@@ -3248,7 +3253,7 @@
 			<Text>Because your Civilization constructed a World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_CS">
-			<Text>Because your Civilization completed a City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed a Global City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE">
@@ -3260,7 +3265,15 @@
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
 			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
+			<Text>City-State Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS">
+			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
 		
+
 		<!-- Great Work Gold (LUA)-->
 		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
 			<Text>{1_Num} {2_IconString} from Great Works and Themes</Text>
@@ -3427,73 +3440,73 @@
 			<Text>This value indiates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic compared to us!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_WEAK">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are very weak compared to us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are very weak.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_POOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are somewhat weaker than us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are weaker.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_AVERAGE">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] We are about the same strength.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] We are equals.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_STRONG">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are somewhat stronger than us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are strong.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_POWERFUL">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are much stronger than us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are mighty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_IMMENSE">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are immensely stronger than us!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are immense!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_WAR_ECONOMY_PATHETIC">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are in shambles compared to us!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're in shambles!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_WEAK">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are poor compared to us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are pathetic.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_POOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are not as robust as we are.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are poor.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_AVERAGE">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] We are roughly equal.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] We are equal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_STRONG">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are somewhat more robust than us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are robust.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_POWERFUL">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are much wealthier than us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are wealthy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_ECONOMY_IMMENSE">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are extremely wealthy!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war is slightly in our favor.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are clearly winning.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is almost assured.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed by our power!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The momentum of battle is with them.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] TWar Status:[ENDCOLOR] They are clearly beating us.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Our defeat is likely.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Total destruction is imminent!</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_WAR_NO_PEACE_OFFER">

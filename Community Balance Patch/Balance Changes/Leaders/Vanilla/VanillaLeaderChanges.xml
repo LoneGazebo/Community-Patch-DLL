@@ -351,6 +351,11 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_YieldChanges>
 	<Building_FeatureYieldChanges>
 		<Row>
@@ -401,12 +406,12 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Trait_YieldFromCSAlly>
 	<Language_en_US>

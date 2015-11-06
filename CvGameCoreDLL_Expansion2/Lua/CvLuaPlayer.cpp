@@ -616,6 +616,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsGoldenAgeCultureBonusDisabled);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsMajorCiv);
+#endif
 	Method(IsMinorCiv);
 	Method(GetMinorCivType);
 	Method(GetMinorCivTrait);
@@ -755,6 +758,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
 	Method(GetLeaderType);
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_API_LUA_EXTENSIONS)
+	Method(SetLeaderType);
+#endif
 	Method(GetPersonalityType);
 	Method(SetPersonalityType);
 	Method(GetCurrentEra);
@@ -1260,6 +1266,42 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasSecularized);
 	Method(SetHasSecularized);
 	Method(IsPagan);
+
+	Method(GetSovereignty);
+	Method(SetSovereignty);
+	Method(ChangeSovereignty);
+
+	Method(GetGovernment);
+	Method(SetGovernment);
+	Method(HasGovernment);
+
+	Method(GetReformCooldown);
+	Method(SetReformCooldown);
+	Method(ChangeReformCooldown);
+
+	Method(GetGovernmentCooldown);
+	Method(SetGovernmentCooldown);
+	Method(ChangeGovernmentCooldown);
+
+	Method(GetReformCooldownRate);
+	Method(SetReformCooldownRate);
+	Method(ChangeReformCooldownRate);
+
+	Method(GetGovernmentCooldownRate);
+	Method(SetGovernmentCooldownRate);
+	Method(ChangeGovernmentCooldownRate);
+
+	Method(GetPoliticLeader);
+	Method(SetPoliticLeader);
+
+	Method(SetPoliticLeaderKey);
+	Method(GetPoliticLeaderKey);
+
+	Method(GetLegislatureName);
+	Method(SetLegislatureName);
+
+	Method(GetPoliticPercent);
+	Method(SetPoliticPercent);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -6895,7 +6937,14 @@ int CvLuaPlayer::lIsGoldenAgeCultureBonusDisabled(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::IsGoldenAgeCultureBonusDisabled);
 }
 
-
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isMajorCiv();
+int CvLuaPlayer::lIsMajorCiv(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isMajorCiv);
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isMinorCiv();
 int CvLuaPlayer::lIsMinorCiv(lua_State* L)
@@ -8048,6 +8097,14 @@ int CvLuaPlayer::lGetLeaderType(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getLeaderType);
 }
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void  setLeaderType(LeaderHeadTypes eNewleader);
+int CvLuaPlayer::lSetLeaderType(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::setLeaderType);
+}
+#endif
 //------------------------------------------------------------------------------
 //LeaderHeadTypes  getPersonalityType()
 int CvLuaPlayer::lGetPersonalityType(lua_State* L)
@@ -12051,6 +12108,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NUKED");
 		aOpinions.push_back(kOpinion);
 	}
+#if defined(MOD_BALANCE_CORE)
+	iValue = pDiploAI->GetCitiesRazedScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
+		aOpinions.push_back(kOpinion);
+	}
+#endif
 
 	iValue = pDiploAI->GetCapitalCapturedByScore(eWithPlayer);
 	if (iValue != 0)
@@ -13218,6 +13285,212 @@ int CvLuaPlayer::lIsPagan(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	const bool bResult = pkPlayer->IsPagan();
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetSovereignty(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetSovereignty();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetSovereignty(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetSovereignty(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangeSovereignty(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangeSovereignty(iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetGovernment(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetGovernment();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetGovernment(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetGovernment(iValue);
+	return 1;
+}
+int CvLuaPlayer::lHasGovernment(lua_State* L)
+{
+
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->HasGovernment();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lGetReformCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetReformCooldown();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetReformCooldown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetReformCooldown(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangeReformCooldown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangeReformCooldown(iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetGovernmentCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetGovernmentCooldown();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetGovernmentCooldown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetGovernmentCooldown(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangeGovernmentCooldown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangeGovernmentCooldown(iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetReformCooldownRate(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetReformCooldownRate();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetReformCooldownRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetReformCooldownRate(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangeReformCooldownRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangeReformCooldownRate(iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetGovernmentCooldownRate(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetGovernmentCooldownRate();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetGovernmentCooldownRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetGovernmentCooldownRate(iValue);
+	return 1;
+}
+int CvLuaPlayer::lChangeGovernmentCooldownRate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->ChangeGovernmentCooldownRate(iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetPoliticLeader(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetPoliticLeader();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetPoliticLeader(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetPoliticLeader(iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetPoliticLeaderKey(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetPoliticLeaderKey());
+	return 1;
+}
+int CvLuaPlayer::lSetPoliticLeaderKey(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const char* strKey = lua_tostring(L, 2);
+
+	pkPlayer->SetPoliticLeaderKey(strKey);
+	return 1;
+}
+
+int CvLuaPlayer::lGetLegislatureName(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetLegislatureName());
+	return 1;
+}
+int CvLuaPlayer::lSetLegislatureName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const char* strKey = lua_tostring(L, 2);
+
+	pkPlayer->SetLegislatureName(strKey);
+	return 1;
+}
+
+int CvLuaPlayer::lGetPoliticPercent(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iID = lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetPoliticPercent(iID);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetPoliticPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iID = lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->SetPoliticPercent(iID, iValue);
 	return 1;
 }
 #endif

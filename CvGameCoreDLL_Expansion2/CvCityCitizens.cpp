@@ -1223,7 +1223,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = -1;
@@ -1248,7 +1248,14 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue)
 				{
 					eSpecialist = (SpecialistTypes) pkBuildingInfo->GetSpecialistType();
 
-					iValue = GetSpecialistValue(eSpecialist);
+					std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
+					if (it != specialistValueCache.end())
+						iValue = specialistValueCache[eSpecialist];
+					else
+					{
+						iValue = GetSpecialistValue(eSpecialist);
+						specialistValueCache[eSpecialist] = iValue;
+					}
 
 					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
 #if defined(MOD_BALANCE_CORE)
@@ -1682,7 +1689,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
@@ -1712,7 +1719,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 		if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 		{
-			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue,specialistValueCache);
 		}
 
 		int iBestPlotValue = 0;
@@ -2045,11 +2052,14 @@ void CvCityCitizens::DoReallocateCitizens()
 		ChangeNumDefaultSpecialists(-1);
 	}
 
+	// don't calculate specialist value over and over ...
+	std::map<SpecialistTypes, int> specialistValueCache;
+
 	// Now put all of the unallocated guys back
 	int iNumToAllocate = GetNumUnassignedCitizens();
 	for(int iUnallocatedLoop = 0; iUnallocatedLoop < iNumToAllocate; iUnallocatedLoop++)
 	{
-		DoAddBestCitizenFromUnassigned();
+		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -2608,7 +2618,8 @@ void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
 			if(!IsCanWork(pPlot))
 			{
 				SetWorkingPlot(pPlot, false);
-				DoAddBestCitizenFromUnassigned();
+				std::map<SpecialistTypes, int> specialistValueCache;
+				DoAddBestCitizenFromUnassigned(specialistValueCache);
 			}
 		}
 	}
@@ -2917,14 +2928,10 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 
 #if defined(MOD_BALANCE_CORE)
 		GetCity()->processSpecialist(eSpecialist, 1);
+
 		//we added the first specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 1)
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
-		if (MOD_BALANCE_CORE)
-		{
-			//Update for specialist changes.
-			GetCity()->updateExtraSpecialistYield();
-		}
 #else
 		GetCity()->processSpecialist(eSpecialist, 1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
@@ -2990,12 +2997,6 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount()==0)
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
-
-		if (MOD_BALANCE_CORE)
-		{
-			//Update for specialist changes.
-			GetCity()->updateExtraSpecialistYield();
-		}
 #else
 		GetCity()->processSpecialist(eSpecialist, -1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
@@ -3370,7 +3371,11 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if(GetCity()->getOwner() == GC.getGame().getActivePlayer())
 	{
 		// Don't show in MP
+#if defined(MOD_API_EXTENSIONS)
+		if(!GC.getGame().isReallyNetworkMultiPlayer())
+#else
 		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
 		{
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GREAT_PERSON_REWARD, eUnit, GetCity()->GetID());
 			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);

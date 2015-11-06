@@ -91,7 +91,11 @@ typedef wchar_t          wchar;
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>
 #include <Fireworks/FILogFile.h>
+#include <Fireworks/FFreeListArrayBase.h>
 #include <Fireworks/FDataStream.h>
+#include <Fireworks/FFreeListTrashArray.h>
+#include <Fireworks/FVariableSystem.h>
+#include <FireWorks/FAStarNode.h>
 #include <Fireworks/Win32/FKBInputDevice.h>
 #include <Fireworks/FFastList.h>
 

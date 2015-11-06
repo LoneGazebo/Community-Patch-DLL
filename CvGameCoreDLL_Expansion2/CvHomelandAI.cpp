@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -6997,8 +6997,8 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->NeedToRebase(pUnit.pointer()))
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
-				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange()/*m_iRecruitRange*/, false/*bCountFighters*/, true/*bCountBombers*/);
-				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange()/*m_iRecruitRange*/, true/*bCountFighters*/, false/*bCountBombers*/);
+				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
+				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
 				int iNumPlotNumAlreadySet = m_pPlayer->GetTacticalAI()->SamePlotFound(checkedPlotList, pUnitPlot);
 
 				if (iNumNearbyBombers == 1)
@@ -9146,7 +9146,8 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 		return true;
 	}
 
-	if (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isEmbarked() && pUnit->IsCivilianUnit())
+	// If we are already embarked, get on with it
+	if (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isEmbarked())
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 		return true;
@@ -9154,7 +9155,7 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 
 	// If a land unit, get path to target
 	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : MOVE_UNITS_IGNORE_DANGER;
-	if(!pUnit->GeneratePath(pTargetPlot,iMoveFlags))
+	if (!pUnit->GeneratePath(pTargetPlot, iMoveFlags))
 	{
 		// No path this may happen if a unit has moved up and blocked our path to our target plot
 		// If calling routine is moving a bunch of units like this it should retry these units
@@ -9164,28 +9165,44 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 	{
 		CvPlot *pMovePlot = pUnit->GetPathEndTurnPlot();
 
-		// Not dangerous, proceed
-		if (m_pPlayer->GetPlotDanger(*pMovePlot,pUnit.pointer())==0)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-			return true;	
-		}
-		// Dangerous - try to move just on land
-		else
-		{
-			if(!pUnit->GeneratePath(pTargetPlot, MOVE_NO_EMBARK))
-			{
-				// No land path so just stay put and fortify until life improves for you.
-				if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
-					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+		if (!pMovePlot)
+			return false;
 
-				return true;	
+		//todo: look ahead for more than one plot?
+		if (pMovePlot->isWater())
+		{
+			//we are about to embark ... check if it's safe
+			bool bDangerous = (m_pPlayer->GetPossibleAttackers(*pMovePlot).size() > 0);
+
+			if (bDangerous)
+			{
+				bool bHavePathOnLand = pUnit->GeneratePath(pTargetPlot, MOVE_NO_EMBARK);
+				if (bHavePathOnLand)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_NO_EMBARK);
+					return true;
+				}
+				else
+				{
+					// No land path so just stay put and fortify until life improves for you.
+					if (pUnit->canFortify(pUnit->plot()))
+						pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					else
+						pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					return false;
+				}
 			}
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_NO_EMBARK);
-				return true;	
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+				return true;
 			}
+		}
+		else
+		{
+			//we don't need to embark (yet)
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+			return true;
 		}
 	}
 }

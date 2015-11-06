@@ -25,6 +25,16 @@
 	SET Value = '33'
 	WHERE Name = 'TRADE_ROUTE_RIVER_CITY_MODIFIER';
 
+-- SR Penalty
+	UPDATE Defines
+	SET Value = '0'
+	WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY';
+
+-- 
+	UPDATE Defines
+	SET Value = '0'
+	WHERE Name = 'VERY_UNHAPPY_CANT_TRAIN_SETTLERS';
+
 -- City Growth Defines
 
 	-- 15
@@ -124,3 +134,12 @@
 	UPDATE Defines
 	SET Value = '6'
 	WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
+
+	-- Balance Defines for WC
+	UPDATE Defines
+	SET Value = '33'
+	WHERE Name = 'TEMPORARY_CULTURE_BOOST_MOD';
+
+	UPDATE Defines
+	SET Value = '50'
+	WHERE Name = 'TEMPORARY_TOURISM_BOOST_MOD';

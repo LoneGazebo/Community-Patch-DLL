@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -7109,6 +7109,10 @@ public:
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	inline int getMOD_BALANCE_FOLLOWER_GROWTH_BONUS()
+	{
+		return m_iMOD_BALANCE_FOLLOWER_GROWTH_BONUS;
+	}
 	inline int getFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL()
 	{
 		return m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL;
@@ -10746,6 +10750,7 @@ protected:
 	int m_iBALANCE_CS_FORGIVENESS_CHANCE;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iMOD_BALANCE_FOLLOWER_GROWTH_BONUS;
 	int m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL;
 	int m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE;
 	int m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL;

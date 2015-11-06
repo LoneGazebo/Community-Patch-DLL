@@ -209,7 +209,7 @@ public:
 
 	bool IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
 
-	int GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eDomain);
+	int GetNumPotentialConnections(CvCity* pFromCity, DomainTypes eDomain, bool bNeedOnlyOne);
 
 	std::vector<int> GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar);
 	std::vector<int> GetTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar);

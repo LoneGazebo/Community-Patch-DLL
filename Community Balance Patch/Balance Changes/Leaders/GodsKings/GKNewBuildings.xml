@@ -228,6 +228,12 @@
 			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON">
 			<Text>Great Cothon</Text>

@@ -189,7 +189,7 @@ public:
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int countPassableLandNeighbors(CvPlot** aPassableNeighbors) const;
+	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
@@ -928,11 +928,11 @@ public:
 
 	int GetDefenseBuildValue(PlayerTypes eOwner);
 	void UpdatePlotsWithLOS();
-	bool GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult);
-#endif
-#if defined(MOD_BALANCE_CORE)
+	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult);
+
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 #endif
+
 protected:
 	class PlotBoolField
 	{
@@ -1011,8 +1011,10 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
-	std::vector<CvPlot*> m_vPlotsWithLOSatRange2;
-	std::vector<CvPlot*> m_vPlotsWithLOSatRange3;
+	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere2;
+	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere3;
+	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere2;
+	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

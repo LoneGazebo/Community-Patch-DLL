@@ -22,7 +22,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 2 Plains tiles near a City. +2 [ICON_PEACE] Faith from Pastures'
+SET Text = '+1 [ICON_CULTURE] Culture for every 3 featureless Plains tiles near a City, +2 [ICON_PEACE] Faith from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -104,7 +104,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Sacred Path
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 2 Jungles near a City, and +1 [ICON_CULTURE] Culture for every 2 Forests near a City'
+SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture for every 2 Jungle or Forest tiles near a City'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection

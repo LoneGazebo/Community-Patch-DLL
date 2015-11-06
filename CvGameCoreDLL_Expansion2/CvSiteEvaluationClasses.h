@@ -39,7 +39,7 @@ public:
 	virtual void Init();
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvUnit* pUnit = NULL) const;
+	virtual bool CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit = NULL) const;
 #else
 	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
 #endif

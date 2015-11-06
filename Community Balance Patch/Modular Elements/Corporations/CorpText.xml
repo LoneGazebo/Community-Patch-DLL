@@ -291,7 +291,7 @@
 
 		<!-- Wonder Splash Quote -->
 		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE">
-			<Text>[NEWLINE][TAB][TAB]"I don’t build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
+			<Text>[NEWLINE][TAB][TAB]"I don't build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
 		</Row>
 
 	</Language_en_US>

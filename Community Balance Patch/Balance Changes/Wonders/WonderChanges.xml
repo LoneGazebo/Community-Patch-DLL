@@ -15,7 +15,6 @@
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
-			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
 			<FreeBuildingThisCity>BUILDINGCLASS_MOSQUE</FreeBuildingThisCity>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -197,6 +196,11 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>30</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
+		</Row>
 	</Building_YieldFromGPExpend>
 	<Building_FreeUnits>
 		<Row>
@@ -205,4 +209,34 @@
 			<NumUnits>1</NumUnits>
 		</Row>
 	</Building_FreeUnits>
+	<Building_ThemingBonuses>
+		<Row>
+			<BuildingType>BUILDING_PARTHENON</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON</Description>
+			<Bonus>4</Bonus>
+			<RequiresOwner>true</RequiresOwner>
+			<AIPriority>2</AIPriority>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_NOTRE_DAME</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME</Description>
+			<Bonus>4</Bonus>
+			<RequiresUniquePlayers>true</RequiresUniquePlayers>
+			<AIPriority>2</AIPriority>
+		</Row>
+	</Building_ThemingBonuses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">
+			<Text>Hall of Antiquity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME">
+			<Text>Holy Sanctuary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PARTHENON_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works were created by you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works were created by Players other than the owner.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

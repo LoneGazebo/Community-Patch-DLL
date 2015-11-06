@@ -274,6 +274,7 @@ public:
 	int GetGreatScientistBeakerModifier() const;
 	int GetExtraLeagueVotes() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetSingleVotes() const;
 	int GetFaithToVotes() const;
 	int GetCapitalsToVotes() const;
 	int GetDoFToVotes() const;
@@ -315,6 +316,7 @@ public:
 	int GetEventTourism() const;
 	int GetLandTourismEnd() const;
 	int GetSeaTourismEnd() const;
+	int GetAlwaysHeal() const;
 #endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
@@ -620,6 +622,7 @@ private:
 	int m_iGreatScientistBeakerModifier;
 	int m_iExtraLeagueVotes;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+	int m_iSingleLeagueVotes;
 	int m_iFaithToVotesBase;
 	int m_iCapitalsToVotesBase;
 	int m_iDoFToVotesBase;
@@ -700,6 +703,7 @@ private:
 	int m_iEventTourism;
 	int m_iLandTourism;
 	int m_iSeaTourism;
+	int m_iAlwaysHeal;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;

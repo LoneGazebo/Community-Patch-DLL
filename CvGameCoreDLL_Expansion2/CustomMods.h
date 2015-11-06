@@ -1,4 +1,4 @@
-// CustomMods.h
+﻿// CustomMods.h
 #pragma once
 
 #ifndef CUSTOM_MODS_H
@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v66 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 66)
+#define MOD_DLL_NAME "Community Patch v67 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 67)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -222,7 +222,10 @@
 #define MOD_CORE_PATHFINDER
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
-#define MOD_BALANCE_CORE_PER_TURN_DAMAGE
+#define MOD_CORE_PER_TURN_DAMAGE
+
+// swap out all tactical plot scoring functions
+#define MOD_CORE_TACTICAL_PLOTSCORE
 
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
@@ -267,6 +270,7 @@
 #define MOD_API_LUA_EXTENSIONS                      gCustomMods.isAPI_LUA_EXTENSIONS()
 // Enables the Unified Yields extensions - thanks to bane_, JFD and Ulixes for extensive testing (v54)
 #define MOD_API_UNIFIED_YIELDS                      (true)
+// TODO - WH - Enabling consolidation introduces a double counting bug with faith added to buildings from a policy - which I don't have time to track down
 #define MOD_API_UNIFIED_YIELDS_CONSOLIDATION        (true)
 // Enables the Unified Yields (YIELD_TOURISM) extensions (v56)
 #define MOD_API_UNIFIED_YIELDS_TOURISM              (true)
@@ -369,6 +373,8 @@
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
 // Human players will auto-denounce AI players before going to war with them (v39)
 #define MOD_DIPLOMACY_AUTO_DENOUNCE                 gCustomMods.isDIPLOMACY_AUTO_DENOUNCE()
+// Don't display leader heads (behaves more like multi-player diplomacy) (v67)
+#define MOD_DIPLOMACY_NO_LEADERHEADS                gCustomMods.isDIPLOMACY_NO_LEADERHEADS()
 // Changes for the City State Diplomacy mod by Gazebo - AFFECTS SAVE GAME DATA FORMAT (v35)
 #define MOD_DIPLOMACY_CITYSTATES                    gCustomMods.isDIPLOMACY_CITYSTATES()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -434,6 +440,7 @@
 #define MOD_BALANCE_CORE_DEBUGGING					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DEBUGGING())
 #define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
+#define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
 
 #endif
 
@@ -1055,11 +1062,19 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_UnitPrekill				"UnitPrekill",					"iiiiibi"
 #define GAMEEVENT_UnitPromoted				"UnitPromoted",					"iii"
 #define GAMEEVENT_UnitUpgraded				"UnitUpgraded",					"iiib"
-#define GAMEEVENT_PietyChanged              "PietyChange",                  "iiibi"
-#define GAMEEVENT_PietyRateChanged          "PietyRateChange",              "iiibbi"
-#define GAMEEVENT_PlayerSecularizes         "PlayerSecularizes",            "iiibii"
-#define GAMEEVENT_StateReligionAdopted      "PlayerStateReligionAdopted",   "iiibiii"
-#define GAMEEVENT_StateReligionChanged      "PlayerStateReligionChanged",   "iiibbii"
+#define GAMEEVENT_PietyChanged              "PietyChange",                  "iii"
+#define GAMEEVENT_PietyRateChanged          "PietyRateChange",              "iii"
+#define GAMEEVENT_PlayerSecularizes         "PlayerSecularizes",            "iib"
+#define GAMEEVENT_StateReligionAdopted      "PlayerStateReligionAdopted",   "iii"
+#define GAMEEVENT_StateReligionChanged      "PlayerStateReligionChanged",   "iii"
+#define GAMEEVENT_PlayerAdoptsGovernment    "PlayerAdoptsGovernment",       "ii"
+#define GAMEEVENT_ReformCooldownChanges     "ReformCooldownChanges",        "ii"
+#define GAMEEVENT_GovernmentCooldownChanges "GovernmentCooldownChanges",    "ii"
+#define GAMEEVENT_ReformCooldownRateChanges     "ReformCooldownRateChanges",        "ii"
+#define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
+#define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "ii"
+
+
 
 
 // Serialization wrappers
@@ -1187,6 +1202,7 @@ public:
 	
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);
+	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
@@ -1244,6 +1260,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_DEBUGGING);
 	MOD_OPT_DECL(BALANCE_CORE_JFD);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESISTANCE);
+	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 

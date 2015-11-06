@@ -1126,7 +1126,10 @@ public:
 
 	int GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
-
+#if defined(MOD_BALANCE_CORE)
+	int GetNumTimesRazed(PlayerTypes ePlayer) const;
+	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
+#endif
 	int GetNumTimesNuked(PlayerTypes ePlayer) const;
 	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
 
@@ -1212,6 +1215,9 @@ public:
 	int GetCommonFoeScore(PlayerTypes ePlayer);
 	int GetRecentAssistScore(PlayerTypes ePlayer);
 	int GetNukedByScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	int GetCitiesRazedScore(PlayerTypes ePlayer);
+#endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
 	int GetPaidTributeToScore(PlayerTypes ePlayer);
@@ -1466,7 +1472,9 @@ private:
 		short m_paiNegativeReligiousConversionPoints[MAX_MAJOR_CIVS];
 
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
-
+#if defined(MOD_BALANCE_CORE)
+		short m_aiNumTimesRazed[MAX_MAJOR_CIVS];
+#endif
 		short m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 		short m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];
 		short m_aiNumTimesIntrigueSharedBy[MAX_MAJOR_CIVS];
@@ -1750,6 +1758,9 @@ private:
 	short* m_paiNegativeReligiousConversionPoints;
 	short* m_paiNegativeArchaeologyPoints;
 
+#if defined(MOD_BALANCE_CORE)
+	short* m_paiNumTimesRazed;
+#endif
 	short* m_paiNumTimesNuked;
 	short* m_paiNumTimesRobbedBy;
 	short* m_paiNumTimesIntrigueSharedBy;

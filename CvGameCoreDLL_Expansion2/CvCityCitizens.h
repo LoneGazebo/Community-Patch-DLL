@@ -58,7 +58,7 @@ public:
 
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
-	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue);
+	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
 	int GetSpecialistValue(SpecialistTypes eSpecialist);
 	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
 
@@ -68,7 +68,7 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned();
+	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache);
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1);
 
 	void DoReallocateCitizens();

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1803,6 +1803,7 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_CS_FORGIVENESS_CHANCE(80),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iMOD_BALANCE_FOLLOWER_GROWTH_BONUS(0),
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL(0),
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE(0),
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL(0),
@@ -6350,6 +6351,7 @@ void CvGlobals::cacheGlobals()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE){
+	m_iMOD_BALANCE_FOLLOWER_GROWTH_BONUS = getDefineINT("BALANCE_FOLLOWER_GROWTH_BONUS");
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL  = getDefineINT("FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL");
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE  = getDefineINT("FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE");
 	m_iFRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL  = getDefineINT("FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL");

@@ -173,6 +173,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
 	m_iEventTourism(0),
+	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
 #endif
@@ -254,6 +255,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
+	m_iRazingSpeedBonus(0),
+	m_bNoPartisans(false),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
@@ -483,6 +486,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
+	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
@@ -555,6 +559,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
+	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
+	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
@@ -1929,6 +1935,10 @@ int CvPolicyEntry::GetEventTourism() const
 {
 	return m_iEventTourism;
 }
+int CvPolicyEntry::GetEventTourismCS() const
+{
+	return m_iEventTourismCS;
+}
 int CvPolicyEntry::GetMonopolyModFlat() const
 {
 	return m_iMonopolyModFlat;
@@ -2498,6 +2508,16 @@ int CvPolicyEntry::GetMaxCorps() const
 {
 	return m_iMaxCorporations;
 }
+/// Does this Policy grant faster razing?
+int CvPolicyEntry::GetRazingSpeedBonus() const
+{
+	return m_iRazingSpeedBonus;
+}
+/// Does this Policy grant faster razing?
+bool CvPolicyEntry::IsNoPartisans() const
+{
+	return m_bNoPartisans;
+}
 /// Does this Policy grant yields from conquering cities?
 int CvPolicyEntry::GetConquerorYield(int i) const
 {
@@ -3016,6 +3036,9 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pPolicies(NULL),
 	m_pPlayer(NULL)
 {
+#if defined(MOD_BALANCE_CORE)
+	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+#endif
 }
 
 /// Destructor
@@ -3203,6 +3226,10 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> wrapm_piLatestFlavorValues(iNumFlavors, m_piLatestFlavorValues);
 	kStream >> wrapm_piLatestFlavorValues;
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateModifierCache();
+#endif
 }
 
 /// Serialization write
@@ -3257,6 +3284,31 @@ CvPlayer* CvPlayerPolicies::GetPlayer()
 	return m_pPlayer;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//could be extended for other modifiers as well ...
+void CvPlayerPolicies::UpdateModifierCache()
+{
+	m_vBuildingClassTourismModifier.clear();
+	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+
+	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
+	{
+		int iValue = 0;
+		for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+		{
+			// Do we have this policy?
+			if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+			{
+				iValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
+			}
+		}
+
+		m_vBuildingClassTourismModifier[j] = iValue;
+	}
+}
+#endif
+
+
 /// Accessor: does a player have a policy
 bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 {
@@ -3281,6 +3333,10 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 
 		int iChange = bNewValue ? 1 : -1;
 		GetPlayer()->ChangeNumPolicies(iChange);
+
+#if defined(MOD_BALANCE_CORE)
+		UpdateModifierCache();
+#endif
 
 		if(bNewValue)
 		{
@@ -3709,6 +3765,13 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 /// Get tourism modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
 {
+
+#if defined(MOD_BALANCE_CORE)
+	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
+		return m_vBuildingClassTourismModifier[eBuildingClass];
+	else
+		return 0;
+#else
 	int rtnValue = 0;
 
 	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
@@ -3721,6 +3784,7 @@ int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildi
 	}
 
 	return rtnValue;
+#endif
 }
 
 /// Does any policy owned give benefit for garrisons?
@@ -4499,6 +4563,10 @@ void CvPlayerPolicies::SetPolicyBranchBlocked(PolicyBranchTypes eBranchType, boo
 		if(bValue != IsPolicyBranchBlocked(eBranchType))
 		{
 			m_pabPolicyBranchBlocked[eBranchType] = bValue;
+
+#if defined(MOD_BALANCE_CORE)
+			UpdateModifierCache();
+#endif
 
 			int iPolicyEffectChange = bValue ? -1 : 1;
 

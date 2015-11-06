@@ -204,7 +204,11 @@
     <!-- See also: "Diplomacy - Auto-Denounce" -->
     <Row Class="6" Name="DIPLOMACY_AUTO_DENOUNCE" Value="0"/>
 
-	<!-- Changes for the City State Diplomacy mod by Gazebo (v35) -->
+    <!-- Don't display leader heads (behaves more like multi-player diplomacy) (v67) -->
+    <!-- See also: "Diplomacy - No Leaderheads" -->
+    <Row Class="4" Name="DIPLOMACY_NO_LEADERHEADS" Value="0"/>
+
+	  <!-- Changes for the City State Diplomacy mod by Gazebo (v35) -->
 	<!-- See also: "Diplomacy - City States" -->
     <Row Class="6" Name="DIPLOMACY_CITYSTATES" Value="0"/>
 	<!-- The quests sub-feature of DIPLOMACY_CITYSTATES -->
@@ -227,7 +231,7 @@
 
 	<!-- Enables any belief to be selected, even if already taken (v46) -->
     <!-- See also: "Civilization - Morindim" -->
-    <Row Class="6" Name="TRAITS_ANY_BELIEF" Value="0" DbUpdates="1"/>
+    <Row Class="6" Name="TRAITS_ANY_BELIEF" Value="1" DbUpdates="1"/>
 
 	<!-- Enables additional trade route related traits (v52) -->
     <Row Class="6" Name="TRAITS_TRADE_ROUTE_BONUSES" Value="0" DbUpdates="1"/>
@@ -853,6 +857,8 @@
 	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
 	<!-- Resistance Mod for Units based on # of capitals controlled. -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
+	<!-- Religion Founding removes all pantheon followers in your empire. -->
+	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
@@ -861,9 +867,15 @@
 	<!--   GameEvents.PlayerSecularizes.Add(function(iPlayer, iStateReligion, bool bValue) end) -->
 				<!-- For secularizes, bValue = true when it secularizes, false when it de-secularizes -->
 	<!--   GameEvents.PlayerStateReligionAdopted.Add(function(iPlayer, iStateReligion, iOldReligion) end) -->
-			   <!-- iOldReligion will return NO_RELIGION here
+			   <!-- iOldReligion will return NO_RELIGION here -->
 	<!--   GameEvents.PlayerStateReligionChanged.Add(function(iPlayer, iStateReligion, iOldReligion) end) -->
 				<!-- iStateReligion is the new state religion, iOldReligion is the old state religion -->
+	<!--   GameEvents.PlayerAdoptsGovernment.Add(function(iPlayer, iGovID) end) -->
+	<!--   GameEvents.ReformCooldownChanges.Add(function(iPlayer, iChange) end) -->
+	<!--   GameEvents.GovernmentCooldownChanges.Add(function(iPlayer, iChange) end) -->
+	<!--   GameEvents.ReformCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
+	<!--   GameEvents.GovernmentCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
+	<!--   GameEvents.GreatWorkCreated.Add(function(iUnit, iGreatWork) end) -->
 
 	<CustomModPostDefines>
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->

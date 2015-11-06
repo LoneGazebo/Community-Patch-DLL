@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3542,7 +3542,7 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
+int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const
 {
 	int iPassable = 0;
 	CvPlot* pAdjacentPlot;
@@ -3552,7 +3552,7 @@ int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if(!pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
+			if (bWater == pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
@@ -3570,7 +3570,7 @@ bool CvPlot::IsChokePoint() const
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
-	int iPassable = countPassableLandNeighbors(aPassableNeighbors);
+	int iPassable = countPassableNeighbors(false, aPassableNeighbors);
 
 	//a plot is a chokepoint if it has between two and four passable land plots as neighbors
 	if (iPassable<2 || iPassable>4)
@@ -3581,7 +3581,7 @@ bool CvPlot::IsChokePoint() const
 	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
 	for (int iI = 0; iI<iPassable; iI++)
 	{
-		if (aPassableNeighbors[iI]->countPassableLandNeighbors(NULL)>2)
+		if (aPassableNeighbors[iI]->countPassableNeighbors(false,NULL)>2)
 		{
 			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
 			iPassableAndNoPeninsula++;
@@ -5757,7 +5757,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()))
+						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity()))
 #else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -5969,7 +5969,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()))
+						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity()))
 #else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -6987,6 +6987,10 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 
 		if(pImprovementInfo->IsWater() != isWater())
 			continue;
+#if defined(MOD_BALANCE_CORE)
+		if(!pImprovementInfo->IsAdjacentCity())
+			continue;
+#endif
 
 		eImprovementNeeded = eImprovement;
 	}
@@ -7300,7 +7304,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || newImprovementEntry.IsCreatedByGreatPerson() || newImprovementEntry.IsAdjacentCity())
+						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && newImprovementEntry.IsCreatedByGreatPerson()) || newImprovementEntry.IsAdjacentCity())
 #else
 						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -7321,7 +7325,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || newImprovementEntry.IsCreatedByGreatPerson() || newImprovementEntry.IsAdjacentCity())
+					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && newImprovementEntry.IsCreatedByGreatPerson()) || newImprovementEntry.IsAdjacentCity())
 #else
 					if(newImprovementEntry.IsImprovementResourceTrade(eResource))
 #endif
@@ -7387,7 +7391,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson() || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
+						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson()) || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
 #else
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -7406,7 +7410,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson() || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
+					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson()) || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
 #else
 					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource))
 #endif
@@ -7527,7 +7531,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()) || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 #else
 					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -8068,7 +8072,7 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 		if(isCity() || getImprovementType() != NO_IMPROVEMENT)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()) || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 #else
 			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -8251,7 +8255,8 @@ void CvPlot::updateWorkingCity()
 			if(pOldWorkingCity != NULL)
 			{
 				// Re-add citizen somewhere else
-				pOldWorkingCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned();
+				std::map<SpecialistTypes, int> specialistValueCache;
+				pOldWorkingCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
 			}
 		}
 		else
@@ -10312,7 +10317,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 							bDontShowRewardPopup = true;
 #endif
 						// Popup (no MP)
+#if defined(MOD_API_EXTENSIONS)
+						if(!GC.getGame().isReallyNetworkMultiPlayer() && !bDontShowRewardPopup)
+#else
 						if(!GC.getGame().isNetworkMultiPlayer() && !bDontShowRewardPopup)	// KWG: candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
 						{
 							CvPopupInfo kPopupInfo(BUTTONPOPUP_NATURAL_WONDER_REWARD, getX(), getY(), iFinderGold, 0 /*iFlags */, bFirstFinder);
 							pInterface->AddPopup(kPopupInfo);
@@ -12145,7 +12154,7 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 	{
 		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
 #if defined(MOD_BALANCE_CORE)
-		if((eRevealedImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType) || GC.getImprovementInfo(eRevealedImprovement)->IsCreatedByGreatPerson()))
+		if((eRevealedImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(eRevealedImprovement)->IsCreatedByGreatPerson()) || GC.getImprovementInfo(eRevealedImprovement)->IsAdjacentCity()))
 #else
 		if((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType))
 #endif
@@ -14005,8 +14014,10 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 void CvPlot::UpdatePlotsWithLOS()
 {
-	m_vPlotsWithLOSatRange2.clear();
-	m_vPlotsWithLOSatRange3.clear();
+	m_vPlotsWithLineOfSightFromHere2.clear();
+	m_vPlotsWithLineOfSightFromHere3.clear();
+	m_vPlotsWithLineOfSightToHere2.clear();
+	m_vPlotsWithLineOfSightToHere3.clear();
 
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -14021,11 +14032,15 @@ void CvPlot::UpdatePlotsWithLOS()
 				{
 				case 2:
 					if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLOSatRange2.push_back(pLoopPlot);
+						m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
+					if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
+						m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
 					break;
 				case 3:
 					if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLOSatRange3.push_back(pLoopPlot);
+						m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
+					if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
+						m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
 					break;
 				}
 			}
@@ -14056,7 +14071,7 @@ int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
 int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
 int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
 
-bool CvPlot::GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& vResult)
+bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult)
 {
 	vResult.clear();
 
@@ -14077,11 +14092,11 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bWithLOS, std::vector<CvPlot*>& v
 			}
 		case 2:
 			//copy the precomputed result
-			vResult = m_vPlotsWithLOSatRange2;
+			vResult = bFromPlot ? m_vPlotsWithLineOfSightFromHere2 : m_vPlotsWithLineOfSightToHere2;
 			return true;
 		case 3:
 			//copy the precomputed result
-			vResult = m_vPlotsWithLOSatRange3;
+			vResult = bFromPlot ? m_vPlotsWithLineOfSightFromHere3 : m_vPlotsWithLineOfSightToHere3;
 			return true;
 		}
 	}

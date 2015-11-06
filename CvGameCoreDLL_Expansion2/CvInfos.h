@@ -1975,6 +1975,10 @@ public:
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int getTradeRouteDistanceMod() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getMinDistanceCities() const;
+	int getMinDistanceCityStates() const;
+#endif
 	int GetEstimatedNumCities() const;
 
 	static CvWorldInfo CreateCustomWorldSize(const CvWorldInfo& kTemplate, int iWidth, int iHeight);
@@ -2015,6 +2019,10 @@ protected:
 	int m_iNumCitiesTechCostMod;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iTradeRouteDistanceMod;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iMinDistanceCities;
+	int m_iMinDistanceCityStates;
 #endif
 	int m_iEstimatedNumCities;
 };

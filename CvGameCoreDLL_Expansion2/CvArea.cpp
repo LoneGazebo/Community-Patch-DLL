@@ -519,7 +519,8 @@ int CvArea::getTotalFoundValue() const
 //	--------------------------------------------------------------------------------
 void CvArea::setTotalFoundValue(int iNewValue)
 {
-	m_iTotalFoundValue = iNewValue;
+	//avoid overflow
+	m_iTotalFoundValue = min(INT_MAX/2,max(0,iNewValue));
 	CvAssert(m_iTotalFoundValue >= 0);
 }
 

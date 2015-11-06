@@ -154,6 +154,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGreatScientistBeakerModifier(0),
 	m_iExtraLeagueVotes(0),
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_iSingleLeagueVotes(0),
 	m_iFaithToVotesBase(0),
 	m_iCapitalsToVotesBase(0),
 	m_iDoFToVotesBase(0),
@@ -234,6 +235,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iEventTourism(0),
 	m_iLandTourism(0),
 	m_iSeaTourism(0),
+	m_iAlwaysHeal(0),
 #endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
@@ -512,6 +514,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
+	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -624,6 +627,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_iSingleLeagueVotes = kResults.GetInt("SingleLeagueVotes");
 	if (MOD_DIPLOMACY_CITYSTATES) {
 		m_iFaithToVotesBase = kResults.GetInt("FaithToVotes");
 		m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
@@ -1882,6 +1886,10 @@ int CvBuildingEntry::GetExtraLeagueVotes() const
 	return m_iExtraLeagueVotes;
 }
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+int CvBuildingEntry::GetSingleVotes() const
+{
+	return m_iSingleLeagueVotes;
+}
 /// Extra votes from faith generation
 int CvBuildingEntry::GetFaithToVotes() const
 {
@@ -2077,6 +2085,10 @@ int CvBuildingEntry::GetLandTourismEnd() const
 int CvBuildingEntry::GetSeaTourismEnd() const
 {
 	return m_iSeaTourism;
+}
+int CvBuildingEntry::GetAlwaysHeal() const
+{
+	return m_iAlwaysHeal;
 }
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
@@ -3871,7 +3883,11 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 						// Notification in MP games
+#if defined(MOD_API_EXTENSIONS)
+						if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
+#else
 						if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
 						{
 							CvNotifications* pNotifications = GET_PLAYER(m_pCity->getOwner()).GetNotifications();
 							if(pNotifications)

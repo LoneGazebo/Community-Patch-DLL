@@ -39,6 +39,7 @@
 			<CorporationHQID>4</CorporationHQID>
 			<CorporationID>4</CorporationID>
 			<TRSpeedBoost>2</TRSpeedBoost>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_HEXXON_REFINERY</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_HEXXON_REFINERY</FreeBuildingThisCity>
 			<NumTradeRouteBonus>1</NumTradeRouteBonus>
@@ -187,20 +188,6 @@
 			<Quantity>3</Quantity>
 		</Row>
 	</Building_CorporationResourceQuantity>
-	<Building_BuildingClassYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_HEXXON_REFINERY_HQ</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_HEXXON_REFINERY_HQ</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-	</Building_BuildingClassYieldChanges>
 	<Building_CorporationYieldModTrade>
 		<Row>
 			<BuildingType>BUILDING_HEXXON_REFINERY</BuildingType>

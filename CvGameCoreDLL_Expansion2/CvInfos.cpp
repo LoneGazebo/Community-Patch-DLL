@@ -6210,6 +6210,10 @@ CvWorldInfo::CvWorldInfo() :
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iTradeRouteDistanceMod(100),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iMinDistanceCities(3),
+	m_iMinDistanceCityStates(3),
+#endif
 	m_iEstimatedNumCities(0)
 {
 }
@@ -6315,6 +6319,18 @@ int CvWorldInfo::getTradeRouteDistanceMod() const
 	return m_iTradeRouteDistanceMod;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvWorldInfo::getMinDistanceCities() const
+{
+	return m_iMinDistanceCities;
+}
+//------------------------------------------------------------------------------
+int CvWorldInfo::getMinDistanceCityStates() const
+{
+	return m_iMinDistanceCityStates;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
 {
@@ -6370,6 +6386,10 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
+	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
+#endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -6399,6 +6419,10 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
+	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
 #endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
@@ -6446,6 +6470,10 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	}
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCities, 3);
+	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCityStates, 3);
 #endif
 }
 
@@ -6501,6 +6529,10 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iNumCitiesTechCostMod;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCities);
+	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCityStates);
 #endif
 }
 

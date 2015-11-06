@@ -358,8 +358,8 @@ protected:
 #endif
 	static int lFoundReligion(lua_State* L);
 	static int lEnhanceReligion(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
-	LUAAPIEXTN(AddReformation, void, iPlayer, iBelief);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(AddReformation, void, iPlayer, iReligion, iBelief);
 #endif
 	static int lSetHolyCity(lua_State* L);
 	static int lGetFounder(lua_State* L);
@@ -414,6 +414,10 @@ protected:
 
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+	LUAAPIEXTN(ExitLeaderScreen, void);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(ReloadGameDataDefines, void);

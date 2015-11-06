@@ -62,12 +62,11 @@ bool CvTacticalAnalysisCell::CanUseForOperationGathering()
 
 bool CvTacticalAnalysisCell::CanUseForOperationGatheringCheckWater(bool bWater)
 {
-	if(bWater != IsWater() || IsImpassableTerrain() || IsImpassableTerritory() || GetEnemyMilitaryUnit() || GetNeutralMilitaryUnit() || GetNeutralCivilianUnit() || IsFriendlyTurnEndTile() || IsEnemyCity() || IsNeutralCity())
+	if(bWater != IsWater())
 	{
 		return false;
 	}
-
-	return true;
+	return CanUseForOperationGathering();
 }
 
 //=====================================
@@ -519,7 +518,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		//danger plots are calculated without ZOC
-		if (m_pPlayer->GetNumPossibleAttackers(*pPlot)>0)
+		if (m_pPlayer->GetPossibleAttackers(*pPlot).size()>0)
 		{
 			//check whether neighbors are subject to attack with ZOC
 			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);

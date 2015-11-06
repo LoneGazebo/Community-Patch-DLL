@@ -37,6 +37,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<FreeBuildingThisCity>BUILDINGCLASS_GIORIO_ARMEIER</FreeBuildingThisCity>
 			<MinAreaSize>-1</MinAreaSize>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_GIORIO_ARMEIER</CorporationHelper>
 			<CorporationHQID>5</CorporationHQID>
 			<CorporationID>5</CorporationID>

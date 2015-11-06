@@ -291,6 +291,12 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', '0';
 
+-- India Growth (CBP) 
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '0';
+
 -- AI Military Strategies - no CSs
 
 UPDATE AIMilitaryStrategies

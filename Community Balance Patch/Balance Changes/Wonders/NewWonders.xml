@@ -416,7 +416,7 @@
 			<Text>CERN</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CERN_HELP">
-			<Text>Receive a massive one-time [ICON_RESEARCH] Science Boost when completed, and +30 [ICON_INFLUENCE] Influence with all City-States in the world.</Text>
+			<Text>Receive a massive one-time [ICON_RESEARCH] Science Boost when completed, and +35 [ICON_INFLUENCE] Influence with all City-States in the world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CERN_TEXT">
 			<Text>

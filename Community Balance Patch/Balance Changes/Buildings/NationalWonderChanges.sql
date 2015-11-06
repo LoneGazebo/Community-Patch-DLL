@@ -84,6 +84,10 @@ UPDATE Buildings
 SET GreatWorkCount = '1'
 WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
+UPDATE Buildings
+SET ExtraMissionarySpreads = '1'
+WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
 -- Move Bomb Shelter
 UPDATE Buildings
 SET PrereqTech = 'TECH_ADVANCED_BALLISTICS'
@@ -115,6 +119,10 @@ WHERE Type = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WH
 UPDATE Building_YieldChanges
 SET Yield = '3'
 WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
+SELECT 'BUILDING_OXFORD_UNIVERSITY' , 'UNIT_SCIENTIST' , '1'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Spy Agency
 UPDATE Buildings
@@ -323,7 +331,7 @@ SET Text = 'Must have built a Workshop in the city.[NEWLINE][NEWLINE]Requires a 
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed. [NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if Themed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. A Great Scientist appears near the City. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed. [NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -335,7 +343,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and lev
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest, and all Missionaries born in this City can spread Religion three times. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

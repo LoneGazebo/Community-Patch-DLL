@@ -305,6 +305,28 @@ void CvFlavorManager::RemoveFlavorRecipient(CvFlavorRecipient* pTargetObject)
 	}
 }
 
+#if defined(MOD_API_EXTENSIONS)
+void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes eNewLeader)
+{
+	CvLeaderHeadInfo* pkOldLeaderHeadInfo = GC.getLeaderHeadInfo(eOldLeader);
+	CvLeaderHeadInfo* pkNewLeaderHeadInfo = GC.getLeaderHeadInfo(eNewLeader);
+	
+	if(pkOldLeaderHeadInfo && pkNewLeaderHeadInfo)
+	{
+		int* m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+		
+		for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+		{
+			m_aiTempFlavors[iI] = pkNewLeaderHeadInfo->getFlavorValue(iI) - pkOldLeaderHeadInfo->getFlavorValue(iI);
+		}
+		
+		ChangeFlavors(m_aiTempFlavors, true);
+
+		SAFE_DELETE_ARRAY(m_aiTempFlavors);
+	}
+}
+#endif
+
 /// Update to a new set of flavors
 void CvFlavorManager::ChangeFlavors(int* piDeltaFlavorValues, bool	bPlayerLevelUpdate)
 {
