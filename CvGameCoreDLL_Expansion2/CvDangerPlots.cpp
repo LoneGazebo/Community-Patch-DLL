@@ -99,14 +99,20 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
 
-	TacticalAIHelpers::ReachablePlotSet reachableTiles;
-	TacticalAIHelpers::GetAllTilesInReach(pLoopUnit,pLoopUnit->plot(),reachableTiles);
+	//for ranged every plot we can enter with movement left is a base for attack
+	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
+	if (pLoopUnit->isMustSetUpToRangedAttack())
+		iMinMovesLeft += GC.getMOVE_DENOMINATOR();
+
+	//use the worst case assumption here, no ZOC (all intervening units have been killed)
+	TacticalAIHelpers::ReachablePlotSet reachablePlots;
+	TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
 		std::set<int> attackableTiles;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachableTiles,attackableTiles);
+		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles);
 
 		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
@@ -117,7 +123,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	else
 	{
 		//for melee every tile we can move into can be attacked
-		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
+		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
 			AssignUnitDangerValue(pLoopUnit, pMoveTile);

@@ -9241,6 +9241,20 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::SetNoSettling(int iPlotIndex)
+{
+	m_noSettlingPlots.insert(iPlotIndex);
+}
+bool CvPlayer::IsNoSettling(int iPlotIndex) const
+{
+	return m_noSettlingPlots.find(iPlotIndex)!= m_noSettlingPlots.end();
+}
+void CvPlayer::ClearNoSettling()
+{
+	m_noSettlingPlots.clear();
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlayer::canFound(int iX, int iY) const
 {
 	return canFound(iX,iY,false,false,NULL);
@@ -9251,11 +9265,8 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 	// Has the AI agreed to not settle here?
-	if(!isMinorCiv() && !isBarbarian())
-	{
-		if(pPlot->IsNoSettling(GetID()))
-			return false;
-	}
+	if(IsNoSettling(pPlot->GetPlotIndex()))
+		return false;
 
 	// Haxor for Venice to prevent secondary founding
 	if (GetPlayerTraits()->IsNoAnnexing() && getCapitalCity())
@@ -33156,6 +33167,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFractionOriginalCapitalsUnderControl;
 #endif
 
+	kStream >> m_noSettlingPlots;
+
 	if(GetID() < MAX_MAJOR_CIVS)
 	{
 		if(!m_pDiplomacyRequests)
@@ -33789,6 +33802,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	kStream << m_iFractionOriginalCapitalsUnderControl;
 #endif
+
+	kStream << m_noSettlingPlots;
 }
 
 //	--------------------------------------------------------------------------------

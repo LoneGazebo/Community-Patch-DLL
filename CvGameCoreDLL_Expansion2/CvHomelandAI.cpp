@@ -2862,11 +2862,34 @@ void CvHomelandAI::ReviewUnassignedUnits()
 #if defined(MOD_BALANCE_CORE)
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-				if(pUnit->IsGreatPerson())
+				if(!pUnit->isEmbarked())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-					pUnit->SetTurnProcessed(true);
-					pUnit->finishMoves();
+					CvPlot* pLoopPlotSearch = NULL;
+					for (int iI = 0; iI < 3; iI++)
+					{
+						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
+						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
+						if (pLoopPlotSearch != NULL)
+						{
+							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+								break;
+							}
+						}
+					}
+					if(pUnit->canFortify(pUnit->plot()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
+					}
+					else
+					{
+						pUnit->PushMission(CvTypes::getMISSION_SKIP());
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
+					}
 
 					CvString strTemp;
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2874,165 +2897,19 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					{
 						strTemp = pkUnitInfo->GetDescription();
 						CvString strLogString;
-						strLogString.Format("Unassigned GP %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Unassigned %s %d wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 					continue;
 				}
-				if(pUnit->plot()->getOwner() == pUnit->getOwner())
-				{
-					if(!pUnit->isEmbarked())
-					{
-						CvPlot* pLoopPlotSearch = NULL;
-						for (int iI = 0; iI < 3; iI++)
-						{
-							int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-							pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-							if (pLoopPlotSearch != NULL)
-							{
-								if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-								{
-									pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-									break;
-								}
-							}
-						}
-						if(pUnit->canFortify(pUnit->plot()))
-						{
-							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-							pUnit->SetTurnProcessed(true);
-							pUnit->finishMoves();
-						}
-						else
-						{
-							pUnit->PushMission(CvTypes::getMISSION_SKIP());
-							pUnit->SetTurnProcessed(true);
-							pUnit->finishMoves();
-						}
-
-						CvString strTemp;
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-						if(pkUnitInfo)
-						{
-							strTemp = pkUnitInfo->GetDescription();
-							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-						continue;
-					}
-					else
-					{
-						//We really need to do something with this unit - let's bring it home if we can.
-						CvCity* pBestCity = NULL;
-						CvCity* pSaveCity;
-						int iBestDistance = MAX_INT;
-						int iLoop;
-						for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
-						{
-							int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
-
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pBestCity = pSaveCity;
-							}
-						}
-
-						if(pBestCity != NULL)
-						{
-							MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot());
-							pUnit->SetTurnProcessed(true);
-							pUnit->finishMoves();
-							CvString strTemp;
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-							if(pkUnitInfo)
-							{
-								strTemp = pkUnitInfo->GetDescription();
-								CvString strLogString;
-								strLogString.Format("Unassigned %s %d wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
-							}
-							continue;
-						}
-						else
-						{
-							CvPlot* pLoopPlotSearch = NULL;
-							for (int iI = 0; iI < 3; iI++)
-							{
-								int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-								pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-								if (pLoopPlotSearch != NULL)
-								{
-									if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-									{
-										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-										break;
-									}
-								}
-							}
-							if(pUnit->canFortify(pUnit->plot()))
-							{
-								pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-								pUnit->SetTurnProcessed(true);
-								pUnit->finishMoves();
-							}
-							CvString strTemp;
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-							if(pkUnitInfo)
-							{
-								strTemp = pkUnitInfo->GetDescription();
-								CvString strLogString;
-								strLogString.Format("Unassigned %s %d stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
-							}
-							continue;
-						}
-					}
-				}
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					CvCity* pBestCity = NULL;
-					CvCity* pSaveCity;
-					int iBestDistance = MAX_INT;
-					int iLoop;
-					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
-					{
-						if(pSaveCity != NULL)
-						{
-							int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
-
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pBestCity = pSaveCity;
-							}
-						}
-					}
-
+					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
-						if(!MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot()))
-						{
-							if(!MoveToEmptySpaceTwoFromTarget(pUnit.pointer(), pBestCity->plot()))
-							{
-								CvPlot* pLoopPlotSearch = NULL;
-								for (int iI = 0; iI < 3; iI++)
-								{
-									int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-									pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-									if (pLoopPlotSearch != NULL)
-									{
-										if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-										{
-											pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-											break;
-										}
-									}
-								}
-							}
-						}
+						if (!MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot()))
+							MoveToEmptySpaceTwoFromTarget(pUnit.pointer(), pBestCity->plot());
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -3041,36 +2918,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestCity->getX(), pBestCity->getY());
-							LogHomelandMessage(strLogString);
-						}
-						continue;
-					}
-					else
-					{
-						CvPlot* pLoopPlotSearch = NULL;
-						for (int iI = 0; iI < 3; iI++)
-						{
-							int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-							pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-							if (pLoopPlotSearch != NULL)
-							{
-								if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-								{
-									pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-									break;
-								}
-							}
-						}
-						pUnit->SetTurnProcessed(true);
-						pUnit->finishMoves();
-						CvString strTemp;
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-						if(pkUnitInfo)
-						{
-							strTemp = pkUnitInfo->GetDescription();
-							CvString strLogString;
-							strLogString.Format("Unassigned %s %d stuck abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d moving homeward, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -3079,23 +2927,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			}
 			else if(pUnit->getDomainType() == DOMAIN_SEA)
 			{
-				if(pUnit->IsGreatPerson())
-				{
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-					pUnit->SetTurnProcessed(true);
-					pUnit->finishMoves();
-
-					CvString strTemp;
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-					if(pkUnitInfo)
-					{
-						strTemp = pkUnitInfo->GetDescription();
-						CvString strLogString;
-						strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}	
-					continue;
-				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
 					CvPlot* pLoopPlotSearch = NULL;
@@ -3105,7 +2936,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
+							if(pLoopPlotSearch != NULL && pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
@@ -3130,16 +2961,11 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
 					CvPlot* pBestPlot = NULL;
-					CvCity* pSaveCity;
 					int iBestDistance = MAX_INT;
 					int iLoop;
-					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
+					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(pSaveCity == NULL)
-						{
-							continue;
-						}
-						CvPlot* pPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pSaveCity->plot(), NULL);
+						CvPlot* pPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTestCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							if(pPlot->getArea() != pUnit->getArea())
@@ -3159,25 +2985,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					if(pBestPlot != NULL)
 					{
 						if(!MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, false))
-						{
-							if(!MoveToEmptySpaceTwoFromTarget(pUnit.pointer(), pBestPlot, false))
-							{
-								CvPlot* pLoopPlotSearch = NULL;
-								for (int iI = 0; iI < 3; iI++)
-								{
-									int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-									pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-									if (pLoopPlotSearch != NULL)
-									{
-										if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-										{
-											pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-											break;
-										}
-									}
-								}
-							}
-						}
+							MoveToEmptySpaceTwoFromTarget(pUnit.pointer(), pBestPlot, false);
+
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -3186,36 +2995,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering abroad, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
-							LogHomelandMessage(strLogString);
-						}
-						continue;
-					}
-					else
-					{
-						CvPlot* pLoopPlotSearch = NULL;
-						for (int iI = 0; iI < 3; iI++)
-						{
-							int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
-							pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-							if (pLoopPlotSearch != NULL)
-							{
-								if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
-								{
-									pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-									break;
-								}
-							}
-						}
-						pUnit->SetTurnProcessed(true);
-						pUnit->finishMoves();
-						CvString strTemp;
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-						if(pkUnitInfo)
-						{
-							strTemp = pkUnitInfo->GetDescription();
-							CvString strLogString;
-							strLogString.Format("Unassigned %s %d stuck abroad, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
 							LogHomelandMessage(strLogString);
 						}
 						continue;
@@ -3342,7 +3122,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch))
+							if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
@@ -3477,7 +3257,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		TacticalAIHelpers::ReachablePlotSet eligiblePlots;
-		TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
+		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
 		for (TacticalAIHelpers::ReachablePlotSet::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->first);
@@ -3698,7 +3478,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				bool bFoundWayHome = false;
 				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
+					if(pUnit->GeneratePath(pLoopCity->plot()))
 					{
 						bFoundWayHome = true;
 						break;
@@ -5982,9 +5762,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			TacticalAIHelpers::ReachablePlotSet reachableTiles;
-			TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(),pUnit->plot(),reachableTiles,true,true);
-			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
+			TacticalAIHelpers::ReachablePlotSet reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
+			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
 				//plot needs to have a defender, but no be adjacent to the enemy
@@ -7442,9 +7222,9 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 {
 #if defined(MOD_BALANCE_CORE)
 	WeightedPlotVector aBestPlotList;
-	TacticalAIHelpers::ReachablePlotSet reachableTiles;
-	TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
-	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
+	TacticalAIHelpers::ReachablePlotSet reachablePlots;
+	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
+	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
@@ -8201,13 +7981,6 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 						{
 							iValue += 10000;
 						}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-						if(MOD_DIPLOMACY_CIV4_FEATURES && pAdjacentPlot->IsAvoidMovement(m_pPlayer->GetID()))
-						{
-							iValue -= 100;
-						}
-#endif
 
 						if(GC.getLogging() && GC.getAILogging()){
 							CvString strLogString;

@@ -7491,14 +7491,13 @@ MultiunitFormationTypes MilitaryAIHelpers::GetBestFormationType()
 #if defined(MOD_BALANCE_CORE)
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
-	FStaticVector< CvFormationSlotEntry, 30, false, c_eCiv5GameplayDLL > slotsToFill;
-	FStaticVector< CvFormationSlotEntry, 30, false, c_eCiv5GameplayDLL >::iterator it;
+	std::vector< CvFormationSlotEntry > slotsToFill;
+	std::vector< CvFormationSlotEntry >::iterator it;
 	
 	CvPlayerAI& ownerPlayer = GET_PLAYER(pPlayer->GetID());
 
 	int iWillBeFilled = 0;
 	int iLandReservesUsed = 0;
-	int iMandatoryReserves = (pPlayer->GetMilitaryAI()->GetLandReservesAvailable() / 2);
 
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
@@ -7506,6 +7505,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iThisSlotIndex);
 		slotsToFill.push_back(thisSlotEntry);
 	}
+
 	if(pPlayer && pEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL)
 	{
 		if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
@@ -7545,14 +7545,8 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 	{
-		// Make sure he's not needed by the tactical AI or already in an army
-
-		//don't recruit if currently healing
-		if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
-		{
-			continue;
-		}
-		if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
+		int iDistance = 0;
+		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
 		{
 			// Is this unit one of the requested types?
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -7560,171 +7554,61 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 			{
 				continue;
 			}
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
-			{
-				continue;
-			}
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-			{
-				continue;
-			}
 
-			bool bValid = false;
+			//Do we fit in any slot?
+			for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+			{
+				CvFormationSlotEntry thisSlotEntry = *it;
+				if (unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+				{
+					slotsToFill.erase(it);
 
-			//Run out of slots to test? Break!
-			if(slotsToFill.empty())
-			{
-				break;
-			}
-			//NONCOMBAT LAND UNITS
-			if(!pLoopUnit->IsCombatUnit())
-			{
-				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-				//NONCOMBAT SEA UNITS
-				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-			}
-			//COMBAT LAND UNITS
-			else if(pLoopUnit->IsCombatUnit())
-			{
-				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-					{
-						continue;
-					}
-				}
-				//COMBAT SEA UNITS
-				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-				{
-					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-					{
-						continue;
-					}
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-				//Do we fit in any primary slot?
-				for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
-				{
-					CvFormationSlotEntry thisSlotEntry = *it;
-					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
-					{
-						if(pMuster != NULL)
-						{
-							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pMuster->getX(), pMuster->getY()) > 12)
-							{
-								break;
-							}
-						}
-						slotsToFill.erase(it);
-						bValid = true;
-						break;
-					}
-				}
-				//What about secondary slots?
-				if(!bValid)
-				{
-					for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
-					{
-						CvFormationSlotEntry thisSlotEntry = *it;
-						if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
-						{
-							if(pMuster != NULL)
-							{
-								if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pMuster->getX(), pMuster->getY()) > 12)
-								{
-									break;
-								}
-							}
-							slotsToFill.erase(it);
-							bValid = true;
-							break;
-						}
-					}
-				}
-				// Made it this far? You did it!
-				if(bValid)
-				{
-					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 					{
 						iLandReservesUsed++;
 					}
 					iWillBeFilled++;
+
+					break;
 				}
 			}
+
+			//Run out of slots to test? Break!
+			if (slotsToFill.empty())
+				break;
 		}
 	}
-	
+
+	//Let's add our reserves to the 'required' list, otherwise we risk sending too much out at once.
+	int iOpenRequiredSlots = 0;
+	for (int iThisSlotIndex = 0; iThisSlotIndex < (int)slotsToFill.size(); iThisSlotIndex++)
+	{
+		if (slotsToFill[iThisSlotIndex].m_requiredSlot)
+		{
+			iOpenRequiredSlots++;
+		}
+	}
+
 	// Now go back through remaining slots and see how many were required, we'll need that many more units
 	if(piNumberSlotsRequired != NULL)
 	{
-		//Let's add our reserves to the 'required' list, otherwise we risk sending too much out at once.
-		(*piNumberSlotsRequired) = iWillBeFilled;
-		for(int iThisSlotIndex = 0; iThisSlotIndex < (int)slotsToFill.size(); iThisSlotIndex++)
-		{
-			if(slotsToFill[iThisSlotIndex].m_requiredSlot)
-			{
-				(*piNumberSlotsRequired)++;
-			}
-		}
+		(*piNumberSlotsRequired) = iWillBeFilled + iOpenRequiredSlots;
 	}
+
 	if(piNumberLandReservesUsed != NULL)
 	{
 		*piNumberLandReservesUsed = iLandReservesUsed;
 	}
+
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strTemp;
 		CvString strLogString;
-		strLogString.Format("Tallying up units for %s formation. Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), *piNumberSlotsRequired, iWillBeFilled, iMandatoryReserves, iLandReservesUsed);
+		int iLandReserves = pPlayer->GetMilitaryAI()->GetLandReservesAvailable();
+		strLogString.Format("Tallying up units for %s formation. Still Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), iOpenRequiredSlots, iWillBeFilled, iLandReserves, iLandReservesUsed);
 		pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
+
 	return iWillBeFilled;
 }
 

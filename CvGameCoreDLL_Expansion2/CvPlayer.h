@@ -262,6 +262,10 @@ public:
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
+	void SetNoSettling(int iPlotIndex);
+	bool IsNoSettling(int iPlotIndex) const;
+	void ClearNoSettling();
+
 #if defined(MOD_BALANCE_CORE)
 	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
 	bool canFound(int iX, int iY) const;
@@ -2823,6 +2827,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_iPlotFoundValues;
 #endif
+
+	//plots we have pledged no to settle
+	std::set<int> m_noSettlingPlots;
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

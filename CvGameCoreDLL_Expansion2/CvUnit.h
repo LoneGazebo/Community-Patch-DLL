@@ -838,12 +838,6 @@ public:
 	bool isProjectedToDieNextTurn() const;
 #endif
 
-#if defined(SHOW_PLOT_POPUP)
-	void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
-#else
-	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
-#endif
-
 	int getMoves() const;
 	void setMoves(int iNewValue);
 	void changeMoves(int iChange);

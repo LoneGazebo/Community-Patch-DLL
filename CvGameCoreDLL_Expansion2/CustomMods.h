@@ -39,6 +39,8 @@
 #define MOD_BALANCE_CORE_GLOBAL_IDS
 /// clean up defines for pathfinder
 #define MOD_BALANCE_CORE_PATHFINDER_FLAGS
+/// allocate memory only for actual players
+#define MOD_CORE_MEM_OPTIMIZATION
 
 #define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #define AUI_UNIT_FIX_BAD_BONUS_STACKS

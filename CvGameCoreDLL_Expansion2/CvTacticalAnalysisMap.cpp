@@ -468,40 +468,36 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 		CvUnit* pUnit = m_EnemyUnits[iUnitIndex];
 		TacticalAIHelpers::ReachablePlotSet tiles;
 
+		//for ranged every plot we can enter with movement left is a base for attack
+		int iMinMovesLeft = pUnit->IsCanAttackRanged() ? 1 : 0;
+		if (pUnit->isMustSetUpToRangedAttack())
+			iMinMovesLeft += GC.getMOVE_DENOMINATOR();
+
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
-		TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),tiles,false,true);
+		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
 
 		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
-
 			int iPlotIndex = GC.getMap().plotNum(pMoveTile->getX(),pMoveTile->getY());
-			int iPlotMoves = moveTile->second;
 
 			if (pUnit->IsCanAttackRanged())
 			{
-				if (pUnit->isMustSetUpToRangedAttack())
-					iPlotMoves -= GC.getMOVE_DENOMINATOR();
-
-				//for ranged every tile he can enter with movement left is a base for attack
-				if (iPlotMoves>0)
+				m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
+				std::set<int> rangedPlots;
+				//this generates some overlap, but preventing that is about as bad as ignoring it
+				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots);
+				for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
 				{
-					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
-					std::set<int> rangedPlots;
-					//this generates some overlap, but preventing that is about as bad as ignoring it
-					TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots);
-					for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
-					{
-						m_pPlots[*attackTile].SetSubjectToAttack(true);
-					}
+					m_pPlots[*attackTile].SetSubjectToAttack(true);
 				}
 			}
 			else
 			{
 				//for melee every tile he can move into can be attacked
 				m_pPlots[iPlotIndex].SetSubjectToAttack(true);
-				if (iPlotMoves>0)
+				if (moveTile->second>0)
 					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
 			}
 		}

@@ -2596,7 +2596,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 			continue;
 
-		if(!pGeneral->canMoveOrAttackInto(*pPlot))
+		if(!pGeneral->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
 			continue;
 
 		if(!pPlot->canBuild(eCitadel, GetID()))

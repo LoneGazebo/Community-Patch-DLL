@@ -8462,7 +8462,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 
 	if(iMyWarCount > 0)
 	{
-		iMyMilitaryStrength *= (200 - (iMyWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER()));
+		iMyMilitaryStrength *= 100 + (iMyWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
 		iMyMilitaryStrength /= 100;
 	}
 
@@ -8716,7 +8716,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 
 	if(iWarCount > 0)
 	{
-		iOtherPlayerMilitaryStrength *= (200 - (iWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER()));
+		iOtherPlayerMilitaryStrength *= 100 + (iWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
 		iOtherPlayerMilitaryStrength /= 100;
 	}
 
@@ -8925,7 +8925,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	}
 
 	//FINAL TEST
-	iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMyMilitaryStrength;
+	iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / max(1,iMyMilitaryStrength);
 	// Example: If another player has double the Military strength of us, the Ratio will be 200
 
 	iTargetValue += iMilitaryRatio;
@@ -23204,23 +23204,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 				// lower weight for crossing tiles around this player's cities
 				int iLoop;
-				int iDX, iDY;
-				int iRange = 6;
 				CvCity* pLoopCity;
-				CvPlot* pLoopPlot;
 				for(pLoopCity = GET_PLAYER(eFromPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eFromPlayer).nextCity(&iLoop))
 				{
-					for(iDX = -(iRange); iDX <= iRange; iDX++)
-					{
-						for(iDY = -(iRange); iDY <= iRange; iDY++)
-						{
-							pLoopPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iDX, iDY, iRange);
-							if(pLoopPlot != NULL)
-							{
-								pLoopPlot->SetAvoidMovement(GetPlayer()->GetID(), true);
-							}
-						}
-					}
+					//todo: mark cities for pathfinder
+					//open question: when to unmark?? 
 				}
 			}
 			// AI says they are just moving their troops through
@@ -25221,8 +25209,6 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool b
 	{
 		m_pabPlayerNoSettleRequestAccepted[ePlayer] = bValue;
 
-		PlayerTypes eID = GetPlayer()->GetID();
-
 		int iPlotLoop;
 
 		// Add blocker to plots nearby ePlayer
@@ -25247,7 +25233,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool b
 						{
 							if(plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pLoopCity->getX(), pLoopCity->getY()) <= iRange)
 							{
-								pNearbyPlot->SetNoSettling(eID, true);
+								GetPlayer()->SetNoSettling( pNearbyPlot->GetPlotIndex() );
 							}
 						}
 					}
@@ -25260,7 +25246,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool b
 			int iNumPlots = GC.getMap().numPlots();
 			for(iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 			{
-				GC.getMap().plotByIndexUnchecked(iPlotLoop)->SetNoSettling(eID, false);
+				GetPlayer()->ClearNoSettling();
 			}
 		}
 	}

@@ -15550,16 +15550,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		pTargetPlot = pMyPlot;
 		pMyPlot = pFromPlot;
 	}
-	else if (bForRangedAttack && !isRangedSupportFire())
-	{
-		if (pFromPlot != NULL && pTargetPlot != NULL)
-		{
-			if (!canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), pFromPlot) && !isRangedSupportFire())
-			{
-				return 0;
-			}
-		}
-	}
 	
 #else
 int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack) const
@@ -20173,49 +20163,6 @@ int CvUnit::getDamage() const
 {
 	VALIDATE_OBJECT
 	return m_iDamage;
-}
-
-
-//	--------------------------------------------------------------------------------
-/**
-	Shows the damage delta text.
-
-	@param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
-	@param [in]	pkPlot				The plot to show the text at.
-	@param	fAdditionalTextDelay	The additional text delay.
-	@param	pAppendText				The text to append or NULL.
- */
-void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay /* = 0.f */, const CvString* pAppendText /* = NULL */)
-{
-	if (pkPlot)
-	{
-		if(pkPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
-		{
-			float fDelay = 0.0f + fAdditionalTextDelay;
-			CvString text;
-			if(iDelta <= 0)
-			{
-				text.Format("[COLOR_GREEN]+%d", -iDelta);
-				fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-			}
-			else
-			{
-				text.Format("[COLOR_RED]%d", -iDelta);
-			}
-			if(pAppendText != NULL)
-			{
-				text += " ";
-				text += *pAppendText;
-			}
-			text += "[ENDCOLOR]";
-
-#if defined(SHOW_PLOT_POPUP)
-			// SHOW_PLOT_POPUP(pkPlot, getOwner(), text.c_str(), fDelay);
-#else
-			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), fDelay);
-#endif
-		}
-	}
 }
 
 

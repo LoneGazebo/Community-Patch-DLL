@@ -952,13 +952,20 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		//Bugfix?
 		if(pkScriptSystem && ePlayer != NO_PLAYER && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian()) 
 #else
-		if(pkScriptSystem) 
+		if (pkScriptSystem)
 #endif
 		{
 			CvLuaArgsHandle args;
 			args->Push(ePlayer);
 #if defined(MOD_BALANCE_CORE)
-			args->Push(kPlayer.getCapitalCity()->GetID());
+			CvCity* pCapital = kPlayer.getCapitalCity();
+			if (!pCapital)
+			{
+				//just take the first city
+				int iIdx;
+				pCapital = kPlayer.firstCity(&iIdx);
+			}
+			args->Push(pCapital ? pCapital->GetID() : 0);
 #else
 			args->Push(GET_PLAYER(ePlayer).getCapitalCity()->GetID());
 #endif

@@ -20366,24 +20366,12 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	// Check existing armies this unit could fit into if it wasn't automatically added to one.
 	if(pUnit && pUnit->getArmyID() == -1)
 	{
-		int iLoop;
-		CvArmyAI* pLoopArmyAI;
-		for(pLoopArmyAI = GET_PLAYER(getOwner()).firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = GET_PLAYER(getOwner()).nextArmyAI(&iLoop))
+		for (CvAIOperation* pOp = GET_PLAYER(getOwner()).getFirstAIOperation(); pOp; pOp = GET_PLAYER(getOwner()).getNextAIOperation())
 		{
-			if(pLoopArmyAI != NULL && pLoopArmyAI->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+			if (pOp->GetOperationState()==AI_OPERATION_STATE_RECRUITING_UNITS)
 			{
-				if(pLoopArmyAI->Plot() != NULL && pLoopArmyAI->GetGoalPlot() != NULL)
-				{
-					CvAIOperation* pOperation = GET_PLAYER(getOwner()).getAIOperation(pLoopArmyAI->GetOperationID());
-					if(pOperation)
-					{
-						pOperation->FillWithUnitsFromTheReserves(pLoopArmyAI->Plot(), pLoopArmyAI->GetGoalPlot(), pUnit);
-						if(pUnit->getArmyID() != -1)
-						{
-							break;
-						}
-					}
-				}
+				if (pOp->RecruitUnit(pUnit))
+					break;
 			}
 		}
 	}

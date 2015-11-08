@@ -351,7 +351,6 @@ protected:
 	bool* m_pRevealed;
 	char* m_pRevealedImprovementType;
 	char* m_pRevealedRouteType;
-	bool* m_pNoSettling;
 	bool* m_pResourceForceReveal;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
