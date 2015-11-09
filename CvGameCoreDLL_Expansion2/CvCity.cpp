@@ -9859,7 +9859,7 @@ void CvCity::CheckForOperationUnits()
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 							//and train it!
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
@@ -9934,7 +9934,7 @@ void CvCity::CheckForOperationUnits()
 						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 						//and train it!
-						UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eBestUnit, eUnitAI, false);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
@@ -9953,7 +9953,7 @@ void CvCity::CheckForOperationUnits()
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
 						if(pkUnitEntry)
 						{
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(GC.getLogging() && GC.getAILogging())
 							{
@@ -11415,7 +11415,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
 							if(pkUnitEntry)
 							{
-								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 								int iResult = CreateUnit(eBestUnit, eUnitAI);
 
 								CvAssertMsg(iResult != -1, "Unable to create unit");
@@ -24361,7 +24361,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 
-				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24369,7 +24369,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 #endif
 				if(eBestUnit == NO_UNIT)
 				{
-					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
+					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24396,7 +24396,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 							//and train it!
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, false);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
@@ -24473,7 +24473,7 @@ UnitTypes CvCity::GetUnitForOperation()
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 
-				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24481,7 +24481,7 @@ UnitTypes CvCity::GetUnitForOperation()
 #endif
 				if(eBestUnit == NO_UNIT)
 				{
-					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
+					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else

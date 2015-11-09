@@ -2022,7 +2022,7 @@ void CvEconomicAI::DoHurry()
 												m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 												//and train it!
-												UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+												UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
 												CvAssertMsg(iResult != -1, "Unable to create unit");
 												if (iResult != -1)
@@ -2064,7 +2064,7 @@ void CvEconomicAI::DoHurry()
 											m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 											//and train it!
-											UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+											UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
 											CvAssertMsg(iResult != -1, "Unable to create unit");
 											if (iResult != -1)
@@ -2232,7 +2232,7 @@ void CvEconomicAI::DoHurry()
 													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 													//and train it!
-													UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+													UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
 													CvAssertMsg(iResult != -1, "Unable to create unit");
 													if (iResult != -1)
@@ -2275,7 +2275,7 @@ void CvEconomicAI::DoHurry()
 												m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 												//and train it!
-												UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+												UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
 												CvAssertMsg(iResult != -1, "Unable to create unit");
 												if (iResult != -1)
@@ -2531,7 +2531,7 @@ void CvEconomicAI::DoReconState()
 				{
 					if((pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE) || (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA))
 					{
-						pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+						pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -2604,7 +2604,7 @@ void CvEconomicAI::DoReconState()
 		{
 			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 			{
-				pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+				pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -2683,7 +2683,7 @@ void CvEconomicAI::DoReconState()
 			{
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
 				{
-					pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+					pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;

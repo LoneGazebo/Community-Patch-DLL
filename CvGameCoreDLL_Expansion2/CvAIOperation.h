@@ -14,6 +14,7 @@
 
 #include "CvGlobals.h"
 #include "CvGame.h"
+#include "CvWeightedVector.h"
 
 class CvArmyAI;
 
@@ -99,6 +100,8 @@ enum AIOperationAbortReason
 
 FDataStream& operator<<(FDataStream&, const AIOperationState&);
 FDataStream& operator>>(FDataStream&, AIOperationState&);
+
+typedef CvWeightedVector<int, 128, true> WeightedUnitIdVector;
 
 struct OperationSlot
 {
@@ -296,13 +299,13 @@ protected:
 
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 #else
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #endif
 
 	std::vector<int> m_viArmyIDs;
-	std::vector<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
+	std::deque<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	std::vector<OperationSlot> m_viListOfUnitsWeSkipped;
 #endif
@@ -1296,7 +1299,7 @@ public:
 		return 10;
 	}
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 #else
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #endif

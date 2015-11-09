@@ -2262,7 +2262,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							{
 								// replacing the parameters
 								eUnit = eLocalUnit;
-								eUnitAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+								eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 								break;
 							}
 						}
@@ -4941,7 +4941,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
 		if(pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
@@ -4972,7 +4972,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -5014,7 +5014,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, strKey, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, strKey, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 	}
 
 	return pUnit;
@@ -8785,7 +8785,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 			// if we promoted an scouting unit from a goody hut, turn him into whatever the new unit's default AI is if it is not a suitable explorer anymore
 			UnitAITypes currentAIDefault = pUnit->AI_getUnitAIType();
-			UnitAITypes newAIDefault = (UnitAITypes)GC.getUnitInfo(eUpgradeUnit)->GetDefaultUnitAIType();
+			UnitAITypes newAIDefault = GC.getUnitInfo(eUpgradeUnit)->GetDefaultUnitAIType();
 			if(currentAIDefault == UNITAI_EXPLORE)
 			{
 				if(newAIDefault == UNITAI_EXPLORE || newAIDefault == UNITAI_ATTACK || newAIDefault == UNITAI_DEFENSE || newAIDefault == UNITAI_FAST_ATTACK || newAIDefault == UNITAI_COUNTER)
@@ -30157,7 +30157,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 					return -1;
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())if(pPlot->isImpassable())
+				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -31232,7 +31232,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
 					if(pkUnitEntry)
 					{
-						UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 						int iResult = pLoopCity->CreateUnit(eBestUnit, eUnitAI);
 
 						CvAssertMsg(iResult != -1, "Unable to create unit");

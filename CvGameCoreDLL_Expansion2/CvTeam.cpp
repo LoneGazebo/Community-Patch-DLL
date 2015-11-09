@@ -1322,7 +1322,8 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				// Don't declare war if we're not alive!
 				if(isAlive())
 				{
-					if(eHisMaster != GetID())
+					//important, check if we're already at war, otherwise recursion!
+					if(eHisMaster != GetID() && !isAtWar(eHisMaster) )
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), bAggressor, eHisMaster, false);

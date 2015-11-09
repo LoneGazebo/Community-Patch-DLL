@@ -2871,7 +2871,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch) )
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
@@ -2936,7 +2936,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pLoopPlotSearch != NULL && pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
@@ -3488,7 +3488,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(bFoundWayHome)
 				{
 					pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopCity->getX(), pLoopCity->getY());
+					MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot());
 				}
 				else
 				{
@@ -4147,7 +4147,7 @@ void CvHomelandAI::ExecuteHeals()
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
 		{
-			if(pUnit->isFortifyable())
+			if(pUnit->canFortify(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 				pUnit->SetFortifiedThisTurn(true);
@@ -8232,23 +8232,18 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 #endif
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
-			// Must be currently empty of friendly combat units
-			if(!pLoopPlot->getBestDefender(m_pPlayer->GetID()))
+			if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && pUnit->canEnterTerrain(*pLoopPlot))
 			{
-				// Enemies too
-				if(!pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID()))
-				{
 #ifdef AUI_DANGER_PLOTS_REMADE
-					if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)*2 > pUnit->GetCurrHitPoints())
-						continue;
+				if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)*2 > pUnit->GetCurrHitPoints())
+					continue;
 #endif
-					// Find a path to this space
-					if(pUnit->GeneratePath(pLoopPlot))
-					{
-						// Go ahead with mission
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY());
-						return true;
-					}
+				// Find a path to this space
+				if(pUnit->GeneratePath(pLoopPlot))
+				{
+					// Go ahead with mission
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY());
+					return true;
 				}
 			}
 		}
@@ -8982,39 +8977,23 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 /// Move up to our target (this time within 2 spaces) avoiding our own units if possible
 bool CvHomelandAI::MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand)
 {
-	CvPlot* pLoopPlot;
-
 	// Look at spaces adjacent to target
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
-		pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
-		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() == 2))
+		CvPlot* pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
+		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && 
+			plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() == 2))
 		{
-			// Must be currently empty of friendly combat units
-			if(!pLoopPlot->getBestDefender(m_pPlayer->GetID()))
+			if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && pUnit->canEnterTerrain(*pLoopPlot))
 			{
-				// Enemies too
-				if(!pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID()))
+				// And if it is a city, make sure we are friends with them, else we will automatically attack
+				if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
 				{
-					// And if it is a city, make sure we are friends with them, else we will automatically attack
-					if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
+					// Find a path to this space
+					if(pUnit->GeneratePath(pLoopPlot))
 					{
-						// Find a path to this space
-						if(pUnit->GeneratePath(pLoopPlot))
-						{
-							// Go ahead with mission
-#if defined(MOD_BALANCE_CORE)
-							return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false);
-#else
-							bool bMoveWasSafe;
-							MoveToUsingSafeEmbark(pUnit, pLoopPlot, bMoveWasSafe);
-							return true;
-#endif
-						}
+						// Go ahead with mission
+						return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false);
 					}
 				}
 			}

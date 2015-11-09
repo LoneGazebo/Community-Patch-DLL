@@ -443,7 +443,7 @@ OperationSlot CvAIOperation::PeekAtNextUnitToBuild(int iAreaID)
 	OperationSlot thisSlot;
 	if(iAreaID == m_iDefaultArea && !m_viListOfUnitsWeStillNeedToBuild.empty())
 	{
-		thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
+		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
 	}
 	return thisSlot;
 }
@@ -454,8 +454,8 @@ OperationSlot CvAIOperation::CommitToBuildNextUnit(int iAreaID, int iTurns, CvCi
 	OperationSlot thisSlot;
 	if(iAreaID == m_iDefaultArea && !m_viListOfUnitsWeStillNeedToBuild.empty())
 	{
-		thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
-		m_viListOfUnitsWeStillNeedToBuild.pop_back();
+		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
+		m_viListOfUnitsWeStillNeedToBuild.pop_front();
 		m_viListOfUnitsCitiesHaveCommittedToBuild.push_back(thisSlot);
 
 		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
@@ -478,7 +478,7 @@ bool CvAIOperation::UncommitToBuild(OperationSlot thisOperationSlot)
 	if(iter != m_viListOfUnitsCitiesHaveCommittedToBuild.end())
 	{
 		// add it to the list of stuff that needs to be built
-		m_viListOfUnitsWeStillNeedToBuild.push_back(*iter);
+		m_viListOfUnitsWeStillNeedToBuild.push_front(*iter);
 		// remove it from the list of committed units
 		m_viListOfUnitsCitiesHaveCommittedToBuild.erase(iter);
 		return true;
@@ -553,14 +553,14 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	int iDistance = 1000;
 	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,pTargetPlot,bMustNaval,bMustBeDeepWaterNaval,iDistance))
 	{
-		std::vector<OperationSlot>::iterator it;
+		std::deque<OperationSlot>::iterator it;
 		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
 		{
 			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(it->m_iSlotID);
 			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(it->m_iSlotID);
 			if (pSlot && pSlot->GetUnitID() == NO_UNIT)
 			{
-				if (unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 				{
 					//we have a match!
 					pThisArmy->AddUnit(pUnit->GetID(), it->m_iSlotID);
@@ -594,14 +594,10 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 {
 	bool rtnValue = true;
 	bool success;
-	std::vector<OperationSlot>::iterator it;
+	std::deque<OperationSlot>::iterator it;
 
 	// Copy over the list
-	std::vector<OperationSlot> secondList;
-	for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
-	{
-		secondList.push_back(*it);
-	}
+	std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
 
 	// Clear main list
 	m_viListOfUnitsWeStillNeedToBuild.clear();
@@ -632,9 +628,38 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 		if (GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY(), true))
 		{
+			WeightedUnitIdVector UnitChoices;
+			int iLoop = 0;
+			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
+			{
+				int iDistance = 1000;
+				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pNavalMuster,pNavalTarget,true,bMustBeDeepWaterNaval,iDistance))
+				{
+					// When in doubt prefer units in our own territory
+					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
+						iDistance++;
+
+					UnitChoices.push_back(pLoopUnit->GetID(), 1000-iDistance);
+				}
+			}
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				if (pMusterPlot != NULL && pTargetPlot != NULL)
+				{
+					strMsg.Format("Found %d potential units to recruit for operation %d at x=%d y=%d, target of x=%d y=%d", 
+						UnitChoices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+					LogOperationSpecialMessage(strMsg);
+				}
+			}
+
+			if (UnitChoices.size()==0)
+				return false;
+			UnitChoices.SortItems();
+
 			for (it = secondList.begin(); it != secondList.end(); ++it)
 			{
-				success = FindBestFitReserveUnit(*it, pNavalMuster, pNavalTarget, true, bMustBeDeepWaterNaval);
+				success = FindBestFitReserveUnit(*it, UnitChoices);
 
 				if (!success)
 				{
@@ -663,9 +688,38 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	}
 	else
 	{
+		WeightedUnitIdVector UnitChoices;
+		int iLoop = 0;
+		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
+		{
+			int iDistance = 1000;
+			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,pTargetPlot,false,false,iDistance))
+			{
+				// When in doubt prefer units in our own territory
+				if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
+					iDistance++;
+
+				UnitChoices.push_back(pLoopUnit->GetID(), 1000-iDistance);
+			}
+		}
+
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			if (pMusterPlot != NULL && pTargetPlot != NULL)
+			{
+				strMsg.Format("Found %d potential units to recruit for operation %d at x=%d y=%d, target of x=%d y=%d", 
+					UnitChoices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+				LogOperationSpecialMessage(strMsg);
+			}
+		}
+
+		if (UnitChoices.size()==0)
+			return false;
+		UnitChoices.SortItems();
+
 		for (it = secondList.begin(); it != secondList.end(); ++it)
 		{
-			success = FindBestFitReserveUnit(*it, pMusterPlot, pTargetPlot, false, false);
+			success = FindBestFitReserveUnit(*it, UnitChoices);
 			if (!success)
 			{
 				if (OperationalAIHelpers::IsSlotRequired(m_eOwner, *it))
@@ -1763,7 +1817,7 @@ bool CvAIOperation::BuyFinalUnit()
 
 	if(!m_viListOfUnitsWeStillNeedToBuild.empty() && pCity != NULL && pCity->getOwner() == m_eOwner)
 	{
-		OperationSlot thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
+		OperationSlot thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
 		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
 		if (!pArmy)
 			return false;
@@ -1772,11 +1826,11 @@ bool CvAIOperation::BuyFinalUnit()
 			return false;
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisSlot.m_iSlotID);
 
-		CvUnit* pUnit = GET_PLAYER(m_eOwner).GetMilitaryAI()->BuyEmergencyUnit((UnitAITypes)thisSlotEntry.m_primaryUnitType, pCity);
+		CvUnit* pUnit = GET_PLAYER(m_eOwner).GetMilitaryAI()->BuyEmergencyUnit(thisSlotEntry.m_primaryUnitType, pCity);
 		if(pUnit != NULL)
 		{
 			pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID);
-			m_viListOfUnitsWeStillNeedToBuild.pop_back();
+			m_viListOfUnitsWeStillNeedToBuild.pop_front();
 			if (m_viListOfUnitsWeStillNeedToBuild.size() == 0 && m_viListOfUnitsCitiesHaveCommittedToBuild.size() == 0 && m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
 			{
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -2367,23 +2421,14 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 
 #if defined(MOD_BALANCE_CORE)
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval)
+bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices)
 {
-	CvUnit* pBestUnit = NULL;
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 	CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 	CvString strMsg;
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> UnitChoices;
-	UnitChoices.clear();
 	if(!pThisArmy)
-	{
 		return false;
-	}
-	if(pTargetPlot == NULL || pMusterPlot == NULL)
-	{
-		return false;
-	}
 
 	int iThisFormationIndex = pThisArmy->GetFormationIndex();
 	if(iThisFormationIndex == NO_MUFORMATION)
@@ -2393,76 +2438,56 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 	if (!thisFormation)
 		return false;
 
-	const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
-
 	CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(thisOperationSlot.m_iSlotID);
-	if (pSlot && pSlot->GetUnitID() != NO_UNIT)
+	if (!pSlot)
+		return false;
+
+	const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
+	if (pSlot->GetUnitID() != NO_UNIT)
 	{
 		UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
 		if (pUnit)
 		{
 			if (GC.getLogging() && GC.getAILogging())
 			{
-				if (pMusterPlot != NULL && pTargetPlot != NULL)
-				{
-					strMsg.Format("Existing army slot already full for new army muster of x=%d y=%d, target of x=%d y=%d. Unit is: %s", pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString());
-					LogOperationSpecialMessage(strMsg);
-				}
+				strMsg.Format("Recruiting - slot %d is already full! Unit is: %s %d", thisOperationSlot.m_iSlotID, pUnit->getName().GetCString(), pUnit->GetID());
+				LogOperationSpecialMessage(strMsg);
 			}
 			return true;
 		}
 	}
-
-	int iLoop = 0;
-	for (CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
+	else
 	{
-		int iDistance = 1000;
-		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,pTargetPlot,bMustNaval,bMustBeDeepWaterNaval,iDistance))
+		if (GC.getLogging() && GC.getAILogging())
 		{
-			// When in doubt prefer units in our own territory
-			if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
-				iDistance++;
-
-			UnitChoices.push_back(pLoopUnit->GetID(), 1000-iDistance);
-		}
-	}
-
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		if (pMusterPlot != NULL && pTargetPlot != NULL)
-		{
-			strMsg.Format("Found %d potential units to fill slot %d in army %d at x=%d y=%d, target of x=%d y=%d", 
-				UnitChoices.size(), thisOperationSlot.m_iSlotID, thisOperationSlot.m_iArmyID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+			CvString str1, str2;
+			getUnitAIString(str1,thisSlotEntry.m_primaryUnitType);
+			getUnitAIString(str2,thisSlotEntry.m_secondaryUnitType);
+			strMsg.Format("Recruiting - trying to fill slot %d (%s / %s) in operation %d, army %d", 
+				thisOperationSlot.m_iSlotID, str1.c_str(), str2.c_str(), thisOperationSlot.m_iOperationID, thisOperationSlot.m_iArmyID);
 			LogOperationSpecialMessage(strMsg);
 		}
 	}
 
-	if (UnitChoices.size() > 0)
+	for (int iI=0; iI<UnitChoices.size(); iI++)
 	{
-		UnitChoices.SortItems();
-		pBestUnit = GET_PLAYER(m_eOwner).getUnit(UnitChoices.GetElement(0));
-
-		// Did we find one?
+		CvUnit* pBestUnit = GET_PLAYER(m_eOwner).getUnit(UnitChoices.GetElement(iI));
 		if (pBestUnit != NULL)
 		{
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pBestUnit->getUnitType());
-			if (unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
+
+			if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 			{
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
 				if (GC.getLogging() && GC.getAILogging())
 				{
-					if (pMusterPlot != NULL && pTargetPlot != NULL)
-					{
-						strMsg.Format("Recruited %s %d to fill in a new army at x=%d y=%d, target of x=%d y=%d", pBestUnit->getName().GetCString(), pBestUnit->GetID(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-						LogOperationSpecialMessage(strMsg);
-					}
-					int iMusterDist = plotDistance(pMusterPlot->getX(), pMusterPlot->getY(), pBestUnit->getX(), pBestUnit->getY());
-					if (iMusterDist > 12)
-					{
-						strMsg.Format("Warning: %s recruited far-away unit %d plots from muster point for a new army", GetOperationName().c_str(), iMusterDist);
-						LogOperationSpecialMessage(strMsg);
-					}
+					strMsg.Format("Recruiting - found suitable unit %s %d at index %d", pBestUnit->getName().GetCString(), pBestUnit->GetID(), iI );
+					LogOperationSpecialMessage(strMsg);
 				}
+
+				//overwrite with invalid ID so we don't use it a second time
+				UnitChoices.SetElement(iI,-1);
+
 				return true;
 			}
 		}
@@ -10172,7 +10197,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 
 /// Find a unit from our reserves that could serve in this operation
 #if defined(MOD_BALANCE_CORE)
-bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot*, CvPlot*, bool, bool)
+bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector&)
 {
 #else
 bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* /*pMusterPlot*/, CvPlot* /*pTargetPlot*/, bool* bRequired)

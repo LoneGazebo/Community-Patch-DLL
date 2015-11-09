@@ -643,7 +643,7 @@ void CvBarbarians::DoCamps()
 
 													if(eBestUnit != NO_UNIT)
 													{
-														GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), (UnitAITypes) GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
+														GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
 													}
 
 													// If we should update Camp visibility (for Policy), do so
@@ -1129,7 +1129,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			CvUnit* pUnit = NULL;
 			if(pkUnitDef)
 			{
-				pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), (UnitAITypes)pkUnitDef->GetDefaultUnitAIType());
+				pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), pkUnitDef->GetDefaultUnitAIType());
 				pUnit->finishMoves();
 			}
 #else

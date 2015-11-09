@@ -426,6 +426,7 @@ protected:
 	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
 
 	CvAStarNode** m_ppaaNodes;
+	CvAStarNode** m_ppaaNeighbors;
 
 	// Scratch buffers
 	void* m_pScratchPtr1;						// Will be cleared to NULL before each GeneratePath call

@@ -1576,10 +1576,10 @@ bool CvMultiUnitFormationInfo::CacheResults(Database::Results& kResults, CvDatab
 				slotEntry.m_ePositionType = (MultiunitPositionTypes)GC.getInfoTypeForString(szTextVal, true);
 
 				szTextVal = kSlotEntries.GetText("PrimaryUnitType");
-				slotEntry.m_primaryUnitType = GC.getInfoTypeForString(szTextVal, true);
+				slotEntry.m_primaryUnitType = (UnitAITypes)GC.getInfoTypeForString(szTextVal, true);
 
 				szTextVal = kSlotEntries.GetText("SecondaryUnitType");
-				slotEntry.m_secondaryUnitType = GC.getInfoTypeForString(szTextVal, true);
+				slotEntry.m_secondaryUnitType = (UnitAITypes)GC.getInfoTypeForString(szTextVal, true);
 
 				m_vctSlotEntries.push_back(slotEntry);
 			}

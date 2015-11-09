@@ -46,8 +46,8 @@
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
 
-#include "vld.h"
-#pragma comment(lib,"vld.lib")
+//#include "vld.h"
+//#pragma comment(lib,"vld.lib")
 
 #include <algorithm>
 #include <vector>

@@ -114,6 +114,10 @@ public:
 		m_pNext = NULL;
 		m_pPrev = NULL;
 		m_pStack = NULL;
+
+#if defined(MOD_BALANCE_CORE)
+		m_apNeighbors = NULL;
+#endif
 	}
 
 	void clear()
@@ -162,7 +166,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	//for faster neighbor lookup (potential children)
-	CvAStarNode* m_apNeighbors[6];
+	CvAStarNode** m_apNeighbors;
 #endif
 	CvPathNodeCacheData m_kCostCacheData;
 };

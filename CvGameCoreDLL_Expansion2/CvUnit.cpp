@@ -25495,7 +25495,7 @@ bool CvUnit::DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert, bool 
 		{
 			if (getUnitInfo().GetDefaultUnitAIType() != eUnitAIType)
 			{
-				AI_setUnitAIType((UnitAITypes)getUnitInfo().GetDefaultUnitAIType());
+				AI_setUnitAIType(getUnitInfo().GetDefaultUnitAIType());
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
