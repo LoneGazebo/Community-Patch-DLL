@@ -2287,43 +2287,15 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	iItemValue += goldPerPlot * iCityTiles;
 
 	//important. it's valuable to have as much internal border as possible
-	iItemValue += goldPerPlot * 4 * iInternalBorderCount;
+	iItemValue += goldPerPlot * 8 * iInternalBorderCount;
 
 	//re-use the gold value as a general unit and penalize unhappy citizens
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot;
 
-	// Adjust for how well a war against this player would go (or is going)
-	switch(sellingPlayer.GetDiplomacyAI()->GetWarProjection( buyingPlayer.GetID() ))
-	{
-	case WAR_PROJECTION_DESTRUCTION:
-		iItemValue *= 500;
-		break;
-	case WAR_PROJECTION_DEFEAT:
-		iItemValue *= 400;
-		break;
-	case WAR_PROJECTION_STALEMATE:
-		iItemValue *= 300;
-		break;
-	case WAR_PROJECTION_UNKNOWN:
-		iItemValue *= 200;
-		break;
-	case WAR_PROJECTION_GOOD:
-		iItemValue *= 150;
-		break;
-	case WAR_PROJECTION_VERY_GOOD:
-		iItemValue *= 125;
-		break;
-	default:
-		CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-		iItemValue *= 300;
-		break;
-	}
-	iItemValue /= 100;
-
 	// Opinion also matters
-	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	if (buyingPlayer.IsAtPeaceWith(sellingPlayer.GetID()))
 	{
-		switch (sellingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(buyingPlayer.GetID()))
+		switch (buyingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(sellingPlayer.GetID()))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
 			iItemValue *= 100;
@@ -2335,7 +2307,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			iItemValue *= 120;
 			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
-			iItemValue *= 100;
+			iItemValue *= 135;
 			break;
 		case MAJOR_CIV_OPINION_COMPETITOR:
 			iItemValue *= 150;
@@ -2364,20 +2336,17 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		int iTemp = plotDistance(pRefCity->getX(), pRefCity->getY(), pCity->getX(), pCity->getY());
 		iBuyerDistance = min(iTemp, iBuyerDistance);
 	}
-	//buyer likes it close to home (up to 55% bonus) - this is in addition to the tile overlap above
+	//buyer likes it close to home (up to 50% bonus) - this is in addition to the tile overlap above
 	iItemValue *= 100 + MapToPercent(iBuyerDistance, iRefDist * 2, iRefDist)/2;
 	iItemValue /= 100;
-
-	// AI players should be less willing to trade cities when at war (unless at war with the target)
-	if (buyingPlayer.IsAtWar() && buyingPlayer.IsAtPeaceWith(sellingPlayer.GetID()))
-		iItemValue *= 2;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		if (GET_TEAM(sellingPlayer.getTeam()).IsVassal(buyingPlayer.getTeam()))
 		{
-			iItemValue /= 2;
+			iItemValue *= 70;
+			iItemValue /= 100;
 		}
 	}
 #endif
@@ -2385,20 +2354,34 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	//Did we build this city? We like it.
 	if (pCity->getOriginalOwner() == buyingPlayer.GetID())
 	{
-		iItemValue *= 110;
+		iItemValue *= 130;
 		iItemValue /= 100;
 	}
 
 	//if we currently own the city, the price is higher.
 	if (pCity->getOwner() == buyingPlayer.GetID())
 	{
-		iItemValue *= 110;
-		iItemValue /= 100;
+		if (pCity->IsPuppet())
+		{
+			iItemValue *= 120;
+			iItemValue /= 100;
+		}
+		else
+		{
+			iItemValue *= 150;
+			iItemValue /= 100;
+		}
 
-		//check traderoutes
+		int iWonders = pCity->getNumWorldWonders() + pCity->getNumNationalWonders();
+		if (iWonders>0)
+		{
+			iItemValue *= 120;
+			iItemValue /= 100;
+		}
+
 		if (pCity->IsConnectedToTradeNetwork())
 		{
-			iItemValue *= 110;
+			iItemValue *= 120;
 			iItemValue /= 100;
 		}
 	}
@@ -2412,7 +2395,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue *= 4;
 
 	// so here's the tricky part - convert to gold
-	iItemValue /= 6;
+	iItemValue /= 5;
 
 	OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
 

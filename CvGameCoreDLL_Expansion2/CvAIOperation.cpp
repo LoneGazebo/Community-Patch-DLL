@@ -1025,44 +1025,21 @@ bool CvAIOperation::CheckOnTarget()
 									pCivilianPlot = pCivilian->plot();
 									if(pCivilianPlot != NULL)
 									{
-										//Triplicate in the event that another of the 'escorts' is here.
-										pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
-										if (pEscort && pCivilianPlot == pEscort->plot())
+										//there may be multiple escorts ...
+										for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
 										{
-											int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-											pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-											if(pCenterOfMass && GetMusterPlot() &&
-												plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-												pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
+											pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
+											if (pEscort && pCivilianPlot == pEscort->plot())
 											{
-												pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-												m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-											}
-										}
-										pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
-										if (pEscort && pCivilianPlot == pEscort->plot())
-										{
-											int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-											pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-											if(pCenterOfMass && GetMusterPlot() &&
-												plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-												pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
-											{
-												pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-												m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-											}
-										}
-										pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
-										if (pEscort && pCivilianPlot == pEscort->plot())
-										{
-											int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-											pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-											if(pCenterOfMass && GetMusterPlot() &&
-												plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-												pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
-											{
-												pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-												m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+												int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+												pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+												if(pCenterOfMass && GetMusterPlot() &&
+													plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+													pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
+												{
+													pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+													m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+												}
 											}
 										}
 									}
@@ -8567,7 +8544,6 @@ bool CvAIOperationNavalEscorted::ArmyInPosition(CvArmyAI* pArmy)
 		{
 			CvPlot* pTargetPlot = GetTargetPlot();
 			const PlayerTypes pTargetPlotOwner = pTargetPlot->getOwner();
-
 			CvPlot* pSettlerPlot = pSettler->plot();
 
 			if((pTargetPlotOwner != NO_PLAYER && pTargetPlotOwner != m_eOwner) || pTargetPlot->IsAdjacentOwnedByOtherTeam(pSettler->getTeam()))
@@ -8596,10 +8572,18 @@ bool CvAIOperationNavalEscorted::ArmyInPosition(CvArmyAI* pArmy)
 			// If the settler made it, we don't care about the entire army
 			else if(pSettlerPlot == pTargetPlot && pSettler->canMove() && pSettler->canFound(pSettlerPlot))
 			{
+				int iPlotValue = pSettlerPlot->getFoundValue(m_eOwner);
 				pSettler->PushMission(CvTypes::getMISSION_FOUND());
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					strMsg.Format("City founded, At X=%d, At Y=%d", pSettlerPlot->getX(), pSettlerPlot->getY());
+					CvArea* pArea = pSettlerPlot->area();
+					CvCity* pCity = pSettlerPlot->getPlotCity();
+
+					if (pCity != NULL)
+					{
+						strMsg.Format("City founded (%s), At X=%d, At Y=%d, %s, %d, %d", pCity->getName().c_str(), pSettlerPlot->getX(), pSettlerPlot->getY(), pCity->getName().GetCString(), iPlotValue, pArea->getTotalFoundValue());
+						LogOperationSpecialMessage(strMsg);
+					}
 					LogOperationSpecialMessage(strMsg);
 				}
 #if defined(MOD_BALANCE_CORE)

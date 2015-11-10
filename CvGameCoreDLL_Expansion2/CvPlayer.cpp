@@ -1600,6 +1600,17 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	if(!bConstructorCall)
 	{
+		//important, do this first
+		m_cities.RemoveAll();
+		m_units.RemoveAll();
+		m_armyAIs.RemoveAll();
+
+		// loop through all entries freeing them up
+		std::map<int , CvAIOperation*>::iterator iter;
+		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+			delete(iter->second);
+		m_AIOperations.clear();
+
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiNumResourceUsed.clear();
 		m_paiNumResourceUsed.resize(GC.getNumResourceInfos(), 0);
@@ -1853,24 +1864,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
-	}
 
-	m_cities.RemoveAll();
-
-	m_units.RemoveAll();
-
-	m_armyAIs.RemoveAll();
-
-	// loop through all entries freeing them up
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		delete(iter->second);
-	}
-	m_AIOperations.clear();
-
-	if(!bConstructorCall)
-	{
 		AI_reset();
 	}
 }
