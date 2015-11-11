@@ -8678,6 +8678,11 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
 	if(MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
 	{
+		int iEra = GET_PLAYER(eNewAlly).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -8686,7 +8691,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 				CvCity* pCapital = GET_PLAYER(eNewAlly).getCapitalCity();
 				if(pCapital != NULL)
 				{
-					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield));
+					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iEra);
 				}
 			}
 		}
@@ -8694,6 +8699,11 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
 	if(MOD_BALANCE_CORE && (eOldAlly != NO_PLAYER) && (eOldAlly != eNewAlly))
 	{
+		int iEra = GET_PLAYER(eOldAlly).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -8702,7 +8712,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 				CvCity* pCapital = GET_PLAYER(eOldAlly).getCapitalCity();
 				if(pCapital != NULL)
 				{
-					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1));
+					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1 * iEra));
 				}
 			}
 		}

@@ -79,6 +79,7 @@ CvAStar::CvAStar()
 	m_pStackHead = NULL;
 
 	m_ppaaNodes = NULL;
+	m_ppaaNeighbors = NULL;
 
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	m_iCurrentGenerationID = 0;
@@ -113,6 +114,12 @@ void CvAStar::DeInit()
 
 		FFREEALIGNED(m_ppaaNodes);
 		m_ppaaNodes=0;
+	}
+
+	if (m_ppaaNeighbors)
+	{
+		delete [] m_ppaaNeighbors;
+		m_ppaaNeighbors = NULL;
 	}
 }
 
@@ -169,9 +176,16 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAP
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	m_ppaaNeighbors = new CvAStarNode*[m_iColumns*m_iRows*6];
+	CvAStarNode** apNeighbors = m_ppaaNeighbors;
+
 	for(iI = 0; iI < m_iColumns; iI++)
 		for(iJ = 0; iJ < m_iRows; iJ++)
+		{
+			m_ppaaNodes[iI][iJ].m_apNeighbors = apNeighbors;
+			apNeighbors += 6;
 			PrecalcNeighbors( &(m_ppaaNodes[iI][iJ]) );
+		}
 #endif
 }
 
@@ -1020,7 +1034,9 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 		return TRUE;
 	}
 
-	if(pToPlot->isMountain() && (!pCacheData->isHuman() || pCacheData->IsAutomated()))
+	if(pToPlot->isMountain() && 
+		!pUnit->canEnterTerrain(*pToPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && 
+		(!pCacheData->isHuman() || pCacheData->IsAutomated()))
 	{
 		return FALSE;
 	}
@@ -1751,7 +1767,9 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 		return FALSE;
 	}
 
-	if(pToPlot->isMountain() && (!pCacheData->isHuman() || pCacheData->IsAutomated()))
+	if(pToPlot->isMountain() && 
+		!pUnit->canEnterTerrain(*pToPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && 
+		(!pCacheData->isHuman() || pCacheData->IsAutomated()))
 	{
 		return FALSE;
 	}
@@ -2213,10 +2231,12 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int, const void* pointer, 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 
+	//this is the important check here - stay within the same area
 	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->getArea() != pNewPlot->getArea())
 	{
 		return FALSE;
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	if(pNewPlot->isImpassable(thisPlayer.getTeam()) || (pNewPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
 #else
@@ -3023,9 +3043,14 @@ void CvTwoLayerPathFinder::Initialize(int iColumns, int iRows, bool bWrapX, bool
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-		for(iI = 0; iI < m_iColumns; iI++)
+	CvAStarNode** apNeighbors = m_ppaaNeighbors;
+	for(iI = 0; iI < m_iColumns; iI++)
 		for(iJ = 0; iJ < m_iRows; iJ++)
-			PrecalcNeighbors( &(m_ppaaPartialMoveNodes[iI][iJ]) );
+		{
+			//neighbors have already been precalculated in base class
+			m_ppaaPartialMoveNodes[iI][iJ].m_apNeighbors = apNeighbors;
+			apNeighbors += 6;
+		}
 #endif
 };
 

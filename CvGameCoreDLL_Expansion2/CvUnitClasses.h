@@ -106,7 +106,7 @@ public:
 #endif
 	inline int CvUnitEntry::GetDomainType() const { return m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
-	int GetDefaultUnitAIType() const;
+	UnitAITypes GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;
 	int GetPrereqAndTech() const;
 	int GetObsoleteTech() const;

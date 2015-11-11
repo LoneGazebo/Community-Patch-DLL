@@ -952,13 +952,20 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		//Bugfix?
 		if(pkScriptSystem && ePlayer != NO_PLAYER && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian()) 
 #else
-		if(pkScriptSystem) 
+		if (pkScriptSystem)
 #endif
 		{
 			CvLuaArgsHandle args;
 			args->Push(ePlayer);
 #if defined(MOD_BALANCE_CORE)
-			args->Push(kPlayer.getCapitalCity()->GetID());
+			CvCity* pCapital = kPlayer.getCapitalCity();
+			if (!pCapital)
+			{
+				//just take the first city
+				int iIdx;
+				pCapital = kPlayer.firstCity(&iIdx);
+			}
+			args->Push(pCapital ? pCapital->GetID() : 0);
 #else
 			args->Push(GET_PLAYER(ePlayer).getCapitalCity()->GetID());
 #endif
@@ -6948,7 +6955,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								}
 								return;
 							}
-							else if(m_pPlayer->GetNumUnitsWithUnitAI((UnitAITypes)pUnitEntry->GetDefaultUnitAIType()) <= 4)
+							else if(m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType()) <= 4)
 							{
 								pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 								if(GC.getLogging())
@@ -8164,12 +8171,9 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 				}
 				else
 				{
-					iValidTiles = (pCity->GetNumTerrainWorked(eTerrain) * 2);
+					iValidTiles = pCity->GetNumTerrainWorked(eTerrain);
 				}
-				if(iValidTiles > 0)
-				{
-					iRtnValue += (pEntry->GetYieldPerXTerrain(iJ, iI) / iValidTiles);
-				}
+				iRtnValue += (iValidTiles * pEntry->GetYieldPerXTerrain(iJ, iI));
 			}
 		}
 		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)

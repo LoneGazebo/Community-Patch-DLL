@@ -189,7 +189,7 @@ public:
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const;
+	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
@@ -711,9 +711,6 @@ public:
 	void updateRiverCrossing(DirectionTypes eIndex);
 	void updateRiverCrossing();
 
-	bool IsNoSettling(PlayerTypes eMajor) const;
-	void SetNoSettling(PlayerTypes eMajor, bool bValue);
-
 	bool isRevealed(TeamTypes eTeam, bool bDebug) const
 	{
 		if(bDebug && GC.getGame().isDebugMode())
@@ -771,11 +768,6 @@ public:
 	int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool IsAvoidMovement(PlayerTypes ePlayer) const;
-	void SetAvoidMovement(PlayerTypes ePlayer, bool bNewValue);
-#endif
 
 	int getNumUnits() const;
 	int GetNumCombatUnits();
@@ -920,6 +912,7 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL) const;
@@ -999,15 +992,18 @@ protected:
 	IDInfo m_ResourceLinkedCity;
 	IDInfo m_purchaseCity;
 
+	//external memory allocated by CvMap
 	friend class CvMap;
 	short* m_aiYield;
 	char* m_aiPlayerCityRadiusCount;
 	short* m_aiVisibilityCount;
 	char* m_aiRevealedOwner;
-
-	char /*ImprovementTypes*/ *m_aeRevealedImprovementType;
-	char /*RouteTypes*/ *m_aeRevealedRouteType;
-	bool* m_abNoSettling;
+	char *m_aeRevealedImprovementType;
+	char *m_aeRevealedRouteType;
+	bool* m_abResourceForceReveal;
+#if defined(MOD_BALANCE_CORE)
+	bool* m_abIsImpassable;
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
@@ -1017,14 +1013,6 @@ protected:
 	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool* m_abAvoidMovement;
-#endif
-
-	bool* m_abResourceForceReveal;
-#if defined(MOD_BALANCE_CORE)
-	bool* m_abIsImpassable;
-#endif
 	char* m_szScriptData;
 	short* m_paiBuildProgress;
 
@@ -1034,7 +1022,7 @@ protected:
 
 	UnitHandle m_pCenterUnit;
 
-	short m_apaiInvisibleVisibilityCount[REALLY_MAX_TEAMS][NUM_INVISIBLE_TYPES];
+	short m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
 
 	int m_iArea;
 	int m_iLandmass;

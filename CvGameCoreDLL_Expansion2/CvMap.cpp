@@ -232,22 +232,16 @@ CvMap::CvMap()
 	m_pPlotNeighbors = NULL;
 #endif
 
-
 	m_pYields = NULL;
 	m_pPlayerCityRadiusCount = NULL;
 	m_pVisibilityCount = NULL;
 	m_pRevealedOwner = NULL;
-#if defined(MOD_BALANCE_CORE)
-	m_pIsImpassable = NULL;
-#endif
 	m_pRevealed = NULL;
 	m_pRevealedImprovementType = NULL;
 	m_pRevealedRouteType = NULL;
-	m_pNoSettling = NULL;
 	m_pResourceForceReveal = NULL;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_pAvoidMovement = NULL;
+#if defined(MOD_BALANCE_CORE)
+	m_pIsImpassable = NULL;
 #endif
 
 	m_iAIMapHints = 0;
@@ -269,101 +263,76 @@ void CvMap::InitPlots()
 	int iNumPlots = numPlots();
 	m_pMapPlots = FNEW(CvPlot[iNumPlots], c_eCiv5GameplayDLL, 0);
 
-	//allocate all the memory we need up front
-	m_pYields					= FNEW(short[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pPlayerCityRadiusCount	= FNEW(char[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pVisibilityCount			= FNEW(short[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pRevealedOwner			= FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
-	m_pIsImpassable				= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-#endif
-	m_pRevealed					= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pRevealedImprovementType  = FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pRevealedRouteType		= FNEW(char[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pNoSettling				= FNEW(bool[MAX_MAJOR_CIVS*iNumPlots], c_eCiv5GameplayDLL, 0);
-	m_pResourceForceReveal		= FNEW(bool[REALLY_MAX_TEAMS*iNumPlots], c_eCiv5GameplayDLL, 0);
+	//have to include barbarian here ...
+	int iNumTeams = MAX_TEAMS;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_pAvoidMovement			= FNEW(bool[MAX_MAJOR_CIVS*iNumPlots], c_eCiv5GameplayDLL, 0);
+	//allocate all the memory we need up front
+	m_pYields = FNEW(short[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(short));
+	m_pPlayerCityRadiusCount = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pPlayerCityRadiusCount, 0, iNumTeams*iNumPlots*sizeof(char));
+	m_pVisibilityCount = FNEW(short[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pVisibilityCount, 0, iNumTeams*iNumPlots *sizeof(short));
+	m_pRevealedOwner = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pRevealedOwner, -1, iNumTeams*iNumPlots *sizeof(char));
+	m_pRevealed = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pRevealed, 0, iNumTeams*iNumPlots *sizeof(bool));
+	m_pRevealedImprovementType = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pRevealedImprovementType, 0, iNumTeams*iNumPlots *sizeof(char));
+	m_pRevealedRouteType = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pRevealedRouteType, 0, iNumTeams*iNumPlots *sizeof(char));
+	m_pResourceForceReveal = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pResourceForceReveal, 0, iNumTeams*iNumPlots *sizeof(bool));
+#if defined(MOD_BALANCE_CORE)
+	m_pIsImpassable = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pIsImpassable, 0, iNumTeams*iNumPlots *sizeof(bool));
 #endif
+
+	short* pYields = m_pYields;
+	char*  pPlayerCityRadiusCount = m_pPlayerCityRadiusCount;
+	short* pVisibilityCount = m_pVisibilityCount;
+	char*  pRevealedOwner = m_pRevealedOwner;
+	char* pRevealedImprovementType = m_pRevealedImprovementType;
+	char* pRevealedRouteType = m_pRevealedRouteType;
+	bool*  pResourceForceReveal = m_pResourceForceReveal;
+#if defined(MOD_BALANCE_CORE)
+	bool*  pIsImpassable = m_pIsImpassable;
+#endif
+
+	for(int i = 0; i < iNumPlots; i++)
+	{
+		m_pMapPlots[i].m_aiYield = pYields;
+		m_pMapPlots[i].m_aiPlayerCityRadiusCount = pPlayerCityRadiusCount;
+		m_pMapPlots[i].m_aiVisibilityCount = pVisibilityCount;
+		m_pMapPlots[i].m_aiRevealedOwner = pRevealedOwner;
+		m_pMapPlots[i].m_aeRevealedImprovementType = pRevealedImprovementType;
+		m_pMapPlots[i].m_aeRevealedRouteType = pRevealedRouteType;
+		m_pMapPlots[i].m_abResourceForceReveal = pResourceForceReveal;
+#if defined(MOD_BALANCE_CORE)
+		m_pMapPlots[i].m_abIsImpassable = pIsImpassable;
+#endif
+
+		pYields					+= NUM_YIELD_TYPES;
+		pPlayerCityRadiusCount  += iNumTeams;
+		pVisibilityCount		+= iNumTeams;
+		pRevealedOwner			+= iNumTeams;
+		pRevealedImprovementType+= iNumTeams;
+		pRevealedRouteType		+= iNumTeams;
+		pResourceForceReveal	+= iNumTeams;
+#if defined(MOD_BALANCE_CORE)
+		pIsImpassable			+= iNumTeams;
+#endif
+
+	}
+
+	m_kPlotManager.Init(getGridWidth(), getGridHeight());
 
 #if defined(MOD_BALANCE_CORE)
 	//this will be used for fast lookup of neighbors
 	//the trick is that NO_DIRECTION is not -1 but NUM_DIRECTION_TYPES+1
 	//therefore we need to allocate (NUM_DIRECTION_TYPES+2) pointers per plot
-	m_pPlotNeighbors			= FNEW(CvPlot*[iNumPlots*(NUM_DIRECTION_TYPES+2)], c_eCiv5GameplayDLL, 0);
-
-	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES+2)*sizeof(CvPlot*));
-#endif
-	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(short));
-	memset(m_pPlayerCityRadiusCount, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(char));
-	memset(m_pVisibilityCount, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(short));
-	memset(m_pRevealedOwner, -1 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
-#if defined(MOD_BALANCE_CORE)
-	memset(m_pIsImpassable, 0 ,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
-#endif
-	memset(m_pRevealed, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
-	memset(m_pRevealedImprovementType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
-	memset(m_pRevealedRouteType, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(char));
-	memset(m_pNoSettling, 0,MAX_MAJOR_CIVS*iNumPlots *sizeof(bool));
-	memset(m_pResourceForceReveal, 0,REALLY_MAX_TEAMS*iNumPlots *sizeof(bool));
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	memset(m_pAvoidMovement, 0, MAX_MAJOR_CIVS*iNumPlots * sizeof(bool));
-#endif
-
-
-	short* pYields					= m_pYields;
-	char*  pPlayerCityRadiusCount   = m_pPlayerCityRadiusCount;
-	short* pVisibilityCount			= m_pVisibilityCount;
-	char*  pRevealedOwner			= m_pRevealedOwner;
-#if defined(MOD_BALANCE_CORE)
-	bool*  pIsImpassable			= m_pIsImpassable;
-#endif
-	char* pRevealedImprovementType = m_pRevealedImprovementType;
-	char* pRevealedRouteType		= m_pRevealedRouteType;
-	bool*  pNoSettling				= m_pNoSettling;
-	bool*  pResourceForceReveal		= m_pResourceForceReveal;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool* pAvoidMovement			= m_pAvoidMovement;
-#endif
-
-	for(int i = 0; i < iNumPlots; i++)
-	{
-		m_pMapPlots[i].m_aiYield				= pYields;
-		m_pMapPlots[i].m_aiPlayerCityRadiusCount= pPlayerCityRadiusCount;
-		m_pMapPlots[i].m_aiVisibilityCount		= pVisibilityCount;
-		m_pMapPlots[i].m_aiRevealedOwner		= pRevealedOwner;
-#if defined(MOD_BALANCE_CORE)
-		m_pMapPlots[i].m_abIsImpassable			= pIsImpassable;
-#endif
-		m_pMapPlots[i].m_aeRevealedImprovementType	= pRevealedImprovementType;
-		m_pMapPlots[i].m_aeRevealedRouteType		= pRevealedRouteType;
-		m_pMapPlots[i].m_abNoSettling				= pNoSettling;
-
-		m_pMapPlots[i].m_abResourceForceReveal		= pResourceForceReveal;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		m_pMapPlots[i].m_abAvoidMovement			= pAvoidMovement;
-#endif
-
-
-		pYields					+= NUM_YIELD_TYPES;
-		pPlayerCityRadiusCount  += REALLY_MAX_PLAYERS;
-		pVisibilityCount		+= REALLY_MAX_TEAMS;
-		pRevealedOwner			+= REALLY_MAX_TEAMS;
-#if defined(MOD_BALANCE_CORE)
-		pIsImpassable			+= REALLY_MAX_TEAMS;
-#endif
-		pRevealedImprovementType+= REALLY_MAX_TEAMS;
-		pRevealedRouteType		+= REALLY_MAX_TEAMS;
-		pNoSettling				+= MAX_MAJOR_CIVS;
-		pResourceForceReveal	+= REALLY_MAX_TEAMS;
-
-	}
-
-	m_kPlotManager.Init(getGridWidth(), getGridHeight());
-#if defined(MOD_BALANCE_CORE)
-	// Important speed optimization
+	m_pPlotNeighbors = FNEW(CvPlot*[iNumPlots*(NUM_DIRECTION_TYPES + 2)], c_eCiv5GameplayDLL, 0);
+	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
 	PrecalcNeighbors();
 #endif
 }
@@ -460,22 +429,19 @@ void CvMap::uninit()
 	SAFE_DELETE_ARRAY(m_paiNumResourceOnLand);
 
 	SAFE_DELETE_ARRAY(m_pMapPlots);
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_pPlotNeighbors);
-#endif
-
 	SAFE_DELETE_ARRAY(m_pYields);
 	SAFE_DELETE_ARRAY(m_pPlayerCityRadiusCount);
 	SAFE_DELETE_ARRAY(m_pVisibilityCount);
 	SAFE_DELETE_ARRAY(m_pRevealedOwner);
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_pIsImpassable);
-#endif
 	SAFE_DELETE_ARRAY(m_pRevealed);
 	SAFE_DELETE_ARRAY(m_pRevealedImprovementType);
 	SAFE_DELETE_ARRAY(m_pRevealedRouteType);
-	SAFE_DELETE_ARRAY(m_pNoSettling);
 	SAFE_DELETE_ARRAY(m_pResourceForceReveal);
+
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_pIsImpassable);
+	SAFE_DELETE_ARRAY(m_pPlotNeighbors);
+#endif
 
 	m_iGridWidth = 0;
 	m_iGridHeight = 0;

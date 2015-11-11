@@ -1744,34 +1744,36 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				target.m_pTargetCity = pEnemyCity;
 				target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
 				target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
+
 				ShouldAttackBySea(eEnemy, target);
-				if(target.m_iPathLength == MAX_INT || target.m_iPathLength == 0)
-				{
+				if(target.m_iPathLength == MAX_INT)
 					continue;
-				}
-				if (!target.m_bAttackBySea && (eAIOperationType == AI_OPERATION_NAVAL_ATTACK || eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK || eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK || eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK))
+
+				if (eAIOperationType == AI_OPERATION_NAVAL_ATTACK || 
+					eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK || 
+					eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK || 
+					eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK)
 				{
-					continue;
+					if (!target.m_bAttackBySea)
+						continue;
 				}
-				if(target.m_iPathLength > 0)
-				{
-					iWeight = (40000 - target.m_iPathLength);   // Start by using the path length as the weight, shorter paths have higher weight
-					prelimWeightedTargetList.push_back(target, iWeight);
-				}
+
+				iWeight = 1000 - target.m_iPathLength; // Start by using the path length as the weight, shorter paths have higher weight
+				prelimWeightedTargetList.push_back(target, iWeight);
 			}
 		}
 	}
-	// Let's score the 10 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
+
+	// Let's score the 5 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
 	prelimWeightedTargetList.StableSortItems();
 	weightedTargetList.clear();
 	int iTargetsConsidered = 0;
-	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 10; iI++)
+	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 5; iI++)
 	{
 		CvMilitaryTarget target = prelimWeightedTargetList.GetElement(iI);
 		int iWeight;
 
 		iWeight = ScoreTarget(target, eAIOperationType);
-		iWeight *= (prelimWeightedTargetList.GetWeight(iI) / 100);
 
 		if (iWeight > 0)
 		{
@@ -2007,229 +2009,98 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 /// Is it better to attack this target by sea?
 void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target)
 {
-	CvAStarNode* pPathfinderNode;
-	int iPathLength = 0;
+	int iLandPathLength = INT_MAX;
+	int iWaterPathLength = INT_MAX;
+
+	//start out with a land attack with invalid distance
 	target.m_bAttackBySea = false;
 	target.m_bOcean = false;
-#if defined(MOD_BALANCE_CORE_MILITARY)
+	target.m_iPathLength = MAX_INT;
+
 	if(target.m_pMusterCity == NULL || target.m_pTargetCity == NULL)
-	{
-		target.m_iPathLength = MAX_INT;
 		return;
+
+	// Check land connection in any case (step finder allows same area only)
+	if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
+	{
+		CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+		if(pNode != NULL)
+		{
+			iLandPathLength = pNode->m_iTurns;
+
+			int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
+			iLandPathLength += MAX(0, (iEnemyPlots * 2));
+		}
+
+		//check for chokepoints along the way
+		while(pNode)
+		{
+			CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
+			if (pCurrentPlot->IsChokePoint() && pCurrentPlot->getOwner()==eEnemy)
+			{
+				iLandPathLength = INT_MAX;
+				break;
+			}
+			pNode = pNode->m_pParent;
+		}
+
+		target.m_iPathLength = iLandPathLength;
 	}
-	int iWaterStep = 0;
-#else
-	int iPlotDistance = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY());
-#endif
-	// Can embark
+
+	// if we can embark, maybe there's another way
 	if(GET_TEAM(m_pPlayer->getTeam()).canEmbark())
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		// Step path between muster point and target?
-		if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
-		{
-			pPathfinderNode = GC.getStepFinder().GetLastNode();
-			if(pPathfinderNode != NULL)
-			{
-				iPathLength = pPathfinderNode->m_iTotalCost;
-
-				int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-				int iNeutralPlots = GC.getStepFinder().CountPlotsOwnedAnyoneInPath(m_pPlayer->GetID());
-				
-				iPathLength += MAX(0, (iEnemyPlots * 2));
-				iPathLength += MAX(0, iNeutralPlots);
-			}
-		}
 		if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
 		{
 			// Water path between muster point and target?
 			if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY()))
 			{
-				bool bOcean = false;
-				pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-				if(pPathfinderNode != NULL)
+				// find out the effective path length
+				CvAStarNode* pNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
+				if(pNode != NULL)
 				{
-					iWaterStep = (pPathfinderNode->m_iTotalCost / 100);
-					int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-					int iNeutralPlots = GC.getStepFinder().CountPlotsOwnedAnyoneInPath(m_pPlayer->GetID());
-				
-					iWaterStep += MAX(0, (iEnemyPlots * 2));
-					iWaterStep += MAX(0, iNeutralPlots);
-				}
-				// Starting at the end, loop until we find a plot from this owner
-				while(pPathfinderNode != NULL)
-				{
-					CvPlot* pCurrentPlot = NULL;
-					pCurrentPlot = GC.getMap().plotCheckInvalid(pPathfinderNode->m_iX, pPathfinderNode->m_iY);
+					iWaterPathLength = pNode->m_iTurns;
 
-					// Check and see if this plot has the right owner
-					if(pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater() && !pCurrentPlot->isLake())
+					int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
+					iWaterPathLength += MAX(0, (iEnemyPlots * 2));
+				}
+
+				// Check if we need to cross the high seas
+				while(pNode != NULL)
+				{
+					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
+					if(pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater())
 					{
-						bOcean = true;
 						target.m_bOcean = true;
 						break;
 					}
+					pNode = pNode->m_pParent;
+				}
 
-					pPathfinderNode = pPathfinderNode->m_pParent;
-				}
-				if(bOcean && !GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage())
-				{
-					target.m_bAttackBySea = false;
-					target.m_bOcean = false;
-					target.m_iPathLength = MAX_INT;
+				// No attack across ocean without proper ability
+				if(target.m_bOcean && !GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage())
 					return;
-				}
-				if(iWaterStep > 0 && iWaterStep != MAX_INT)
-				{
-					// On different landmasses?
-					if(target.m_pMusterCity->getArea() != target.m_pTargetCity->getArea())
-					{
-						target.m_bAttackBySea = true;
-						target.m_iPathLength = iWaterStep;
-						return;
-					}
-					// There is no land path, or land path is over 3x as long as water path
-					if((iPathLength == 0) || (iPathLength > (3 * iWaterStep)))
-					{
-						target.m_bAttackBySea = true;
-						target.m_iPathLength = iWaterStep;
-						return;
-					}
-				}
-			}
-			if(iWaterStep > 0 && iWaterStep != MAX_INT)
-			{
-				int iTargetValue = 0;
-				iTargetValue = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
-				//Is their city relatively difficult to access via land? Go for a sea attack then.
-				if(iTargetValue == ATTACK_APPROACH_RESTRICTED)
+
+				// There is no land path, or land path is over 2x as long as water path
+				if( (iLandPathLength == INT_MAX) || (iLandPathLength > (2 * iWaterPathLength)))
 				{
 					target.m_bAttackBySea = true;
-					target.m_iPathLength = iWaterStep;
+					target.m_iPathLength = iWaterPathLength;
+					return;
+				}
+
+				int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
+				int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+				//Is their city relatively difficult to access via land? Go for a sea attack then.
+				if(iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach>iEvalLandApproach)
+				{
+					target.m_bAttackBySea = true;
+					target.m_iPathLength = iWaterPathLength;
 					return;
 				}
 			}
-			if(iWaterStep > 0 && iWaterStep != MAX_INT)
-			{
-				// Is the route too difficult? We're looking for lots of impassable plots here. It is infinitely easier to travel by sea if our formation will break down because of narrow paths.
-				int iRange = 0;
-				int iDX = 0;
-				int iDY = 0;
-				int iNumBad = 0;
-				int iNumPlots = 0;
-				CvAStarNode* pNode;
-				CvPlot* pCurrentPlot;		
-				if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
-				{
-					GC.getStepFinder().SetData(&eEnemy);
-					bool bRoute = GC.getStepFinder().GeneratePath(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY(), m_pPlayer->GetID(), false);
-					{
-						if(bRoute)
-						{
-							pNode = GC.getStepFinder().GetLastNode();
-
-							while(pNode)
-							{
-								pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-
-								if(pCurrentPlot != NULL)
-								{
-									//Look 2 hexes from each point on plot. That's a narrow enough area to cause problems.
-									iRange = 2;
-									for(iDX = -(iRange); iDX <= iRange; iDX++)
-									{
-										for(iDY = -(iRange); iDY <= iRange; iDY++)
-										{
-											CvPlot* pLoopPlot = plotXYWithRangeCheck(pCurrentPlot->getX(), pCurrentPlot->getY(), iDX, iDY, iRange);
-
-											if(pLoopPlot != NULL)
-											{
-												if(pLoopPlot->isImpassable(m_pPlayer->getTeam()) || (pLoopPlot->isWater() && !GET_TEAM(m_pPlayer->getTeam()).canEmbark()))
-												{
-													iNumBad++;
-												}
-												iNumPlots++;
-											}
-										}
-									}
-									//More than 50% of plots en route impassable? This is a treacherous path.
-									if(iNumPlots > 0)
-									{
-										if(iNumBad >= (iNumPlots / 2))
-										{
-											target.m_bAttackBySea = true;
-											target.m_iPathLength = iWaterStep;
-											return;
-										}
-									}
-								}
-								pNode = pNode->m_pParent;
-							}
-						}
-					}
-				}
-			}
-		}
-	
-#else
-		// On different landmasses?
-		if(target.m_pMusterCity->getArea() != target.m_pTargetCity->getArea())
-		{
-			target.m_bAttackBySea = true;
-			target.m_iPathLength = iPlotDistance;
-			return;
-		}
-
-		// No step path between muster point and target?
-		if(!GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
-		{
-			target.m_bAttackBySea = true;
-			target.m_iPathLength = iPlotDistance;
-			return;
-		}
-
-		// Land path is over twice as long as direct path
-		pPathfinderNode = GC.getStepFinder().GetLastNode();
-		if(pPathfinderNode != NULL)
-		{
-			iPathLength = pPathfinderNode->m_iData1;
-			if(iPathLength > (2 * iPlotDistance))
-			{
-				target.m_bAttackBySea = true;
-				target.m_iPathLength = iPlotDistance;
-				return;
-			}
-		}
-#endif
-	}
-	// Can't embark yet
-	else
-	{
-		if(!GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
-		{
-			target.m_iPathLength = -1;  // Call off attack, no path
-			return;
-		}
-
-		else
-		{
-			pPathfinderNode = GC.getStepFinder().GetLastNode();
-			if(pPathfinderNode != NULL)
-			{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				iPathLength = pPathfinderNode->m_iTotalCost;
-#else
-				iPathLength = pPathfinderNode->m_iData1;
-#endif
-			}
 		}
 	}
-
-	target.m_bAttackBySea = false;
-#if defined(MOD_BALANCE_CORE)
-	target.m_bOcean = false;
-#endif
-	target.m_iPathLength = iPathLength;
 }
 
 
@@ -2980,7 +2851,7 @@ CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *
 	{
 		CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
 #if defined(MOD_BALANCE_CORE)
-		if(pAdjacentPlot != NULL && pAdjacentPlot->getOwner() != pTarget->getOwner())
+		if(pAdjacentPlot != NULL && pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pTarget->getOwner())
 		{
 			continue;
 		}
@@ -7491,14 +7362,13 @@ MultiunitFormationTypes MilitaryAIHelpers::GetBestFormationType()
 #if defined(MOD_BALANCE_CORE)
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
-	FStaticVector< CvFormationSlotEntry, 30, false, c_eCiv5GameplayDLL > slotsToFill;
-	FStaticVector< CvFormationSlotEntry, 30, false, c_eCiv5GameplayDLL >::iterator it;
+	std::vector< CvFormationSlotEntry > slotsToFill;
+	std::vector< CvFormationSlotEntry >::iterator it;
 	
 	CvPlayerAI& ownerPlayer = GET_PLAYER(pPlayer->GetID());
 
 	int iWillBeFilled = 0;
 	int iLandReservesUsed = 0;
-	int iMandatoryReserves = (pPlayer->GetMilitaryAI()->GetLandReservesAvailable() / 2);
 
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
@@ -7506,6 +7376,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iThisSlotIndex);
 		slotsToFill.push_back(thisSlotEntry);
 	}
+
 	if(pPlayer && pEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL)
 	{
 		if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
@@ -7545,14 +7416,8 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 	{
-		// Make sure he's not needed by the tactical AI or already in an army
-
-		//don't recruit if currently healing
-		if (ownerPlayer.GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
-		{
-			continue;
-		}
-		if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == -1)
+		int iDistance = 0;
+		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
 		{
 			// Is this unit one of the requested types?
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -7560,171 +7425,61 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 			{
 				continue;
 			}
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
-			{
-				continue;
-			}
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-			{
-				continue;
-			}
 
-			bool bValid = false;
+			//Do we fit in any slot?
+			for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+			{
+				CvFormationSlotEntry thisSlotEntry = *it;
+				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+				{
+					slotsToFill.erase(it);
 
-			//Run out of slots to test? Break!
-			if(slotsToFill.empty())
-			{
-				break;
-			}
-			//NONCOMBAT LAND UNITS
-			if(!pLoopUnit->IsCombatUnit())
-			{
-				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-				//NONCOMBAT SEA UNITS
-				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-			}
-			//COMBAT LAND UNITS
-			else if(pLoopUnit->IsCombatUnit())
-			{
-				if(pLoopUnit->getDomainType() == DOMAIN_LAND)
-				{
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(bRequiresNavalMoves && !pLoopUnit->CanEverEmbark())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-					{
-						continue;
-					}
-				}
-				//COMBAT SEA UNITS
-				else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-				{
-					if(pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
-					{
-						continue;
-					}
-					// Not finishing up an operation?
-					if(bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
-					{
-						continue;
-					}
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-					{
-						continue;
-					}
-				}
-				//Do we fit in any primary slot?
-				for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
-				{
-					CvFormationSlotEntry thisSlotEntry = *it;
-					if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType))
-					{
-						if(pMuster != NULL)
-						{
-							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pMuster->getX(), pMuster->getY()) > 12)
-							{
-								break;
-							}
-						}
-						slotsToFill.erase(it);
-						bValid = true;
-						break;
-					}
-				}
-				//What about secondary slots?
-				if(!bValid)
-				{
-					for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
-					{
-						CvFormationSlotEntry thisSlotEntry = *it;
-						if(unitInfo->GetUnitAIType((UnitAITypes)thisSlotEntry.m_secondaryUnitType))
-						{
-							if(pMuster != NULL)
-							{
-								if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pMuster->getX(), pMuster->getY()) > 12)
-								{
-									break;
-								}
-							}
-							slotsToFill.erase(it);
-							bValid = true;
-							break;
-						}
-					}
-				}
-				// Made it this far? You did it!
-				if(bValid)
-				{
-					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 					{
 						iLandReservesUsed++;
 					}
 					iWillBeFilled++;
+
+					break;
 				}
 			}
+
+			//Run out of slots to test? Break!
+			if (slotsToFill.empty())
+				break;
 		}
 	}
-	
+
+	//Let's add our reserves to the 'required' list, otherwise we risk sending too much out at once.
+	int iOpenRequiredSlots = 0;
+	for (int iThisSlotIndex = 0; iThisSlotIndex < (int)slotsToFill.size(); iThisSlotIndex++)
+	{
+		if (slotsToFill[iThisSlotIndex].m_requiredSlot)
+		{
+			iOpenRequiredSlots++;
+		}
+	}
+
 	// Now go back through remaining slots and see how many were required, we'll need that many more units
 	if(piNumberSlotsRequired != NULL)
 	{
-		//Let's add our reserves to the 'required' list, otherwise we risk sending too much out at once.
-		(*piNumberSlotsRequired) = iWillBeFilled;
-		for(int iThisSlotIndex = 0; iThisSlotIndex < (int)slotsToFill.size(); iThisSlotIndex++)
-		{
-			if(slotsToFill[iThisSlotIndex].m_requiredSlot)
-			{
-				(*piNumberSlotsRequired)++;
-			}
-		}
+		(*piNumberSlotsRequired) = iWillBeFilled + iOpenRequiredSlots;
 	}
+
 	if(piNumberLandReservesUsed != NULL)
 	{
 		*piNumberLandReservesUsed = iLandReservesUsed;
 	}
+
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strTemp;
 		CvString strLogString;
-		strLogString.Format("Tallying up units for %s formation. Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), *piNumberSlotsRequired, iWillBeFilled, iMandatoryReserves, iLandReservesUsed);
+		int iLandReserves = pPlayer->GetMilitaryAI()->GetLandReservesAvailable();
+		strLogString.Format("Tallying up units for %s formation. Still Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), iOpenRequiredSlots, iWillBeFilled, iLandReserves, iLandReservesUsed);
 		pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
+
 	return iWillBeFilled;
 }
 
@@ -7776,8 +7531,8 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 								{
 									CvFormationSlotEntry slotEntry = *it;
 									CvUnitEntry& kUnitInfo = pLoopUnit->getUnitInfo();
-									if(kUnitInfo.GetUnitAIType((UnitAITypes)slotEntry.m_primaryUnitType) ||
-										kUnitInfo.GetUnitAIType((UnitAITypes)slotEntry.m_secondaryUnitType))
+									if(kUnitInfo.GetUnitAIType(slotEntry.m_primaryUnitType) ||
+										kUnitInfo.GetUnitAIType(slotEntry.m_secondaryUnitType))
 									{
 										slotsToFill.erase(it);
 										iWillBeFilled++;
@@ -7861,8 +7616,8 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 								{
 									CvFormationSlotEntry slotEntry = *it;
 									CvUnitEntry& kUnitInfo = pLoopUnit->getUnitInfo();
-									if(kUnitInfo.GetUnitAIType((UnitAITypes)slotEntry.m_primaryUnitType) ||
-										kUnitInfo.GetUnitAIType((UnitAITypes)slotEntry.m_secondaryUnitType))
+									if(kUnitInfo.GetUnitAIType(slotEntry.m_primaryUnitType) ||
+										kUnitInfo.GetUnitAIType(slotEntry.m_secondaryUnitType))
 									{
 										slotsToFill.erase(it);
 										break;
@@ -7883,16 +7638,16 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 		{
 			if(slotsToFill[iThisSlotIndex].m_requiredSlot)
 			{
-				UnitAITypes eType = (UnitAITypes)slotsToFill[iThisSlotIndex].m_primaryUnitType;
+				UnitAITypes eType = slotsToFill[iThisSlotIndex].m_primaryUnitType;
 				if(eType == UNITAI_ASSAULT_SEA || eType == UNITAI_ATTACK_SEA || eType == UNITAI_RESERVE_SEA || eType == UNITAI_ESCORT_SEA)
 				{
 					if(!bSecondaryUnit)
 					{
-						return (UnitAITypes)slotsToFill[iThisSlotIndex].m_primaryUnitType;
+						return slotsToFill[iThisSlotIndex].m_primaryUnitType;
 					}
 					else
 					{
-						return (UnitAITypes)slotsToFill[iThisSlotIndex].m_secondaryUnitType;
+						return slotsToFill[iThisSlotIndex].m_secondaryUnitType;
 					}
 				}
 			}
@@ -7906,11 +7661,11 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 		{
 			if(!bSecondaryUnit)
 			{
-				return (UnitAITypes)slotsToFill[iThisSlotIndex].m_primaryUnitType;
+				return slotsToFill[iThisSlotIndex].m_primaryUnitType;
 			}
 			else
 			{
-				return (UnitAITypes)slotsToFill[iThisSlotIndex].m_secondaryUnitType;
+				return slotsToFill[iThisSlotIndex].m_secondaryUnitType;
 			}
 		}
 	}

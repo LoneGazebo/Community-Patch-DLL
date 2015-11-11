@@ -696,12 +696,17 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			if(iNumAllies > 0)
 			{
 				//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
+				int iEra = owningPlayer.GetCurrentEra();
+				if(iEra <= 0)
+				{
+					iEra = 1;
+				}
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes) iI;
 					if(owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 					{
-						SetBaseYieldRateFromCSAlliance(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
+						SetBaseYieldRateFromCSAlliance(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
 					}
 				}
 			}
@@ -2460,12 +2465,17 @@ void CvCity::doTurn()
 				}
 			}
 			//If we get a yield bonus in all cities because of CS alliance, this is a good place to refresh it.
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes) iI;
 				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 				{
-					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
+					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
 				}
 			}
 		}
@@ -9942,7 +9952,7 @@ void CvCity::CheckForOperationUnits()
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 							//and train it!
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
@@ -10017,7 +10027,7 @@ void CvCity::CheckForOperationUnits()
 						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 						//and train it!
-						UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eBestUnit, eUnitAI, false);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
@@ -10036,7 +10046,7 @@ void CvCity::CheckForOperationUnits()
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
 						if(pkUnitEntry)
 						{
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(GC.getLogging() && GC.getAILogging())
 							{
@@ -11498,7 +11508,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
 							if(pkUnitEntry)
 							{
-								UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 								int iResult = CreateUnit(eBestUnit, eUnitAI);
 
 								CvAssertMsg(iResult != -1, "Unable to create unit");
@@ -13960,7 +13970,7 @@ bool CvCity::DoRazingTurn()
 		{
 			return false;
 		}
-		if(GET_PLAYER(eFormerOwner).isMinorCiv())
+		if(GET_PLAYER(eFormerOwner).isMinorCiv() || !GET_PLAYER(eFormerOwner).isAlive())
 		{
 			return false;
 		}
@@ -13970,12 +13980,28 @@ bool CvCity::DoRazingTurn()
 		{
 			iEra = 1;
 		}
-		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (3 * iEra));
+		if(!GET_PLAYER(getOwner()).isMinorCiv())
+		{
+			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (3 * iEra));
+		}
 
 		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
 		{
-			GET_PLAYER(getOwner()).ChangeSpawnCooldown(-1);
+			if(GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
+			{
+				GET_PLAYER(getOwner()).SetSpawnCooldown(0);
+			}
+			else
+			{
+				GET_PLAYER(getOwner()).ChangeSpawnCooldown(-1);
+			}
+			
 			if(GET_PLAYER(getOwner()).GetSpawnCooldown() > 0)
+			{
+				return false;
+			}
+			//Not at war? No partisans!
+			if(!GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
 			{
 				return false;
 			}
@@ -13985,16 +14011,15 @@ bool CvCity::DoRazingTurn()
 			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;
 			CvGame& theGame = GC.getGame();
-		
-			//Not at war? No partisans!
-			if(!GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
+	
+			//Need at least 3 rebels.
+			if(iNumRebels < 3)
 			{
-				return false;
+				iNumRebels = 3;
 			}
-			//Need at least two rebels.
-			if(iNumRebels < 2)
+			if(iNumRebels > getPopulation())
 			{
-				iNumRebels = 2;
+				iNumRebels = getPopulation();
 			}
 			int iStatic = iNumRebels;
 			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels);
@@ -14047,7 +14072,7 @@ bool CvCity::DoRazingTurn()
 				}
 			
 				// Don't pick plots that aren't ours
-				if(pPlot->getOwner() != GetID())
+				if(pPlot->getOwner() != GET_PLAYER(getOwner()).GetID())
 					iTempWeight = -1;
 
 				// Add weight if there's a defensive bonus for this plot
@@ -14067,9 +14092,20 @@ bool CvCity::DoRazingTurn()
 				pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 				// Pick a unit type - should give us more melee than ranged
-				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true);
-				UnitTypes emUnit = theGame.GetRandomSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false);
-
+				UnitTypes eUnit = NO_UNIT;
+				if(isCoastal())
+				{
+					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true);
+				}
+				else
+				{
+					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false);
+				}
+				UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false);
+				if(eUnit == NO_UNIT || emUnit == NO_UNIT)
+				{
+					return false;
+				}
 				// Init unit
 				GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
 				iNumRebels--;	// Reduce the count since we just added the seed rebel
@@ -14084,7 +14120,7 @@ bool CvCity::DoRazingTurn()
 					CvAssert(pmUnit);
 					if (pmUnit)
 					{
-						if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
+						if (!pmUnit->jumpToNearestValidPlotWithinRange(4))
 						{
 							pmUnit->kill(false);		// Could not find a spot!
 						}
@@ -14102,7 +14138,7 @@ bool CvCity::DoRazingTurn()
 					CvAssert(pUnit);
 					if (pUnit)
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+						if (!pUnit->jumpToNearestValidPlotWithinRange(4))
 						{
 							pUnit->kill(false);		// Could not find a spot!
 						}
@@ -14117,6 +14153,15 @@ bool CvCity::DoRazingTurn()
 			}
 			if(bNotification)
 			{
+				if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
+				{
+					CvTemporaryZone zone;
+					zone.SetX(getX());
+					zone.SetY(getY());
+					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+					GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(zone);
+				}
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
 				{
@@ -14288,6 +14333,12 @@ void CvCity::DoAnnex()
 					SetBuildingInvestment(eBuildingClass, true);
 				}
 			}
+		}
+		if(IsResistance())
+		{
+			int iResistanceTurns = GetResistanceTurns();
+			iResistanceTurns /= 2;
+			ChangeResistanceTurns(-iResistanceTurns);
 		}
 	}				
 #endif
@@ -20692,24 +20743,12 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	// Check existing armies this unit could fit into if it wasn't automatically added to one.
 	if(pUnit && pUnit->getArmyID() == -1)
 	{
-		int iLoop;
-		CvArmyAI* pLoopArmyAI;
-		for(pLoopArmyAI = GET_PLAYER(getOwner()).firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = GET_PLAYER(getOwner()).nextArmyAI(&iLoop))
+		for (CvAIOperation* pOp = GET_PLAYER(getOwner()).getFirstAIOperation(); pOp; pOp = GET_PLAYER(getOwner()).getNextAIOperation())
 		{
-			if(pLoopArmyAI != NULL && pLoopArmyAI->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+			if (pOp->GetOperationState()==AI_OPERATION_STATE_RECRUITING_UNITS)
 			{
-				if(pLoopArmyAI->Plot() != NULL && pLoopArmyAI->GetGoalPlot() != NULL)
-				{
-					CvAIOperation* pOperation = GET_PLAYER(getOwner()).getAIOperation(pLoopArmyAI->GetOperationID());
-					if(pOperation)
-					{
-						pOperation->FillWithUnitsFromTheReserves(pLoopArmyAI->Plot(), pLoopArmyAI->GetGoalPlot(), pUnit);
-						if(pUnit->getArmyID() != -1)
-						{
-							break;
-						}
-					}
-				}
+				if (pOp->RecruitUnit(pUnit))
+					break;
 			}
 		}
 	}
@@ -24731,7 +24770,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 
-				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24739,7 +24778,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 #endif
 				if(eBestUnit == NO_UNIT)
 				{
-					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
+					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24766,7 +24805,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
 							//and train it!
-							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 							int iResult = CreateUnit(eBestUnit, eUnitAI, false);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
@@ -24843,7 +24882,7 @@ UnitTypes CvCity::GetUnitForOperation()
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 
-				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else
@@ -24851,7 +24890,7 @@ UnitTypes CvCity::GetUnitForOperation()
 #endif
 				if(eBestUnit == NO_UNIT)
 				{
-					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
+					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
 #else

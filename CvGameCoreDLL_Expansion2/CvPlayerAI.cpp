@@ -2083,12 +2083,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		}
 	}
 
-	int iPathTurns;
-	if(!pUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
-	{
-		return 0;
-	}
-
 	int iOtherMajorLoop;
 	PlayerTypes eOtherMajor;
 	int iFriendshipWithMinor;
@@ -2607,7 +2601,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 			continue;
 
-		if(!pGeneral->canMoveOrAttackInto(*pPlot))
+		if(!pGeneral->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
 			continue;
 
 		if(!pPlot->canBuild(eCitadel, GetID()))

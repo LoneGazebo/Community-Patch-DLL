@@ -4508,10 +4508,6 @@ void CvGame::ReviveActivePlayer()
 	{
 		setAIAutoPlay(0, m_eAIAutoPlayReturnPlayer);
 
-#if defined(MOD_BALANCE_CORE)
-		DLLUI->SetDontShowPopups(false);
-#endif
-
 		// If no player specified, returning as an observer
 		if(m_eAIAutoPlayReturnPlayer == NO_PLAYER)
 		{
@@ -5229,9 +5225,6 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 
 		if((iOldValue == 0) && (getAIAutoPlay() > 0))
 		{
-#if defined(MOD_BALANCE_CORE)
-			DLLUI->SetDontShowPopups(true);
-#endif
 
 			if(CanMoveActivePlayerToObserver())
 			{

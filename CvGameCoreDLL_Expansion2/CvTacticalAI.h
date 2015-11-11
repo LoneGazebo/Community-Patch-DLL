@@ -932,7 +932,7 @@ private:
 	void ExecuteBarbarianCivilianEscortMove();
 	void ExecuteMoveToPlot(CvPlot* pTarget, bool bSaveMoves=false);
 	void ExecuteMoveToPlot(UnitHandle pUnit, CvPlot* pTarget, bool bSaveMoves = false);
-	bool ExecuteMoveOfBlockingUnit(UnitHandle pUnit);
+	bool ExecuteMoveOfBlockingUnit(UnitHandle pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteMoveToTarget(CvPlot* pTarget);
 	void ExecuteAirInterceptMoves();
@@ -1114,7 +1114,8 @@ namespace TacticalAIHelpers
 {
 	bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
 	typedef std::set<std::pair<int,int>> ReachablePlotSet; //don't store pointers in a set, the ordering is unpredictable
-	int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false);
+
+	int GetAllPlotsInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
 	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<int>& resultSet);
 	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit);

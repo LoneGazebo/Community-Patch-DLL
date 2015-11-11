@@ -14,6 +14,7 @@
 
 #include "CvGlobals.h"
 #include "CvGame.h"
+#include "CvWeightedVector.h"
 
 class CvArmyAI;
 
@@ -99,6 +100,8 @@ enum AIOperationAbortReason
 
 FDataStream& operator<<(FDataStream&, const AIOperationState&);
 FDataStream& operator>>(FDataStream&, AIOperationState&);
+
+typedef CvWeightedVector<int, 128, true> WeightedUnitIdVector;
 
 struct OperationSlot
 {
@@ -262,7 +265,7 @@ public:
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 #if defined(MOD_BALANCE_CORE)
-	virtual void FillWithUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit);
+	virtual bool RecruitUnit(CvUnit* pUnit);
 #endif
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
@@ -288,7 +291,7 @@ public:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:
-	CvString GetLogFileName(CvString& playerName) const;
+	static CvString GetLogFileName(CvString& playerName);
 	virtual CvString GetOperationName() const
 	{
 		return CvString("INVALID_AI_OPERATION");
@@ -296,16 +299,13 @@ protected:
 
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 #if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired, bool bMustNaval, bool bMustBeDeepWaterNaval, bool bNavalGood);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 #else
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	virtual bool FindBestFitRecruitUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvUnit* pUnit, bool* bRequired, bool bMustNaval, bool bMustBeDeepWaterNaval);
-#endif
 
 	std::vector<int> m_viArmyIDs;
-	std::vector<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
+	std::deque<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	std::vector<OperationSlot> m_viListOfUnitsWeSkipped;
 #endif
@@ -867,12 +867,6 @@ public:
 	{
 		return CvString("AI_OPERATION_NAVAL_BOMBARDMENT");
 	}
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsAllNavalOperation() const
-	{
-		return true;
-	};
-#endif
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
@@ -911,12 +905,7 @@ public:
 		return true;
 #endif
 	}
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsAllNavalOperation() const
-	{
-		return true;
-	};
-#endif
+
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual bool ShouldAbort();
@@ -963,12 +952,7 @@ public:
 		return true;
 #endif
 	}
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsAllNavalOperation() const
-	{
-		return true;
-	};
-#endif
+
 	virtual int GetDeployRange() const;
 
 	virtual bool ShouldAbort();
@@ -1183,12 +1167,6 @@ public:
 	{
 		return false;
 	};
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsAllNavalOperation() const
-	{
-		return true;
-	};
-#endif
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
@@ -1224,12 +1202,7 @@ public:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsMixedLandNavalOperation() const
-	{
-		return true;
-	};
-#endif
+
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_SNEAK_ATTACK;
@@ -1275,12 +1248,7 @@ public:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsMixedLandNavalOperation() const
-	{
-		return true;
-	};
-#endif
+
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_CITY_STATE_NAVAL_ATTACK;
@@ -1330,7 +1298,11 @@ public:
 	{
 		return 10;
 	}
+#if defined(MOD_BALANCE_CORE)
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
+#else
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
+#endif
 
 	virtual CvCity* GetOperationStartCity() const;
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
@@ -1344,11 +1316,13 @@ protected:
 
 namespace OperationalAIHelpers
 {
-int GetGatherRangeForXUnits(int iTotalUnits);
+	int GetGatherRangeForXUnits(int iTotalUnits);
 #if defined(MOD_BALANCE_CORE)
-CvPlot* FindBestBombardmentTarget(PlayerTypes ePlayer);
-bool FindBestBarbCamp(PlayerTypes ePlayer);
-bool NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	CvPlot* FindBestBombardmentTarget(PlayerTypes ePlayer);
+	bool FindBestBarbCamp(PlayerTypes ePlayer);
+	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
+	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance);
+	bool NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 #endif
 }
 

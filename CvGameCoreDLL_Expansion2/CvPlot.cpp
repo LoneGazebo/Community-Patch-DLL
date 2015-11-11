@@ -300,51 +300,27 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	if(!bConstructorCall)
 	{
+		m_bfRevealed.ClearAll();
+
 		for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 		{
 			m_aiYield[iI] = 0;
 		}
-		for(int iI = 0; iI < REALLY_MAX_PLAYERS; ++iI)
+		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 			m_aiPlayerCityRadiusCount[iI] = 0;
-		}
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
 			m_aiVisibilityCount[iI] = 0;
-		}
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
 			m_aiRevealedOwner[iI] = -1;
-		}
-#if defined(MOD_BALANCE_CORE)
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
-			m_abIsImpassable[iI] = false;
-		}
-#endif
-		m_bfRevealed.ClearAll();
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
 			m_abResourceForceReveal[iI] = false;
-		}
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
 			m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
-		}
-		for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
-		{
 			m_aeRevealedRouteType[iI] = NO_ROUTE;
-		}
-		for(int iI = 0; iI < MAX_MAJOR_CIVS; ++iI)
-		{
-			m_abNoSettling[iI] = false;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			m_abAvoidMovement[iI] = false;
+#if defined(MOD_BALANCE_CORE)
+			m_abIsImpassable[iI] = false;
 #endif
 		}
 	}
-	for(int iI = 0; iI < REALLY_MAX_TEAMS; ++iI)
+
+	for(int iI = 0; iI < MAX_TEAMS; ++iI)
 	{
 		for(int iJ = 0; iJ < NUM_INVISIBLE_TYPES; ++iJ)
 		{
@@ -10071,25 +10047,6 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 }
 #endif
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsNoSettling(PlayerTypes eMajor) const
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-
-	return m_abNoSettling[eMajor];
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetNoSettling(PlayerTypes eMajor, bool bValue)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-
-	if(bValue != IsNoSettling(eMajor))
-		m_abNoSettling[eMajor] = bValue;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, TeamTypes eFromTeam)
 {
 	int iI;
@@ -11409,8 +11366,12 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 {
 	if (ePlayer == NO_PLAYER || isVisible(GET_PLAYER(ePlayer).getTeam()))
 	{
-		DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
-		m_fPopupDelay += 0.5;
+		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
+		if (GC.getGame().getAIAutoPlay() < 10)
+		{
+			DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
+			m_fPopupDelay += 0.5;
+		}
 	}
 }
 #endif
@@ -11657,62 +11618,26 @@ void CvPlot::read(FDataStream& kStream)
 	for(uint i = 0; i < NUM_YIELD_TYPES; i++)
 		kStream >> m_aiYield[i];
 
-	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
-		kStream >> m_aiPlayerCityRadiusCount[i];
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
+	for(int i = 0; i < MAX_TEAMS; i++)
 	{
+		kStream >> m_aiPlayerCityRadiusCount[i];
 		kStream >> m_aiVisibilityCount[i];
 		if (m_aiVisibilityCount[i] < 0)
 			m_aiVisibilityCount[i] = 0;
+		kStream >> m_aiRevealedOwner[i];
+		kStream >> m_abResourceForceReveal[i];
+		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
+		kStream >> m_aeRevealedRouteType[i];
+#if defined(MOD_BALANCE_CORE)
+		kStream >> m_abIsImpassable[i];
+#endif
 	}
 
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream >> m_aiRevealedOwner[i];
-
-	kStream >> m_cRiverCrossing;
-
-	for(uint i = 0; i<PlotBoolField::eCount; ++i)
+	for (uint i = 0; i<PlotBoolField::eCount; ++i)
 	{
 		kStream >> m_bfRevealed.m_dwBits[i];
 	}
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream >> m_abResourceForceReveal[i];
-#if defined(MOD_BALANCE_CORE)
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-	{
-		kStream >> m_abIsImpassable[i];
-	}
-#endif
-	if (uiVersion >= 6)
-	{
-		for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-			m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
-	}
-	else
-	{
-		for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		{
-			kStream >> m_aeRevealedImprovementType[i];
-			if (m_aeRevealedImprovementType[i] != NO_IMPROVEMENT)
-				if (GC.getImprovementInfo((ImprovementTypes)m_aeRevealedImprovementType[i]) == NULL)
-					m_aeRevealedImprovementType[i] = NO_IMPROVEMENT;
-		}
-	}
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream >> m_aeRevealedRouteType[i];
-
-	for(uint i = 0; i < MAX_MAJOR_CIVS; i++)
-		kStream >> m_abNoSettling[i];
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	for(uint i = 0; i < MAX_MAJOR_CIVS; i++)
-	{
-		MOD_SERIALIZE_READ(36, kStream, m_abAvoidMovement[i], false);
-	}
-#endif
+	kStream >> m_cRiverCrossing;
 
 	bool hasScriptData = false;
 	kStream >> hasScriptData;
@@ -11846,46 +11771,24 @@ void CvPlot::write(FDataStream& kStream) const
 	for(uint i = 0; i < NUM_YIELD_TYPES; i++)
 		kStream << m_aiYield[i];
 
-	for(uint i = 0; i < REALLY_MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
 		kStream << m_aiPlayerCityRadiusCount[i];
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
 		kStream << m_aiVisibilityCount[i];
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
 		kStream << m_aiRevealedOwner[i];
+		kStream << m_abResourceForceReveal[i];
+		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);
+		kStream << m_aeRevealedRouteType[i];
+#if defined(MOD_BALANCE_CORE)
+		kStream << m_abIsImpassable[i];
+#endif
+	}
 
-	kStream << m_cRiverCrossing;
-
-	for(uint i = 0; i<PlotBoolField::eCount; ++i)
+	for (uint i = 0; i<PlotBoolField::eCount; ++i)
 	{
 		kStream << m_bfRevealed.m_dwBits[i];
 	}
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream << m_abResourceForceReveal[i];
-
-#if defined(MOD_BALANCE_CORE)
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream << m_abIsImpassable[i];
-#endif
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);
-	}
-
-	for(uint i = 0; i < REALLY_MAX_TEAMS; i++)
-		kStream << m_aeRevealedRouteType[i];
-
-	for(uint i = 0; i < MAX_MAJOR_CIVS; i++)
-		kStream << m_abNoSettling[i];
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	for(uint i = 0; i < MAX_MAJOR_CIVS; i++)
-	{
-		MOD_SERIALIZE_WRITE(kStream, m_abAvoidMovement[i]);
-	}
-#endif
+	kStream << m_cRiverCrossing;
 
 	// char * should have died in 1989...
 	bool hasScriptData = (m_szScriptData != NULL);
@@ -13108,23 +13011,6 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 		return true;
 	}
 	return m_bIsImpassable;
-}
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-bool CvPlot::IsAvoidMovement(PlayerTypes ePlayer) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be greater than or equal to 0");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
-
-	return m_abAvoidMovement[ePlayer];
-}
-
-void CvPlot::SetAvoidMovement(PlayerTypes ePlayer, bool bNewValue)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be greater than or equal to 0");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
-
-	m_abAvoidMovement[ePlayer] = bNewValue;
 }
 #endif
 

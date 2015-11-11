@@ -405,8 +405,8 @@ public:
 	{
 	}
 
-	int m_primaryUnitType;
-	int m_secondaryUnitType;
+	UnitAITypes m_primaryUnitType;
+	UnitAITypes m_secondaryUnitType;
 	MultiunitPositionTypes m_ePositionType;
 	bool m_requiredSlot;
 };

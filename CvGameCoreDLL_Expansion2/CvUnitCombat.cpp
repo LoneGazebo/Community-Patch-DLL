@@ -558,14 +558,6 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				pkAttacker->finishMoves();
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 			}
-
-			// Now that the attacker is in their final location, show any damage popup
-			if (!pkAttacker->IsDead() && iAttackerDamageDelta != 0)
-#if defined(SHOW_PLOT_POPUP)
-				pkAttacker->ShowDamageDeltaText(iAttackerDamageDelta, pkAttacker->plot());
-#else
-				CvUnit::ShowDamageDeltaText(iAttackerDamageDelta, pkAttacker->plot());
-#endif
 		}
 
 		// Report that combat is over in case we want to queue another attack

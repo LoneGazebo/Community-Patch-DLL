@@ -65,6 +65,13 @@ public:
 		return m_pItems[iIndex].m_Element;
 	};
 
+	/// Accessor for element
+	void SetElement (unsigned int iIndex, const T& iValue)
+	{
+		assert(iIndex < m_pItems.size());
+		m_pItems[iIndex].m_Element = iValue;
+	};
+
 	/// Accessors for weight
 	int GetWeight (unsigned int	 iIndex) const
 	{

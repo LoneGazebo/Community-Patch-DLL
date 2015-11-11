@@ -5115,6 +5115,12 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	{
+		return false;
+	}
+#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
 		return false;

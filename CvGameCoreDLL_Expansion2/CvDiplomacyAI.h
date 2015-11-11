@@ -1417,8 +1417,8 @@ private:
 		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		char m_aePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
-		bool m_abCantMatchDeal[REALLY_MAX_PLAYERS];
+		char m_aePlayerVictoryBlockLevel[MAX_MAJOR_CIVS];
+		bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
 #endif
 		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
@@ -1448,8 +1448,8 @@ private:
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
-		char m_aeDoFType[REALLY_MAX_PLAYERS];
-		short m_aiNumTimesCoopWarDenied[REALLY_MAX_PLAYERS];
+		char m_aeDoFType[MAX_MAJOR_CIVS];
+		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1473,7 +1473,7 @@ private:
 
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
-		short m_aiNumTimesRazed[MAX_MAJOR_CIVS];
+		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
 #endif
 		short m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 		short m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];

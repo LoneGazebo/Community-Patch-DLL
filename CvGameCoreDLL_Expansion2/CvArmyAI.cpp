@@ -89,7 +89,7 @@ void CvArmyAI::Kill()
 		{
 			pThisUnit->setArmyID(-1);
 #if defined(MOD_BALANCE_CORE)
-			pThisUnit->AI_setUnitAIType((UnitAITypes)pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+			pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
 #endif
 		}
 		iUnitID = GetNextUnitID();
@@ -759,7 +759,7 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				// Clears unit's army ID and erase from formation entries
 				pThisUnit->setArmyID(-1);
 #if defined(MOD_BALANCE_CORE)
-				pThisUnit->AI_setUnitAIType((UnitAITypes)pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
 #endif
 				m_FormationEntries[iI].SetUnitID(ARMY_NO_UNIT);
 				bWasOneOrMoreRemoved = true;

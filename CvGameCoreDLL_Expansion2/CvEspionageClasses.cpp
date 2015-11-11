@@ -1071,7 +1071,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			eCityOwner = pCity->getOwner();
 			pCityEspionage = pCity->GetCityEspionage();
 			iCityRank = pCity->GetRank();
-			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1) / 1000);
+			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 500);
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
@@ -3733,7 +3733,13 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(eAllyPlayer);
 	int iMyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(m_pPlayer->GetID());
 	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
-
+#if defined(MOD_BALANCE_CORE)
+	iDeltaInfluence /= 2;
+	if(iDeltaInfluence >  85)
+	{
+		iDeltaInfluence = 85;
+	}
+#endif
 	//float fNobodyBonus = 0.5;
 	//float fMultiplyConstant = 3.0f;
 	//float fSpyLevelDeltaZero = 0.0f;

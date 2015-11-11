@@ -1636,6 +1636,17 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	if(!bConstructorCall)
 	{
+		//important, do this first
+		m_cities.RemoveAll();
+		m_units.RemoveAll();
+		m_armyAIs.RemoveAll();
+
+		// loop through all entries freeing them up
+		std::map<int , CvAIOperation*>::iterator iter;
+		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+			delete(iter->second);
+		m_AIOperations.clear();
+
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiNumResourceUsed.clear();
 		m_paiNumResourceUsed.resize(GC.getNumResourceInfos(), 0);
@@ -1889,24 +1900,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
-	}
 
-	m_cities.RemoveAll();
-
-	m_units.RemoveAll();
-
-	m_armyAIs.RemoveAll();
-
-	// loop through all entries freeing them up
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		delete(iter->second);
-	}
-	m_AIOperations.clear();
-
-	if(!bConstructorCall)
-	{
 		AI_reset();
 	}
 }
@@ -2298,7 +2292,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							{
 								// replacing the parameters
 								eUnit = eLocalUnit;
-								eUnitAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+								eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 								break;
 							}
 						}
@@ -4977,7 +4971,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
 		if(pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
@@ -5008,7 +5002,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -5050,7 +5044,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, strKey, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, strKey, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 	}
 
 	return pUnit;
@@ -8827,7 +8821,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 			// if we promoted an scouting unit from a goody hut, turn him into whatever the new unit's default AI is if it is not a suitable explorer anymore
 			UnitAITypes currentAIDefault = pUnit->AI_getUnitAIType();
-			UnitAITypes newAIDefault = (UnitAITypes)GC.getUnitInfo(eUpgradeUnit)->GetDefaultUnitAIType();
+			UnitAITypes newAIDefault = GC.getUnitInfo(eUpgradeUnit)->GetDefaultUnitAIType();
 			if(currentAIDefault == UNITAI_EXPLORE)
 			{
 				if(newAIDefault == UNITAI_EXPLORE || newAIDefault == UNITAI_ATTACK || newAIDefault == UNITAI_DEFENSE || newAIDefault == UNITAI_FAST_ATTACK || newAIDefault == UNITAI_COUNTER)
@@ -9287,6 +9281,20 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::SetNoSettling(int iPlotIndex)
+{
+	m_noSettlingPlots.insert(iPlotIndex);
+}
+bool CvPlayer::IsNoSettling(int iPlotIndex) const
+{
+	return m_noSettlingPlots.find(iPlotIndex)!= m_noSettlingPlots.end();
+}
+void CvPlayer::ClearNoSettling()
+{
+	m_noSettlingPlots.clear();
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlayer::canFound(int iX, int iY) const
 {
 	return canFound(iX,iY,false,false,NULL);
@@ -9297,11 +9305,8 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 	// Has the AI agreed to not settle here?
-	if(!isMinorCiv() && !isBarbarian())
-	{
-		if(pPlot->IsNoSettling(GetID()))
-			return false;
-	}
+	if(IsNoSettling(pPlot->GetPlotIndex()))
+		return false;
 
 	// Haxor for Venice to prevent secondary founding
 	if (GetPlayerTraits()->IsNoAnnexing() && getCapitalCity())
@@ -13303,11 +13308,16 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 			int iLoop;
 			TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 			float fDelay = 0.0f;
+			int iEra = GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
 			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				if(pLoopCity)
 				{
-					int iYieldFromVictory = pLoopCity->GetYieldFromVictory((YieldTypes)iYield);
+					int iYieldFromVictory = (pLoopCity->GetYieldFromVictory((YieldTypes)iYield) * iEra);
 					if (iYieldFromVictory > 0)
 					{
 						switch(iYield)
@@ -30594,7 +30604,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 					return -1;
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())if(pPlot->isImpassable())
+				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -31672,7 +31682,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
 					if(pkUnitEntry)
 					{
-						UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
 						int iResult = pLoopCity->CreateUnit(eBestUnit, eUnitAI);
 
 						CvAssertMsg(iResult != -1, "Unable to create unit");
@@ -33623,6 +33633,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFractionOriginalCapitalsUnderControl;
 #endif
 
+	kStream >> m_noSettlingPlots;
+
 	if(GetID() < MAX_MAJOR_CIVS)
 	{
 		if(!m_pDiplomacyRequests)
@@ -34272,6 +34284,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	kStream << m_iFractionOriginalCapitalsUnderControl;
 #endif
+
+	kStream << m_noSettlingPlots;
 }
 
 //	--------------------------------------------------------------------------------

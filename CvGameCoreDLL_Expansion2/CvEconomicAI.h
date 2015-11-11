@@ -223,6 +223,16 @@ public:
 	{
 		return m_iVisibleAntiquitySites;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetVisibleAntiquitySitesOwnTerritory() const
+	{
+		return m_iVisibleAntiquitySitesOwn;
+	};
+	int GetVisibleAntiquitySitesUnownedTerritory() const
+	{
+		return m_iVisibleAntiquitySitesNeutral;
+	};
+#endif
 	void UpdatePlots();
 	bool m_bExplorationPlotsDirty;
 
@@ -267,6 +277,10 @@ private:
 	int m_iExplorersDisbanded;
 	int m_iLastTurnWorkerDisbanded;
 	int m_iVisibleAntiquitySites;
+#if defined(MOD_BALANCE_CORE)
+	int m_iVisibleAntiquitySitesOwn;
+	int m_iVisibleAntiquitySitesNeutral;
+#endif
 
 	// Cached AI parameters
 	int m_iMinimumSettleFertility;

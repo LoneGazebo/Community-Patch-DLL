@@ -46,9 +46,8 @@
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
 
-#if defined _DEBUG
-#include <crtdbg.h>
-#endif
+//#include "vld.h"
+//#pragma comment(lib,"vld.lib")
 
 #include <algorithm>
 #include <vector>
@@ -91,11 +90,7 @@ typedef wchar_t          wchar;
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>
 #include <Fireworks/FILogFile.h>
-#include <Fireworks/FFreeListArrayBase.h>
 #include <Fireworks/FDataStream.h>
-#include <Fireworks/FFreeListTrashArray.h>
-#include <Fireworks/FVariableSystem.h>
-#include <FireWorks/FAStarNode.h>
 #include <Fireworks/Win32/FKBInputDevice.h>
 #include <Fireworks/FFastList.h>
 

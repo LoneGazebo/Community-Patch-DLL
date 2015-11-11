@@ -927,9 +927,9 @@ int CvUnitEntry::GetCivilianAttackPriority() const
 }
 
 /// Default AI behavior
-int CvUnitEntry::GetDefaultUnitAIType() const
+UnitAITypes CvUnitEntry::GetDefaultUnitAIType() const
 {
-	return m_iDefaultUnitAIType;
+	return (UnitAITypes)m_iDefaultUnitAIType;
 }
 
 /// Tech needed to pillage (if we can pillage)

@@ -206,16 +206,16 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		// look at same land mass
 
-		//2
+		//3
 		iRange = GC.getMIN_CITY_RANGE();
 		if(pPlayer && pPlayer->isMinorCiv())
 		{
-			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
 			{
 				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
 			}
 		}
-		else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
 		{
 			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
@@ -924,15 +924,16 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
 
 		// Human
+		//3
 		int iRange = GC.getMIN_CITY_RANGE();
 		if(pPlayer && pPlayer->isMinorCiv())
 		{
-			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
 			{
 				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
 			}
 		}
-		else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
 		{
 			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
@@ -981,15 +982,16 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (iBoldness <= 5) iSweetMax--;
 			if (iBoldness > 5) iSweetMin++;
 
+			//3
 			int iRange = GC.getMIN_CITY_RANGE();
 			if(pPlayer && pPlayer->isMinorCiv())
 			{
-				if(GC.getMap().getWorldInfo().getMinDistanceCityStates() >= iRange)
+				if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
 				{
 					iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
 				}
 			}
-			else if(GC.getMap().getWorldInfo().getMinDistanceCities() >= iRange)
+			else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
 			{
 				iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
 			}

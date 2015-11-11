@@ -1493,20 +1493,43 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if (!GET_PLAYER(ePlayer).isMinorCiv())
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if (GET_PLAYER(ePlayer).isAlive())
 				{
-					if (GET_PLAYER(eLoopPlayer).isAlive())
+					if (GET_PLAYER(eTargetCityState).isMinorCiv() && eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive())
 					{
-						if (GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
+						GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(ePlayer, 40);
+					}
+				}
+			}	
+			CvCity* pLoopCity;
+			PlayerTypes eOriginalProposer = GetProposerDecision()->GetProposer();
+			if(eOriginalProposer != NO_PLAYER && GET_PLAYER(eOriginalProposer).isAlive() && ePlayer == eOriginalProposer)
+			{
+				pLoopCity = GET_PLAYER(eOriginalProposer).getCapitalCity();
+				if(pLoopCity != NULL)
+				{
+					for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+					{
+						const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+						CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+						if(pkSpecialistInfo)
 						{
-							GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(eLoopPlayer, 40);
+							// Does this Specialist spawn a GP?
+							if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+							{
+								if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+								{
+									//Halfway to next GD from this.
+									int iCurrentDelta = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+									iCurrentDelta /= 2;
+									pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iCurrentDelta);
+								}
+							}
 						}
 					}
-				}	
+				}
 			}
 		} 
 		else 
@@ -1518,6 +1541,10 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 				{
 					PlayerTypes eMinor = (PlayerTypes) iMinor;
+					if(eMinor == NO_PLAYER)
+					{
+						continue;
+					}
 					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(ePlayer) < iNeutral)
 					{
 						if (pLeague->IsMember(eMinor))
@@ -1537,34 +1564,60 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		if (GetEffects()->bRaiseCityStateInfluenceToAlly)
 		{
 			PlayerTypes eOriginalProposer = GetProposerDecision()->GetProposer();
-			if (!GET_PLAYER(ePlayer).isMinorCiv())
+			if(eOriginalProposer != NO_PLAYER && GET_PLAYER(eOriginalProposer).isAlive() && eOriginalProposer == ePlayer)
 			{
-				if (GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
+				if (!GET_PLAYER(ePlayer).isMinorCiv())
 				{
-					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(eOriginalProposer, 150);
+					if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
+					{
+						PlayerTypes eBestPlayer;
+						int iBestInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(eBestPlayer);
+						if(iBestInfluence > GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eOriginalProposer))
+						{
+							GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(eOriginalProposer, (iBestInfluence + 10));
+						}
+					}
+				}
+				PlayerTypes eLoopPlayer;
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if(eLoopPlayer == NO_PLAYER)
+					{
+						continue;
+					}
+					if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						if (eLoopPlayer != eTargetCityState)
+						{
+							GET_PLAYER(eTargetCityState).GetMinorCivAI()->ChangeFriendshipWithMajor(eOriginalProposer, 50);
+						}
+					}
 				}
 			}
 		}	
 
 		if (GetEffects()->bRaiseCityStateInfluenceToFriend)
 		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				PlayerTypes eLoopPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
+				if(eLoopPlayer != NO_PLAYER)
 				{
-					if (GET_PLAYER(eLoopPlayer).isAlive())
+					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(eLoopPlayer, 50);
+					PlayerTypes eLoopPlayer2;
+					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
 					{
-						if (GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
+						eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+						if(GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).isMinorCiv())
 						{
-							if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly() == eLoopPlayer)
+							if (eLoopPlayer2 != eTargetCityState)
 							{
-								GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(eLoopPlayer, 50);
+								GET_PLAYER(eLoopPlayer2).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -50);
 							}
 						}
 					}
-				}	
+				}
 			}
 		}
 	}
