@@ -6497,7 +6497,7 @@ void CvTacticalAI::PlotGatherOnlyMoves(CvAIOperation* pOperation)
 							{
 								// See if we are just able to get to muster point in time.  If so, time for us to head over there
 								int iTurns = TurnsToReachTarget(pUnit, pOperation->GetMusterPlot(), true /*bReusePaths*/, true, true);
-								if (iTurns + GC.getGame().getGameTurn() <= pThisArmy->GetTurnAtNextCheckpoint())
+								if (iTurns!=INT_MAX && (iTurns + GC.getGame().getGameTurn() <= pThisArmy->GetTurnAtNextCheckpoint()))
 								{
 									pSlot->SetStartedOnOperation(true);
 									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
@@ -9835,7 +9835,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 		if(pCivilian)
 		{
 			//for the barbarian player AI_TACTICAL_TARGET_BARBARIAN_CAMP does not automatically mean the camp is empty of _barbarian_ defenders (check is only for enemy units)
-			pTarget = FindNearbyTarget(pCivilian, 23, AI_TACTICAL_TARGET_BARBARIAN_CAMP, pCivilian.pointer());
+			pTarget = FindNearbyTarget(pCivilian, 23, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 			if(pTarget)
 			{
 				// If we're not there yet, we have work to do
@@ -9893,6 +9893,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 						}
 					}
 #endif
+
 					// Look at where we'd move this turn taking units into consideration
 					int iFlags = 0;
 					if(pEscort)
@@ -9904,14 +9905,13 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 					if(!pCivilian->GeneratePath(pTarget, iFlags, false /*bReuse*/))
 					{
 #if defined(MOD_BALANCE_CORE)
-						MoveToEmptySpaceNearTarget(pCivilian, pTarget);
 						UnitProcessed(pCivilian->GetID());
 #endif
 						pCivilian->finishMoves();
 						if(pEscort)
 						{
 #if defined(MOD_BALANCE_CORE)
-							MoveToEmptySpaceNearTarget(pEscort, pTarget);
+							ExecuteMoveToPlot(pEscort, pCivilian->plot());
 							UnitProcessed(pEscort->GetID());
 #endif
 							pEscort->finishMoves();
@@ -9919,7 +9919,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Retargeting civilian escort operation (path lost to target), X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+							strLogString.Format("Civilian cannot reach target, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 							LogTacticalMessage(strLogString);
 						}
 					}
@@ -10028,7 +10028,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 										if(GC.getLogging() && GC.getAILogging())
 										{
 											CvString strLogString;
-											strLogString.Format("Retargeting civilian escort operation (path lost to target), X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+											strLogString.Format("Escort cannot move with civilian, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 											LogTacticalMessage(strLogString);
 										}
 									}
@@ -10060,7 +10060,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 											if(GC.getLogging() && GC.getAILogging())
 											{
 												CvString strLogString;
-												strLogString.Format("Retargeting civilian escort operation. Too many blocking units.");
+												strLogString.Format("Civilian cannot move with escort. Too many blocking units.");
 												LogTacticalMessage(strLogString);
 											}
 										}
@@ -10093,7 +10093,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 										if(GC.getLogging() && GC.getAILogging())
 										{
 											CvString strLogString;
-											strLogString.Format("Retargeting civilian escort operation. Could not move blocking unit.");
+											strLogString.Format("Could not move blocking unit for escorted civilian.");
 											LogTacticalMessage(strLogString);
 										}
 									}
@@ -14062,7 +14062,6 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP ||
 					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
 			{
 				bTypeMatch = true;
@@ -14143,8 +14142,11 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 						if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
 						{
 							iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true, true, iBestValue);
+
 							//Double because area switch
-							iValue *= 2;
+							if (iValue!=INT_MAX)
+								iValue *= 2;
+
 							if(iValue < iBestValue)
 							{
 								pBestMovePlot = pPlot;

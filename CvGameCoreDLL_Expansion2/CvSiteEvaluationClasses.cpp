@@ -1614,8 +1614,8 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS || pPlot->getFeatureType()==FEATURE_FLOOD_PLAINS))
 		rtnValue += 1;
 
-	//Help with island settling.
-	if(pPlot->isShallowWater() || pPlot->isLake())
+	//Help with island settling - assume a lighthouse
+	if(pPlot->isShallowWater())
 	{
 		rtnValue += 1;
 	}
@@ -1632,7 +1632,7 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
-		rtnValue += GC.getResourceInfo(eResource)->getYieldChange(YIELD_FOOD);
+		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
 
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
@@ -1709,7 +1709,7 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
-		rtnValue += GC.getResourceInfo(eResource)->getYieldChange(YIELD_PRODUCTION);
+		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
 
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
@@ -1747,7 +1747,7 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
-		rtnValue += GC.getResourceInfo(eResource)->getYieldChange(YIELD_GOLD);
+		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
 
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
@@ -1788,7 +1788,7 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 	eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
-		rtnValue += GC.getResourceInfo(eResource)->getYieldChange(YIELD_SCIENCE);
+		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
 
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
@@ -1829,7 +1829,7 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlaye
 	eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
-		rtnValue += GC.getResourceInfo(eResource)->getYieldChange(YIELD_FAITH);
+		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
 
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)

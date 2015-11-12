@@ -2930,30 +2930,13 @@ int AreaValid(CvAStarNode* parent, CvAStarNode* node, int, const void*, CvAStar*
 	}
 
 	CvMap& kMap = GC.getMap();
-#if defined(MOD_BALANCE_CORE)
-	int iFromPlotX = parent->m_iX;
-	int iFromPlotY = parent->m_iY;
-	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
-	if(pFromPlot != NULL && pFromPlot->getOwner() != NO_PLAYER)
-	{
-		if(pFromPlot->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()) != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()))
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable(BARBARIAN_TEAM) != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable(BARBARIAN_TEAM))
-		{
-			return FALSE;
-		}
-	}
-#else
+
+	//this is independent of any team!
 	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable() != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable())
 	{
 		return FALSE;
 	}
-#endif	
+
 	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
 }
 
