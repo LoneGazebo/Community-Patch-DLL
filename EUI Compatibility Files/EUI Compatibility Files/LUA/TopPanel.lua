@@ -1094,7 +1094,7 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	end
 -- C4DF
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold / 100)
 -- END
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
@@ -1208,11 +1208,21 @@ if civ5_mode then
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
 		-- CBP EDITS HERE
 			local iTestHappiness = excessHappiness;
-			if(iTestHappiness > 10)then
+			local iMilitaryHappiness = excessHappiness;
+			if(iTestHappiness > 10) then
 				iTestHappiness = 10;
 			end
 			if(iTestHappiness < -30)then
 				iTestHappiness = -30;
+			end
+			if(iMilitaryHappiness < -20)then
+				iMilitaryHappiness = -20;
+			end
+			if(iTestHappiness < 0) then
+				iTestHappiness = (iTestHappiness * -1);
+			end
+			if(iMilitaryHappiness < 0) then
+				iMilitaryHappiness = (iMilitaryHappiness * -1);
 			end
 			if not g_activePlayer:IsEmpireUnhappy() then
 				tips:insert( L("TXT_KEY_TP_TOTAL_HAPPINESS", excessHappiness, iTestHappiness) )
@@ -1259,12 +1269,12 @@ if civ5_mode then
 
 				if g_activePlayer:IsEmpireSuperUnhappy() then
 					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY" .. "[ENDCOLOR]" )
-				else
-					tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness) .. "[ENDCOLOR]" )
 				end
+				tips:insert("[NEWLINE][NEWLINE]" .. "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[ENDCOLOR]" )
+				
 			elseif g_activePlayer:IsEmpireUnhappy() then
 
-				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness) .. "[ENDCOLOR]" )
+				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[ENDCOLOR]" )
 			end
 			-- Basic explanation of Happiness
 

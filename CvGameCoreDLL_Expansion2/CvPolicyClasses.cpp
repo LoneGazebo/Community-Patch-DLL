@@ -173,6 +173,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
 	m_iEventTourism(0),
+	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
 #endif
@@ -254,6 +255,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
+	m_iRazingSpeedBonus(0),
+	m_bNoPartisans(false),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
@@ -483,6 +486,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
+	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 #endif
@@ -555,6 +559,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
+	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
+	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
@@ -1929,6 +1935,10 @@ int CvPolicyEntry::GetEventTourism() const
 {
 	return m_iEventTourism;
 }
+int CvPolicyEntry::GetEventTourismCS() const
+{
+	return m_iEventTourismCS;
+}
 int CvPolicyEntry::GetMonopolyModFlat() const
 {
 	return m_iMonopolyModFlat;
@@ -2497,6 +2507,16 @@ int CvPolicyEntry::GetExtraMoves() const
 int CvPolicyEntry::GetMaxCorps() const
 {
 	return m_iMaxCorporations;
+}
+/// Does this Policy grant faster razing?
+int CvPolicyEntry::GetRazingSpeedBonus() const
+{
+	return m_iRazingSpeedBonus;
+}
+/// Does this Policy grant faster razing?
+bool CvPolicyEntry::IsNoPartisans() const
+{
+	return m_bNoPartisans;
 }
 /// Does this Policy grant yields from conquering cities?
 int CvPolicyEntry::GetConquerorYield(int i) const
@@ -5095,6 +5115,12 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	{
+		return false;
+	}
+#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
 		return false;

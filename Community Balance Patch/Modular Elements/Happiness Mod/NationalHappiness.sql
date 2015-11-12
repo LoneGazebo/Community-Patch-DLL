@@ -47,7 +47,12 @@
 
 	-- % reduction of combat effectiveness per point of unhappiness.
 	UPDATE Defines
-	SET Value = '0'
+	SET Value = '-1'
+	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	-- % max reduction of combat effectiveness per point of unhappiness.
+	UPDATE Defines
+	SET Value = '-20'
 	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for when happiness bonuses begin. Happiness above threshold grants bonus. (should always be a positive value)
@@ -215,7 +220,7 @@
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by [COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR].'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -224,7 +229,7 @@
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by [COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR].'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}%[ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US

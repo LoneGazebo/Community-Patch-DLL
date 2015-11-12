@@ -22,7 +22,7 @@
 		<Row>
 			<BuildType>BUILD_EKI</BuildType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<Time>700</Time>
 			<Production>15</Production>
 			<Remove>true</Remove>

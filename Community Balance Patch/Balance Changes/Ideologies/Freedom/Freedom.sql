@@ -1,7 +1,11 @@
 -- Arsenal of Democracy
 
 UPDATE Policies
-SET MilitaryUnitGiftExtraInfluence = '20'
+SET MilitaryUnitGiftExtraInfluence = '0'
+WHERE Type = 'POLICY_ARSENAL_DEMOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Policies
+SET InfluenceGPExpend = '10'
 WHERE Type = 'POLICY_ARSENAL_DEMOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Capitalism

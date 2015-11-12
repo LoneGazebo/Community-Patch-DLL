@@ -81,6 +81,9 @@ protected:
 	static int lIsHuman(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(IsMajorCiv, bool);
+#endif
 	static int lIsMinorCiv(lua_State* L);
 	static int lIsMinorCivWarmonger(lua_State* L);
 

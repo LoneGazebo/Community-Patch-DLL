@@ -1850,7 +1850,11 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 // Awards influence and sends notification to player.
 // Should only be called once.
+#if defined(MOD_BALANCE_CORE)
+bool CvMinorCivQuest::DoFinishQuest(bool bGlobal)
+#else
 bool CvMinorCivQuest::DoFinishQuest()
+#endif
 {
 	if (!IsComplete())
 		return false;
@@ -1875,7 +1879,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(iInfluence > 0 && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
+	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
 		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetTotalJONSCulturePerTurn();
@@ -4721,7 +4725,12 @@ void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuest
 			if (itr_quest->IsComplete())
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+				bool bGlobal = IsGlobalQuest(itr_quest->GetType());
+				bool bCompleted = itr_quest->DoFinishQuest(bGlobal);
+#else
 				bool bCompleted = itr_quest->DoFinishQuest();
+#endif
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				
 				if (bCompleted)
@@ -8091,28 +8100,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iChangeThisTurn = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	//No CS drop for allies - Cold War fun!
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if(pLeague != NULL)
-		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER)
-				{
-					if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
-					{
-						return iChangeThisTurn;
-					}
-				}
-			}
-		}
-	}
-#endif
 
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
@@ -8129,12 +8116,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-		{
-			return iChangeThisTurn;
-		}
-#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
@@ -8192,7 +8173,34 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		iChangeThisTurn *= iRecoveryMod;
 		iChangeThisTurn /= 100;
 	}
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	//No CS drop for allies - Cold War fun!
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if(pLeague != NULL)
+		{
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER)
+				{
+					if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
+					{
+						iChangeThisTurn = 0;
+					}
+				}
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		iChangeThisTurn = 0;
+	}
+#endif
 	// Shift on top of base rate
 	if (GET_TEAM(kPlayer.getTeam()).isHasMet(GetPlayer()->getTeam()))
 	{
@@ -8670,15 +8678,20 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
 	if(MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
 	{
+		int iEra = GET_PLAYER(eNewAlly).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
 			if(GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 			{
-				int iLoopCity;
-				for (CvCity* pLoopCity = GET_PLAYER(eNewAlly).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eNewAlly).nextCity(&iLoopCity))
+				CvCity* pCapital = GET_PLAYER(eNewAlly).getCapitalCity();
+				if(pCapital != NULL)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield));
+					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iEra);
 				}
 			}
 		}
@@ -8686,15 +8699,20 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
 	if(MOD_BALANCE_CORE && (eOldAlly != NO_PLAYER) && (eOldAlly != eNewAlly))
 	{
+		int iEra = GET_PLAYER(eOldAlly).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
 			if(GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 			{
-				int iLoopCity;
-				for (CvCity* pLoopCity = GET_PLAYER(eOldAlly).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOldAlly).nextCity(&iLoopCity))
+				CvCity* pCapital = GET_PLAYER(eOldAlly).getCapitalCity();
+				if(pCapital != NULL)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1));
+					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1 * iEra));
 				}
 			}
 		}
@@ -13851,14 +13869,53 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
+#if defined(MOD_BALANCE_CORE)
+		int iScienceBonusAmount = 0;
+		if (bFriends)
+		{
+			iScienceBonusAmount += GetScienceFlatFriendshipBonus(ePlayer);
+		}
+		if (bAllies)
+		{
+			iScienceBonusAmount += GetScienceFlatAlliesBonus(ePlayer);
+		}
+		if (!bAdd)
+		{
+			iScienceBonusAmount = -iScienceBonusAmount;
+		}
+#endif
 		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
+#if defined(MOD_BALANCE_CORE)
+		if(iScienceBonusAmount > 0)
+		{
+			strDetailedInfo << iScienceBonusAmount;
+		}
+#endif
 		else if(bFriends && bAdd)		// Now Friends
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
+#if defined(MOD_BALANCE_CORE)
+			if(iScienceBonusAmount > 0)
+			{
+				strDetailedInfo << iScienceBonusAmount;
+			}
+#endif
 		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
+#if defined(MOD_BALANCE_CORE)
+			if(iScienceBonusAmount > 0)
+			{
+				strDetailedInfo << iScienceBonusAmount;
+			}
+#endif
 		else if(bAllies && !bAdd)		// No longer Allies
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
+#if defined(MOD_BALANCE_CORE)
+			if(iScienceBonusAmount > 0)
+			{
+				strDetailedInfo << iScienceBonusAmount;
+			}
+#endif
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
@@ -13907,7 +13964,21 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		int iHappinessBonus = 0;
-
+#if defined(MOD_BALANCE_CORE)
+		int iGoldBonusAmount = 0;
+		if (bFriends)
+		{
+			iGoldBonusAmount += GetGoldFlatFriendshipBonus(ePlayer);
+		}
+		if (bAllies)
+		{
+			iGoldBonusAmount += GetGoldFlatAlliesBonus(ePlayer);
+		}
+		if (!bAdd)
+		{
+			iGoldBonusAmount = -iGoldBonusAmount;
+		}
+#endif
 		if(bFriends)	// Friends bonus
 		{
 			iHappinessBonus += GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
@@ -13925,16 +13996,34 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
+#if defined(MOD_BALANCE_CORE)
+			if(iGoldBonusAmount > 0)
+			{
+				strDetailedInfo << iGoldBonusAmount;
+			}
+#endif
 		}
 		else if(bFriends && bAdd)		// Now Friends
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
+#if defined(MOD_BALANCE_CORE)
+			if(iGoldBonusAmount > 0)
+			{
+				strDetailedInfo << iGoldBonusAmount;
+			}
+#endif
 		}
 		else if(!bAdd)		// Bonus diminished (or removed)
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
+#if defined(MOD_BALANCE_CORE)
+			if(iGoldBonusAmount > 0)
+			{
+				strDetailedInfo << iGoldBonusAmount;
+			}
+#endif
 		}
 	}
 

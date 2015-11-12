@@ -377,8 +377,14 @@ ALTER TABLE Buildings ADD COLUMN 'ResourceType' TEXT DEFAULT NULL;
 -- Allows for Unit to be unlocked by a specific resource being owned (can be strategic or luxury)
 ALTER TABLE Units ADD COLUMN 'ResourceType' TEXT DEFAULT NULL;
 
+-- Assigns a unit to a belief type. If you lack this belief in the city where you wish to buy a unit, you won't be able to buy it with faith.
+ALTER TABLE Units ADD COLUMN 'BeliefRequired' TEXT DEFAULT NULL;
+
 -- Allows for Building to be purchased in puppet city
 ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
+
+-- Allows for Building to grant a single WC vote (or any value) - not scaled by CS
+ALTER TABLE Buildings ADD COLUMN 'SingleLeagueVotes' INTEGER DEFAULT 0;
 
 -- Allows for All Units/Buildings to be purchased in puppet city
 ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT 0;
@@ -398,8 +404,11 @@ ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' TEXT DEFAULT NULL;
 -- Allows you to define a number of WLTKD turns for the City -- 
 ALTER TABLE Buildings ADD COLUMN 'WLTKDTurns' INTEGER DEFAULT 0;
 
--- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+-- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. 
 ALTER TABLE Buildings ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
+
+-- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.
+ALTER TABLE Buildings ADD COLUMN 'AlwaysHeal' INTEGER DEFAULT 0;
 
 -- Tourism Mod, global, from WC
 ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;
@@ -411,7 +420,16 @@ ALTER TABLE Buildings ADD COLUMN 'FinishLandTRTourism' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'FinishSeaTRTourism' INTEGER DEFAULT 0;
 
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
+
+-- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
+
+-- Allows you to increase razing speed from policies
+ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
+
+-- Allows you to set whether or not partisans spawn from razing cities (via policy)
+ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
 
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
@@ -569,7 +587,12 @@ ALTER TABLE Policies ADD COLUMN 'AutocracyCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
 
 
--- GameSpeed
+-- GameSpeed for JFD
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
+
+-- Worlds
+ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
+ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
+
 

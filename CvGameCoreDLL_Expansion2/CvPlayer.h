@@ -479,12 +479,24 @@ public:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses, CvUnit* pDefendingUnit);
+#if defined(MOD_API_EXTENSIONS)
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+#else
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+#endif
 #else
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
+#if defined(MOD_API_EXTENSIONS)
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+#else
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
 #endif
+#endif
+#if defined(MOD_API_EXTENSIONS)
+	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+#else
 	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+#endif
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
@@ -1178,6 +1190,7 @@ public:
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
 #if defined(MOD_BALANCE_CORE)
+	//JFD
 	void SetPiety(int iValue);
 	void ChangePiety(int iValue);
 	int GetPiety() const;
@@ -1192,12 +1205,61 @@ public:
 	void SetHasSecularized(bool bValue);
 	bool IsPagan();
 
+	int GetSovereignty() const;
+	void SetSovereignty(int iValue);
+	void ChangeSovereignty(int iValue);
+
+	int GetGovernment() const;
+	void SetGovernment(int iValue);
+	bool HasGovernment();
+
+	int GetReformCooldown() const;
+	void SetReformCooldown(int iValue);
+	void ChangeReformCooldown(int iValue);
+
+	int GetGovernmentCooldown() const;
+	void SetGovernmentCooldown(int iValue);
+	void ChangeGovernmentCooldown(int iValue);
+
+	int GetReformCooldownRate() const;
+	void SetReformCooldownRate(int iValue);
+	void ChangeReformCooldownRate(int iValue);
+
+	int GetGovernmentCooldownRate() const;
+	void SetGovernmentCooldownRate(int iValue);
+	void ChangeGovernmentCooldownRate(int iValue);
+
+	int GetPoliticLeader() const;
+	void SetPoliticLeader(int iID);
+
+	void SetPoliticLeaderKey(const char* strKey);
+	CvString GetPoliticLeaderKey() const;
+
+	void SetLegislatureName(const char* strKey);
+	CvString GetLegislatureName() const;
+
+	int GetPoliticPercent(int iID) const;
+	void SetPoliticPercent(int iID, int iValue);
+
+	void DoGovernmentCooldown();
+	void DoReformCooldown();
 
 	//DONE
 
 	bool CanUpgradeCSTerritory() const;
 	void ChangeUpgradeCSTerritory(int iChange);
 	int GetUpgradeCSTerritory() const;
+
+	void ChangeRazingSpeedBonus(int iChange);
+	int GetRazingSpeedBonus() const;
+
+	bool IsNoPartisans() const;
+	void ChangeNoPartisans(int iChange);
+	int GetNoPartisans() const;
+
+	void ChangeSpawnCooldown(int iChange);
+	void SetSpawnCooldown(int iChange);
+	int GetSpawnCooldown() const;
 
 	bool IsDiplomaticMarriage() const;
 	int GetAbleToMarryCityStatesCount() const;
@@ -1233,6 +1295,14 @@ public:
 	void ChangeEventTourism(int iValue);
 	int GetEventTourism() const;
 	void SetEventTourism(int iValue);
+
+	void ChangeEventTourismCS(int iValue);
+	int GetEventTourismCS() const;
+	void SetEventTourismCS(int iValue);
+
+	void ChangeSingleVotes(int iValue);
+	int GetSingleVotes() const;
+	void SetSingleVotes(int iValue);
 
 	void ChangeMonopolyModFlat(int iValue);
 	int GetMonopolyModFlat() const;
@@ -1296,7 +1366,7 @@ public:
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
-	void disassembleSpaceship();
+	void disassembleSpaceship(CvPlot* pPlot);
 #endif
 	PlayerTypes GetCapitalConqueror() const;
 
@@ -1415,6 +1485,9 @@ public:
 
 	CvLeaderHeadInfo& getLeaderInfo() const;
 	LeaderHeadTypes getLeaderType() const;
+#if defined(MOD_API_EXTENSIONS)
+	void setLeaderType(LeaderHeadTypes eNewLeader);
+#endif
 
 	LeaderHeadTypes getPersonalityType() const;
 	void setPersonalityType(LeaderHeadTypes eNewValue);
@@ -1647,6 +1720,10 @@ public:
 	void CheckForMonopoly(ResourceTypes eResource);
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
+
+	int getResourceOverValue(ResourceTypes eIndex) const;
+	void changeResourceOverValue(ResourceTypes eIndex, int iChange);
+	void setResourceOverValue(ResourceTypes eIndex, int iChange);
 #endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2581,11 +2658,23 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
+	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;
+	FAutoVariable<CvString, CvPlayer> m_strJFDPoliticKey;
+	FAutoVariable<CvString, CvPlayer> m_strJFDLegislatureName;
+	FAutoVariable<int, CvPlayer> m_iJFDPoliticLeader;
+	FAutoVariable<int, CvPlayer> m_iJFDSovereignty;
+	FAutoVariable<int, CvPlayer> m_iJFDGovernment;
+	FAutoVariable<int, CvPlayer> m_iJFDReformCooldown;
+	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldown;
 	FAutoVariable<int, CvPlayer> m_iJFDPiety;
 	FAutoVariable<int, CvPlayer> m_iJFDPietyRate;
 	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
+	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
+	FAutoVariable<int, CvPlayer> m_iNoPartisans;
+	FAutoVariable<int, CvPlayer> m_iSpawnCooldown;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
 	FAutoVariable<int, CvPlayer> m_iCorporationMaxFranchises;
@@ -2595,6 +2684,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;
+	FAutoVariable<int, CvPlayer> m_iEventTourismCS;
+	FAutoVariable<int, CvPlayer> m_iSingleVotes;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 #endif
@@ -2692,6 +2783,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSeaPlotYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiJFDPoliticPercent;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;

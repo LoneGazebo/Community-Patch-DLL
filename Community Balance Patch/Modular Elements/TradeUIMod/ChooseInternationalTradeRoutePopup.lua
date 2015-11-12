@@ -205,6 +205,16 @@ function RefreshData()
 		if (v.TradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_WONDER_RESOURCE) then
 			theirBonuses = theirBonuses .. "  [ICON_RES_MARBLE]";
 		end
+
+-- CBP
+		if (pTargetCity ~= nil and tradeRoute.Category == 1) then
+			local iIsolation = pTargetCity:GetUnhappinessFromConnection();
+			if(iIsolation > 0 and pOriginCity:IsConnectedToCapital()) then
+				tradeRoute.OtherIsolation = iIsolation;
+				theirBonuses = theirBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER", -iIsolation);
+			end
+		end
+-- END
 		
 		if (v.FromReligion ~= 0 and v.FromPressureAmount ~= 0) then
 			local religion = GameInfo.Religions[v.FromReligion];
@@ -272,6 +282,12 @@ function SortByScienceDelta(a, b)
 	return a.ScienceDelta > b.ScienceDelta;
 end
 
+--CBP
+function SortByOtherIsolation(a, b)
+	return a.OtherIsolation > b.OtherIsolation;
+end
+--END
+
 g_SortOptions = {
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_CIVNAME", SortByCivName},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_CITYNAME", SortByCityName},
@@ -279,6 +295,9 @@ g_SortOptions = {
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_GOLD_DELTA", SortByGoldDelta}, 
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_SCIENCE", SortByMaxScience},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_SCIENCE_DELTA", SortByScienceDelta},
+	--CBP
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_ISOLATION_OTHER", SortByOtherIsolation},
+	--END
 }
 g_CurrentSortOption = 1;
 

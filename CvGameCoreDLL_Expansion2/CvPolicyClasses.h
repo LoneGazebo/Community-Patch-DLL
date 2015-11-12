@@ -178,6 +178,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetEventTourism() const;
+	int GetEventTourismCS() const;
 	int GetMonopolyModFlat() const;
 	int GetMonopolyModPercent() const;
 #endif
@@ -274,6 +275,8 @@ public:
 	int GetFreePopulation() const;
 	int GetExtraMoves() const;
 	int GetMaxCorps() const;
+	int GetRazingSpeedBonus() const;
+	bool IsNoPartisans() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -477,6 +480,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
+	int m_iEventTourismCS;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
 #endif
@@ -573,6 +577,8 @@ private:
 	int m_iFreePopulation;
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
+	int m_iRazingSpeedBonus;
+	bool m_bNoPartisans;
 	bool m_bOrderCorporation;
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;

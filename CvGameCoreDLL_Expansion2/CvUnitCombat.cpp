@@ -3697,7 +3697,11 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 	CvPlayer& kPlayer = GET_PLAYER(pkWinner->getOwner());
 	if (pkWinner->GetGoldenAgeValueFromKills() > 0)
 	{
+#if defined(MOD_API_EXTENSIONS)
+		int iCombatStrength = max(pkLoser->GetBaseCombatStrength(), pkLoser->GetBaseRangedCombatStrength());
+#else
 		int iCombatStrength = max(pkLoser->getUnitInfo().GetCombat(), pkLoser->getUnitInfo().GetRangedCombat());
+#endif
 		if(iCombatStrength > 0)
 		{
 			int iValue = iCombatStrength * pkWinner->GetGoldenAgeValueFromKills() / 100;

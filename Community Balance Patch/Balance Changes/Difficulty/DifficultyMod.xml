@@ -148,7 +148,6 @@
 			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
 			<AIWorkRateModifier>20</AIWorkRateModifier>
 			<AIUnhappinessPercent>95</AIUnhappinessPercent>
@@ -205,7 +204,6 @@
 			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIWorkRateModifier>30</AIWorkRateModifier>
 			<AIUnhappinessPercent>90</AIUnhappinessPercent>
@@ -261,7 +259,7 @@
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>9</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIWorkRateModifier>40</AIWorkRateModifier>
@@ -318,7 +316,7 @@
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>10</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>24</BarbarianSeaTargetRange>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
@@ -378,7 +376,7 @@
 			<BarbarianSeaTargetRange>26</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
-			<AIStartingExploreUnits>2</AIStartingExploreUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIUnhappinessPercent>75</AIUnhappinessPercent>
@@ -435,7 +433,7 @@
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
 			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
-			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>200</AIDeclareWarProb>

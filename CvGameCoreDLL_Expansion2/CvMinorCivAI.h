@@ -141,7 +141,11 @@ public:
 	// Starting and finishing
 	void DoStartQuest(int iStartTurn);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
+#if defined(MOD_BALANCE_CORE)
+	bool DoFinishQuest(bool bGlobal);
+#else
 	bool DoFinishQuest();
+#endif
 	bool DoCancelQuest();
 
 	// Public data

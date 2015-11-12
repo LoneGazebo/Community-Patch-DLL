@@ -187,19 +187,38 @@
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_OLIVE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_COFFEE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
 			<ResourceType>RESOURCE_TEA</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Office -->
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<!-- Franchise -->
 		<Row>

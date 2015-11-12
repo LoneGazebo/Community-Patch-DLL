@@ -1841,6 +1841,10 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 					{
 						continue;
 					}
+					if(pMerchant && !pMerchant->canTrade(pAdjacentPlot))
+					{
+						continue;
+					}
 #endif
 					// Make sure this is still owned by the city state and is revealed to us and isn't a water tile
 					//if(pAdjacentPlot->getOwner() == (PlayerTypes)iI && pAdjacentPlot->isRevealed(getTeam()) && !pAdjacentPlot->isWater())
@@ -2051,6 +2055,12 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(!pUnit->canTrade(pCity->plot()))
+	{
+		return 0;
+	}
+#endif
 
 	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
 	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))

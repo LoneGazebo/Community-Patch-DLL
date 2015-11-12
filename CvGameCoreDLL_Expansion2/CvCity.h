@@ -360,6 +360,7 @@ public:
 	void SetBuildingPurchaseCooldown(int iValue);
 	void ChangeBuildingPurchaseCooldown(int iValue);
 	void CheckForOperationUnits();
+	void DoSellBuilding();
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
@@ -915,6 +916,10 @@ public:
 	int GetSeaTourismBonus() const;
 	void ChangeSeaTourismBonus(int iChange);
 	void SetSeaTourismBonus(int iValue);
+
+	int GetAlwaysHeal() const;
+	void ChangeAlwaysHeal(int iChange);
+	void SetAlwaysHeal(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -948,6 +953,10 @@ public:
 	void ChangeBlockGold(int iNewValue);
 	void SetBlockGold(int iNewValue);
 	int GetBlockGold() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
+	bool IsPurchased(BuildingClassTypes eBuildingClass);
 #endif
 	// END Base Yield
 
@@ -1456,6 +1465,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationResourceQuantity;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
+	FAutoVariable<int, CvCity> m_iAlwaysHeal;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -1469,6 +1479,7 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;

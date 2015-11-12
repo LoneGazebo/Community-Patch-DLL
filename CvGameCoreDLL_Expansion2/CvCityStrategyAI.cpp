@@ -830,7 +830,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	m_Buildables.clear();
 #if defined(MOD_BALANCE_CORE)
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
-	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
+	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS");
 	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 	MilitaryAIStrategyTypes eNeedCarriers = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR_CARRIER");
 	MilitaryAIStrategyTypes eNeedBoatsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL");
@@ -1672,7 +1672,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
 #if defined(MOD_BALANCE_CORE)
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
-	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
+	AICityStrategyTypes eWantArch = (AICityStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS");
 	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 	MilitaryAIStrategyTypes eNeedCarriers = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR_CARRIER");
 	bool bNoBoats = false;

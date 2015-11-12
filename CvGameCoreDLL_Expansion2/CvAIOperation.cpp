@@ -813,6 +813,13 @@ bool CvAIOperation::CheckOnTarget()
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -891,7 +898,7 @@ bool CvAIOperation::CheckOnTarget()
 							}
 							if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 							{
-								ArmyInPosition(pThisArmy);
+								pAIOp->ArmyInPosition(pThisArmy);
 								return true;
 							}
 							break;
@@ -911,6 +918,13 @@ bool CvAIOperation::CheckOnTarget()
 
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -953,7 +967,7 @@ bool CvAIOperation::CheckOnTarget()
 							if(pCenterOfMass && GetTargetPlot() != NULL && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance
 							&& pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
 							{
-								ArmyInPosition(pThisArmy);
+								pAIOp->ArmyInPosition(pThisArmy);
 								return true;
 							}
 							break;
@@ -974,6 +988,13 @@ bool CvAIOperation::CheckOnTarget()
 				bool bCivilian = false;
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -1070,7 +1091,7 @@ bool CvAIOperation::CheckOnTarget()
 									{
 										if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 										{
-											ArmyInPosition(pThisArmy);
+											pAIOp->ArmyInPosition(pThisArmy);
 											return true;
 										}
 									}
@@ -1084,7 +1105,7 @@ bool CvAIOperation::CheckOnTarget()
 									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance &&
 									pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
 								{
-									ArmyInPosition(pThisArmy);
+									pAIOp->ArmyInPosition(pThisArmy);
 									return true;
 								}
 							}
@@ -1110,6 +1131,13 @@ bool CvAIOperation::CheckOnTarget()
 
 				if(pThisArmy)
 				{
+					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+					//No operation? Bwa?
+					if(!pAIOp)
+					{
+						Kill(AI_ABORT_NO_UNITS);
+						return false;
+					}
 					//No units ? Destroy.
 					if(pThisArmy->GetNumSlotsFilled() <= 0)
 					{
@@ -1136,7 +1164,7 @@ bool CvAIOperation::CheckOnTarget()
 						case AI_OPERATION_STATE_MOVING_TO_TARGET:
 						{
 							// We want to recompute a new target each turn.  So call ArmyInPosition() regardless of return status
-							ArmyInPosition(pThisArmy);
+							pAIOp->ArmyInPosition(pThisArmy);
 
 							pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 							if(pCenterOfMass && GetTargetPlot() != NULL &&
@@ -2403,7 +2431,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 	CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 	CvString strMsg;
-
 	if(!pThisArmy)
 		return false;
 
@@ -2452,7 +2479,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 		if (pBestUnit != NULL)
 		{
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pBestUnit->getUnitType());
-
 			if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 			{
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
@@ -3255,7 +3281,7 @@ bool CvAIOperationBasicCityAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
 				return true;
@@ -7420,7 +7446,7 @@ bool CvAIOperationPureNavalCityAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
 				return true;
@@ -9394,15 +9420,19 @@ bool CvAIOperationNavalSneakAttack::ShouldAbort()
 		if(GetTargetPlot() != NULL)
 		{
 			// See if our target city is still owned by our enemy
-			if(GetTargetPlot()->getOwner() != m_eEnemy)
+			if(GetTargetPlot()->getOwner() != m_eEnemy && GetTargetPlot()->getOwner() != NO_PLAYER)
 			{
 				// Success!  The city has been captured/destroyed
+				m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+				m_eAbortReason = AI_ABORT_TARGET_ALREADY_CAPTURED;
 				return true;
 			}
 			if(GetTargetPlot()->getWorkingCity() != NULL)
 			{
 				if(GetTargetPlot()->getWorkingCity()->getOwner() != m_eEnemy)
 				{
+					m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+					m_eAbortReason = AI_ABORT_TARGET_ALREADY_CAPTURED;
 					return true;
 				}
 			}

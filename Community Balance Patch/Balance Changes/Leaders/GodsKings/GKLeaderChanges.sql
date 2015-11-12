@@ -222,7 +222,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Has a unique set of powerful Pantheon Beliefs. Cities with your Pantheon or founded Religion neither generate nor receive foreign Religious Pressure. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
+SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon or founded Religion neither generate nor receive foreign Religious Pressure. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -374,15 +374,15 @@ DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Choose one more Belief than normal when you found a Religion. A free Great Prophet appears near your [ICON_CAPITAL] Capital when you research Philosophy.'
+SET Text = 'Is always eligible to found a Religion, and receives an additional Belief when founding a Religion. Is allowed to choose from Beliefs already in other Religions.'
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET FreeUnit = 'UNITCLASS_PROPHET'
+SET AnyBelief = 'true'
 WHERE Type = 'TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET FreeUnitPrereqTech = 'TECH_PHILOSOPHY'
+SET AlwaysReligion = 'true'
 WHERE Type = 'TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Cataphract Lasts Longer
@@ -404,7 +404,7 @@ SET Yield = '3'
 WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND YieldType = 'YIELD_FOOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receives +3 [ICON_CULTURE] Culture for every Luxury Resource you Import from other Civilizations and City-States, and +3 [ICON_GOLD] Gold for every Luxury Resource you export to other Civilizations. Bonuses scale with Era.'
+SET Text = '+2 [ICON_CULTURE] Culture for each different Luxury Resource you import from other Civilizations and City-States, +4 [ICON_GOLD] Gold for each different Luxury Resource you export to other Civilizations. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

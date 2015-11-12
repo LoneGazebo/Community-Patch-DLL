@@ -205,8 +205,20 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		// look at same land mass
-		iRange = GC.getMIN_CITY_RANGE();
 
+		//3
+		iRange = GC.getMIN_CITY_RANGE();
+		if(pPlayer && pPlayer->isMinorCiv())
+		{
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+			}
+		}
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
+		{
+			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+		}
 		for(iDX = -(iRange); iDX <= iRange; iDX++)
 		{
 			for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -912,9 +924,22 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
 
 		// Human
+		//3
+		int iRange = GC.getMIN_CITY_RANGE();
+		if(pPlayer && pPlayer->isMinorCiv())
+		{
+			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+			}
+		}
+		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
+		{
+			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+		}
 		if (pPlayer->isHuman())
 		{
-			if (iClosestCityOfMine == GC.getMIN_CITY_RANGE())
+			if (iClosestCityOfMine == iRange)
 			{
 				iValueModifier -= iTotalPlotValue / 2;
 				vQualifiersNegative.push_back("(V) too close to existing cities");
@@ -957,9 +982,22 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (iBoldness <= 5) iSweetMax--;
 			if (iBoldness > 5) iSweetMin++;
 
-			if(iSweetMin < GC.getMIN_CITY_RANGE())
+			//3
+			int iRange = GC.getMIN_CITY_RANGE();
+			if(pPlayer && pPlayer->isMinorCiv())
 			{
-				iSweetMin = GC.getMIN_CITY_RANGE();
+				if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
+				{
+					iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+				}
+			}
+			else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
+			{
+				iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+			}
+			if(iSweetMin < iRange)
+			{
+				iSweetMin = iRange;
 			}
 
 			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 

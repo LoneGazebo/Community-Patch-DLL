@@ -6753,7 +6753,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
 
 				// Notification in MP games
+#if defined(MOD_API_EXTENSIONS)
+				if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
+#else
 				if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
+#endif
 				{
 					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
 					localizedText << pkTechInfo->GetTextKey();
@@ -7881,7 +7885,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				
 				if(!isBarbarian() && (eNewValue != GC.getGame().getStartEra())){
 					//Era Popup
+#if defined(MOD_API_EXTENSIONS)
+					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
+#else
 					if (!GC.getGame().isNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
+#endif
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
 						DLLUI->AddPopup(kPopupInfo);
 					}

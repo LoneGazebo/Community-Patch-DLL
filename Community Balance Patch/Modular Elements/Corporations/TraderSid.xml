@@ -36,6 +36,7 @@
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHQID>1</CorporationHQID>
 			<CorporationID>1</CorporationID>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_TRADER_SIDS</CorporationHelper>

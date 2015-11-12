@@ -2674,6 +2674,36 @@ void CvPlayerTrade::MoveUnits (void)
 								}
 							}
 						}
+						else if(GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
+						{
+							int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS();
+							iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+							iBonus /= 100;
+							if(iBonus > 0)
+							{
+								PlayerTypes ePlayer;
+								for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+								{
+									ePlayer = (PlayerTypes) iPlayerLoop;
+									if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isMinorCiv() || !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(pOriginCity->getOwner()).getTeam()))
+									{
+										continue;
+									}
+									GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(ePlayer, iBonus);
+								}
+								CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+								if(pNotification)
+								{
+									Localization::String strSummary;
+									Localization::String strMessage;
+									strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS");
+										strMessage << iBonus;
+										strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+									strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS");
+									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+								}
+							}
+						}
 					}
 				}	
 #endif
@@ -5723,8 +5753,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 					}
 				}
 			}
-		}
-		
+			if(m_pPlayer->GetEventTourismCS() > 0)
+			{
+				iScore *= m_pPlayer->GetEventTourismCS();
+			}
+		}	
 		if(m_pPlayer->GetCorporateFounderID() > 0 && iScore > 0)
 		{
 			int iX = kTradeConnection.m_iDestX;

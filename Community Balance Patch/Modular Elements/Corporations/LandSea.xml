@@ -38,6 +38,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CorporationHQID>7</CorporationHQID>
 			<CorporationID>7</CorporationID>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_LANDSEA_EXTRACTORS</FreeBuildingThisCity>
 			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>

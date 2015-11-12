@@ -36,6 +36,7 @@
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHQID>2</CorporationHQID>
 			<CorporationID>2</CorporationID>
 			<TRVisionBoost>1</TRVisionBoost>

@@ -32,7 +32,7 @@ WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS' AND EXISTS (SELECT * FROM COMMUNITY WH
 -- Wagon Trains (now called Turnpikes)
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Trade[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Poverty Threshold reduced by 20% in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Trade[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from Land [ICON_INTERNATIONAL_TRADE] International Trade Routes. Poverty Threshold reduced by 20% in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -56,6 +56,6 @@ WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP' AND EXISTS (SELECT * FROM COM
 --Protectionism
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE]Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route, and receive +2 [ICON_GOLD] Gold from owned Naval [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE]Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route, and receive +2 [ICON_GOLD] Gold from Naval [ICON_INTERNATIONAL_TRADE] International Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 

@@ -31,7 +31,7 @@ WHERE Tag = 'TXT_KEY_POLICY_HERO_OF_THE_PEOPLE_HELP' AND EXISTS (SELECT * FROM C
 -- Iron Curtain
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Iron Curtain[ENDCOLOR][NEWLINE]Free Courthouse upon city capture. Internal trade routes provide 50% more [ICON_FOOD] Food or [ICON_PRODUCTION] Production, and [ICON_CONNECTED] City connections generate +3 [ICON_GOLD] Gold.'
+SET Text = '[COLOR_POSITIVE_TEXT]Iron Curtain[ENDCOLOR][NEWLINE]Free Courthouse upon city capture. +50% [ICON_FOOD] Food or [ICON_PRODUCTION] Production from Internal Trade Routes. [ICON_CONNECTED] City connections generate +3 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_POLICY_IRON_CURTAIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Party Leadership
@@ -56,7 +56,7 @@ WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_TEXT' AND EXISTS (SELECT * FROM COMMUN
 -- Resettlement
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Resettlement[ENDCOLOR][NEWLINE]New Cities start with an extra 3 [ICON_CITIZEN] Population. All cities gain 2 [ICON_CITIZEN] Citizens immediately.'
+SET Text = '[COLOR_POSITIVE_TEXT]Resettlement[ENDCOLOR][NEWLINE]New Cities have +3 [ICON_CITIZEN] Population. All Cities gain +2 [ICON_CITIZEN] Citizens immediately. No Partisans from razing enemy Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_RESETTLEMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Skyscrapers

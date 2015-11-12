@@ -9232,7 +9232,11 @@ bool CvUnit::createGreatWork()
 		Localization::String localizedText;
 
 		// Notification in MP games
+#if defined(MOD_API_EXTENSIONS)
+		if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
+#else
 		if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
+#endif
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if(pNotifications)
@@ -9251,6 +9255,9 @@ bool CvUnit::createGreatWork()
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatWorkCreated, m_eOwner, iGWindex);
+#endif
 
 		return true;
 	}
@@ -19768,7 +19775,11 @@ if (!bDoEvade)
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							// Don't show in MP
+#if defined(MOD_API_EXTENSIONS)
+							if(!GC.getGame().isReallyNetworkMultiPlayer())
+#else
 							if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+#endif
 							{
 								CvPopupInfo kPopupInfo(BUTTONPOPUP_BARBARIAN_CAMP_REWARD, iNumGold);
 								DLLUI->AddPopup(kPopupInfo);
@@ -27123,7 +27134,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO())
+	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
 	{
 		SetMissionAI(NO_MISSIONAI, GC.getMap().plot(iData1, iData2), NULL);
 

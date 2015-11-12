@@ -81,7 +81,7 @@ UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonder
 
 -- Buff jungles and forests
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
-VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_BRONZE_WORKING', '600', 1);
+VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_MACHINERY', '600', 1);
 
 UPDATE BuildFeatures
 SET Remove = '1'
@@ -93,7 +93,7 @@ WHERE BuildType = 'BUILD_FORT';
 
 -- Polder specific code lacking in the BuildFeatures table
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_METAL_CASTING', '500', '',1);
+VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_IRON_WORKING', '500', '',1);
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
 VALUES ('BUILD_POLDER', 'FEATURE_FOREST', 'TECH_BRONZE_WORKING', '300', '40', 1);
 

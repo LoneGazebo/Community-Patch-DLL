@@ -71,6 +71,10 @@ public:
 	// Routines to add/remove a target object to receive flavor updates
 	void AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool bPropogateFlavorValues = true);
 	void RemoveFlavorRecipient(CvFlavorRecipient* pTargetObject);
+	
+#if defined(MOD_API_EXTENSIONS)
+	void ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes eNewLeader);
+#endif
 
 	// External routines used to set flavors - each call broadcasts a flavor update to all recipients
 	void ChangeFlavors(int* piDeltaFlavorValues, bool bDontUpdateCityFlavors);

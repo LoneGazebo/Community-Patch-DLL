@@ -263,7 +263,8 @@ Controls.FranchiseStack:SetHide( true );
 Controls.OfficeStack:SetHide( true );
 
 function UpdateMonopolies()
-	local pPlayer = Players[ Game.GetActivePlayer() ];	
+	local pPlayer = Players[ Game.GetActivePlayer() ];
+	local g_iUs = Game.GetActivePlayer();
 	-- Our Monopolies
 	Controls.ResourcesLocalToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_MONOPOLIES"));
 	iTotalNumResources = 0;
@@ -445,47 +446,59 @@ function UpdateMonopolies()
 	Controls.ResourcesForeignToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN"));
 	iTotalNumResources = 0;
     Controls.ResourcesForeignStack:DestroyAllChildren();
-	for pResource in GameInfo.Resources() do
-		local iResourceID = pResource.ID;
-		if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
-			local iOtherPlayer = pPlayer:GetResourceMonopolyPlayer(iResourceID);
-			local iMonopoly = 0;
-			local iOtherTotal = 0;
-			local iOtherNum = 0;
-			local pOtherPlayer = Players[iOtherPlayer];
-			if(pOtherPlayer ~= nil) then
-				iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
-				iOtherTotal = Map.GetNumResources(iResourceID);
-				if(iOtherTotal > 0) then
-					iMonopoly = (iOtherNum * 100) / iOtherTotal;
+	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
+		local pOtherPlayer = Players[ iOtherPlayer ];
+		-- Valid player? - Can't be us, and has to be alive
+		if (iOtherPlayer ~= g_iUs and pOtherPlayer ~= nil and pOtherPlayer:IsAlive()) then
+			for pResource in GameInfo.Resources() do
+				local iResourceID = pResource.ID;
+				if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+					if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
+						local iMonopoly = 0;
+						local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+						local iOtherTotal = Map.GetNumResources(iResourceID);
+						if(iOtherTotal > 0) then
+							iMonopoly = (iOtherNum * 100) / iOtherTotal;
+						end
+						if(iMonopoly > 50) then
+							iTotalNumResources = iTotalNumResources + 1;
+				
+							local instance = {};
+							ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
+		        
+							instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+							instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+
+							local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL") .. Locale.Lookup(pResource.Help);
+							instance.ResourceName:SetToolTipString(strTooltip);
+							local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+							instance.ResourceValue:SetToolTipString(strTooltip2);
+						end
+					end
+				elseif(Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
+					if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
+						local iMonopoly = 0;
+						local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+						local iOtherTotal = Map.GetNumResources(iResourceID);
+						if(iOtherTotal > 0) then
+							iMonopoly = (iOtherNum * 100) / iOtherTotal;
+						end
+						if(iMonopoly > 50) then
+							iTotalNumResources = iTotalNumResources + 1;
+				
+							local instance = {};
+							ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
+		        
+							instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+							instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+
+							local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_BOTH") .. Locale.Lookup(pResource.Help);
+							instance.ResourceName:SetToolTipString(strTooltip);
+							local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+							instance.ResourceValue:SetToolTipString(strTooltip2);
+						end
+					end
 				end
-			end
-			if(iMonopoly > 50 and pOtherPlayer ~= nil) then
-				iTotalNumResources = iTotalNumResources + 1;
-				
-				local instance = {};
-				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
-		        
-				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-				instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
-
-				local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL") .. Locale.Lookup(pResource.Help);
-				instance.ResourceName:SetToolTipString(strTooltip);
-				local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-				instance.ResourceValue:SetToolTipString(strTooltip2);
-			elseif(Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC and iMonopoly > 50 and pOtherPlayer ~= nil) then
-				iTotalNumResources = iTotalNumResources + 1;
-				
-				local instance = {};
-				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
-		        
-				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-				instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
-
-				local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_BOTH") .. Locale.Lookup(pResource.Help);
-				instance.ResourceName:SetToolTipString(strTooltip);
-				local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-				instance.ResourceValue:SetToolTipString(strTooltip2);
 			end
 		end
 	end
@@ -504,34 +517,34 @@ function UpdateMonopolies()
 	Controls.ForeignStrategicResourcesToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC"));
 	iTotalNumResources = 0;
     Controls.ForeignStrategicResourcesStack:DestroyAllChildren();
-	for pResource in GameInfo.Resources() do
-		local iResourceID = pResource.ID;
-		if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-			local iOtherPlayer = pPlayer:GetResourceMonopolyPlayer(iResourceID);
-			local iMonopoly = 0;
-			local iOtherNum = 0;
-			local iOtherTotal = 0;
-			local pOtherPlayer = Players[iOtherPlayer];
-			if(pOtherPlayer ~= nil) then
-				iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
-				iOtherTotal = Map.GetNumResources(iResourceID);
-				if(iOtherTotal > 0) then
-					iMonopoly = (iOtherNum * 100) / iOtherTotal;
-				end
-			end
-			if(iMonopoly > 25 and iMonopoly <= 50 and pOtherPlayer ~= nil) then
-				iTotalNumResources = iTotalNumResources + 1;
+	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
+		local pOtherPlayer = Players[ iOtherPlayer ];
+		-- Valid player? - Can't be us, and has to be alive
+		if (iOtherPlayer ~= g_iUs and pOtherPlayer ~= nil and pOtherPlayer:IsAlive()) then
+			for pResource in GameInfo.Resources() do
+				local iResourceID = pResource.ID;
+				if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
+					local iMonopoly = 0;
+					local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+					local iOtherTotal = Map.GetNumResources(iResourceID);
+					if(iOtherTotal > 0) then
+						iMonopoly = (iOtherNum * 100) / iOtherTotal;
+					end
+					if(iMonopoly > 25 and iMonopoly <= 50) then
+						iTotalNumResources = iTotalNumResources + 1;
 				
-				local instance = {};
-				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ForeignStrategicResourcesStack );
+						local instance = {};
+						ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ForeignStrategicResourcesStack );
 		        
-				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-				instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+						instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+						instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
 
-				local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC") .. Locale.Lookup(pResource.StrategicHelp);
-				instance.ResourceName:SetToolTipString(strTooltip);
-				local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-				instance.ResourceValue:SetToolTipString(strTooltip2);
+						local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC") .. Locale.Lookup(pResource.StrategicHelp);
+						instance.ResourceName:SetToolTipString(strTooltip);
+						local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+						instance.ResourceValue:SetToolTipString(strTooltip2);
+					end
+				end
 			end
 		end
 	end

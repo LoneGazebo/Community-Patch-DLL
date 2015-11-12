@@ -14062,6 +14062,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
 			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY ||
+			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP ||
 					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
 			{
 				bTypeMatch = true;

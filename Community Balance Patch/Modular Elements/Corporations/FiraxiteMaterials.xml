@@ -38,6 +38,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CorporationHQID>3</CorporationHQID>
 			<CorporationID>3</CorporationID>
+			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS</CorporationHelper>
 			<TradeRouteInvulnerable>true</TradeRouteInvulnerable>
 			<FreeBuildingThisCity>BUILDINGCLASS_FIRAXITE_MATERIALS</FreeBuildingThisCity>

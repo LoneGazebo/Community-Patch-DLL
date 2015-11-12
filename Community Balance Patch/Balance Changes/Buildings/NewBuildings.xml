@@ -346,8 +346,8 @@
 	<Building_FeatureYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_HERBALIST</BuildingType>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -465,7 +465,7 @@
 			<Text>+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
-			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a nearby, workable Forest or Jungle tile in its borders.</Text>
+			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a workable Forest or Jungle tile in its borders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>

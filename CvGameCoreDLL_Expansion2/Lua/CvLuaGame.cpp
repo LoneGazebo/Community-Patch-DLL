@@ -419,6 +419,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+	Method(ExitLeaderScreen);
+#endif
+
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(ReloadGameDataDefines);
 	Method(ReloadCustomModOptions);
@@ -2774,7 +2778,12 @@ int CvLuaGame::lAddReformation(lua_State* L)
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 2));
 	const BeliefTypes eBelief = static_cast<BeliefTypes>(luaL_checkint(L, 3));
 
-	GC.getGame().GetGameReligions()->AddReformationBelief(ePlayer, eReligion, eBelief);
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvGameReligions* pkGameReligions = GC.getGame().GetGameReligions();
+	if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->HasCreatedReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == eReligion)
+	{
+		pkGameReligions->AddReformationBelief(ePlayer, eReligion, eBelief);
+	}
 
 	return 0;
 }
@@ -2825,7 +2834,6 @@ int CvLuaGame::lSetFoundYear(lua_State* L)
 int CvLuaGame::lGetFoundYear(lua_State* L)
 {
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 1));
-	const PlayerTypes eFounder = static_cast<PlayerTypes>(luaL_checkint(L, 2));
 
 	const int iValue = GC.getGame().GetGameReligions()->GetFoundYear(eReligion);
 
@@ -3328,6 +3336,14 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	lua_pushinteger(L, GC.getGame().GetNumHiddenArchaeologySites());
 	return 1;
 }
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+int CvLuaGame::lExitLeaderScreen(lua_State* L)
+{
+	CvPreGame::popGameType();
+	return 0;
+}
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------

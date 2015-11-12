@@ -339,6 +339,10 @@ void CvEconomicAI::Reset()
 	m_eNavalReconState = NO_RECON_STATE;
 	m_iLastTurnWorkerDisbanded = -1;
 	m_iVisibleAntiquitySites = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iVisibleAntiquitySitesOwn = 0;
+	m_iVisibleAntiquitySitesNeutral = 0;
+#endif
 
 	// Cached AI defines
 	m_iMinimumSettleFertility = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
@@ -456,6 +460,10 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	kStream >> m_iExplorersDisbanded;
 	kStream >> m_iLastTurnWorkerDisbanded;
 	kStream >> m_iVisibleAntiquitySites;
+#if defined(MOD_BALANCE_CORE)
+	kStream >>  m_iVisibleAntiquitySitesOwn;
+	kStream >> m_iVisibleAntiquitySitesNeutral;
+#endif
 
 	kStream >> iEntriesToRead;
 	for(int i = 0; i < iEntriesToRead; i++)
@@ -517,6 +525,10 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	kStream << m_iExplorersDisbanded;
 	kStream << m_iLastTurnWorkerDisbanded;
 	kStream << m_iVisibleAntiquitySites;
+#if defined(MOD_BALANCE_CORE)
+	kStream <<  m_iVisibleAntiquitySitesOwn;
+	kStream << m_iVisibleAntiquitySitesNeutral;
+#endif
 
 	kStream << (int)m_RequestedSavings.size();
 	for(uint ui = 0; ui < m_RequestedSavings.size(); ui++)
@@ -2920,6 +2932,10 @@ void CvEconomicAI::DoReconState()
 void CvEconomicAI::DoAntiquitySites()
 {
 	int iNumSites = 0;
+#if defined(MOD_BALANCE_CORE)
+	int iNumSitesOwn = 0;
+	int iNumSitesNeutral = 0;
+#endif
 	int iPlotLoop;
 	CvPlot *pPlot;
 	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
@@ -2933,11 +2949,29 @@ void CvEconomicAI::DoAntiquitySites()
 			if (pPlot->getResourceType(m_pPlayer->getTeam()) == eArtifactResourceType ||
 				pPlot->getResourceType(m_pPlayer->getTeam()) == eHiddenArtifactResourceType)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(pPlot->getOwner() == m_pPlayer->GetID())
+				{
+					iNumSitesOwn++;
+				}
+				else if(pPlot->getOwner() == NO_PLAYER)
+				{
+					iNumSitesNeutral++;
+				}
+				else
+				{
+#endif
 				iNumSites++;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	m_iVisibleAntiquitySitesOwn =  iNumSitesOwn;
+	m_iVisibleAntiquitySitesNeutral = iNumSitesNeutral;
+#endif
 	m_iVisibleAntiquitySites = iNumSites;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -5749,12 +5783,29 @@ bool EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer)
 {
 	int iNumSites = pPlayer->GetEconomicAI()->GetVisibleAntiquitySites();
 	int iNumArchaeologists = pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
-
+#if defined(MOD_BALANCE_CORE)
+	int iNumSitesOwn = pPlayer->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory();
+	int iNumSitesNeutral = pPlayer->GetEconomicAI()->GetVisibleAntiquitySitesUnownedTerritory();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(iNumSitesOwn > iNumArchaeologists)
+	{
+		return true;
+	}
+	else if((iNumSitesOwn + iNumSitesNeutral) > (iNumArchaeologists * 2) && !pPlayer->IsAtWar())
+	{
+		return true;
+	}
+	else if((iNumSitesOwn + iNumSitesNeutral + iNumSites) > (iNumArchaeologists * 4) && !pPlayer->IsAtWar() && (iNumArchaeologists < 3))
+	{
+		return true;
+	}
+#else
 	if (iNumSites > iNumArchaeologists)
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 

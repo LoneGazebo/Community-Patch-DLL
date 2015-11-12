@@ -394,7 +394,7 @@
 		</Update>
 		<Update>
 			<Where Name="FRIENDSHIP_PER_UNIT_GIFTED" />
-			<Set Value="10" />
+			<Set Value="15" />
 			<!-- 2 -->
 		</Update>
 		<Update>

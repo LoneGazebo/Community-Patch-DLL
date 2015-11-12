@@ -4471,6 +4471,14 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 }
 
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvGame::isReallyNetworkMultiPlayer() const
+{
+	return CvPreGame::isReallyNetworkMultiPlayer();
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvGame::isNetworkMultiPlayer() const
 {
@@ -8135,7 +8143,11 @@ void CvGame::doTurn()
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
 		// Don't show this stuff in MP
+#if defined(MOD_API_EXTENSIONS)
+		if(!isReallyNetworkMultiPlayer() && !isPbem() && !isHotSeat())
+#else
 		if(!isGameMultiPlayer())
+#endif
 		{
 			int iTurnFrequency = /*25*/ GC.getPROGRESS_POPUP_TURN_FREQUENCY();
 

@@ -1322,8 +1322,19 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 					for(int iDestBelief = kReligion.m_Beliefs.GetNumBeliefs(); iDestBelief--;)
 					{
 						BeliefTypes eDestBelief = kReligion.m_Beliefs.GetBelief(iDestBelief);
+#if defined(MOD_BALANCE_CORE)
+						if(eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief)
+						{
+							CvBeliefEntry* pBelief = GC.getBeliefInfo(eDestBelief);
+							if(pBelief && pBelief->IsFounderBelief() && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
+							{
+								return FOUNDING_BELIEF_IN_USE;
+							}
+						}
+#else
 						if(eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief)
 							return FOUNDING_BELIEF_IN_USE;
+#endif
 					}
 				}
 			}
@@ -4583,6 +4594,27 @@ void CvCityReligions::DoReligionFounded(ReligionTypes eReligion)
 	m_ReligionStatus.push_back(newReligion);
 
 	RecomputeFollowers(FOLLOWER_CHANGE_RELIGION_FOUNDED, eOldMajorityReligion);
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
+	{
+		if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
+		{
+			//Notify player that his pantheon is dead.
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S");
+			Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE");
+
+			GET_PLAYER(m_pCity->getOwner()).GetNotifications()->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
+		}
+		else
+		{
+			//Notify player that his pantheon is dead.
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S_B");
+			Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_B");
+
+			GET_PLAYER(m_pCity->getOwner()).GetNotifications()->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
+		}
+	}
+#endif
 }
 
 /// Prophet spread is very powerful: eliminates all existing religions and adds to his
@@ -5526,6 +5558,11 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 		case FOLLOWER_CHANGE_ADOPT_FULLY:
 			strReasonString = "Adopt fully";
+			break;
+#endif
+#if defined(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
+		case FOLLOWER_CHANGE_PANTHEON_OBSOLETE:
+			strReasonString = "Pantheon Obsolete";
 			break;
 #endif
 		}

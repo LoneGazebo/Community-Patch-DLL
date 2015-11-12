@@ -193,64 +193,64 @@
 	</CitySpecialization_TargetYields>
 	<Defines>
 		<Row Name="FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL">
-			<Value>4</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE">
-			<Value>3</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL">
-			<Value>2</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL">
-			<Value>1</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_GOLD_FLAT_BONUS_AMOUNT_ANCIENT">
-			<Value>1</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL">
-			<Value>6</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE">
-			<Value>5</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL">
-			<Value>4</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL">
-			<Value>3</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_GOLD_FLAT_BONUS_AMOUNT_ANCIENT">
-			<Value>2</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL">
-			<Value>10</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE">
-			<Value>6</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL">
-			<Value>4</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL">
-			<Value>2</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT">
-			<Value>1</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL">
-			<Value>10</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE">
-			<Value>8</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL">
-			<Value>6</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL">
-			<Value>4</Value>
+			<Value>0</Value>
 		</Row>
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT">
-			<Value>3</Value>
+			<Value>0</Value>
 		</Row>
 	</Defines>
 </GameData>

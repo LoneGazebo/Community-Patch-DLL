@@ -1,7 +1,7 @@
 -- Arsenal of Democracy
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Arsenal of Democracy[ENDCOLOR][NEWLINE]+15% [ICON_PRODUCTION] Production when building Military Units. +20 [ICON_INFLUENCE] Influence from Military Unit gifts to City-States.'
+SET Text = '[COLOR_POSITIVE_TEXT]Arsenal of Democracy[ENDCOLOR][NEWLINE]+15% [ICON_PRODUCTION] Production towards Military Units. +10 [ICON_INFLUENCE] Influence with all known City-States when you expend [ICON_GREAT_PEOPLE] Great People.'
 WHERE Tag = 'TXT_KEY_POLICY_ARSENAL_DEMOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Capitalism
