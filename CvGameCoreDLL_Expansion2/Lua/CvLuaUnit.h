@@ -107,6 +107,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(CanCreateGreatWork, bool, pPlot);
 	LUAAPIEXTN(CreateGreatWork, bool);
+	LUAAPIEXTN(greatperson, bool);
 #endif
 
 	static int lGetExoticGoodsGoldAmount(lua_State* L);

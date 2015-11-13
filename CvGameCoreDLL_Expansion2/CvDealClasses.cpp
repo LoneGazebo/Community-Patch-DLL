@@ -1816,6 +1816,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_VOTE_COMMITMENT:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	case TRADE_ITEM_VASSALAGE:
+	case TRADE_ITEM_MAPS:
 #endif
 		return DEAL_NONRENEWABLE;
 		break;
@@ -1832,9 +1833,10 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 		// doesn't matter
 	case TRADE_ITEM_TRADE_AGREEMENT:
 	case TRADE_ITEM_GOLD:
-	case TRADE_ITEM_MAPS:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	case TRADE_ITEM_TECHS:
+#else
+	case TRADE_ITEM_MAPS:
 #endif
 	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;

@@ -2400,21 +2400,7 @@ void CvPlayerTrade::MoveUnits (void)
 						if(GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
 						{
 							int iFranchises = GET_PLAYER(pOriginCity->getOwner()).GetCorporateFranchisesWorldwide();;
-							int iBase = (int)GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetNumTradeRoutesPossible();
-							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-							iMax /= 100;
-							if(iMax > iBase)
-							{
-								iMax = iBase;
-							}
-							int iBonus = (iMax * (100 + GET_PLAYER(pOriginCity->getOwner()).GetCorporationMaxFranchises()));
-							iBonus /= 100;
-							iBonus -= iMax;
-							if(iBonus <= 0)
-							{
-								iBonus  = 1;
-							}
-							iMax += iBonus;
+							int iMax = GET_PLAYER(pOriginCity->getOwner()).GetMaxFranchises();
 							if(iFranchises < iMax)
 							{
 								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
@@ -2480,21 +2466,7 @@ void CvPlayerTrade::MoveUnits (void)
 						else if(GET_PLAYER(pDestCity->getOwner()).GetCorporateFounderID() > 0)
 						{
 							int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();;
-							int iBase = (int)GET_PLAYER(pDestCity->getOwner()).GetTrade()->GetNumTradeRoutesPossible();
-							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-							iMax /= 100;
-							if(iMax > iBase)
-							{
-								iMax = iBase;
-							}
-							int iBonus = (iMax * (100 + GET_PLAYER(pDestCity->getOwner()).GetCorporationMaxFranchises()));
-							iBonus /= 100;
-							iBonus -= iMax;
-							if(iBonus <= 0)
-							{
-								iBonus  = 1;
-							}
-							iMax += iBonus;
+							int iMax = GET_PLAYER(pDestCity->getOwner()).GetMaxFranchises();
 							if(iFranchises < iMax)
 							{
 								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
@@ -5778,21 +5750,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 						if(pOriginCity->HasOffice())
 						{
 							int iFranchises = m_pPlayer->GetCorporateFranchisesWorldwide();
-							int iBase = (int)m_pPlayer->GetTrade()->GetNumTradeRoutesPossible();
-							int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-							iMax /= 100;
-							if(iMax > iBase)
-							{
-								iMax = iBase;
-							}
-							int iBonus = (iMax * (100 + m_pPlayer->GetCorporationMaxFranchises()));
-							iBonus /= 100;
-							iBonus -= iMax;
-							if(iBonus <= 0)
-							{
-								iBonus  = 1;
-							}
-							iMax += iBonus;
+							int iMax = m_pPlayer->GetMaxFranchises();
 							//Not franchised? Let's see what we get if we franchise it.
 							if((iFranchises < iMax) && !m_pPlayer->IsOrderCorp() && !pDestCity->IsFranchised(m_pPlayer->GetID()))
 							{

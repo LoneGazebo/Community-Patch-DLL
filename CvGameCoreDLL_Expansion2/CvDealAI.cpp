@@ -3678,7 +3678,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 100 + GC.getGame().getGameTurn(); //just some base value
+	int iItemValue = 300 + GC.getGame().getGameTurn(); //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3842,6 +3842,52 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return 100000;
 		}
+		if(!bMinor)
+		{
+			if(GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
+			{
+				// find any other wars we have going
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
+					if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != eWithPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
+					{
+						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
+						{
+							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
+							if(eWarState < WAR_STATE_STALEMATE)
+							{
+								return 100000;
+							}
+							else
+							{
+								iItemValue *= 5;
+							}
+						}
+					}
+				}
+			}
+			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
+			{
+				case PLAYER_PROXIMITY_DISTANT:
+					iItemValue *= 800;
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iItemValue *= 600;
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iItemValue *= 200;
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iItemValue *= 125;
+					break;
+				default:
+					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+					iItemValue *= 100;
+					break;
+			}
+			iItemValue /= 100;
+		}
 #else
 		if(eWarProjection >= WAR_PROJECTION_GOOD)
 			iItemValue = 400;
@@ -3918,54 +3964,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_COMPETITOR)
 		{
 			iItemValue *= 500;
-			iItemValue /= 100;
-		}
-#endif
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS && !bMinor)
-		{
-			if(GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
-			{
-				// find any other wars we have going
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
-					if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != eWithPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
-					{
-						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
-						{
-							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
-							if(eWarState < WAR_STATE_STALEMATE)
-							{
-								return 100000;
-							}
-							else
-							{
-								iItemValue *= 5;
-							}
-						}
-					}
-				}
-			}
-			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
-			{
-				case PLAYER_PROXIMITY_DISTANT:
-					iItemValue *= 500;
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iItemValue *= 300;
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iItemValue *= 150;
-					break;
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iItemValue *= 90;
-					break;
-				default:
-					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-					iItemValue *= 100;
-					break;
-			}
 			iItemValue /= 100;
 		}
 #endif
@@ -4081,16 +4079,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 			{
 				case PLAYER_PROXIMITY_DISTANT:
-					iItemValue *= 25;
+					iItemValue *= 20;
 					break;
 				case PLAYER_PROXIMITY_FAR:
 					iItemValue *= 50;
 					break;
 				case PLAYER_PROXIMITY_CLOSE:
-					iItemValue *= 75;
+					iItemValue *= 150;
 					break;
 				case PLAYER_PROXIMITY_NEIGHBORS:
-					iItemValue *= 110;
+					iItemValue *= 200;
 					break;
 				default:
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
@@ -6086,7 +6084,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 #endif
 	pDeal->AddPeaceTreaty(eWinningPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	pDeal->AddPeaceTreaty(eLosingPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
-
+	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
 	{
@@ -6189,10 +6187,10 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	int iGPT = 0;
 	if (iPercentGPTToGive > 0)
 	{
-		iGPT = min(pLosingPlayer->calculateGoldRate(), pWinningPlayer->calculateGoldRate() / /*3*/ GC.getARMISTICE_GPT_DIVISOR());
+		iGPT = pLosingPlayer->calculateGoldRate();
 		if (iGPT > 0)
 		{
-			iGPT = iGPT * iPercentGPTToGive / 100;
+			iGPT = ((iGPT * iPercentGPTToGive) / 100);
 
 			if(iGPT > 0 && pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_GOLD_PER_TURN, iGPT, iDuration))
 			{
@@ -6929,7 +6927,92 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// A good time to make an offer for someone's extra strats?
+bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	CvAssert(eOtherPlayer >= 0);
+	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
+	ResourceTypes eStratFromThem = NO_RESOURCE;
+
+	// Don't ask for a Luxury if we're hostile or planning a war
+	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE ||
+	        eApproach == MAJOR_CIV_APPROACH_WAR)
+	{
+		return false;
+	}
+
+	int iResourceLoop;
+	ResourceTypes eResource;
+	int iBestValue = 0;
+
+	// precalculate, it's expensive
+	int iCurrentNetGoldOfReceivingPlayer = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+	int iRand = 0;
+	// See if the other player has a Resource to trade
+	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		eResource = (ResourceTypes) iResourceLoop;
+
+		// Only look at Strats
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+		{
+			continue;
+		}
+
+
+		// Any extras?
+		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
+		{
+			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			if(iRand <= 0)
+			{
+				iRand = 1;
+			}
+			//Let's try to get their best resource :)
+			int iItemValue = GetResourceValue(eResource, iRand, GC.getGame().GetDealDuration(), false, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
+			if((iItemValue < 100000) && (iItemValue > -100000) && iItemValue > iBestValue)
+			{
+				eStratFromThem = eResource;
+				iBestValue = iItemValue;
+			}
+		}
+	}
+
+	// Extra Strat found!
+	if(eStratFromThem != NO_RESOURCE && iRand > 0)
+	{
+		// Can we actually complete this deal?
+		if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eStratFromThem, iRand))
+		{
+			return false;
+		}
+
+		// Seed the deal with the item we want
+		pDeal->AddResourceTrade(eOtherPlayer, eStratFromThem, iRand, GC.getGame().GetDealDuration());
+
+		bool bDealAcceptable = false;
+
+		// AI evaluation
+		if(!GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			bDealAcceptable = DoEqualizeDealWithAI(pDeal, eOtherPlayer);	// Change the deal as necessary to make it work
+		}
+		else
+		{
+			bool bUselessReferenceVariable;
+			bool bCantMatchOffer;
+			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ false, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+		}
+
+		return bDealAcceptable;
+	}
+	return false;
+}
+#endif
 /// A good time to make an offer to get an embassy?
 bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {

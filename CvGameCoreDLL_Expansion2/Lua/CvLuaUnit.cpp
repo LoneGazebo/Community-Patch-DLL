@@ -107,6 +107,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(CanCreateGreatWork);
 	Method(CreateGreatWork);
+	Method(greatperson);
 #endif
 
 	Method(GetExoticGoodsGoldAmount);
@@ -1334,6 +1335,16 @@ int CvLuaUnit::lCreateGreatWork(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bResult = pkUnit->createGreatWork();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool greatperson()
+int CvLuaUnit::lgreatperson(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->greatperson();
 
 	lua_pushboolean(L, bResult);
 	return 1;

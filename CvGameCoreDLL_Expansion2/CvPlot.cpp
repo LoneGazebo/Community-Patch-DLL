@@ -12949,20 +12949,14 @@ void CvPlot::updateImpassable()
 #endif
 				m_bIsImpassable = pkTerrainInfo->isImpassable();
 #if defined(MOD_BALANCE_CORE)
+				SetTeamImpassable(eTeam, m_bIsImpassable);
+
 				if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
 				{
 					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
 					{
 						SetTeamImpassable(eTeam, false);
 					}
-					else
-					{
-						SetTeamImpassable(eTeam, true);
-					}
-				}
-				else if(m_bIsImpassable)
-				{
-					SetTeamImpassable(eTeam, true);
 				}
 			}
 #endif
@@ -12976,20 +12970,13 @@ void CvPlot::updateImpassable()
 #endif
 				m_bIsImpassable = pkFeatureInfo->isImpassable();
 #if defined(MOD_BALANCE_CORE)
+				SetTeamImpassable(eTeam, m_bIsImpassable);
 				if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
 				{
 					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
 					{
 						SetTeamImpassable(eTeam, false);
 					}
-					else
-					{
-						SetTeamImpassable(eTeam, true);
-					}
-				}
-				else if(m_bIsImpassable)
-				{
-					SetTeamImpassable(eTeam, true);
 				}
 			}
 #endif

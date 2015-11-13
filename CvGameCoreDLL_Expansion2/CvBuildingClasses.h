@@ -303,6 +303,9 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
 	bool IsPurchaseOnly() const;
+	bool IsSecondaryPantheon() const;
+	int GetGreatWorkYieldChange(int i) const;
+	int* GetGreatWorkYieldChangeArray() const;
 #endif
 	bool IsMountain() const;
 	bool IsHill() const;
@@ -652,6 +655,8 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
 	bool m_bPurchaseOnly;
+	bool m_bSecondaryPantheon;
+	int* m_piGreatWorkYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;

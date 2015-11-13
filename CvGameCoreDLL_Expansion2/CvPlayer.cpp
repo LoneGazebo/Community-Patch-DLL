@@ -11325,6 +11325,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	if(pBuildingInfo->IsSecondaryPantheon())
+	{
+		ChangeSecondReligionPantheonCount((pBuildingInfo->IsSecondaryPantheon()) ? iChange : 0);
+	}
 	if(pBuildingInfo->GetCorporationHQID() > 0 && GetCorporateFounderID() <= 0)
 	{
 		SetCorporateFounderID(pBuildingInfo->GetCorporationHQID());
@@ -11449,6 +11453,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #endif
 #if defined(MOD_BALANCE_CORE)
 		changeYieldGPExpend(((YieldTypes)iI), (pBuildingInfo->GetYieldFromGPExpend(iI) * iChange));
+		int iMod = pBuildingInfo->GetGreatWorkYieldChange(iI) * iChange;
+		if(iMod != 0)
+		{
+			ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
+		}
 #endif
 	}
 
@@ -21980,21 +21989,7 @@ void CvPlayer::DoFreedomCorp()
 		return;
 	}
 	int iFranchises = GetCorporateFranchisesWorldwide();
-	int iBase = (int)GetTrade()->GetNumTradeRoutesPossible();
-	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-	iMax /= 100;
-	if(iMax > iBase)
-	{
-		iMax = iBase;
-	}
-	int iBonus = (iMax * (100 + GetCorporationMaxFranchises()));
-	iBonus /= 100;
-	iBonus -= iMax;
-	if(iBonus <= 0)
-	{
-		iBonus  = 1;
-	}
-	iMax += iBonus;
+	int iMax = GetMaxFranchises();
 
 	CvCity* pLoopCity;
 	int iLoop;
@@ -22065,7 +22060,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
 		{
-			int iSpreadChance = GC.getGame().getJonRandNum((500 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
+			int iSpreadChance = GC.getGame().getJonRandNum((1000 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
 			if(iSpreadChance <= iBestScore)
 			{
 				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)
@@ -22127,21 +22122,7 @@ void CvPlayer::DoFreedomCorp()
 void CvPlayer::CalculateCorporateFranchisesWorldwide()
 {
 	int iFranchises = 0;
-	int iBase = (int)GetTrade()->GetNumTradeRoutesPossible();
-	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-	iMax /= 100;
-	if(iMax > iBase)
-	{
-		iMax = iBase;
-	}
-	int iBonus = (iMax * (100 + GetCorporationMaxFranchises()));
-	iBonus /= 100;
-	iBonus -= iMax;
-	if(iBonus <= 0)
-	{
-		iBonus  = 1;
-	}
-	iMax += iBonus;
+	int iMax = GetMaxFranchises();
 	if(IsOrderCorp())
 	{
 		CvCity* pLoopCity;
@@ -22257,6 +22238,30 @@ int CvPlayer::GetCorporateFranchisesWorldwide() const
 void CvPlayer::SetCorporateFranchisesWorldwide(int iChange)
 {
 	m_iCorporateFranchises = iChange;
+}
+int CvPlayer::GetMaxFranchises()
+{
+	int iBase = GetTrade()->GetNumTradeRoutesPossible();
+	iBase *= 2;
+	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
+	iMax /= 100;
+	if(iMax > iBase)
+	{
+		iMax = iBase;
+	}
+	int iBonus = 0;
+	if(GetCorporationMaxFranchises() > 0)
+	{
+		iBonus = (iMax * (100 + GetCorporationMaxFranchises()));
+		iBonus /= 100;
+		iBonus -= iMax;
+		if(iBonus <= 0)
+		{
+			iBonus  = 1;
+		}
+	}
+	iMax += iBonus;
+	return iMax;
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::AreTradeRoutesInvulnerable() const

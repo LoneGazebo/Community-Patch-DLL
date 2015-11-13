@@ -11324,7 +11324,38 @@ int CvUnit::getDiscoverAmount()
 	}
 	return iValue;
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvUnit::greatperson()
+{
+	VALIDATE_OBJECT
+	CvPlot* pPlot = plot();
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	if (!pPlayer) return false;
+	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
+	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL. Please send Anton your save file and version.");
+	if (!pTeam) return false;
 
+	if(pPlot->isActiveVisible(false))
+	{
+		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		gDLL->GameplayUnitActivate(pDllUnit.get());
+	}
+
+	if(IsGreatPerson())
+	{
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
+		pPlayer->DoGreatPersonExpended(getUnitType(), this);
+#else
+		pPlayer->DoGreatPersonExpended(getUnitType());
+#endif
+	}
+
+	kill(true);
+
+	return true;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::discover()
 {

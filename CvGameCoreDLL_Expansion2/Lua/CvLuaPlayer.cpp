@@ -674,6 +674,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentHappinessBonus);
 	Method(GetMinorCivCurrentFaithBonus);
 #if defined(MOD_BALANCE_CORE)
+	Method(IsNoAlly);
+	Method(GetPermanentAlly);
 	Method(GetMinorCivCurrentGoldBonus);
 	Method(GetMinorCivCurrentScienceBonus);
 #endif
@@ -4296,21 +4298,7 @@ int CvLuaPlayer::lGetCorporationHelper(lua_State* L)
 int CvLuaPlayer::lGetMaxFranchises(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iBase = (int)pkPlayer->GetTrade()->GetNumTradeRoutesPossible();
-	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-	iMax /= 100;
-	if(iMax > iBase)
-	{
-		iMax = iBase;
-	}
-	int iBonus = (iMax * (100 + pkPlayer->GetCorporationMaxFranchises()));
-	iBonus /= 100;
-	iBonus -= iMax;
-	if(iBonus <= 0)
-	{
-		iBonus  = 1;
-	}
-	iMax += iBonus;
+	int iMax = pkPlayer->GetMaxFranchises();
 	lua_pushinteger(L, iMax);
 	return 1;
 }
@@ -7481,6 +7469,23 @@ int CvLuaPlayer::lGetMinorCivCurrentFaithBonus(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsNoAlly(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsNoAlly();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetPermanentAlly(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetPermanentAlly();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMinorCivCurrentGoldBonus(lua_State* L)
 {

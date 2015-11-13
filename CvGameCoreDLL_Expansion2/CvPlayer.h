@@ -1277,6 +1277,8 @@ public:
 	int GetCorporateFranchisesWorldwide() const;
 	void SetCorporateFranchisesWorldwide(int iValue);
 
+	int GetMaxFranchises();
+
 	bool AreTradeRoutesInvulnerable() const;
 	void SetTradeRoutesInvulnerable(bool bValue);
 
