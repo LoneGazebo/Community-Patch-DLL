@@ -9001,8 +9001,18 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 		{
 			if(pMyReligion->m_Beliefs.GetMissionaryInfluenceCS() > 0)
 			{
-				iScore *= 4;
+				iScore *= 10;
 			}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+			if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->IsNoAlly() && GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->IsFriends(m_pPlayer->GetID()))
+			{
+				iScore /= 4;
+			}
+			if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetPermanentAlly() == m_pPlayer->GetID())
+			{
+				iScore /= 4;
+			}
+#endif
 		}
 	}
 #endif

@@ -750,6 +750,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lGetMinorCivCurrentGoldBonus(lua_State* L);
 	static int lGetMinorCivCurrentScienceBonus(lua_State* L);
+	static int lGetPermanentAlly(lua_State* L);
+	static int lIsNoAlly(lua_State* L);
 #endif
 	static int lGetCurrentCapitalFoodBonus(lua_State* L);
 	static int lGetCurrentOtherCityFoodBonus(lua_State* L);

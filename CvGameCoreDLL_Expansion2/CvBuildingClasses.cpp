@@ -183,6 +183,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 	m_bPurchaseOnly(false),
+	m_bSecondaryPantheon(false),
+	m_piGreatWorkYieldChange(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
@@ -370,6 +372,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
+	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -448,6 +451,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if (MOD_API_EXTENSIONS) {
 		m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
 		m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
+		m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -798,6 +802,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2027,6 +2032,24 @@ bool CvBuildingEntry::IsPurchaseOnly() const
 {
 	return m_bPurchaseOnly;
 }
+//Does this give us the secondary pantheon effect?
+bool CvBuildingEntry::IsSecondaryPantheon() const
+{
+	return m_bSecondaryPantheon;
+}
+/// Change to Great Work yield by type
+int CvBuildingEntry::GetGreatWorkYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGreatWorkYieldChange ? m_piGreatWorkYieldChange[i] : -1;
+}
+/// Array of yield changes to Great Works
+int* CvBuildingEntry::GetGreatWorkYieldChangeArray() const
+{
+	return m_piGreatWorkYieldChange;
+}
+
 #endif
 
 /// Must this be built in a city next to Mountain?

@@ -141,7 +141,8 @@ public:
 	bool MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS)	
+	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);

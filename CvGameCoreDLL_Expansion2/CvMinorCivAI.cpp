@@ -2262,7 +2262,6 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		sMessage = sMessage + pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
 	}
-
 	// This quest reward changed our status, so grab that info for the notification
 	if ((!bWasFriends && bNowFriends) || (!bWasAllies && bNowAllies))
 	{
@@ -2597,6 +2596,8 @@ void CvMinorCivAI::Reset()
 	m_bIsRebellionActive = 0;
 	m_bIsHordeActive = 0;
 	m_iCooldownSpawn = 0;
+	m_ePermanentAlly = NO_PLAYER;
+	m_bNoAlly = false;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnLiberated = 0;
@@ -2744,6 +2745,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_iCooldownSpawn;
 	kStream >> m_aiJerk;
 	kStream >> m_abIsMarried;
+	kStream >> m_ePermanentAlly;
+	kStream >> m_bNoAlly;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iTurnLiberated;
@@ -2831,6 +2834,8 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_iCooldownSpawn;
 	kStream << m_aiJerk;
 	kStream << m_abIsMarried;
+	kStream << m_ePermanentAlly;
+	kStream << m_bNoAlly;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iTurnLiberated;
@@ -3089,6 +3094,20 @@ void CvMinorCivAI::DoTurn()
 				{
 					DoRebellion();
 				}
+			}
+		}
+		if (MOD_DIPLOMACY_CITYSTATES)
+		{
+			if(GetPermanentAlly() != NO_PLAYER)
+			{
+				if(GetPermanentAlly() != GetAlly())
+				{
+					SetAlly(GetPermanentAlly());
+				}
+			}
+			if(IsNoAlly() && GetAlly() != NO_PLAYER)
+			{
+				SetAlly(NO_PLAYER);
 			}
 		}
 #endif
@@ -6885,6 +6904,10 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	{
 		return NO_PLAYER;
 	}
+	if(GetPermanentAlly() == ePlayer)
+	{
+		return NO_PLAYER;
+	}
 
 	int iRebelBuildUp = 0;
 
@@ -8520,7 +8543,22 @@ int CvMinorCivAI::GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer)
 /// Who has the best relations with us right now?
 PlayerTypes CvMinorCivAI::GetAlly() const
 {
+#if defined(MOD_BALANCE_CORE)
+	if(IsNoAlly())
+	{
+		return NO_PLAYER;
+	}
+	else if(GetPermanentAlly() != NO_PLAYER)
+	{
+		return GetPermanentAlly();
+	}
+	else
+	{
+#endif
 	return m_eAlly;
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 }
 
 /// Sets who has the best relations with us right now
@@ -8533,7 +8571,18 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	int iNumPlots = GC.getMap().numPlots();
 
 	PlayerTypes eOldAlly = GetAlly();
-
+#if defined(MOD_BALANCE_CORE)
+	if(IsNoAlly())
+	{
+		m_eAlly = NO_PLAYER;
+		return;
+	}
+	if(GetPermanentAlly() != NO_PLAYER && eNewAlly != GetPermanentAlly())
+	{
+		m_eAlly = GetPermanentAlly();
+		return;
+	}
+#endif
 	int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
 
 	if(eOldAlly != NO_PLAYER)
@@ -8917,12 +8966,32 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	// Resolve Allies status
 	bool bWasAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iOldFriendship);
 	bool bNowAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iNewFriendship);
-
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool bOverride = false;
+	if(MOD_DIPLOMACY_CITYSTATES)
+	{
+		if(GetPermanentAlly() != NO_PLAYER && GetPermanentAlly() != ePlayer)
+		{
+			bNowAboveAlliesThreshold = false;
+			bOverride= true;
+		}
+		if(IsNoAlly())
+		{
+			bNowAboveAlliesThreshold = false;
+			bOverride = true;
+		}
+	}
+#endif
 	PlayerTypes eOldAlly = GetAlly();
 
 	// No old ally and our friendship is now above the threshold, OR our friendship is now higher than a previous ally
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if((eOldAlly == NO_PLAYER && bNowAboveAlliesThreshold)
+	        || ((eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)) && !bOverride))
+#else
 	if((eOldAlly == NO_PLAYER && bNowAboveAlliesThreshold)
 	        || (eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)))
+#endif
 	{
 		bAdd = true;
 		bAllies = true;
@@ -8950,7 +9019,11 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #endif
 	}
 	// Remove Allies bonus
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold && !bOverride)
+#else
 	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
+#endif
 	{
 		bAdd = false;
 		bAllies = true;
@@ -9544,9 +9617,19 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	}
 
 	// Influence for liberator - raise to ally status
-	int iNewInfluence = max(iHighestOtherMajorInfluence + GC.getMINOR_LIBERATION_FRIENDSHIP(), GetBaseFriendshipWithMajor(eLiberator) + GC.getMINOR_LIBERATION_FRIENDSHIP());
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int iNewInfluence = 0;
+	if(MOD_DIPLOMACY_CITYSTATES && (IsNoAlly() || GetPermanentAlly() != NO_PLAYER))
+	{
+		iNewInfluence = (GetFriendsThreshold() + 10); // Must be at least enough to make us allies
+	}
+	else
+	{
+#endif
+	iNewInfluence = max(iHighestOtherMajorInfluence + GC.getMINOR_LIBERATION_FRIENDSHIP(), GetBaseFriendshipWithMajor(eLiberator) + GC.getMINOR_LIBERATION_FRIENDSHIP());
 	iNewInfluence = max(GetAlliesThreshold(), iNewInfluence); // Must be at least enough to make us allies
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	}
 	//Was this liberated from a barbarian? Less influence for you!
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && GET_PLAYER(BARBARIAN_PLAYER).getTeam() == eConquerorTeam)
 	{
@@ -13686,6 +13769,27 @@ void CvMinorCivAI::SetJerk(TeamTypes eTeam, int iValue)
 {
 	if(GetJerk(eTeam) != iValue)
 		m_aiJerk[eTeam] = iValue;
+}
+
+PlayerTypes CvMinorCivAI::GetPermanentAlly() const
+{
+	return m_ePermanentAlly;
+}
+void CvMinorCivAI::SetPermanentAlly(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= NO_PLAYER, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+
+	m_ePermanentAlly = ePlayer;
+}
+
+bool CvMinorCivAI::IsNoAlly() const
+{
+	return m_bNoAlly;
+}
+void CvMinorCivAI::SetNoAlly(bool bValue)
+{
+	m_bNoAlly = bValue;
 }
 #endif
 

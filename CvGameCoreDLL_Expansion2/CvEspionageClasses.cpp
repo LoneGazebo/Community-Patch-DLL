@@ -3674,6 +3674,12 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 
 	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
 	PlayerTypes eMinorCivAlly = pMinorCivAI->GetAlly();
+#if defined(MOD_BALANCE_CORE)
+	if(pMinorCivAI->GetPermanentAlly() == eMinorCivAlly)
+	{
+		return false;
+	}
+#endif
 
 	if(eMinorCivAlly != NO_PLAYER && eMinorCivAlly != m_pPlayer->GetID())
 	{

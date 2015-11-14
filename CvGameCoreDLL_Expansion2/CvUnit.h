@@ -386,7 +386,9 @@ public:
 #else
 	int GetConversionStrength() const;
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	bool greatperson();
+#endif
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getDiscoverAmount();
 	bool discover();

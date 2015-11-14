@@ -12567,7 +12567,7 @@ int CvTacticalAI::GetRecruitRange() const
 {
 	int iResult = m_iRecruitRange;
 	//add some for duration
-	iResult += (4*GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
+	iResult += (4*GC.getGame().getGameTurn()) / max(400, GC.getGame().getMaxTurns());
 	//add some for map size
 	if (GC.getMap().getWorldSize() == WORLDSIZE_LARGE)
 		iResult += 1;

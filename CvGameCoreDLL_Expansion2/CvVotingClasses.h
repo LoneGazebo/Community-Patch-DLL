@@ -136,8 +136,9 @@ struct CvResolutionEffects
 	int iGreatPersonTileImprovementCulture;
 	int iLandmarkCulture;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	bool bRaiseCityStateInfluenceToAlly;
-	bool bRaiseCityStateInfluenceToFriend;
+	bool bOpenDoor;
+	bool bSphereOfInfluence;
+	bool bDecolonization;
 	int iLimitSpaceshipProduction;
 	int iLimitSpaceshipPurchase;
 	int iIsWorldWar;
@@ -1293,8 +1294,9 @@ public:
 	int GetGreatPersonTileImprovementCulture() const;
 	int GetLandmarkCulture() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	bool IsRaiseCityStateInfluenceToAlly() const;
-	bool IsRaiseCityStateInfluenceToFriend() const;
+	bool IsOpenDoor() const;
+	bool IsSphereOfInfluence() const;
+	bool IsDecolonization() const;
 	int GetSpaceShipProductionMod() const;
 	int GetSpaceShipPurchaseMod() const;
 	int GetWorldWar() const;
@@ -1345,8 +1347,9 @@ protected:
 	int m_iTourismMod;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	bool m_bRaiseCityStateInfluenceToAlly;
-	bool m_bRaiseCityStateInfluenceToFriend;
+	bool m_bOpenDoor;
+	bool m_bSphereOfInfluence;
+	bool m_bDecolonization;
 	int m_iSpaceshipProductionMod;
 	int m_iSpaceshipPurchaseMod;
 	int m_iIsWorldWar;

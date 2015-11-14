@@ -2061,7 +2061,14 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		return 0;
 	}
 #endif
-
+	if(pMinorCivAI->IsNoAlly() && pMinorCivAI->IsFriends(GetID()))
+	{
+		return 0;
+	}
+	if(pMinorCivAI->GetPermanentAlly() == GetID())
+	{
+		return 0;
+	}
 	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
 	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
 	{

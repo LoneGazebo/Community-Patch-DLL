@@ -635,6 +635,12 @@ public:
 	int GetJerk(TeamTypes eTeam) const;
 	void SetJerk(TeamTypes eTeam, int iValue);
 	void ChangeJerk(TeamTypes eTeam, int iChange);
+
+	PlayerTypes GetPermanentAlly() const;
+	void SetPermanentAlly(PlayerTypes ePlayer);
+
+	bool IsNoAlly() const;
+	void SetNoAlly(bool bValue);
 #endif
 
 	// ******************************
@@ -690,6 +696,8 @@ private:
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	int m_aiJerk[REALLY_MAX_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
+	PlayerTypes m_ePermanentAlly;
+	bool m_bNoAlly;
 #endif
 
 	PlayerTypes m_eAlly;

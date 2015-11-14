@@ -9752,12 +9752,16 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				iNumCivs++;
 			}
 		}
-		iLoyalty = ((iLoyalty * iNumCivs) / 25);
+		iLoyalty = ((iLoyalty * iNumCivs) / 40);
+		if(iLoyalty <= 0)
+		{
+			iLoyalty = 1;
+		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		//Halve this to encourage more DPs below.
+		//Increase this to encourage more DPs below.
 		if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDefensePactsToVotes() > 0)
 		{
-			iLoyalty *= 2;
+			iLoyalty *= iNumCivs;
 		}
 #endif
 		if(iLoyalty > 0)
@@ -14967,6 +14971,25 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	// Player has a SR we'd like
+	else if(eStatement == DIPLO_STATEMENT_STRATEGIC_TRADE)
+	{
+		// Active human
+		if(bShouldShowLeaderScene)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_STRATEGIC_TRADE);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
 	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST)
 	{
 		if(bShouldShowLeaderScene)
@@ -15466,6 +15489,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(MOD_BALANCE_CORE_DEALS)
 		{
+			DoStrategicTrade(ePlayer, eStatement, pDeal);
 			DoDefensivePactOffer(ePlayer, eStatement, pDeal);
 			DoCityTrade(ePlayer, eStatement, pDeal);
 			DoCityExchange(ePlayer, eStatement, pDeal);
@@ -15614,18 +15638,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 #if defined(MOD_BALANCE_CORE)
 	if(GetPlayer()->IsDiplomaticMarriage())
 	{
-		if(IsGoingForDiploVictory() || IsGoingForCultureVictory())
-		{
-			bWantsToBuyout = true;
-		}
-		else
-		{
-			int iThreshold = iExpansionFlavor * 5; //antonjs: todo: xml
-			int iRandRoll = GC.getGame().getJonRandNum(100, "Diplomacy AI: good turn to buyout a minor?");
-
-			if(iRandRoll < iThreshold)
-				bWantsToBuyout = true;
-		}
+		//Always yes please
+		bWantsToBuyout = true;
 	}
 #endif
 
@@ -16067,6 +16081,16 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			// Calculate desirability to give this minor gold
 			if(bWantsToMakeGoldGift && !bWantsToBuyoutThisMinor)
 			{
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+				if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly())
+				{
+					continue;
+				}
+				if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() == GetPlayer()->GetID())
+				{
+					continue;
+				}
+#endif
 				int iValue = /*100*/ GC.getMC_GIFT_WEIGHT_THRESHOLD();
 				// If we're not protective or friendly, then don't bother with minor diplo
 				if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE || eApproach == MINOR_CIV_APPROACH_FRIENDLY)
@@ -16429,14 +16453,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					iGoldLeft -= iBuyoutCost;
 					break; // Don't buyout more than once in a single turn
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
-				{
-					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoMarriage(eID);
-					iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
-					iGoldLeft -= iBuyoutCost;
-				}
-#endif
 				else
 				{
 					CvAssertMsg(false, "Chose a minor to buyout that cannot actually be bought! Please send Anton your save file and version.");
@@ -16452,6 +16468,32 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, iPriority);
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
+			if(iGoldLeft >= iBuyoutCost)
+			{
+				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
+				{
+					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoMarriage(eID);
+					iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
+					iGoldLeft -= iBuyoutCost;
+				}
+				else
+				{
+					CvAssertMsg(false, "Chose a minor to buyout that cannot actually be bought! Please send Anton your save file and version.");
+				}
+			}
+			else
+			{
+				if(!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+				{
+					LogMinorCivBuyout(eLoopMinor, iBuyoutCost, /*bSaving*/ true);
+
+					int iPriority = GC.getAI_GOLD_PRIORITY_BUYOUT_CITY_STATE();
+					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, iPriority);
+				}
+			}
+#endif
 		}
 	}
 
@@ -17801,6 +17843,30 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 	}
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
+/// Possible Contact Statement - Strategic Resource Ask
+void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	{
+		if(GetPlayer()->GetDealAI()->IsMakeOfferForStrategicResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		{
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STRATEGIC_TRADE;
+			int iTurnsBetweenStatements = 20;
+
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				eStatement = eTempStatement;
+		}
+		else
+		{
+			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+			pDeal->ClearItems();
+		}
+	}
+}
+
 /// Possible Contact Statement - Defensive Pact Offer
 void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
@@ -19561,7 +19627,7 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 						}
 					}
 				}
-				if(iMessageMax >= iTurnsBetweenStatements)
+				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
 #else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 #endif
@@ -19611,7 +19677,7 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 						}
 					}
 				}
-				if(iMessageMax >= iTurnsBetweenStatements)
+				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
 #else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 #endif
@@ -19661,7 +19727,7 @@ void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStateme
 						}
 					}
 				}
-				if(iMessageMax >= iTurnsBetweenStatements)
+				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
 #else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 #endif
@@ -19711,7 +19777,7 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 						}
 					}
 				}
-				if(iMessageMax >= iTurnsBetweenStatements)
+				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
 #else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 #endif
@@ -20109,6 +20175,10 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		break;
 #if defined(MOD_BALANCE_CORE)
+	// AI wants a Luxury someone has
+	case DIPLO_MESSAGE_STRATEGIC_TRADE:
+		strText = GetDiploTextFromTag("RESPONSE_STRATEGIC_TRADE");
+		break;
 	case DIPLO_MESSAGE_DOF_UNTRUSTWORTHY:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_UNTRUSTWORTHY");
 		break;
@@ -33473,6 +33543,10 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			break;
 		case DIPLO_STATEMENT_DOF_UNTRUSTWORTHY:
 			strTemp.Format("DOF offer - Untrustworthy");
+			break;
+
+		case DIPLO_STATEMENT_STRATEGIC_TRADE:
+			strTemp.Format("Strategic Resource Trade");
 			break;
 
 		case DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST:
