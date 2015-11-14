@@ -129,6 +129,7 @@ public:
 
 	bool isLake() const;
 	bool isFreshWater() const;
+	void updateFreshwater();
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
 	bool isRiverSide() const;
@@ -146,7 +147,7 @@ public:
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
-	void updateSeeFromSight(bool bIncrement);
+	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
 #if defined(MOD_API_EXTENSIONS)
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
@@ -1093,7 +1094,8 @@ protected:
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsAdjacentToLand:1;				// Cached value, do not serialize
-	bool m_bIsImpassable:1;					// Cached value, do not serialize
+	bool m_bIsImpassable:1;
+	bool m_bIsFreshwater:1;
 
 	CvArchaeologyData m_kArchaeologyData;
 

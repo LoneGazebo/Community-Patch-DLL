@@ -258,6 +258,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsAdjacentToLand = false;
 	m_bIsImpassable = false;
+	m_bIsFreshwater = false;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_bImprovementEmbassy = false;
 #endif
@@ -1147,20 +1148,23 @@ bool CvPlot::isLake() const
 // XXX precalculate this???
 bool CvPlot::isFreshWater() const
 {
-#if !defined(MOD_BALANCE_CORE)
-	CvPlot* pLoopPlot;
-	int iDX, iDY;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(isWater() || isImpassable(BARBARIAN_TEAM) || isMountain())
-#else
-	if(isWater() || isImpassable() || isMountain())
-#endif
-		return false;
+	return m_bIsFreshwater;
+}
 
-#if defined(MOD_BALANCE_CORE)
+void CvPlot::updateFreshwater()
+{
+	m_bIsFreshwater = false;
+
+	if(isWater() || isImpassable() || isMountain())
+	{
+		return;
+	}
+
 	if(isRiver())
-		return true;
+	{
+		m_bIsFreshwater = true;
+		return;
+	}
 
 	//now the more complex checks
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1173,7 +1177,8 @@ bool CvPlot::isFreshWater() const
 		{
 			if(pLoopPlot->isLake())
 			{
-				return true;
+				m_bIsFreshwater = true;
+				return;
 			}
 
 			FeatureTypes feature_type = pLoopPlot->getFeatureType();
@@ -1182,7 +1187,8 @@ bool CvPlot::isFreshWater() const
 			{
 				if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
 				{
-					return true;
+					m_bIsFreshwater = true;
+					return;
 				}
 			}
 
@@ -1193,75 +1199,21 @@ bool CvPlot::isFreshWater() const
 			{
 				if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
 				{
-					return true;
+					m_bIsFreshwater = true;
+					return;
 				}
 			}
 
 			if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
 			{
-				return true;
+				m_bIsFreshwater = true;
+				return;
 			}
 #endif
 		}
 	}
-
-	return false;
-}
-#else
-	if(isRiver())
-	{
-		return true;
-	}
-
-	for(iDX = -1; iDX <= 1; iDX++)
-	{
-		for(iDY = -1; iDY <= 1; iDY++)
-		{
-			pLoopPlot	= plotXYWithRangeCheck(getX(), getY(), iDX, iDY, 1);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->isLake())
-				{
-					return true;
-				}
-
-				FeatureTypes feature_type = pLoopPlot->getFeatureType();
-
-				if(feature_type != NO_FEATURE)
-				{
-					if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
-					{
-						return true;
-					}
-				}
-
-#if defined(MOD_API_EXTENSIONS)
-				ImprovementTypes improvement_type = pLoopPlot->getImprovementType();
-
-				if(improvement_type != NO_IMPROVEMENT)
-				{
-					if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
-					{
-						return true;
-					}
-				}
-
-				if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
-				{
-					return true;
-				}
-#endif
-			}
-		}
-	}
-
-	return false;
 }
 
-
-
-#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverCrossingFlowClockwise(DirectionTypes eDirection) const
 {
@@ -1966,7 +1918,7 @@ void CvPlot::updateSight(bool bIncrement)
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::updateSeeFromSight(bool bIncrement)
+void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 {
 	CvPlot* pLoopPlot;
 	int iDX, iDY;
@@ -2006,7 +1958,8 @@ void CvPlot::updateSeeFromSight(bool bIncrement)
 				pLoopPlot->updateSight(bIncrement);
 
 #if defined(MOD_BALANCE_CORE)
-				pLoopPlot->UpdatePlotsWithLOS();
+				if (bRecalculate)
+					pLoopPlot->UpdatePlotsWithLOS();
 #endif
 			}
 		}
@@ -6279,7 +6232,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 
 		bWasWater = isWater();
 
-		updateSeeFromSight(false);
+		updateSeeFromSight(false,bRecalculate);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
@@ -6294,7 +6247,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		updateImpassable();
 #endif
 
-		updateSeeFromSight(true);
+		updateSeeFromSight(true,bRecalculate);
 
 		if((getTerrainType() == NO_TERRAIN) || (GC.getTerrainInfo(getTerrainType())->isWater() != isWater()))
 		{
@@ -6530,7 +6483,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 
 		if(bUpdateSight)
 		{
-			updateSeeFromSight(false);
+			updateSeeFromSight(false,bRecalculate);
 		}
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -6559,7 +6512,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 
 		if(bUpdateSight)
 		{
-			updateSeeFromSight(true);
+			updateSeeFromSight(true,bRecalculate);
 		}
 
 		const bool bTypeIsWater = GC.getTerrainInfo(getTerrainType())->isWater();
@@ -6595,7 +6548,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 		if(bUpdateSight)
 		{
-			updateSeeFromSight(false);
+			updateSeeFromSight(false,true);
 		}
 
 		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
@@ -6626,7 +6579,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 		if(bUpdateSight)
 		{
-			updateSeeFromSight(true);
+			updateSeeFromSight(true,true);
 		}
 		m_iFeatureVariety = iVariety;
 
@@ -11542,6 +11495,8 @@ void CvPlot::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> bitPackWorkaround;
 	m_bIsImpassable = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_bIsFreshwater = bitPackWorkaround;
 #endif
 
 	kStream >> m_eOwner;
@@ -11676,8 +11631,6 @@ void CvPlot::read(FDataStream& kStream)
 
 	kStream >> m_cContinentType;
 	kStream >> m_kArchaeologyData;
-
-	updateImpassable();
 }
 
 //	--------------------------------------------------------------------------------
@@ -11729,6 +11682,7 @@ void CvPlot::write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsImpassable;
+	kStream << m_bIsFreshwater;
 #endif
 	// m_bPlotLayoutDirty not saved
 	// m_bLayoutStateWorked not saved

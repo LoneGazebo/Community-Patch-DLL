@@ -362,7 +362,6 @@ private:
 #else
 	void ExecuteWorkerMoves();
 #endif
-	bool ExecuteWorkerSeaMoves(CvHomelandTarget target, CvPlot* pTarget);
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
 	void ExecutePatrolMoves();
@@ -395,7 +394,6 @@ private:
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
 	void EliminateAdjacentHomelandRoads();
-	bool FindWorkersInSameArea(CvPlot* pTarget, BuildTypes eBuild);
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvPlot* FindPatrolTarget(CvUnit* pUnit);
 	bool GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
@@ -404,7 +402,6 @@ private:
 	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
 	bool MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand=true);
 #endif
-	CvCity* ChooseBestFreeWonderCity(BuildingTypes eWonder, UnitHandle pEngineer);
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 	void UnitProcessed(int iID);
 #if defined(MOD_AI_SECONDARY_WORKERS)

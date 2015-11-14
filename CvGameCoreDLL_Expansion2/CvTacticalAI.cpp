@@ -4141,8 +4141,6 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 	// Find primary target for zone (i.e. enemy city)
 	CvTacticalTarget target;
 	CvPlot* pTarget;
-	bool bAttackUnderway;
-	bool bAttackMade;
 
 	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
 	if(pZone->GetClosestCity() != NULL)
@@ -4155,40 +4153,13 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 		target.SetTargetX(pZone->GetClosestCity()->plot()->getX());
 		target.SetTargetY(pZone->GetClosestCity()->plot()->getY());
 		target.SetDominanceZone(pZone->GetDominanceZoneID());
-
-		m_pMap->ClearDynamicFlags();
 		pTarget = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
-		m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
 
 		// Attack primary target (city)
-		bAttackUnderway = ExecuteSafeBombards(target);
+		ExecuteSafeBombards(target);
 		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
 		{
-#if defined(MOD_BALANCE_CORE)
-			bAttackMade = PlotDamageCityMoves();
-#else
-			bAttackMade = PlotCaptureCityMoves();
-#endif
-			if(bAttackMade)
-			{
-				bAttackUnderway = true;
-			}
-			if(target.IsTargetStillAlive(m_pPlayer->GetID()))
-			{
-				bAttackMade = ExecuteProtectedBombards(target, bAttackUnderway);
-				if(bAttackMade)
-				{
-					bAttackUnderway = true;
-				}
-				if(target.IsTargetStillAlive(m_pPlayer->GetID()))
-				{
-#if defined(MOD_BALANCE_CORE)
-					PlotDamageCityMoves();
-#else
-					PlotCaptureCityMoves();
-#endif
-				}
-			}
+			PlotDamageCityMoves();
 		}
 
 		// Attack ancillary target (nearby units)
@@ -4201,15 +4172,8 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 			{
 				if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
 				{
-					m_pMap->ClearDynamicFlags();
 					pTarget = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
-					m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
-					bAttackUnderway = ExecuteSafeBombards(m_ZoneTargets[iI]);
-					if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-					{
-						ExecuteProtectedBombards(m_ZoneTargets[iI], bAttackUnderway);
-					}
+					ExecuteSafeBombards(m_ZoneTargets[iI]);
 				}
 			}
 		}
@@ -4222,7 +4186,6 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 void CvTacticalAI::PlotAttritFromRangeMoves()
 {
 	CvPlot* pTarget;
-	bool bAttackUnderway;
 
 	// Find unit targets
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
@@ -4234,15 +4197,8 @@ void CvTacticalAI::PlotAttritFromRangeMoves()
 		{
 			if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
 			{
-				m_pMap->ClearDynamicFlags();
 				pTarget = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
-				m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
-				bAttackUnderway = ExecuteSafeBombards(m_ZoneTargets[iI]);
-				if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-				{
-					ExecuteProtectedBombards(m_ZoneTargets[iI], bAttackUnderway);
-				}
+				ExecuteSafeBombards(m_ZoneTargets[iI]);
 			}
 		}
 	}
@@ -6731,7 +6687,6 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperatio
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int iRange = 3;
 	std::vector<CvPlot*> vInterestingTargets;
 
@@ -6780,96 +6735,6 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		}
 		pUnit = pArmy->GetNextUnit();
 	}
-#else
-	bool bEnemyNear = false;
-	CvPlot* pPlot;
-	int iRange = 2;
-	bool bAttackUnderway;
-	bool bAttackMade = false;
-	UnitHandle pUnit;
-
-	// Loop through all appropriate targets to see if any is of concern
-	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
-	{
-		// Is the target of an appropriate type?
-		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT
-				)
-		{
-			// Is this unit near enough?
-			if(plotDistance(pArmy->GetX(), pArmy->GetY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY()) <= iRange)
-			{
-				bEnemyNear = true;
-				break;
-			}
-		}
-	}
-
-	if(bEnemyNear)
-	{
-		// Add units from army to tactical AI for this turn
-		pUnit = pArmy->GetFirstUnit();
-		while(pUnit)
-		{
-			if(!pUnit->TurnProcessed() && !pUnit->isDelayedDeath() && pUnit->canMove())
-			{
-				if(std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pUnit->GetID()) == m_CurrentTurnUnits.end())
-				{
-					m_CurrentTurnUnits.push_back(pUnit->GetID());
-				}
-			}
-			pUnit = pArmy->GetNextUnit();
-		}
-
-		// Now attack these targets
-		for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
-		{
-			// Is the target of an appropriate type?
-			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-			        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT
-					)
-			{
-				if(m_AllTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-				{
-					// Is this unit near enough?
-					if(plotDistance(pArmy->GetX(), pArmy->GetY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY()) <= iRange)
-					{
-						pPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
-
-						m_pMap->ClearDynamicFlags();
-						m_pMap->SetTargetBombardCells(pPlot, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
-						bAttackUnderway = ExecuteSafeBombards(m_AllTargets[iI]);
-						if(m_AllTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-						{
-							bAttackMade = ExecuteProtectedBombards(m_AllTargets[iI], bAttackUnderway);
-						}
-						if(bAttackMade)
-						{
-							bAttackUnderway = true;
-						}
-						if(m_AllTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-						{
-							UnitHandle pDefender = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-							if(pDefender)
-							{
-								m_AllTargets[iI].SetAuxIntData(pDefender->GetCurrHitPoints());
-								m_CurrentMoveCities.clear();
-								if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */))
-								{
-									ComputeTotalExpectedDamage(&m_AllTargets[iI], pPlot);
-									ExecuteAttack(&m_AllTargets[iI], pPlot, true /*bInflictWhatWeTake*/, true /*bMustSurviveAttack*/);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 }
 
 /// Store off a new unit that needs to move as part of an operational AI formation
@@ -10632,277 +10497,6 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 
 }
 
-/// Bombard an enemy target from plots we can protect from enemy attack (return true if some attack made)
-bool CvTacticalAI::ExecuteProtectedBombards(CvTacticalTarget& kTarget, bool bAttackUnderway)
-{
-	bool bAttackMade = true;
-	bool bAtLeastOneAttackInitiated = false;
-
-	while(bAttackMade && kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
-	{
-		bAttackMade = ExecuteOneProtectedBombard(kTarget);
-		if(bAttackMade)
-		{
-			bAttackUnderway = true;
-			bAtLeastOneAttackInitiated = true;
-		}
-	}
-	return bAtLeastOneAttackInitiated;
-}
-
-/// Bombard an enemy target from a single plot we can protect from enemy attack (return true if some attack made)
-bool CvTacticalAI::ExecuteOneProtectedBombard(CvTacticalTarget& kTarget)
-{
-	UnitHandle pFirstAttacker;
-	int iDX, iDY;
-	CvPlot* pAttackPlot;
-	int iPlotIndex;
-	CvTacticalAnalysisCell* pCell;
-	int iPriority;
-	int iNumTurns;
-	int iNumUnitsRequiredToCover;
-
-	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
-	if(PlotAlreadyTargeted(pTargetPlot) != -1)
-	{
-		return false;
-	}
-
-	CvCity* pCity = pTargetPlot->getPlotCity();
-	if(pCity != NULL)
-	{
-		int iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
-
-		// Can't eliminate a city with ranged fire, so don't target one if that low on health
-		if(iRequiredDamage <= 1)
-		{
-			return false;
-		}
-	}
-
-	int iRange = m_pMap->GetBestFriendlyRange();
-	m_TempTargets.clear();
-
-	// Build a list of all plots that have LOS to target where no enemy unit is adjacent
-	for(iDX = -(iRange); iDX <= iRange; iDX++)
-	{
-		for(iDY = -(iRange); iDY <= iRange; iDY++)
-		{
-			pAttackPlot = plotXY(kTarget.GetTargetX(), kTarget.GetTargetY(), iDX, iDY);
-			if(pAttackPlot != NULL)
-			{
-				int iPlotDistance = plotDistance(pAttackPlot->getX(), pAttackPlot->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
-				if(iPlotDistance > 0 && iPlotDistance <= iRange)
-				{
-					iPlotIndex = GC.getMap().plotNum(pAttackPlot->getX(), pAttackPlot->getY());
-					pCell = m_pMap->GetCell(iPlotIndex);
-					if(pCell->IsRevealed() && pCell->CanUseForOperationGathering())
-					{
-						if(pCell->IsWithinRangeOfTarget())
-						{
-							// Check for adjacent enemy unit
-							CvPlot* pLoopPlot;
-							bool bNoEnemyAdjacent = true;
-							for(int iI = 0; iI < NUM_DIRECTION_TYPES && bNoEnemyAdjacent; iI++)
-							{
-								pLoopPlot = plotDirection(pAttackPlot->getX(), pAttackPlot->getY(), ((DirectionTypes)iI));
-								if(pLoopPlot != NULL)
-								{
-									iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-									if(m_pMap->GetCell(iPlotIndex)->GetEnemyMilitaryUnit() != NULL)
-									{
-										bNoEnemyAdjacent = false;
-									}
-								}
-							}
-
-							if(bNoEnemyAdjacent)
-							{
-								// Do we have a unit that can get off a bombard from here THIS turn
-								iNumTurns = -1;
-								bool bHaveLOS = pAttackPlot->canSeePlot(pTargetPlot, m_pPlayer->getTeam(), iRange, NO_DIRECTION);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-								if(FindClosestUnit(pAttackPlot, 0, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot, 1 /*iMaxUnits*/))
-								{
-									iNumTurns = 0;
-								}
-								// What about next turn?
-								else if (FindClosestUnit(pAttackPlot, 1, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/, false/*bIgnoreUnits*/, pTargetPlot, 1 /*iMaxUnits*/))
-								{
-									iNumTurns = 1;
-								}
-#else
-								if(FindClosestUnit(pAttackPlot, 0, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot))
-								{
-									iNumTurns = 0;
-								}
-								// What about next turn?
-								else if(FindClosestUnit(pAttackPlot, 1, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/,  pTargetPlot))
-								{
-									iNumTurns = 1;
-								}
-#endif
-								// If found a unit that could get here, see if we can cover the hex from enemy attack
-								if(iNumTurns >= 0)
-								{
-									if(CanCoverFromEnemy(pAttackPlot, iNumUnitsRequiredToCover, m_CurrentMoveUnits[0].GetID()))
-									{
-										CvTacticalTarget target;
-										target.SetTargetX(pAttackPlot->getX());
-										target.SetTargetY(pAttackPlot->getY());
-
-										// How desirable is this move?
-										// Set up math so having to allocate 3 extra units to defend is worse than waiting a turn to attack
-										iPriority = 300 - (iNumTurns * 100);
-										iPriority -= 40 * iNumUnitsRequiredToCover;
-										target.SetAuxIntData(iPriority);
-										m_TempTargets.push_back(target);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// No plots to shoot from?
-	if(m_TempTargets.size() == 0)
-	{
-		return false;
-	}
-
-	// Sort potential spots
-	std::stable_sort(m_TempTargets.begin(), m_TempTargets.end());
-
-	// Have to rebuild blocking position info for this specific spot
-	pAttackPlot = GC.getMap().plot(m_TempTargets[0].GetTargetX(), m_TempTargets[0].GetTargetY());
-	int iPlotDistance = plotDistance(pAttackPlot->getX(), pAttackPlot->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
-	bool bHaveLOS = pAttackPlot->canSeePlot(pTargetPlot, m_pPlayer->getTeam(), iRange, NO_DIRECTION);
-#if defined(MOD_BALANCE_CORE)
-	if(FindClosestUnit(pAttackPlot, 0, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot, 1) ||
-		FindClosestUnit(pAttackPlot, 1, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot, 1))
-#else
-	if(FindClosestUnit(pAttackPlot, 0, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot) ||
-	        FindClosestUnit(pAttackPlot, 1, false/*bMustHaveHalfHP*/, true /*bMustBeRangedUnit*/, iPlotDistance, !bHaveLOS, false/*bMustBeMeleeUnit*/,  false/*bIgnoreUnits*/, pTargetPlot))
-#endif
-	{
-		int iAttackingUnitID = m_CurrentMoveUnits[0].GetID();
-		if(pAttackPlot && CanCoverFromEnemy(pAttackPlot, iNumUnitsRequiredToCover, iAttackingUnitID))
-		{
-			// Make each blocking move
-			for(unsigned int iI = 0; iI < m_ChosenBlocks.size(); iI++)
-			{
-				CvUnit* pChosenUnit = m_pPlayer->getUnit(m_ChosenBlocks[iI].GetUnitID());
-				if(pChosenUnit)
-				{
-					if (pChosenUnit->plot() != m_ChosenBlocks[iI].GetPlot())
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Moving to cover a protected bombard with %s, X: %d, Y: %d", pChosenUnit->getName().GetCString(),
-								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-							LogTacticalMessage(strMsg, false);
-						}
-						pChosenUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-					}
-					else if (pChosenUnit->canPillage(pChosenUnit->plot()) && pChosenUnit->getDamage() > 0)
-					{
-						pChosenUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Pillaging during a protected bombard with %s, X: %d, Y: %d", pChosenUnit->getName().GetCString(),
-								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-							LogTacticalMessage(strMsg, false);
-						}
-					}
-					else if(pChosenUnit->canFortify(pChosenUnit->plot()))
-					{
-						pChosenUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Fortifying during a protected bombard with %s, X: %d, Y: %d", pChosenUnit->getName().GetCString(),
-								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-							LogTacticalMessage(strMsg, false);
-						}
-					}
-					else
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Sitting during a protected bombard with %s, X: %d, Y: %d", pChosenUnit->getName().GetCString(),
-								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-							LogTacticalMessage(strMsg, false);
-						}
-					}
-					pChosenUnit->finishMoves();
-					UnitProcessed(pChosenUnit->GetID());
-				}
-			}
-
-			// Then move the attacking unit
-			CvUnit* pUnit = m_pPlayer->getUnit(iAttackingUnitID);
-			if(pUnit)
-			{
-				if(pAttackPlot != pUnit->plot())
-				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAttackPlot->getX(), pAttackPlot->getY());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Moving closer for protected bombard with %s, Target X: %d, Target Y: %d, At X: %d, At Y: %d", pUnit->getName().GetCString(),
-						              pAttackPlot->getX(), pAttackPlot->getY(), pUnit->getX(), pUnit->getY());
-						LogTacticalMessage(strMsg, false);
-					}
-				}
-
-				UnitProcessed(iAttackingUnitID);
-
-				if(pUnit->canSetUpForRangedAttack(NULL))
-				{
-					pUnit->setSetUpForRangedAttack(true);
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Set up %s for ranged attack", pUnit->getName().GetCString());
-						LogTacticalMessage(strMsg, false);
-					}
-				}
-
-				if(pUnit->canMove() && !pUnit->isOutOfAttacks() && pUnit->canRangeStrikeAt(kTarget.GetTargetX(), kTarget.GetTargetY()))
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Making a protected bombard with %s, Target X: %d, Target Y: %d, At X: %d, At Y: %d", pUnit->getName().GetCString(),
-						              kTarget.GetTargetX(), kTarget.GetTargetY(), pUnit->getX(), pUnit->getY());
-						LogTacticalMessage(strMsg, false);
-					}
-
-					if(QueueAttack((void*)pUnit, &kTarget, true /*bRanged*/, false /*bCityAttack*/))
-					{
-						pFirstAttacker = pUnit;
-					}
-				}
-			}
-		}
-
-		if(pFirstAttacker)
-		{
-			LaunchAttack((void*)pFirstAttacker.pointer(), &kTarget, true /*bFirst*/, true /*bFirstAttackRanged*/, false /*bCityAttack*/);
-			return true;
-		}
-	}
-
-	return false;
-}
-
 /// Take a multi-hex attack on an enemy unit this turn
 bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 {
@@ -11435,19 +11029,8 @@ void CvTacticalAI::ExecutePriorityAttacksOnUnitTarget(CvTacticalTarget& kTarget)
 
 	pTarget = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 
-	// Try to find a bombard first
-	m_pMap->ClearDynamicFlags();
-	m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 	if(kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
-	{
-		bAttackUnderway = ExecuteSafeBombards(kTarget);
-	}
-
-	if(kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
-	{
-		ExecuteProtectedBombards(kTarget, bAttackUnderway);
-	}
+		ExecuteSafeBombards(kTarget);
 
 	// Then try for a flank attack
 	if(kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
@@ -14232,146 +13815,6 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 	return false;
 }
 
-// BLOCKING POSITION FUNCTIONS
-
-/// Do I have available friendly units that can stop this hex from being attacked?
-bool CvTacticalAI::CanCoverFromEnemy(CvPlot* pPlot, int& iNumUnitsRequiredToCover, int iAttackingUnitID)
-{
-	CvPlot* pLoopPlot;
-	int iPlotIndex;
-
-	iNumUnitsRequiredToCover = 0;
-
-	// Can't melee attack at sea so those hexes are always covered
-	if(pPlot->isWater())
-	{
-		return true;
-	}
-
-	// Find all the hexes we need to cover
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-		// Don't need to cover a water hex
-		if(pLoopPlot != NULL && !pLoopPlot->isWater())
-		{
-			iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-			if(m_pMap->GetCell(iPlotIndex)->IsEnemyCanMovePast() && !m_pMap->GetCell(iPlotIndex)->IsFriendlyTurnEndTile())
-			{
-				iNumUnitsRequiredToCover++;
-			}
-		}
-	}
-
-	if(iNumUnitsRequiredToCover == 0)
-	{
-		m_ChosenBlocks.clear();
-		return true;
-	}
-	else
-	{
-		if(iNumUnitsRequiredToCover > (int)m_CurrentTurnUnits.size())
-		{
-			return false;
-		}
-
-		// Have some unit that can cover each hex this turn?
-		m_PotentialBlocks.clear();
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			if(pLoopPlot != NULL && !pLoopPlot->isWater())
-			{
-				iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-				if(m_pMap->GetCell(iPlotIndex)->IsEnemyCanMovePast() && !m_pMap->GetCell(iPlotIndex)->IsFriendlyTurnEndTile())
-				{
-#if defined(MOD_BALANCE_CORE)
-					if (!FindClosestUnit(pLoopPlot, 1, false/*bMustHaveHalfHP*/, false /*bMustBeRangedUnit*/, 2 /*iRangeRequired*/, false /*bNeedsIgnoreLOS*/, true /*bMustBeMeleeUnit*/, false, NULL, 3))
-#else
-					if (!FindClosestUnit(pLoopPlot, 1, false/*bMustHaveHalfHP*/, false /*bMustBeRangedUnit*/, 2 /*iRangeRequired*/, false /*bNeedsIgnoreLOS*/, true /*bMustBeMeleeUnit*/))
-#endif
-					{
-						return false;
-					}
-					else
-					{
-						// Save off the units that could get here
-						for(unsigned int iJ = 0; iJ < m_CurrentMoveUnits.size(); iJ++)
-						{
-							if(m_CurrentMoveUnits[iJ].GetID() != iAttackingUnitID)
-							{
-								CvBlockingUnit block;
-								block.SetUnitID(m_CurrentMoveUnits[iJ].GetID());
-								block.SetPlot(pLoopPlot);
-								block.SetNumChoices((int)m_CurrentMoveUnits.size());
-								block.SetDistanceToTarget(m_CurrentMoveUnits[iJ].GetMovesToTarget());
-								m_PotentialBlocks.push_back(block);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Now select exact covering units, making sure we didn't over commit a unit to covering more than one hex
-	return AssignCoveringUnits(iNumUnitsRequiredToCover);
-}
-
-/// Uses information from m_PotentialBlocks to make final assignments to block a hex (returns false if not possible)
-bool CvTacticalAI::AssignCoveringUnits(int iNumUnitsRequiredToCover)
-{
-	bool bChoseOne = true;
-
-	m_TemporaryBlocks.clear();
-	m_ChosenBlocks.clear();
-
-	while(bChoseOne)
-	{
-		bChoseOne = false;
-		m_NewlyChosen.clear();
-
-		// Loop through potential blocks looking for assignments we MUST make (only one possibility)
-		for(unsigned int iI = 0; iI < m_PotentialBlocks.size(); iI++)
-		{
-			CvBlockingUnit temp = m_PotentialBlocks[iI];
-
-			if(temp.GetNumChoices() == 1)
-			{
-				m_NewlyChosen.push_back(temp);
-				bChoseOne = true;
-			}
-		}
-
-		if(bChoseOne)
-		{
-			// Do we have the same unit in m_NewlyChosen twice?
-			if(HaveDuplicateUnit())
-			{
-				return false;   // Not going to work
-			}
-			else
-			{
-				// Copy to final list
-				for(unsigned int jJ = 0; jJ < m_NewlyChosen.size(); jJ++)
-				{
-					m_ChosenBlocks.push_back(m_NewlyChosen[jJ]);
-				}
-
-				RemoveChosenUnits();
-
-				// Do we have enough units left to cover everything?
-				if(NumUniqueUnitsLeft() < (iNumUnitsRequiredToCover - (int)m_ChosenBlocks.size()))
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return ChooseRemainingAssignments(iNumUnitsRequiredToCover, iNumUnitsRequiredToCover);
-}
 
 /// Uses information from m_PotentialBlocks to make final assignments to put flanking unit around a target
 bool CvTacticalAI::AssignFlankingUnits(int iNumUnitsRequiredToFlank)
@@ -15322,7 +14765,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 				int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pPlot->getX(), pPlot->getY());
 
 				//don't know the unit here, so use the generic danger calculation
-				int	iScore = 1000 - m_pPlayer->GetPlotDanger(*pPlot);
+				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot);
 
 				//we want to be close to the target 
 				iScore -= iDistance * 50;
@@ -15383,7 +14826,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pPlot->getX(), pPlot->getY());
 
 				//don't know the unit here, so use the generic danger calculation
-				int	iScore = 1000 - m_pPlayer->GetPlotDanger(*pPlot);
+				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot);
 				
 				//we want to be close to the target 
 				iScore -= iDistance * 50;

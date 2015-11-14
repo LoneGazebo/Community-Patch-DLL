@@ -101,6 +101,8 @@ void CvAIOperation::Reset()
 	m_iDefaultArea = -1;
 	m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 	m_eAbortReason = NO_ABORT_REASON;
+	m_bShouldReplaceLossesWithReinforcements = false;
+
 #if defined(MOD_BALANCE_CORE)
 	m_iTargetX = INVALID_PLOT_COORD;
 	m_iTargetY = INVALID_PLOT_COORD;
@@ -8074,6 +8076,7 @@ CvAIOperationNavalEscorted::CvAIOperationNavalEscorted()
 {
 	// *** Move into subclass later?
 	m_eCivilianType = UNITAI_SETTLE;
+	m_iTargetArea = -1;
 #if !defined(MOD_BALANCE_CORE)
 	m_iInitialAreaID = -1;
 #endif

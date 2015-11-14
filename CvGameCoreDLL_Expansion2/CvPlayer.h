@@ -282,6 +282,7 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
+	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
@@ -315,7 +316,6 @@ public:
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
 	int getImprovementUpgradeRate() const;
 
-	//todo: unify with CvTeam::GetBestPossibleRoute()
 	RouteTypes getBestRoute(CvPlot* pPlot = NULL) const;
 
 	int GetAllFeatureProduction() const;
@@ -2284,7 +2284,6 @@ public:
 	virtual void AI_chooseFreeGreatPerson() = 0;
 	virtual void AI_chooseFreeTech() = 0;
 	virtual void AI_chooseResearch() = 0;
-	virtual int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int iRange = 0) = 0;
 	virtual void AI_launch(VictoryTypes eVictory) = 0;
 #if defined(MOD_BALANCE_CORE)
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity) = 0;

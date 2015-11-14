@@ -7675,7 +7675,7 @@ bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInf
 	if (bValid && pBonusInfo->IsRequiresUniquePlayers())
 	{
 		//Are local or foreign players unmatched? Good.
-		if ((std::find(aPlayersSeen.begin(), aPlayersSeen.end(), ePlayer) != aPlayersSeen.end()) && (std::find(aForeignPlayersSeen.begin(), aPlayersSeen.end(), ePlayer) != aForeignPlayersSeen.end()))
+		if ((std::find(aPlayersSeen.begin(), aPlayersSeen.end(), ePlayer) != aPlayersSeen.end()) && (std::find(aForeignPlayersSeen.begin(), aForeignPlayersSeen.end(), ePlayer) != aForeignPlayersSeen.end()))
 		{
 			bValid = false;
 		}

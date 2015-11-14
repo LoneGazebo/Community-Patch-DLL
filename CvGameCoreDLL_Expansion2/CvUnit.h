@@ -1867,7 +1867,7 @@ template<typename T>
 FDataStream & operator<<(FDataStream & writeTo, const std::map<T, int> & readFrom)
 {
 	writeTo << readFrom.size();
-	for (std::map<T, int>::const_iterator it = readFrom.begin(); it != readFrom.end(); it++)
+	for (std::map<T, int>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
 	{
 		writeTo << (int)it->first;
 		writeTo << it->second;
