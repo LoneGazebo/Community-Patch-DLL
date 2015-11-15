@@ -261,6 +261,14 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		return false;
 	}
 
+#if defined(MOD_EVENTS_TRADE_ROUTES)
+	if (MOD_EVENTS_TRADE_ROUTES) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanCreateTradeRoute, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eDomain, eConnectionType) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return true;
 }
 

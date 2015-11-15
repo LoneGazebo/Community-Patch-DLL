@@ -57,6 +57,14 @@ bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
 		}
 	}
 
+#if defined(MOD_EVENTS_BARBARIANS)
+	if (MOD_EVENTS_BARBARIANS) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_BarbariansCanFoundCamp, iPlotX, iPlotY) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
+	
 	return true;
 }
 
@@ -68,6 +76,11 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
 
+#if defined(MOD_EVENTS_BARBARIANS)
+	if (MOD_EVENTS_BARBARIANS) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansCampCleared, pPlot->getX(), pPlot->getY(), ePlayer);
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	std::vector<CvPlot*>::iterator it = std::find(m_vPlotsWithCamp.begin(),m_vPlotsWithCamp.end(),pPlot);
 	if (it!=m_vPlotsWithCamp.end())
@@ -102,6 +115,14 @@ bool CvBarbarians::CanBarbariansSpawn()
 /// Determines when to Spawn a new Barb Unit from a Camp
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 {
+#if defined(MOD_EVENTS_BARBARIANS)
+	if (MOD_EVENTS_BARBARIANS) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_BarbariansCampCanSpawnUnit, pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
+	
 	if (m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] == 0)
 	{
 		return true;
@@ -639,11 +660,20 @@ void CvBarbarians::DoCamps()
 													DoCampActivationNotice(pLoopPlot);
 #endif
 
+#if defined(MOD_EVENTS_BARBARIANS)
+													eBestUnit = GetRandomBarbarianUnitType(pLoopPlot, UNITAI_DEFENSE);
+#else
 													eBestUnit = GetRandomBarbarianUnitType(kMap.getArea(pLoopPlot->getArea()), UNITAI_DEFENSE);
+#endif
 
 													if(eBestUnit != NO_UNIT)
 													{
 														GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
+#if defined(MOD_EVENTS_BARBARIANS)
+														if (MOD_EVENTS_BARBARIANS) {
+															GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pLoopPlot->getX(), pLoopPlot->getY(), eBestUnit);
+														}
+#endif
 													}
 
 													// If we should update Camp visibility (for Policy), do so
@@ -716,8 +746,14 @@ void CvBarbarians::DoCamps()
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_EVENTS_BARBARIANS)
+UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eUnitAI)
+{
+	CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
+#else
 UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI)
 {
+#endif
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestValue = 0;
 	int iValue = 0;
@@ -833,6 +869,19 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 		}
 	}
 
+#if defined(MOD_EVENTS_BARBARIANS)
+	if (MOD_EVENTS_BARBARIANS) {
+		int iValue = 0;
+		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BarbariansCampGetSpawnUnit, pPlot->getX(), pPlot->getY(), eBestUnit) == GAMEEVENTRETURN_VALUE) {
+			// Defend against modder stupidity!
+			UnitTypes eUnitType = (UnitTypes)iValue;
+			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL) {
+				eBestUnit = eUnitType;
+			}
+		}
+	}
+#endif
+	
 	return eBestUnit;
 }
 
@@ -1112,12 +1161,20 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 		if(pPlot->getImprovementType() == eCamp)
 		{
+#if defined(MOD_EVENTS_BARBARIANS)
+			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_FAST_ATTACK);
+#else
 			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
+#endif
 		}
 		else
 		{
 #endif
-		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
+#if defined(MOD_EVENTS_BARBARIANS)
+			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_FAST_ATTACK);
+#else
+			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		}
 #endif
@@ -1135,6 +1192,12 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 #else
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
 			pUnit->finishMoves();
+			
+#if defined(MOD_EVENTS_BARBARIANS)
+			if (MOD_EVENTS_BARBARIANS) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pPlot->getX(), pPlot->getY(), eUnit);
+			}
+#endif
 #endif
 			return;
 		}
@@ -1228,7 +1291,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 				eUnitAI = UNITAI_FAST_ATTACK;
 			}
 
+#if defined(MOD_EVENTS_BARBARIANS)
+			eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI);
+#else
 			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
+#endif
 
 			if(eUnit != NO_UNIT)
 			{
@@ -1244,6 +1311,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 				{
 					if (!pUnit->jumpToNearestValidPlot())
 						pUnit->kill(false);	// Could not find a valid spot!
+#if defined(MOD_EVENTS_BARBARIANS)
+				if (pUnit != NULL && MOD_EVENTS_BARBARIANS) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnit);
+				}
+#endif
 				}
 #endif
 			}

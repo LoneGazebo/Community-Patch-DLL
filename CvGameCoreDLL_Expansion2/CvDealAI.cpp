@@ -2332,21 +2332,45 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
 			iItemValue *= 110;
+			if(bFromMe)
+			{
+				iItemValue *= 2;
+			}
 			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
 			iItemValue *= 120;
+			if(bFromMe)
+			{
+				return 100000;
+			}
 			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
 			iItemValue *= 135;
+			if(bFromMe)
+			{
+				return 100000;
+			}
 			break;
 		case MAJOR_CIV_OPINION_COMPETITOR:
 			iItemValue *= 150;
+			if(bFromMe)
+			{
+				return 100000;
+			}
 			break;
 		case MAJOR_CIV_OPINION_ENEMY:
 			iItemValue *= 300;
+			if(bFromMe)
+			{
+				return 100000;
+			}
 			break;
 		case MAJOR_CIV_OPINION_UNFORGIVABLE:
 			iItemValue *= 600;
+			if(bFromMe)
+			{
+				return 100000;
+			}
 			break;
 		default:
 			iItemValue *= 100;
@@ -3758,18 +3782,27 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
+		if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_FRIEND)
+		{
+			return 100000;
+		}
 		if(eOpinionTowardsAskingPlayer != MAJOR_CIV_OPINION_ALLY)
 		{
 			if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
 				iItemValue += 100;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
-			else if(eWarProjection == WAR_PROJECTION_STALEMATE)
-				iItemValue += 1000;
-			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
+			else
 				return 100000;
-			else if(eWarProjection < WAR_PROJECTION_STALEMATE)
-				return 100000;
+		}
+		else
+		{
+			if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
+				iItemValue += 50;
+			else if(eWarProjection == WAR_PROJECTION_GOOD)
+				iItemValue += 100;
+			else
+				iItemValue += 200;
 		}
 		
 		iItemValue += (GetPlayer()->GetDiplomacyAI()->GetCoopWarScore(eOtherPlayer, eWithPlayer, false) * 2);
@@ -3973,6 +4006,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
+		if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_NEUTRAL)
+		{
+			return 100000;
+		}
 		if(eWarProjection >= WAR_PROJECTION_GOOD)
 			iItemValue += 50;
 		else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
@@ -3984,8 +4021,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else if(eWarProjection == WAR_PROJECTION_DESTRUCTION)
 			iItemValue += 500;
 
-		// Add 20 gold per era
-		int iExtraCost = eOurEra * 20;
+		// Add 25 gold per era
+		int iExtraCost = eOurEra * 25;
 		iItemValue += iExtraCost;
 
 		iItemValue += (GetPlayer()->GetDiplomacyAI()->GetCoopWarScore(eOtherPlayer, eWithPlayer, true) * 2);
@@ -4027,7 +4064,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_COMPETITOR)
 			{
-				iItemValue *= 150;
+				iItemValue *= 75;
 				iItemValue /= 100;
 			}
 			else if(eOpinionTowardsWarPlayer >= MAJOR_CIV_OPINION_NEUTRAL)
@@ -4039,28 +4076,25 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		// Modify for our feelings towards the asking player
 		if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_ALLY)
 		{
-			iItemValue *= 75;
+			iItemValue *= 150;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_FRIEND)
 		{
-			iItemValue *= 90;
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_FAVORABLE)
 		{
-			iItemValue *= 115;
+			iItemValue *= 75;
 			iItemValue /= 100;
 		}
 		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_NEUTRAL)
 		{
-			iItemValue *= 150;
+			iItemValue *= 50;
 			iItemValue /= 100;
 		}
-		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_NEUTRAL)
-		{
-			return 100000;
-		}
+
 		if(!bMinor)
 		{
 			//We warring against this player already? Let's dogpile 'em.

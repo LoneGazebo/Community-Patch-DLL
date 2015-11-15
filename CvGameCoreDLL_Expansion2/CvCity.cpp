@@ -1030,13 +1030,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		UpdateYieldPerXFeature(((YieldTypes)iI));
 		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
 	}
-	int iRange2 = 2;
+	int iRange3 = 3;
 	int iMountain = 0;
-	for(int iDX = -iRange2; iDX <= iRange2; iDX++)
+	for(int iDX = -iRange3; iDX <= iRange3; iDX++)
 	{
-		for(int iDY = -iRange2; iDY <= iRange2; iDY++)
+		for(int iDY = -iRange3; iDY <= iRange3; iDY++)
 		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange2);
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange3);
 			if(pLoopPlot != NULL)
 			{
 				if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
@@ -13809,6 +13809,15 @@ bool CvCity::CanAirlift() const
 			}
 		}
 	}
+
+#if defined(MOD_EVENTS_CITY_AIRLIFT)
+	if (MOD_EVENTS_CITY_AIRLIFT) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityCanAirlift, getOwner(), GetID()) == GAMEEVENTRETURN_TRUE) {
+			return true;
+		}
+	}
+#endif				
+
 	return false;
 }
 

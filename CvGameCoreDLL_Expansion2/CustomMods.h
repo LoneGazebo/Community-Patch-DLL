@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v67 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 67)
+#define MOD_DLL_NAME "Community Patch v68 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 68)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -607,6 +607,31 @@
 //   GameEvents.MinorAlliesChanged.Add(function(iMinor, iMajor, bIsAlly, iOldFriendship, iNewFriendship) end)
 #define MOD_EVENTS_MINORS                           gCustomMods.isEVENTS_MINORS()
 
+// Events sent on interaction with City States (v68)
+//   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end)
+//   GameEvents.PlayerCanRevoke.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerRevoked.Add(function(iPlayer, iCS, bPledgeNowBroken) end)
+//   GameEvents.PlayerCanBuyOut.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerBoughtOut.Add(function(iPlayer, iCS) end)
+//   GameEvents.PlayerCanBullyGold.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerCanBullyUnit.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end)
+//   GameEvents.PlayerCanGiftGold.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end)
+//   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end)
+//   GameEvents.PlayerGifted.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end)
+#define MOD_EVENTS_MINORS_INTERACTION               gCustomMods.isEVENTS_MINORS_INTERACTION()
+
+// Events sent by Barbarians (v68)
+//   GameEvents.BarbariansCanFoundCamp.Add(function(iPlotX, iPlotY) return true end)
+//   GameEvents.BarbariansCampFounded.Add(function(iPlotX, iPlotY) end)
+//   GameEvents.BarbariansCampCleared.Add(function(iPlotX, iPlotY, iPlayer) end)
+//   GameEvents.BarbariansCampCanSpawnUnit.Add(function(iPlotX, iPlotY) return true end)
+//   GameEvents.BarbariansCampGetSpawnUnit.Add(function(iPlotX, iPlotY, iPrefUnitType) return iPrefUnitType end)
+//   GameEvents.BarbariansSpawnedUnit.Add(function(iPlotX, iPlotY, iUnitType) end)
+#define MOD_EVENTS_BARBARIANS                       gCustomMods.isEVENTS_BARBARIANS()
+
 // Event sent when a Goody Hut is entered (v33)
 //   GameEvents.GoodyHutCanNotReceive.Add(function(iPlayer, iUnit, eGoody, bPick) return false end)
 #define MOD_EVENTS_GOODY_CHOICE                     gCustomMods.isEVENTS_GOODY_CHOICE()
@@ -691,6 +716,10 @@
 //   GameEvents.CanMoveInto.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bAttack, bDeclareWar) return true end)
 #define MOD_EVENTS_CAN_MOVE_INTO                    gCustomMods.isEVENTS_CAN_MOVE_INTO()
 
+// Event sent as ascertain if a trade route can be created (v68)
+//   GameEvents.PlayerCanCreateTradeRoute.Add(function(iFromPlayer, iFromCity, iToPlayer, iToCity, iDomain, iConnectionType) return true end)
+#define MOD_EVENTS_TRADE_ROUTES                     gCustomMods.isEVENTS_TRADE_ROUTES()
+
 // Event sent as a trade route is plundered (v52)
 //   GameEvents.PlayerPlunderedTradeRoute.Add(function(iPlayer, iUnit, iPlunderedGold, iFromPlayer, iFromCity, iToPlayer, iToCity, iRouteType, iRouteDomain) end)
 #define MOD_EVENTS_TRADE_ROUTE_PLUNDERED            gCustomMods.isEVENTS_TRADE_ROUTE_PLUNDERED()
@@ -742,10 +771,24 @@
 //   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end)
 #define MOD_EVENTS_CITY_BORDERS                     gCustomMods.isEVENTS_CITY_BORDERS()
 	
+// Event sent about city founding (v68)
+//   GameEvents.PlayerCanFoundCity.Add(function(iPlayer, iPlotX, iPlotY) return true end)
+//   GameEvents.PlayerCanFoundCityRegardless.Add(function(iPlayer, iPlotX, iPlotY) return false end)
+#define MOD_EVENTS_CITY_FOUNDING                    gCustomMods.isEVENTS_CITY_FOUNDING()
+	
+// Event sent to ascertain if a player can liberate another player (v68)
+//   GameEvents.PlayerCanLiberate.Add(function(iPlayer, iOtherPlayer) return true end)
+//   GameEvents.PlayerLiberated.Add(function(iPlayer, iOtherPlayer, iCity) end)
+#define MOD_EVENTS_LIBERATION                       gCustomMods.isEVENTS_LIBERATION()
+	
 // Event sent to ascertain if a player can over-ride the standard razing rules for the specified city and raze it anyway (v20)
 //   GameEvents.PlayerCanRaze.Add(function(iPlayer, iCity) return false end)
 #define MOD_EVENTS_CITY_RAZING                      gCustomMods.isEVENTS_CITY_RAZING()
 	
+// Event sent to ascertain if a city can perform airlifts (v68)
+//   GameEvents.CityCanAirlift.Add(function(iPlayer, iCity) return false end)
+#define MOD_EVENTS_CITY_AIRLIFT                     gCustomMods.isEVENTS_CITY_AIRLIFT()
+
 // Events sent to ascertain the bombard range for a city, and if indirect fire is allowed (v32)
 //   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end)
 #define MOD_EVENTS_CITY_BOMBARD                     gCustomMods.isEVENTS_CITY_BOMBARD()
@@ -784,7 +827,15 @@
 //   GameEvents.CustomMissionTargetPlot.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iPlotIndex end)
 //   GameEvents.CustomMissionCycleTime.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iCameraTime end) -- iCameraTime is 0, 1, 5 or 10
 //   GameEvents.CustomMissionTimerInc.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iTimerInc end)
-#define MOD_EVENTS_CUSTOM_MISSIONS                          gCustomMods.isEVENTS_CUSTOM_MISSIONS()
+#define MOD_EVENTS_CUSTOM_MISSIONS                  gCustomMods.isEVENTS_CUSTOM_MISSIONS()
+
+// Events sent during combat (v68)
+//   GameEvents.BattleStarted.Add(function(iType, iPlotX, iPlotY) end)
+//   GameEvents.BattleJoined.Add(function(iPlayer, iUnitOrCity, iRole, bIsCity) end)
+//   GameEvents.BattleFinished.Add(function() end)
+#define MOD_EVENTS_BATTLES                          gCustomMods.isEVENTS_BATTLES()
+//   GameEvents.BattleDamageDelta.Add(function(iRole, iBaseDamage) return 0 end)
+#define MOD_EVENTS_BATTLES_DAMAGE                   (MOD_EVENTS_BATTLES && gCustomMods.isEVENTS_BATTLES_DAMAGE())
 
 // Events generated by the RED (by Gedemon) dll mod code
 //   Turn   --> PlayerEndTurnInitiated, PlayerEndTurnCompleted, TurnComplete
@@ -909,12 +960,32 @@ enum TerraformingEventTypes {
 };
 
 
+// Battle event macros
+enum BattleTypeTypes
+{
+	BATTLE_TYPE_MELEE,
+	BATTLE_TYPE_RANGED,
+	BATTLE_TYPE_AIR,
+	BATTLE_TYPE_SWEEP,
+	BATTLE_TYPE_PARADROP,
+	BATTLE_TYPE_NUKE
+};
+
+#if defined(MOD_EVENTS_BATTLES)
+#define BATTLE_STARTED(iType, pPlot)              if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleStarted, iType, pPlot.getX(), pPlot.getY()); }
+#define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && pCombatant) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
+#define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
+#else
+#define BATTLE_STARTED(pPlot)            __noop
+#define BATTLE_JOINED(pCombatant, iRole) __noop
+#define BATTLE_FINISHED()                __noop
+#endif
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
 #define CUSTOMLOG(sFmt, ...) {																		\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);										\
 	if (CUSTOMLOGFILEINFO) {																		\
-		CvString sLine; CvString::format(sLine, "%s: %i - %s", __FILE__, __LINE__, sMsg.c_str());	\
+		CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());	\
 		LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());			\
 	} else {																						\
 		LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());			\
@@ -928,7 +999,7 @@ enum TerraformingEventTypes {
 #if defined(UNIFIEDLOGDEBUG)
 #define UNIFIEDLOG(sFmt, ...) {																		\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);										\
-	CvString sLine; CvString::format(sLine, "%s: %i - %s", __FILE__, __LINE__, sMsg.c_str());	    \
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());	    \
 	LOGFILEMGR.GetLog(UNIFIEDLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());			    \
 }
 #else
@@ -971,99 +1042,132 @@ enum TerraformingEventTypes {
 #define GAMEEVENTRETURN_HOOK   GAMEEVENTRETURN_TRUE
 #define GAMEEVENTRETURN_VALUE  GAMEEVENTRETURN_TRUE
 
-#define GAMEEVENT_AiOverrideChooseNextTech	"AiOverrideChooseNextTech",		"ib"
-#define GAMEEVENT_AreaCanHaveAnyResource	"AreaCanHaveAnyResource",		"ii"
-#define GAMEEVENT_CanDoCommand				"CanDoCommand",					"iiiiiiib"
-#define GAMEEVENT_CanHaveAnyUpgrade			"CanHaveAnyUpgrade",			"ii"
-#define GAMEEVENT_CanHavePromotion			"CanHavePromotion",				"iii"
-#define GAMEEVENT_CanHaveUpgrade			"CanHaveUpgrade",				"iiii"
-#define GAMEEVENT_CanLoadAt					"CanLoadAt",					"iiii"
-#define GAMEEVENT_CanMoveInto				"CanMoveInto",					"iiiibb"
-#define GAMEEVENT_CannotParadropFrom		"CannotParadropFrom",			"iiii"
-#define GAMEEVENT_CanParadropFrom			"CanParadropFrom",				"iiii"
-#define GAMEEVENT_CanRebaseInCity			"CanRebaseInCity",				"iiii"
-#define GAMEEVENT_CanRebaseTo				"CanRebaseTo",					"iiiib"
-#define GAMEEVENT_CircumnavigatedGlobe		"CircumnavigatedGlobe",			"i"
-#define GAMEEVENT_CityBoughtPlot			"CityBoughtPlot",				"iiiibb"
-#define GAMEEVENT_CityCanAcquirePlot		"CityCanAcquirePlot",			"iiii"
-#define GAMEEVENT_CityConnected				"CityConnected",				"iiiiib"
-#define GAMEEVENT_CityConnections			"CityConnections",				"ib"
-#define GAMEEVENT_CityConstructed			"CityConstructed",				"iiibb"
-#define GAMEEVENT_CityCreated				"CityCreated",					"iiibb"
-#define GAMEEVENT_CityPrepared				"CityPrepared",					"iiibb"
-#define GAMEEVENT_CitySoldBuilding			"CitySoldBuilding",				"iii"
-#define GAMEEVENT_CityTrained				"CityTrained",					"iiibb"
-#define GAMEEVENT_CustomMissionCompleted	"CustomMissionCompleted",		"iiiiiii"
-#define GAMEEVENT_CustomMissionCameraTime	"CustomMissionCameraTime",		"iiiiiii"
-#define GAMEEVENT_CustomMissionDoStep		"CustomMissionDoStep",			"iiiiiii"
-#define GAMEEVENT_CustomMissionPossible		"CustomMissionPossible",		"iiiiiiiiib"
-#define GAMEEVENT_CustomMissionStart		"CustomMissionStart",			"iiiiiii"
-#define GAMEEVENT_CustomMissionSetActivity	"CustomMissionSetActivity",		"iiiiiii"
-#define GAMEEVENT_CustomMissionTargetPlot	"CustomMissionTargetPlot",		"iiiiiii"
-#define GAMEEVENT_CustomMissionTimerInc		"CustomMissionTimerInc",		"iiiiiii"
-#define GAMEEVENT_DeclareWar				"DeclareWar",					"iib"
-#define GAMEEVENT_EspionageResult			"EspionageResult",				"iiiii"
-#define GAMEEVENT_EspionageState			"EspionageState",				"iiiii"
-#define GAMEEVENT_GetDiploModifier			"GetDiploModifier",				"iii"
-#define GAMEEVENT_GetBombardRange			"GetBombardRange",				"ii"
-#define GAMEEVENT_GetReligionToFound		"GetReligionToFound",			"iib"
-#define GAMEEVENT_GoodyHutCanNotReceive		"GoodyHutCanNotReceive",		"iiib"
-#define GAMEEVENT_GoodyHutCanResearch		"GoodyHutCanResearch",			"ii"
-#define GAMEEVENT_GoodyHutTechResearched	"GoodyHutTechResearched",		"ii"
-#define GAMEEVENT_GreatPersonExpended		"GreatPersonExpended",			"iiiii"
-#define GAMEEVENT_IsAbleToDeclareWar		"IsAbleToDeclareWar",			"ii"
-#define GAMEEVENT_IsAbleToMakePeace			"IsAbleToMakePeace",			"ii"
-#define GAMEEVENT_MakePeace					"MakePeace",					"iib"
-#define GAMEEVENT_MinorAlliesChanged		"MinorAlliesChanged",			"iibii"
-#define GAMEEVENT_MinorFriendsChanged		"MinorFriendsChanged",			"iibii"
-#define GAMEEVENT_NaturalWonderDiscovered	"NaturalWonderDiscovered",		"iiiib"
-#define GAMEEVENT_NuclearDetonation			"NuclearDetonation",			"iiibb"
-#define GAMEEVENT_PantheonFounded			"PantheonFounded",				"iiii"
-#define GAMEEVENT_ParadropAt				"ParadropAt",					"iiiiii"
-#define GAMEEVENT_PlaceResource				"PlaceResource",				"iiiii"
-#define GAMEEVENT_PlayerBuilding			"PlayerBuilding",				"iiiiib"
-#define GAMEEVENT_PlayerBuilt				"PlayerBuilt",					"iiiii"
-#define GAMEEVENT_PlayerCanAdoptIdeology	"PlayerCanAdoptIdeology",		"ii"
-#define GAMEEVENT_PlayerCanAdoptTenet		"PlayerCanAdoptTenet",			"ii"
-#define GAMEEVENT_PlayerCanBuild			"PlayerCanBuild",				"iiiii"
-#define GAMEEVENT_PlayerCanDeclareWar		"PlayerCanDeclareWar",			"ii"
-#define GAMEEVENT_PlayerCanFoundPantheon	"PlayerCanFoundPantheon",		"i"
-#define GAMEEVENT_PlayerCanFoundReligion	"PlayerCanFoundReligion",		"ii"
-#define GAMEEVENT_PlayerCanHaveBelief		"PlayerCanHaveBelief",			"ii"
-#define GAMEEVENT_PlayerCanMakePeace		"PlayerCanMakePeace",			"ii"
-#define GAMEEVENT_PlayerCanPropose			"PlayerCanPropose",				"iiib"
-#define GAMEEVENT_PlayerCanRaze				"PlayerCanRaze",				"ii"
-#define GAMEEVENT_PlayerCanRemoveHeresy		"PlayerCanRemoveHeresy",		"iiii"
-#define GAMEEVENT_PlayerCanSpreadReligion	"PlayerCanSpreadReligion",		"iiii"
-#define GAMEEVENT_PlayerGoldenAge			"PlayerGoldenAge",				"ibi"
-#define GAMEEVENT_PlayerPlunderedTradeRoute	"PlayerPlunderedTradeRoute",	"iiiiiiiii"
-#define GAMEEVENT_PlotCanImprove			"PlotCanImprove",				"iii"
-#define GAMEEVENT_RebaseTo					"RebaseTo",						"iiii"
-#define GAMEEVENT_ReligionCanHaveBelief		"ReligionCanHaveBelief",		"iii"
-#define GAMEEVENT_ReligionEnhanced			"ReligionEnhanced",				"iiii"
-#define GAMEEVENT_ReligionFounded			"ReligionFounded",				"iiiiiiii"
-#define GAMEEVENT_ReligionReformed			"ReligionReformed",				"iiiiiii"
-#define GAMEEVENT_ResolutionResult			"ResolutionResult",				"iibb"
-#define GAMEEVENT_TeamSetEra				"TeamSetEra",					"iib"
-#define GAMEEVENT_TerraformingMap			"TerraformingMap",				"ii"
-#define GAMEEVENT_TerraformingPlot			"TerraformingPlot",				"iiiiiiii"
-#define GAMEEVENT_TileFeatureChanged		"TileFeatureChanged",			"iiiii"
-#define GAMEEVENT_TileImprovementChanged	"TileImprovementChanged",		"iiiiib"
-#define GAMEEVENT_TileOwnershipChanged		"TileOwnershipChanged",			"iiii"
-#define GAMEEVENT_TileRevealed				"TileRevealed",					"iiiib"
-#define GAMEEVENT_TileRouteChanged			"TileRouteChanged",				"iiiiib"
-#define GAMEEVENT_UiDiploEvent				"UiDiploEvent",					"iiii"
-#define GAMEEVENT_UnitCanHaveAnyUpgrade		"UnitCanHaveAnyUpgrade",		"ii"
-#define GAMEEVENT_UnitCanHaveGreatWork		"UnitCanHaveGreatWork",			"iii"
-#define GAMEEVENT_UnitCanHaveName			"UnitCanHaveName",				"iii"
-#define GAMEEVENT_UnitCanHavePromotion		"UnitCanHavePromotion",			"iii"
-#define GAMEEVENT_UnitCanHaveUpgrade		"UnitCanHaveUpgrade",			"iiii"
-#define GAMEEVENT_UnitCaptureType			"UnitCaptureType",				"iiii"
-#define GAMEEVENT_UnitCityFounded			"UnitCityFounded",				"iiiii"
-#define GAMEEVENT_UnitCreated				"UnitCreated",					"iiiii"
-#define GAMEEVENT_UnitPrekill				"UnitPrekill",					"iiiiibi"
-#define GAMEEVENT_UnitPromoted				"UnitPromoted",					"iii"
-#define GAMEEVENT_UnitUpgraded				"UnitUpgraded",					"iiib"
+#define GAMEEVENT_AiOverrideChooseNextTech		"AiOverrideChooseNextTech",		"ib"
+#define GAMEEVENT_AreaCanHaveAnyResource		"AreaCanHaveAnyResource",		"ii"
+#define GAMEEVENT_BarbariansCanFoundCamp		"BarbariansCanFoundCamp",		"ii"
+#define GAMEEVENT_BarbariansCampFounded			"BarbariansCampFounded",		"ii"
+#define GAMEEVENT_BarbariansCampCleared			"BarbariansCampCleared",		"iii"
+#define GAMEEVENT_BarbariansCampCanSpawnUnit	"BarbariansCampCanSpawnUnit",	"ii"
+#define GAMEEVENT_BarbariansCampGetSpawnUnit	"BarbariansCampGetSpawnUnit",	"iii"
+#define GAMEEVENT_BarbariansSpawnedUnit			"BarbariansSpawnedUnit",		"iii"
+#define GAMEEVENT_BattleDamageDelta				"BattleDamageDelta",			"ii"
+#define GAMEEVENT_BattleFinished				"BattleFinished",				""
+#define GAMEEVENT_BattleJoined					"BattleJoined",					"iiib"
+#define GAMEEVENT_BattleStarted					"BattleStarted",				"iii"
+#define GAMEEVENT_CanDoCommand					"CanDoCommand",					"iiiiiiib"
+#define GAMEEVENT_CanHaveAnyUpgrade				"CanHaveAnyUpgrade",			"ii"
+#define GAMEEVENT_CanHavePromotion				"CanHavePromotion",				"iii"
+#define GAMEEVENT_CanHaveUpgrade				"CanHaveUpgrade",				"iiii"
+#define GAMEEVENT_CanLoadAt						"CanLoadAt",					"iiii"
+#define GAMEEVENT_CanMoveInto					"CanMoveInto",					"iiiibb"
+#define GAMEEVENT_CannotParadropFrom			"CannotParadropFrom",			"iiii"
+#define GAMEEVENT_CanParadropFrom				"CanParadropFrom",				"iiii"
+#define GAMEEVENT_CanRebaseInCity				"CanRebaseInCity",				"iiii"
+#define GAMEEVENT_CanRebaseTo					"CanRebaseTo",					"iiiib"
+#define GAMEEVENT_CircumnavigatedGlobe			"CircumnavigatedGlobe",			"i"
+#define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
+#define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
+#define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
+#define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
+#define GAMEEVENT_CityConnections				"CityConnections",				"ib"
+#define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
+#define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"
+#define GAMEEVENT_CityPrepared					"CityPrepared",					"iiibb"
+#define GAMEEVENT_CitySoldBuilding				"CitySoldBuilding",				"iii"
+#define GAMEEVENT_CityTrained					"CityTrained",					"iiibb"
+#define GAMEEVENT_CustomMissionCompleted		"CustomMissionCompleted",		"iiiiiii"
+#define GAMEEVENT_CustomMissionCameraTime		"CustomMissionCameraTime",		"iiiiiii"
+#define GAMEEVENT_CustomMissionDoStep			"CustomMissionDoStep",			"iiiiiii"
+#define GAMEEVENT_CustomMissionPossible			"CustomMissionPossible",		"iiiiiiiiib"
+#define GAMEEVENT_CustomMissionStart			"CustomMissionStart",			"iiiiiii"
+#define GAMEEVENT_CustomMissionSetActivity		"CustomMissionSetActivity",		"iiiiiii"
+#define GAMEEVENT_CustomMissionTargetPlot		"CustomMissionTargetPlot",		"iiiiiii"
+#define GAMEEVENT_CustomMissionTimerInc			"CustomMissionTimerInc",		"iiiiiii"
+#define GAMEEVENT_DeclareWar					"DeclareWar",					"iib"
+#define GAMEEVENT_DiplomacyStfu					"DiplomacyStfu",				"iiiiii"
+#define GAMEEVENT_DiplomacyStfuLeaveLeader		"DiplomacyStfuLeaveLeader",		"i"
+#define GAMEEVENT_EspionageCanMoveSpyTo			"EspionageCanMoveSpyTo",		"iii"
+#define GAMEEVENT_EspionageCanStageCoup			"EspionageCanStageCoup",		"iii"
+#define GAMEEVENT_EspionageResult				"EspionageResult",				"iiiii"
+#define GAMEEVENT_EspionageState				"EspionageState",				"iiiii"
+#define GAMEEVENT_GetDiploModifier				"GetDiploModifier",				"iii"
+#define GAMEEVENT_GetBombardRange				"GetBombardRange",				"ii"
+#define GAMEEVENT_GetReligionToFound			"GetReligionToFound",			"iib"
+#define GAMEEVENT_GoodyHutCanNotReceive			"GoodyHutCanNotReceive",		"iiib"
+#define GAMEEVENT_GoodyHutCanResearch			"GoodyHutCanResearch",			"ii"
+#define GAMEEVENT_GoodyHutTechResearched		"GoodyHutTechResearched",		"ii"
+#define GAMEEVENT_GreatPersonExpended			"GreatPersonExpended",			"iiiii"
+#define GAMEEVENT_IsAbleToDeclareWar			"IsAbleToDeclareWar",			"ii"
+#define GAMEEVENT_IsAbleToMakePeace				"IsAbleToMakePeace",			"ii"
+#define GAMEEVENT_MakePeace						"MakePeace",					"iib"
+#define GAMEEVENT_MinorAlliesChanged			"MinorAlliesChanged",			"iibii"
+#define GAMEEVENT_MinorFriendsChanged			"MinorFriendsChanged",			"iibii"
+#define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiib"
+#define GAMEEVENT_NuclearDetonation				"NuclearDetonation",			"iiibb"
+#define GAMEEVENT_PantheonFounded				"PantheonFounded",				"iiii"
+#define GAMEEVENT_ParadropAt					"ParadropAt",					"iiiiii"
+#define GAMEEVENT_PlaceResource					"PlaceResource",				"iiiii"
+#define GAMEEVENT_PlayerBoughtOut				"PlayerBoughtOut",				"ii"
+#define GAMEEVENT_PlayerBuilding				"PlayerBuilding",				"iiiiib"
+#define GAMEEVENT_PlayerBuilt					"PlayerBuilt",					"iiiii"
+#define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiii"
+#define GAMEEVENT_PlayerCanAdoptIdeology		"PlayerCanAdoptIdeology",		"ii"
+#define GAMEEVENT_PlayerCanAdoptTenet			"PlayerCanAdoptTenet",			"ii"
+#define GAMEEVENT_PlayerCanBuild				"PlayerCanBuild",				"iiiii"
+#define GAMEEVENT_PlayerCanBullyGold			"PlayerCanBullyGold",			"ii"
+#define GAMEEVENT_PlayerCanBullyUnit			"PlayerCanBullyUnit",			"ii"
+#define GAMEEVENT_PlayerCanBuyOut				"PlayerCanBuyOut",				"ii"
+#define GAMEEVENT_PlayerCanCreateTradeRoute		"PlayerCanCreateTradeRoute",	"iiiiii"
+#define GAMEEVENT_PlayerCanDeclareWar			"PlayerCanDeclareWar",			"ii"
+#define GAMEEVENT_PlayerCanFoundCity			"PlayerCanFoundCity",			"iii"
+#define GAMEEVENT_PlayerCanFoundCityRegardless	"PlayerCanFoundCityRegardless",	"iii"
+#define GAMEEVENT_PlayerCanFoundPantheon		"PlayerCanFoundPantheon",		"i"
+#define GAMEEVENT_PlayerCanFoundReligion		"PlayerCanFoundReligion",		"ii"
+#define GAMEEVENT_PlayerCanGiftGold				"PlayerCanGiftGold",			"ii"
+#define GAMEEVENT_PlayerCanGiftImprovement		"PlayerCanGiftImprovement",		"ii"
+#define GAMEEVENT_PlayerCanGiftUnit				"PlayerCanGiftUnit",			"iii"
+#define GAMEEVENT_PlayerCanHaveBelief			"PlayerCanHaveBelief",			"ii"
+#define GAMEEVENT_PlayerCanLiberate				"PlayerCanLiberate",			"ii"
+#define GAMEEVENT_PlayerCanMakePeace			"PlayerCanMakePeace",			"ii"
+#define GAMEEVENT_PlayerCanPropose				"PlayerCanPropose",				"iiib"
+#define GAMEEVENT_PlayerCanProtect				"PlayerCanProtect",				"ii"
+#define GAMEEVENT_PlayerCanRaze					"PlayerCanRaze",				"ii"
+#define GAMEEVENT_PlayerCanRemoveHeresy			"PlayerCanRemoveHeresy",		"iiii"
+#define GAMEEVENT_PlayerCanRevoke				"PlayerCanRevoke",				"ii"
+#define GAMEEVENT_PlayerCanSpreadReligion		"PlayerCanSpreadReligion",		"iiii"
+#define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
+#define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
+#define GAMEEVENT_PlayerLiberated				"PlayerLiberated",				"iii"
+#define GAMEEVENT_PlayerPlunderedTradeRoute		"PlayerPlunderedTradeRoute",	"iiiiiiiii"
+#define GAMEEVENT_PlayerProtected				"PlayerProtected",				"ii"
+#define GAMEEVENT_PlayerRevoked					"PlayerRevoked",				"iib"
+#define GAMEEVENT_PlotCanImprove				"PlotCanImprove",				"iii"
+#define GAMEEVENT_RebaseTo						"RebaseTo",						"iiii"
+#define GAMEEVENT_ReligionCanHaveBelief			"ReligionCanHaveBelief",		"iii"
+#define GAMEEVENT_ReligionEnhanced				"ReligionEnhanced",				"iiii"
+#define GAMEEVENT_ReligionFounded				"ReligionFounded",				"iiiiiiii"
+#define GAMEEVENT_ReligionReformed				"ReligionReformed",				"iiiiiii"
+#define GAMEEVENT_ResolutionResult				"ResolutionResult",				"iibb"
+#define GAMEEVENT_TeamSetEra					"TeamSetEra",					"iib"
+#define GAMEEVENT_TerraformingMap				"TerraformingMap",				"ii"
+#define GAMEEVENT_TerraformingPlot				"TerraformingPlot",				"iiiiiiii"
+#define GAMEEVENT_TileFeatureChanged			"TileFeatureChanged",			"iiiii"
+#define GAMEEVENT_TileImprovementChanged		"TileImprovementChanged",		"iiiiib"
+#define GAMEEVENT_TileOwnershipChanged			"TileOwnershipChanged",			"iiii"
+#define GAMEEVENT_TileRevealed					"TileRevealed",					"iiiib"
+#define GAMEEVENT_TileRouteChanged				"TileRouteChanged",				"iiiiib"
+#define GAMEEVENT_UiDiploEvent					"UiDiploEvent",					"iiii"
+#define GAMEEVENT_UnitCanHaveAnyUpgrade			"UnitCanHaveAnyUpgrade",		"ii"
+#define GAMEEVENT_UnitCanHaveGreatWork			"UnitCanHaveGreatWork",			"iii"
+#define GAMEEVENT_UnitCanHaveName				"UnitCanHaveName",				"iii"
+#define GAMEEVENT_UnitCanHavePromotion			"UnitCanHavePromotion",			"iii"
+#define GAMEEVENT_UnitCanHaveUpgrade			"UnitCanHaveUpgrade",			"iiii"
+#define GAMEEVENT_UnitCaptureType				"UnitCaptureType",				"iiii"
+#define GAMEEVENT_UnitCityFounded				"UnitCityFounded",				"iiiii"
+#define GAMEEVENT_UnitCreated					"UnitCreated",					"iiiii"
+#define GAMEEVENT_UnitPrekill					"UnitPrekill",					"iiiiibi"
+#define GAMEEVENT_UnitPromoted					"UnitPromoted",					"iii"
+#define GAMEEVENT_UnitUpgraded					"UnitUpgraded",					"iiib"
 #define GAMEEVENT_PietyChanged              "PietyChange",                  "iii"
 #define GAMEEVENT_PietyRateChanged          "PietyRateChange",              "iii"
 #define GAMEEVENT_PlayerSecularizes         "PlayerSecularizes",            "iib"
@@ -1337,6 +1441,8 @@ public:
 	MOD_OPT_DECL(EVENTS_DIPLO_EVENTS);
 	MOD_OPT_DECL(EVENTS_DIPLO_MODIFIERS);
 	MOD_OPT_DECL(EVENTS_MINORS);
+	MOD_OPT_DECL(EVENTS_MINORS_INTERACTION);
+	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_GOODY_CHOICE);
 	MOD_OPT_DECL(EVENTS_GOODY_TECH);
 	MOD_OPT_DECL(EVENTS_AI_OVERRIDE_TECH);
@@ -1349,7 +1455,10 @@ public:
 	MOD_OPT_DECL(EVENTS_GOLDEN_AGE);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
+	MOD_OPT_DECL(EVENTS_LIBERATION);
+	MOD_OPT_DECL(EVENTS_CITY_FOUNDING);
 	MOD_OPT_DECL(EVENTS_CITY_RAZING);
+	MOD_OPT_DECL(EVENTS_CITY_AIRLIFT);
 	MOD_OPT_DECL(EVENTS_CITY_BOMBARD);
 	MOD_OPT_DECL(EVENTS_CITY_CONNECTIONS);
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
@@ -1361,6 +1470,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CAN_MOVE_INTO);
 	MOD_OPT_DECL(EVENTS_UNIT_UPGRADES);
 	MOD_OPT_DECL(EVENTS_UNIT_DATA);
+	MOD_OPT_DECL(EVENTS_TRADE_ROUTES);
 	MOD_OPT_DECL(EVENTS_TRADE_ROUTE_PLUNDERED);
 	MOD_OPT_DECL(EVENTS_WAR_AND_PEACE);
 	MOD_OPT_DECL(EVENTS_RESOLUTIONS);
@@ -1369,6 +1479,8 @@ public:
 	MOD_OPT_DECL(EVENTS_REBASE);
 	MOD_OPT_DECL(EVENTS_COMMAND);
 	MOD_OPT_DECL(EVENTS_CUSTOM_MISSIONS);
+	MOD_OPT_DECL(EVENTS_BATTLES);
+	MOD_OPT_DECL(EVENTS_BATTLES_DAMAGE);
 
 	MOD_OPT_DECL(EVENTS_RED_TURN);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT);

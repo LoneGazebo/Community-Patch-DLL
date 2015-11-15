@@ -6127,8 +6127,21 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 	// Maxed out unit class for Player
 	if(GET_PLAYER(eToPlayer).isUnitClassMaxedOut(getUnitClassType(), GET_PLAYER(eToPlayer).getUnitClassMaking(getUnitClassType())))
 		return false;
-
+	
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if(atWar(eToTeam, getTeam()))
+		return false;
+	
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftUnit, getOwner(), eToPlayer, GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+	
+	return true;
+#else
 	return !atWar(eToTeam, getTeam());
+#endif				
 }
 
 //	--------------------------------------------------------------------------------

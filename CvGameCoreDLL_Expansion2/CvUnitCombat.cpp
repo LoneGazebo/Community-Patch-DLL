@@ -100,6 +100,7 @@ static CvCombatMemberEntry* AddCombatMember(CvCombatMemberEntry* pkArray, int* p
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_MELEE, plot);
 	int iMaxHP = GC.getMAX_HIT_POINTS();
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
@@ -111,6 +112,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 	{
 		// Unit vs. City (non-ranged so the city will retaliate
 		CvCity* pkCity = plot.getPlotCity();
+		BATTLE_JOINED(pkCity, BATTLE_UNIT_DEFENDER, true);
 		int iMaxCityHP = pkCity->GetMaxHitPoints();
 
 		int iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, NULL);
@@ -563,6 +565,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bDefenderDead);
 	}
+
+	BATTLE_FINISHED();
 }
 
 //	---------------------------------------------------------------------------
@@ -577,6 +581,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
 	pkCombatInfo->setPlot(&plot);
@@ -628,6 +633,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		CvCity* pCity = plot.getPlotCity();
 		CvAssert(pCity != NULL);
 		if(!pCity) return;
+		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 
 		eDefenderOwner = plot.getOwner();
 		/*		iDefenderStrength = pCity->getStrengthValue() / 2;
@@ -703,6 +709,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setCity(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
 	pkCombatInfo->setPlot(&plot);
@@ -962,6 +969,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bTargetDied);
 	}
+	
+	BATTLE_FINISHED();
 }
 
 //	---------------------------------------------------------------------------
@@ -1068,6 +1077,8 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 	// Report that combat is over in case we want to queue another attack
 	if(pkAttacker)
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved((void*)pkAttacker, bTargetDied, true);
+	
+	BATTLE_FINISHED();
 }
 
 //	---------------------------------------------------------------------------
@@ -1242,6 +1253,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bCityConquered);
 	}
+	
+	BATTLE_FINISHED();
 }
 
 //	GenerateAirCombatInfo
@@ -1256,6 +1269,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_AIR, plot);
 	int iExperience = 0;
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
@@ -1356,6 +1370,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		CvCity* pCity = plot.getPlotCity();
 		CvAssert(pCity != NULL);
 		if(!pCity) return;
+		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 		
 		CUSTOMLOG("Bombing %s by %s", pCity->getName().GetCString(), kAttacker.getName().GetCString());
 		if(pInterceptor != NULL && pInterceptor != pkDefender) {
@@ -1750,11 +1765,14 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bTargetDied);
 	}
+	
+	BATTLE_FINISHED();
 }
 
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_SWEEP, plot);
 	int iMaxHP = GC.getMAX_HIT_POINTS();
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
@@ -2057,6 +2075,8 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bDefenderDead);
 	}
+	
+	BATTLE_FINISHED();
 }
 
 //	GenerateNuclearCombatInfo
@@ -2071,9 +2091,22 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 //	---------------------------------------------------------------------------
 void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, CvCombatInfo* pkCombatInfo)
 {
+	BATTLE_STARTED(BATTLE_TYPE_NUKE, plot);
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, NULL);
 	pkCombatInfo->setPlot(&plot);
+
+#if defined(MOD_EVENTS_BATTLES)
+	if (plot.isCity())
+	{
+		BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
+	}
+	else
+	{
+		CvUnit* pBestDefender = plot.getBestDefender(NO_PLAYER, kAttacker.getOwner()).pointer();
+		BATTLE_JOINED(pBestDefender, BATTLE_UNIT_DEFENDER, false);
+	}
+#endif
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -2346,6 +2379,20 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 {
 	int iBlastRadius = GC.getNUKE_BLAST_RADIUS();
 
+#if defined(MOD_EVENTS_BATTLES)
+	CvCity* pDefenderCity = NULL;
+	CvUnit* pDefenderUnit = NULL;
+
+	if (pkTargetPlot->isCity())
+	{
+		pDefenderCity = pkTargetPlot->getPlotCity();
+	}
+	else
+	{
+		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner()).pointer();
+	}
+#endif
+
 	*piDamageMembers = 0;
 
 	for(int iDX = -(iBlastRadius); iDX <= iBlastRadius; iDX++)
@@ -2401,6 +2448,12 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopUnit);
 								if(pkDamageEntry)
 								{
+#if defined(MOD_EVENTS_BATTLES)
+									if (pLoopUnit != pDefenderUnit)
+									{
+										BATTLE_JOINED(pLoopUnit, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+									}
+#endif
 									pkDamageEntry->SetDamage(iNukeDamage);
 									pkDamageEntry->SetFinalDamage(std::min(iNukeDamage + pLoopUnit->getDamage(), GC.getMAX_HIT_POINTS()));
 									pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
@@ -2456,6 +2509,12 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopCity);
 					if(pkDamageEntry)
 					{
+#if defined(MOD_EVENTS_BATTLES)
+						if (pLoopCity != pDefenderCity)
+						{
+							BATTLE_JOINED(pLoopCity, BATTLE_UNIT_COUNT, true); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+						}
+#endif
 						pkDamageEntry->SetDamage(iTotalDamage - pLoopCity->getDamage());
 						pkDamageEntry->SetFinalDamage(iTotalDamage);
 						pkDamageEntry->SetMaxHitPoints(pLoopCity->GetMaxHitPoints());
@@ -2558,6 +2617,8 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 		// Report that combat is over in case we want to queue another attack
 		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, true);
 	}
+	
+	BATTLE_FINISHED();
 }
 
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
@@ -2579,6 +2640,35 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
 		}
 	
 		if (iInterceptionDamage > 0) {
+#if defined(MOD_EVENTS_BATTLES)
+			if (MOD_EVENTS_BATTLES) {
+				BATTLE_STARTED(BATTLE_TYPE_PARADROP, pDropPlot);
+				BATTLE_JOINED(&pParaUnit, BATTLE_UNIT_ATTACKER, false);
+				BATTLE_JOINED(pInterceptor, BATTLE_UNIT_INTERCEPTOR, false);
+
+				if (MOD_EVENTS_BATTLES_DAMAGE) {
+					int iValue = 0;
+					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage) == GAMEEVENTRETURN_VALUE) {
+						if (iValue != 0) {
+							if (iValue < 0) {
+								// Decreasing the amount of damage, in which case it can't be more than the amount inflicted (as that's called 'healing'!)
+								if (iInterceptionDamage + iValue < 0) {
+									iValue = -iInterceptionDamage;
+								}
+							} else {
+								// Increasing the amount of damage, in which case we can't exceed unit's hit points
+								if (iInterceptionDamage + iValue > pParaUnit.GetCurrHitPoints()) {
+									iValue = pParaUnit.GetCurrHitPoints() - iInterceptionDamage;
+								}
+							}
+				
+							iInterceptionDamage += iValue;
+						}
+					}
+				}
+			}
+#endif
+
 			CUSTOMLOG("Paradrop: hostile AA did %i damage", iInterceptionDamage);
 			// Play the AA animations here ... but without an air attacker it's just not possible!!!
 			// if (!CvPreGame::quickCombat()) {
@@ -2610,6 +2700,8 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
 				}
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pParaUnit.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
+			
+			BATTLE_FINISHED();
 		}
 	}
 	

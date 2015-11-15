@@ -4905,6 +4905,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 		}
 	}
 
+#if defined(MOD_EVENTS_LIBERATION)
+	if (MOD_EVENTS_LIBERATION) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerLiberated, GetID(), ePlayer, pNewCity->GetID());
+	}
+#endif
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
@@ -4940,6 +4946,14 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+	
+#if defined(MOD_EVENTS_LIBERATION)
+	if (MOD_EVENTS_LIBERATION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanLiberate, GetID(), ePlayer) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
 
 	return true;
 }
@@ -9303,7 +9317,13 @@ bool CvPlayer::canFound(int iX, int iY) const
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
-
+#if defined(MOD_EVENTS_CITY_FOUNDING)
+	if (MOD_EVENTS_CITY_FOUNDING) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanFoundCityRegardless, GetID(), iX, iY) == GAMEEVENTRETURN_TRUE) {
+			return true;
+		}
+	}
+#endif
 	// Has the AI agreed to not settle here?
 	if(IsNoSettling(pPlot->GetPlotIndex()))
 		return false;
@@ -22242,7 +22262,8 @@ void CvPlayer::SetCorporateFranchisesWorldwide(int iChange)
 int CvPlayer::GetMaxFranchises()
 {
 	int iBase = GetTrade()->GetNumTradeRoutesPossible();
-	iBase *= 2;
+	iBase *= 3;
+	iBase /= 2;
 	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
 	iMax /= 100;
 	if(iMax > iBase)

@@ -11788,7 +11788,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Open Door
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->bOpenDoor)
 	{
-		if (GET_PLAYER(eTargetCityState).isMinorCiv())
+		if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv())
 		{
 			//Proposer...
 			PlayerTypes ePlayer = GetPlayer()->GetID();
@@ -11926,7 +11926,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Sphere of Influence - City-States
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->bSphereOfInfluence)
 	{
-		if (GET_PLAYER(eTargetCityState).isMinorCiv())
+		if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv())
 		{
 			//Proposer...
 			PlayerTypes ePlayer = GetPlayer()->GetID();

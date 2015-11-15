@@ -9676,6 +9676,12 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 			return;
 		}
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
+		
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (MOD_EVENTS_MINORS_INTERACTION) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerProtected, eMajor, GetPlayer()->GetID());
+		}
+#endif
 	}
 	else
 	{
@@ -9684,6 +9690,11 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
 			ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT());
 		}
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (MOD_EVENTS_MINORS_INTERACTION) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerRevoked, eMajor, GetPlayer()->GetID(), bPledgeNowBroken);
+		}
+#endif
 	}
 
 	m_abPledgeToProtect[eMajor] = bProtect;
@@ -9723,6 +9734,14 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 	if(iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return true;
 }
 
@@ -9761,6 +9780,14 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanRevoke, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return true;
 }
 
@@ -11468,6 +11495,14 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 	if(GET_PLAYER(eMajor).GetTreasury()->GetGold() < iBuyoutCost)
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return true;
 }
 
@@ -11555,6 +11590,11 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 		}
 	}
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBoughtOut, eMajor, GetPlayer()->GetID());
+	}
+#endif
 	
 #if !defined(NO_ACHIEVEMENTS)
 	CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
@@ -12203,6 +12243,14 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBullyGold, ePlayer, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return (iSpecifiedBullyMetric >= 0);
 }
 
@@ -12254,6 +12302,14 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBullyUnit, ePlayer, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return (iSpecifiedBullyMetric >= 0);
 }
 
@@ -12344,6 +12400,12 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 		GET_PLAYER(eBully).GetTreasury()->ChangeGold(iGold);
 		DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS());
+		
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (MOD_EVENTS_MINORS_INTERACTION) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1);
+		}
+#endif
 	}
 
 	// Logging
@@ -12751,6 +12813,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
 			DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+			
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+			if (MOD_EVENTS_MINORS_INTERACTION) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY());
+			}
+#endif
 		}
 		else
 			pNewUnit->kill(false);	// Could not find a spot for the unit!
@@ -13097,6 +13165,12 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUni
 	{
 		pGiftUnit->kill(false);
 	}
+	
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, eFromPlayer, GetPlayer()->GetID(), -1, pGiftUnit->getUnitType(), -1, -1);
+	}
+#endif
 }
 
 int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool /*bDistanceGift*/)
@@ -13181,6 +13255,12 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 
 		// In case we had a Gold Gift quest active, complete it now
 		DoTestActiveQuestsForPlayer(ePlayer, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GIVE_GOLD);
+		
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (MOD_EVENTS_MINORS_INTERACTION) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, ePlayer, GetPlayer()->GetID(), iGold, -1, -1, -1);
+		}
+#endif
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
@@ -13278,6 +13358,14 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 	if (!bHasValidPlot)
 		return false;
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftImprovement, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif				
+	
 	return true;
 }
 
@@ -13398,6 +13486,12 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	const int iCost = GetGiftTileImprovementCost(eMajor);
 	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iCost,5);
 	pPlayer->GetTreasury()->ChangeGold(-iCost);
+
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (MOD_EVENTS_MINORS_INTERACTION) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, eMajor, GetPlayer()->GetID(), -1, -1, iPlotX, iPlotY);
+	}
+#endif
 }
 
 /// Now at war with eTeam
