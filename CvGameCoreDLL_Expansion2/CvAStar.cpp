@@ -319,7 +319,7 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
-	if (MOD_BALANCE_CORE_DEBUGGING && false)
+	if (false)
 	{
 		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -4518,16 +4518,14 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int, const vo
 	// Mountain pass
 	else if (pToPlot->isMountain() && pCacheData->IsMountainPass())
 		iCost = iCost / 2;
-	else
-	{
-		//try to avoid these plots
-		if (pToPlot->isHills() || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_ICE)
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
 
-		//prefer oasis
-		if (eFeature != FEATURE_OASIS)
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
-	}
+	//try to avoid these plots
+	if (pToPlot->isHills() || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_ICE)
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+
+	//prefer oasis
+	if (eFeature != FEATURE_OASIS)
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
 	
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->getTeam().GetID() != eToPlotTeam)

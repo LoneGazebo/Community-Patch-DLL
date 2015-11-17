@@ -18008,7 +18008,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			int iNumDeals = 0;
 			if(iDealTypes == 0)
 			{
-				iNumDeals = pGameDeals->GetNumHistoricDeals(ePlayer);
+				iNumDeals = pGameDeals->GetNumHistoricDeals(ePlayer,12);
 			}
 			else
 			{
@@ -30213,7 +30213,7 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID(),12);
 		}
 		else
 		{
@@ -30260,7 +30260,7 @@ void CvDiplomacyAI::ClearDealToRenew()
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID(),12);
 		}
 		else
 		{

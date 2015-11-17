@@ -714,35 +714,6 @@ void CvPlayerAI::AI_considerAnnex()
 	}
 }
 
-int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int iRange)
-{
-	int iCount = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
-		CvPlot* pMissionPlot = pLoopUnit->GetMissionAIPlot();
-		if(!pMissionPlot)
-		{
-			continue;
-		}
-
-		MissionAITypes eGroupMissionAI = pLoopUnit->GetMissionAIType();
-		if(eGroupMissionAI != eMissionAI)
-		{
-			continue;
-		}
-
-		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pMissionPlot->getX(), pMissionPlot->getY());
-		if(iDistance == iRange)
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
-}
-
 // Protected Functions...
 
 void CvPlayerAI::AI_doResearch()

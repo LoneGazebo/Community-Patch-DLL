@@ -823,10 +823,22 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
+		bool bAlreadyTargeted = false;
 		CvUnit* pAlternativeWorker = NULL;
 		int iAlternativeTurnsAway = INT_MAX;
 		for (std::vector<CvUnit*>::iterator it = otherWorkers.begin(); it != otherWorkers.end(); ++it)
 		{
+			//see if someone already has a mission here
+			if ((*it)->GetMissionAIType()==MISSIONAI_BUILD)
+			{
+				CvPlot* pTargetPlot = (*it)->GetMissionAIPlot();
+				if (pTargetPlot && plotDistance(*pPlot,*pTargetPlot)<2)
+				{
+					bAlreadyTargeted = true;
+					break;
+				}
+			}
+
 			int iTurns = FindTurnsAway(*it, pPlot);
 			if (iTurns>-1 && iTurns<iAlternativeTurnsAway)
 			{
@@ -834,6 +846,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				pAlternativeWorker = *it;
 			}
 		}
+
+		if (bAlreadyTargeted)
+			continue;
 
 		if (pAlternativeWorker)
 		{
@@ -2328,22 +2343,6 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 				}
 				LogInfo(strLog, m_pPlayer);
 			}
-			return false;
-		}
-	}
-
-	// check to see if someone already has a mission here
-	if(pUnit->GetMissionAIPlot() != pPlot)
-	{
-		if(m_pPlayer->AI_plotTargetMissionAIs(pPlot, MISSIONAI_BUILD) > 0)
-		{
-			if(m_bLogging)
-			{
-				CvString strLog;
-				strLog.Format("x: %d y: %d,,Somebody has a mission here, ", pPlot->getX(), pPlot->getY());
-				LogInfo(strLog, m_pPlayer, true);
-			}
-
 			return false;
 		}
 	}

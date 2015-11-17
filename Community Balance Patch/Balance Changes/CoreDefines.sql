@@ -1,4 +1,4 @@
--- Trade Route value reduction
+﻿-- Trade Route value reduction
 	UPDATE Defines
 	SET Value = '60'
 	WHERE Name = 'INTERNATIONAL_TRADE_CITY_GPT_DIVISOR';

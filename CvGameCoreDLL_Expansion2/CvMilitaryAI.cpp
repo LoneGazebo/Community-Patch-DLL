@@ -1816,116 +1816,116 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 #else
 	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
 	for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
-	{
+					{
 		CvPlot* pPlot = pFriendlyCity->plot();
 		int iX = pPlot->getX();
 		int iY = pPlot->getY();
 		bool bGeneralInTheVicinity = false;
 		int iPower = 0;
 		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-		{
+					{
 			if (pLoopUnit->IsCombatUnit())
-			{
+						{
 				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
 				if (iDistance <= 5)
-				{
+							{
 					iPower += pLoopUnit->GetPower();
-				}
-			}
+								}
+							}
 			if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-			{
+							{
 				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
 				if (iDistance <= 5)
-				{
+								{
 					bGeneralInTheVicinity = true;
-				}
-			}
+								}
+							}
 		}
 		if (bGeneralInTheVicinity)
-		{
+							{
 			iPower *= 11;
 			iPower /= 10;
-		}
+							}
 		pFriendlyCity->iScratch = iPower;
-	}
+						}
 	for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
-	{
+			{
 		CvPlot* pPlot = pEnemyCity->plot();
 		if(pPlot->isRevealed(m_pPlayer->getTeam()))
-		{
+				{
 			int iX = pPlot->getX();
 			int iY = pPlot->getY();
 			bool bGeneralInTheVicinity = false;
 			int iPower = 0;
 			for (pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
-			{
+					{
 				if (pLoopUnit->IsCombatUnit())
-				{
+						{
 					int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
 					if (iDistance <= 5)
-					{
+							{
 						iPower += pLoopUnit->GetPower();
 					}
 				}
 				if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-				{
+								{
 					int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
 					if (iDistance <= 5)
-					{
+									{
 						bGeneralInTheVicinity = true;
-					}
-				}
-			}
+											}
+										}
+									}
 			if (bGeneralInTheVicinity)
 			{
 				iPower *= 11;
 				iPower /= 10;
-			}
+								}
 			pEnemyCity->iScratch = iPower;
-		}
-	}
+							}
+						}
 	// Build a list of all the possible start city/target city pairs
 	static CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
 	prelimWeightedTargetList.clear();
 	for(pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
-	{
+					{
 		for(pEnemyCity = GET_PLAYER(eEnemy).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(eEnemy).nextCity(&iEnemyLoop))
-		{
+					{
 			if(pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
-			{
-				CvMilitaryTarget target;
-				int iWeight;
+						{
+							CvMilitaryTarget target;
+							int iWeight;
 				target.m_pMusterCity = pFriendlyCity;
 				target.m_pTargetCity = pEnemyCity;
 				target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
 				target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
 				if (eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK)
-				{
-					target.m_bAttackBySea = true;
-					if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
-					{
-						target.m_iPathLength = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY());
-					}
-				}
+							{
+								target.m_bAttackBySea = true;
+								if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
+								{
+									target.m_iPathLength = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY());
+								}
+							}
 
-				else
-				{
-					ShouldAttackBySea(eEnemy, target);
+							else
+							{
+								ShouldAttackBySea(eEnemy, target);
 
 					if (!pFriendlyCity->isCoastal() && target.m_bAttackBySea)
-					{
-						continue;
+								{
+									continue;
+								}
+							}
+
+							if(target.m_iPathLength > 0)
+							{
+								iWeight = (10000 - target.m_iPathLength);   // Start by using the path length as the weight, shorter paths have higher weight
+								prelimWeightedTargetList.push_back(target, iWeight);
+							}
+						}
 					}
 				}
-
-				if(target.m_iPathLength > 0)
-				{
-					iWeight = (10000 - target.m_iPathLength);   // Start by using the path length as the weight, shorter paths have higher weight
-					prelimWeightedTargetList.push_back(target, iWeight);
-				}
-			}
-		}
-	}
 
 	// Let's score the 25 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
 	prelimWeightedTargetList.SortItems();
@@ -1953,7 +1953,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			{
 				continue;
 			}
-		}
+									}
 
 		iWeight = ScoreTarget(target, eAIOperationType);
 
@@ -4767,7 +4767,7 @@ void CvMilitaryAI::UpdateOperations()
 							|| iOperation == MUFORMATION_RAPID_RESPONSE_FORCE
 							|| iOperation == AI_OPERATION_FOUND_CITY
 							|| iOperation == AI_OPERATION_MERCHANT_DELEGATION
-							|| iOperation == AI_OPERATION_COLONIZE
+							|| iOperation == AI_OPERATION_NAVAL_COLONIZATION
 							|| iOperation == AI_OPERATION_QUICK_COLONIZE
 							|| iOperation == AI_OPERATION_CONCERT_TOUR
 							|| iOperation == AI_OPERATION_DIPLOMAT_DELEGATION)
@@ -4802,7 +4802,7 @@ void CvMilitaryAI::UpdateOperations()
 				|| iOperation == AI_OPERATION_PURE_NAVAL_CITY_ATTACK 
 				|| iOperation == AI_OPERATION_FOUND_CITY
 				|| iOperation == AI_OPERATION_MERCHANT_DELEGATION
-				|| iOperation == AI_OPERATION_COLONIZE
+				|| iOperation == AI_OPERATION_NAVAL_COLONIZATION
 				|| iOperation == AI_OPERATION_QUICK_COLONIZE
 				|| iOperation == AI_OPERATION_CONCERT_TOUR
 				|| iOperation == AI_OPERATION_DIPLOMAT_DELEGATION

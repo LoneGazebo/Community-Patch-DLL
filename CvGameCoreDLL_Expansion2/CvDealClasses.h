@@ -277,7 +277,7 @@ public:
 	CvDeal* GetCurrentDeal(PlayerTypes ePlayer, uint index);
 	CvDeal* GetHistoricDeal(PlayerTypes ePlayer, uint indx);
 	uint GetNumCurrentDeals(PlayerTypes ePlayer);
-	uint GetNumHistoricDeals(PlayerTypes ePlayer);
+	uint GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount=UINT_MAX);
 
 	uint CreateDeal();
 	CvDeal* GetDeal(uint index);

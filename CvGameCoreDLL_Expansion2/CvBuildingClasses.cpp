@@ -4693,6 +4693,9 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 {
 	int iRtnValue = 0;
+	int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
+	if (iCityStates==0)
+		return 0;
 
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -4709,8 +4712,7 @@ int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 					if (pkEntry)
 					{
 						int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
-						int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
-						if (iProductionModifier > 0  && iCityStates > 0)
+						if (iProductionModifier > 0)
 						{
 #if defined(MOD_BUGFIX_MINOR)
 							iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);

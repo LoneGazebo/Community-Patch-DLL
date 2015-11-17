@@ -1086,6 +1086,19 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #if defined(MOD_BALANCE_CORE)
 	}
 #endif
+
+	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+	int iLoop;
+	for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		if(pLoopCity && !pLoopCity->IsPuppet())
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			for (size_t i=0; i<vBuildings.size(); i++)
+				vTotalBuildingCount[ vBuildings[i] ]++;
+		}
+	}
+
 	// Loop through adding the available buildings
 	for(iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 	{
@@ -1097,7 +1110,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			continue;
 
 		// Make sure this building can be built now
-		if(iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding))
+		if(iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding,vTotalBuildingCount))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 			buildable.m_iIndex = iBldgLoop;

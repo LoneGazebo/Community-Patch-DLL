@@ -3131,14 +3131,6 @@ int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnectio
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
 {
-#if !defined(MOD_API_UNIFIED_YIELDS)
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-#endif
-
 	int iValue = 0;
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -4884,7 +4876,7 @@ void CvPlayerTrade::UpdateTradeConnectionWasPlundered()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayerTrade::AddTradeConnectionWasPlundered(const TradeConnection kTradeConnection)
+void CvPlayerTrade::AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection)
 {
 	bool bAdded = false;
 	for (uint ui = 0; ui < m_aTradeConnectionWasPlundered.size(); ui++)

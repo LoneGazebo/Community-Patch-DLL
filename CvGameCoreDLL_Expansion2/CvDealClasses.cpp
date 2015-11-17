@@ -3835,17 +3835,14 @@ CvDeal* CvGameDeals::GetCurrentDeal(PlayerTypes ePlayer, uint index)
 // ------------------------------------------------------------------------
 CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 {
-	DealList::iterator iter;
-	DealList::iterator end = m_HistoricalDeals.end();
-
+	//iterate backwards, usually the latest deals are most interesting
 	uint iCount = 0;
-	for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
+	for (uint iIdx=m_HistoricalDeals.size()-1; iIdx>=0; iIdx--)
 	{
-		if((iter->m_eToPlayer == ePlayer ||
-		        iter->m_eFromPlayer == ePlayer) &&
-		        (iCount++ == index))
+		DealList::value_type& deal = m_HistoricalDeals[iIdx];
+		if((deal.m_eToPlayer == ePlayer || deal.m_eFromPlayer == ePlayer) && (iCount++ == index))
 		{
-			return &(*iter);
+			return &deal;
 		}
 	}
 
@@ -3876,7 +3873,7 @@ uint CvGameDeals::GetNumCurrentDeals(PlayerTypes ePlayer)
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
-uint CvGameDeals::GetNumHistoricDeals(PlayerTypes ePlayer)
+uint CvGameDeals::GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount)
 
 {
 	DealList::iterator iter;
@@ -3889,6 +3886,8 @@ uint CvGameDeals::GetNumHistoricDeals(PlayerTypes ePlayer)
 		        iter->m_eFromPlayer == ePlayer)
 		{
 			++iCount;
+			if (iCount==iMaxCount)
+				break;
 		}
 	}
 

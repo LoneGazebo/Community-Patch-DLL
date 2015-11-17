@@ -9914,6 +9914,23 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 {
+	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+	int iLoop;
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity && !pLoopCity->IsPuppet())
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			for (size_t i=0; i<vBuildings.size(); i++)
+				vTotalBuildingCount[ vBuildings[i] ]++;
+		}
+	}
+
+	return canConstruct(eBuilding,vTotalBuildingCount,bContinue,bTestVisible,bIgnoreCost,toolTipSink);
+}
+
+bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
+{
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo == NULL)
 		return false;
@@ -10217,7 +10234,6 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		}
 #endif
 
-		// How does this differ from the check above?
 		BuildingTypes ePrereqBuilding;
 		int iNumNeeded;
 		for(iI = 0; iI < numBuildingClassInfos; iI++)
@@ -10230,17 +10246,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 				CvBuildingEntry* pkPrereqBuilding = GC.getBuildingInfo(ePrereqBuilding);
 				if(pkPrereqBuilding)
 				{
-					int iNumHave = 0;
-					const CvCity* pLoopCity = NULL;
-					int iLoop;
-					for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						if(pLoopCity && !pLoopCity->IsPuppet() && pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
-						{
-							iNumHave++;
-						}
-					}
-
+					int iNumHave = vPreExistingBuildings[ePrereqBuilding];
 					if(iNumHave < iNumNeeded)
 					{
 						ePrereqBuilding = (BuildingTypes) civilizationInfo.getCivilizationBuildings(iI);
@@ -10256,7 +10262,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 						{
 							(*toolTipSink) += "[NEWLINE]";
 
-							for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							int iLoop=0;
+							for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
 								if(pLoopCity && !pLoopCity->IsPuppet() && pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
 								{
@@ -11791,6 +11798,9 @@ int CvPlayer::getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const
 //	--------------------------------------------------------------------------------
 RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 {
+	if (pPlot==NULL)
+		return GET_TEAM(getTeam()).GetBestPossibleRoute();
+
 	RouteTypes eRoute;
 	RouteTypes eBestRoute;
 	int iValue;
@@ -11812,7 +11822,7 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
 				if(pkRouteInfo)
 				{
-					if((pPlot != NULL) ? ((pPlot->getRouteType() == eRoute) || canBuild(pPlot, eBuild)) : GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkBuildInfo->getTechPrereq())))
+					if( (pPlot->getRouteType() == eRoute) || canBuild(pPlot, eBuild) )
 					{
 #if defined(MOD_BALANCE_CORE)
 						if(MOD_BALANCE_CORE && pkBuildInfo->getTechObsolete() == NO_TECH)
@@ -26968,8 +26978,8 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	}
 #if !defined(MOD_BALANCE_CORE)
 	if(iChange > 0)
-		DoTestOverResourceNotification(eIndex);
 #endif
+		DoTestOverResourceNotification(eIndex);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -29857,7 +29867,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 				switch (pOperation->GetOperationType())
 				{
 				case AI_OPERATION_FOUND_CITY:
-				case AI_OPERATION_COLONIZE:
+				case AI_OPERATION_NAVAL_COLONIZATION:
 				case AI_OPERATION_QUICK_COLONIZE:
 					{
 						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
@@ -29875,7 +29885,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_COLONIZE:
+			case AI_OPERATION_NAVAL_COLONIZATION:
 			case AI_OPERATION_QUICK_COLONIZE:
 				{
 					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
@@ -34863,6 +34873,9 @@ void CvPlayer::UpdatePlots(void)
 		{
 			continue;
 		}
+
+		//somebody might have plundered an improvement
+		pLoopPlot->updateFreshwater();
 
 		m_aiPlots[iPlotIndex] = iI;
 		iPlotIndex++;
