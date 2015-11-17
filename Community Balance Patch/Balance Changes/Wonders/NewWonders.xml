@@ -115,7 +115,6 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>46</PortraitIndex>
 			<WonderSplashImage>motherlandsplash.dds</WonderSplashImage>
-			<WonderSplashAudio>AS2D_WONDER_SPEECH_MOTHERLAND_STATUE</WonderSplashAudio>
 		</Row>
 	</Buildings>
 	<Building_Flavors>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/27/2014 3:43:15 PM -->
+<GameData>
+	<CustomModOptions>
+		<!-- This is the "all off" option -->
+		<Update>
+			<Where Name="COMMUNITY_PATCH"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects the base elements of the patch. -->
+		<Update>
+			<Where Name="BALANCE_CORE"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects all yield-related changes.-->
+		<Update>
+			<Where Name="BALANCE_CORE_YIELDS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects spies scaling with game size.-->
+		<Update>
+			<Where Name="BALANCE_CORE_SPIES"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects basic diplomacy AI.-->
+		<Update>
+			<Where Name="BALANCE_CORE_DIPLOMACY"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects AI Tactical and Military Performance-->
+		<Update>
+			<Where Name="BALANCE_CORE_MILITARY"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects AI settler site location selection and advanced settler functions -->
+		<Update>
+			<Where Name="BALANCE_CORE_SETTLER"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- These affect the Deal AI -->
+		<Update>
+			<Where Name="BALANCE_CORE_DEALS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects the AI's grand strategy guessing improvements.-->
+		<Update>
+			<Where Name="BALANCE_CORE_GRANDSTRATEGY_AI"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects the ability to purchase in puppet cities (certain units and buildings)-->
+		<Update>
+			<Where Name="BALANCE_CORE_PUPPET_PURCHASE"/>
+			<Set Value="1"/>
+		</Update>
+	</CustomModOptions>
+  </GameData>

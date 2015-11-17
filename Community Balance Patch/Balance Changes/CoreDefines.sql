@@ -71,6 +71,11 @@
 	SET Value = '1000'
 	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON';
 
+-- Rebase distance increased
+	UPDATE Defines
+	SET Value = '500'
+	WHERE Name = 'AIR_UNIT_REBASE_RANGE_MULTIPLIER';
+
 -- More Cost for Plot Acquisition
 	UPDATE Defines
 	SET Value = '20'

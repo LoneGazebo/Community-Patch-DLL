@@ -1004,6 +1004,23 @@ function GoldenAgeTipHandler( control )
 			else
 				strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
 			end
+			-- CBP
+			local iGAPReligion = pPlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
+			end
+			local iGAPTrait = pPlayer:GetGAPFromTraits();
+			if (iGAPTrait > 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
+			end
+			local iGAPCities = pPlayer:GetGAPFromCities();
+			if (iGAPCities > 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
+			end
+			-- END
 		end
 	
 		strText = strText .. "[NEWLINE][NEWLINE]";

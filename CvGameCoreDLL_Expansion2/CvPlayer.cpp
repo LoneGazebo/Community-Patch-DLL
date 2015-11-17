@@ -18517,20 +18517,7 @@ void CvPlayer::DoProcessGoldenAge()
 			ChangeGoldenAgeProgressMeter(GetExcessHappiness());
 			
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-			// GA points from religion
-			ChangeGoldenAgeProgressMeter(GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS));
-
-			// Trait bonus which adds GA points for trade partners? 
-			ChangeGoldenAgeProgressMeter(GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS));
-
-			// Add in all the GA points from city yields
-			CvCity* pLoopCity;
-			int iLoop;
-
-			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				ChangeGoldenAgeProgressMeter(pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false));
-			}
+			ChangeGoldenAgeProgressMeter(GetGoldenAgePointsFromEmpire());
 #endif
 
 			// Enough GA Progress to trigger new GA?
@@ -18557,7 +18544,27 @@ void CvPlayer::DoProcessGoldenAge()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::GetGoldenAgePointsFromEmpire()
+{
+	int iGAPoints = 0;
+	// GA points from religion
+	iGAPoints += GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS);
 
+	// Trait bonus which adds GA points for trade partners? 
+	iGAPoints +=  GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS);
+
+	// Add in all the GA points from city yields
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iGAPoints += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
+	}
+	return iGAPoints;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// How much do we need in the GA meter to trigger the next one?
 int CvPlayer::GetGoldenAgeProgressThreshold() const

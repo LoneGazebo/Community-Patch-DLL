@@ -439,19 +439,19 @@
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIUnhappinessPercent>70</AIUnhappinessPercent>
-			<AIGrowthPercent>75</AIGrowthPercent>
-			<AITrainPercent>75</AITrainPercent>
+			<AIGrowthPercent>70</AIGrowthPercent>
+			<AITrainPercent>70</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>75</AIConstructPercent>
+			<AIConstructPercent>70</AIConstructPercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>75</AICreatePercent>
+			<AICreatePercent>70</AICreatePercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
-			<AIBuildingCostPercent>65</AIBuildingCostPercent>
-			<AIUnitCostPercent>65</AIUnitCostPercent>
+			<AIBuildingCostPercent>60</AIBuildingCostPercent>
+			<AIUnitCostPercent>60</AIUnitCostPercent>
 			<AIUnitSupplyPercent>50</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>75</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-9</AIPerEraModifier>
+			<AIPerEraModifier>-12</AIPerEraModifier>
 			<AIAdvancedStartPercent>230</AIAdvancedStartPercent>
 			<AIFreeXP>50</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>

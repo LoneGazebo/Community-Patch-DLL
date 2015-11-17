@@ -85,6 +85,15 @@
 	SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_SpyName} is in the city, they establish surveillance, attempt to steal any technology from that civilization, and perform Advanced Actions such as stealing Gold. {6_SpyRank} {7_SpyName} will also inform you of any intrigue that they discover during their operations.'
 	WHERE Tag = 'TXT_KEY_CITY_SPY_OTHER_CIV_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+-- Lua for Cities
+	UPDATE Language_en_US
+	SET Text = 'We have no tradeable cities and/or we do not have a Declaration of Friendship.'
+	WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'They have no tradeable cities and/or we do not have a Declaration of Friendship.'
+	WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
 -- Public Opinion
 
 	UPDATE Language_en_US
@@ -113,11 +122,6 @@
 	SET Text = ' You are currently using more {1_Resource:textkey} than you have! All units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
---	Natural Wonders
-	UPDATE Language_en_US
-	SET Text = ' Congratulations on your discovery of {@1_NWName}! [NEWLINE][NEWLINE]Output if worked:'
-	WHERE Tag = 'TXT_KEY_POP_NATURAL_WONDER_FOUND_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
-
 -- Spy Stuff
 
 	UPDATE Language_en_US
@@ -144,7 +148,7 @@
 	WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 	UPDATE Language_en_US	
-	SET Text = '[COLOR_POSITIVE_TEXT]Annexing[ENDCOLOR] the City into your empire causes it to become a normal City that produces extra [ICON_HAPPINESS_4] Unhappiness (until you construct a Courthouse).[NEWLINE][NEWLINE]Immediately Annexing the City (instead of Puppeting or Razing the City) [COLOR_POSITIVE_TEXT]invests[ENDCOLOR] in a Courthouse in the City, reducing its construction time by at least 50%.'
+	SET Text = '[COLOR_POSITIVE_TEXT]Annexing[ENDCOLOR] the City into your empire causes it to become a normal City that produces extra [ICON_HAPPINESS_4] Unhappiness (until you construct a Courthouse).[NEWLINE][NEWLINE]Immediately Annexing the City (instead of Puppeting or Razing the City) [COLOR_POSITIVE_TEXT]invests[ENDCOLOR] in a Courthouse in the City, reducing its construction time by at least 50%, and [COLOR_POSITIVE_TEXT]halves[ENDCOLOR] City [ICON_RESISTANCE] Resistance.'
 	WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 	UPDATE Language_en_US	

@@ -670,11 +670,7 @@ local function RefreshCityDamage( city, cityBanner, cityDamage )
 
 	if cityBanner then
 
-		local maxCityHitPoints = GameDefines.MAX_CITY_HIT_POINTS
-		if gk_mode and city then
-			maxCityHitPoints = city:GetMaxHitPoints()
-		end
-
+		local maxCityHitPoints = gk_mode and city and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS
 		local iHealthPercent = 1 - cityDamage / maxCityHitPoints
 
 		cityBanner.CityBannerHealthBar:SetPercent(iHealthPercent)
@@ -1397,6 +1393,7 @@ local function RefreshCityBannersNow()
 
 				if cityOwnerID == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
 					Network.SendUpdateCityCitizens( city:GetID() )
+					Network.SendUpdateCityCitizens( city:GetID() ) --DLL bug: must be sent twice to have desired effect
 				end
 
 				local normalView = not (civ5_mode and InStrategicView())

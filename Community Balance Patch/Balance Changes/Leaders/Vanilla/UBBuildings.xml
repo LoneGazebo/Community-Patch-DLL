@@ -233,25 +233,25 @@
 			<BuildingType>BUILDING_DOJO</BuildingType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOJO</BuildingType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOJO</BuildingType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOJO</BuildingType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Language_en_US>
@@ -265,7 +265,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Crime. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]All Melee and Gun units trained in this city recieve the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion.</Text>
+			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Crime. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +2 [ICON_CULTURE] Culture and +2 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]All Melee and Gun units trained in this city recieve the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
 			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture and Production. All Melee and Gun units trained in this city recieve the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat.</Text>
@@ -431,17 +431,17 @@
 		<Row>
 			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_GREAT_ADMIRAL_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldFromVictory>
 	<Building_BuildingClassLocalYieldChanges>
@@ -474,7 +474,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>+2 [ICON_TOURISM] Tourism. Whenever you defeat a Land Unit, produce +5 [ICON_GREAT_GENERAL] Great General points (+5 [ICON_GREAT_ADMIRAL] Great Admiral points if a Naval Unit) and +5 [ICON_GOLDEN_AGE] Golden Age points. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
+			<Text>+2 [ICON_TOURISM] Tourism. Whenever you defeat a Land Unit, produce +3 [ICON_GREAT_GENERAL] Great General points (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if a Naval Unit) and +3 [ICON_GOLDEN_AGE] Golden Age points, scaling with Era. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>

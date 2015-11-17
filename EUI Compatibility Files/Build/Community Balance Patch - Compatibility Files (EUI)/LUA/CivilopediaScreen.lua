@@ -67,9 +67,14 @@ local absurdlyLargeNumTopicsInCategory = 10000;
 local homePageOfCategoryID = 9999;
 
 -- Putmalk: These boolean variables check whether or not certain game options are enabled.
-local g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-local g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
-local g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+	local g_bResearchAgreementTrading = false;
+	local g_bTechTrading = true;
+	local g_bNoVassalage= false;
+if(Game ~= nil)then
+	g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+	g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
+	g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+end
 -- END
 
 -- These projects were more of an implementation detail and not explicit projects
@@ -2469,6 +2474,20 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			numAbilities = numAbilities + 1;
 		end
 --CBP
+		if thisTech.BombardRange > 0 then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" );
+			numAbilities = numAbilities + 1
+		end
+		if thisTech.BombardIndirect > 0 then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" );
+			numAbilities = numAbilities + 1;
+		end
 		if thisTech.CityLessEmbarkCost then
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";

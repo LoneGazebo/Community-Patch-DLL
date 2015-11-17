@@ -522,8 +522,9 @@ function GetAllyToolTip( majorPlayerID, minorPlayerID )
 			if allyID ~= majorPlayerID then
 				-- Someone we know
 				local influenceUntilAllied = minorCivFriendshipWithAlly - minorCivFriendshipWithMajor + 1	-- needs to pass up the current ally, not just match
-				if not gk_mode then
-					toolTip = L("TXT_KEY_CITY_STATE_TITLE_TOOL_TIP_ALLIES", influenceUntilAllied, minorPlayer:GetCivilizationShortDescription() )
+				--CBP
+				if(minorPlayer:GetPermanentAlly() == allyID) then
+					toolTip = L("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[allyID]:GetCivilizationShortDescriptionKey())
 				elseif Teams[majorPlayer:GetTeam()]:IsHasMet(ally:GetTeam()) then
 					toolTip = L("TXT_KEY_CITY_STATE_ALLY_TT", Players[allyID]:GetCivilizationShortDescription(), influenceUntilAllied)
 				-- Someone we haven't met
@@ -543,6 +544,9 @@ function GetAllyToolTip( majorPlayerID, minorPlayerID )
 				end
 			end
 		-- No ally
+		-- CBP
+		elseif(minorPlayer:IsNoAlly()) then
+			toolTip = L("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA")
 		else
 			local influenceUntilAllied = GameDefines.FRIENDSHIP_THRESHOLD_ALLIES - minorCivFriendshipWithMajor
 			if gk_mode then

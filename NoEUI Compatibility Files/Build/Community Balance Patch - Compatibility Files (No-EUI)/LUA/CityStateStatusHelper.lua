@@ -460,7 +460,9 @@ function GetAllyToolTip(iActivePlayer, iMinor)
 			-- Not us
 			if (iAlly ~= iActivePlayer) then
 				-- Someone we know
-				if (Teams[pActivePlayer:GetTeam()]:IsHasMet(Players[iAlly]:GetTeam())) then
+				if(pMinor:GetPermanentAlly() == iAlly) then
+					sToolTip = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[iAlly]:GetCivilizationShortDescriptionKey());
+				elseif(Teams[pActivePlayer:GetTeam()]:IsHasMet(Players[iAlly]:GetTeam())) then
 					local iInfUntilAllied = iAllyInf - iActivePlayerInf + 1; -- needs to pass up the current ally, not just match
 					sToolTip = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ALLY_TT", Players[iAlly]:GetCivilizationShortDescriptionKey(), iInfUntilAllied);
 				-- Someone we haven't met
@@ -473,6 +475,9 @@ function GetAllyToolTip(iActivePlayer, iMinor)
 				sToolTip = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ALLY_ACTIVE_PLAYER_TT");
 			end
 		-- No ally
+		-- CBP
+		elseif(pMinor:IsNoAlly()) then
+			sToolTip = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA");
 		else
 			local iInfUntilAllied = GameDefines["FRIENDSHIP_THRESHOLD_ALLIES"] - iActivePlayerInf;
 			sToolTip = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ALLY_NOBODY_TT", iInfUntilAllied);

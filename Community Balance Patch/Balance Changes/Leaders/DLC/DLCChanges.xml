@@ -62,6 +62,13 @@
 		</Row>
 	</Trait_FreePromotionUnitClass>
 	<!-- Defense Happiness Flavors-->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_WALLS_OF_BABYLON</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_WALLS_OF_BABYLON</BuildingType>

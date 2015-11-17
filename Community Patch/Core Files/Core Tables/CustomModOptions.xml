@@ -225,22 +225,22 @@
     <!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
     <Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0" DbUpdates="1"/>
 
-	<!-- Permits cities to work more rings (v19) -->
+    <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TRAITS_CITY_WORKING" Value="0"/>
 
-	<!-- Enables any belief to be selected, even if already taken (v46) -->
+    <!-- Enables any belief to be selected, even if already taken (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="6" Name="TRAITS_ANY_BELIEF" Value="1" DbUpdates="1"/>
 
-	<!-- Enables additional trade route related traits (v52) -->
+    <!-- Enables additional trade route related traits (v52) -->
     <Row Class="6" Name="TRAITS_TRADE_ROUTE_BONUSES" Value="0" DbUpdates="1"/>
 
-	<!-- Permits cities to work more rings (v19) -->
+    <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="POLICIES_CITY_WORKING" Value="0"/>
 
-	<!-- Permits cities to work more rings (v19) -->
+    <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
 
@@ -249,6 +249,7 @@
     <!-- See also: "Promotions - Jet Long Range Recon" -->
     <Row Class="2" Name="PROMOTIONS_VARIABLE_RECON" Value="1" DbUpdates="1"/>
     <!-- Permits land units to cross mountains (like the Carthage trait) (v19) -->
+    <!-- See also: "Improvement - Tunnel" -->
     <!-- See also: "Promotions - Terrain Crossing" -->
     <Row Class="2" Name="PROMOTIONS_CROSS_MOUNTAINS" Value="0" DbUpdates="1"/>
     <!-- Permits coastal units to cross oceans (v19) -->
@@ -270,7 +271,7 @@
     <!-- Permits promotions to change the base name of units, eg "Kris Swordsman" to "Kris Swordsman (Heroism)" (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="2" Name="PROMOTIONS_UNIT_NAMING" Value="0" DbUpdates="1"/>
-	<!-- Permits units to receive a combat bonus from being near an improvement (v46) -->
+    <!-- Permits units to receive a combat bonus from being near an improvement (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="4" Name="PROMOTIONS_IMPROVEMENT_BONUS" Value="0" DbUpdates="1"/>
 
@@ -292,14 +293,14 @@
     <Row Class="5" Name="BUILDINGS_PRO_RATA_PURCHASE" Value="0"/>
     <Row Class="0" Name="BUILDINGS_PRO_RATA_PURCHASE_DEPRECIATION" Value="80"/>
 
-	<!-- Permits cities to work more rings (v19) -->
+    <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="BUILDINGS_CITY_WORKING" Value="0"/>
 
-	<!-- Scales trade routes based on map size and game speed (v52) -->
+    <!-- Scales trade routes based on map size and game speed (v52) -->
     <Row Class="5" Name="TRADE_ROUTE_SCALING" Value="0" DbUpdates="1"/>
 
-	<!-- Permits wonder resource (ie Marble) trade routes to be established (v43) -->
+    <!-- Permits wonder resource (ie Marble) trade routes to be established (v43) -->
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
 
@@ -337,7 +338,7 @@
     <!-- Send purchase notifications at every boundary and not just the first (v42) -->
     <!-- See also: "Religion - Recurring Purchase Notifications" -->
     <Row Class="4" Name="RELIGION_RECURRING_PURCHASE_NOTIFIY" Value="0"/>
-	<!-- Adds support for the Belief_PlotYieldChanges table (v35) -->
+    <!-- Adds support for the Belief_PlotYieldChanges table (v35) -->
     <!-- See also: "Religion - Bonus Beliefs" -->
     <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 	<!-- Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53) -->
@@ -346,7 +347,7 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
 
-	<!-- Enables production to be stockpiled (v28) -->
+    <!-- Enables production to be stockpiled (v28) -->
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
     <Row Class="6" Name="PROCESS_STOCKPILE" Value="0"/>
     <!-- Row Class="0" Name="PROCESS_STOCKPILE_PER_ERA" Value="30"/ -->
@@ -395,7 +396,7 @@
     <!-- Events sent when plots change from worker actions (v44) -->
     <!--   GameEvents.TileFeatureChanged.Add(function(iPlotX, iPlotY, iOwner, iOldFeature, iNewFeature) end) -->
     <!--   GameEvents.TileImprovementChanged.Add(function(iPlotX, iPlotY, iOwner, iOldImprovement, iNewImprovement, bPillaged) end) -->
-	<!--   GameEvents.TileOwnershipChanged.Add(function(iPlotX, iPlotY, iOwner, iOldOwner) end) (v46) -->
+    <!--   GameEvents.TileOwnershipChanged.Add(function(iPlotX, iPlotY, iOwner, iOldOwner) end) (v46) -->
     <!--   GameEvents.TileRouteChanged.Add(function(iPlotX, iPlotY, iOwner, iOldRoute, iNewRoute, bPillaged) end) -->
     <Row Class="3" Name="EVENTS_TILE_IMPROVEMENTS" Value="0"/>
 
@@ -414,8 +415,8 @@
     <!-- See also: "Global - Espionage Race" -->
     <Row Class="3" Name="EVENTS_NEW_ERA" Value="0"/>
 
-	<!-- Event sent when the team discovers a new Natural Wonder (v19) -->
-	<!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst) end) -->
+    <!-- Event sent when the team discovers a new Natural Wonder (v19) -->
+    <!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst) end) -->
     <!-- See also: "Religion - Natural Wonder Epiphany" -->
     <Row Class="3" Name="EVENTS_NW_DISCOVERY" Value="0"/>
 
@@ -424,8 +425,8 @@
     <!-- See also: "UI - Diary" -->
     <Row Class="3" Name="EVENTS_DIPLO_EVENTS" Value="0"/>
 
-	<!-- Enhanced Diplomacy Modifiers events (v53) -->
-	<!--   GameEvents.GetDiploModifier.Add(function(iEvent, iFromPlayer, iToPlayer) return 0 end) -->
+    <!-- Enhanced Diplomacy Modifiers events (v53) -->
+    <!--   GameEvents.GetDiploModifier.Add(function(iEvent, iFromPlayer, iToPlayer) return 0 end) -->
     <Row Class="3" Name="EVENTS_DIPLO_MODIFIERS" Value="0" DbUpdates="1"/>
 
     <!-- Events sent on status change with City States (v19) -->
@@ -434,8 +435,33 @@
     <!-- See also: "Global - City State Airbases" -->
     <Row Class="3" Name="EVENTS_MINORS" Value="0"/>
 
+    <!-- Events sent on interaction with City States (v68) -->
+    <!--   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end) -->
+    <!--   GameEvents.PlayerCanRevoke.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerRevoked.Add(function(iPlayer, iCS, bPledgeNowBroken) end) -->
+    <!--   GameEvents.PlayerCanBuyOut.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerBoughtOut.Add(function(iPlayer, iCS) end) -->
+    <!--   GameEvents.PlayerCanBullyGold.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerCanBullyUnit.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end) -->
+    <!--   GameEvents.PlayerCanGiftGold.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end) -->
+    <!--   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end) -->
+    <!--   GameEvents.PlayerGifted.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end) -->
+    <Row Class="3" Name="EVENTS_MINORS_INTERACTION" Value="0"/>
+
+    <!-- Events sent by Barbarians (v68) -->
+    <!--   GameEvents.BarbariansCanFoundCamp.Add(function(iPlotX, iPlotY) return true end) -->
+    <!--   GameEvents.BarbariansCampFounded.Add(function(iPlotX, iPlotY) end) -->
+    <!--   GameEvents.BarbariansCampCleared.Add(function(iPlotX, iPlotY, iPlayer) end) -->
+    <!--   GameEvents.BarbariansCampCanSpawnUnit.Add(function(iPlotX, iPlotY) return true end) -->
+    <!--   GameEvents.BarbariansCampGetSpawnUnit.Add(function(iPlotX, iPlotY, iPrefUnitType) return iPrefUnitType end) -->
+    <!--   GameEvents.BarbariansSpawnedUnit.Add(function(iPlotX, iPlotY, iUnitType) end) -->
+    <Row Class="3" Name="EVENTS_BARBARIANS" Value="0"/>
+
     <!-- Event sent when a Goody Hut is entered (v33) -->
-	<!--   GameEvents.GoodyHutCanNotReceive.Add(function(iPlayer, iUnit, eGoody, bPick) return false end) -->
+    <!--   GameEvents.GoodyHutCanNotReceive.Add(function(iPlayer, iUnit, eGoody, bPick) return false end) -->
     <!-- See also: "Goody Huts - No Auto-Mapping" -->
     <Row Class="3" Name="EVENTS_GOODY_CHOICE" Value="0"/>
 
@@ -445,12 +471,12 @@
     <!-- See also: "Goody Huts - Tech Refund" -->
     <Row Class="3" Name="EVENTS_GOODY_TECH" Value="0"/>
 
-	<!-- Event sent to allow Lua to override the AI's choice of tech (v19) -->
-	<!--   GameEvents.AiOverrideChooseNextTech.Add(function(iPlayer, bFreeTech) return iChoosenTech end) -->
+    <!-- Event sent to allow Lua to override the AI's choice of tech (v19) -->
+    <!--   GameEvents.AiOverrideChooseNextTech.Add(function(iPlayer, bFreeTech) return iChoosenTech end) -->
     <Row Class="3" Name="EVENTS_AI_OVERRIDE_TECH" Value="0"/>
 
-	<!-- Events sent by Great People actions (v19) -->
-	<!--   GameEvents.GreatPersonExpended.Add(function(iPlayer, iUnit, iUnitType, iX, iY) end) -->
+    <!-- Events sent by Great People actions (v19) -->
+    <!--   GameEvents.GreatPersonExpended.Add(function(iPlayer, iUnit, iUnitType, iX, iY) end) -->
     <Row Class="3" Name="EVENTS_GREAT_PEOPLE" Value="0"/>
 
     <!-- Events sent when a player is about to found a religion (v19) -->
@@ -460,16 +486,19 @@
     <!--   GameEvents.PantheonFounded.Add(function(iPlayer, iCapitalCity, iReligion, iBelief1) end) -->
     <!--   GameEvents.ReligionFounded.Add(function(iPlayer, iHolyCity, iReligion, iBelief1, iBelief2, iBelief3, iBelief4, iBelief5) end) -->
     <!--   GameEvents.ReligionEnhanced.Add(function(iPlayer, iReligion, iBelief1, iBelief2) end) -->
+    <!--   GameEvents.ReligionReformed.Add(function(iPlayer, iReligion, iBelief1) end) (v65) -->
     <!-- See also: "Religion - Civ Specific Religions" -->
     <Row Class="3" Name="EVENTS_FOUND_RELIGION" Value="0"/>
+
     <!-- Events sent when choosing beliefs (v19) -->
     <!--   GameEvents.PlayerCanHaveBelief.Add(function(iPlayer, iBelief) return true end) -->
     <!--   GameEvents.ReligionCanHaveBelief.Add(function(iPlayer, iReligion, iBelief) return true end) -->
     <!-- See also: "Religion - Civ Specific Religions" -->
     <Row Class="3" Name="EVENTS_ACQUIRE_BELIEFS" Value="0"/>
-	<!-- Events sent to see if religion missions are valid (v46) -->
-	<!--   GameEvents.PlayerCanSpreadReligion.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
-	<!--   GameEvents.PlayerCanRemoveHeresy.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
+
+    <!-- Events sent to see if religion missions are valid (v46) -->
+    <!--   GameEvents.PlayerCanSpreadReligion.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
+    <!--   GameEvents.PlayerCanRemoveHeresy.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
     <Row Class="3" Name="EVENTS_RELIGION" Value="0"/>
 
     <!-- Events sents on espionage outcomes (v63) -->
@@ -478,7 +507,7 @@
     <Row Class="3" Name="EVENTS_ESPIONAGE" Value="0"/>
 
     <!-- Events sent by plots (v30) -->
-	<!--   GameEvents.PlayerCanBuild.Add(function(iPlayer, iUnit, iX, iY, iBuild) return true end) -->
+    <!--   GameEvents.PlayerCanBuild.Add(function(iPlayer, iUnit, iX, iY, iBuild) return true end) -->
     <!--   GameEvents.PlotCanImprove.Add(function(iX, iY, iImprovement) return true end) -->
     <!--   GameEvents.PlayerBuilding.Add(function(iPlayer, iUnit, iX, iY, iBuild, bStarting) end) (v46) -->
     <!--   GameEvents.PlayerBuilt.Add(function(iPlayer, iUnit, iX, iY, iBuild) end) (v46) -->
@@ -486,9 +515,9 @@
     <Row Class="3" Name="EVENTS_PLOT" Value="0"/>
 
     <!-- Events sent by golden ages (v52) -->
-	<!--   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end) -->
+    <!--   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end) -->
     <Row Class="3" Name="EVENTS_GOLDEN_AGE" Value="0"/>
-	  
+
     <!-- Events sent after a city produces/buys/sells something (v19) -->
     <!--   GameEvents.CityTrained.Add(function(iPlayer, iCity, iUnit, bGold, bFaith) end) -->
     <!--   GameEvents.CityConstructed.Add(function(iPlayer, iCity, iBuilding, bGold, bFaith) end) -->
@@ -498,32 +527,46 @@
     <!--   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end) -->
     <Row Class="3" Name="EVENTS_CITY" Value="0"/>
 
-	<!-- Event sent to ascertain if a city can acquire a plot (v20) -->
-	<!--   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end) -->
+    <!-- Event sent to ascertain if a city can acquire a plot (v20) -->
+    <!--   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end) -->
     <!-- See also: "Global - Coastal Waters Only" -->
     <Row Class="3" Name="EVENTS_CITY_BORDERS" Value="0"/>
+    
+    <!-- Event sent about city founding (v68) -->
+    <!--   GameEvents.PlayerCanFoundCity.Add(function(iPlayer, iPlotX, iPlotY) return true end) -->
+    <!--   GameEvents.PlayerCanFoundCityRegardless.Add(function(iPlayer, iPlotX, iPlotY) return false end) -->
+    <Row Class="3" Name="EVENTS_CITY_FOUNDING" Value="0"/>
 	
-	<!-- Event sent to ascertain if a player can over-ride the standard razing rules for the specified city and raze it anyway (v20) -->
-	<!--   GameEvents.PlayerCanRaze.Add(function(iPlayer, iCity) return false end) -->
+    <!-- Event sent to ascertain if a player can liberate another player (v68) -->
+    <!--   GameEvents.PlayerCanLiberate.Add(function(iPlayer, iOtherPlayer) return true end) -->
+    <!--   GameEvents.PlayerLiberated.Add(function(iPlayer, iOtherPlayer, iCity) end) -->
+    <Row Class="3" Name="EVENTS_LIBERATION" Value="0"/>
+	
+    <!-- Event sent to ascertain if a player can over-ride the standard razing rules for the specified city and raze it anyway (v20) -->
+    <!--   GameEvents.PlayerCanRaze.Add(function(iPlayer, iCity) return false end) -->
     <!-- See also: "Global - Raze Major Capitals" -->
     <Row Class="3" Name="EVENTS_CITY_RAZING" Value="0"/>
 
-	<!-- Event sent to ascertain the bombard range for a city, and if indirect fire is allowed (v32) -->
-	<!-- Return a negative range if indirect fire is permitted -->
-	<!--   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end) -->
+    <!-- Event sent to ascertain if a city can perform airlifts (v68) -->
+    <!--   GameEvents.CityCanAirlift.Add(function(iPlayer, iCity) return false end) -->
+    <Row Class="3" Name="EVENTS_CITY_AIRLIFT" Value="0"/>
+
+    <!-- Event sent to ascertain the bombard range for a city, and if indirect fire is allowed (v32) -->
+    <!-- Return a negative range if indirect fire is permitted -->
+    <!--   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end) -->
     <!-- See also: "Global - City Bombard Range" -->
     <Row Class="3" Name="EVENTS_CITY_BOMBARD" Value="0" DbUpdates="1"/>
 
-	<!-- Events sent to ascertain if one city is connected to another (v33) -->
-	<!--   GameEvents.CityConnections.Add(function(iPlayer, bDirect) return false end) -->
-	<!--   GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDirect) return false end) -->
+    <!-- Events sent to ascertain if one city is connected to another (v33) -->
+    <!--   GameEvents.CityConnections.Add(function(iPlayer, bDirect) return false end) -->
+    <!--   GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDirect) return false end) -->
     <!-- See also: "Trait - River Connection" -->
     <!-- See also: "Global - Air Routes" -->
     <Row Class="3" Name="EVENTS_CITY_CONNECTIONS" Value="0"/>
 
-	<!-- Events sent to ascertain if an area can have civ specific resources and to place those resources (v20) -->
-	<!--   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end) -->
-	<!--   GameEvents.PlaceResource.Add(function(iPlayer, iResource, iCount, iPlotX, iPlotY) end) -->
+    <!-- Events sent to ascertain if an area can have civ specific resources and to place those resources (v20) -->
+    <!--   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end) -->
+    <!--   GameEvents.PlaceResource.Add(function(iPlayer, iResource, iCount, iPlotX, iPlotY) end) -->
     <!-- See also: "Global - Spice Islands" -->
     <Row Class="3" Name="EVENTS_AREA_RESOURCES" Value="0"/>
 
@@ -543,82 +586,94 @@
     <!-- See also: "Units - Paratroop Enhancements" -->
     <Row Class="3" Name="EVENTS_PARADROPS" Value="0"/>
 
-	<!-- Event sent when a unit is created (v46) -->
-	<!--   GameEvents.UnitCreated.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end) -->
+    <!-- Event sent when a unit is created (v46) -->
+    <!--   GameEvents.UnitCreated.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end) -->
     <Row Class="3" Name="EVENTS_UNIT_CREATED" Value="0"/>
 
-	<!-- Event sent when a unit founds a city (v58) -->
-	<!--   GameEvents.UnitCityFounded.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end) -->
+    <!-- Event sent when a unit founds a city (v58) -->
+    <!--   GameEvents.UnitCityFounded.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end) -->
     <Row Class="3" Name="EVENTS_UNIT_FOUNDED" Value="0"/>
 
-	<!-- Event sent just before a unit is killed (via CvUnit::kill()) (v22) -->
-	<!--   GameEvents.UnitPrekill.Add(function(iPlayer, iUnit, iUnitType, iX, iY, bDelay, iByPlayer) end) -->
+    <!-- Event sent just before a unit is killed (via CvUnit::kill()) (v22) -->
+    <!--   GameEvents.UnitPrekill.Add(function(iPlayer, iUnit, iUnitType, iX, iY, bDelay, iByPlayer) end) -->
     <!-- See also: "UI - Antiquity Site Tooltips" -->
     <Row Class="3" Name="EVENTS_UNIT_PREKILL" Value="0"/>
 
-	<!-- Event sent as a unit is captured (v46) -->
-	<!--   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end) -->
+    <!-- Event sent as a unit is captured (v46) -->
+    <!--   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end) -->
     <Row Class="3" Name="EVENTS_UNIT_CAPTURE" Value="0"/>
 
-	<!-- Events sent as units are promoted/upgraded (v19) -->
+    <!-- Events sent as units are promoted/upgraded (v19) -->
     <!--   GameEvents.CanHavePromotion.Add(function(iPlayer, iUnit, iPromotionType) return true end) -->
     <!--   GameEvents.UnitPromoted.Add(function(iPlayer, iUnit, iPromotionType) end) -->
     <!--   GameEvents.CanHaveAnyUpgrade.Add(function(iPlayer, iUnit) return true end) -->
     <!--   GameEvents.CanHaveUpgrade.Add(function(iPlayer, iUnit, iUnitClassType, iUnitType) return true end) -->
     <!--   GameEvents.UnitUpgraded.Add(function(iPlayer, iOldUnit, iNewUnit, bGoodyHut) end) -->
     <Row Class="3" Name="EVENTS_UNIT_UPGRADES" Value="0"/>
-	
-	<!-- Events sent as units are created (v51) -->
-	<!--   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end) -->
-	<!--   GameEvents.UnitCanHaveGreatWork.Add(function(iPlayer, iUnit, iGreatWork) return true end) -->
+    
+    <!-- Events sent as units are created (v51) -->
+    <!--   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end) -->
+    <!--   GameEvents.UnitCanHaveGreatWork.Add(function(iPlayer, iUnit, iGreatWork) return true end) -->
     <Row Class="3" Name="EVENTS_UNIT_DATA" Value="0"/>
 
-	<!-- Event sent as a trade route is plundered (v52) -->
-	<!--   GameEvents.PlayerPlunderedTradeRoute.Add(function(iPlayer, iUnit, iPlunderedGold, iFromPlayer, iFromCity, iToPlayer, iToCity, iRouteType, iRouteDomain) end) -->
+    <!-- Event sent as ascertain if a trade route can be created (v68) -->
+    <!--   GameEvents.PlayerCanCreateTradeRoute.Add(function(iFromPlayer, iFromCity, iToPlayer, iToCity, iDomain, iConnectionType) return true end) -->
+    <Row Class="3" Name="EVENTS_TRADE_ROUTES" Value="0"/>
+
+    <!-- Event sent as a trade route is plundered (v52) -->
+    <!--   GameEvents.PlayerPlunderedTradeRoute.Add(function(iPlayer, iUnit, iPlunderedGold, iFromPlayer, iFromCity, iToPlayer, iToCity, iRouteType, iRouteDomain) end) -->
     <Row Class="3" Name="EVENTS_TRADE_ROUTE_PLUNDERED" Value="0"/>
 
     <!-- Events sent about war and peace (v19) -->
     <!--   GameEvents.PlayerCanDeclareWar.Add(function(iPlayer, iAgainstTeam) return true end) -->
     <!--   GameEvents.IsAbleToDeclareWar.Add(function(iPlayer, iAgainstTeam) return true end) - deprecated, use PlayerCanDeclareWar -->
-    <!--   GameEvents.DeclareWar.Add(function(iPlayer, iAgainstTeam) end) -->
+    <!--   GameEvents.DeclareWar.Add(function(iPlayer, iAgainstTeam, bAggressor) end) -->
     <!--   GameEvents.PlayerCanMakePeace.Add(function(iPlayer, iAgainstTeam) return true end) -->
     <!--   GameEvents.IsAbleToMakePeace.Add(function(iPlayer, iAgainstTeam) return true end) - deprecated, use PlayerCanMakePeace -->
-    <!--   GameEvents.MakePeace.Add(function(iPlayer, iAgainstTeam) end) -->
+    <!--   GameEvents.MakePeace.Add(function(iPlayer, iAgainstTeam, bPacifier) end) -->
     <Row Class="3" Name="EVENTS_WAR_AND_PEACE" Value="0"/>
 
-	<!-- Events sent about ideologies and tenets (v51) -->
-	<!--   GameEvents.PlayerCanAdopyIdeology.Add(function(iPlayer, iIdeology) return true end) -->
-	<!--   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iTenet) return true end) -->
+    <!-- Events sent about ideologies and tenets (v51) -->
+    <!--   GameEvents.PlayerCanAdopyIdeology.Add(function(iPlayer, iIdeology) return true end) -->
+    <!--   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iTenet) return true end) -->
     <Row Class="3" Name="EVENTS_IDEOLOGIES" Value="0"/>
 
-	<!-- Events sent about resolutions (v51) -->
-	<!--   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end) -->
-	<!--   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end) -->
+    <!-- Events sent about resolutions (v51) -->
+    <!--   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end) -->
+    <!--   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end) -->
     <Row Class="3" Name="EVENTS_RESOLUTIONS" Value="0"/>
 
-	<!-- Event sent when a nuke is fired (v19) -->
-	<!--   GameEvents.NuclearDetonation.Add(function(iPlayer, iX, iY, bWar, bBystanders) end) -->
+    <!-- Event sent when a nuke is fired (v19) -->
+    <!--   GameEvents.NuclearDetonation.Add(function(iPlayer, iX, iY, bWar, bBystanders) end) -->
     <Row Class="3" Name="EVENTS_NUCLEAR_DETONATION" Value="0"/>
 
-	<!-- Event sent to see if a command is valid (v46) -->
-	<!--   GameEvents.PlayerCanDoCommand.Add(function(iPlayer, iUnit, iCommand, iData1, iData2, iPlotX, iPlotY, bTestVisible) return true end) -->
+    <!-- Event sent to see if a command is valid (v46) -->
+    <!--   GameEvents.PlayerCanDoCommand.Add(function(iPlayer, iUnit, iCommand, iData1, iData2, iPlotX, iPlotY, bTestVisible) return true end) -->
     <Row Class="3" Name="EVENTS_COMMAND" Value="0"/>
 
-	<!-- Events sent for custom missions (v46) -->
-	<!--   CUSTOM_MISSION_NO_ACTION       = 0 -->
-	<!--   CUSTOM_MISSION_ACTION          = 1 -->
-	<!--   CUSTOM_MISSION_DONE            = 2 -->
-	<!--   CUSTOM_MISSION_ACTION_AND_DONE = 3 -->
-	<!--   GameEvents.CustomMissionPossible.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags=0, iTurn=-1, iPlotX, iPlotY, bTestVisible) return false end) -->
-	<!--   GameEvents.CustomMissionStart.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION end) -->
-	<!--   GameEvents.CustomMissionSetActivity.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION_AND_DONE end) -->
-	<!--   GameEvents.CustomMissionDoStep.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION_AND_DONE end) -->
-	<!--   GameEvents.CustomMissionCompleted.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return false end) -->
-	<!--   GameEvents.CustomMissionTargetPlot.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iPlotIndex end) -->
-	<!--   GameEvents.CustomMissionCycleTime.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iCameraTime end) - iCameraTime is 0, 1, 5 or 10 -->
-	<!--   GameEvents.CustomMissionTimerInc.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iTimerInc end) -->
+    <!-- Events sent for custom missions (v46) -->
+    <!--   CUSTOM_MISSION_NO_ACTION       = 0 -->
+    <!--   CUSTOM_MISSION_ACTION          = 1 -->
+    <!--   CUSTOM_MISSION_DONE            = 2 -->
+    <!--   CUSTOM_MISSION_ACTION_AND_DONE = 3 -->
+    <!--   GameEvents.CustomMissionPossible.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags=0, iTurn=-1, iPlotX, iPlotY, bTestVisible) return false end) -->
+    <!--   GameEvents.CustomMissionStart.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION end) -->
+    <!--   GameEvents.CustomMissionSetActivity.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION_AND_DONE end) -->
+    <!--   GameEvents.CustomMissionDoStep.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION_AND_DONE end) -->
+    <!--   GameEvents.CustomMissionCompleted.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return false end) -->
+    <!--   GameEvents.CustomMissionTargetPlot.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iPlotIndex end) -->
+    <!--   GameEvents.CustomMissionCycleTime.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iCameraTime end) - iCameraTime is 0, 1, 5 or 10 -->
+    <!--   GameEvents.CustomMissionTimerInc.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iTimerInc end) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CUSTOM_MISSIONS" Value="0"/>
+
+    <!-- Events sent during combat (v68) -->
+    <!--   GameEvents.BattleStarted.Add(function(iType, iPlotX, iPlotY) end) -->
+    <!--   GameEvents.BattleJoined.Add(function(iPlayer, iUnitOrCity, iRole, bIsCity) end) -->
+    <!--   GameEvents.BattleFinished.Add(function() end) -->
+    <Row Class="3" Name="EVENTS_BATTLES" Value="0" DbUpdates="1"/>
+    <!--   GameEvents.BattleDamageDelta.Add(function(iRole, iBaseDamage) return 0 end) -->
+    <Row Class="3" Name="EVENTS_BATTLES_DAMAGE" Value="0"/>
 
     <!-- Events generated by the RED (by Gedemon) dll mod code (v19) -->
     <!--   Turn   ==> PlayerEndTurnInitiated, PlayerEndTurnCompleted, TurnComplete -->
@@ -633,7 +688,7 @@
     <!-- Event sent to ascertain if a unit can move into a given plot (v19) -->
     <!--   GameEvents.CanMoveInto.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bAttack, bDeclareWar) return true end) -->
     <!--   Also requires each unit type to receive the event to be enabled via the new SendCanMoveIntoEvent column in the Units table -->
-	<!-- See also: "Units - Railroad Artillery" -->
+    <!-- See also: "Units - Railroad Artillery" -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
@@ -647,11 +702,11 @@
     <!-- See also: "Religion - Bonus Beliefs" -->
     <Row Class="2" Name="API_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 
-	<!-- * Enables the Unified Yields extensions (v54) -->
+    <!-- * Enables the Unified Yields extensions (v54) -->
     <Row Class="2" Name="API_UNIFIED_YIELDS" Value="1" DbUpdates="1"/>
-	<!-- * Enables the Unified Yields (YIELD_TOURISM) extensions (v56) -->
+    <!-- * Enables the Unified Yields (YIELD_TOURISM) extensions (v56) -->
     <Row Class="2" Name="API_UNIFIED_YIELDS_TOURISM" Value="1" DbUpdates="1"/>
-	<!-- * Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57) -->
+    <!-- * Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57) -->
     <Row Class="2" Name="API_UNIFIED_YIELDS_GOLDEN_AGE" Value="1" DbUpdates="1"/>
 
     <!-- Enables the Achievements table (v45) -->
@@ -660,7 +715,7 @@
     <!-- * Enables the Espionage API (v19) -->
     <!-- See also: "Global - Espionage Race" -->
     <!-- See also: "Global - Espionage Mapping" -->
-    <Row Class="2" Name="API_ESPIONAGE" Value="1" DbUpdates="0"/>
+    <Row Class="2" Name="API_ESPIONAGE" Value="1"/>
 
     <!-- * Enables the Trade Routes API (v23) -->
     <!-- See also: "UI - Trade Routes Enhancements" -->

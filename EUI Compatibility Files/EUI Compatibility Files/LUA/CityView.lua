@@ -229,6 +229,11 @@ local g_advisorControls = {
 [AdvisorTypes.ADVISOR_FOREIGN] = "ForeignRecommendation",
 }
 
+local function UpdateCityCitizens( cityID )
+	Network.SendUpdateCityCitizens( cityID )
+	return Network.SendUpdateCityCitizens( cityID ) --DLL bug: must be sent twice to have desired effect
+end
+
 local function SetupCallbacks( controls, toolTips, tootTipType, callBacks )
 	local control
 	-- Setup Tootips
@@ -939,7 +944,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 				if cityIsCanPurchase( city, true, true, -1, itemID, -1, yieldID ) then
 					Game.CityPurchaseBuilding( city, itemID, yieldID )
-					Network.SendUpdateCityCitizens( cityID )
+					UpdateCityCitizens( cityID )
 					isPurchase = true
 				end
 			elseif orderID == OrderTypes.ORDER_CREATE then
@@ -1318,7 +1323,7 @@ local function PlotButtonClicked( plotIndex )
 		-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
 		Network.SendDoTask( city:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, plotIndex, -1, false )
 		if outside then
-			return Network.SendUpdateCityCitizens( city:GetID() )
+			return UpdateCityCitizens( city:GetID() )
 		end
 	end
 end
@@ -1331,7 +1336,7 @@ local function BuyPlotAnchorButtonClicked( plotIndex )
 			local plotX = plot:GetX()
 			local plotY = plot:GetY()
 			Network.SendCityBuyPlot(city:GetID(), plotX, plotY)
-			Network.SendUpdateCityCitizens( city:GetID() )
+			UpdateCityCitizens( city:GetID() )
 			UI.UpdateCityScreen()
 			Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
 		end
@@ -2365,7 +2370,7 @@ local FocusButtonBehavior = {
 			local city = UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAIFocus( city:GetID(), focus )
-				return Network.SendUpdateCityCitizens( city:GetID() )
+				return UpdateCityCitizens( city:GetID() )
 			end
 		end
 	end,
@@ -2386,7 +2391,7 @@ local g_callBacks = {
 			local city = isActivePlayerAllowed() and UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAvoidGrowth( city:GetID(), not city:IsForcedAvoidGrowth() )
-				return Network.SendUpdateCityCitizens( city:GetID() )
+				return UpdateCityCitizens( city:GetID() )
 			end
 		end,
 	},
@@ -2408,7 +2413,7 @@ local g_callBacks = {
 			Controls.SellBuildingConfirm:SetHide( true )
 			if isActivePlayerAllowed() and cityID and buildingID and buildingID > 0 then
 				Network.SendSellBuilding( cityID, buildingID )
-				Network.SendUpdateCityCitizens( cityID )
+				UpdateCityCitizens( cityID )
 			end
 			return Controls.YesButton:SetVoids( -1, -1 )
 		end,
@@ -2501,7 +2506,7 @@ function()
 
 --	local city = UI.GetHeadSelectedCity()
 --	if city then
---		Network.SendUpdateCityCitizens( city:GetID() )
+--		UpdateCityCitizens( city:GetID() )
 --	end
 
 	LuaEvents.TryQueueTutorial("CITY_SCREEN", true)

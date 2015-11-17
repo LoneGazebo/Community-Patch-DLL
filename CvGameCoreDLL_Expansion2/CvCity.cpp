@@ -2569,8 +2569,9 @@ void CvCity::doTurn()
 		DoResistanceTurn();
 
 		bool bAllowNoProduction = !doCheckProduction();
-
+#if !defined(MOD_BALANCE_CORE)
 		doGrowth();
+#endif
 
 		DoUpdateIndustrialRouteToCapital();
 
@@ -2662,7 +2663,9 @@ void CvCity::doTurn()
 			}
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		doGrowth();
+#endif
 		// sending notifications on when routes are connected to the capital
 		if(!isCapital())
 		{
@@ -7971,7 +7974,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				int iTourism = owningPlayer.GetEventTourism();
-				iTourism *= owningPlayer.GetTotalJONSCulturePerTurn();
+				// Culture boost based on previous turns
+				int iPreviousTurnsToCount = 10;
+				// Calculate boost
+				iTourism *= owningPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 				iTourism /= 100;
 				owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 				if(iTourism > 0)
@@ -14015,23 +14021,22 @@ bool CvCity::DoRazingTurn()
 				return false;
 			}
 			// In hundreds
-			int iNumRebels = (getPopulation() * 15); //Based on city size.
-			int iExtraRoll = (GC.getGame().getCurrentEra() * 10 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
-			iNumRebels /= 100;
 			CvGame& theGame = GC.getGame();
+			int iNumRebels = (getPopulation() * 10); //Based on city size.
+			int iExtraRoll = (theGame.getCurrentEra() * 10 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			iNumRebels += theGame.getJonRandNum(iExtraRoll, "Rebel count rand roll");
+			iNumRebels /= 100;		
 	
-			//Need at least 3 rebels.
-			if(iNumRebels < 3)
+			if(iNumRebels <= 0)
 			{
-				iNumRebels = 3;
+				return false;
 			}
 			if(iNumRebels > getPopulation())
 			{
 				iNumRebels = getPopulation();
 			}
 			int iStatic = iNumRebels;
-			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels);
+			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 3);
 
 			bool bNotification = false;
 			int iBestPlot = -1;
@@ -14137,6 +14142,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pmUnit->setMoves(1);
+							pmUnit->setDamage(theGame.getJonRandNum(20, "damage"));
 						}
 					}
 
@@ -14155,6 +14161,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pUnit->setMoves(1);
+							pmUnit->setDamage(theGame.getJonRandNum(20, "damage"));
 						}
 					}
 				}

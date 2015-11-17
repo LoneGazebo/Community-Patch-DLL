@@ -9,19 +9,19 @@
 		<!-- Warmonger threat for capturing a major's city -->
 		<Row Name="WARMONGER_THREAT_MAJOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
-			<Value>1250</Value>
+			<Value>1000</Value>
 		</Row>
 		<!-- Warmonger threat for capturing a minor's city -->
 		<Row Name="WARMONGER_THREAT_MINOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
 			<!-- As a minor city will almost always be a capital, this should be the desired value divided by WARMONGER_THREAT_CAPITAL_CITY_PERCENT -->
-			<Value>750</Value>
+			<Value>600</Value>
 		</Row>
 
 		<!-- Multiplicative modifier for when the bystander does know the defender, they may or may not know the attacker -->
 		<Row Name="WARMONGER_THREAT_KNOWS_DEFENDER_PERCENT">
 			<!-- Default 0 -->
-			<Value>0</Value>
+			<Value>25</Value>
 		</Row>
 		<!-- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker -->
 		<Row Name="WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT">
@@ -29,7 +29,7 @@
 			<Value>75</Value>
 		</Row>
 
-		<!-- Multiplicative modifier for capturning a city from someone who delared war on you -->
+		<!-- Multiplicative modifier for capturing a city from someone who delared war on you -->
 		<Row Name="WARMONGER_THREAT_AGGRIEVED_PERCENT">
 			<!-- Default 100 -->
 			<Value>50</Value>
@@ -52,19 +52,19 @@
 		<!-- If C is hostile to B they won't care so much about what A does to their enemy -->
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_HOSTILE">
 			<!-- Default 0 -->
-			<Value>60</Value>
+			<Value>40</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_AFRAID">
 			<!-- Default 0 -->
-			<Value>45</Value>
+			<Value>20</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_GUARDED">
 			<!-- Default 0 -->
-			<Value>30</Value>
+			<Value>20</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_NEUTRAL">
 			<!-- Default 0 -->
-			<Value>15</Value>
+			<Value>5</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_FRIENDLY">
 			<!-- Default 0 -->
@@ -93,15 +93,15 @@
 -->
 		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_HOSTILE">
 			<!-- Default 100 -->
-			<Value>66</Value>
+			<Value>60</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_AFRAID">
 			<!-- Default 100 -->
-			<Value>75</Value>
+			<Value>120</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_GUARDED">
 			<!-- Default 100 -->
-			<Value>125</Value>
+			<Value>80</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_NEUTRAL">
 			<!-- Default 100 -->
@@ -109,7 +109,7 @@
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_FRIENDLY">
 			<!-- Default 100 -->
-			<Value>150</Value>
+			<Value>140</Value>
 		</Row>
 	</Defines>
 </GameData>

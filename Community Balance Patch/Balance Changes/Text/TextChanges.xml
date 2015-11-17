@@ -79,7 +79,7 @@
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
-		
+
 		<!-- Pantheons -->
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE">
 			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide yield bonus will remain inactive until you convert a majority of Cities to your new Religion!</Text>
@@ -141,6 +141,17 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
 		</Row>
+<!-- GAP -->
+		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION">
+			<Text>[ICON_BULLET]{1_Num} is added per turn from [ICON_RELIGION] Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT">
+			<Text>[ICON_BULLET]{1_Num} is added per turn from [ICON_GREAT_PEOPLE] Traits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES">
+			<Text>[ICON_BULLET]{1_Num} is added per turn from [ICON_CAPITAL] Cities</Text>
+		</Row>
+		
 <!-- Aesthetics -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
 			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
@@ -160,7 +171,7 @@
 			<Text>[COLOR_CYAN]Your current Global and Strategic Monopoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_STRATEGIC">
-			<Text>[COLOR_CYAN]Your current Straegic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+			<Text>[COLOR_CYAN]Your current Strategic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_BOTH">
 			<Text>[COLOR_NEGATIVE_TEXT]Their current Strategic and Global Monpoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
@@ -349,10 +360,6 @@
 			<Text>Foreign Strategic Monopolies</Text>
 		</Row>
 
-		<!-- Tooltip for 'You'll Pay' Text -->
-		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
-			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
-		</Row>
 		
 		<!-- Tootips for Monopoly Bonuses -->
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">

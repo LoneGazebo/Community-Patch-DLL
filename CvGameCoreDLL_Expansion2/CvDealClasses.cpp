@@ -492,6 +492,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+			{
+				if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
+					return false;
+			}
+#endif
 		}
 		// Can't trade a null city
 		else
@@ -711,6 +718,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this.
 		if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
 			return false;
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!GET_TEAM(pFromPlayer->getTeam()).HasEmbassyAtTeam(pToPlayer->getTeam()) || !GET_TEAM(pToPlayer->getTeam()).HasEmbassyAtTeam(pFromPlayer->getTeam())))
+				return false;
+		}
 #endif
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
@@ -2695,7 +2709,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							bDone = true;
 
 							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
-							iTourism *= GET_PLAYER(eAcceptedToPlayer).GetTotalJONSCulturePerTurn();
+							// Culture boost based on previous turns
+							int iPreviousTurnsToCount = 10;
+							// Calculate boost
+							iTourism *= GET_PLAYER(eAcceptedToPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 							iTourism /= 100;
 							if(iTourism > 0)
 							{
@@ -2763,7 +2780,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							bDone = true;
 
 							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
-							iTourism *= GET_PLAYER(eAcceptedFromPlayer).GetTotalJONSCulturePerTurn();
+							// Culture boost based on previous turns
+							int iPreviousTurnsToCount = 10;
+							// Calculate boost
+							iTourism *= GET_PLAYER(eAcceptedFromPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 							iTourism /= 100;
 							if(iTourism > 0)
 							{

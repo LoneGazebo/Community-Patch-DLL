@@ -1487,11 +1487,57 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 
 	if (GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(ePlayer).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == ePlayer2)
+			{
+				int iAllyScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				if(iAllyScience <= 0)
+				{
+					return 0;
+				}
+				return 	iAllyScience;
+			}
+			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(ePlayer2))
+			{
+				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				if(iFriendScience <= 0)
+				{
+					return 0;
+				}
+				return 	iFriendScience;
+			}
+		}
+#endif
 		return 0;
 	}
 
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			if(GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
+			{
+				int iAllyScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				if(iAllyScience <= 0)
+				{
+					return 0;
+				}
+				return 	iAllyScience;
+			}
+			else if(GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
+			{
+				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				if(iFriendScience <= 0)
+				{
+					return 0;
+				}
+				return 	iFriendScience;
+			}
+		}
+#endif
 		return 0;
 	}
 
@@ -2547,7 +2593,10 @@ void CvPlayerTrade::MoveUnits (void)
 								if(pOriginCity->GetLandTourismBonus() > 0)
 								{
 									int iBonus = pOriginCity->GetLandTourismBonus();
-									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+									// Culture boost based on previous turns
+									int iPreviousTurnsToCount = 10;
+									// Calculate boost
+									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 									iBonus /= 100;
 									if(iBonus > 0)
 									{
@@ -2606,7 +2655,10 @@ void CvPlayerTrade::MoveUnits (void)
 								if(pOriginCity->GetSeaTourismBonus() > 0)
 								{
 									int iBonus = pOriginCity->GetSeaTourismBonus();
-									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+									// Culture boost based on previous turns
+									int iPreviousTurnsToCount = 10;
+									// Calculate boost
+									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 									iBonus /= 100;
 									if(iBonus > 0)
 									{
@@ -2657,7 +2709,10 @@ void CvPlayerTrade::MoveUnits (void)
 						else if(GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
 						{
 							int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS();
-							iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetTotalJONSCulturePerTurn();
+							// Culture boost based on previous turns
+							int iPreviousTurnsToCount = 10;
+							// Calculate boost
+							iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 							iBonus /= 100;
 							if(iBonus > 0)
 							{

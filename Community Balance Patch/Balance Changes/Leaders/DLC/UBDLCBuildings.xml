@@ -7,6 +7,7 @@
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Cost>250</Cost>
+			<FaithCost>200</FaithCost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
@@ -87,10 +88,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>When constructed, receive a free Missionary that follows your [ICON_RELIGION] Religion. Every time a [ICON_CITIZEN] Citizen is born in this City, receive [ICON_PEACE] Faith and [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%. Does not require Walls in order to be built.</Text>
+			<Text>When constructed, receive a free Missionary that follows your [ICON_RELIGION] Religion. Every time a [ICON_CITIZEN] Citizen is born in this City, receive [ICON_PEACE] Faith and [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%. Does not require Walls in order to be built, and can be purchased with [ICON_PEACE] Faith.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, and does not require Walls in order to be built. Grants Faith and Gold when Citizens are born in the City, as well as a free Missionary when constructed. The free Missionary will follow your founded Religion or, if you have not founded a religion, it will follow your majority Religion. Boosts the city's religious pressure by 10% and resistance to foreign conversion by 20%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion.</Text>
+			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants Faith and Gold when Citizens are born in the City, as well as a free Missionary when constructed. The free Missionary will follow your founded Religion or, if you have not founded a religion, it will follow your majority Religion. Boosts the city's religious pressure by 10% and resistance to foreign conversion by 20%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Jelling Stones -->
@@ -110,8 +111,6 @@
 			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<TechEnhancedTourism>2</TechEnhancedTourism>
-			<EnhancedYieldTech>TECH_DRAMA</EnhancedYieldTech>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
@@ -145,6 +144,18 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_SeaPlotYieldChanges>
+	<Building_YieldFromVictory>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldFromVictory>
 	<Building_SeaResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
@@ -191,10 +202,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, +2 [ICON_TOURISM] Tourism (once Drama is researched) and an instant boost of 25 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City.</Text>
+			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, and an instant boost of 25 [ICON_CULTURE] Culture. Whenever you defeat a Unit, gain +5 [ICON_PRODUCTION] Production and +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Jelling Stones produces +2 [ICON_TOURISM] Tourism (once Drama is researched), +2 [ICON_CULTURE] Culture, and increases the Great Person rate for the city where it is built by 15%. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
+			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Jelling Stones produces [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you defeat a Unit, and increases the Great Person rate for the city where it is built by 15%. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Korean Seowon-->

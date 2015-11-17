@@ -23,11 +23,15 @@
 		</Update>
 		<Update>
 			<Where Type="FEATURE_REEF" />
-			<Set NoImprovement="0" OccurrenceFrequency="100" />
+			<Set NoImprovement="0" OccurrenceFrequency="25" />
 		</Update>
 		<Update>
 			<Where Type="FEATURE_LAKE_VICTORIA" />
 			<Set AddsFreshWater="1"/>
+		</Update>
+		<Update>
+			<Where Type="FEATURE_EL_DORADO" />
+			<Set FirstFinderGold="100"/>
 		</Update>
 	</Features>
 	<Feature_YieldChanges>

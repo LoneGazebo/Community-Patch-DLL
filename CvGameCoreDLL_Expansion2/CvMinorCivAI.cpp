@@ -1882,7 +1882,10 @@ bool CvMinorCivQuest::DoFinishQuest()
 	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
-		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetTotalJONSCulturePerTurn();
+		// Culture boost based on previous turns
+		int iPreviousTurnsToCount = 10;
+		// Calculate boost
+		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		iTourism /= 100;
 		if(iTourism > 0)
 		{

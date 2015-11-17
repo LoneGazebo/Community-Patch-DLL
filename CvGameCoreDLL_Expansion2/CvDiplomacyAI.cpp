@@ -24472,6 +24472,18 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChose
 
 		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 			continue;
+
+		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+			continue;
+
+		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayerLoop).getTeam()))
+			continue;
+		
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayerLoop))
+			continue;
+
+		if(GET_PLAYER(eTargetPlayerLoop).GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+			continue;
 #endif
 		// Have we already made the agreement?
 		if(GetCoopWarAcceptedState(ePlayer, eTargetPlayerLoop) != NO_COOP_WAR_STATE)

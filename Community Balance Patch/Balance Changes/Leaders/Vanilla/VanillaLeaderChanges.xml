@@ -356,6 +356,11 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_HANSE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
 	</Building_YieldChanges>
 	<Building_FeatureYieldChanges>
 		<Row>
@@ -388,24 +393,24 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>60</Yield>
+			<Yield>100</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>60</Yield>
+			<Yield>100</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>60</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
 	<Trait_YieldFromCSAlly>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Yield>3</Yield>
 		</Row>
 		<Row>
@@ -505,7 +510,7 @@
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<Building_YieldChanges>
@@ -639,7 +644,14 @@
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_ENGLISH_SHIPOFTHELINE</UnitType>
-			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
+			<PromotionType>PROMOTION_LOGISTICS</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<!-- Germany -->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_GERMAN_PANZER</UnitType>
+			<PromotionType>PROMOTION_ARMOR_PLATING_1</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
 	<!-- Persia -->
@@ -650,4 +662,9 @@
 			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP">
+			<Text>Font of Dharma</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

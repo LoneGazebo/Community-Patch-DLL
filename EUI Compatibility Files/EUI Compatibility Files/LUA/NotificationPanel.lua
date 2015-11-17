@@ -193,7 +193,7 @@ for k, v, w in ([[
 	NOTIFICATION_BARBARIAN				Barbarian		B
 	NOTIFICATION_GOODY				AncientRuins		B
 	NOTIFICATION_BUY_TILE				BuyTile
-	NOTIFICATION_CITY_GROWTH			CityGrowth		
+	NOTIFICATION_CITY_GROWTH			CityGrowth
 	NOTIFICATION_CITY_TILE				CityTile
 	NOTIFICATION_DEMAND_RESOURCE			BonusResource
 	NOTIFICATION_UNIT_PROMOTION			UnitPromoted		B
@@ -1319,10 +1319,12 @@ local function UpdateCivListNow()
 			instance.ResearchAgreement:SetHide( not team:IsHasResearchAgreement( g_activeTeamID ) )
 			instance.DefenseAgreement:SetHide( not team:IsDefensivePact( g_activeTeamID ) )
 			instance.DeclarationOfFriendship:SetHide( not isDoF )
-			instance.TheirBordersClosed:SetHide( isActivePlayer or team:IsAllowsOpenBordersToTeam( g_activeTeamID ) )
-			instance.OurBordersClosed:SetHide( isActivePlayer or g_activeTeam:IsAllowsOpenBordersToTeam( teamID ) )
-			instance.TheirBordersOpen:SetHide( isActivePlayer or not team:IsAllowsOpenBordersToTeam( g_activePlayerID ) )
-			instance.OurBordersOpen:SetHide( isActivePlayer or not g_activeTeam:IsAllowsOpenBordersToTeam( teamID ) )
+			local isOurBorderOpen = g_activeTeam:IsAllowsOpenBordersToTeam( teamID )
+			local isTheirBorderOpen = team:IsAllowsOpenBordersToTeam( g_activeTeamID )
+			instance.TheirBordersClosed:SetHide( isActivePlayer or isAtWar or isTheirBorderOpen )
+			instance.OurBordersClosed:SetHide( isActivePlayer or isAtWar or isOurBorderOpen )
+			instance.TheirBordersOpen:SetHide( isActivePlayer or not isTheirBorderOpen )
+			instance.OurBordersOpen:SetHide( isActivePlayer or not isOurBorderOpen )
 
 			local color
 			if isAtWar then
@@ -1365,13 +1367,13 @@ local function UpdateCivListNow()
 				instance.Gold:SetText( "[COLOR_RED]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR") .. "[/COLOR]" )
 			else
 				-- Gold available
-				local gold = player:GetGold()
+				local gold = 0
 				local goldRate = player:CalculateGoldRate()
 				if g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_GOLD, 1 ) then -- includes DoF check
+					gold = player:GetGold()
 					instance.Gold:SetText( "[COLOR_YELLOW]" .. gold .. "[/COLOR]" )	--[ICON_GOLD]
 				else
 					instance.Gold:SetText()
-					gold = 0
 					if not g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) then
 						goldRate = 0
 					end
@@ -1394,7 +1396,9 @@ local function UpdateCivListNow()
 					local dealDuration = Game.GetDealDuration()
 					local luxMinGold = dealDuration * 5
 					local strategicMinGold = dealDuration
-					local gold = dealDuration * goldRate + gold
+					if goldRate > 0 then
+						gold = dealDuration * goldRate + gold
+					end
 					local happyWithoutLux = g_activePlayer:GetExcessHappiness() > 4 + g_activePlayer:GetNumCities() -- approximation... should take actual happy value + scan city growth
 					-- Resources available from us
 					for resource in GameInfo.Resources() do
@@ -1417,7 +1421,11 @@ local function UpdateCivListNow()
 				end
 			end
 			instance.TheirTradeItems:SetText( table.concat( theirTradeItems ) )
-			instance.OurTradeItems:SetText( table.concat( ourTradeItems ) )
+			if #ourTradeItems < 5 then
+				instance.OurTradeItems:SetText( table.concat( ourTradeItems ) )
+			else
+				instance.OurTradeItems:SetText( "[ICON_PLUS]" )
+			end
 
 			-- disable the button if we have a pending deal with this player
 			instance.Button:SetDisabled( playerID == UI.HasMadeProposal( g_activePlayerID ) )
@@ -1581,7 +1589,7 @@ end
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
 
 local function OnOptionsChanged()
-	g_isShowCivList = EUI_options.GetValue( "HideCivRibbon" ) ~= 1
+	g_isShowCivList = EUI_options.GetValue( "CivRibbon" ) ~= 0
 	Controls.CivPanel:SetHide( not g_isShowCivList )
 	UpdateCivList()
 end

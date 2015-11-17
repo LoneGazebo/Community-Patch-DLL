@@ -580,6 +580,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 
 --CBP
+		if tech.BombardRange > 0 then
+			addSmallActionButton( GameInfo.Missions.MISSION_RANGE_ATTACK, "", "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" )
+		end
+		if tech.BombardIndirect > 0 then
+			addSmallActionButton( GameInfo.Missions.MISSION_RANGE_ATTACK, "", "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" )
+		end
 		if tech.CityLessEmbarkCost then
 			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" )
 		end

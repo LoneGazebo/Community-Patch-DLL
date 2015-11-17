@@ -2462,6 +2462,20 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			numAbilities = numAbilities + 1;
 		end
 --CBP
+		if thisTech.BombardRange > 0 then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" );
+			numAbilities = numAbilities + 1
+		end
+		if thisTech.BombardIndirect > 0 then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" );
+			numAbilities = numAbilities + 1;
+		end
 		if thisTech.CityLessEmbarkCost then
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";

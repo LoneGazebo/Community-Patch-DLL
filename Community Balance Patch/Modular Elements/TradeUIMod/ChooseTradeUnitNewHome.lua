@@ -165,6 +165,12 @@ function RefreshList()
 			sTTTrade = sTTTrade .. ", ";
 		  end
 		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_WORKSHOP");
+		elseif (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_STONE_WORKS)) then
+		  sCityDetails = sCityDetails .. " [ICON_PRODUCTION]";
+		  if(sTTTrade ~= "") then
+			sTTTrade = sTTTrade .. ", ";
+		  end
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_STONE_WORKS");
 		end
 
 		if (pTargetCity.IsHasBuildingClass and pTargetCity:HasOffice()) then

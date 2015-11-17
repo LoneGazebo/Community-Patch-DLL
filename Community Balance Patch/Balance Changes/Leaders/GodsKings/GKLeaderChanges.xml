@@ -399,7 +399,7 @@
 		<Row>
 			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Trait_YieldFromImport>
 	<Trait_YieldFromExport>

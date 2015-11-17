@@ -278,6 +278,9 @@ function GetActiveResolutions(league, activePlayerId)
 
 	end
 
+	-- Sort resolutions by their description. (COMMUNITY PATCH)
+	table.sort(activeResolutions, function(a,b) return Locale.Compare(a.Text, b.Text) < 0; end);
+
 	return activeResolutions;
 end
 

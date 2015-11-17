@@ -87,7 +87,7 @@
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
 			<TechType>TECH_RADIO</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
 	<!-- Candi-->

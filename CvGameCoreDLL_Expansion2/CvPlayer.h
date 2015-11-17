@@ -807,7 +807,9 @@ public:
 	void DoChangeGreatGeneralRate();
 	void DoChangeGreatAdmiralRate();
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetGoldenAgePointsFromEmpire();
+#endif
 	void DoProcessGoldenAge();
 
 	int GetGoldenAgeProgressThreshold() const;

@@ -48,7 +48,7 @@ local UIManager = UIManager
 local ContextPtr = ContextPtr
 local Players = Players
 local Teams = Teams
-local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+local GameInfo = EUI.GameInfoCache -- warning! booleans are true, not 1, and use iterator ONLY with table field conditions, NOT string SQL query
 --local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 local GameDefines = GameDefines
@@ -1159,9 +1159,9 @@ local function UpdatePlotHelp( timeChange )
 				if feature then
 					local row
 					if civ5_mode then
-						row = GameInfo.BuildFeatures{ BuildType = build.Type, FeatureType = feature.Type, Remove = 1 }()
+						row = GameInfo.BuildFeatures{ BuildType = build.Type, FeatureType = feature.Type, Remove = true }() -- cache uses true / SQL uses 1
 					else
-						row = GameInfo.BuildsOnFeatures{ BuildType = build.Type, FeatureType = feature.Type, Remove = 1 }() -- stupid table rename by Firaxis
+						row = GameInfo.BuildsOnFeatures{ BuildType = build.Type, FeatureType = feature.Type, Remove = true }() -- stupid table rename by Firaxis
 					end
 					local tech2 = row and row.PrereqTech and GameInfoTechnologies[ row.PrereqTech ]
 					if tech2 and tech1 ~= tech2 and not activeTeamTechs:HasTech( tech2.ID ) then

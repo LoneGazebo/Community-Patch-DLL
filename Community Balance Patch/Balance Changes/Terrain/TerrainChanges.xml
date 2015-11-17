@@ -219,7 +219,7 @@
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_LANDMARK" YieldType="YIELD_CULTURE" />
-			<Set Yield="3" />
+			<Set Yield="4" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_HOLY_SITE" YieldType="YIELD_FAITH" />
@@ -237,7 +237,7 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
@@ -305,6 +305,13 @@
 			<Yield>4</Yield>
 		</Row>
 	</Improvement_Yields>
+	<Improvement_YieldPerEra>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_YieldPerEra>
 	<Improvement_TechYieldChanges>
 		<Delete ImprovementType="IMPROVEMENT_LUMBERMILL"/>
 		<Delete ImprovementType="IMPROVEMENT_MINE"/>

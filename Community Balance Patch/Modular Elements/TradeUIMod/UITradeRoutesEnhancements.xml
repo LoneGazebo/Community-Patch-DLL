@@ -55,5 +55,8 @@
 		<Row Tag="TXT_KEY_WORKSHOP">
 			<Text>Workshop</Text>
 		</Row>
+		<Row Tag="TXT_KEY_STONE_WORKS">
+			<Text>Stone Works</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

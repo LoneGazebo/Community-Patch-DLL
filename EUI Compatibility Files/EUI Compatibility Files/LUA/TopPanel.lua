@@ -1646,6 +1646,20 @@ if civ5_mode then
 				elseif excessHappiness < 0 then
 					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
 				end
+				-- CBP
+				local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+				if (iGAPReligion > 0) then
+					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+				end
+				local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+				if (iGAPTrait > 0) then
+					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+				end
+				local iGAPCities = g_activePlayer:GetGAPFromCities();
+				if (iGAPCities > 0) then
+					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+				end
+			-- END
 			end
 
 			if g_isBasicHelp then

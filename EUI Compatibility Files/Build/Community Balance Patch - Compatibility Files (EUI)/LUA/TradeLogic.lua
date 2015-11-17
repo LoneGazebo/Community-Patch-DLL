@@ -3706,7 +3706,9 @@ if bnw_mode then
 				local sVoteChoice = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 				local sProposalInfo = "";
 				if (GameInfo.Resolutions[tVote.Type] ~= nil and GameInfo.Resolutions[tVote.Type].Help ~= nil) then
-					sProposalInfo = sProposalInfo .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
+					--CBP
+					sProposalInfo = sProposalInfo .. GetVoteText(pLeague, iVoteIndex, bRepeal, iNumVotes);
+					sProposalInfo = sProposalInfo .. "[NEWLINE][NEWLINE]" .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
 				end
 
 				if (bRepeal) then
@@ -3938,8 +3940,11 @@ function ShowOtherPlayerChooser( isUs, type )
 				-- Why won't they make peace?
 				if (type == PEACE) then
 
+					-- CBP: Need Embassy:
+					if (not g_pUsTeam:HasEmbassyAtTeam(iFromTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
 					-- Not at war
-					if (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+					elseif (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
 
 					-- Minor that won't make peace
@@ -3971,9 +3976,11 @@ function ShowOtherPlayerChooser( isUs, type )
 
 				-- Why won't they make war?
 				else
-
+					-- CBP: Need Embassy:
+					if (not g_pUsTeam:HasEmbassyAtTeam(iFromTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
 					-- Already at war
-					if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+					elseif (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
 
 					-- Locked in to peace

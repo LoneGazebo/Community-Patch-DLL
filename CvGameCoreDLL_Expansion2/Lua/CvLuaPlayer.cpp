@@ -222,6 +222,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldPerTurnFromTradeRoutesTimes100);
 	Method(GetGoldPerTurnFromTraits);
 
+#if defined(MOD_BALANCE_CORE)
+	//GAP
+	Method(GetGAPFromReligion);
+	Method(GetGAPFromCities);
+	Method(GetGAPFromTraits);
+#endif
 	// Culture
 
 	Method(GetTotalJONSCulturePerTurn);
@@ -2596,6 +2602,42 @@ int CvLuaPlayer::lGetGoldPerTurnFromTraits(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldPerTurnFromTraits());
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetGAPFromReligion();
+int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iGAP = pkPlayer->GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS);
+	lua_pushinteger(L, iGAP);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetGAPFromCities();
+int CvLuaPlayer::lGetGAPFromCities(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iGAP = 0;
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		iGAP += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
+	}
+	lua_pushinteger(L, iGAP);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetGAPFromTraits();
+int CvLuaPlayer::lGetGAPFromTraits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iGAP = pkPlayer->GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS);
+	lua_pushinteger(L, iGAP);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetTotalJONSCulturePerTurn();
 int CvLuaPlayer::lGetTotalJONSCulturePerTurn(lua_State* L)

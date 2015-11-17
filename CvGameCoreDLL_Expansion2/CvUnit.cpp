@@ -2408,7 +2408,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(IsGreatPerson())
 	{
 		int iTourism = kPlayer.GetEventTourism();
-		iTourism *= kPlayer.GetTotalJONSCulturePerTurn();
+		// Culture boost based on previous turns
+		int iPreviousTurnsToCount = 10;
+		// Calculate boost
+		iTourism *= kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		iTourism /= 100;
 		if(iTourism > 0)
 		{
