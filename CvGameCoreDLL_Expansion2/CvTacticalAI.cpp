@@ -10376,37 +10376,40 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	CvString strMsg;
-	strMsg.Format("Turn %d: currentTurnUnits for player %d has %d elements:\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), m_CurrentTurnUnits.size());
-	OutputDebugString(strMsg.c_str());
-	std::list<int>::iterator it;
-	int idx = 0;
-	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		strMsg.Format("%d: %d\n",idx++,*it);
-		OutputDebugString(strMsg.c_str());
-	}
+	m_CurrentMoveUnits.clear();
 
-	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//find out which of our units might be useful
+	//have to do this in two steps - otherwise UnitProcessed below may invalidate our iterator
+	std::list<int>::iterator it;
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit(*it);
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 		{
 			//do this only if the unit is not too far out
-			if (plotDistance(pUnit->getX(),pUnit->getY(),pTargetPlot->getX(),pTargetPlot->getY())>18)
+			if (plotDistance(pUnit->getX(),pUnit->getY(),pTargetPlot->getX(),pTargetPlot->getY())>15)
 				continue;
 
+			unit.SetID(*it);
+			m_CurrentMoveUnits.push_back(unit);
+		}
+	}
+
+	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if (pUnit)
+		{
 			//get plots that could be used as a base for attacking
 			std::vector<CvPlot*> vAttackPlots;
-			TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit.pointer(), pUnit->GetRange(), false, vAttackPlots);
+			TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit, pUnit->GetRange(), false, vAttackPlots);
 
 			//get plots we can move into with enough movement left
 			int iMinMovesLeft = pUnit->isSetUpForRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
 			TacticalAIHelpers::ReachablePlotSet movePlots;
-			TacticalAIHelpers::GetAllPlotsInReach( pUnit.pointer(), pUnit->plot(), movePlots, true, true, false, iMinMovesLeft);
+			TacticalAIHelpers::GetAllPlotsInReach( pUnit, pUnit->plot(), movePlots, true, true, false, iMinMovesLeft);
 
 			//check the overlap between attack plots and move plots
 			std::set<int> candidates;
@@ -10419,7 +10422,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 				//must be halfway safe
 				int iPlotIndex = (*it)->GetPlotIndex();
 				CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell(iPlotIndex);
-				int iUnitDanger = pCell->IsSubjectToAttack() ? m_pPlayer->GetPlotDanger(*GC.getMap().plotByIndexUnchecked(iPlotIndex),pUnit.pointer()) : 0;
+				int iUnitDanger = pCell->IsSubjectToAttack() ? m_pPlayer->GetPlotDanger(*GC.getMap().plotByIndexUnchecked(iPlotIndex),pUnit) : 0;
 				if( iUnitDanger<pUnit->GetCurrHitPoints()/3 && IsExpectedToDamageWithRangedAttack(pUnit, pTargetPlot, 5))
 				{
 					candidates.insert(iPlotIndex);
@@ -10492,11 +10495,9 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		}
 	}
 
-	OutputDebugString("ExecuteSafeBombards done!\n");
 	return true;
 
 #else
-	m_CurrentMoveUnits.clear();
 	list<int>::iterator it;
 	// For each of our ranged units, see if they are already in a plot that can bombard that can't be attacked.
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -13208,6 +13209,10 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 		CvPlot* pLoopPlot = aPlotsToCheck[iI];
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
+			//if the unit is already adjacent to the target, TurnsToReach returns zero and we would be stuck
+			if(pLoopPlot==pUnit->plot())
+				continue;
+
 			if(pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
 			{
 				// And if it is a city, make sure we are friends with them, else we will automatically attack
@@ -13224,7 +13229,8 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 						iBestTurns = iTurns;
 						pBestPlot = pLoopPlot;
 
-						if (iBestTurns == 0)
+						//performance optimization ... save some pathfinding
+						if (iBestTurns == 0 && GC.getGame().getJonRandNum(2,"early termination for MoveToEmptySpaceNearTarget")==1 )
 							break;
 					}
 				}
@@ -13237,6 +13243,17 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 		bool bResult = MoveToUsingSafeEmbark(pUnit, pBestPlot, false);
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer());
 		return bResult;
+	}
+
+	//ok, didn't find anything. does it make sense to stay put?
+	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<2)
+	{
+		if (pUnit->canFortify(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+		else
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
+		return true;
 	}
 
 	return false;
@@ -14077,7 +14094,8 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 #if defined(MOD_BALANCE_CORE)
 			if(bHighPriorityOnly)
 			{
-				if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+				if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || 
+					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
 				{
 					bTypeMatch = true;
 				}
