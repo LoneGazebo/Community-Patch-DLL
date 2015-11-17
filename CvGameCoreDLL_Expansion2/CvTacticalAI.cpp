@@ -3485,10 +3485,6 @@ void CvTacticalAI::PlotSafeBombardMoves()
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		m_pMap->ClearDynamicFlags();
-		CvPlot* pTargetPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
 	}
@@ -3496,10 +3492,6 @@ void CvTacticalAI::PlotSafeBombardMoves()
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		m_pMap->ClearDynamicFlags();
-		CvPlot* pTargetPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
 	}
@@ -3507,10 +3499,6 @@ void CvTacticalAI::PlotSafeBombardMoves()
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		m_pMap->ClearDynamicFlags();
-		CvPlot* pTargetPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
 	}
@@ -3518,10 +3506,6 @@ void CvTacticalAI::PlotSafeBombardMoves()
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_EMBARKED_MILITARY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		m_pMap->ClearDynamicFlags();
-		CvPlot* pTargetPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
 	}
@@ -4475,8 +4459,6 @@ void CvTacticalAI::PlotWithdrawMoves()
 /// Bombard any enemy targets we can get to on shore
 void CvTacticalAI::PlotShoreBombardmentMoves()
 {
-	CvPlot* pTarget;
-
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		// Is the target of an appropriate type?
@@ -4486,10 +4468,6 @@ void CvTacticalAI::PlotShoreBombardmentMoves()
 		{
 			if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
 			{
-				m_pMap->ClearDynamicFlags();
-				pTarget = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
-				m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 				ExecuteSafeBombards(m_ZoneTargets[iI]);
 			}
 		}
@@ -4500,10 +4478,6 @@ void CvTacticalAI::PlotShoreBombardmentMoves()
 		{
 			if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
 			{
-				m_pMap->ClearDynamicFlags();
-				pTarget = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
-				m_pMap->SetTargetBombardCells(pTarget, m_pMap->GetBestFriendlyRange(), m_pMap->CanIgnoreLOS());
-
 				ExecuteSafeBombards(m_ZoneTargets[iI]);
 			}
 		}
@@ -5489,7 +5463,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 	pThisArmy->UpdateCheckpointTurns();
 
 	// ESCORT AND CIVILIAN MEETING UP
-	if(pOperation && ((pOperation->GetOperationType() == AI_OPERATION_COLONIZE || pOperation->GetOperationType() == AI_OPERATION_QUICK_COLONIZE)))
+	if(pOperation && pOperation->IsCivilianOperation())
 	{
 		if(!pCivilian || !pCivilian->isFound())
 		{
@@ -7565,13 +7539,13 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	{
 		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-		if (pOperation && (pOperation->GetOperationType() != AI_OPERATION_COLONIZE))
+		if (pOperation && !pOperation->IsCivilianOperation())
 		{
-			if (pOperation && pOperation->IsMixedLandNavalOperation())
+			if (pOperation->IsMixedLandNavalOperation())
 			{
 				iRange += 1;
 			}
-			else if (pOperation && pOperation->IsAllNavalOperation())
+			else if (pOperation->IsAllNavalOperation())
 			{
 				iRange += 2;
 			}
@@ -7723,7 +7697,7 @@ bool CvTacticalAI::PlotEscortNavalOperationMoves(CvArmyAI* pArmy)
 	CvArmyAI* pArmyToEscort;
 
 	// Only one colonization operation at a time, so don't have to search for more than one
-	if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_COLONIZE, &iOperationID))
+	if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_QUICK_COLONIZE, &iOperationID))
 	{
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(iOperationID);
 		iArmyID = pOperation->GetFirstArmyID();
@@ -10233,7 +10207,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 	list<int>::iterator it;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	//for each of our ranged units, see if they are already in or close to a plot that can bombard that can't be attacked.
+	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
@@ -10690,10 +10664,6 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
 
-	//important: reset tactical cells!
-	m_pMap->ClearDynamicFlags();
-	m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), false);
-
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
@@ -10767,7 +10737,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
 #if defined(MOD_BALANCE_CORE_MILITARY)
-				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, iMinHitpoints, 3))
+				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, iMinHitpoints, 3))
 #else
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 #endif
@@ -10863,10 +10833,6 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 	pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
-
-	//important: reset tactical cells!
-	m_pMap->ClearDynamicFlags();
-	m_pMap->SetTargetBombardCells(pTargetPlot, m_pMap->GetBestFriendlyRange(), false);
 
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
@@ -12267,6 +12233,9 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 
 	std::vector< std::pair<int, int> > vUnitsByDistance;
 
+	int iPlotIndex = GC.getMap().plotNum(pTarget->getX(), pTarget->getY());
+	CvTacticalAnalysisCell* pCell = m_pMap->GetCell(iPlotIndex);
+
 	// Loop through all units available to operation
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
 	for (it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
@@ -12278,9 +12247,18 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 		if (pLoopUnit->hasMoved())
 			continue;
 		
-		if (!bIncludeRanged && pLoopUnit->IsCanAttackRanged())
-			continue;
-		
+		if (pLoopUnit->IsCanAttackRanged())
+		{
+			if (!bIncludeRanged)
+				continue;
+
+			if (pCell->GetTargetDistance()>pLoopUnit->GetRange())
+				continue;
+
+			if (!pLoopUnit->IsRangeAttackIgnoreLOS() && !pCell->GetHasLOS())
+				continue;
+		}
+
 		if (bRangedOnly && !pLoopUnit->IsCanAttackRanged())
 			continue;
 		
@@ -14746,6 +14724,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
+	m_pMap->ClearDynamicFlags();
 
 	for (int iDX = -m_iDeployRadius; iDX <= m_iDeployRadius; iDX++)
 	{
@@ -14771,8 +14750,12 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 				iScore -= iDistance * 50;
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
-				if (pCell->IsWithinRangeOfTarget() && iDistance > 1)
+				pCell->SetTargetDistance(iDistance);
+				if (iDistance > 1)
 					bChoiceBombardSpot = true;
+
+				if (pPlot->canSeePlot(pTarget,m_pPlayer->getTeam(),iDistance,NO_DIRECTION))
+					pCell->SetHasLOS(true);
 
 				pCell->SetSafeForDeployment(bChoiceBombardSpot);
 				pCell->SetDeploymentScore(iScore);

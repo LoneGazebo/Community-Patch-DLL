@@ -4891,23 +4891,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 												bIsOccupied = true;
 											}
 									
-											if(!bIsOccupied)
+											if(!bIsOccupied && bWantEscort && bCanEmbarkDeepWater)
 											{
-												if (!bWantEscort)
-												{
-													pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
-												else if(bCanEmbarkDeepWater)
-												{
-													pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
-												else
-												{
-													pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
+												pPlayer->addAIOperation(AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
+												return true;
 											}
 											else
 											{

@@ -29839,7 +29839,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 				switch (pOperation->GetOperationType())
 				{
 				case AI_OPERATION_FOUND_CITY:
-				case AI_OPERATION_COLONIZE:
+				case AI_OPERATION_NAVAL_COLONIZATION:
 				case AI_OPERATION_QUICK_COLONIZE:
 					{
 						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
@@ -29857,7 +29857,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_COLONIZE:
+			case AI_OPERATION_NAVAL_COLONIZATION:
 			case AI_OPERATION_QUICK_COLONIZE:
 				{
 					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)

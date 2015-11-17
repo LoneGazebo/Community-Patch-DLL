@@ -29,7 +29,9 @@ CvTacticalAnalysisCell::CvTacticalAnalysisCell(void):
 	m_iDefenseModifier(0),
 	m_iDeploymentScore(0),
 	m_eTargetType(AI_TACTICAL_TARGET_NONE),
-	m_iDominanceZoneID(-1)
+	m_iDominanceZoneID(-1),
+	m_iTargetDistance(INT_MAX),
+	m_bHasLOSToTarget(false)
 {
 	Clear();
 }
@@ -48,6 +50,8 @@ void CvTacticalAnalysisCell::Clear()
 	m_iDeploymentScore = 0;
 	m_eTargetType = AI_TACTICAL_TARGET_NONE;
 	m_iDominanceZoneID = -1;
+	m_iTargetDistance = INT_MAX;
+	m_bHasLOSToTarget = false;
 }
 
 bool CvTacticalAnalysisCell::CanUseForOperationGathering()
@@ -638,41 +642,8 @@ void CvTacticalAnalysisMap::ClearDynamicFlags()
 		m_pPlots[iI].SetHelpsProvidesFlankBonus(false);
 		m_pPlots[iI].SetSafeForDeployment(false);
 		m_pPlots[iI].SetDeploymentScore(0);
-	}
-}
-
-// Mark cells we can use to bomb a specific target
-void CvTacticalAnalysisMap::SetTargetBombardCells(CvPlot* pTarget, int iRange, bool bIgnoreLOS)
-{
-	int iDX, iDY;
-	CvPlot* pLoopPlot;
-	int iPlotIndex;
-	int iPlotDistance;
-
-	for(iDX = -(iRange); iDX <= iRange; iDX++)
-	{
-		for(iDY = -(iRange); iDY <= iRange; iDY++)
-		{
-			pLoopPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
-			if(pLoopPlot != NULL)
-			{
-				iPlotDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY());
-				if(iPlotDistance > 0 && iPlotDistance <= iRange)
-				{
-					iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-					if(m_pPlots[iPlotIndex].IsRevealed() && !m_pPlots[iPlotIndex].IsImpassableTerrain() && !m_pPlots[iPlotIndex].IsImpassableTerritory())
-					{
-						if(!m_pPlots[iPlotIndex].IsEnemyCity() && !m_pPlots[iPlotIndex].IsNeutralCity())
-						{
-							if(bIgnoreLOS || pLoopPlot->canSeePlot(pTarget, m_pPlayer->getTeam(), iRange, NO_DIRECTION))
-							{
-								m_pPlots[iPlotIndex].SetWithinRangeOfTarget(true);
-							}
-						}
-					}
-				}
-			}
-		}
+		m_pPlots[iI].SetTargetDistance(INT_MAX);
+		m_pPlots[iI].SetHasLOS(false);
 	}
 }
 

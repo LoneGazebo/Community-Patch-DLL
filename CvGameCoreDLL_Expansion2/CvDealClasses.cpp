@@ -3860,12 +3860,14 @@ uint CvGameDeals::GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount)
 	DealList::iterator end = m_HistoricalDeals.end();
 
 	uint iCount = 0;
-	for(iter = m_HistoricalDeals.begin(); iter != end, iCount<iMaxCount; ++iter)
+	for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
 	{
 		if(iter->m_eToPlayer == ePlayer ||
 		        iter->m_eFromPlayer == ePlayer)
 		{
 			++iCount;
+			if (iCount==iMaxCount)
+				break;
 		}
 	}
 
