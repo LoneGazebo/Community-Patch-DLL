@@ -585,7 +585,7 @@ void CvTacticalAI::CommandeerUnits()
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	if(MOD_BALANCE_CORE_DEBUGGING)
 	{
-		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			UnitHandle pUnit = m_pPlayer->getUnit(*it);
 			CvString msg = CvString::format("current turn tactical unit %s %d at %d,%d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY() );
@@ -10376,16 +10376,29 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		}
 	}
 
-	m_CurrentMoveUnits.clear();
-
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	list<int>::iterator it;
-	//for each of our ranged units, see if they are already in or close to a plot that can bombard that can't be attacked.
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	CvString strMsg;
+	strMsg.Format("Turn %d: currentTurnUnits for player %d has %d elements:\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), m_CurrentTurnUnits.size());
+	OutputDebugString(strMsg.c_str());
+	std::list<int>::iterator it;
+	int idx = 0;
+	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
+	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		strMsg.Format("%d: %d\n",idx++,*it);
+		OutputDebugString(strMsg.c_str());
+	}
+
+	//for each of our ranged units, see if they are already in or close to a plot that can bombard but can't be attacked.
+	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 		{
+			//do this only if the unit is not too far out
+			if (plotDistance(pUnit->getX(),pUnit->getY(),pTargetPlot->getX(),pTargetPlot->getY())>18)
+				continue;
+
 			//get plots that could be used as a base for attacking
 			std::vector<CvPlot*> vAttackPlots;
 			TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit.pointer(), pUnit->GetRange(), false, vAttackPlots);
@@ -10479,9 +10492,11 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		}
 	}
 
+	OutputDebugString("ExecuteSafeBombards done!\n");
 	return true;
 
 #else
+	m_CurrentMoveUnits.clear();
 	list<int>::iterator it;
 	// For each of our ranged units, see if they are already in a plot that can bombard that can't be attacked.
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)

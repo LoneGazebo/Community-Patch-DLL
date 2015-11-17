@@ -1664,7 +1664,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	
 	// Make a list of all combat units that are on a landmass of a suitable size and could found a city at their current plot
 	MoveUnitsArray PossibleSettlerUnits;
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) {
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) {
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit) {
 			if (pUnit->IsCombatUnit() && GC.getMap().getArea(pUnit->getArea())->getNumRevealedTiles(m_pPlayer->getTeam()) > iMinRevealedTilesThisLandmass && pUnit->canFound(pUnit->plot())) {

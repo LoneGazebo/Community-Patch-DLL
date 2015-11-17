@@ -1041,13 +1041,13 @@ private:
 	// Class data
 	CvPlayer* m_pPlayer;
 	CvTacticalAnalysisMap* m_pMap;
-	list<int> m_CurrentTurnUnits;
+	std::list<int> m_CurrentTurnUnits;
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvTacticalUnit> m_CurrentAirUnits;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	set<int> m_HealingUnits;
+	std::set<int> m_HealingUnits;
 	CTacticalUnitArray m_CurrentMoveUnits;
 	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
 #else
