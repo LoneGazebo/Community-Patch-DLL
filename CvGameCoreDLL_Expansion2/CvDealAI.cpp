@@ -8447,6 +8447,12 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	if(bFromMe)
 	{
 		// Approach is important
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+		{
+			return 100000;
+		}
+#endif
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
 			case MAJOR_CIV_APPROACH_HOSTILE:
@@ -8472,6 +8478,39 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		iItemValue /= 100;
 
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+		{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				iItemValue *= 25;
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+				iItemValue *= 40;
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				iItemValue *= 100;
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+				iItemValue *= 100;
+				break;
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				iItemValue *= 100;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Technology valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iItemValue *= 100;
+				break;
+		}
+		iItemValue /= 100;
+		
+		if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+		{
+			iItemValue /= 2;
+		}
+	}
+#endif
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	//if(bUseEvenValue)

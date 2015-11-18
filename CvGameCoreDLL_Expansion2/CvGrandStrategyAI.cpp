@@ -541,7 +541,16 @@ int CvGrandStrategyAI::GetConquestPriority()
 
 	int iGeneralApproachModifier = max(max(iGeneralDeceptiveness, iGeneralHostility),iGeneralWarlikeness) - iGeneralFriendliness;
 	// Boldness gives the base weight for Conquest (no flavors added earlier)
+#if defined(MOD_BALANCE_CORE)
+	int iEra = m_pPlayer->GetCurrentEra();
+	if(iEra <= 0)
+	{
+		iEra = 1;
+	}
+	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * iEra); // make a little less likely as time goes on
+#else
 	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
+#endif
 
 	CvTeam& pTeam = GET_TEAM(GetPlayer()->getTeam());
 
@@ -592,19 +601,10 @@ int CvGrandStrategyAI::GetConquestPriority()
 		iPriority += /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_AT_WAR_WEIGHT();
 	}
 #if defined(MOD_BALANCE_CORE)
-	int iNum = 0;
-	const CvCity* pLoopCity;
-	int iLoop;
-	for(pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
+	int iNum = GetPlayer()->GetNumCapitalCities();
+	if(iNum > 1)
 	{
-		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
-		{
-			iNum++;
-		}
-	}
-	if(iNum > 0)
-	{
-		iPriority *= (iNum * 2);
+		iPriority *= iNum;
 	}
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
@@ -704,8 +704,12 @@ int CvGrandStrategyAI::GetCulturePriority()
 	// Before tourism kicks in, add weight based on flavor
 	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 #if defined(MOD_AI_SMART_GRAND_STRATEGY)
-	int iEra = MOD_AI_SMART_GRAND_STRATEGY ? 9 : 10;
-	iPriority += (iEra - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
+	int iEra = m_pPlayer->GetCurrentEra();
+	if(iEra <= 0)
+	{
+		iEra = 1;
+	}
+	iPriority += ((iEra * iFlavorCulture * 200) / 100);
 #else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
 #endif
@@ -775,10 +779,10 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	{
 		return -100;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iNumMinorsAttacked = GET_TEAM(GetPlayer()->getTeam()).GetNumMinorCivsAttacked();
 	iPriority += (iNumMinorsAttacked* /*-30*/ GC.getAI_GRAND_STRATEGY_UN_EACH_MINOR_ATTACKED_WEIGHT());
-
+#endif
 	int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
 
 	int iVotesControlled = 0;
@@ -922,7 +926,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	}
 	if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
 	{
-		iPriority += (GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadScience - iNumCivsBehindScience) / iNumCivsAlive);
+		iPriority += ((GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadScience - iNumCivsBehindScience)) / iNumCivsAlive);
 	}
 #endif
 	// if I already built the Apollo Program I am very likely to follow through
@@ -1229,6 +1233,15 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 	//Autocracy is usually a sure bet for conquest strategy.
 	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
 	{
+		//More than half of all Capitals?
+		if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
+		{
+			iConquestPriority *= GET_PLAYER(ePlayer).GetNumCapitalCities();
+		}
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
+		{
+			iConquestPriority *= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer);
+		}
 		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
 		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
@@ -1287,11 +1300,18 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 		{
 			iCulturePriority += -GC.getAI_GS_TOURISM_RATIO_MULTIPLIER();
 		}
-		iCulturePriority += iRatio;	}
+		iCulturePriority += iRatio;	
+	}
 #if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
-	//Freedom is usually a sure bet for culture strategy.
+	
 	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
 	{
+		//Influential on a lot of civs?
+		if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() >= (GC.getGame().countMajorCivsEverAlive() / 2))
+		{
+			iCulturePriority *= GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn();
+		}
+		//Freedom is usually a sure bet for culture strategy.
 		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
 		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
@@ -1367,7 +1387,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 		{
 			if(GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > GC.getGame().GetVotesNeededForDiploVictory())
 			{
-				iPriority *= 2;
+				iPriority *= (GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) / 4);
 			}
 		}
 	}

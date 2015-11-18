@@ -1487,29 +1487,6 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 
 	if (GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(ePlayer).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		{
-			if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == ePlayer2)
-			{
-				int iAllyScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
-				if(iAllyScience <= 0)
-				{
-					return 0;
-				}
-				return 	iAllyScience;
-			}
-			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(ePlayer2))
-			{
-				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
-				if(iFriendScience <= 0)
-				{
-					return 0;
-				}
-				return 	iFriendScience;
-			}
-		}
-#endif
 		return 0;
 	}
 
@@ -2776,6 +2753,29 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iResult = 0;
 				int iBase = GC.getINTERNATIONAL_TRADE_BASE();
 				iResult = iBase;
+#if defined(MOD_BALANCE_CORE)
+				if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				{
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->GetAlly() == kTradeConnection.m_eOriginOwner)
+					{
+						int iAllyGold = (GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
+						if(iAllyGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+						{
+							iAllyGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+						}
+						iResult += iAllyGold;
+					}
+					else if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsFriends(kTradeConnection.m_eOriginOwner))
+					{
+						int iFriendGold = (GD_INT_GET(TRADE_ROUTE_CS_FRIEND_GOLD) * 100);
+						if(iFriendGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+						{
+							iFriendGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+						}
+						iResult += iFriendGold;
+					}
+				}
+#endif
 				return iResult;
 			}
 			else if (eYield == YIELD_SCIENCE)

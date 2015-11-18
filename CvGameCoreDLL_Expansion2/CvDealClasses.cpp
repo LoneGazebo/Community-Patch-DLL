@@ -493,7 +493,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
 #if defined(MOD_BALANCE_CORE)
-			if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
 				if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
 					return false;
@@ -720,7 +720,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!GET_TEAM(pFromPlayer->getTeam()).HasEmbassyAtTeam(pToPlayer->getTeam()) || !GET_TEAM(pToPlayer->getTeam()).HasEmbassyAtTeam(pFromPlayer->getTeam())))
 				return false;

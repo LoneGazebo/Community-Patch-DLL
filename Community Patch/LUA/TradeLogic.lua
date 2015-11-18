@@ -1459,7 +1459,7 @@ function ResetDisplay()
         if( g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
             bFound = true;
             break;
-        end
+		end	
     end
     if( bFound ) then
         Controls.UsPocketCities:SetDisabled( false );
@@ -1774,8 +1774,7 @@ function DoClearTable()
 	Controls.UsTableLuxuryStack:SetHide( true );
 	Controls.ThemTableLuxuryStack:SetHide( true );
 	Controls.UsTableVoteStack:SetHide( true );
-	Controls.ThemTableVoteStack:SetHide( true );
-	
+	Controls.ThemTableVoteStack:SetHide( true );	
 	Controls.UsTableMakePeaceStack:SetHide( true );
 	Controls.ThemTableMakePeaceStack:SetHide( true );
 	Controls.UsTableDeclareWarStack:SetHide( true );
@@ -3167,27 +3166,26 @@ function ShowOtherPlayerChooser( isUs, type )
 			local strToolTip = "";
 			local iFromTeam = Players[iFromPlayer]:GetTeam();
 			
-     		if( g_iUsTeam == iLoopTeam or g_iThemTeam == iLoopTeam or
-    		    not g_pUsTeam:IsHasMet( iLoopTeam ) or not g_pThemTeam:IsHasMet( iLoopTeam ) ) then
-    		    
-    		    otherPlayerButtonSubTableNameButton:SetHide( true );
-
-   		    elseif( g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
+    		if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam and
+    		    g_pUsTeam:IsHasMet( iLoopTeam ) and g_pThemTeam:IsHasMet( iLoopTeam ) and
+                g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
                 
-     		    otherPlayerButtonSubTableNameButton:SetHide( false );
-   				otherPlayerButtonSubTableNameButton:SetDisabled( false );
+    		    otherPlayerButtonSubTableNameButton:SetDisabled( false );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 1 );
             else
                         
-     		    otherPlayerButtonSubTableNameButton:SetHide( false );
     		    otherPlayerButtonSubTableNameButton:SetDisabled( true );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 0.5 );
     		    
     		    -- Why won't they make peace?
     		    if (type == PEACE) then
 					
+					-- CBP: Need Embassy:
+					if (not g_pUsTeam:HasEmbassyAtTeam(iFromTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" );
+
 					-- Not at war
-					if (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+					elseif (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
     				
     				-- Minor that won't make peace
@@ -3219,9 +3217,12 @@ function ShowOtherPlayerChooser( isUs, type )
     			
     			-- Why won't they make war?
     			else
-					
+					-- CBP: Need Embassy:
+					if (not g_pUsTeam:HasEmbassyAtTeam(iFromTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
+
 					-- Already at war
-					if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+					elseif (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
 
 					-- Locked in to peace
@@ -3255,11 +3256,11 @@ function ShowOtherPlayerChooser( isUs, type )
 
 -- END
 					end
-
-				end
-
-			end
-
+    				
+    		    end
+    		    
+    		end
+			
 			-- Tooltip
 			otherPlayerButtonSubTableNameButton:SetToolTipString(strToolTip);
 			
