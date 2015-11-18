@@ -238,7 +238,7 @@ public:
 	int GetNumDifferentTradingPartners (void);
 
 	void UpdateTradeConnectionWasPlundered();
-	void AddTradeConnectionWasPlundered(const TradeConnection kTradeConnection);
+	void AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 	bool CheckTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)

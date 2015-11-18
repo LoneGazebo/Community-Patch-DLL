@@ -4767,7 +4767,7 @@ void CvMilitaryAI::UpdateOperations()
 							|| iOperation == MUFORMATION_RAPID_RESPONSE_FORCE
 							|| iOperation == AI_OPERATION_FOUND_CITY
 							|| iOperation == AI_OPERATION_MERCHANT_DELEGATION
-							|| iOperation == AI_OPERATION_COLONIZE
+							|| iOperation == AI_OPERATION_NAVAL_COLONIZATION
 							|| iOperation == AI_OPERATION_QUICK_COLONIZE
 							|| iOperation == AI_OPERATION_CONCERT_TOUR
 							|| iOperation == AI_OPERATION_DIPLOMAT_DELEGATION)
@@ -4802,7 +4802,7 @@ void CvMilitaryAI::UpdateOperations()
 				|| iOperation == AI_OPERATION_PURE_NAVAL_CITY_ATTACK 
 				|| iOperation == AI_OPERATION_FOUND_CITY
 				|| iOperation == AI_OPERATION_MERCHANT_DELEGATION
-				|| iOperation == AI_OPERATION_COLONIZE
+				|| iOperation == AI_OPERATION_NAVAL_COLONIZATION
 				|| iOperation == AI_OPERATION_QUICK_COLONIZE
 				|| iOperation == AI_OPERATION_CONCERT_TOUR
 				|| iOperation == AI_OPERATION_DIPLOMAT_DELEGATION

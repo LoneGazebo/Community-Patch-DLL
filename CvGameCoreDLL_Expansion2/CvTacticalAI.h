@@ -546,6 +546,7 @@ public:
 		m_iY = 0;
 		m_eTargetType = AI_TACTICAL_TARGET_NONE;
 		m_iLastTurn = 0;
+		m_bIsNavalInvasion = false;
 	};
 
 	int GetX() const
@@ -938,8 +939,6 @@ private:
 	void ExecuteAirInterceptMoves();
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
-	bool ExecuteProtectedBombards(CvTacticalTarget& kTarget, bool bAttackUnderway);
-	bool ExecuteOneProtectedBombard(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
 	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
 	void ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
@@ -1008,8 +1007,6 @@ private:
 	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);
 
 	// Blocking position functions
-	bool CanCoverFromEnemy(CvPlot* pPlot, int& iNumUnitsRequiredToCover, int iAttackingUnitID);
-	bool AssignCoveringUnits(int iNumUnitsRequiredToCover);
 	bool AssignFlankingUnits(int iNumUnitsRequiredToFlank);
 	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
 	void PerformChosenMoves(int iFallbackMoveRange = 1);
@@ -1041,13 +1038,13 @@ private:
 	// Class data
 	CvPlayer* m_pPlayer;
 	CvTacticalAnalysisMap* m_pMap;
-	list<int> m_CurrentTurnUnits;
+	std::list<int> m_CurrentTurnUnits;
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvTacticalUnit> m_CurrentAirUnits;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	set<int> m_HealingUnits;
+	std::set<int> m_HealingUnits;
 	CTacticalUnitArray m_CurrentMoveUnits;
 	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
 #else

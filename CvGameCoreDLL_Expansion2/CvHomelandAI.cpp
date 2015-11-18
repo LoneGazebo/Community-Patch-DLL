@@ -1664,7 +1664,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	
 	// Make a list of all combat units that are on a landmass of a suitable size and could found a city at their current plot
 	MoveUnitsArray PossibleSettlerUnits;
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) {
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) {
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit) {
 			if (pUnit->IsCombatUnit() && GC.getMap().getArea(pUnit->getArea())->getNumRevealedTiles(m_pPlayer->getTeam()) > iMinRevealedTilesThisLandmass && pUnit->canFound(pUnit->plot())) {
@@ -4107,35 +4107,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			UnitProcessed(pUnit->GetID());
 		}
 	}
-}
-
-/// Send work boats to deploy on naval resources (return true if improvement built)
-bool CvHomelandAI::ExecuteWorkerSeaMoves(CvHomelandTarget target, CvPlot* pTarget)
-{
-	bool bRtnValue = false;
-
-	// Move first one to target
-	UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
-	if(pUnit)
-	{
-		if(pUnit->UnitPathTo(pTarget->getX(), pTarget->getY(), 0) > 0)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
-			if(pUnit->plot() == pTarget)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_BUILD(), (int)target.GetAuxIntData(), -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
-				bRtnValue = true;
-			}
-			else
-			{
-				pUnit->finishMoves();
-			}
-
-			// Delete this unit from those we have to move
-			UnitProcessed(m_CurrentMoveUnits.begin()->GetID());
-		}
-	}
-	return bRtnValue;
 }
 
 /// Heal chosen units
@@ -7682,47 +7653,6 @@ void CvHomelandAI::EliminateAdjacentHomelandRoads()
 #endif
 }
 
-/// Fills m_CurrentMoveUnits with all units in same area
-bool CvHomelandAI::FindWorkersInSameArea(CvPlot* pTarget, BuildTypes eBuild)
-{
-	bool rtnValue = false;
-	ClearCurrentMoveUnits();
-
-	// Loop through all units available to homeland AI this turn
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		UnitHandle pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit)
-		{
-			// Civilians only
-			if(pLoopUnit->IsCanAttack())
-			{
-				continue;
-			}
-
-			// Can this worker make the right improvement?
-			if(pLoopUnit->canBuild(pTarget, eBuild))
-			{
-				CvHomelandUnit unit;
-				int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget);
-
-				if(iMoves != MAX_INT)
-				{
-					unit.SetID(pLoopUnit->GetID());
-					unit.SetMovesToTarget(iMoves);
-					m_CurrentMoveUnits.push_back(unit);
-					rtnValue = true;
-				}
-			}
-		}
-	}
-
-	// Now sort them in the order we'd like them to move
-	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-
-	return rtnValue;
-}
-
 /// Finds both high and normal priority units we can use for this homeland move (returns true if at least 1 unit found)
 bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 {
@@ -8249,31 +8179,6 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 		}
 	}
 	return false;
-}
-
-/// Choose a city to build the next wonder
-CvCity* CvHomelandAI::ChooseBestFreeWonderCity(BuildingTypes eWonder, UnitHandle pEngineer)
-{
-	CvCity* pBestCity = NULL;
-	CvCity* pLoopCity;
-	int iLoop;
-	int iBestTurns = MAX_INT;
-	int iTurns;
-
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		if(pLoopCity->canConstruct(eWonder))
-		{
-			iTurns = TurnsToReachTarget(pEngineer, pLoopCity->plot(), true /*bReusePaths*/);
-			if(iTurns < iBestTurns)
-			{
-				pBestCity = pLoopCity;
-				iBestTurns = iTurns;
-			}
-		}
-	}
-
-	return pBestCity;
 }
 
 /// Find best target for this archaeologist

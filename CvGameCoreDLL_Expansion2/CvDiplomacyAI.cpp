@@ -11236,7 +11236,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 				continue;
 			}
-			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 400)
+			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 350)
 			{
 				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 				continue;
@@ -11244,15 +11244,9 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 			// Minors can't really be an issue with Victory!
 			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
-				MajorCivApproachTypes eApproach;
 				MajorCivOpinionTypes eOpinion;
 				eOpinion = GetMajorCivOpinion(ePlayer);
-				eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-				if(eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
-				{
-					continue;
-				}
-				if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+				if(eOpinion > MAJOR_CIV_OPINION_FRIEND)
 				{
 					continue;
 				}
@@ -11290,8 +11284,39 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 					{
 						bSpaceRace = true;
 					}
+					else
+					{
+						int iTheirTechNum = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+						int iNumOtherPlayers = 0;
+						int iNumPlayersAheadInTech = 0;
+						for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+						{
+							PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+							if(!GET_PLAYER(eOtherPlayer).isAlive())
+							{
+								continue;
+							}
+
+							if (eOtherPlayer == ePlayer)
+							{
+								continue;
+							}
+
+							iNumOtherPlayers++;
+							int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+							if (iTheirTechNum > iNumTechs )
+							{
+								iNumPlayersAheadInTech++;
+							}
+						}
+						if(iNumPlayersAheadInTech >= iNumOtherPlayers)
+						{
+							bSpaceRace = true;
+						}
+					}
 				}
-				if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+				if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
 				{
 					bWar = true;
 				}
@@ -11322,13 +11347,13 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 					switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(ePlayer))
 					{
 					case GUESS_CONFIDENCE_POSITIVE:
-						iVictoryBlockWeight += 12;
+						iVictoryBlockWeight += 15;
 						break;
 					case GUESS_CONFIDENCE_LIKELY:
-						iVictoryBlockWeight += 8;
+						iVictoryBlockWeight += 10;
 						break;
 					case GUESS_CONFIDENCE_UNSURE:
-						iVictoryBlockWeight += 2;
+						iVictoryBlockWeight += 5;
 						break;
 					}
 				}
@@ -11336,18 +11361,18 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				{
 					// Add weight for Player's meanness and diplobalance desires (0 - 10)
 					// Average of each is 5, and era goes up by one throughout game.
-					iVictoryBlockWeight += (GetMeanness() + GetDiploBalance() + GetPlayer()->GetCurrentEra());
+					iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GetPlayer()->GetCurrentEra());
 
 					// Now See what our new Block Level should be
-					if(iVictoryBlockWeight >= 30)
+					if(iVictoryBlockWeight >= 40)
 					{					
 						eBlockLevel = BLOCK_LEVEL_FIERCE;
 					}
-					else if(iVictoryBlockWeight >= 25)
+					else if(iVictoryBlockWeight >= 30)
 					{					
 						eBlockLevel = BLOCK_LEVEL_STRONG;
 					}
-					else if(iVictoryBlockWeight >= 20)
+					else if(iVictoryBlockWeight >= 25)
 					{					
 						eBlockLevel = BLOCK_LEVEL_WEAK;
 					}
@@ -11403,7 +11428,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
-			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500)
+			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 375)
 			{
 				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
@@ -11422,16 +11447,8 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 						continue;
 					}
-					MajorCivApproachTypes eApproach;
-					MajorCivOpinionTypes eOpinion;
-					eOpinion = GetMajorCivOpinion(ePlayer);
-					eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-					if(eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
-					{
-						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-						continue;
-					}
-					if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+					MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
+					if(eOpinion > MAJOR_CIV_OPINION_FRIEND)
 					{
 						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 						continue;
@@ -18008,7 +18025,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			int iNumDeals = 0;
 			if(iDealTypes == 0)
 			{
-				iNumDeals = pGameDeals->GetNumHistoricDeals(ePlayer);
+				iNumDeals = pGameDeals->GetNumHistoricDeals(ePlayer,12);
 			}
 			else
 			{
@@ -19448,6 +19465,37 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
 			{
 				bSpaceRace = true;
+			}
+			else
+			{
+				int iTheirTechNum = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+				int iNumOtherPlayers = 0;
+				int iNumPlayersAheadInTech = 0;
+				for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+				{
+					PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+					if(!GET_PLAYER(eOtherPlayer).isAlive())
+					{
+						continue;
+					}
+
+					if (eOtherPlayer == ePlayer)
+					{
+						continue;
+					}
+
+					iNumOtherPlayers++;
+					int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+					if (iTheirTechNum > iNumTechs )
+					{
+						iNumPlayersAheadInTech++;
+					}
+				}
+				if(iNumPlayersAheadInTech >= iNumOtherPlayers)
+				{
+					bSpaceRace = true;
+				}
 			}
 		}
 		if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE && GET_PLAYER(ePlayer).GetNumCapitalCities() > 1 && GetPlayer()->GetNumCapitalCities() > 1)
@@ -30213,7 +30261,7 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID(),12);
 		}
 		else
 		{
@@ -30260,7 +30308,7 @@ void CvDiplomacyAI::ClearDealToRenew()
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID(),12);
 		}
 		else
 		{

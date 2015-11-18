@@ -354,6 +354,23 @@ public:
 	bool CanUseForOperationGathering();
 	bool CanUseForOperationGatheringCheckWater(bool bWater=false);
 
+	int GetTargetDistance() const
+	{
+		return m_iTargetDistance;
+	};
+	void SetTargetDistance(int iDistance)
+	{
+		m_iTargetDistance = iDistance;
+	};
+	bool GetHasLOS() const
+	{
+		return m_bHasLOSToTarget;
+	};
+	void SetHasLOS(bool bValue)
+	{
+		m_bHasLOSToTarget = bValue;
+	};
+
 private:
 	CvUnit* m_pEnemyMilitary;
 	CvUnit* m_pEnemyCivilian;
@@ -366,6 +383,9 @@ private:
 	int m_iDeploymentScore;
 	AITacticalTargetType m_eTargetType;
 	int m_iDominanceZoneID;
+
+	int m_iTargetDistance;
+	bool m_bHasLOSToTarget;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -738,7 +758,6 @@ public:
 
 	// Routines to update the map
 	void ClearDynamicFlags();
-	void SetTargetBombardCells(CvPlot* pTarget, int iRange, bool bIgnoreLOS);
 	void SetTargetFlankBonusCells(CvPlot* pTarget);
 
 	// Range variable to keep dominance zones and tactical AI in sync

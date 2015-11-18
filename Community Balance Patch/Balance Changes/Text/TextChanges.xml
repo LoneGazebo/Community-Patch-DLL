@@ -79,6 +79,9 @@
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN_CS">
+			<Text>Total: {1_Num} [ICON_RESEARCH] Science (due to [ICON_INFLUENCE] Influence over this City-State)</Text>
+		</Row>
 
 		<!-- Pantheons -->
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE">

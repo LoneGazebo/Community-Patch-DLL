@@ -10826,7 +10826,12 @@ void CvGame::removePlotExtraCost(int iX, int iY)
 //	--------------------------------------------------------------------------------
 void CvGame::doUpdateCacheOnTurn()
 {
-
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		pLoopPlot->updateFreshwater();
+	}
 }
 
 //	--------------------------------------------------------------------------------

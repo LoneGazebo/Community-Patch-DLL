@@ -3019,6 +3019,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumSettlers, iNumCities, -1, 0);
 }
+
 CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 {
 	CvUnit* pLoopUnit = NULL;
@@ -3040,6 +3041,7 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 
 	return NULL;
 }
+
 void CvEconomicAI::DisbandExtraWorkboats()
 {
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
@@ -4525,6 +4527,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
+
 	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 	if (iNumSettleAreas == 0)
 	{
@@ -4573,6 +4576,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
+
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
 	EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
 	if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
@@ -4887,23 +4891,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 												bIsOccupied = true;
 											}
 									
-											if(!bIsOccupied)
+											if(!bIsOccupied && bWantEscort && bCanEmbarkDeepWater)
 											{
-												if (!bWantEscort)
-												{
-													pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
-												else if(bCanEmbarkDeepWater)
-												{
-													pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
-												else
-												{
-													pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
-													return true;
-												}
+												pPlayer->addAIOperation(AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
+												return true;
 											}
 											else
 											{
