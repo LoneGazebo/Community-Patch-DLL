@@ -8030,7 +8030,7 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if(!isBarbarian())
 	{
-		changeDamage(-(healRate(plot())));
+		changeDamage( -healRate(plot()) );
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
@@ -8075,6 +8075,17 @@ void CvUnit::doHeal()
 			}
 		}
 #endif
+	}
+	else //barbarian!
+	{
+		if(IsCombatUnit())
+		{
+			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+			if( !hasMoved() && IsHurt() && plot()->getImprovementType()==eCamp )
+			{
+				changeDamage( -GC.getBALANCE_BARBARIAN_HEAL_RATE() );
+			}
+		}
 	}
 }
 

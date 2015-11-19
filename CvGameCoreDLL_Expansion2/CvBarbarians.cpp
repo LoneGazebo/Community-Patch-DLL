@@ -952,20 +952,7 @@ void CvBarbarians::DoUnits()
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-		{
-			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-			
-			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
-			{
-				if( ( !pUnit->hasMoved() && pUnit->IsHurt() ) && (pLoopPlot->getImprovementType() == eCamp) )
-				{
-					pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
-				}
-			}
-		}
-#endif
+
 #if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		//Let's make Barbs scarier. If they end their move next to a city, let's have them pillage some Gold from the City. If they end their turn in owned land, let's give them a smaller chance to do so.
 		if(pLoopPlot != NULL && MOD_BALANCE_CORE_BARBARIAN_THEFT)
