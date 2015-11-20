@@ -962,7 +962,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bAllowEmbark=false);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
 #else
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
