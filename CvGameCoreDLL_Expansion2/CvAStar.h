@@ -86,6 +86,7 @@ struct SPath
 {
 	std::vector<std::pair<int,int>> vPlots;
 	int iCost;
+	int iTurnGenerated;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -886,11 +886,12 @@ CvAStarNode* CvAStar::Pop()
 SPath CvAStar::GetPath() const
 {
 	SPath ret;
-	CvAStarNode* pNode = GetLastNode();
+	ret.iCost = INT_MAX;
+	ret.iTurnGenerated = GC.getGame().getGameTurn();
 
+	CvAStarNode* pNode = GetLastNode();
 	if (!pNode)
 	{
-		ret.iCost = INT_MAX;
 		return ret;
 	}
 

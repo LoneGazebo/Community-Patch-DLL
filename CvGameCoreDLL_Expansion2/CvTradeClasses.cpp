@@ -119,6 +119,11 @@ bool AddTradePath(TradePathLookup& cache, int iCityA, int iCityB, const SPath& p
 
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 {
+	//check if we have anything to do
+	std::map<uint,int>::iterator lastUpdate = m_lastTradePathUpdate.find(iPlayer1);
+	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
+		return;
+
 	CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);
 	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian())
 		return;
@@ -230,6 +235,8 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			}
 		}
 	}
+
+	m_lastTradePathUpdate[iPlayer1]=GC.getGame().getGameTurn();
 }
 
 //	--------------------------------------------------------------------------------
@@ -3881,6 +3888,9 @@ bool CvPlayerTrade::IsConnectedToPlayer(PlayerTypes eOtherPlayer)
 bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath /* = true */)
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+
+	//important. see which trade paths are valid
+	pTrade->UpdateTradePathCache(m_pPlayer->GetID());
 
 	// if you can't see the plot, you're not allowed to connect it
 	if (!pDestCity->plot()->isRevealed(m_pPlayer->getTeam(), false))

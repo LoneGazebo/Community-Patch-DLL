@@ -146,6 +146,7 @@ protected:
 
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
+	std::map<uint,int> m_lastTradePathUpdate;
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
 	int m_aaiTechDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
