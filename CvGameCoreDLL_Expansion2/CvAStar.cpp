@@ -86,7 +86,9 @@ CvAStar::CvAStar()
 #endif
 
 	m_bIsMPCacheSafe = false;
-	m_bDataChangeInvalidatesCache = false;
+
+	m_iMaxTurns = INT_MAX;
+	m_iMaxCost = INT_MAX;
 
 #if defined(MOD_BALANCE_CORE)
 	//for debugging
@@ -537,9 +539,17 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 /// Link in a child
 void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
-	int iKnownCost;
+	// we would have to start a new turn to continue
+	if(node->m_iMoves == 0)
+	{
+		if (node->m_iTurns+1 > GetMaxTurns()) // path is getting too long ...
+			return;
+	}
 
-	iKnownCost = node->m_iKnownCost + udFunc(udCost, node, check, 0, m_pData);
+	int iKnownCost = node->m_iKnownCost + udFunc(udCost, node, check, 0, m_pData);
+
+	if (iKnownCost > GetMaxCost())
+		return; // path is getting too expensive
 
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
@@ -871,6 +881,51 @@ CvAStarNode* CvAStar::Pop()
 	node->m_bOnStack = false;
 
 	return node;
+}
+
+SPath CvAStar::GetPath() const
+{
+	SPath ret;
+	CvAStarNode* pNode = GetLastNode();
+
+	if (!pNode)
+	{
+		ret.iCost = INT_MAX;
+		return ret;
+	}
+
+	ret.iCost = pNode->m_iKnownCost;
+
+	//walk backwards ...
+	while(pNode != NULL)
+	{
+		ret.vPlots.push_back( std::make_pair(pNode->m_iX, pNode->m_iY) );
+		pNode = pNode->m_pParent;
+	}
+
+	std::reverse(ret.vPlots.begin(),ret.vPlots.end());
+	return ret;
+}
+
+bool CvAStar::VerifyPath(const SPath& path)
+{
+	int iKnownCost = 0;
+	for (size_t i=0; i<path.vPlots.size()-1; i++)
+	{
+		CvAStarNode& current = m_ppaaNodes[ path.vPlots[i].first ][ path.vPlots[i].second ];
+		CvAStarNode& next = m_ppaaNodes[ path.vPlots[i+1].first ][ path.vPlots[i+1].second ];
+
+		if ( udFunc(udValid, &current, &next, 0, m_pData) )
+		{
+			iKnownCost += udFunc(udCost, &current, &next, 0, m_pData);
+			if (iKnownCost > path.iCost)
+				return false;
+		}
+		else
+			return false;
+	}
+
+	return true;
 }
 
 //C-STYLE NON-MEMBER FUNCTIONS
@@ -1437,10 +1492,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int, const void* pointer, 
 
 	// Cache values for this node that we will use in the loop
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
-
 	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 
 	// pulling invariants out of the loop
 	DomainTypes unitDomain = pCacheData->getDomainType();
@@ -1453,23 +1505,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int, const void* pointer, 
 #endif
 
 	// We have determined that this node is not the origin above (parent == NULL)
-	// Have to calculate this specially because the node passed into this function doesn't yet have data stored it in (hasn't reached pathAdd yet)
-	int iStartMoves = parent->m_iMoves;
-	int iNumTurns = parent->m_iTurns;
-
-	// we would have to start a new turn to continue
-	bool bNewTurn = false;
-	if(iStartMoves == 0)
-	{
-		bNewTurn = true;
-		iNumTurns++;
-	}
-
-	if (iNumTurns > finder->GetMaxTurns()) // Path is too long, can't continue
-	{
-		return false;
-	}
-
+	bool bNewTurn = (parent->m_iMoves==0);
 	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 	int iNodeX = parent->m_iX;
@@ -1648,11 +1684,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int, const void* pointer, 
 /// Standard path finder - add a new path
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
-	int iMoves = MAX_INT;
+	int iTurns;
+
 	CvUnit* pUnit = ((CvUnit*)pointer);
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-
-	int iTurns;
+	int iMoves = MAX_INT;
 
 	if(data == ASNC_INITIALADD)
 	{
@@ -1661,9 +1697,8 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 	}
 	else
 	{
-		CvMap& kMap = GC.getMap();
-		CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-		CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+		CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 		int iStartMoves = parent->m_iMoves;
 		iTurns = parent->m_iTurns;
@@ -1690,6 +1725,11 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 
 	node->m_iMoves = iMoves;
 	node->m_iTurns = iTurns;
+
+	//update cache for new node
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
+	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 
 	return 1;
 }
@@ -2025,24 +2065,16 @@ int IgnoreUnitsValid(CvAStarNode* parent, CvAStarNode* node, int, const void* po
 	}
 
 	CvMap& theMap = GC.getMap();
-
 	pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 
 	pUnit = ((CvUnit*)pointer);
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
 	CvPlot* pUnitPlot = theMap.plotUnchecked(pUnit->getX(), pUnit->getY());
-
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
-
 	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
-#endif //AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
 	if(pCacheData->getDomainType() == DOMAIN_LAND)
@@ -2166,6 +2198,11 @@ int IgnoreUnitsPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const v
 
 	node->m_iMoves = iMoves;
 	node->m_iTurns = iTurns;
+
+	//update cache for new node
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
+	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 
 	return 1;
 }
@@ -3798,384 +3835,6 @@ int RebaseGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar
 
 	return 0;
 }
-
-#else
-//	---------------------------------------------------------------------------
-int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
-{
-	CvMap& theMap = GC.getMap();
-
-	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
-	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pToPlot));
-
-	CvUnit* pUnit = ((CvUnit *)pointer);
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-
-	TeamTypes eUnitTeam = pCacheData->getTeam();
-	PlayerTypes unit_owner = pCacheData->getOwner();
-	CvAssertMsg(eUnitTeam != NO_TEAM, "The unit's team should be a vaild value");
-	if (eUnitTeam == NO_TEAM)
-	{
-		eUnitTeam = GC.getGame().getActiveTeam();
-	}
-
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-
-	CvTacticalAnalysisMap* pTAMap = GC.getGame().GetTacticalAnalysisMap();
-	FAssert(pTAMap != NULL);
-	CvTacticalAnalysisCell* pToPlotCell = pTAMap->GetCell(pToPlot->GetPlotIndex());
-	FAssert(pToPlotCell != NULL);
-
-	// Cache the data for the node
-	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
-	if (kToNodeCacheData.iGenerationID != finder->GetCurrentGenerationID())
-	{
-		kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
-#endif
-	kToNodeCacheData.bPlotVisibleToTeam = pToPlotCell->IsVisible();
-	kToNodeCacheData.iNumFriendlyUnitsOfType = pToPlot->getNumFriendlyUnitsOfType(pUnit);
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	kToNodeCacheData.iUnitPlotLimit = pToPlot->getUnitLimit();
-#endif
-	kToNodeCacheData.bIsMountain = pToPlot->isMountain();
-	kToNodeCacheData.bIsWater = pToPlotCell->IsWater();
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	kToNodeCacheData.bIsTerraFirma = pToPlotCell->IsTerraFirma();
-#endif
-	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
-	kToNodeCacheData.bIsRevealedToTeam = pToPlotCell->IsRevealed();
-	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
-	if(pToPlotCell->IsCity())
-	{
-		CvCity* pCity = pToPlot->getPlotCity();
-		if(pCity)
-		{
-			if(unit_owner != pCity->getOwner() && !kUnitTeam.isAtWar(pCity->getTeam()))
-				kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
-		}
-	}
-	kToNodeCacheData.bContainsEnemyCity = pToPlotCell->IsEnemyCity();
-	kToNodeCacheData.bContainsVisibleEnemy = pToPlotCell->GetEnemyMilitaryUnit() != NULL;
-	kToNodeCacheData.bContainsVisibleEnemyDefender = pToPlot->getBestDefender(NO_PLAYER, unit_owner, pUnit).pointer() != NULL;
-
-#ifdef AUI_DANGER_PLOTS_REMADE
-	if (pCacheData->DoDanger())
-		kToNodeCacheData.iPlotDanger = GET_PLAYER(unit_owner).GetPlotDanger(*pToPlot, pUnit);
-#endif // AUI_DANGER_PLOTS_REMADE
-
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
-	}
-#endif
-
-	// If this is the first node in the path, it is always valid (starting location)
-	if (parent == NULL)
-	{
-		return TRUE;
-	}
-
-	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
-	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pFromPlot));
-
-	CvTacticalAnalysisCell* pFromPlotCell = pTAMap->GetCell(pFromPlot->GetPlotIndex());
-	FAssert(pFromPlotCell != NULL);
-
-	bool bAIControl = pUnit->IsAutomated();
-
-	// pulling invariants out of the loop
-	int iUnitX = pUnit->getX();
-	int iUnitY = pUnit->getY();
-	DomainTypes unit_domain_type = pCacheData->getDomainType();
-	bool bUnitIsCombat           = pUnit->IsCombatUnit();
-	bool bIsHuman				 = pCacheData->isHuman();
-	int iFinderInfo              = finder->GetInfo();
-	CvPlot* pUnitPlot            = pUnit->plot();
-	int iFinderIgnoreStacking    = iFinderInfo & MOVE_IGNORE_STACKING;
-#if !defined(MOD_GLOBAL_STACKING_RULES)
-	int iUnitPlotLimit           = GC.getPLOT_UNIT_LIMIT();
-#endif
-	bool bFromPlotOwned          = !pFromPlotCell->IsUnclaimedTerritory();
-	TeamTypes eFromPlotTeam      = pFromPlot->getTeam();
-
-	// We have determined that this node is not the origin above (parent == NULL)
-	CvAStarNode* pNode = node;
-	bool bPreviousNodeHostile = false;
-	int iDestX = finder->GetDestX();
-	int iDestY = finder->GetDestY();
-	int iNodeX = node->m_iX;
-	int iNodeY = node->m_iY;
-	int iOldNumTurns = -1;
-	int iNumTurns;
-	TeamTypes eTeam = eUnitTeam; // this may get modified later is eTEam == NO_TEAM
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-	int iMaxTurns = finder->GetMaxTurns();
-#endif // AUI_ASTAR_TURN_LIMITER
-
-	// First run special case for checking "node" since it doesn't have a parent set yet
-	bool bFirstRun = true;
-
-	// Have to calculate this specially because the node passed into this function doesn't yet have data stored it in (hasn't reached pathAdd yet)
-	int iStartMoves = parent->m_iMoves;
-	iNumTurns = parent->m_iTurns;
-
-	if(iStartMoves == 0)
-	{
-		iNumTurns++;
-	}
-
-	iOldNumTurns = -1;
-
-	CvPlot* pPlot = NULL;
-
-	// Get a reference to the parent node cache data
-	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-
-	// Loop through the current path until we find the path origin.
-	// This validates the path with the inclusion of the new path node.  We must do this because of the rules of where a unit can finish a turn.
-	// Please note that this can be an expensive loop as the path gets longer and longer, do as little work as possible in validating each node.  
-	// If there is an invariant value that needs to be fetched from the plot or unit for the node, please do the calculation and put it in the node's data cache.
-	while(pNode != NULL)
-	{
-#ifdef AUI_ASTAR_TURN_LIMITER
-		if (iNumTurns > iMaxTurns) // Path is too long, terminate now
-		{
-			return false;
-		}
-#endif // AUI_ASTAR_TURN_LIMITER
-
-		PREFETCH_FASTAR_NODE(pNode->m_pParent);
-
-		CvPathNodeCacheData& kNodeCacheData = pNode->m_kCostCacheData;
-		// This is a safeguard against the algorithm believing a plot to be impassable before actually knowing it (mid-search)
-		if(iOldNumTurns != -1 || (iDestX == iNodeX && iDestY == iNodeY))
-		{
-			// This plot is of greater distance than previously, so we know the unit is ending its turn here (pNode), or it's trying to attack through a unit (and might end up on this tile if an attack fails to kill the enemy)
-			if(iNumTurns != iOldNumTurns || bPreviousNodeHostile)
-			{
-				// Don't count origin, or else a unit will block its own movement!
-				if(iNodeX != iUnitX || iNodeY != iUnitY)
-				{
-					// PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pPlot));
-					if(kNodeCacheData.bPlotVisibleToTeam)
-					{
-						// Check to see if any units are present at this full-turn move plot... if the player can see what's there
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if(kNodeCacheData.iNumFriendlyUnitsOfType >= kNodeCacheData.iUnitPlotLimit && !(iFinderIgnoreStacking))
-#else
-						if(kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
-#endif
-						{
-							return FALSE;
-						}
-
-						if (kNodeCacheData.bIsMountain && !(iFinderIgnoreStacking) && (!bIsHuman || bAIControl))
-						{
-							return FALSE;
-						}
-
-						if(kNodeCacheData.bIsMountain && !kNodeCacheData.bCanEnterTerrain)	// only doing canEnterTerrain on mountain plots because it is expensive, though it probably should always be called and some other checks in this loop could be removed.
-						{
-							return FALSE;
-						}
-
-#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
-						if ((finder->GetInfo() & MOVE_NO_EMBARK) && kNodeCacheData.bIsWater)
-#else
-						if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
-#endif
-						{
-							return FALSE;
-						}
-					}
-
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-					if(kNodeCacheData.bIsRevealedToTeam && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || bUnitIsCombat))
-#else
-					if(kNodeCacheData.bIsRevealedToTeam)
-#endif
-					{
-						if (kNodeCacheData.bContainsOtherFriendlyTeamCity && !(iFinderIgnoreStacking))
-							return FALSE;
-					}
-				}
-			}
-		}
-
-		bPreviousNodeHostile = false;
-		if(kNodeCacheData.bContainsEnemyCity)
-		{
-			bPreviousNodeHostile = true;
-		}
-		// Prevents units from passing through one another on its way to attack another unit
-		else if(kNodeCacheData.bContainsVisibleEnemy)
-		{
-			// except when attacking an unguarded civilian unit
-			if(kNodeCacheData.bContainsVisibleEnemyDefender)
-			{
-				bPreviousNodeHostile = true;
-			}
-		}
-
-		// JON - Special case for the original node passed into this function because it's not yet linked to any parent
-		if(pNode == node && bFirstRun)
-		{
-			pNode = parent;
-			bFirstRun = false;
-		}
-		else
-		{
-			pNode = pNode->m_pParent;
-		}
-
-		if(pNode != NULL)
-		{
-
-			iNodeX = pNode->m_iX;
-			iNodeY = pNode->m_iY;
-			iOldNumTurns = iNumTurns;
-			iNumTurns = pNode->m_iTurns;
-		}
-	}
-
-	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
-	if(unit_domain_type == DOMAIN_LAND)
-	{
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-		bool bFromTerraFirma = kFromNodeCacheData.bIsTerraFirma;
-		bool bToWater = !kToNodeCacheData.bIsTerraFirma;
-		if(bFromTerraFirma && bToWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#else
-		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#endif
-		{
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-			if(!pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#else
-			if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#endif
-			{
-				return FALSE;
-			}
-		}
-	}
-
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-	if(!bUnitIsCombat && unit_domain_type != DOMAIN_AIR)
-	{
-		const PlayerTypes eUnitPlayer = unit_owner;
-		const int iUnitCount = pToPlot->getNumUnits();
-		for(int iUnit = 0; iUnit < iUnitCount; ++iUnit)
-		{
-			const CvUnit* pToPlotUnit = pToPlot->getUnitByIndex(iUnit);
-			if(pToPlotUnit != NULL && pToPlotUnit->getOwner() != eUnitPlayer)
-			{
-				return FALSE; // Plot occupied by another player
-			}
-		}
-	}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-
-	// slewis - Added to catch when the unit is adjacent to an enemy unit while it is stacked with a friendly unit.
-	//          The logic above (with bPreviousNodeHostile) catches this problem with a path that's longer than one step
-	//          but does not catch when the path is only one step.
-	if(bUnitIsCombat && unit_domain_type != DOMAIN_AIR && pUnitPlot->isAdjacent(pToPlot) && kToNodeCacheData.bContainsVisibleEnemy && !(iFinderIgnoreStacking))
-	{
-		if(kToNodeCacheData.bContainsVisibleEnemyDefender)
-		{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-			if(pUnitPlot->getNumFriendlyUnitsOfType(pUnit) > pUnitPlot->getUnitLimit())
-#else
-			if(pUnitPlot->getNumFriendlyUnitsOfType(pUnit) > iUnitPlotLimit)
-#endif
-			{
-				return FALSE;
-			}
-		}
-	}
-
-	if(pUnitPlot == pFromPlot)
-	{
-		return TRUE;
-	}
-
-	if(iFinderInfo & MOVE_TERRITORY_NO_UNEXPLORED)
-	{
-		if(!kFromNodeCacheData.bIsRevealedToTeam)
-		{
-			return FALSE;
-		}
-
-		if(bFromPlotOwned)
-		{
-			if(eFromPlotTeam != eUnitTeam)
-			{
-				return FALSE;
-			}
-		}
-	}
-
-	if(iFinderInfo & MOVE_TERRITORY_NO_ENEMY)
-	{
-		if(bFromPlotOwned)
-		{
-			if(atWar(eFromPlotTeam, eUnitTeam))
-			{
-				return FALSE;
-			}
-		}
-	}
-
-#ifdef AUI_DANGER_PLOTS_REMADE
-	if (bAIControl || !bIsHuman)
-#else
-	if(bAIControl)
-#endif // AUI_DANGER_PLOTS_REMADE
-	{
-		if((parent->m_iTurns > 1) || (parent->m_iTurns == 0))
-		{
-			if(!(iFinderInfo & MOVE_UNITS_IGNORE_DANGER))
-			{
-				if(!bUnitIsCombat || pUnit->getArmyID() == -1)
-				{
-#ifdef AUI_DANGER_PLOTS_REMADE
-					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints()/3 && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()/3))
-#else
-					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
-#endif
-					{
-						return FALSE;
-					}
-				}
-			}
-		}
-	}
-
-	// slewis - added AI check and embark check to prevent units from moving into unexplored areas
-	if(bAIControl || !bIsHuman || kFromNodeCacheData.bIsRevealedToTeam || pCacheData->isEmbarked())
-	{
-		if(iFinderInfo & MOVE_UNITS_THROUGH_ENEMY)
-		{
-			if(!(pUnit->canMoveOrAttackInto(*pFromPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
-			{
-				return FALSE;
-			}
-		}
-		else
-		{
-			if(!(pUnit->canMoveThrough(*pFromPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
-			{
-				return FALSE;
-			}
-		}
-	}
-
-	return TRUE;
-}
 #endif
 
 //	---------------------------------------------------------------------------
@@ -4374,20 +4033,6 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 			if (kPathFinder.GenerateUnitPath(pUnit.pointer(), pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), iFlags, bReusePaths, iTargetTurns))
 			{
 				pNode = GC.getPathFinder().GetLastNode();
-			}
-#else
-
-			bool bSuccess;
-#ifdef AUI_ASTAR_TURN_LIMITER
-			GC.GetTacticalAnalysisMapFinder().SetData(pUnit.pointer(), iTargetTurns);
-#else
-			GC.GetTacticalAnalysisMapFinder().SetData(pUnit.pointer());
-#endif // AUI_ASTAR_TURN_LIMITER
-
-			bSuccess = GC.GetTacticalAnalysisMapFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), iFlags, bReusePaths);
-			if(bSuccess)
-			{
-				pNode = GC.GetTacticalAnalysisMapFinder().GetLastNode();
 			}
 #endif
 		}
@@ -4900,7 +4545,7 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int, const void
 /// trade route path finder - count path length
 int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void*, CvAStar*)
 {
-	int	iTurns = (data == ASNC_INITIALADD) ? 1 : parent->m_iTurns;
+	int	iTurns = (data == ASNC_INITIALADD) ? 0 : parent->m_iTurns;
 
 	node->m_iMoves = 0;
 	node->m_iTurns = iTurns+1;

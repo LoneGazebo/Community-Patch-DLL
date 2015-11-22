@@ -8832,9 +8832,9 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			{
 				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 				{
-					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
 						continue;
@@ -9103,9 +9103,9 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					if(!bTrade)
 					{
 						CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-						for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+						for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 						{
-							TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+							const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 							if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 							{
 								continue;
@@ -12158,9 +12158,9 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				int iRouteYield = 0;
 				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 				{
-					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
 						continue;

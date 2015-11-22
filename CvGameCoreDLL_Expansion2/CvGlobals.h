@@ -219,8 +219,6 @@ public:
 	CvAStar& GetInternationalTradeRouteWaterFinder();
 #if defined(MOD_CORE_PATHFINDER)
 	CvIgnoreUnitsPathFinder& GetRebasePathfinder();
-#else
-	CvTwoLayerPathFinder& GetTacticalAnalysisMapFinder();
 #endif
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
 
@@ -8811,8 +8809,6 @@ public:
 	void SetInternationalTradeRouteWaterFinder(CvAStar* pVal);
 #if defined(MOD_CORE_PATHFINDER)
 	void SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal);
-#else
-	void SetTacticalAnalysisMapFinder(CvTwoLayerPathFinder* pVal);
 #endif
 
 	// So that CvEnums are moddable in the DLL
@@ -8878,8 +8874,6 @@ protected:
 
 #if defined(MOD_CORE_PATHFINDER)
 	CvIgnoreUnitsPathFinder* m_rebasePathFinder;
-#else
-	CvTwoLayerPathFinder* m_tacticalAnalysisMapFinder;
 #endif
 
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;

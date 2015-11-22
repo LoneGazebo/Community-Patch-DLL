@@ -24268,8 +24268,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
 #if defined(MOD_CORE_PATHFINDER)
 				bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#else
-				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
@@ -24312,8 +24310,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
 #if defined(MOD_CORE_PATHFINDER)
 				GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#else
-				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
 				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
@@ -37596,12 +37592,12 @@ bool CvPlayer::HasAnyDomesticTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if (pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner == iOwner) {
 			return true;
@@ -37616,12 +37612,12 @@ bool CvPlayer::HasAnyInternationalTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if ((pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner   != iOwner) ||
 		    (pConnection->m_eDestOwner   == iOwner && pConnection->m_eOriginOwner != iOwner)) {
@@ -37637,12 +37633,12 @@ bool CvPlayer::HasAnyTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if (pConnection->m_eOriginOwner == iOwner || pConnection->m_eDestOwner == iOwner) {
 			return true;
@@ -37657,12 +37653,12 @@ bool CvPlayer::HasAnyTradeRouteWith(PlayerTypes iPlayer) const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if ((pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner   == iPlayer) ||
 		    (pConnection->m_eDestOwner   == iOwner && pConnection->m_eOriginOwner == iPlayer)) {

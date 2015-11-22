@@ -5790,8 +5790,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
-			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
-
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
 			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
@@ -5861,35 +5859,19 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				{
 					bSkipCity = false;
 				}
+
 				if(bSkipCity)
 				{
 					continue;
-				}
-#if defined(MOD_BALANCE_CORE)
-				//don't care if it's more than 10 turns away - in that case we'll move in stages
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),false,true,true,10);
-#else
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
-#endif
-
-				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-				if (bNotAtFriendlyCity)
-				{
-					if (iTurns == MAX_INT)
-					{
-						continue;
-					}
 				}
 
 				// Weight is defense of city
 				int iWeight = (pLoopCity->getStrengthValue(true) / 100);
 
-				// Subtract off turns to reach
-				if (iTurns != MAX_INT)
-				{
-					iWeight -= iTurns;
-					iWeight = max(0,iWeight);
-				}
+				// Subtract off the distance
+				iWeight -= plotDistance(pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+				iWeight = max(0,iWeight);
+
 				if(pLoopCity->GetGarrisonedUnit() != NULL)
 				{
 					iWeight *= 2;

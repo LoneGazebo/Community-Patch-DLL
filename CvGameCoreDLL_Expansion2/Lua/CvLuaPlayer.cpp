@@ -4548,15 +4548,15 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 
 	CvString strResult = "";	
 
-	TradeConnection* pConnection = NULL;
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	const TradeConnection* pConnection = NULL;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		pConnection = &(pTrade->m_aTradeConnections[ui]);
+		pConnection = &(pTrade->GetTradeConnection(ui));
 		if (pConnection->m_eOriginOwner == pkPlayer->GetID())
 		{
 			CvPlot* pOriginPlot = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY);
@@ -4743,15 +4743,15 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 	CvString strResult = "";	
 
-	TradeConnection* pConnection = NULL;
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	const TradeConnection* pConnection = NULL;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		pConnection = &(pTrade->m_aTradeConnections[ui]);
+		pConnection = &(pTrade->GetTradeConnection(ui));
 
 		// don't include internal trade, but does this not count teams sharing stuff between each other
 		if (pConnection->m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
@@ -4915,14 +4915,14 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 	int index = 1;
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
 		if (pConnection->m_eOriginOwner != pkPlayer->GetID())
 		{
 			continue;
@@ -5105,7 +5105,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						kConnection.m_eDestOwner = pDestCity->getOwner();
 
 						int iTurnsLeft = -1;
-						TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
+						const TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
 						if (pConnection && pConnection->m_eDomain == eDomain)
 						{
 							iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
@@ -5215,14 +5215,14 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 	int index = 1;
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
 		// internal trade route. Ignore.
 		if (pConnection->m_eOriginOwner == pConnection->m_eDestOwner)
 		{

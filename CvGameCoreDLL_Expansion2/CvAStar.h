@@ -81,6 +81,12 @@ typedef void(*CvAEnd)(const void*, CvAStar*);
 
 #endif
 
+struct SPath
+{
+	std::vector<std::pair<int,int>> vPlots;
+	int iCost;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //  CLASS:      CvAStar
@@ -124,6 +130,9 @@ public:
 		return m_pBest->m_pParent;
 	}
 #endif
+
+	SPath GetPath() const;
+	bool VerifyPath(const SPath& path);
 
 #if defined(MOD_BALANCE_CORE)
 	inline int GetPathLength() const
@@ -188,26 +197,24 @@ public:
 		return m_iMaxTurns;
 	}
 
-	inline void SetMaxTurns(int iMaxTurns)
+	inline int GetMaxCost() const
 	{
-		if (m_bDataChangeInvalidatesCache && m_iMaxTurns != iMaxTurns)
-			m_bForceReset = true;
-		m_iMaxTurns = iMaxTurns;
+		return m_iMaxCost;
 	}
 
-	inline void SetData(const void* pData, int iMaxTurns = MAX_INT)
+	inline void SetData(const void* pData, int iMaxTurns = MAX_INT, int iMaxCost = MAX_INT)
 	{
-		if(m_bDataChangeInvalidatesCache && (m_pData != pData || m_iMaxTurns != iMaxTurns))
+		if (m_pData!=pData || m_iMaxTurns!=iMaxTurns || m_iMaxCost!=iMaxCost)
 			m_bForceReset = true;
 		m_pData = pData;
 		m_iMaxTurns = iMaxTurns;
+		m_iMaxCost = iMaxCost;
 	}
 
 #else
 	inline void SetData(const void* pData)
 	{
-		if(m_bDataChangeInvalidatesCache && m_pData != pData)
-			m_bForceReset = true;
+		m_bForceReset = true;
 		m_pData = pData;
 	}
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -232,19 +239,6 @@ public:
 			m_bForceReset = true;
 			m_bIsMPCacheSafe = bState;
 		}
-
-		return bOldState;
-	}
-
-	inline bool GetDataChangeInvalidatesCache() const
-	{
-		return m_bDataChangeInvalidatesCache;
-	}
-
-	inline bool SetDataChangeInvalidatesCache(bool bState)
-	{
-		bool bOldState = m_bDataChangeInvalidatesCache;
-		m_bDataChangeInvalidatesCache = bState;
 
 		return bOldState;
 	}
@@ -345,11 +339,6 @@ public:
 	// It is ok to pass in NULL, the resulting array will contain zero elements
 	static void CopyPath(const CvAStarNode* pkEndNode, CvPathNodeArray& kPathArray);
 
-	void* GetScratchPointer1() { return m_pScratchPtr1; }
-	void  SetScratchPointer1(void* pPtr) { m_pScratchPtr1 = pPtr; }
-	void* GetScratchPointer2() { return m_pScratchPtr2; }
-	void  SetScratchPointer2(void* pPtr) { m_pScratchPtr1 = pPtr; }
-
 	void* GetScratchBuffer() { return &m_ScratchBuffer[0]; }
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
@@ -397,7 +386,8 @@ protected:
 	const void* m_pData;			// Data passed back to functions
 
 #ifdef AUI_ASTAR_TURN_LIMITER
-	int m_iMaxTurns;				// Pathfinder never lets a path's turn cost become higher than this number
+	int m_iMaxTurns;				// Pathfinder never lets a path's turns become higher than this number
+	int m_iMaxCost;					// Pathfinder never lets a path's known cost become higher than this number
 #endif // AUI_ASTAR_TURN_LIMITER
 
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
@@ -417,7 +407,6 @@ protected:
 	bool m_bWrapY;
 	bool m_bForceReset;
 	bool m_bIsMPCacheSafe;
-	bool m_bDataChangeInvalidatesCache;
 
 	CvAStarNode* m_pOpen;            // The open list
 	CvAStarNode* m_pOpenTail;        // The open list tail pointer (to speed up inserts)
@@ -428,10 +417,7 @@ protected:
 	CvAStarNode** m_ppaaNodes;
 	CvAStarNode** m_ppaaNeighbors;
 
-	// Scratch buffers
-	void* m_pScratchPtr1;						// Will be cleared to NULL before each GeneratePath call
-	void* m_pScratchPtr2;						// Will be cleared to NULL before each GeneratePath call
-
+	// Scratch buffer
 	char  m_ScratchBuffer[SCRATCH_BUFFER_SIZE];	// Will NOT be modified directly by CvAStar
 
 #if defined(MOD_BALANCE_CORE)
@@ -514,42 +500,50 @@ inline int CvAStar::udFunc(CvAStarFunc func, CvAStarNode* param1, CvAStarNode* p
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder);
-
 int PathDest(int iToX, int iToyY, const void* pointer, CvAStar* finder);
 int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int IgnoreUnitsValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int IgnoreUnitsPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int StepDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int StepHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int StepValidAnyArea(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int StepCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int StepAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int RouteGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder);
 int RouteGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar* finder);
 int WaterRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int AreaValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int JoinArea(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int LandmassValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int JoinLandmass(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int InfluenceDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int InfluenceValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int InfluenceCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int InfluenceAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int BuildRouteCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int BuildRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int UIPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int UIPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+
 int AttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int AttackPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackFortifiedPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
+
 #if defined(MOD_CORE_PATHFINDER)
 int RebaseValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int RebaseGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder);
@@ -557,14 +551,10 @@ int RebaseGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar
 #else
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #endif
+
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
-#ifdef AUI_ASTAR_TURN_LIMITER
-int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
-#else
-int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
-#endif // AUI_ASTAR_TURN_LIMITER
-bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
+
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
@@ -573,6 +563,7 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 #if defined(MOD_BALANCE_CORE)
 int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #endif
+
 void UnitPathInitialize(const void* pointer, CvAStar* finder);
 void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 void TradePathInitialize(const void* pointer, CvAStar* finder);
@@ -581,6 +572,13 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder);
 #if defined(MOD_BALANCE_CORE)
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
 #endif
+
+#ifdef AUI_ASTAR_TURN_LIMITER
+int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+#else
+int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
+#endif // AUI_ASTAR_TURN_LIMITER
+bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 // Derived classes (for more convenient access to pathfinding)
 class CvTwoLayerPathFinder: public CvAStar

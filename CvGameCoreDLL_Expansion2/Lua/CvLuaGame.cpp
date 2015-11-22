@@ -3190,7 +3190,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	if (!pTrade->IsTradeRouteIndexEmpty(iRouteIndex)) {
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iRouteIndex]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iRouteIndex));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 		CvPlayer* pFromPlayer = &GET_PLAYER(pFromCity->getOwner());
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();

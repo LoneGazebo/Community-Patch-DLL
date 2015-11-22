@@ -107,8 +107,6 @@ CvGlobals::CvGlobals() :
 	m_internationalTradeRouteWaterFinder(NULL),
 #if defined(MOD_CORE_PATHFINDER)
 	m_rebasePathFinder(NULL),
-#else
-	m_tacticalAnalysisMapFinder(NULL),
 #endif
 	m_pDLL(NULL),
 	m_pEngineUI(NULL),
@@ -2607,8 +2605,6 @@ void CvGlobals::init()
 	SetInternationalTradeRouteWaterFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
 #if defined(MOD_CORE_PATHFINDER)
 	SetRebasePathFinder(FNEW(CvIgnoreUnitsPathFinder, c_eCiv5GameplayDLL, 0));
-#else
-	SetTacticalAnalysisMapFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -2686,8 +2682,6 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_internationalTradeRouteWaterFinder);
 #if defined(MOD_CORE_PATHFINDER)
 	SAFE_DELETE(m_rebasePathFinder);
-#else
-	SAFE_DELETE(m_tacticalAnalysisMapFinder);
 #endif
 
 	// already deleted outside of the dll, set to null for safety
@@ -2704,8 +2698,6 @@ void CvGlobals::uninit()
 	m_internationalTradeRouteWaterFinder = NULL;
 #if defined(MOD_CORE_PATHFINDER)
 	m_rebasePathFinder = NULL;
-#else
-	m_tacticalAnalysisMapFinder = NULL;
 #endif
 }
 
@@ -2829,11 +2821,6 @@ CvAStar& CvGlobals::GetInternationalTradeRouteWaterFinder()
 CvIgnoreUnitsPathFinder& CvGlobals::GetRebasePathfinder()
 {
 	return *m_rebasePathFinder;
-}
-#else
-CvTwoLayerPathFinder& CvGlobals::GetTacticalAnalysisMapFinder()
-{
-	return *m_tacticalAnalysisMapFinder;
 }
 #endif
 
@@ -7145,11 +7132,6 @@ void CvGlobals::SetInternationalTradeRouteWaterFinder(CvAStar* pVal)
 void CvGlobals::SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal)
 {
 	m_rebasePathFinder = pVal;
-}
-#else
-void CvGlobals::SetTacticalAnalysisMapFinder(CvTwoLayerPathFinder* pVal)
-{
-	m_tacticalAnalysisMapFinder = pVal;
 }
 #endif
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)
