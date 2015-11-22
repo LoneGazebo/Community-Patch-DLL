@@ -583,7 +583,7 @@ public:
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 #endif
 
-	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 #ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
 	void BuildInterceptorVector(CvWeightedVector<CvUnit*, 8, true>& kVector, const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
 	CvUnit* GetNthBestInterceptor(const CvPlot& pPlot, int iIndex = 0, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;

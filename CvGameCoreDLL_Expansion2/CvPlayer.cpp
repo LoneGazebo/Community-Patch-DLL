@@ -35231,31 +35231,31 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 
 #ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction, iAfterNIntercepts);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison, iAfterNIntercepts);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, PlayerTypes ePlayer) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, PlayerTypes ePlayer) const
+bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer) const
 {
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, CvUnit* pUnit) const
+bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit) const
 {
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, pUnit);
 }
@@ -35265,7 +35265,7 @@ std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
-void CvPlayer::AddKnownAttacker(CvUnit* pAttacker)
+void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
 	if (pAttacker)
 		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());

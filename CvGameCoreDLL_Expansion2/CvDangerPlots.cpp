@@ -404,7 +404,7 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 }
 
 /// Return the maximum amount of damage a city could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts)
+int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts)
 {
 	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
 	if (pCity != NULL)
@@ -415,7 +415,7 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, CvUnit* pPreten
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
+int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
 #else
 /// Return the danger value of a given plot
 int CvDangerPlots::GetDanger(const CvPlot& pPlot) const
@@ -442,12 +442,12 @@ bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePla
 }
 
 /// Returns if the unit is in immediate danger
-bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, CvUnit* pUnit)
+bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit)
 {
 	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
 	if (pUnit)
 	{
-		return m_DangerPlots[idx].GetDanger(pUnit);
+		return m_DangerPlots[idx].GetDanger(pUnit) > 0;
 	}
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 }
@@ -1176,7 +1176,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 }
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -1514,7 +1514,7 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(PlayerTypes ePlayer)
 }
 
 // Can this tile be attacked by an enemy unit or city next turn?
-bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
+bool CvDangerPlotContents::IsUnderImmediateThreat(const CvUnit* pUnit)
 {
 	if (!m_pPlot || !pUnit)
 		return false;
@@ -1573,7 +1573,7 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot
-int CvDangerPlotContents::GetDanger(CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts)
+int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts)
 {
 	if (!m_pPlot || !pCity)
 		return 0;

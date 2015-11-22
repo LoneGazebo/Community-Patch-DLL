@@ -10811,9 +10811,8 @@ CvArea* CvCity::waterArea() const
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvUnit* pGarrison = m_hGarrisonOverride.pointer();
-	if (pGarrison != NULL)
-		return pGarrison;
+	if (m_hGarrisonOverride != -1)
+		return GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
 #else
 	CvUnit* pGarrison = NULL;
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -10824,22 +10823,22 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		UnitHandle garrison = pPlot->getBestDefender(getOwner());
 		if(garrison)
 		{
-			pGarrison = garrison.pointer();
+			return garrison.pointer();
 		}
 	}
 
-	return pGarrison;
+	return NULL;
 }
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-void CvCity::OverrideGarrison(CvUnit* pUnit)
+void CvCity::OverrideGarrison(const CvUnit* pUnit)
 {
-	m_hGarrisonOverride = pUnit;
+	m_hGarrisonOverride = pUnit->GetID();
 }
 
 void CvCity::UnsetGarrisonOverride()
 {
-	m_hGarrisonOverride.removeTarget();
+	m_hGarrisonOverride = -1;
 }
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 

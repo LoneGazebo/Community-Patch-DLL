@@ -16491,10 +16491,10 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	VALIDATE_OBJECT
-		CvUnit* pLoopUnit;
+	CvUnit* pLoopUnit;
 	CvUnit* pBestUnit;
 	int iValue;
 	int iBestValue;

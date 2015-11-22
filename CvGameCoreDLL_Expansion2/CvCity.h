@@ -406,7 +406,7 @@ public:
 
 	CvUnit* GetGarrisonedUnit() const;
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	void OverrideGarrison(CvUnit* pUnit);
+	void OverrideGarrison(const CvUnit* pUnit);
 	void UnsetGarrisonOverride();
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
@@ -1362,7 +1362,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_iGarrisonedUnit;  // unused
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	UnitHandle m_hGarrisonOverride;
+	int m_hGarrisonOverride;
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	FAutoVariable<int, CvCity> m_iResourceDemanded;
 	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;

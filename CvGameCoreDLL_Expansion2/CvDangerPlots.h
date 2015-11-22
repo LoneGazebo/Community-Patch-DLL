@@ -74,13 +74,13 @@ struct CvDangerPlotContents
 		m_lastResult = 0;
 	};
 
-	int GetDanger(CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
-	int GetDanger(CvCity* pCity, CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
+	int GetDanger(const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
+	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
-	bool IsUnderImmediateThreat(CvUnit* pUnit);
+	bool IsUnderImmediateThreat(const CvUnit* pUnit);
 	bool IsUnderImmediateThreat(PlayerTypes ePlayer);
 	int GetDamageFromFeatures(PlayerTypes ePlayer) const;
 
@@ -141,10 +141,10 @@ public:
 
 	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
 #ifdef AUI_DANGER_PLOTS_REMADE
-	int GetDanger(const CvPlot& pPlot, CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
-	int GetDanger(const CvPlot& pPlot, CvCity* pCity, CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
+	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
-	bool IsUnderImmediateThreat(const CvPlot& pPlot, CvUnit* pUnit);
+	bool IsUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit);
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);

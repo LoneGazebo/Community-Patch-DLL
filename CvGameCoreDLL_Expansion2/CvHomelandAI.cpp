@@ -1265,13 +1265,6 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 				}
 			}
 		}
-
-		// If we find a settler that isn't in an operation, let's keep him in place
-		if(!bGoingToSettle && pUnit->isFound() && pUnit->getArmyID() == -1)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pUnit->finishMoves();
-		}
 	}
 
 	if(!m_CurrentMoveUnits.empty())
