@@ -901,9 +901,9 @@ private:
 	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
-	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurrentCOMonPath);
+	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, CvPlot *pCurrentCOM, int iNumUnits);
+	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 	bool PlotEscortNavalOperationMoves(CvArmyAI* pArmy);
 	void ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget);

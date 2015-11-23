@@ -6845,40 +6845,20 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 			}
 
-			bool bInterestingNeighbor = false;
-			const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
-			for (size_t i=0; i<vNeighborZones.size(); i++)
+			if(pLoopUnit->isProjectedToDieNextTurn() || m_pPlayer->GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))  
 			{
-				CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
-				if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
-					bInterestingNeighbor = true;
-				else if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
-					bInterestingNeighbor = true;
+				// this might not be a good place to land
+				vCarriersToAvoid.insert(pLoopUnit);
 			}
-
-			if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
+			else if (m_pPlayer->GetTacticalAI()->FindPosture(pZone)==AI_TACTICAL_POSTURE_WITHDRAW)
 			{
-				//this is a zone which either needs air support or needs to be evacuated
-				if(pLoopUnit->isProjectedToDieNextTurn())  
-				{
-					// this might not be a good place to land
-					vCarriersToAvoid.insert(pLoopUnit);
-				}
-				else if (m_pPlayer->GetTacticalAI()->FindPosture(pZone)==AI_TACTICAL_POSTURE_WITHDRAW)
-				{
-					vCarriersToAvoid.insert(pLoopUnit);
-				}
-				else
-				{
-					//we would like to go there if there is space
-					if(!pLoopUnit->isFull())
-						vCarriersToFill.insert(pLoopUnit);
-				}
+				vCarriersToAvoid.insert(pLoopUnit);
 			}
 			else
 			{
-				//indifferent ...
-				vCarriersMeh.insert(pLoopUnit);
+				//we would like to go there if there is space
+				if(!pLoopUnit->isFull())
+					vCarriersToFill.insert(pLoopUnit);
 			}
 		}
 	}

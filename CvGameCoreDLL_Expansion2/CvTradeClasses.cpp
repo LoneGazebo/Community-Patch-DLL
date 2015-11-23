@@ -129,6 +129,8 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		return;
 
 	//first move the previous connections for this player to an alternative container
+	//this relies on the fact that cities have unique global IDs
+	//note that the ID changes when a city is conquered, so there might be some stale entries in here ...
 	TradePathLookup previousPathsLand, previousPathsWater;
 	for (TradePathLookup::iterator it=m_aPotentialTradePathsLand.begin(); it!=m_aPotentialTradePathsLand.end(); ++it)
 	{
@@ -714,22 +716,26 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain)
+bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath)
 {
 	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-	int iMovementCost = 0;
+	SPath path;
 
 	if (eDomain == DOMAIN_SEA)
 	{
 		if (HaveTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID()))
-			iMovementCost = m_aPotentialTradePathsWater[pOriginCity->GetID()][pDestCity->GetID()].iCost;
+			path = m_aPotentialTradePathsWater[pOriginCity->GetID()][pDestCity->GetID()];
 	}
 	else if (eDomain == DOMAIN_LAND)
 	{
 		if (HaveTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID()))
-			iMovementCost = m_aPotentialTradePathsLand[pOriginCity->GetID()][pDestCity->GetID()].iCost;
+			path = m_aPotentialTradePathsLand[pOriginCity->GetID()][pDestCity->GetID()];
 	}
+
+	int iMovementCost = path.vPlots.empty() ? 0 : path.iCost;
+	if (pPath)
+		*pPath = path;
 
 	// check if beyond the origin player's trade range
 	int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;

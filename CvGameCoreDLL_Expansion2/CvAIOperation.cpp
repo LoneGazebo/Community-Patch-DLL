@@ -784,6 +784,61 @@ bool CvAIOperation::VerifyTarget()
 }
 #endif
 
+CvPlot* CvAIOperation::GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const
+{
+	if (!pArmy || !pCurrentPosition || !pTarget || iStep<0)
+		return NULL;
+
+	// prepare the stepfinder
+	int iNumUnits = pArmy->GetNumSlotsFilled();
+	GC.getStepFinder().SetData(&m_eEnemy);
+	GC.getStepFinder().SetDestValidFunc(NULL);
+	GC.getStepFinder().SetValidFunc(iNumUnits>4 ? StepValidWideAnyArea : StepValidAnyArea);
+
+	// use the step path finder to compute distance
+	bool bFound = GC.getStepFinder().GeneratePath(pCurrentPosition->getX(), pCurrentPosition->getY(), pTarget->getX(), pTarget->getY(), m_eOwner, false);
+
+	// restore the stepfinder
+	GC.getStepFinder().SetValidFunc(StepValid);
+	GC.getStepFinder().SetDestValidFunc(StepDestValid);
+
+	if (!bFound)
+		return NULL;
+	
+	SPath path = GC.getStepFinder().GetPath();
+	if (path.vPlots.empty())
+		return NULL;
+
+	int iNodeIndex;
+	if (bForward)
+		iNodeIndex = std::min( (int)path.vPlots.size()-1, iStep );
+	else
+		iNodeIndex = std::max( 0, (int)path.vPlots.size()-1-iStep );
+					
+	return GC.getMap().plotCheckInvalid( path.vPlots[iNodeIndex].first,path.vPlots[iNodeIndex].second );
+}
+
+int CvAIOperation::GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget) const
+{
+	if (!pArmy || !pCurrentPosition || !pTarget)
+		return -1;
+
+	// prepare the stepfinder
+	int iNumUnits = pArmy->GetNumSlotsFilled();
+	GC.getStepFinder().SetData(&m_eEnemy);
+	GC.getStepFinder().SetDestValidFunc(NULL);
+	GC.getStepFinder().SetValidFunc(iNumUnits>4 ? StepValidWideAnyArea : StepValidAnyArea);
+
+	// use the step path finder to compute distance
+	int iDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pCurrentPosition, pTarget);
+
+	// restore the stepfinder
+	GC.getStepFinder().SetValidFunc(StepValid);
+	GC.getStepFinder().SetDestValidFunc(StepDestValid);
+
+	return iDistance;
+}
+
 /// See if armies are ready to hand off units to the tactical AI (and do so if ready)
 bool CvAIOperation::CheckOnTarget()
 {
@@ -1438,14 +1493,9 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 
 			if (pArmy->GetGoalPlot())
 			{
-				int iDistanceMusterToTarget;
-				int iDistanceCurrentToTarget;
-
 				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(IsAllNavalOperation() || IsMixedLandNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
-
-				// Use the step path finder to compute distance
-				iDistanceMusterToTarget = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, GetMusterPlot(), pArmy->GetGoalPlot());
-				iDistanceCurrentToTarget = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pCenterOfMass, pArmy->GetGoalPlot());
+				int iDistanceMusterToTarget = GetStepDistanceBetweenPlots( pArmy, GetMusterPlot(), pArmy->GetGoalPlot() );
+				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pArmy, pCenterOfMass, pArmy->GetGoalPlot() );
 
 				if(iDistanceMusterToTarget <= 0)
 				{
@@ -1713,7 +1763,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 }
 
 /// Pick this turn's desired "center of mass" for the army
-CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath) const
+CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 {
 	CvPlot* pRtnValue = NULL;
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
@@ -1733,15 +1783,6 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 		{
-			CvPlot* pCenterOfMass = 0;
-			CvPlot* pLastTurnArmyPlot = 0;
-			CvAStarNode* pNode1 = 0;
-			CvAStarNode* pNode2 = 0;
-			int iLastNodeIndex = 0;
-			FStaticVector<CvAStarNode*, SAFE_ESTIMATE_MAX_PATH_LEN, true, c_eCiv5GameplayDLL, 0> m_NodesOnPath;
-
-			m_NodesOnPath.clear();
-
 			// Is goal a city and we're a naval operation?  If so, go just offshore.
 			CvPlot *pGoalPlot = pArmy->GetGoalPlot();
 #if defined(MOD_BALANCE_CORE)
@@ -1753,45 +1794,18 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 				pGoalPlot = kPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pGoalPlot, pArmy);
 			}
 
-			pLastTurnArmyPlot = pArmy->Plot();
-			pCenterOfMass = pArmy->GetCenterOfMass((IsAllNavalOperation() || IsMixedLandNavalOperation()) ? DOMAIN_SEA : DOMAIN_LAND);
-			if (pLastTurnArmyPlot && pCenterOfMass && pGoalPlot)
+			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass((IsAllNavalOperation() || IsMixedLandNavalOperation()) ? DOMAIN_SEA : DOMAIN_LAND);
+			if (pCenterOfMass && pGoalPlot)
 			{
-				// Push center of mass forward a number of hexes equal to average movement
-				GC.getStepFinder().SetData(&m_eEnemy);
-				GC.getStepFinder().SetDestValidFunc(NULL); // remove the area check
-				GC.getStepFinder().SetValidFunc(StepValidAnyArea); // remove the area check
-				bool bFound = GC.getStepFinder().GeneratePath(pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY(), m_eOwner, false);
-				GC.getStepFinder().SetValidFunc(StepValid); // remove the area check
-				GC.getStepFinder().SetDestValidFunc(StepDestValid); // restore the area check
-				if (bFound)
+				//update the current position
+				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
+
+				//get where we want to be next
+				pRtnValue = GetPlotXInStepPath(pArmy,pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
+				if (!pRtnValue)
 				{
-					pNode1 = GC.getStepFinder().GetLastNode();
-
-					// Starting at the end, loop through the entire path
-					while (pNode1)
-					{
-						m_NodesOnPath.push_back(pNode1);
-						pNode1 = pNode1->m_pParent;
-					}
-
-					iLastNodeIndex = m_NodesOnPath.size() - 1;
-
-					// Move back up path from best node a number of spaces equal to army's movement rate + 1
-					int iJumpAhead = pArmy->GetMovementRate() + 1;
-					int iNode1Index = max(0, iLastNodeIndex - iJumpAhead);
-					int iNode2Index = min(iNode1Index + 2, iLastNodeIndex);
-					pNode1 = m_NodesOnPath[iNode1Index];
-					pNode2 = m_NodesOnPath[iNode2Index];
-					
-					pRtnValue = GC.getMap().plot(pNode1->m_iX, pNode1->m_iY);
-					if (ppClosestCurrentCOMonPath)
-						*ppClosestCurrentCOMonPath = GC.getMap().plot(pNode2->m_iX, pNode2->m_iY);
-				}
-				else
-				{
-					OutputDebugString( CvString::format( "cannot find a step path from %d,%d to %d,%d\n", pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
+					OutputDebugString( CvString::format( "cannot find a step path from %d,%d to %d,%d\n", pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
 					return NULL;
 				}
 			}
@@ -2747,42 +2761,22 @@ void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 					SetTurnStarted(GC.getGame().getGameTurn());
 #endif
 
-					if (GetDefaultArea() != pTargetPlot->getArea())
+					CvPlot* pDeployPlot = GetPlotXInStepPath(pArmyAI,GetMusterPlot(),GetTargetPlot(),GetDeployRange(),false);
+					if (!pDeployPlot)
 					{
-						pArmyAI->SetGoalPlot(pTargetPlot);
+						// No path, abort
+						m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+						m_eAbortReason = AI_ABORT_LOST_PATH;
+						return;
 					}
-					else
-					{
 
-						CvPlot* pDeployPt;
-						pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), GetMusterPlot(), GetTargetPlot(), GetDeployRange(), true);
-						if (pDeployPt)
-						{
-							pArmyAI->SetGoalPlot(pDeployPt);
-						}
-#if defined(MOD_BALANCE_CORE)
-						else if(GetMusterPlot() != NULL && GetTargetPlot() != NULL)
-						{
-							bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(GetMusterPlot()->getX(), GetMusterPlot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY(), m_eOwner, false);
-							if(bPathfinderSuccess)
-							{
-								pArmyAI->SetGoalPlot(GetTargetPlot());
-							}
-						}
-#endif
-						else
-						{
-							// No path, abort
-							m_eCurrentState = AI_OPERATION_STATE_ABORTED;
-							m_eAbortReason = AI_ABORT_LOST_PATH;
-						}
-					}
+					pArmyAI->SetGoalPlot(pDeployPlot);
 
 					// Find the list of units we need to build before starting this operation in earnest
 					BuildListOfUnitsWeStillNeedToBuild();
 
 					// try to get as many units as possible from existing units that are waiting around
-					if(GrabUnitsFromTheReserves(GetMusterPlot(), pTargetPlot))
+					if(GrabUnitsFromTheReserves(GetMusterPlot(), pDeployPlot))
 					{
 						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -3002,8 +2996,7 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 #if defined(MOD_BALANCE_CORE)
 			if(pTarget != NULL && pMuster != NULL)
 			{
-				CvPlot* pDeployPt;
-				pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pMuster->plot(), pTarget->plot(), GetDeployRange(), true);
+				CvPlot* pDeployPt = GetPlotXInStepPath(pArmyAI,pMuster->plot(),pTarget->plot(),GetDeployRange(),false);
 				if (pDeployPt)
 				{
 					SetTargetPlot(pTarget->plot());
@@ -8363,8 +8356,8 @@ bool CvAIOperationNavalColonization::VerifyTarget(CvArmyAI* pArmy)
 	}
 	else if ( pTargetPlot==NULL || 
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
-		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
-		!pCivilian->GeneratePath(pTargetPlot, MOVE_TERRITORY_NO_ENEMY, false) )
+		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) )
+		//don't check the whole path here - it is very expensive and usually not a problem
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -10165,6 +10158,12 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		*/
 		return false;
 	}
+
+	//check if the unit is engaged with the enemy ...
+	CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnit->plot()->GetPlotIndex() );
+	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
+	if (pZone && pZone->GetClosestCity()!=NULL && pZone->GetDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+		return false;
 
 	//don't take explorers
 	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());

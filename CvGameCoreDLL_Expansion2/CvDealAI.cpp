@@ -1336,58 +1336,26 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iPreCalculationDurationMultiplier;
-	int iMultiplier;
-	int iDivisor;
-	int iPostCalculationDurationDivider;
+	int iValueTimes100 = 0;
 
 	// We passed in Value, we want to know how much GPT we get for it
 	if(bNumGPTFromValue)
 	{
-		iPreCalculationDurationMultiplier = 1;
-		iMultiplier = 100;
-		iDivisor = /*80*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT();
-		iPostCalculationDurationDivider = iNumTurns;	// Divide value by number of turns to get GPT
-
-		// Example: want amount of GPT for 100 value.
-		// 100v * 1 = 100
-		// 100 * 100 / 80 = 125
-		// 125 / 20 turns = 6.25GPT
+		iValueTimes100 = (iGPTorValue*100)/iNumTurns;
+		//if we don't get the money right now, we want more of it!
+		iValueTimes100 = (iValueTimes100*100) / GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT(); //typically 80%
 	}
 	// We passed in an amount of GPT, we want to know how much it's worth
 	else
 	{
-		iPreCalculationDurationMultiplier = iNumTurns;	// Multiply GPT by number of turns to get value
-		iMultiplier = /*80*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT();
-		iDivisor = 100;
-		iPostCalculationDurationDivider = 1;
-
-		// Example: want value for 6 GPT
-		// 6GPT * 20 turns = 120
-		// 120 * 80 / 100 = 96
-		// 96 / 1 = 96v
+		iValueTimes100 = (iGPTorValue*100)*iNumTurns;
+		//since we get the money right now, apply a little discount!
+		iValueTimes100 = (iValueTimes100*GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT())/100; //typically 80%
 	}
-
-	// Convert based on the rules above
-	int iReturnValue = iGPTorValue * iPreCalculationDurationMultiplier;
-	iReturnValue *= iMultiplier;
 
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
-		// AI values it's GPT more highly because it's easy to exploit this
-		// See whether we should multiply or divide
-		if(!bNumGPTFromValue)
-		{
-			iReturnValue *= 130;
-			iReturnValue /= 100;
-		}
-		else
-		{
-			iReturnValue *= 100;
-			iReturnValue /= 130;
-		}
-
 		int iModifier;
 
 		// Approach is important
@@ -1396,15 +1364,16 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iModifier = 150;
 			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iModifier = 135;
+			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
-			iModifier = 110;
+			iModifier = 120;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iModifier = 100;
+			iModifier = 110;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iModifier = 100;
-			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
 			iModifier = 100;
 			break;
@@ -1414,30 +1383,15 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			break;
 		}
 
-		// See whether we should multiply or divide
-		if(!bNumGPTFromValue)
-		{
-			iReturnValue *= iModifier;
-			iReturnValue /= 100;
-		}
-		else
-		{
-			iReturnValue *= 100;
-			iReturnValue /= iModifier;
-		}
+		iValueTimes100 *= iModifier;
+		iValueTimes100 /= 100;
 
 		// Opinion also matters
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
-			iModifier = 100;
-			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iModifier = 100;
-			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
-			iModifier = 100;
-			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
 			iModifier = 100;
 			break;
@@ -1456,28 +1410,17 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			break;
 		}
 
-		// See whether we should multiply or divide
-		if(!bNumGPTFromValue)
-		{
-			iReturnValue *= iModifier;
-			iReturnValue /= 100;
-		}
-		else
-		{
-			iReturnValue *= 100;
-			iReturnValue /= iModifier;
-		}
+		iValueTimes100 *= iModifier;
+		iValueTimes100 /= 100;
 	}
 
 	// Sometimes we want to round up.  Let's say a the AI offers a deal to the human.  We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 	if(bRoundUp)
 	{
-		iReturnValue += 99;
+		iValueTimes100 += 99;
 	}
 
-	iReturnValue /= iDivisor;
-
-	iReturnValue /= iPostCalculationDurationDivider;
+	int iReturnValue = iValueTimes100/100;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)

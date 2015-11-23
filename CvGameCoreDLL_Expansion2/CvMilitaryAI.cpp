@@ -2020,8 +2020,8 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 	if(target.m_pMusterCity == NULL || target.m_pTargetCity == NULL)
 		return;
 
-	// Check land connection in any case (step finder allows same area only)
-	if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
+	// Check land connection in any case (same area is enforced automatically)
+	if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, true, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
 	{
 		CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
 		if(pNode != NULL)
@@ -2052,30 +2052,26 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 	{
 		if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
 		{
-			// Water path between muster point and target?
-			if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY()))
+			//don't do the pathfinding again, rely on the trade route cache.
+			SPath path;
+			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&path))
 			{
-				// find out the effective path length
-				CvAStarNode* pNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-				if(pNode != NULL)
+				// find out the effective path length and check if we need to cross the high seas
+				int iEnemyPlots = 0;
+				for (size_t i=0; i<path.vPlots.size(); i++)
 				{
-					iWaterPathLength = pNode->m_iTurns;
-
-					int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-					iWaterPathLength += MAX(0, (iEnemyPlots * 2));
-				}
-
-				// Check if we need to cross the high seas
-				while(pNode != NULL)
-				{
-					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-					if(pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater())
+					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+					if(pCurrentPlot)
 					{
-						target.m_bOcean = true;
-						break;
+						if (pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater())
+							target.m_bOcean = true;
+
+						if (pCurrentPlot->getOwner()==eEnemy)
+							iEnemyPlots++;
 					}
-					pNode = pNode->m_pParent;
 				}
+
+				iWaterPathLength = path.vPlots.size() + iEnemyPlots*3;
 
 				// No attack across ocean without proper ability
 				if(target.m_bOcean && !GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage())
@@ -7383,14 +7379,14 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		{
 			if((pMuster->isCoastalLand() || pMuster->isWater()) && (pTarget->isCoastalLand() || pTarget->isWater()))
 			{
-				if(!GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pMuster->getX(), pMuster->getY(), pTarget->getX(), pTarget->getY()))
+				if(!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMuster->getPlotCity(),pTarget->getPlotCity(),DOMAIN_SEA))
 				{
 					*piNumberSlotsRequired = 100;
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strTemp;
 						CvString strLogString;
-						strLogString.Format("FAILED PATHFINDER - Tallying up units for %s formation.", thisFormation->GetType());
+						strLogString.Format("FAILED PATHFINDER - Tallying up naval units for %s formation.", thisFormation->GetType());
 						pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 					}
 					return 0;
@@ -7399,14 +7395,14 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		}
 		else
 		{
-			if(!GC.getStepFinder().DoesPathExist(pPlayer->GetID(), pEnemy, pMuster, pTarget))
+			if(!GC.getStepFinder().DoesPathExist(pPlayer->GetID(), pEnemy, true, pMuster, pTarget))
 			{
 				*piNumberSlotsRequired = 100;
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp;
 					CvString strLogString;
-					strLogString.Format("FAILED PATHFINDER - Tallying up units for %s formation.", thisFormation->GetType());
+					strLogString.Format("FAILED PATHFINDER - Tallying up land units for %s formation.", thisFormation->GetType());
 					pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
 				return 0;

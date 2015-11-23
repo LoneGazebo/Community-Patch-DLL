@@ -14177,7 +14177,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pUnit->setMoves(1);
-							pmUnit->setDamage(theGame.getJonRandNum(20, "damage"));
+							pUnit->setDamage(theGame.getJonRandNum(20, "damage"));
 						}
 					}
 				}
