@@ -495,7 +495,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	int iDestY = pDestCity->getY();
 
 	bool bSuccess = false;
-	CvAStarNode* pPathfinderNode = NULL;
+	SPath path;
+
 	if (eDomain == DOMAIN_SEA)
 	{
 		if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)  A better check would be to see if they are adjacent to the same water body.
@@ -505,8 +506,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				return false;
 
 			//update the current path, might be better than what we have
-			AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetInternationalTradeRouteWaterFinder().GetPath());
-			pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
+			path = GC.GetInternationalTradeRouteWaterFinder().GetPath();
+			AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 		}
 	}
 	else if (eDomain == DOMAIN_LAND)
@@ -516,16 +517,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			return false;
 
 		//update the current path, might be better than what we have
-		AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetInternationalTradeRouteLandFinder().GetPath());
-		pPathfinderNode = GC.GetInternationalTradeRouteLandFinder().GetLastNode();
-	}
-
-
-
-	CvAssertMsg(pPathfinderNode, "pPathfinderNode is null. Whaa?");
-	if (pPathfinderNode == NULL)
-	{
-		return false;
+		path = GC.GetInternationalTradeRouteLandFinder().GetPath();
+		AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 	}
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();
@@ -554,7 +547,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	// increment m_iNextID for the next connection
 	m_iNextID += 1;
 
-	CopyPathIntoTradeConnection(pPathfinderNode, &(m_aTradeConnections[iNewTradeRouteIndex]));
+	CopyPathIntoTradeConnection(path, &(m_aTradeConnections[iNewTradeRouteIndex]));
 
 	// reveal all plots to the player who created the trade route
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
@@ -824,31 +817,15 @@ bool CvGameTrade::IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlay
 }
 
 //	--------------------------------------------------------------------------------
-void CvGameTrade::CopyPathIntoTradeConnection (CvAStarNode* pNode, TradeConnection* pTradeConnection)
+void CvGameTrade::CopyPathIntoTradeConnection (const SPath& path, TradeConnection* pTradeConnection)
 {
-	// beyond the origin player's trade range
-	int iPathSteps = 0;
-	CvAStarNode* pWalkingPath = pNode;
-	while (pWalkingPath)
-	{
-		iPathSteps++;
-		pWalkingPath = pWalkingPath->m_pParent;
-	}
-
-	pTradeConnection->m_aPlotList.clear();
-	for (int i = 0; i < iPathSteps; i++)
+	//todo: remove this unnecessary conversion step ...
+	for (size_t i = 0; i<path.vPlots.size(); i++)
 	{
 		TradeConnectionPlot kTradeConnectionPlot;
+		kTradeConnectionPlot.m_iX = path.vPlots[i].first;
+		kTradeConnectionPlot.m_iY = path.vPlots[i].second;
 		pTradeConnection->m_aPlotList.push_back(kTradeConnectionPlot);
-	}
-
-	int iIndex = iPathSteps - 1;
-	while (pNode != NULL)
-	{
-		pTradeConnection->m_aPlotList[iIndex].m_iX = pNode->m_iX;
-		pTradeConnection->m_aPlotList[iIndex].m_iY = pNode->m_iY;
-		pNode = pNode->m_pParent;
-		iIndex--;
 	}
 }
 
@@ -2052,8 +2029,6 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	int iOriginX,iOriginY;
 	PlayerTypes eOriginPlayer;
 	bool bSuccess = false;
-	CvAStarNode* pPathfinderNode = NULL;
-	TradeConnection tempTradeConnection;
 
 	{
 		auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -2071,26 +2046,26 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 		}
 	}
 
+	SPath path;
 	switch (eDomain)
 	{
 	case DOMAIN_LAND:
 		bSuccess = GC.GetInternationalTradeRouteLandFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
-		pPathfinderNode = GC.GetInternationalTradeRouteLandFinder().GetLastNode();
+		path = GC.GetInternationalTradeRouteLandFinder().GetPath();
 		break;
 	case DOMAIN_SEA:
 		bSuccess = GC.GetInternationalTradeRouteWaterFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
-		pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
+		path = GC.GetInternationalTradeRouteWaterFinder().GetPath();
 		break;
 	}
 
 	gDLL->TradeVisuals_DestroyRoute(TEMPORARY_POPUPROUTE_ID,GC.getGame().getActivePlayer());
-	if (bSuccess && pPathfinderNode != NULL) {
-		CopyPathIntoTradeConnection(pPathfinderNode, &tempTradeConnection);
-		n = tempTradeConnection.m_aPlotList.size();
+	if (bSuccess) {
+		n = path.vPlots.size();
 		if (n>0 && n <=MAX_PLOTS_TO_DISPLAY) {
 			for (i=0;i<n;++i) {
-				plotsX[i] = tempTradeConnection.m_aPlotList[i].m_iX;
-				plotsY[i] = tempTradeConnection.m_aPlotList[i].m_iY;
+				plotsX[i] = path.vPlots[i].first;
+				plotsY[i] = path.vPlots[i].second;
 			}
 			gDLL->TradeVisuals_NewRoute(TEMPORARY_POPUPROUTE_ID,eOriginPlayer,type,n,plotsX,plotsY);
 			gDLL->TradeVisuals_ActivatePopupRoute(TEMPORARY_POPUPROUTE_ID);
@@ -5489,41 +5464,29 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 			{
 				// if this is the same city
 				if (pOriginCity == pDestCity)
-				{
 					continue;
-				}
 
 				DomainTypes eDomain = NO_DOMAIN;
 				for (eDomain = (DomainTypes)0; eDomain < NUM_DOMAIN_TYPES; eDomain = (DomainTypes)(eDomain + 1))
 				{
 					// if this isn't a valid trade domain, ignore
 					if (eDomain != DOMAIN_LAND && eDomain != DOMAIN_SEA)
-					{
 						continue;
-					}
 
-					bool bCheckPath = true;
+					// Now get the path
+					SPath path;
+					bool bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+					if (!bTradeAvailable)
+						continue;		// If there is no path for this domain, just skip the rest of the connection tests.
+
 					TradeConnectionType eConnection = NUM_TRADE_CONNECTION_TYPES;
 					for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 					{
 						eConnection = (TradeConnectionType)uiConnectionTypes;
 
-						// Check the trade route, ignoring the path for now
-						bool bTradeAvailable = pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, true, false);
-						if (!bTradeAvailable)
-						{
+						// Check the trade route ignoring the path
+						if (!pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, true, false))
 							continue;
-						}
-
-						// Now test the path
-						if (bCheckPath)
-						{
-							bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain);
-							if (!bTradeAvailable)
-								break;		// If there is no path for this domain, just skip the rest of the connection tests.
-
-							bCheckPath = false;		// No need to check the path for this domain again
-						}
 
 						TradeConnection kConnection;
 						kConnection.m_iOriginX = pOriginCity->getX();
@@ -5535,23 +5498,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 						kConnection.m_eOriginOwner = pOriginCity->getOwner();
 						kConnection.m_eDestOwner = pDestCity->getOwner();
 
-						CvAStarNode* pNode = NULL;
-						if (eDomain ==  DOMAIN_LAND)
-						{
-							pNode = GC.GetInternationalTradeRouteLandFinder().GetLastNode();
-						}
-						else if (eDomain == DOMAIN_SEA)
-						{
-							pNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-						}
-
-						CvAssertMsg(pNode != NULL, "no path found for unit");
-						if (pNode == NULL)
-						{
-							continue;
-						}
-
-						GC.getGame().GetGameTrade()->CopyPathIntoTradeConnection(pNode, &kConnection);
+						GC.getGame().GetGameTrade()->CopyPathIntoTradeConnection(path, &kConnection);
 						aTradeConnectionList.push_back(kConnection);
 					}
 				}

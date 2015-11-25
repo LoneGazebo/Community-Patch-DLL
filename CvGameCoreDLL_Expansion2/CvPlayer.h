@@ -2058,6 +2058,7 @@ public:
 	const std::vector<int>& GetAreaEffectPositiveUnits() const;
 	const std::vector<int>& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
+	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
 	void UpdateCurrentAndFutureWars();

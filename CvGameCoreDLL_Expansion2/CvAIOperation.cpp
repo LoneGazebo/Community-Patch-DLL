@@ -1797,8 +1797,20 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass((IsAllNavalOperation() || IsMixedLandNavalOperation()) ? DOMAIN_SEA : DOMAIN_LAND);
 			if (pCenterOfMass && pGoalPlot)
 			{
-				//update the current position
-				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
+				//problem: center of mass may be on a mountain etc ...
+				if (pCenterOfMass->isImpassable() || pCenterOfMass->isMountain())
+				{
+					UnitHandle pFirstUnit = pArmy->GetFirstUnit();
+					if (pFirstUnit)
+						pCenterOfMass = pFirstUnit->plot();
+					else
+						return NULL;
+				}
+				else
+				{
+					//update the current position
+					pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
+				}
 
 				//get where we want to be next
 				pRtnValue = GetPlotXInStepPath(pArmy,pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
@@ -4268,7 +4280,8 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 							continue;
 
 						int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pAdjacentPlot,pOurCivilian);
-						if(!pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner && pAdjacentPlot->getNumUnits()==0 && iDanger==0)
+						bool bPassable = pOurCivilian->canMoveInto(*pAdjacentPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
+						if(!pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner && pAdjacentPlot->getNumUnits()==0 && iDanger==0 && bPassable )
 						{
 							pMusterPt = pAdjacentPlot;
 							break;
@@ -4438,7 +4451,6 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 	case AI_OPERATION_STATE_AT_TARGET:
-
 		// Call base class version and see if it thinks we're done
 		bStateChanged = CvAIOperation::ArmyInPosition(pArmy);
 

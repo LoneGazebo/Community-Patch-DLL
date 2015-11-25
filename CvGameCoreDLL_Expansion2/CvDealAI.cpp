@@ -5245,7 +5245,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
 
 		// Don't include the capital in the list of Cities the buyer can receive
-		if(!pLoopCity->isCapital() && iRatio>50)
+		if(!pLoopCity->isCapital() && iRatio>130)
 		{
 			viCityPriceRatio.push_back(pLoopCity->GetID(), iRatio);
 		}
@@ -5348,7 +5348,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
 
 		// Don't include the capital in the list of Cities the buyer can receive
-		if (!pLoopCity->isCapital() && iRatio>50) 
+		if (!pLoopCity->isCapital() && iRatio<80) 
 		{
 			viCityPriceRatio.push_back(pLoopCity->GetID(), iRatio);
 		}

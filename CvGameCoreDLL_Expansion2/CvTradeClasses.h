@@ -82,7 +82,7 @@ public:
 	int GetNumTimesOriginCity (CvCity* pCity, bool bOnlyInternational);
 	int GetNumTimesDestinationCity (CvCity* pCity, bool bOnlyInternational);
 
-	void CopyPathIntoTradeConnection (CvAStarNode* pNode, TradeConnection* pTradeConnection);
+	void CopyPathIntoTradeConnection (const SPath& path, TradeConnection* pTradeConnection);
 
 	int GetDomainModifierTimes100 (DomainTypes eDomain);
 

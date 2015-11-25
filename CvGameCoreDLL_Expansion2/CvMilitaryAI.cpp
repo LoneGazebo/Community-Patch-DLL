@@ -2026,22 +2026,8 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 		CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
 		if(pNode != NULL)
 		{
-			iLandPathLength = pNode->m_iTurns;
-
 			int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-			iLandPathLength += MAX(0, (iEnemyPlots * 2));
-		}
-
-		//check for chokepoints along the way
-		while(pNode)
-		{
-			CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-			if (pCurrentPlot->IsChokePoint() && pCurrentPlot->getOwner()==eEnemy)
-			{
-				iLandPathLength = INT_MAX;
-				break;
-			}
-			pNode = pNode->m_pParent;
+			iLandPathLength = pNode->m_iTurns + iEnemyPlots*3;
 		}
 
 		target.m_iPathLength = iLandPathLength;

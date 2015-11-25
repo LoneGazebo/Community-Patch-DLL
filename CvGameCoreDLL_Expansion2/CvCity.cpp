@@ -25731,7 +25731,7 @@ void CvCity::UpdateClosestNeighbors()
 	std::sort(allNeighbors.begin(), allNeighbors.end());
 
 	m_vClosestNeighbors.clear();
-	for (size_t i=0; i<min<size_t>(4,allNeighbors.size()); i++)
+	for (size_t i=0; i<min<size_t>(6,allNeighbors.size()); i++)
 		m_vClosestNeighbors.push_back(allNeighbors[i].city->GetID());
 }
 

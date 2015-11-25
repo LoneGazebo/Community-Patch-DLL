@@ -460,6 +460,10 @@ namespace HomelandAIHelpers
 {
 bool CvHomelandUnitAuxIntSort(CvHomelandUnit obj1, CvHomelandUnit obj2);
 bool CvHomelandUnitAuxIntReverseSort(CvHomelandUnit obj1, CvHomelandUnit obj2);
+
+int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
+bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
+
 }
 
 #endif //CIV5_HOMELAND_AI_H

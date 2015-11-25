@@ -483,7 +483,7 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// We want ALL the barbarians and air units (that are combat ready)
-		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !NeedToRebase(pLoopUnit.pointer())))
+		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit.pointer())))
 		{
 			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
 			{
@@ -1435,7 +1435,11 @@ void CvTacticalAI::EstablishTacticalPriorities()
 		{
 			for (size_t i=0; i<m_MovePriorityList.size(); i++)
 			{
-				OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), m_MovePriorityList[i].m_iPriority).c_str() );
+				OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d (%s)\n", 
+					GC.getGame().getGameTurn(), m_pPlayer->GetID(), 
+					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), 
+					m_MovePriorityList[i].m_iPriority,
+					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->CanRecruitForOperations() ? "interruptible" : "uninterruptible" ).c_str() );
 			}
 		}
 	}
@@ -4791,7 +4795,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 		// the escort leads the way
 		bool bHavePathEscort = false;
 		bool bPathFound = false;
-		bool bSaveMoves = false;
+		bool bSaveMoves = true;
 		if(pEscort)
 		{
 			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), MOVE_UNITS_IGNORE_DANGER);
@@ -4802,7 +4806,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 				{
 					int iTurns = INT_MAX;
 					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, MOVE_UNITS_IGNORE_DANGER, false, &iTurns);
-					bool bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
+					bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
 					if (bHavePathCivilian)
 					{
 						bPathFound = true;
@@ -13572,31 +13576,36 @@ CvPlot* CvTacticalAI::FindBarbarianGankTradeRouteTarget(UnitHandle pUnit)
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 /// Do we want to move this air unit to a new base?
-bool CvTacticalAI::NeedToRebase(CvUnit* pUnit) const
+bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 {
 	if (!pUnit || pUnit->getDomainType()!=DOMAIN_AIR)
 		return false;
 
 	CvPlot* pUnitPlot = pUnit->plot();
+	if (!pUnitPlot)
+		return false;
 
 	// Is this unit in a base in danger?
-	bool bNeedsToMove = false;
 	if (pUnitPlot->isCity())
 	{
 		if (pUnitPlot->getPlotCity()->isInDangerOfFalling())
-			bNeedsToMove = true;
+			return true;
+
+		if (IsUnitHealing(pUnit->GetID()) && m_pPlayer->GetPlotDanger(*pUnitPlot,pUnitPlot->getPlotCity())>0)
+			return true;
 	}
 	else
 	{
 		CvUnit *pCarrier = pUnit->getTransportUnit();
 		if (pCarrier && pCarrier->isProjectedToDieNextTurn())
-			bNeedsToMove = true;
+			return true;
+
+		if (IsUnitHealing(pUnit->GetID()) && m_pPlayer->GetPlotDanger(*pUnitPlot,pCarrier)>0)
+			return true;
 	}
 
-	bool bAtWar = !m_pPlayer->GetPlayersAtWarWith().empty();
-	bool bWarComing = !m_pPlayer->GetPlayersAtWarWithInFuture().empty();
-
-	if (bAtWar || bWarComing)
+	bool bIsNeeded = false;
+	if (!m_pPlayer->GetPlayersAtWarWith().empty())
 	{
 		switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
 		{
@@ -13604,9 +13613,9 @@ bool CvTacticalAI::NeedToRebase(CvUnit* pUnit) const
 			// Is this a fighter that doesn't have any useful missions nearby
 			{
 				int iNumNearbyEnemyAirUnits = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true /*bCountFighters*/, true /*bCountBombers*/);
-				if (iNumNearbyEnemyAirUnits == 0 && !m_pPlayer->GetMilitaryAI()->GetBestAirSweepTarget(pUnit))
+				if (iNumNearbyEnemyAirUnits > 0  || m_pPlayer->GetMilitaryAI()->GetBestAirSweepTarget(pUnit))
 				{
-					bNeedsToMove = true;
+					bIsNeeded = true;
 				}
 			}
 			break;
@@ -13616,7 +13625,6 @@ bool CvTacticalAI::NeedToRebase(CvUnit* pUnit) const
 			//Is this a bomber or a missile that lacks useful target?
 			{
 				//check for targets in tactical map
-				bool bHaveTarget = false;
 				for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 				{
 					// Is the target of an appropriate type?
@@ -13629,21 +13637,18 @@ bool CvTacticalAI::NeedToRebase(CvUnit* pUnit) const
 						// Is this target near enough?
 						if(plotDistance(pUnit->getX(), pUnit->getY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY()) <= pUnit->GetRange())
 						{
-							bHaveTarget = true;
+							bIsNeeded = true;
 							break;
 						}
 					}
 				}
-
-				if (!bHaveTarget)
-					bNeedsToMove = true;
 			}
 			break;
 		}
 
 	}
 
-	return bNeedsToMove;
+	return !bIsNeeded;
 }
 #endif
 

@@ -828,7 +828,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsUnitHealing(int iUnitID) const;
-	bool NeedToRebase(CvUnit* pUnit) const;
+	bool ShouldRebase(CvUnit* pUnit) const;
 #endif
 
 	// Public logging
@@ -836,6 +836,7 @@ public:
 
 	// Other people want to know this too
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
+	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
 
 private:
 
