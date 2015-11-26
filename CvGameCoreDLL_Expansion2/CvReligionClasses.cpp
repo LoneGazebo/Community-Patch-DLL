@@ -7828,7 +7828,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
 			// Also skip if closest city of ours is not within 3
-			CvCity* pClosestCity = m_pPlayer->GetClosestFriendlyCity(*pPlot, 3);
+			CvCity* pClosestCity = m_pPlayer->GetClosestCity(*pPlot, 3);
 			if(pClosestCity)
 			{
 				// Score it

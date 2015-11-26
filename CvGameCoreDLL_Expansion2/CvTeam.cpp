@@ -1194,7 +1194,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 	DoDeclareWar(eTeam, bDefensivePact);
 #endif
 
-	CvPlayerManager::RefreshDangerPlots();
+	CvPlayerManager::Refresh(true);
 }
 
 //	-----------------------------------------------------------------------------------------------

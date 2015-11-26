@@ -1965,20 +1965,15 @@ const char* CvAIOperation::GetInfoString()
 		break;
 	};
 
-	int iUnitsToBeBuilt = int(m_viListOfUnitsWeStillNeedToBuild.size() + m_viListOfUnitsCitiesHaveCommittedToBuild.size());
 	int iUnitsInOperation = 0;
-	int iUnitsMissing = 0;
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 	{
 		CvArmyAI* thisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
 		if(thisArmy)
-		{
-			iUnitsMissing += thisArmy->GetNumFormationEntries() - thisArmy->GetNumSlotsFilled();
 			iUnitsInOperation += thisArmy->GetNumSlotsFilled();
-		}
 	}
-	strTemp3.Format(" (c%d-m%d-b%d)", iUnitsInOperation, iUnitsMissing, iUnitsToBeBuilt);
+	strTemp3.Format(" (T%d-M%d-B%d)", iUnitsInOperation, GetNumUnitsNeededToBeBuilt(), GetNumUnitsCommittedToBeBuilt());
 
 	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();

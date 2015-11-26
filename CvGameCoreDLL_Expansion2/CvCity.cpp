@@ -3205,9 +3205,9 @@ void CvCity::SetEspionageRanking(int iPotential)
 	int iRank = 0;
 
 	//Don't want to divide by zero!
-	if(GC.getGame().m_iLargestBasePotential > 0)
+	if(GC.getGame().GetLargestSpyPotential() > 0)
 	{
-		iRank = ((iPotential * 100) / GC.getGame().m_iLargestBasePotential);
+		iRank = ((iPotential * 100) / GC.getGame().GetLargestSpyPotential());
 		//Rank time - 10 is worst, 1 is best
 		iRank /= 10;
 	}
@@ -25699,12 +25699,12 @@ bool CvCity::isInDangerOfFalling() const
 
 #if defined(MOD_BALANCE_CORE)
 //the closest friendly cities - up to 4 entries 
-const std::vector<int>& CvCity::GetClosestNeighboringCities() const
+const std::vector<int>& CvCity::GetClosestFriendlyNeighboringCities() const
 {
 	return m_vClosestNeighbors;
 }
 
-void CvCity::UpdateClosestNeighbors()
+void CvCity::UpdateClosestFriendlyNeighbors()
 {
 	struct SCityWithScore
 	{

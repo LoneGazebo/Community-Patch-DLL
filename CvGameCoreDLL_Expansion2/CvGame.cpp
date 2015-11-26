@@ -933,7 +933,7 @@ void CvGame::DoGameStarted()
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
 
 #if defined(MOD_BALANCE_CORE)
-	CvPlayerManager::RefreshDangerPlots();
+	CvPlayerManager::Refresh(false);
 #endif
 }
 
@@ -12624,6 +12624,32 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	}
 
 	return ePrediction;
+}
+
+void CvGame::SetClosestCityMapDirty()
+{
+	m_globalCityDistance.SetDirty();
+}
+
+int CvGame::GetClosestCityDistance( const CvPlot* pPlot )
+{
+	if (!pPlot)
+		return INT_MAX;
+
+	return m_globalCityDistance.GetClosestFeatureDistance( *pPlot );
+}
+
+CvCity* CvGame::GetClosestCity( const CvPlot* pPlot )
+{
+	if (!pPlot)
+		return NULL;
+
+	int owner = m_globalCityDistance.GetClosestFeatureOwner( *pPlot );
+	int id = m_globalCityDistance.GetClosestFeatureID( *pPlot );
+	if (owner!=NO_PLAYER)
+		return GET_PLAYER((PlayerTypes)owner).getCity(id);
+	else
+		return NULL;
 }
 
 //------------------------------------------------------------

@@ -81,7 +81,6 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	CvPlot* pLoopPlot(NULL);
 	bool bValid(false);
-	int iRange(0), iDX(0), iDY(0);
 
 	// Used to have a Python hook: CANNOT_FOUND_CITY_CALLBACK
 
@@ -204,26 +203,27 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if(!bIgnoreDistanceToExistingCities)
 	{
+		int iMinDist(0), iDX(0), iDY(0);
 		// look at same land mass
 
-		//3
-		iRange = GC.getMIN_CITY_RANGE();
+		iMinDist = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer && pPlayer->isMinorCiv())
 		{
 			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
 			{
-				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+				iMinDist = GC.getMap().getWorldInfo().getMinDistanceCityStates();
 			}
 		}
 		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
 		{
-			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
+			iMinDist = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
-		for(iDX = -(iRange); iDX <= iRange; iDX++)
+
+		for(iDX = -(iMinDist); iDX <= iMinDist; iDX++)
 		{
-			for(iDY = -(iRange); iDY <= iRange; iDY++)
+			for(iDY = -(iMinDist); iDY <= iMinDist; iDY++)
 			{
-				pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
+				pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iMinDist);
 
 				if(pLoopPlot != NULL)
 				{
@@ -231,9 +231,9 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 					{
 						if(pLoopPlot->getLandmass() == pPlot->getLandmass())
 						{
-							return false;
+							return false; //we know that distance <= iMinDist here
 						}
-						else if(hexDistance(iDX, iDY) < iRange)  // one less for off shore
+						else if(hexDistance(iDX, iDY) < iMinDist)  // one less for off shore
 						{
 							return false;
 						}
@@ -247,7 +247,6 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	return true;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
 void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 {
@@ -398,9 +397,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	int iClosestCityOfMine = 999;
-	int iClosestEnemyCity = 999;
-
+	int iBorderlandRange = 6;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -457,9 +454,19 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == ePlayer))
 					{
 						//count the tile only if it's not being worked by another city or too close to it (so it will be worked sooner or later)
-						if ( pLoopPlot->getWorkingCity()==NULL && (!pPlayer || pPlayer->GetCityDistance(pLoopPlot)>2) )
+						if ( pLoopPlot->getWorkingCity()==NULL )
 						{
 							int iRingModifier = m_iRingModifier[iDistance];
+
+							//not only our cities, also other player's cities!
+							int iExistingCityDistance = GC.getGame().GetClosestCityDistance(pLoopPlot);
+
+							if (iExistingCityDistance<=2)
+								//even if it's not currently worked by the other city, it will eventually be!
+								continue;
+							if (iExistingCityDistance==3)
+								//this plot will likely be contested between the two cities, reduce its value
+								iRingModifier /= 2;
 
 							iFoodValue = 0;
 							iProductionValue = 0;
@@ -854,175 +861,109 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	}
 
 	//Check for strategic landgrab
-	if(pPlayer != NULL)
+	int iOwnCityDistance = pPlayer ? pPlayer->GetCityDistance(pPlot) : INT_MAX;
+	int iOtherCityDistance = INT_MAX;
+
+	//check if the closest city is our or somebody else's
+	CvCity* pClosestCity = GC.getGame().GetClosestCity(pPlot);
+	if( pClosestCity && (!pPlayer || pClosestCity->getOwner()!=pPlayer->GetID()) )
 	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		iOtherCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+
+		PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
+		PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
+		if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance<=iBorderlandRange)
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-			if(eOtherPlayer != pPlayer->GetID() && eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isAlive() && !GET_PLAYER(eOtherPlayer).isMinorCiv() && !GET_PLAYER(eOtherPlayer).isBarbarian())
+			//Neighbor must not be too strong
+			if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.4f )
 			{
-				if(eProximity >= PLAYER_PROXIMITY_CLOSE)
-				{
-					CvCity* pLoopTheirCity;
-					int iBorderlandRange = 6;
-					int iDistance = 0;
-					int iLoop;
-					bool bIsLandgrab = false;
-
-					for(pLoopTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoop); pLoopTheirCity != NULL; pLoopTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoop))
-					{
-						if(pLoopTheirCity != NULL)
-						{
-							if(pPlot->getArea() == pLoopTheirCity->getArea())
-							{
-								iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopTheirCity->getX(), pLoopTheirCity->getY());
-
-								//remember this for later
-								iClosestEnemyCity = min<int>(iClosestEnemyCity,iDistance);
-								
-								if(iDistance <= iBorderlandRange && !bIsLandgrab)
-								{
-									//There's at least 6 hexes between these plots, which means we can theoretically settle here.
-									int iNumPlots = 0;
-									int iNumNonFreePlots = 0;
-
-									for(int iDX = -iBorderlandRange; iDX <= iBorderlandRange; iDX++)
-									{
-										for(int iDY = -iBorderlandRange; iDY <= iBorderlandRange; iDY++)
-										{
-											CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iBorderlandRange);
-											if(pLoopPlot)
-											{
-												//Let's look for good, empty land.
-												if(pLoopPlot->isImpassable(pPlayer->getTeam()) || pLoopPlot->isWater() || pLoopPlot->getOwner() != NO_PLAYER) 
-												{
-													iNumNonFreePlots++;
-												}
-												iNumPlots++;
-											}
-										}
-									}
-
-									//Good space must be greater than bad plots by at least 40%
-									//Neighbor must not be too strong
-									if ( (iNumPlots > iNumNonFreePlots*1.4f) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.3f ) )
-									{
-										iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-										vQualifiersPositive.push_back("(S) landgrab");
-										bIsLandgrab = true;
-									}
-								}
-							}
-						}
-					}
-				}
+				iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+				vQualifiersPositive.push_back("(S) landgrab");
 			}
-		}
-
-		// Nearby Cities?
-		iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
-
-		// Human
-		//3
-		int iRange = GC.getMIN_CITY_RANGE();
-		if(pPlayer && pPlayer->isMinorCiv())
-		{
-			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
+			else if ( pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.8f )
 			{
-				iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
-			}
-		}
-		else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
-		{
-			iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
-		}
-		if (pPlayer->isHuman())
-		{
-			if (iClosestCityOfMine == iRange)
-			{
-				iValueModifier -= iTotalPlotValue / 2;
-				vQualifiersNegative.push_back("(V) too close to existing cities");
-			}
-		}
-		// AI
-		else
-		{
-			MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
-			MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
-
-			int iSweetMin = (GC.getSETTLER_EVALUATION_DISTANCE() - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER()), iSweetMax = GC.getSETTLER_EVALUATION_DISTANCE();
-
-			int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
-			int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
-			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			int iDefaultNumTiles = 80*52;
-
-			iSweetMax += ((max(iExpansionFlavor, 1) * GC.getMap().numPlots()) / (max(iGrowthFlavor, 1) * iDefaultNumTiles));		
-			
-			if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyBarbs))
-			{
-				iSweetMin--;
-			}
-			if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyBarbsCritical))
-			{
-				iSweetMin--;
-			}
-
-			if (iGrowthFlavor > 5) iSweetMin--;
-			if (iExpansionFlavor > 5) iSweetMin++;
-			if (iGrowthFlavor <= 5) iSweetMin++;
-			if (iExpansionFlavor <= 5) iSweetMin--;
-			if (iGrowthFlavor > 5) iSweetMax--;
-			if (iExpansionFlavor > 5) iSweetMax++;
-			if (iGrowthFlavor <= 5) iSweetMax++;
-			if (iExpansionFlavor <= 5) iSweetMax--;
-			if (iBoldness <= 5) iSweetMin--;
-			if (iBoldness > 5) iSweetMax++;
-			if (iBoldness <= 5) iSweetMax--;
-			if (iBoldness > 5) iSweetMin++;
-
-			//3
-			int iRange = GC.getMIN_CITY_RANGE();
-			if(pPlayer && pPlayer->isMinorCiv())
-			{
-				if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
-				{
-					iRange = GC.getMap().getWorldInfo().getMinDistanceCityStates();
-				}
-			}
-			else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
-			{
-				iRange = GC.getMap().getWorldInfo().getMinDistanceCities();
-			}
-			if(iSweetMin < iRange)
-			{
-				iSweetMin = iRange;
-			}
-
-			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
-			{
-				iValueModifier += (iTotalPlotValue*15)/100; //make this a small bonus, there is a separate distance check anyway
-				vQualifiersPositive.push_back("(V) optimal distance to existing cities");
-			}
-
-			if (iClosestEnemyCity <= iSweetMin)
-			{
-				iValueModifier -= (iTotalPlotValue*40)/100;
-				vQualifiersNegative.push_back("(S) too close to enemy");
-			}
-
-			if (iCapitalArea == pPlot->getArea())
-			{
-				// this check only applies on our home continent
-				if (iClosestCityOfMine > iSweetMax)
-				{
-					iValueModifier -= (iTotalPlotValue*15*(iClosestCityOfMine-iSweetMax))/100;
-					vQualifiersNegative.push_back("(S) too far away");
-				}
+				iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+				vQualifiersNegative.push_back("(S) too dangerous");
 			}
 		}
 	}
+
+	// where is our personal sweet spot?
+	int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
+	if(pPlayer && pPlayer->isMinorCiv())
+	{
+		if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
+		{
+			iMinDistance = GC.getMap().getWorldInfo().getMinDistanceCityStates();
+		}
+	}
+	else if(GC.getMap().getWorldInfo().getMinDistanceCities() > 0)
+	{
+		iMinDistance = GC.getMap().getWorldInfo().getMinDistanceCities();
+	}
+
+	if (iOwnCityDistance <= iMinDistance)
+	{
+		//this case should be handled by the distance check in CanFound() also
+		iValueModifier -= iTotalPlotValue / 2;
+		vQualifiersNegative.push_back("(V) too close to existing friendly city");
+	}
+
+	// AI only
+	if (pPlayer && !pPlayer->isHuman())
+	{
+		int iSweetMin = GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
+		int iSweetMax = GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER()+1;
+
+		//check our preferred balance between tall and wide
+		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
+		if (iGrowthFlavor > 5)
+		{
+			iSweetMax++;
+			iSweetMin++;
+		}
+		else if (iGrowthFlavor < 5)
+		{
+			iSweetMax--;
+			iSweetMin--;
+		}
+
+		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
+		if (iExpansionFlavor > 5)
+		{
+			iSweetMax++;
+			iSweetMin++;
+		}
+		else if (iExpansionFlavor < 5)
+		{
+			iSweetMax--;
+			iSweetMin--;
+		}
+
+		if(iSweetMin < iMinDistance)
+			iSweetMin = iMinDistance;
+
+		//this affects both friendly and other cities
+		if (min(iOwnCityDistance,iOtherCityDistance) >= iSweetMin && max(iOwnCityDistance,iOtherCityDistance) <= iSweetMax) 
+		{
+			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
+			vQualifiersPositive.push_back("(V) optimal distance to existing cities");
+		}
+
+		//boldness comes into play when there are enemy cities around
+		int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
+		if (iBoldness > 5)
+			iSweetMin--;
+		if (iBoldness < 5)
+			iSweetMin++;
+
+		if (iOtherCityDistance<=iSweetMin)
+		{
+			iStratModifier -= iTotalPlotValue / 2;
+			vQualifiersNegative.push_back("(S) too close to existing enemy city");
+		}
+	}
+
 #if defined(MOD_EVENTS_CITY_FOUNDING)
 	if (MOD_EVENTS_CITY_FOUNDING) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanFoundCity, pPlayer->GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_FALSE) {
@@ -1048,563 +989,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 	return max(0,iTotalPlotValue + iValueModifier + iStratModifier + iCivModifier);
 }
-
-#else
-
-/// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
-void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
-{
-	// Set all to 0
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		m_iFlavorMultiplier[iI] = 0;
-	}
-
-	m_iFlavorMultiplier[SITE_EVALUATION_HAPPINESS] = 0;
-
-	// Find out if player has a desired next city specialization
-	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
-	CvCitySpecializationXMLEntry* pkCitySpecializationEntry = NULL;
-	if(eNextSpecialization != NO_CITY_SPECIALIZATION)
-		pkCitySpecializationEntry = GC.getCitySpecializationInfo(eNextSpecialization);
-
-
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		const FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavorLoop);
-		const CvString& strFlavor = GC.getFlavorTypes(eFlavor);
-		if(strFlavor == "FLAVOR_GROWTH" ||
-		        strFlavor == "FLAVOR_EXPANSION")
-		{
-			m_iFlavorMultiplier[YIELD_FOOD] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
-			if(pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[YIELD_FOOD] += pkCitySpecializationEntry->GetFlavorValue(eFlavor);
-			}
-		}
-		else if(strFlavor == "FLAVOR_GOLD" ||
-		        strFlavor == "FLAVOR_TILE_IMPROVEMENT")
-		{
-			m_iFlavorMultiplier[YIELD_GOLD] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
-			if(pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[YIELD_GOLD] += pkCitySpecializationEntry->GetFlavorValue(eFlavor);
-			}
-		}
-		else if(strFlavor == "FLAVOR_PRODUCTION" ||
-		        strFlavor == "FLAVOR_WONDER")
-		{
-			m_iFlavorMultiplier[YIELD_PRODUCTION] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
-			if(pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[YIELD_PRODUCTION] += pkCitySpecializationEntry->GetFlavorValue(eFlavor);
-			}
-		}
-		else if(strFlavor == "FLAVOR_SCIENCE")
-		{
-			// Doubled since only one flavor related to science
-			m_iFlavorMultiplier[YIELD_SCIENCE] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor) * 2;
-			if(pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[YIELD_SCIENCE] += pkCitySpecializationEntry->GetFlavorValue(eFlavor) * 2;
-			}
-		}
-		else if(strFlavor == "FLAVOR_HAPPINESS")
-		{
-			// Doubled since only one flavor related to Happiness
-			m_iFlavorMultiplier[SITE_EVALUATION_HAPPINESS] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor) * 2;
-			if(pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[SITE_EVALUATION_HAPPINESS] += pkCitySpecializationEntry->GetFlavorValue(eFlavor) * 2;
-			}
-		}
-		else if(strFlavor == "FLAVOR_RELIGION")
-		{
-			// Doubled since only one flavor related to faith
-			m_iFlavorMultiplier[YIELD_FAITH] += pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor) * 2;
-			if (pkCitySpecializationEntry)
-			{
-				m_iFlavorMultiplier[YIELD_FAITH] += pkCitySpecializationEntry->GetFlavorValue(eFlavor) * 2;
-			}
-		}
-	}
-
-	// Make sure none are negative
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		if(m_iFlavorMultiplier[iI] < 0)
-		{
-			m_iFlavorMultiplier[iI] = 0;
-		}
-	}
-
-	// Set tradable resources and strategic value to times 10 (so multiplying this by the number of map gives a number from 1 to 100)
-	m_iFlavorMultiplier[SITE_EVALUATION_RESOURCES] = 10;
-	m_iFlavorMultiplier[SITE_EVALUATION_STRATEGIC] = 10;
-}
-/// Retrieve the relative value of this plot (including plots that would be in city radius)
-int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool /*bCoastOnly*/)
-{
-	CvAssert(pPlot);
-	if(!pPlot)
-		return 0;
-
-	// Make sure this player can even build a city here
-	if(!CanFound(pPlot, pPlayer, false))
-	{
-		return 0;
-	}
-
-	int rtnValue = 0;
-
-	int iFoodValue = 0;
-	int iHappinessValue = 0;
-	int iProductionValue = 0;
-	int iGoldValue = 0;
-	int iScienceValue = 0;
-	int iFaithValue = 0;
-	int iResourceValue = 0;
-	int iStrategicValue = 0;
-
-	int iCelticForestCount = 0;
-	int iIroquoisForestCount = 0;
-	int iBrazilJungleCount = 0;
-	int iNaturalWonderCount = 0;
-	int iDesertCount = 0;
-	int iWetlandsCount = 0;
-
-	int iTotalFoodValue = 0;
-	int iTotalHappinessValue = 0;
-	int iTotalProductionValue = 0;
-	int iTotalGoldValue = 0;
-	int iTotalScienceValue = 0;
-	int iTotalFaithValue = 0;
-	int iTotalResourceValue = 0;
-	int iTotalStrategicValue = 0;
-
-	int iClosestCityOfMine = 999;
-	int iClosestEnemyCity = 999;
-
-	int iCapitalArea = NULL;
-
-	bool bIsInca = false;
-	int iAdjacentMountains = 0;
-
-	if ( pPlayer->getCapitalCity() )
-		iCapitalArea = pPlayer->getCapitalCity()->getArea();
-
-	// Custom code for Inca ideal terrace farm locations
-	ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
-	if(eIncaImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				bIsInca = true;
-			}
-		}
-	}
-
-	for (int iDX = -7; iDX <= 7; iDX++)
-	{
-		for (int iDY = -7; iDY <= 7; iDY++)
-		{
-			CvPlot* pLoopPlot = plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
-
-			if (pLoopPlot != NULL)
-			{
-				int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-				if (iDistance <= 7)
-				{
-					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == pPlayer->GetID()))
-					{
-						// See if there are other cities nearby
-						if (iClosestCityOfMine > iDistance)
-						{
-							if (pLoopPlot->isCity())
-							{
-								iClosestCityOfMine = iDistance;
-							}
-						}
-
-						// Skip the city plot itself for now
-						if (iDistance <= 5)
-						{
-							int iRingModifier = m_iRingModifier[iDistance];
-
-							iFoodValue = 0;
-							iProductionValue = 0;
-							iGoldValue = 0;
-							iScienceValue = 0;
-							iHappinessValue = 0;
-							iResourceValue = 0;
-							iStrategicValue = 0;
-
-#if defined(MOD_GLOBAL_CITY_WORKING)
-							if (iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-							if (iDistance > 0 && iDistance <= NUM_CITY_RINGS)
-#endif
-							{
-								if (eYield == NO_YIELD || eYield == YIELD_FOOD)
-								{
-									iFoodValue = iRingModifier * ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
-								{
-									iProductionValue = iRingModifier * ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_GOLD)
-								{
-									iGoldValue = iRingModifier * ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
-								{
-									iScienceValue = iRingModifier * ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_FAITH)
-								{
-									iFaithValue = iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
-								}
-#if defined(MOD_API_UNIFIED_YIELDS)
-								// We don't flavour settle site choice by tourism - way to early for that!!!
-#endif
-							}
-
-							// whether or not we are working these we get the benefit as long as culture can grow to take them
-							if (iDistance <= 5 && pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
-							{
-								iHappinessValue = iRingModifier * ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
-								iResourceValue = iRingModifier * ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
-								if (iDistance)
-									iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();  // the ring is included in the computation
-							}
-
-							iTotalFoodValue += iFoodValue;
-							iTotalHappinessValue += iHappinessValue;
-							iTotalProductionValue += iProductionValue;
-							iTotalGoldValue += iGoldValue;
-							iTotalScienceValue += iScienceValue;
-							iTotalFaithValue += iFaithValue;
-							iTotalResourceValue += iResourceValue;
-							iTotalStrategicValue += iStrategicValue;
-
-							int iPlotValue = iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue;
-							
-							if (iPlotValue == 0)
-							{
-								// this tile is so bad it gets negatives
-								iPlotValue -= iRingModifier * GC.getSETTLER_FOOD_MULTIPLIER() * 2;
-							}
-							iPlotValue += iStrategicValue;
-
-							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-#if defined(MOD_GLOBAL_CITY_WORKING)
-							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= NUM_CITY_RINGS)
-#endif
-							{
-								//iPlotValue += iPlotValue * 2 + 10;
-								iPlotValue += iPlotValue * 2 + 500;
-							}
-
-							// lower value a lot if we already own this tile
-							if (iPlotValue > 0 && pLoopPlot->getOwner() == pPlayer->GetID())
-							{
-								iPlotValue /= 4;
-							}
-
-							// add this plot into the total
-							rtnValue += iPlotValue;
-
-							FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
-							ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
-							ResourceTypes ePlotResource = pLoopPlot->getResourceType();
-
-							if (ePlotFeature == FEATURE_FOREST)
-							{
-								if (iDistance <= 5)
-								{
-									++iIroquoisForestCount;
-									if (iDistance == 1)
-									{
-										if (ePlotImprovement == NO_IMPROVEMENT)
-										{
-											++iCelticForestCount;
-										}
-									}
-								}
-							}
-							else if (ePlotFeature == FEATURE_JUNGLE)
-							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-								{
-									++iBrazilJungleCount;
-								}
-							}
-							else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
-							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-								{
-									++iWetlandsCount;
-								}
-							}
-
-							if (pLoopPlot->IsNaturalWonder())
-							{
-								if (iDistance <= 1)
-								{
-									++iNaturalWonderCount;
-								}
-							}
-
-							if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
-							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-								{
-									if (ePlotResource == NO_RESOURCE)
-									{
-										++iDesertCount;
-									}
-								}
-							}
-
-							if (bIsInca)
-							{
-								if (pLoopPlot->isHills())
-								{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-									{
-										iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
-										if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
-										{
-											//give the bonus if it's hills, with additional if bordered by mountains
-											rtnValue += m_iIncaMultiplier + (iAdjacentMountains * m_iIncaMultiplier);
-										}
-									}
-									
-								}
-							}
-						}
-					}
-					else // this tile is owned by someone else
-					{
-						// See if there are other cities nearby (only count major civs)
-						if (iClosestEnemyCity > iDistance)
-						{
-							if (pLoopPlot->isCity() && (pLoopPlot->getOwner() < MAX_MAJOR_CIVS))
-							{
-								iClosestEnemyCity = iDistance;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
-	{
-		if (iCelticForestCount >= 3)
-		{
-			rtnValue += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-		}
-		else if (iCelticForestCount >= 1)
-		{
-			rtnValue += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-		}
-	}
-	else if (pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
-	{
-		rtnValue += iIroquoisForestCount * 10;	
-	}
-	else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)	//ie: Spain
-	{
-		rtnValue += iNaturalWonderCount * m_iSpainMultiplier;	
-	}
-
-	// Custom code for Brazil
-	ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
-	if(eBrazilImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				rtnValue += iBrazilJungleCount * m_iBrazilMultiplier;
-			}
-		}
-	}
-
-	// Custom code for Morocco
-	ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);  
-	if(eMoroccoImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				rtnValue += iDesertCount * m_iMorrocoMultiplier;
-			}
-		}
-	}
-
-	//Custom code for Netherlands
-	ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);  
-	if(ePolderImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				rtnValue += iWetlandsCount * m_iNetherlandsMultiplier;
-			}
-		}
-	}
-
-	if (rtnValue < 0) rtnValue = 0;
-
-	// Finally, look at the city plot itself and use it as an overall multiplier
-	if (pPlot->getResourceType(pPlayer->getTeam()) != NO_RESOURCE)
-	{
-		rtnValue += (int)rtnValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
-	}
-
-	if (pPlot->isRiver())
-	{
-		rtnValue += (int)rtnValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
-	}
-
-	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-	{
-		// okay, coast used to have lots of gold so players settled there "naturally", it doesn't any more, so I am going to give it a nudge in that direction
-		// slewis - removed Brian(?)'s rtnValue adjustment and raised the BUILD_ON_COAST_PERCENT to 40 from 25
-		//rtnValue += rtnValue > 0 ? 10 : 0;
-		rtnValue += (int)rtnValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT() / 100;
-		int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
-		if (iNavalFlavor > 7)
-		{
-			rtnValue += (int)rtnValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT() / 100;
-		}
-		if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
-		{
-			rtnValue += rtnValue > 0 ? 25 : 0;
-			rtnValue *= 2;
-		}
-	}
-
-	// Nearby Cities?
-
-	// Human
-	if (pPlayer != NULL && pPlayer->isHuman())
-	{
-		if (iClosestCityOfMine == 3)
-		{
-			rtnValue /= 2;
-		}
-	}
-	// AI
-	else
-	{
-		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
-		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
-
-		int iSweetSpot = 5;
-		iSweetSpot += (iGrowthFlavor > 7) ?  1 : 0;
-		iSweetSpot += (iExpansionFlavor > 7) ?  -1 : 0;
-		iSweetSpot += (iGrowthFlavor < 4) ?  -1 : 0;
-		iSweetSpot += (iExpansionFlavor < 4) ?  1 : 0;
-		iSweetSpot = max(4,iSweetSpot);
-		iSweetSpot = min(6,iSweetSpot);
-
-		if (iClosestCityOfMine == iSweetSpot) 
-		{
-			// 1.5 was not enough 2.0 was too much, so lets split the difference
-			rtnValue *= 175;
-			rtnValue /= 100;
-		}
-		else if (iClosestCityOfMine < iSweetSpot)
-		{
-			rtnValue /= 2;
-		}
-		else if (iClosestCityOfMine > 7)
-		{
-			rtnValue *= 2;
-			rtnValue /= 3;
-		}
-
-		// use boldness to decide if we want to push close to enemies
-		int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-		if (iBoldness < 4)
-		{
-			if (iClosestEnemyCity <= 4)
-			{
-				rtnValue /= 4;
-			}
-			else if (iClosestEnemyCity == 5)
-			{
-				rtnValue /= 2;
-			}
-		}
-		else if (iBoldness > 7)
-		{
-			if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
-			{
-				rtnValue *= 3;
-				rtnValue /= 2;
-			}
-		}
-		else
-		{
-			if (iClosestEnemyCity < 5)
-			{
-				rtnValue *= 2;
-				rtnValue /= 3;
-			}
-		}
-
-		// if we are offshore, pull cities in tighter
-		if (iCapitalArea != pPlot->getArea())
-		{
-			if (iClosestCityOfMine < 7)
-			{
-				rtnValue *= 3;
-				rtnValue /= 2;
-			}
-		}
-	}
-
-	rtnValue = (rtnValue > 0) ? rtnValue : 0;
-
-	return rtnValue;
-}
-#endif
 
 /// Retrieve the relative fertility of this plot (alone)
 int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)

@@ -980,7 +980,7 @@ void CvHomelandAI::FindHomelandTargets()
 						iWeight += pLoopPlot->defenseModifier(eTeam, true);
 						iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot);
 
-						CvCity* pFriendlyCity = m_pPlayer->GetClosestFriendlyCity(*pLoopPlot, 5 /*i SearchRadius */);
+						CvCity* pFriendlyCity = m_pPlayer->GetClosestCity(*pLoopPlot, 5 /*i SearchRadius */);
 						if(pFriendlyCity && pFriendlyCity->getOwner() == m_pPlayer->GetID())
 						{
 							iWeight += pFriendlyCity->getThreatValue() * pFriendlyCity->getPopulation() / 50;

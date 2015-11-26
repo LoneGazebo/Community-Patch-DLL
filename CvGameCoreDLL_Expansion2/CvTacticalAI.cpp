@@ -1435,11 +1435,11 @@ void CvTacticalAI::EstablishTacticalPriorities()
 		{
 			for (size_t i=0; i<m_MovePriorityList.size(); i++)
 			{
-				OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d (%s)\n", 
+				OutputDebugString( CvString::format("Turn %03d - Player %02d - Move %02d: %s - Prio %d%s\n", 
 					GC.getGame().getGameTurn(), m_pPlayer->GetID(), 
-					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), 
+					m_MovePriorityList[i].m_eMoveType, GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), 
 					m_MovePriorityList[i].m_iPriority,
-					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->CanRecruitForOperations() ? "interruptible" : "uninterruptible" ).c_str() );
+					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->CanRecruitForOperations() ? "" : " (not interruptible)" ).c_str() );
 			}
 		}
 	}

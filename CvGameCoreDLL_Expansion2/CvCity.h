@@ -1276,9 +1276,9 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	//the closest friendly cities - up to 4 entries 
-	const std::vector<int>& GetClosestNeighboringCities() const;
-	void UpdateClosestNeighbors();
+	//the closest friendly cities - up to 6 entries 
+	const std::vector<int>& GetClosestFriendlyNeighboringCities() const;
+	void UpdateClosestFriendlyNeighbors();
 
 	//temporary mapping from city to related units. not serialized!
 	void AttachUnit(CvUnit* pUnit);

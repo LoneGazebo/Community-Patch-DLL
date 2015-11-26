@@ -23323,7 +23323,17 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 	if(pCombatUnit != NULL)
 	{
 		CvAssertMsg(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
-		m_bCombatFocus = (bAttacking && !(DLLUI->isFocusedWidget()) && ((getOwner() == GC.getGame().getActivePlayer()) || ((pCombatUnit->getOwner() == GC.getGame().getActivePlayer()) && !(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns()))));
+		m_bCombatFocus = (
+			bAttacking && 
+			!(DLLUI->isFocusedWidget()) && 
+			(
+				(getOwner() == GC.getGame().getActivePlayer()) || 
+				(
+					(pCombatUnit->getOwner() == GC.getGame().getActivePlayer()) && 
+					!(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns())
+				)
+			)
+		);
 		m_combatUnit = pCombatUnit->GetIDInfo();
 	}
 	else

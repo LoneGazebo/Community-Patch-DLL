@@ -3232,7 +3232,7 @@ int RebaseGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 	// if there is a city and the city is on our team
 	if(pCity && pCity->getTeam()==eTeam)
 	{
-		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
 		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
 
 		return (int)vNeighbors.size()+vAttachedUnits.size();
@@ -3266,7 +3266,7 @@ int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, c
 	// if there is a city and the city is on our team
 	if(pCity && pCity->getTeam()==eTeam)
 	{
-		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
 		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
 
 		if ( (size_t)iIndex<vNeighbors.size())

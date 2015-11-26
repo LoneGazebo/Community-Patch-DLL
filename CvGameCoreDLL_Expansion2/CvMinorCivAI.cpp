@@ -11106,7 +11106,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #endif
 		}
 
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestFriendlyCity(*pMinorCapitalPlot, MAX_INT);
+		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCity(*pMinorCapitalPlot, MAX_INT);
 
 		int iX = pMinorCapital->getX();
 		int iY = pMinorCapital->getY();
