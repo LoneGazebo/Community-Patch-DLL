@@ -8823,8 +8823,6 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 		return false;
 	}
 
-	kill(true);
-
 	CvCity* pFromCity = NULL;
 	CvCity* pToCity = NULL;
 
@@ -8840,6 +8838,10 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 	}
 
 	bool bResult = GET_PLAYER(getOwner()).GetTrade()->CreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType);
+
+	if (bResult)
+		kill(true);
+
 	return bResult;
 }
 

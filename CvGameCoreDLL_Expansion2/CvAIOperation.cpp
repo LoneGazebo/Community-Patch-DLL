@@ -621,6 +621,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			return false;
 		}
 
+		GC.GetInternationalTradeRouteWaterFinder().SetData(NULL,23,INT_MAX);
 		if (GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY(), true))
 		{
 			WeightedUnitIdVector UnitChoices;
@@ -6217,24 +6218,13 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 					{
 						CvAStarNode* pPathfinderNode;
 						// Water path between muster point and target?
-						if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 						{
-							pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-							if(pPathfinderNode != NULL)
+							iCurrentTurns = GC.getStepFinder().GetPathLength();
+							if(iCurrentTurns < iBestPlotDistance)
 							{
-								if(pPathfinderNode != NULL)
-								{
-									iCurrentTurns = (pPathfinderNode->m_iTotalCost / 100);
-								}
-								if(iCurrentTurns == MAX_INT || iCurrentTurns == -1)
-								{
-									continue;
-								}
-								if(iCurrentTurns < iBestPlotDistance)
-								{
-									pBestTarget = pLoopUnit->plot();
-									iBestPlotDistance = iCurrentTurns;
-								}
+								pBestTarget = pLoopUnit->plot();
+								iBestPlotDistance = iCurrentTurns;
 							}
 						}
 					}
@@ -6253,24 +6243,13 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 							{
 								CvAStarNode* pPathfinderNode;
 								// Water path between muster point and target?
-								if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 								{
-									pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-									if(pPathfinderNode != NULL)
+									iCurrentTurns = GC.getStepFinder().GetPathLength();
+									if(iCurrentTurns < iBestPlotDistance)
 									{
-										if(pPathfinderNode != NULL)
-										{
-											iCurrentTurns = (pPathfinderNode->m_iTotalCost / 100);
-										}
-										if(iCurrentTurns == MAX_INT || iCurrentTurns == -1)
-										{
-											continue;
-										}
-										if(iCurrentTurns < iBestPlotDistance)
-										{
-											pBestTarget = pLoopUnit->plot();
-											iBestPlotDistance = iCurrentTurns;
-										}
+										pBestTarget = pLoopUnit->plot();
+										iBestPlotDistance = iCurrentTurns;
 									}
 								}
 							}
@@ -9949,24 +9928,13 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 					{
 						CvAStarNode* pPathfinderNode;
 						// Water path between muster point and target?
-						if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 						{
-							pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-							if(pPathfinderNode != NULL)
+							iCurrentTurns = GC.getStepFinder().GetPathLength();
+							if(iCurrentTurns < iBestPlotDistance)
 							{
-								if(pPathfinderNode != NULL)
-								{
-									iCurrentTurns = (pPathfinderNode->m_iTotalCost / 100);
-								}
-								if(iCurrentTurns == MAX_INT || iCurrentTurns == -1)
-								{
-									continue;
-								}
-								if(iCurrentTurns < iBestPlotDistance)
-								{
-									pBestTarget = pLoopUnit->plot();
-									iBestPlotDistance = iCurrentTurns;
-								}
+								pBestTarget = pLoopUnit->plot();
+								iBestPlotDistance = iCurrentTurns;
 							}
 						}
 					}
@@ -9985,24 +9953,13 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 							{
 								CvAStarNode* pPathfinderNode;
 								// Water path between muster point and target?
-								if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 								{
-									pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
-									if(pPathfinderNode != NULL)
+									iCurrentTurns = GC.getStepFinder().GetPathLength();
+									if(iCurrentTurns < iBestPlotDistance)
 									{
-										if(pPathfinderNode != NULL)
-										{
-											iCurrentTurns = (pPathfinderNode->m_iTotalCost / 100);
-										}
-										if(iCurrentTurns == MAX_INT || iCurrentTurns == -1)
-										{
-											continue;
-										}
-										if(iCurrentTurns < iBestPlotDistance)
-										{
-											pBestTarget = pLoopUnit->plot();
-											iBestPlotDistance = iCurrentTurns;
-										}
+										pBestTarget = pLoopUnit->plot();
+										iBestPlotDistance = iCurrentTurns;
 									}
 								}
 							}
@@ -10309,9 +10266,9 @@ bool OperationalAIHelpers::NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPl
 {
 	CvAStarNode* pPathfinderNode;
 	// Water path between muster point and target?
-	if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()))
+	if(GC.getStepFinder().GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()))
 	{
-		pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
+		pPathfinderNode = GC.getStepFinder().GetLastNode();
 		// Starting at the end, loop until we find a plot from this owner
 		while(pPathfinderNode != NULL)
 		{

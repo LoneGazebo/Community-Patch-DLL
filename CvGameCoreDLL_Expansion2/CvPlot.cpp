@@ -3574,9 +3574,9 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 				continue;
 
 			//how useful is the shortcut is we could generate
-			if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
+			if(GC.getStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
 			{
-				if (GC.GetInternationalTradeRouteWaterFinder().GetPathLength()>=iMinDistanceSaved)
+				if (GC.getStepFinder().GetPathLength()>=iMinDistanceSaved)
 					return true;
 			}
 			else

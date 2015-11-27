@@ -501,6 +501,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	{
 		if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)  A better check would be to see if they are adjacent to the same water body.
 		{
+			int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+			GC.GetInternationalTradeRouteWaterFinder().SetData(NULL,INT_MAX,iMaxCost);
+
 			bSuccess = GC.GetInternationalTradeRouteWaterFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
 			if (!bSuccess)
 				return false;
@@ -512,6 +515,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 	else if (eDomain == DOMAIN_LAND)
 	{
+		int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+		GC.GetInternationalTradeRouteLandFinder().SetData(NULL,INT_MAX,iMaxCost);
+
 		bSuccess = GC.GetInternationalTradeRouteLandFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
 		if (!bSuccess)
 			return false;
@@ -2050,10 +2056,12 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	switch (eDomain)
 	{
 	case DOMAIN_LAND:
+		GC.GetInternationalTradeRouteLandFinder().ForceReset();
 		bSuccess = GC.GetInternationalTradeRouteLandFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
 		path = GC.GetInternationalTradeRouteLandFinder().GetPath();
 		break;
 	case DOMAIN_SEA:
+		GC.GetInternationalTradeRouteWaterFinder().ForceReset();
 		bSuccess = GC.GetInternationalTradeRouteWaterFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
 		path = GC.GetInternationalTradeRouteWaterFinder().GetPath();
 		break;

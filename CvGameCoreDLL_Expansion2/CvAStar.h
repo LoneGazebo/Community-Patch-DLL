@@ -192,6 +192,8 @@ public:
 	inline void ForceReset()
 	{
 		m_bForceReset = true;
+		m_iMaxCost = INT_MAX;
+		m_iMaxTurns = INT_MAX;
 	}
 
 #ifdef AUI_ASTAR_TURN_LIMITER

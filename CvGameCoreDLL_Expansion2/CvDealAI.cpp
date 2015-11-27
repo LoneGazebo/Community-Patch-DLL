@@ -5275,8 +5275,8 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 			if(-iItemValue + iTotalValue >= iAmountUnderWeWillOffer)
 #endif
 			{
-				OutputDebugString( CvString::format("Adding %s to deal. Seller %s, buyer %s, price ratio %.2f\n", 
-					pSellingPlayer->getName(), GET_PLAYER(eThem).getName(), viCityPriceRatio.GetWeight(iSortedCityIndex) ).c_str() );
+				OutputDebugString( CvString::format("Adding %s to deal. Seller %s, buyer %s, price ratio %d\n", 
+					pLoopCity->getName().c_str(), pSellingPlayer->getName(), GET_PLAYER(eThem).getName(), viCityPriceRatio.GetWeight(iSortedCityIndex) ).c_str() );
 				pDeal->AddCityTrade(eMyPlayer, iSortedCityID);
 				iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
 #if defined(MOD_BALANCE_CORE)
@@ -5379,8 +5379,8 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 			if(iItemValue + iTotalValue <= iAmountOverWeWillRequest)
 #endif
 			{
-				OutputDebugString( CvString::format("Adding %s to deal. Seller %s, buyer %s, price ratio %.2f\n", 
-					pSellingPlayer->getName(), GetPlayer()->getName(), viCityPriceRatio.GetWeight(iSortedCityIndex) ).c_str() );
+				OutputDebugString( CvString::format("Adding %s to deal. Seller %s, buyer %s, price ratio %d\n", 
+					pLoopCity->getName().c_str(), pSellingPlayer->getName(), GetPlayer()->getName(), viCityPriceRatio.GetWeight(iSortedCityIndex) ).c_str() );
 				pDeal->AddCityTrade(eThem, iSortedCityID);
 				iTotalValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
 #if defined(MOD_BALANCE_CORE)
