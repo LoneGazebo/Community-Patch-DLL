@@ -222,7 +222,7 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_HEXXON_REFINERY">
-			<Text>Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City's [ICON_PRODUCTION] Production rate by +15%.</Text>
+			<Text>Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City's [ICON_PRODUCTION] Production rate by +15%, and owned Trade Routes move twice as quickly as normal.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">

@@ -906,7 +906,8 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iSwappableArtifactIndex = -1;
 	m_iSwappableMusicIndex    = -1;
 
-	m_iTurnIdeologySwitch = -1;
+	m_iTurnIdeologySwitch		= -1;
+	m_iTurnIdeologyAdopted		= -1;
 }
 
 // GREAT WORKS
@@ -2991,6 +2992,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 						else if (!kOwner.isHuman())
 						{
 							kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
+#if defined(MOD_BALANCE_CORE)
+							kOwner.GetDiplomacyAI()->SetLandmarksBuiltForMeTurn(m_pPlayer->GetID(), GC.getGame().getGameTurn());
+#endif
 						}
 					}
 				}
@@ -4693,6 +4697,16 @@ void CvPlayerCulture::SetTurnIdeologySwitch(int iValue)
 	m_iTurnIdeologySwitch = iValue;
 }
 
+/// What turn did we switch ideologies
+int CvPlayerCulture::GetTurnIdeologyAdopted() const
+{
+	return m_iTurnIdeologyAdopted;
+}
+void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
+{
+	m_iTurnIdeologyAdopted = iValue;
+}
+
 /// How strong will a concert tour be right now?
 int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 {
@@ -4732,7 +4746,7 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 int CvPlayerCulture::ComputeWarWeariness()
 {
 	int iMostWarTurns = -1;
-	int iLeastPeaceTurns = -1;
+	int iLeastPeaceTurns = MAX_INT;
 	// Look at each civ and get longest war and shortest peace
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
@@ -4757,6 +4771,14 @@ int CvPlayerCulture::ComputeWarWeariness()
 			}
 		}
 	}
+
+	//war weariness sets in gradually after selecting an ideology
+	if (GetTurnIdeologyAdopted()>-1)
+	{
+		iMostWarTurns = min(iMostWarTurns,GC.getGame().getGameTurn()-GetTurnIdeologyAdopted());
+	}
+	else
+		return 0;
 
 	//by default, war weariness is slowly falling over time
 	int iFallingWarWeariness = 0;
@@ -5748,12 +5770,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 	if (uiVersion >= 6)
 	{
 		loadFrom >> writeTo.m_eOpinionBiggestInfluence;
+		loadFrom >> writeTo.m_iTurnIdeologyAdopted;
 		loadFrom >> writeTo.m_iTurnIdeologySwitch;
 	}
 	else
 	{
 		writeTo.m_eOpinionBiggestInfluence = NO_PLAYER;
 		writeTo.m_iTurnIdeologySwitch = -1;
+		writeTo.m_iTurnIdeologyAdopted = -1;
 
 	}
 	if (uiVersion >= 4)
@@ -5812,6 +5836,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 	saveTo << readFrom.m_strOpinionTooltip;
 	saveTo << readFrom.m_strOpinionUnhappinessTooltip;
 	saveTo << readFrom.m_eOpinionBiggestInfluence;
+	saveTo << readFrom.m_iTurnIdeologyAdopted;
 	saveTo << readFrom.m_iTurnIdeologySwitch;
 
 	saveTo << readFrom.m_iSwappableWritingIndex;
@@ -7456,8 +7481,8 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 {
 	int iCountArt = 0;
 	int iCountArtifact = 0;
-	vector<EraTypes> aErasSeen;
-	vector<PlayerTypes> aPlayersSeen;
+	set<EraTypes> aErasSeen;
+	set<PlayerTypes> aPlayersSeen;
 
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 	GreatWorkClass eArtifactClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
@@ -7493,8 +7518,8 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			}
 
 			// Store era and player
-			aErasSeen.push_back(work.m_eEra);
-			aPlayersSeen.push_back(work.m_ePlayer);
+			aErasSeen.insert(work.m_eEra);
+			aPlayersSeen.insert(work.m_ePlayer);
 
 #if defined(MOD_API_EXTENSIONS)
 			if (work.m_eEra < eFirstEra) {
@@ -7528,33 +7553,14 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			}
 
 			// Can we rule this out based on era?
-			if (bValid && bonusInfo->IsSameEra())
+			if (bValid && bonusInfo->IsSameEra() && aErasSeen.size()>1)
 			{
-				int eFirstEra = aErasSeen[0];
-				for (unsigned int kK = 1; kK < aErasSeen.size(); kK++)
-				{
-					if (aErasSeen[kK] != eFirstEra)
-					{
-						bValid = false;
-					}
-				}
+				bValid = false;
 			}
-			if (bValid && bonusInfo->IsUniqueEras())
+
+			if (bValid && bonusInfo->IsUniqueEras() && aErasSeen.size()<(size_t)iNumSlots)
 			{
-				vector<EraTypes> aProcessedEras;
-				aProcessedEras.push_back(aErasSeen[0]);
-				for (unsigned int kK = 1; kK < aErasSeen.size(); kK++)
-				{
-					EraTypes eEra = aErasSeen[kK];
-					if (std::find(aProcessedEras.begin(), aProcessedEras.end(), eEra) != aProcessedEras.end())
-					{
-						bValid = false;
-					}
-					else
-					{
-						aProcessedEras.push_back(eEra);
-					}
-				}
+				bValid = false;
 			}
 #if defined(MOD_API_EXTENSIONS)
 			if (bValid && bonusInfo->IsConsecutiveEras())
@@ -7567,53 +7573,23 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 #endif
 
 			// Can we rule this out based on player?
-			if (bValid && bonusInfo->IsRequiresOwner())
+			if (bValid && bonusInfo->IsRequiresOwner() && (aPlayersSeen.size()>1 || *(aPlayersSeen.begin())!=eOwner) )
 			{
-				for (unsigned int kK = 0; kK < aPlayersSeen.size(); kK++)
-				{
-					if (aPlayersSeen[kK] != eOwner)
-					{
-						bValid = false;
-					}
-				}
+				bValid = false;
 			}
-			if (bValid && bonusInfo->IsRequiresSamePlayer())
+
+			if (bValid && bonusInfo->IsRequiresSamePlayer() && aPlayersSeen.size()>1)
 			{
-				int eFirstPlayer = aPlayersSeen[0];
-				for (unsigned int kK = 1; kK < aPlayersSeen.size(); kK++)
-				{
-					if (aPlayersSeen[kK] != eFirstPlayer)
-					{
-						bValid = false;
-					}
-				}
+				bValid = false;
 			}
-			if (bValid && bonusInfo->IsRequiresUniquePlayers())
+
+			if (bValid && bonusInfo->IsRequiresUniquePlayers() && aPlayersSeen.size()<(size_t)iNumSlots)
 			{
-				vector<PlayerTypes> aProcessedPlayers;
-				aProcessedPlayers.push_back(aPlayersSeen[0]);
-				for (unsigned int kK = 1; kK < aPlayersSeen.size(); kK++)
-				{
-					PlayerTypes ePlayer = aPlayersSeen[kK];
-					if (std::find(aProcessedPlayers.begin(), aProcessedPlayers.end(), ePlayer) != aProcessedPlayers.end())
-					{
-						bValid = false;
-					}
-					else
-					{
-						aProcessedPlayers.push_back(ePlayer);
-					}
-				}
+				bValid = false;
 			}
-			if (bValid && bonusInfo->IsRequiresAnyButOwner())
+			if (bValid && bonusInfo->IsRequiresAnyButOwner() && aPlayersSeen.find(eOwner)!=aPlayersSeen.end() )
 			{
-				for (unsigned int kK = 0; kK < aPlayersSeen.size(); kK++)
-				{
-					if (aPlayersSeen[kK] == eOwner)
-					{
-						bValid = false;
-					}
-				}
+				bValid = false;
 			}
 
 			// Haven't ruled it out?  Then this is it (ASSUMES THEMING BONUSES FOR A BUILDING ARE IN SORTED ORDER IN DB!)

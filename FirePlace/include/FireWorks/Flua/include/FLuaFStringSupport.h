@@ -14,6 +14,8 @@
 #define FLuaFStringSupport_h
 #pragma once
 
+#include "FString.h"
+
 namespace FLua
 {
 	namespace Details

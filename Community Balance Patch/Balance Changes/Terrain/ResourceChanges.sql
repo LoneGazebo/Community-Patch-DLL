@@ -133,6 +133,14 @@
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_JEWELRY';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '3'
+	WHERE Type = 'RESOURCE_JEWELRY';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
 	WHERE Type = 'RESOURCE_MARBLE';
 
 	UPDATE Resources
@@ -158,6 +166,14 @@
 	UPDATE Resources
 	SET MonopolyHappiness = '3'
 	WHERE Type = 'RESOURCE_PEPPER';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_PORCELAIN';
+
+	UPDATE Resources
+	SET MonopolyGALength = '25'
+	WHERE Type = 'RESOURCE_PORCELAIN';
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'

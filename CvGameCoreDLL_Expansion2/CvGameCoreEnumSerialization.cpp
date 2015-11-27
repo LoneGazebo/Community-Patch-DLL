@@ -73,6 +73,14 @@ std::string toString(const YieldTypes& v)
 		return std::string("YIELD_CULTURE_LOCAL");
 		break;
 #endif
+#if defined(MOD_BALANCE_CORE_JFD)
+	case YIELD_JFD_HEALTH:
+		return std::string("YIELD_JFD_HEALTH");
+		break;
+	case YIELD_JFD_DISEASE:
+		return std::string("YIELD_JFD_DISEASE");
+		break;
+#endif
 	default:
 		return std::string("INVALID ENUM VALUE");
 		break;

@@ -274,6 +274,8 @@ public:
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
 	int GetTurnIdeologySwitch() const;
 	void SetTurnIdeologySwitch(int iTurn);
+	int GetTurnIdeologyAdopted() const;
+	void SetTurnIdeologyAdopted(int iTurn);
 	int GetTourismBlastStrength(int iMultiplier);
 	void AddTourismAllKnownCivs(int iTourism);
 	void DoPublicOpinion();
@@ -294,6 +296,7 @@ public:
 	PublicOpinionTypes m_eOpinion;
 	PlayerTypes m_eOpinionBiggestInfluence;
 	int m_iTurnIdeologySwitch;
+	int m_iTurnIdeologyAdopted;
 	PolicyBranchTypes m_ePreferredIdeology;
 	int m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)

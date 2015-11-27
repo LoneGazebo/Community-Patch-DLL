@@ -117,6 +117,10 @@
 			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
 			<ResourceType>RESOURCE_PEARLS</ResourceType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_JEWELRY</ResourceType>
+		</Row>
 	</Building_ResourceMonopolyOrs>
 	<Building_ResourceYieldChanges>
 		<!-- Franchise -->
@@ -141,6 +145,12 @@
 		<Row>
 			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
 			<ResourceType>RESOURCE_PEARLS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_JEWELRY</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -212,10 +222,10 @@
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 5, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]All Markets, Banks, Mints, and Stock Exchanges produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
-			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>
+			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, or [ICON_RES_JEWELRY] Jewelery.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS">
-			<Text>Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +10%.</Text>
+			<Text>Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, or [ICON_RES_JEWELRY] Jewelery.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">

@@ -14,7 +14,7 @@
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_SpecialistYieldChanges>
 	<Tech_SpecialistYieldChanges>
@@ -79,6 +79,32 @@
 			<Yield>50</Yield>
 		</Row>
 	</Trait_GreatPersonBornYield>
+	<Belief_GreatPersonExpendedYield>
+		<Row>
+			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>100</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>100</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>100</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>100</Yield>
+		</Row>
+	</Belief_GreatPersonExpendedYield>
 	<Building_SpecialistYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>

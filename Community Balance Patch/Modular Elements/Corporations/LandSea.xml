@@ -41,7 +41,6 @@
 			<CorporationMaxFranchises>25</CorporationMaxFranchises>
 			<CorporationHelper>TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_LANDSEA_EXTRACTORS</FreeBuildingThisCity>
-			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>
 			<NumTradeRouteBonus>2</NumTradeRouteBonus>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>

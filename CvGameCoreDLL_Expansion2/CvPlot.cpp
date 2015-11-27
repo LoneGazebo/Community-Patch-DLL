@@ -8363,6 +8363,10 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 						{
 							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 						}
+						else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+						{
+							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						}
 					}
 				}
 				else if(bRequiresNoImprovement)
@@ -8416,6 +8420,10 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 						{
 							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
+							{
+								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							}
+							else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 							{
 								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 							}
@@ -8832,9 +8840,9 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			{
 				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 				{
-					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
 						continue;
@@ -8872,34 +8880,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #else
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 #endif
-			}
-#if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
-				{
-					if((IsTradeRoute(ePlayer) || bTrade) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
-					{
-						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-						if(iBonus > 0)
-						{
-							int iScale = 0;
-							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
-
-							iScale = ((iBonus * iEra) / 4);
-
-							if(iScale <= 0)
-							{
-								iScale = 1;
-							}
-							iYield += iScale;
-						}
-					}
-				}
-				else
-				{
-					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 			}
-#endif
 		}
 	}
 
@@ -9103,9 +9085,9 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					if(!bTrade)
 					{
 						CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-						for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+						for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 						{
-							TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+							const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 							if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 							{
 								continue;
@@ -12158,9 +12140,9 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				int iRouteYield = 0;
 				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
 				{
-					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 					{
 						continue;

@@ -312,8 +312,6 @@ protected:
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
-	LUAAPIEXTN(GetCombatVersusOtherReligionOwnLands, int);
-	LUAAPIEXTN(GetCombatVersusOtherReligionTheirLands, int);
 	LUAAPIEXTN(GetYieldPerTurnFromReligion, int);
 #endif
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
@@ -689,6 +687,7 @@ protected:
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	LUAAPIEXTN(GetJerk, int);
+	LUAAPIEXTN(GetCoupCooldown, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetNumDenouncements, int);

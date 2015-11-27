@@ -537,11 +537,8 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 void CvMap::setup()
 {
 	GC.getPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getPathFinder().SetDataChangeInvalidatesCache(true);
 	GC.getInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getInterfacePathFinder().SetDataChangeInvalidatesCache(true);
-	GC.getIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest,  IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, IgnoreUnitsPathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getIgnoreUnitsPathFinder().SetDataChangeInvalidatesCache(true);
+	GC.getIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest,  IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.getStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL, NULL);
 	GC.getRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL, NULL);
 	GC.GetWaterRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -558,9 +555,6 @@ void CvMap::setup()
 
 #if defined(MOD_CORE_PATHFINDER)
 	GC.GetRebasePathfinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, NULL, NULL, NULL);
-#else
-	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.GetTacticalAnalysisMapFinder().SetDataChangeInvalidatesCache(true);
 #endif
 }
 
@@ -2302,9 +2296,9 @@ int CvMap::Validate()
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 	if(pGameTrade)
 	{
-		for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+		for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 		{
-			TradeConnection& connection = pGameTrade->m_aTradeConnections[ui];
+			const TradeConnection& connection = pGameTrade->GetTradeConnection(ui);
 			if(connection.m_iID > -1)
 			{
 				CvPlot* pOriginPlot = plot(connection.m_iOriginX, connection.m_iOriginY);

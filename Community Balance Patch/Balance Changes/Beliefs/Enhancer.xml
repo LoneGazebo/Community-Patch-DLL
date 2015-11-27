@@ -3,12 +3,12 @@
 <GameData>
 	<Belief_YieldChangePerXForeignFollowers>
 		<Row>
-			<BeliefType>BELIEF_RELIGIOUS_TEXTS</BeliefType>
+			<BeliefType>BELIEF_JUST_WAR</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<ForeignFollowers>6</ForeignFollowers>
 		</Row>
 		<Row>
-			<BeliefType>BELIEF_RELIGIOUS_TEXTS</BeliefType>
+			<BeliefType>BELIEF_JUST_WAR</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<ForeignFollowers>6</ForeignFollowers>
 		</Row>

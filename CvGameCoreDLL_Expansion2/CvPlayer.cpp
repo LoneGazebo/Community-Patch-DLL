@@ -226,6 +226,7 @@ CvPlayer::CvPlayer() :
 	, m_iStrikeTurns("CvPlayer::m_iStrikeTurns", m_syncArchive)
 	, m_iGoldenAgeModifier("CvPlayer::m_iGoldenAgeModifier", m_syncArchive)
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	, m_iCultureBonusTurnsConquest("CvPlayer::m_iCultureBonusTurnsConquest", m_syncArchive)
 	, m_iFreeGreatPeopleCreated("CvPlayer::m_iFreeGreatPeopleCreated", m_syncArchive)
 	, m_iFreeGreatGeneralsCreated("CvPlayer::m_iFreeGreatGeneralsCreated", m_syncArchive)
 	, m_iFreeGreatAdmiralsCreated("CvPlayer::m_iFreeGreatAdmiralsCreated", m_syncArchive)
@@ -1206,6 +1207,7 @@ void CvPlayer::uninit()
 	m_iStrikeTurns = 0;
 	m_iGoldenAgeModifier = 0;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	m_iCultureBonusTurnsConquest = 0;
 	m_iFreeGreatPeopleCreated = 0;
 	m_iFreeGreatGeneralsCreated = 0;
 	m_iFreeGreatAdmiralsCreated = 0;
@@ -4084,6 +4086,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
 #if defined(MOD_BALANCE_CORE)
 			int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iInfluenceReduction)) / 100;
+			if(iResistanceTurns <= 0)
+			{
+				iResistanceTurns = 1;
+			}
 #else
 			int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
 #endif
@@ -4735,6 +4741,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	else
 	{
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
+#if defined(MOD_BALANCE_CORE)
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
+#endif
 
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
@@ -6148,6 +6157,12 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 		ChangeTourismBonusTurns(-1);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(GetCultureBonusTurnsConquest() > 0)
+	{
+		ChangeCultureBonusTurnsConquest(-1);
+	}
+#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES && (!isMinorCiv() && !isBarbarian()))
@@ -12948,6 +12963,20 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 
 		iValue += ((iOtherCulturePerTurn * GC.getTEMPORARY_CULTURE_BOOST_MOD()) / 100);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (GetCultureBonusTurnsConquest() > 0)
+	{
+		// Start by seeing how much the other types are bringing in
+		int iOtherCulturePerTurn = 0;
+		iOtherCulturePerTurn += GetJONSCulturePerTurnFromCities();
+		iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
+		iOtherCulturePerTurn += GetJONSCulturePerTurnForFree();
+		iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivs();
+		iOtherCulturePerTurn += GetCulturePerTurnFromReligion();
+
+		iValue += ((iOtherCulturePerTurn * 100) / 100);
+	}	
+#endif
 
 	return iValue;
 }
@@ -13983,10 +14012,14 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			artChoices.SortItems();
 			if(artChoices.size() > 0)
 			{
-				int iPlunder = GC.getGame().getJonRandNum(max(1, (pCity->getPopulation() / 10)), "Art Plunder Value");
-				if(iPlunder <= 0)
+				int iPlunder = GC.getGame().getJonRandNum(max(1, (iOpenSlots / 5)), "Art Plunder Value");
+				if(iPlunder <= 2)
 				{
-					iPlunder = 1;
+					iPlunder = 2;
+				}
+				if(iPlunder > artChoices.size())
+				{
+					iPlunder = artChoices.size();
 				}
 				if((GC.getLogging() && GC.getAILogging()))
 				{
@@ -14110,7 +14143,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			}
 			else
 			{
-				ChangeCultureBonusTurns(pCity->getPopulation() / 2);
+				ChangeCultureBonusTurnsConquest(pCity->getPopulation() / 2);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strMessage;
@@ -14140,7 +14173,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 		}
 		else
 		{
-			ChangeCultureBonusTurns(pCity->getPopulation() / 2);
+			ChangeCultureBonusTurnsConquest(pCity->getPopulation() / 2);
 			if(GetID() == GC.getGame().getActivePlayer())
 			{
 				Localization::String strMessage;
@@ -14170,7 +14203,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 	}
 	else
 	{
-		ChangeCultureBonusTurns(pCity->getPopulation() / 2);
+		ChangeCultureBonusTurnsConquest(pCity->getPopulation() / 2);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
@@ -18279,7 +18312,24 @@ void CvPlayer::ChangeCultureBonusTurns(int iChange)
 		m_iCultureBonusTurns += iChange;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+// Get Culture Bonus for a certain period of time
+int CvPlayer::GetCultureBonusTurnsConquest() const
+{
+	return m_iCultureBonusTurnsConquest;
+}
 
+//	--------------------------------------------------------------------------------
+// Set Culture Bonus for a certain period of time
+void CvPlayer::ChangeCultureBonusTurnsConquest(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iCultureBonusTurnsConquest += iChange;
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 // Get Tourism Bonus for a certain period of time
 int CvPlayer::GetTourismBonusTurns() const
@@ -19489,7 +19539,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			{
 				iYieldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYieldBonus /= 100;
-int iEra = GetCurrentEra();
+				int iEra = GetCurrentEra();
 				if(iEra < 1)
 				{
 					iEra = 1;
@@ -24268,8 +24318,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
 #if defined(MOD_CORE_PATHFINDER)
 				bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#else
-				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
@@ -24312,8 +24360,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
 #if defined(MOD_CORE_PATHFINDER)
 				GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#else
-				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
 				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
@@ -33025,6 +33071,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iStrikeTurns;
 	kStream >> m_iGoldenAgeModifier;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	MOD_SERIALIZE_READ(61, kStream, m_iCultureBonusTurnsConquest, 0);
 	MOD_SERIALIZE_READ(61, kStream, m_iFreeGreatPeopleCreated, 0);
 	MOD_SERIALIZE_READ(61, kStream, m_iFreeGreatGeneralsCreated, 0);
 	MOD_SERIALIZE_READ(61, kStream, m_iFreeGreatAdmiralsCreated, 0);
@@ -33804,6 +33851,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iStrikeTurns;
 	kStream << m_iGoldenAgeModifier;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureBonusTurnsConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeGreatPeopleCreated);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeGreatGeneralsCreated);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeGreatAdmiralsCreated);
@@ -35235,31 +35283,31 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 
 #ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction, iAfterNIntercepts);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison, iAfterNIntercepts);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot, PlayerTypes ePlayer) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, PlayerTypes ePlayer) const
+bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer) const
 {
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, CvUnit* pUnit) const
+bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit) const
 {
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, pUnit);
 }
@@ -35269,7 +35317,7 @@ std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
-void CvPlayer::AddKnownAttacker(CvUnit* pAttacker)
+void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
 	if (pAttacker)
 		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());
@@ -37476,12 +37524,8 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 
 bool CvPlayer::IsAtWar() const
 {
-#if defined(MOD_BALANCE_CORE)
-	//reference is important! otherwise the destructor will be called!
+	//reference is important! otherwise the destructor will be called
 	CvTeam& kTeam = GET_TEAM(getTeam());
-#else
-	CvTeam kTeam = GET_TEAM(getTeam());
-#endif
 
 	//ignore the barbarian team here!
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
@@ -37495,12 +37539,8 @@ bool CvPlayer::IsAtWar() const
 
 bool CvPlayer::IsAtWarAnyMajor() const
 {
-#if defined(MOD_BALANCE_CORE)
-	//reference is important! otherwise the destructor will be called!
+	//reference is important! otherwise the destructor will be called
 	CvTeam& kTeam = GET_TEAM(getTeam());
-#else
-	CvTeam kTeam = GET_TEAM(getTeam());
-#endif
 
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
@@ -37513,12 +37553,8 @@ bool CvPlayer::IsAtWarAnyMajor() const
 
 bool CvPlayer::IsAtWarAnyMinor() const
 {
-#if defined(MOD_BALANCE_CORE)
-	//reference is important! otherwise the destructor will be called!
+	//reference is important! otherwise the destructor will be called
 	CvTeam& kTeam = GET_TEAM(getTeam());
-#else
-	CvTeam kTeam = GET_TEAM(getTeam());
-#endif
 
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
@@ -37596,12 +37632,12 @@ bool CvPlayer::HasAnyDomesticTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if (pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner == iOwner) {
 			return true;
@@ -37616,12 +37652,12 @@ bool CvPlayer::HasAnyInternationalTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if ((pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner   != iOwner) ||
 		    (pConnection->m_eDestOwner   == iOwner && pConnection->m_eOriginOwner != iOwner)) {
@@ -37637,12 +37673,12 @@ bool CvPlayer::HasAnyTradeRoute() const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if (pConnection->m_eOriginOwner == iOwner || pConnection->m_eDestOwner == iOwner) {
 			return true;
@@ -37657,12 +37693,12 @@ bool CvPlayer::HasAnyTradeRouteWith(PlayerTypes iPlayer) const
 	int iOwner = GetID();
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 
 		if ((pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner   == iPlayer) ||
 		    (pConnection->m_eDestOwner   == iOwner && pConnection->m_eOriginOwner == iPlayer)) {

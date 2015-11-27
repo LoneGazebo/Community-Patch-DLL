@@ -75,6 +75,12 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- Unit Settle Help
+
+UPDATE Language_en_US
+SET Text = 'Cannot found a City here. If on a Standard or smaller size map, cities must have 3 Tiles between them. If Large or greater, cities must have 4 tiles between them.'
+WHERE Tag = 'TXT_KEY_MISSION_BUILD_CITY_DISABLED_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Diplo Text for DoF changed
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
@@ -143,3 +149,8 @@ WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPL
 UPDATE Language_en_US
 SET Text = '{1_CivName} has discovered {2_Num} technologies that you do not know.[NEWLINE]You are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Trade Things
+UPDATE Language_en_US
+SET Text = 'The other leader has not met any third party players, or you do not have an Embassy with this player.'
+WHERE Tag = 'TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

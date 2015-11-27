@@ -98,27 +98,27 @@
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>200</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>200</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>200</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>200</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>200</Yield>
+			<Yield>300</Yield>
 		</Row>
 	</Belief_YieldFromEraUnlock>
 

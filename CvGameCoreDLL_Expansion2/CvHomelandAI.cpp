@@ -1265,13 +1265,6 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 				}
 			}
 		}
-
-		// If we find a settler that isn't in an operation, let's keep him in place
-		if(!bGoingToSettle && pUnit->isFound() && pUnit->getArmyID() == -1)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pUnit->finishMoves();
-		}
 	}
 
 	if(!m_CurrentMoveUnits.empty())
@@ -5790,8 +5783,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
-			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
-
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
 			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
@@ -5861,35 +5852,19 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				{
 					bSkipCity = false;
 				}
+
 				if(bSkipCity)
 				{
 					continue;
-				}
-#if defined(MOD_BALANCE_CORE)
-				//don't care if it's more than 10 turns away - in that case we'll move in stages
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),false,true,true,10);
-#else
-				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
-#endif
-
-				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-				if (bNotAtFriendlyCity)
-				{
-					if (iTurns == MAX_INT)
-					{
-						continue;
-					}
 				}
 
 				// Weight is defense of city
 				int iWeight = (pLoopCity->getStrengthValue(true) / 100);
 
-				// Subtract off turns to reach
-				if (iTurns != MAX_INT)
-				{
-					iWeight -= iTurns;
-					iWeight = max(0,iWeight);
-				}
+				// Subtract off the distance
+				iWeight -= plotDistance(pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+				iWeight = max(0,iWeight);
+
 				if(pLoopCity->GetGarrisonedUnit() != NULL)
 				{
 					iWeight *= 2;
@@ -6745,7 +6720,7 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 		if(pUnit)
 		{
 			// Am I eligible to intercept?
-			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->NeedToRebase(pUnit.pointer()))
+			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit.pointer()))
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
@@ -6789,6 +6764,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	if (m_CurrentMoveUnits.empty())
 		return;
 	
+	int iTargetRange = 8;
 	int nAirUnitsInCarriers = 0;
 	int nAirUnitsInCities = 0;
 	int nSlotsInCarriers = 0;
@@ -6801,13 +6777,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		return;
 	}
 
-	//see if we're not at war yet but war is coming
-	const std::vector<PlayerTypes>& vFutureEnemies = m_pPlayer->GetPlayersAtWarWithInFuture();
-
 	//in general we want to go to conflict zones but not if we are in danger of losing the base
 	//unfortunately it may be necessary to do the rebasing in multiple steps if the distance is too far
-	std::set<CvUnit*> vCarriersToFill, vCarriersMeh, vCarriersToAvoid;
-	std::set<CvCity*> vCitiesToFill, vCitiesMeh, vCitiesToAvoid;
+	std::vector<SPlotWithScore> vPotentialBases;
+	std::map<int,int> scoreLookup;
 
 	//for pathfinding we need to assign the carriers to cities
 	int iLoopCity = 0;
@@ -6859,52 +6832,9 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			//now look at the zone the unit is in
-			CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnitPlot->GetPlotIndex() );
-			CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
-
-			if (!pZone)
-			{
-				//don't know what to do with this
-				vCarriersMeh.insert(pLoopUnit);
-				continue;
-			}
-
-			bool bInterestingNeighbor = false;
-			const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
-			for (size_t i=0; i<vNeighborZones.size(); i++)
-			{
-				CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
-				if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
-					bInterestingNeighbor = true;
-				else if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
-					bInterestingNeighbor = true;
-			}
-
-			if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
-			{
-				//this is a zone which either needs air support or needs to be evacuated
-				if(pLoopUnit->isProjectedToDieNextTurn())  
-				{
-					// this might not be a good place to land
-					vCarriersToAvoid.insert(pLoopUnit);
-				}
-				else if (m_pPlayer->GetTacticalAI()->FindPosture(pZone)==AI_TACTICAL_POSTURE_WITHDRAW)
-				{
-					vCarriersToAvoid.insert(pLoopUnit);
-				}
-				else
-				{
-					//we would like to go there if there is space
-					if(!pLoopUnit->isFull())
-						vCarriersToFill.insert(pLoopUnit);
-				}
-			}
-			else
-			{
-				//indifferent ...
-				vCarriersMeh.insert(pLoopUnit);
-			}
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID(), iTargetRange );
+			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
+			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
 	}
 
@@ -6913,117 +6843,152 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		if(pLoopCity->isInDangerOfFalling() || (pLoopCity->IsRazing() && pLoopCity->getPopulation()<3) )
-		{
-			vCitiesToAvoid.insert(pLoopCity);
-			continue;
-		}
-
-		//look at the zone the unit is in
-		CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pTarget->GetPlotIndex() );
-		CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
-
-		if (!pZone)
-		{
-			//don't know what to do with this
-			vCitiesMeh.insert(pLoopCity);
-			continue;
-		}
-
-		bool bInterestingNeighbor = false;
-		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
-		for (size_t i=0; i<vNeighborZones.size(); i++)
-		{
-			CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
-			if (pOtherZone->GetEnemyStrength()*2>pOtherZone->GetFriendlyStrength())
-				bInterestingNeighbor = true;
-			else if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
-				bInterestingNeighbor = true;
-		}
-
-		if (pZone->GetEnemyStrength() > 0 || bInterestingNeighbor)
-		{
-			int iUnitsThere = pTarget->countNumAirUnits( m_pPlayer->getTeam() );
-			if (iUnitsThere < pLoopCity->GetMaxAirUnits())
-				vCitiesToFill.insert(pLoopCity);
-		}
-		else
-		{
-			vCitiesMeh.insert(pLoopCity);
-		}
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID(), iTargetRange );
+		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
+		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
 
 	//then decide what to do with our units
-	//for now we simply try to move units to the first desirable base
-	//
-	//in the future we should
-	//- try to ensure a good mix of bombers / fighters / missiles
-	//- try to ensure a good mix of cities and carriers
-	//- try to make space in the waypoints so that we don't block ourselves
-	//- score targets by importance (not only distance)
+	//combat-ready units want to go to the hotspots
+	//healing units want to go to the backwaters
+	std::vector<CvUnit*> vCombatReadyUnits, vHealingUnits;
 
-	CvIgnoreUnitsPathFinder& pf = GC.GetRebasePathfinder();
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
 			continue;
 
-		//unit simply is damaged and needs to heal
-		if(!m_pPlayer->GetTacticalAI()->NeedToRebase(pUnit.pointer()))
+		//tactical AI commandeers some units, others are healing, some are up for rebasing
+		if(!m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pUnit->GetID());
 			continue;
 		}
 
-		std::vector<SPlotWithScore> vTargets;
-		for (std::set<CvUnit*>::iterator it=vCarriersToFill.begin(); it!=vCarriersToFill.end(); ++it)
+		//only combat-ready units for now
+		if(m_pPlayer->GetTacticalAI()->IsUnitHealing(it->GetID()))
+			vHealingUnits.push_back(pUnit);
+		else
+			vCombatReadyUnits.push_back(pUnit);
+	}
+
+	//todo: make sure the units are not blocking each other because of max capacity
+	//todo: sort also by plot distance? right now there are many targets with the same score
+
+	//for now we simply try to move units to the most desirable base
+	CvIgnoreUnitsPathFinder& pf = GC.GetRebasePathfinder();
+	std::stable_sort(vPotentialBases.begin(),vPotentialBases.end());
+
+	for (size_t i=0; i<vHealingUnits.size(); ++i)
+	{
+		CvUnit* pUnit = vHealingUnits[i];
+
+		//do we need to move (to make space for combat ready units ...)
+		if (scoreLookup[pUnit->plot()->GetPlotIndex()]>0)
 		{
-			int iDistance = plotDistance( *(*it)->plot(), *pUnit->plot() );
-			vTargets.push_back( SPlotWithScore((*it)->plot(),iDistance));
-		}
-		for (std::set<CvCity*>::iterator it=vCitiesToFill.begin(); it!=vCitiesToFill.end(); ++it)
-		{
-			int iDistance = plotDistance( *(*it)->plot(), *pUnit->plot() );
-			vTargets.push_back( SPlotWithScore((*it)->plot(),iDistance));
+			bool bFoundPath = false;
+			//boring places come first!
+			for (std::vector<SPlotWithScore>::iterator it=vPotentialBases.begin(); it!=vPotentialBases.end(); ++it)
+			{
+				//unsuitable
+				if (it->score<0)
+					continue;
+
+				//healing in cities only
+				if (!pUnit->canRebase(NULL) || !(it->pPlot->isCity()))
+					continue;
+
+				//apparently we're already in the best possible base?
+				if (pUnit->plot() == it->pPlot)
+					continue;
+
+				pf.SetData(pUnit,5);
+				if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))
+				{
+					CvPlot* pFirstWaypoint = pf.GetPathFirstPlot();
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Rebasing %s (%d) from %d,%d to %d,%d for healing, ultimate target %d,%d (score %d)", 
+							pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), 
+							pFirstWaypoint->getX(), pFirstWaypoint->getY(),
+							it->pPlot->getX(),it->pPlot->getY(), it->score);
+						LogHomelandMessage(strLogString);
+					}
+
+					pUnit->PushMission(CvTypes::getMISSION_REBASE(), pFirstWaypoint->getX(), pFirstWaypoint->getY());
+					bFoundPath = true;
+					break;
+				}
+			}
+
+			if (!bFoundPath)
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Failed to rebase %s (%d) at %d,%d for healing", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
 		}
 
-		//sort by increasing distance
-		std::sort( vTargets.begin(), vTargets.end() );
+		//that's it for this turn, whether we rebased successfully or not
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		UnitProcessed(pUnit->GetID());
+	}
+
+	//exciting places first - we should have some space there now
+	std::reverse(vPotentialBases.begin(),vPotentialBases.end());
+	for (size_t i=0; i<vCombatReadyUnits.size(); ++i)
+	{
+		CvUnit* pUnit = vCombatReadyUnits[i];
 		bool bFoundPath = false;
-		for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
+		for (std::vector<SPlotWithScore>::iterator it=vPotentialBases.begin(); it!=vPotentialBases.end(); ++it)
 		{
+			//unsuitable
+			if (it->score<0)
+				continue;
+
 			//make sure the unit fits the destination (ie missile to cruiser, fighter to carrier)
 			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
 				continue;
 
-			//if the unit is supposed to rebase, it can't stay where it is, even if the location is desirable
-			if (pUnit->plot() == it->pPlot)
+			//apparently we're already in the best possible base?
+			if (scoreLookup[pUnit->plot()->GetPlotIndex()]>=it->score )
+			{
+				bFoundPath = true;
+				break;
+			}
+
+			//sometimes you just don't fit in
+			if (!HomelandAIHelpers::IsGoodUnitMix(it->pPlot,pUnit))
 				continue;
 
-			pf.SetData(pUnit.pointer(),5);
+			pf.SetData(pUnit,5);
 			if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))
 			{
 				CvPlot* pFirstWaypoint = pf.GetPathFirstPlot();
-				pUnit->PushMission(CvTypes::getMISSION_REBASE(), pFirstWaypoint->getX(), pFirstWaypoint->getY());
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Rebasing %s (%d) to %d,%d, ultimate target %d,%d", 
-						pUnit->getName().c_str(), pUnit->GetID(), 
+					strLogString.Format("Rebasing %s (%d) from %d,%d to %d,%d for combat, ultimate target %d,%d (score %d)", 
+						pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY(),
 						pFirstWaypoint->getX(), pFirstWaypoint->getY(),
-						it->pPlot->getX(),it->pPlot->getY());
+						it->pPlot->getX(),it->pPlot->getY(), it->score);
 					LogHomelandMessage(strLogString);
 				}
 
+				pUnit->PushMission(CvTypes::getMISSION_REBASE(), pFirstWaypoint->getX(), pFirstWaypoint->getY());
 				bFoundPath = true;
 				break;
 			}
 		}
 
 		//that's it for this turn, whether we rebased successfully or not
-		pUnit->finishMoves();
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		UnitProcessed(pUnit->GetID());
 
 		if (!bFoundPath)
@@ -7031,7 +6996,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Failed to rebase %s (%d) at %d,%d", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+				strLogString.Format("Failed to rebase %s (%d) at %d,%d for combat", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
 		}
@@ -8994,4 +8959,134 @@ bool HomelandAIHelpers::CvHomelandUnitAuxIntSort(CvHomelandUnit obj1, CvHomeland
 bool HomelandAIHelpers::CvHomelandUnitAuxIntReverseSort(CvHomelandUnit obj1, CvHomelandUnit obj2)
 {
 	return obj1.GetAuxIntData() > obj2.GetAuxIntData();
+}
+
+bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
+{
+	if (!pBasePlot)
+		return false;
+
+	int iOffensive = 0;
+	int iDefensive = 0;
+
+	// Loop through all units on this plot
+	IDInfo* pUnitNode = pBasePlot->headUnitNode();
+	while(pUnitNode != NULL)
+	{
+		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+
+		switch (pLoopUnit->getUnitInfo().GetDefaultUnitAIType())
+		{
+		case UNITAI_DEFENSE_AIR:
+			iDefensive++;
+			break;
+		case UNITAI_ATTACK_AIR:
+		case UNITAI_ICBM:
+		case UNITAI_MISSILE_AIR:
+			iOffensive++;
+			break;
+		}
+
+		pUnitNode = pBasePlot->nextUnitNode(pUnitNode);
+	}
+
+	//don't count free slots etc ...
+	switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
+	{
+	case UNITAI_DEFENSE_AIR:
+		return iDefensive<iOffensive+2;
+		break;
+	case UNITAI_ATTACK_AIR:
+	case UNITAI_ICBM:
+	case UNITAI_MISSILE_AIR:
+		return iOffensive<iDefensive+2;
+		break;
+	}
+
+	return true;
+}
+
+int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int iRange)
+{
+	if (!pBasePlot || iRange<0)
+		return false;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+	//if a carrier is in a city - bad luck :)
+	bool bIsCarrier = !(pBasePlot->isCity());
+
+	//see if we're not at war yet but war may be coming
+	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
+
+	int iBaseScore = 0;
+
+	if (bIsCarrier)
+	{
+		UnitHandle pDefender = pBasePlot->getBestDefender(ePlayer);
+		if(!pDefender)
+			return -1;
+
+		if(pDefender->isProjectedToDieNextTurn() || kPlayer.GetTacticalAI()->IsUnitHealing(pDefender->GetID()))  
+			return -1;
+
+		iBaseScore += 10;
+
+		if (pDefender->getArmyID()!=-1)
+			iBaseScore += 30;
+	}
+	else
+	{
+		CvCity* pCity = pBasePlot->getPlotCity();
+		if(pCity == NULL)
+			return -1;
+
+		if(pCity->isInDangerOfFalling() || (pCity->IsRazing() && pCity->getPopulation()<3) )
+			return -1;
+	}
+
+	//check current targets
+	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
+	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
+	{
+		// Is this target near enough?
+		if(plotDistance(pBasePlot->getX(), pBasePlot->getY(), allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY()) > iRange)
+			continue;
+
+		// Is the target of an appropriate type?
+		switch (allTargets[iI].GetTargetType())
+		{
+		case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
+			iBaseScore += 10;
+			break;
+		case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
+			iBaseScore += 10;
+			break;
+		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
+			iBaseScore += 5;
+			break;
+		case AI_TACTICAL_TARGET_CITY:
+			iBaseScore += 5;
+			break;
+		}
+	}
+
+	//check if there are potential future enemies around
+	CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pBasePlot->GetPlotIndex() );
+	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
+	if (!pZone)
+	{
+		//don't know what to do with this
+		return iBaseScore;
+	}
+
+	const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
+	for (size_t i=0; i<vNeighborZones.size(); i++)
+	{
+		CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
+		if (pOtherZone && std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
+			iBaseScore += 1;
+	}
+
+	return iBaseScore;
 }

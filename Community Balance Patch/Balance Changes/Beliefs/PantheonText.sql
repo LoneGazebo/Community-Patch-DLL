@@ -73,12 +73,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Goddess of Love
 UPDATE Language_en_US
-SET Text = 'Gain 5 [ICON_PEACE] Faith and 3 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era'
+SET Text = 'Gain 8 [ICON_PEACE] Faith and 5 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era and Gamespeed'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements
 UPDATE Language_en_US
-SET Text = '+20% faster border growth, and gain 5 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
+SET Text = '+20% faster border growth, and gain 8 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals
@@ -114,7 +114,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Faith Healers
 UPDATE Language_en_US
-SET Text = '+15 HP healed per turn in friendly, non-attrition territory. Gain 2 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
+SET Text = '+15 HP healed per turn in friendly, non-attrition territory. +2 [ICON_PEACE] Faith from Well and Watermill.'
 WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods

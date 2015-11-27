@@ -12,21 +12,21 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+3 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+4 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
 			<Text>Church</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City. Also makes missionaries more effective.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TEXT">
 			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 20%. All Missionaries born in this City can spread Religion three times.</Text>
 		</Row>
 
 
@@ -34,14 +34,14 @@
 			<Text>Mandir</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Mandirs belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Mandir to gain Faith, Food, and a Great Work of Music slot in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Mandirs belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Mandir to gain Faith, Food, and a Great Work of Music slot in the City. Protects your City from certain Advanced Spy Actions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_TEXT">
 			<Text>A Hindu temple is a house of god(s). It is a space and structure designed to bring human beings and gods together, infused with symbolism to express the ideas and beliefs of Hinduism.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. +5% [ICON_GROWTH] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODCUTION] Production.</Text>
 		</Row>
 
 
@@ -49,14 +49,14 @@
 			<Text>Synagogue</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Synagogues belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Synagogue to gain Faith, Production, and a Great Work of Writing slot in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Synagogues belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Synagogue to gain Faith, Production, and a Great Work of Writing slot in the City. The City generates more Science during 'We Love the King Day.'</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_TEXT">
-			<Text>A synagogue, also spelled synagog is a Jewish house of prayer. Synagogues have a large hall for prayer (the main sanctuary), and may also have smaller rooms for study and sometimes a social hall and offices. Some have a separate room for Torah study, called the beth midrash.</Text>
+			<Text>A synagogue, also spelled synagog, is a Jewish house of prayer. Synagogues have a large hall for prayer (the main sanctuary), and may also have smaller rooms for study and sometimes a social hall and offices. Some have a separate room for Torah study, called the beth midrash.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Crime. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Crime. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. During 'We Love the King Day', City [ICON_RESEARCH] Science increases by +15%.</Text>
 		</Row>
 
 
@@ -75,13 +75,13 @@
 		
 		<!-- Cathedral/Mosque/Pagoda-->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Farms near this City generate +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. +20% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. +2 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

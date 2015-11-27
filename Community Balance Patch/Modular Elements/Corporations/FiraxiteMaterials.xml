@@ -114,6 +114,10 @@
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
+			<ResourceType>RESOURCE_PORCELAIN</ResourceType>
+		</Row>
 	</Building_ResourceMonopolyOrs>
 	<Building_ResourceYieldChanges>
 		<!-- HQ -->
@@ -141,6 +145,12 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
+			<ResourceType>RESOURCE_PORCELAIN</ResourceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
 		<!-- Franchise -->
 		<Row>
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS_FRANCHISE</BuildingType>
@@ -163,6 +173,12 @@
 		<Row>
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS_FRANCHISE</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_PORCELAIN</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -219,10 +235,10 @@
 			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Routes cannot be pillaged, except as a result of a Declaration of War. +3 [ICON_RESEARCH] Science on all Monopoly Resources associated with Firaxite Materials. All Factories produce +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP">
-			<Text>Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, or [ICON_RES_COPPER] Copper. [NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.</Text>
+			<Text>Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, or [ICON_RES_PORCELAIN] Porcelain. [NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS">
-			<Text>Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, and [ICON_RES_COPPER] Copper gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.</Text>
+			<Text>Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, or [ICON_RES_PORCELAIN] Porcelain gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science, and owned Trade Routes cannot be pillaged.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">

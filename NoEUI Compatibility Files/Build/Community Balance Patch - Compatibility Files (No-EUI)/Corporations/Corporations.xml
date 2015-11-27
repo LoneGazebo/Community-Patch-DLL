@@ -93,12 +93,22 @@
 			<BuildingType>BUILDING_HEXXON_REFINERY_HQ</BuildingType>
 			<ResourceType>RESOURCE_PERFUME</ResourceType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_HEXXON_REFINERY_HQ</BuildingType>
+			<ResourceType>RESOURCE_GLASS</ResourceType>
+		</Row>
 	</Building_ResourceMonopolyOrs>
 	<Building_ResourceYieldChanges>
 		<!-- Franchise -->
 		<Row>
 			<BuildingType>BUILDING_HEXXON_REFINERY_FRANCHISE</BuildingType>
 			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HEXXON_REFINERY_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_GLASS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>

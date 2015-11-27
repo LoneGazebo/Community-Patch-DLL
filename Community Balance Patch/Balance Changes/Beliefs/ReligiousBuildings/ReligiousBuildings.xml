@@ -13,7 +13,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
-			<TechEnhancedTourism>3</TechEnhancedTourism>
+			<TechEnhancedTourism>4</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_ARCHITECTURE</EnhancedYieldTech>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
@@ -37,6 +37,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-20</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
+			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
 			<ReligiousPressureModifier>50</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -58,6 +59,8 @@
 			<ConversionModifier>-20</ConversionModifier>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
+			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -141,26 +144,35 @@
 			<Description>TXT_KEY_BUILDING_ORDER</Description>
 		</Row>
 	</BuildingClasses>
+	<Building_WLTKDYieldMod>
+		<Row>
+			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_WLTKDYieldMod>
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_MANDIR</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldModifiers>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MANDIR</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
@@ -185,7 +197,7 @@
 		<Row>
 			<BuildingType>BUILDING_PAGODA</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>
@@ -193,6 +205,53 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_YieldChangesPerReligion>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</Building_YieldChangesPerReligion>
+	<Building_GoldenAgeYieldMod>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_GoldenAgeYieldMod>
+	<Building_ImprovementYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_CATHEDRAL</BuildingType>
+			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ImprovementYieldChanges>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
@@ -202,12 +261,12 @@
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>2</Flavor>
+			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
@@ -222,12 +281,17 @@
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>4</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MANDIR</BuildingType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>2</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
@@ -237,11 +301,16 @@
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>6</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
@@ -262,7 +331,7 @@
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CATHEDRAL</BuildingType>
@@ -277,7 +346,7 @@
 		<Row>
 			<BuildingType>BUILDING_CATHEDRAL</BuildingType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>8</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MOSQUE</BuildingType>
@@ -287,7 +356,7 @@
 		<Row>
 			<BuildingType>BUILDING_MOSQUE</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>8</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MOSQUE</BuildingType>
@@ -302,7 +371,12 @@
 		<Row>
 			<BuildingType>BUILDING_PAGODA</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>8</Flavor>
+			<Flavor>4</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAGODA</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>4</Flavor>
 		</Row>
 	</Building_Flavors>
 	<Building_DomainFreeExperiences>

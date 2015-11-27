@@ -109,6 +109,8 @@ function UpdateCorporations()
 
     local pPlayer = Players[ Game.GetActivePlayer() ];
 	local g_iUs = Game.GetActivePlayer();
+	g_iUsTeam = pPlayer:GetTeam();
+	g_pUsTeam = Teams[ g_iUsTeam ];
 	local strCorpName = pPlayer:GetCorporationName();
 	local iFranchises = pPlayer:GetNumberofGlobalFranchises();
 	local CorpDetails = Locale.ConvertTextKey("TXT_KEY_CORP_EX_DESC");
@@ -169,18 +171,24 @@ function UpdateCorporations()
 	local bFoundForeignCity = false;
 	Controls.FranchiseStack:DestroyAllChildren();
 	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
-		local pOtherPlayer = Players[ iOtherPlayer ];		
+		local pOtherPlayer = Players[ iOtherPlayer ];
+		g_iThemTeam = pOtherPlayer:GetTeam();
+		g_pThemTeam = Teams[ g_iThemTeam ]; 
 		-- Valid player? - Can't be us, and has to be alive
 		if (iOtherPlayer ~= g_iUs and pOtherPlayer:IsAlive()) then
-			for pOtherCity in pOtherPlayer:Cities() do
-				if(pOtherCity:IsFranchised(g_iUs)) then
-					bFoundForeignCity = true;
-					local instance = {};
-					ContextPtr:BuildInstanceForControl( "FranchiseEntry", instance, Controls.FranchiseStack );
-					instance.CityName:SetText( pOtherCity:GetName() );
-					local strCivName = pOtherPlayer:GetCivilizationShortDescription()
-					instance.CityName:SetToolTipString(strCivName);
-					instance.FranchisePresent:SetText("[ICON_INVEST]");
+			g_iThemTeam = pOtherPlayer:GetTeam();
+			g_pThemTeam = Teams[ g_iThemTeam ];
+			if(g_pThemTeam:IsHasMet( g_iUsTeam )) then
+				for pOtherCity in pOtherPlayer:Cities() do
+					if(pOtherCity:IsFranchised(g_iUs)) then
+						bFoundForeignCity = true;
+						local instance = {};
+						ContextPtr:BuildInstanceForControl( "FranchiseEntry", instance, Controls.FranchiseStack );
+						instance.CityName:SetText( pOtherCity:GetName() );
+						local strCivName = pOtherPlayer:GetCivilizationShortDescription()
+						instance.CityName:SetToolTipString(strCivName);
+						instance.FranchisePresent:SetText("[ICON_INVEST]");
+					end
 				end
 			end
 		end
@@ -224,23 +232,28 @@ function UpdateCorporations()
 	Controls.ForeignCorpsStack:DestroyAllChildren();
 	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
 		local pOtherPlayer = Players[ iOtherPlayer ];
-		
+		g_iThemTeam = pOtherPlayer:GetTeam();
+		g_pThemTeam = Teams[ g_iThemTeam ]; 
 		-- Valid player? - Can't be us, and has to be alive
-		if (iOtherPlayer ~= g_iUs and pOtherPlayer:IsAlive()) then
-			local strCorpName = pOtherPlayer:GetCorporationName();
-			if(strCorpName ~= nil) then
-				bFoundForeignCorps = true;	
-				local iFranchises = pOtherPlayer:GetNumberofGlobalFranchises();		
-				local instance = {};
-				ContextPtr:BuildInstanceForControl( "ForeignCorpsEntry", instance, Controls.ForeignCorpsStack );
-				instance.CorpName:SetText( strCorpName );
-				local strCivName = pOtherPlayer:GetCivilizationShortDescription();
-				local strCorpNameTT = pOtherPlayer:GetCorporationHelper();
-				instance.CorpName:SetToolTipString("[COLOR_POSITIVE_TEXT]" .. strCivName .. "[ENDCOLOR]" .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(strCorpNameTT));
-				if( iFranchises > 0 ) then
-					instance.ForeignCorpsSize:SetText( Locale.ToNumber(iFranchises, "#") );
-				else
-					instance.ForeignCorpsSize:SetText( 0 );
+		if (iOtherPlayer ~= g_iUs and pOtherPlayer ~= nil and pOtherPlayer:IsAlive()) then
+			g_iThemTeam = pOtherPlayer:GetTeam();
+			g_pThemTeam = Teams[ g_iThemTeam ];
+			if(g_pThemTeam:IsHasMet( g_iUsTeam )) then
+				local strCorpName = pOtherPlayer:GetCorporationName();
+				if(strCorpName ~= nil) then
+					bFoundForeignCorps = true;	
+					local iFranchises = pOtherPlayer:GetNumberofGlobalFranchises();		
+					local instance = {};
+					ContextPtr:BuildInstanceForControl( "ForeignCorpsEntry", instance, Controls.ForeignCorpsStack );
+					instance.CorpName:SetText( strCorpName );
+					local strCivName = pOtherPlayer:GetCivilizationShortDescription();
+					local strCorpNameTT = pOtherPlayer:GetCorporationHelper();
+					instance.CorpName:SetToolTipString("[COLOR_POSITIVE_TEXT]" .. strCivName .. "[ENDCOLOR]" .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(strCorpNameTT));
+					if( iFranchises > 0 ) then
+						instance.ForeignCorpsSize:SetText( Locale.ToNumber(iFranchises, "#") );
+					else
+						instance.ForeignCorpsSize:SetText( 0 );
+					end
 				end
 			end
 		end
@@ -265,6 +278,8 @@ Controls.OfficeStack:SetHide( true );
 function UpdateMonopolies()
 	local pPlayer = Players[ Game.GetActivePlayer() ];
 	local g_iUs = Game.GetActivePlayer();
+	g_iUsTeam = pPlayer:GetTeam();
+	g_pUsTeam = Teams[ g_iUsTeam ];
 	-- Our Monopolies
 	Controls.ResourcesLocalToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_MONOPOLIES"));
 	iTotalNumResources = 0;
@@ -448,54 +463,60 @@ function UpdateMonopolies()
     Controls.ResourcesForeignStack:DestroyAllChildren();
 	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
 		local pOtherPlayer = Players[ iOtherPlayer ];
+		g_iThemTeam = pOtherPlayer:GetTeam();
+		g_pThemTeam = Teams[ g_iThemTeam ]; 
 		-- Valid player? - Can't be us, and has to be alive
 		if (iOtherPlayer ~= g_iUs and pOtherPlayer ~= nil and pOtherPlayer:IsAlive()) then
-			for pResource in GameInfo.Resources() do
-				local iResourceID = pResource.ID;
-				if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
-					if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
-						local iMonopoly = 0;
-						local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
-						local iOtherTotal = Map.GetNumResources(iResourceID);
-						if(iOtherTotal > 0) then
-							iMonopoly = (iOtherNum * 100) / iOtherTotal;
-						end
-						if(iMonopoly > 50) then
-							iTotalNumResources = iTotalNumResources + 1;
+			g_iThemTeam = pOtherPlayer:GetTeam();
+			g_pThemTeam = Teams[ g_iThemTeam ];
+			if(g_pThemTeam:IsHasMet( g_iUsTeam )) then
+				for pResource in GameInfo.Resources() do
+					local iResourceID = pResource.ID;
+					if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+						if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
+							local iMonopoly = 0;
+							local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+							local iOtherTotal = Map.GetNumResources(iResourceID);
+							if(iOtherTotal > 0) then
+								iMonopoly = (iOtherNum * 100) / iOtherTotal;
+							end
+							if(iMonopoly > 50) then
+								iTotalNumResources = iTotalNumResources + 1;
 				
-							local instance = {};
-							ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
+								local instance = {};
+								ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
 		        
-							instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-							instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+								instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+								instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
 
-							local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL") .. Locale.Lookup(pResource.Help);
-							instance.ResourceName:SetToolTipString(strTooltip);
-							local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-							instance.ResourceValue:SetToolTipString(strTooltip2);
+								local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL") .. Locale.Lookup(pResource.Help);
+								instance.ResourceName:SetToolTipString(strTooltip);
+								local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+								instance.ResourceValue:SetToolTipString(strTooltip2);
+							end
 						end
-					end
-				elseif(Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
-						local iMonopoly = 0;
-						local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
-						local iOtherTotal = Map.GetNumResources(iResourceID);
-						if(iOtherTotal > 0) then
-							iMonopoly = (iOtherNum * 100) / iOtherTotal;
-						end
-						if(iMonopoly > 50) then
-							iTotalNumResources = iTotalNumResources + 1;
+					elseif(Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
+						if(pOtherPlayer:GetResourceMonopolyPlayer(iResourceID)) then
+							local iMonopoly = 0;
+							local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+							local iOtherTotal = Map.GetNumResources(iResourceID);
+							if(iOtherTotal > 0) then
+								iMonopoly = (iOtherNum * 100) / iOtherTotal;
+							end
+							if(iMonopoly > 50) then
+								iTotalNumResources = iTotalNumResources + 1;
 				
-							local instance = {};
-							ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
+								local instance = {};
+								ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesForeignStack );
 		        
-							instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-							instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+								instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+								instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
 
-							local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_BOTH") .. Locale.Lookup(pResource.Help);
-							instance.ResourceName:SetToolTipString(strTooltip);
-							local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-							instance.ResourceValue:SetToolTipString(strTooltip2);
+								local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_BOTH") .. Locale.Lookup(pResource.Help);
+								instance.ResourceName:SetToolTipString(strTooltip);
+								local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+								instance.ResourceValue:SetToolTipString(strTooltip2);
+							end
 						end
 					end
 				end
@@ -521,28 +542,32 @@ function UpdateMonopolies()
 		local pOtherPlayer = Players[ iOtherPlayer ];
 		-- Valid player? - Can't be us, and has to be alive
 		if (iOtherPlayer ~= g_iUs and pOtherPlayer ~= nil and pOtherPlayer:IsAlive()) then
-			for pResource in GameInfo.Resources() do
-				local iResourceID = pResource.ID;
-				if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					local iMonopoly = 0;
-					local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
-					local iOtherTotal = Map.GetNumResources(iResourceID);
-					if(iOtherTotal > 0) then
-						iMonopoly = (iOtherNum * 100) / iOtherTotal;
-					end
-					if(iMonopoly > 25 and iMonopoly <= 50) then
-						iTotalNumResources = iTotalNumResources + 1;
+			g_iThemTeam = pOtherPlayer:GetTeam();
+			g_pThemTeam = Teams[ g_iThemTeam ];
+			if(g_pThemTeam:IsHasMet( g_iUsTeam )) then
+				for pResource in GameInfo.Resources() do
+					local iResourceID = pResource.ID;
+					if (Game.GetResourceUsageType(iResourceID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
+						local iMonopoly = 0;
+						local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+						local iOtherTotal = Map.GetNumResources(iResourceID);
+						if(iOtherTotal > 0) then
+							iMonopoly = (iOtherNum * 100) / iOtherTotal;
+						end
+						if(iMonopoly > 25 and iMonopoly <= 50) then
+							iTotalNumResources = iTotalNumResources + 1;
 				
-						local instance = {};
-						ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ForeignStrategicResourcesStack );
+							local instance = {};
+							ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ForeignStrategicResourcesStack );
 		        
-						instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
-						instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+							instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.IconString) .. " " .. Locale.ConvertTextKey(pResource.Description));
+							instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
 
-						local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC") .. Locale.Lookup(pResource.StrategicHelp);
-						instance.ResourceName:SetToolTipString(strTooltip);
-						local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
-						instance.ResourceValue:SetToolTipString(strTooltip2);
+							local strTooltip = Locale.ConvertTextKey("TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC") .. Locale.Lookup(pResource.StrategicHelp);
+							instance.ResourceName:SetToolTipString(strTooltip);
+							local strTooltip2 = Locale.ConvertTextKey("TXT_KEY_RESOURCE_BREAKDOWN", iOtherNum, iOtherTotal)
+							instance.ResourceValue:SetToolTipString(strTooltip2);
+						end
 					end
 				end
 			end

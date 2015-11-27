@@ -207,7 +207,7 @@
 		
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_ACADEMY" YieldType="YIELD_SCIENCE" />
-			<Set Yield="5" />
+			<Set Yield="7" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_CUSTOMS_HOUSE" YieldType="YIELD_GOLD" />

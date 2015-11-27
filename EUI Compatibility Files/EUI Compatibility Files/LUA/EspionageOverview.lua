@@ -775,7 +775,9 @@ function RefreshAgents()
 				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
 				agentEntry.StageCoupButton:RegisterCallback(Mouse.eLClick, OnCoupClicked);
 				local iCityAlly = Players[city:GetOwner()]:GetAlly();
-				
+-- CP
+				local iCooldown = Players[city:GetOwner()]:GetCoupCooldown();
+--END
 				if (v.State == "TXT_KEY_SPY_STATE_DEAD") then
 					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
 				elseif (bCoupDisabled) then
@@ -783,6 +785,13 @@ function RefreshAgents()
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_WAIT_TT", v.Rank, v.Name, city:GetNameKey());
 					elseif (iCityAlly == -1) then
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_NO_ALLY_TT", v.Rank, v.Name, city:GetNameKey(), city:GetNameKey());
+-- CBP
+					elseif(iCooldown > 0) then
+						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT", v.Rank, v.Name, city:GetNameKey(), iCooldown);
+
+					elseif(Players[city:GetOwner()]:GetPermanentAlly() ~= -1 and Players[city:GetOwner()]:GetPermanentAlly() ~= Game.GetActivePlayer()) then
+						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT", v.Rank, v.Name, city:GetNameKey());
+-- END
 					else
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_YOU_ALLY_TT", v.Rank, v.Name, city:GetNameKey());
 					end

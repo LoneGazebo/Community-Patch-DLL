@@ -6,49 +6,49 @@
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_SpecialistYieldChanges>
 	<Belief_MaxYieldPerFollower>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_COMMUNITY</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Max>15</Max>
+			<Max>20</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FEED_WORLD</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Max>15</Max>
+			<Max>20</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHORAL_MUSIC</BeliefType>
@@ -63,44 +63,44 @@
 		<Row>
 			<BeliefType>BELIEF_LITURGICAL_DRAMA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Max>15</Max>
+			<Max>10</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DIVINE_INSPIRATION</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Max>15</Max>
+			<Max>10</Max>
 		</Row>
 	</Belief_MaxYieldPerFollower>
 	<Belief_YieldPerBirth>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_GARDENS</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Belief_BuildingClassFaithPurchase>

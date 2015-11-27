@@ -3687,6 +3687,10 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 	{
 		return false;
 	}
+	if(pMinorCivAI->GetCoupCooldown() > 0)
+	{
+		return false;
+	}
 #endif
 
 	if(eMinorCivAlly != NO_PLAYER && eMinorCivAlly != m_pPlayer->GetID())
@@ -3893,7 +3897,12 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 #endif
 		LogEspionageMsg(strMsg);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	int iCoolDown = 20;
+	iCoolDown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iCoolDown /= 100;
+	pMinorCivAI->SetCoupCooldown(iCoolDown);
+#endif
 	bool bAttemptSuccess = false;
 	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))

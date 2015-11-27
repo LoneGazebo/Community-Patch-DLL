@@ -1,6 +1,6 @@
 -- Charitable Missions (Now Missionary Influence)
 UPDATE Language_en_US
-SET Text = 'Missionaries grant +20 [ICON_INFLUENCE] Influence with a City-State when you spread your Religion to that City-State. '
+SET Text = '20 [ICON_INFLUENCE] Influence (scaling with Era) when Missionaries and Prophets spread your Religion to City-States. When a foreign City converts to your Religion, your [ICON_INFLUENCE] Influence with all known City-States increases by 10 (scaling with Era).'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -9,7 +9,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT' AND EXISTS (SELECT * FROM
 
 -- Evangelism (Now Crusader Zeal)
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players that follow an opposing Faith. Receive [ICON_CULTURE] Culture and [ICON_GOLD] Gold when you conquer Cities.'
+SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in enemy lands, and an additional +10% versus Land Units of players that follow a different Religion. Receive [ICON_CULTURE] Culture and [ICON_GOLD] Gold when you conquer Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Defender Faith
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in own lands versus players that follow an opposing Faith. +10 [ICON_PEACE] Faith from Citadels.'
+SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in own lands, and an additional +10% versus Land Units of players that follow a different Religion. +1 [ICON_PEACE] Faith from all Defensive Buildings.'
 WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Jesuit Education 
@@ -38,6 +38,9 @@ SET Text = 'All buildings purchased with Faith provide 2 [ICON_TOURISM] Tourism 
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Glory of God
+UPDATE Language_en_US
+SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). +100 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when you expend a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
+WHERE Tag = 'TXT_KEY_BELIEF_TO_GLORY_OF_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Underground Sect (Now Faith of the  Masses)
 UPDATE Language_en_US
@@ -51,7 +54,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT_SHORT' AND EXISTS (SELECT * FROM CO
 -- Unity of the Prophets (Now Knowledge Through Faith)
 
 UPDATE Language_en_US
-SET Text = 'Holy Sites produce +4 [ICON_RESEARCH] Science, Academies produce +4 [ICON_PEACE] Faith.'
+SET Text = 'Landmarks and Great Person Improvements produce +3 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

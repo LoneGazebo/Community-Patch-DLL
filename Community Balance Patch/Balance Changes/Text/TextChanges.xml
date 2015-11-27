@@ -333,6 +333,19 @@
 			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Espionage Tooltip -->
+		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT">
+			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} yet because their current Ally has a Sphere of Influence here.</Text>
+		</Row>
+		
+		<!-- CS Religion Influence Tooltip -->
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS">
+			<Text>Because {1_City} converted to your Religion, your Influence with all known City-States has increased by {2_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS_S">
+			<Text>Missionary Influence!</Text>
+		</Row>
+
 		<!-- Tooltip for Investments in cities -->
 		<Row Tag="TXT_KEY_ALREADY_INVESTED">
 			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>

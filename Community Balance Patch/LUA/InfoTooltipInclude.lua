@@ -230,6 +230,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iCulture = iCulture + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 -- CBP
 		iCulture = iCulture + pCity:GetBuildingClassCultureChange(buildingClassID);
+		iCulture = iCulture + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_CULTURE )
@@ -250,6 +251,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (pCity ~= nil) then
 		iFaith = iFaith + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
+		iFaith = iFaith + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FAITH);
 -- CBP
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_FAITH )
@@ -284,6 +286,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
 -- CBP
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
+		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_FOOD )
 		if (corporatechange > 0) then
 			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_FOOD)
@@ -311,6 +314,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iGold = iGold + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
 -- CBP	
 		iGold = iGold + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
+		iGold = iGold + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_GOLD )
 		if (corporatechange > 0) then
 			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_GOLD)
@@ -330,6 +334,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 	if (pCity ~= nil) then
 		iScience = iScience + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		iScience = iScience + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_SCIENCE )
 		if (corporatechange > 0) then
 			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_SCIENCE)
@@ -365,7 +370,8 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 -- CBP
 	if (pCity ~= nil) then
-		iProduction = iProduction + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		iProd = iProd + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_PRODUCTION )
 		if (corporatechange > 0) then
 			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)

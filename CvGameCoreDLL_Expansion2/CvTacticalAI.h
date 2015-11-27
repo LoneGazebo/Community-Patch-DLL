@@ -828,7 +828,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsUnitHealing(int iUnitID) const;
-	bool NeedToRebase(CvUnit* pUnit) const;
+	bool ShouldRebase(CvUnit* pUnit) const;
 #endif
 
 	// Public logging
@@ -836,6 +836,7 @@ public:
 
 	// Other people want to know this too
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
+	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
 
 private:
 
@@ -901,9 +902,9 @@ private:
 	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
-	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurrentCOMonPath);
+	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, CvPlot *pCurrentCOM, int iNumUnits);
+	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 	bool PlotEscortNavalOperationMoves(CvArmyAI* pArmy);
 	void ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget);
@@ -962,7 +963,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
 #else
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);

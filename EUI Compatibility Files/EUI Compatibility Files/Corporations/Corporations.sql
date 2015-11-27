@@ -5,11 +5,11 @@ SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, or [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Receive a free Civilized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.'
+SET Text = 'Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_AMBER] Amber, or [ICON_RES_JEWELRY] Jewelery.[NEWLINE][NEWLINE]Receive a free Civilized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls and [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
+SET Text = 'Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_AMBER] Amber, or [ICON_RES_JEWELRY] Jewelery.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City''s [ICON_GOLD] Gold rate by +10%.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS';
 
 -- Firaxite Materials
@@ -19,11 +19,11 @@ SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Rout
 WHERE Tag = 'TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, or [ICON_RES_JADE] Jade.[NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.'
+SET Text = 'Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_JADE] Jade, or [ICON_RES_PORCELAIN] Porcelain.[NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.'
 WHERE Tag = 'TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, and [ICON_RES_JADE] Jade gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.'
+SET Text = 'Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_JADE] Jade, and [ICON_RES_PORCELAIN] Porcelain gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science, and owned Trade Routes cannot be pillaged.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS';
 
 -- Giorgio Armeier
@@ -47,11 +47,11 @@ SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Rout
 WHERE Tag = 'TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, or [ICON_RES_PERFUME] Perfume.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.'
+SET Text = 'Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, [ICON_RES_PERFUME] Perfume, or [ICON_RES_GLASS] Glass.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, or [ICON_RES_PERFUME] Perfume needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]3[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City''s [ICON_PRODUCTION] Production rate by +10%.'
+SET Text = 'Resource(s) Needed: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, [ICON_RES_PERFUME] Perfume, or [ICON_RES_GLASS] Glass.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]3[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City''s [ICON_PRODUCTION] Production rate by +10%, and owned Trade Routes move twice as quickly as normal.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_HEXXON_REFINERY';
 
 -- LandSea Extractors
@@ -93,5 +93,5 @@ SET Text = 'Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFL
 WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%.'
+SET Text = 'Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffe, and [ICON_RES_TEA] Tea gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City''s [ICON_FOOD] Growth rate by +10%, and owned Trade Routes have +1 Sight and reveal the Fog of War.'
 WHERE Tag = 'TXT_KEY_CORP_HELPER_TWOKAY_FOODS';

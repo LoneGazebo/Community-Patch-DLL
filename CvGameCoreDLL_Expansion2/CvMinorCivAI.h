@@ -641,6 +641,10 @@ public:
 
 	bool IsNoAlly() const;
 	void SetNoAlly(bool bValue);
+
+	int GetCoupCooldown() const;
+	void SetCoupCooldown(int iValue);
+	void ChangeCoupCooldown(int iValue);
 #endif
 
 	// ******************************
@@ -698,6 +702,7 @@ private:
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
 	PlayerTypes m_ePermanentAlly;
 	bool m_bNoAlly;
+	int m_iCoup;
 #endif
 
 	PlayerTypes m_eAlly;

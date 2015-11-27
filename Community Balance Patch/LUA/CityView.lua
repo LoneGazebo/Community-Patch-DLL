@@ -1402,7 +1402,7 @@ function OnCityViewUpdate()
 				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
 				if (iCultureFromSpecialist > 0) then
 					--CBP
-					local extraYield = (pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange(YieldTypes.YIELD_CULTURE, iSpecialistID))
+					local extraYield = (pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange(iSpecialistID, YieldTypes.YIELD_CULTURE))
 					iCultureFromSpecialist = (iCultureFromSpecialist + extraYield)
 					-- END
 					ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";

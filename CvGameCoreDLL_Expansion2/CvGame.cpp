@@ -8562,10 +8562,6 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		// Is it a unique unit from a civ that is in our game?
 		if (!bIncludeCivsInGame)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pkUnitInfo->IsMinorCivGift())
-			{
-#endif
 			for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
 			{
 				PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
@@ -8579,9 +8575,6 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 		if(!bValid)
 			continue;
@@ -8602,6 +8595,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			continue;
 #if defined(MOD_BALANCE_CORE)
 		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+			continue;
 #endif
 		// Technology level
 		TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();

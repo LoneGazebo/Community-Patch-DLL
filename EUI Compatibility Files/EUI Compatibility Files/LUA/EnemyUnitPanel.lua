@@ -1005,7 +1005,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 -- COMMUNITY PATCH CHANGE
-				iModifier = pMyPlayer:GetCombatVersusOtherReligionOwnLands(pToPlot);
+				iModifier = pMyUnit:GetCombatVersusOtherReligionOwnLands(pTheirUnit);
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP" );
@@ -1091,7 +1091,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 -- COMMUNITY PATCH CHANGE
 			if (pToPlot:IsFriendlyTerritory(iTheirPlayer)) then
-				iModifier = pMyPlayer:GetCombatVersusOtherReligionTheirLands(pToPlot);
+				iModifier = pMyUnit:GetCombatVersusOtherReligionTheirLands(pTheirUnit);
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP" );
@@ -1529,7 +1529,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
 -- COMMUNITY PATCH CHANGE
-					iModifier = pTheirPlayer:GetCombatVersusOtherReligionOwnLands(pToPlot);
+					iModifier = pTheirUnit:GetCombatVersusOtherReligionOwnLands(pMyUnit);
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP" );
@@ -1559,7 +1559,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 -- COMMUNITY PATCH CHANGE
 				if (pToPlot:IsFriendlyTerritory(iMyPlayer)) then
-					iModifier = pTheirPlayer:GetCombatVersusOtherReligionTheirLands(pToPlot);
+					iModifier = pTheirUnit:GetCombatVersusOtherReligionTheirLands(pMyUnit);
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP" );
@@ -2014,14 +2014,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
--- COMMUNITY PATCH CHANGE
-			iModifier = pTheirPlayer:GetCombatVersusOtherReligionOwnLands(theirPlot);
-			if (iModifier ~= 0) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-			end
---END
 		end
 		
 		-- Bonus for fighting outside one's lands
@@ -2044,14 +2036,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		end
 
 -- COMMUNITY PATCH CHANGE
-		if (theirPlot:IsFriendlyTerritory(myPlayer)) then
-			iModifier = pTheirPlayer:GetCombatVersusOtherReligionTheirLands(theirPlot);
-			if (iModifier ~= 0) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-			end
-		end
 		iModifier = theirUnit:GetAllianceCSStrength();
 		if (iModifier ~= 0) then
 			controlTable = g_TheirCombatDataIM:GetInstance();

@@ -474,7 +474,12 @@ local function UpdateTopPanelNow()
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-			local happyProgressNext = happyProgress + excessHappiness
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			-- END
+			local happyProgressNext = (happyProgress + excessHappiness + iGAPReligion + iGAPTrait + iGAPCities);
 
 			if goldenAgeTurns > 0 then
 				Controls.GoldenAgeAnim:SetHide(false)
@@ -1659,7 +1664,7 @@ if civ5_mode then
 				if (iGAPCities > 0) then
 					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
 				end
-			-- END
+				-- END
 			end
 
 			if g_isBasicHelp then

@@ -64,7 +64,7 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent				= 0.56
+	mglobal.landPercent				= 0.48
 	
 	--Top and bottom map latitudes.
 	mglobal.topLatitude				= 70

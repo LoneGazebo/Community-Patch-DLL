@@ -1330,6 +1330,10 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 							{
 								return FOUNDING_BELIEF_IN_USE;
 							}
+							if(pBelief && pBelief->IsFollowerBelief() && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
+							{
+								return FOUNDING_BELIEF_IN_USE;
+							}
 						}
 #else
 						if(eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief)
@@ -1548,9 +1552,21 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanEnhanceReligion(PlayerTypes
 	{
 #if defined(MOD_TRAITS_ANY_BELIEF)
 		if(eBelief1 != NO_BELIEF && IsInSomeReligion(eBelief1, ePlayer))
-			return FOUNDING_BELIEF_IN_USE;
+		{
+			CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief1);
+			if(pBelief && (pBelief->IsEnhancerBelief() || pBelief->IsFollowerBelief()) && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+			{
+				return FOUNDING_BELIEF_IN_USE;
+			}
+		}
 		if(eBelief2 != NO_BELIEF && IsInSomeReligion(eBelief2, ePlayer))
-			return FOUNDING_BELIEF_IN_USE;
+		{
+			CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief2);
+			if(pBelief && (pBelief->IsEnhancerBelief() || pBelief->IsFollowerBelief()) && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+			{
+				return FOUNDING_BELIEF_IN_USE;
+			}
+		}
 #else
 		if(eBelief1 != NO_BELIEF && IsInSomeReligion(eBelief1))
 			return FOUNDING_BELIEF_IN_USE;
@@ -5327,6 +5343,43 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if(m_pCity->getOwner() != pNewReligion->m_eFounder)
+			{
+				int iCSInfluence = (pNewReligion->m_Beliefs.GetMissionaryInfluenceCS() * iEra);
+				if(iCSInfluence > 0)
+				{
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						if(eLoopPlayer == NO_PLAYER)
+							continue;
+
+						if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+						{
+							GET_PLAYER(eLoopPlayer).GetMinorCivAI()->ChangeFriendshipWithMajor(pNewReligion->m_eFounder, iCSInfluence, false);
+
+						}
+					}
+					if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+					{
+						if(GET_PLAYER(pNewReligion->m_eFounder).GetNotifications())
+						{
+							Localization::String strMessage;
+							Localization::String strSummary;
+							strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS", m_pCity->getName(), iCSInfluence);
+							strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS_S");
+#if defined(MOD_API_EXTENSIONS)
+							GET_PLAYER(pNewReligion->m_eFounder).GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
+#else
+							GET_PLAYER(pNewReligion->m_eFounder).GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
+#endif
+
+						}
+					}
+				}
+			}
+#endif
 		}
 
 		// Notification if the player's city was converted to a religion they didn't found
@@ -5480,6 +5533,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					}
 
 					kCityOwnerPlayer.GetDiplomacyAI()->ChangeNegativeReligiousConversionPoints(eResponsibleParty, iPoints);
+#if defined(MOD_BALANCE_CORE)
+					kCityOwnerPlayer.GetDiplomacyAI()->SetReligiousConversionTurn(eResponsibleParty, GC.getGame().getGameTurn());
+#endif
 				}
 			}
 		}
@@ -8171,7 +8227,26 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 				}
 				else
 				{
-					iValidTiles = pCity->GetNumTerrainWorked(eTerrain);
+					const std::vector<int>& vWorkedPlots =  pCity->GetCityCitizens()->GetWorkedPlots();
+					for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
+					{
+						CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+						if(pPlot->getTerrainType() == eTerrain)
+						{
+							if(pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+							{
+								iValidTiles++;
+							}
+							else if(pEntry->RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE)
+							{
+								iValidTiles++;
+							}
+							else
+							{
+								iValidTiles++;
+							}
+						}
+					}
 				}
 				iRtnValue += (iValidTiles * pEntry->GetYieldPerXTerrain(iJ, iI));
 			}
@@ -8860,15 +8935,15 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if (pEntry->GetMissionaryInfluenceCS() > 0)
 	{
-		iRtnValue += (pEntry->GetMissionaryInfluenceCS() * iFlavorDiplomacy);
+		iRtnValue += (pEntry->GetMissionaryInfluenceCS() * (iFlavorDiplomacy * 2));
 	}
 	if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0)
 	{
-		iRtnValue += (pEntry->GetCombatVersusOtherReligionOwnLands() * iFlavorDefense);
+		iRtnValue += (pEntry->GetCombatVersusOtherReligionOwnLands() * (iFlavorDefense * 2));
 	}
 	if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
 	{
-		iRtnValue += (pEntry->GetCombatVersusOtherReligionTheirLands() * iFlavorOffense);
+		iRtnValue += (pEntry->GetCombatVersusOtherReligionTheirLands() * (iFlavorOffense * 2));
 	}
 	if (pEntry->GetExtraVotes() > 0)
 	{

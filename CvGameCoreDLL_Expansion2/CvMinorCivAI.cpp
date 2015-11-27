@@ -1633,7 +1633,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		{
 			pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(GC.getMINOR_QUEST_REBELLION_TIMER());
 			pMinor->GetMinorCivAI()->SetHordeActive(true);
-			pMinor->GetMinorCivAI()->DoRebellion();
 		}
 
 			//Tell the AI to get over there!
@@ -1714,7 +1713,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		{
 			pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(GC.getMINOR_QUEST_REBELLION_TIMER());
 			pMinor->GetMinorCivAI()->SetRebellionActive(true);
-			pMinor->GetMinorCivAI()->DoRebellion();
 		}
 
 		//Tell the AI ally to get over there!
@@ -2601,6 +2599,7 @@ void CvMinorCivAI::Reset()
 	m_iCooldownSpawn = 0;
 	m_ePermanentAlly = NO_PLAYER;
 	m_bNoAlly = false;
+	m_iCoup = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnLiberated = 0;
@@ -2750,6 +2749,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abIsMarried;
 	kStream >> m_ePermanentAlly;
 	kStream >> m_bNoAlly;
+	kStream >> m_iCoup;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iTurnLiberated;
@@ -2839,6 +2839,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abIsMarried;
 	kStream << m_ePermanentAlly;
 	kStream << m_bNoAlly;
+	kStream << m_iCoup;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iTurnLiberated;
@@ -3074,7 +3075,13 @@ void CvMinorCivAI::DoTurn()
 
 		DoIntrusion();
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS) {
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS) 
+		{
+			//Test to keep quests from firing over and over if ended.
+			if(GetCooldownSpawn() > 0)
+			{
+				ChangeCooldownSpawn(-1);
+			}
 			if(IsSacked())
 			{
 				DoSack();
@@ -3082,21 +3089,6 @@ void CvMinorCivAI::DoTurn()
 			if(IsRebellion())
 			{
 				DoDefection();
-			}
-			if(GetTurnsSinceRebellion() > 0)
-			{
-				int iRebellionSpawn = GetTurnsSinceRebellion();
-
-				ChangeTurnsSinceRebellion(-1);
-
-				//Rebel Spawn - once every 4 turns (on default speed)
-				if ((iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
-				|| (iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
-				|| (iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
-				|| (iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100))
-				{
-					DoRebellion();
-				}
 			}
 		}
 		if (MOD_DIPLOMACY_CITYSTATES)
@@ -3115,6 +3107,10 @@ void CvMinorCivAI::DoTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		if(GetCoupCooldown() > 0)
+		{
+			ChangeCoupCooldown(-1);
+		}
 		//Let's see if we can launch a military action.
 		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
 #endif
@@ -7164,13 +7160,9 @@ void CvMinorCivAI::DoRebellion()
 bool CvMinorCivAI::IsValidRebellion()
 {
 	//Test to keep quests from firing over and over if ended.
-	if(GetCooldownSpawn() > 0)
+	if(GetCooldownSpawn() > 0 )
 	{
-		ChangeCooldownSpawn(-1);
-		if(GetCooldownSpawn() != 0 )
-		{
-			return false;
-		}
+		return false;
 	}
 
 	int iActiveRebellions = 0;
@@ -8144,7 +8136,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	{
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer) && IsProtectedByMajor(ePlayer))
 		{
 			if(GetPlayer()->getCapitalCity() != NULL)
 			{
@@ -8806,13 +8798,21 @@ int CvMinorCivAI::GetAlliedTurns() const
 /// Is ePlayer Allies with this minor?
 bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	return ((m_eAlly == ePlayer) || (MOD_DIPLOMACY_CITYSTATES && (GetPermanentAlly() == ePlayer) && !IsNoAlly()));
+#else
 	return m_eAlly == ePlayer;
+#endif
 }
 
 /// Is ePlayer Friends with this minor?
 bool CvMinorCivAI::IsFriends(PlayerTypes ePlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)) || (MOD_DIPLOMACY_CITYSTATES && (GetPermanentAlly() == ePlayer)));
+#else
 	return IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer));
+#endif
 }
 
 /// Has ePlayer ever been Friends with this minor?
@@ -12470,11 +12470,11 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 			}
 			break;
 	}
-	int iNumTurns = max(600, GC.getGame().getMaxTurns()) - max(500, GC.getGame().getGameTurn());
+	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(400, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
 	{
 		iValue *= (iNumTurns + 100);
-		iValue /= 100;
+		iValue /= max(500, GC.getGame().getMaxTurns());
 	}
 	return iValue;
 }
@@ -13887,6 +13887,21 @@ bool CvMinorCivAI::IsNoAlly() const
 void CvMinorCivAI::SetNoAlly(bool bValue)
 {
 	m_bNoAlly = bValue;
+}
+void CvMinorCivAI::ChangeCoupCooldown(int iChange)
+{
+	SetCoupCooldown(GetCoupCooldown() + iChange);
+}
+int CvMinorCivAI::GetCoupCooldown() const
+{
+	return m_iCoup;
+}
+void CvMinorCivAI::SetCoupCooldown(int iValue)
+{
+	if(GetCoupCooldown() != iValue)
+	{
+		m_iCoup = iValue;
+	}
 }
 #endif
 

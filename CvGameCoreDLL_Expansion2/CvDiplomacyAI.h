@@ -1035,6 +1035,9 @@ public:
 	void SetPlayerExpansionPromiseData(PlayerTypes ePlayer, AggressivePostureTypes eValue);
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
+	void SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
+#endif
+#if defined(MOD_BALANCE_CORE)
 	int GetPlayerMadeBorderPromise(PlayerTypes ePlayer);
 #endif
 	bool IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);
@@ -1046,6 +1049,14 @@ public:
 	AggressivePostureTypes GetPlayerBorderPromiseData(PlayerTypes ePlayer);
 	void SetPlayerBorderPromiseData(PlayerTypes ePlayer, AggressivePostureTypes eValue);
 	bool EverMadeBorderPromise(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	void SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue);
+	void SetDoFEverAsked(PlayerTypes ePlayer, bool bValue);
+	void SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue);
+	void SetDemandEverMade(PlayerTypes ePlayer, bool bValue);
+	void SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool bValue);
+	void SetPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer, bool bValue);
+#endif
 
 	// Promise to not attack a City-State
 	bool IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer);
@@ -1114,6 +1125,29 @@ public:
 
 	int GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const;
 	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const;
+	void SetLandmarksBuiltForMeTurn(PlayerTypes ePlayer, int iChange);
+
+	int GetCiviliansReturnedToMeTurn(PlayerTypes ePlayer) const;
+	void SetCiviliansReturnedToMeTurn(PlayerTypes ePlayer, int iChange);
+
+	int GetLiberatedCitiesTurn(PlayerTypes ePlayer) const;
+	void SetLiberatedCitiesTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetForgaveForSpyingTurn(PlayerTypes ePlayer) const;
+	void SetForgaveForSpyingTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetIntrigueSharedTurn(PlayerTypes ePlayer) const;
+	void SetIntrigueSharedTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetReligiousConversionTurn(PlayerTypes ePlayer) const;
+	void SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetRobbedTurn(PlayerTypes ePlayer) const;
+	void SetRobbedTurn(PlayerTypes ePlayer, int iChange);
+#endif
 
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
 	bool WasResurrectedThisTurnBy(PlayerTypes ePlayer) const;
@@ -1475,6 +1509,20 @@ private:
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
+		bool m_abPlayerEverMadeBorderPromise[MAX_MAJOR_CIVS];
+		bool m_abPlayerEverMadeExpansionPromise[MAX_MAJOR_CIVS];
+		bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
+		bool m_abHelpRequestEverMade[MAX_MAJOR_CIVS];
+		bool m_abDemandEverMade[MAX_MAJOR_CIVS];
+		bool m_abPlayerNoSettleRequestEverAsked[MAX_MAJOR_CIVS];
+		bool m_abPlayerStopSpyingRequestEverAsked[MAX_MAJOR_CIVS];
+		short m_aiNumLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
+		short m_aiCiviliansReturnedToMeTurn[MAX_MAJOR_CIVS];
+		short m_aiPlayerForgaveForSpyingTurn[MAX_MAJOR_CIVS];
+		short m_aiLiberatedCitiesTurn[MAX_MAJOR_CIVS];
+		short m_aiIntrigueSharedTurn[MAX_MAJOR_CIVS];
+		short m_aiReligiousConversionTurn[MAX_MAJOR_CIVS];
+		short m_aiTimesRobbedTurn[MAX_MAJOR_CIVS];
 #endif
 		short m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 		short m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];
@@ -1761,6 +1809,13 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	short* m_paiNumTimesRazed;
+	short* m_paiNumLandmarksBuiltForMeTurn;
+	short* m_paiCiviliansReturnedToMeTurn;
+	short* m_paiPlayerForgaveForSpyingTurn;
+	short* m_paiLiberatedCitiesTurn;
+	short* m_paiIntrigueSharedTurn;
+	short* m_paiReligiousConversionTurn;
+	short* m_paiTimesRobbedTurn;
 #endif
 	short* m_paiNumTimesNuked;
 	short* m_paiNumTimesRobbedBy;
@@ -1799,6 +1854,15 @@ private:
 	bool* m_pabPlayerBrokenBorderPromise;
 	bool* m_pabPlayerIgnoredBorderPromise;
 	char* m_paePlayerBorderPromiseData;
+#if defined(MOD_BALANCE_CORE)
+	bool* m_pabPlayerEverMadeBorderPromise;
+	bool* m_pabPlayerEverMadeExpansionPromise;
+	bool* m_pabDoFEverAsked;
+	bool* m_pabHelpRequestEverMade;
+	bool* m_pabDemandEverMade;
+	bool* m_pabPlayerNoSettleRequestEverAsked;
+	bool* m_pabPlayerStopSpyingRequestEverAsked;
+#endif
 
 	bool* m_pabPlayerMadeAttackCityStatePromise;
 	bool* m_pabPlayerBrokenAttackCityStatePromise;

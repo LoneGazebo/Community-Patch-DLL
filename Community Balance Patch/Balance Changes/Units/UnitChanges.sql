@@ -45,10 +45,10 @@
 	SET BaseCultureTurnsToCount = '10'
 	WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Great Scientist science boost nerfed slightly.
+-- Great Scientist science boost buffed slightly.
 
 	UPDATE Units
-	SET BaseBeakersTurnsToCount = '5'
+	SET BaseBeakersTurnsToCount = '10'
 	WHERE Type = 'UNIT_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Admiral movement buff

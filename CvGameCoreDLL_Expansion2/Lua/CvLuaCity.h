@@ -194,6 +194,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetNumBuildingClass, int, iBuildingClassType);
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
+	static int lGetLocalBuildingClassYield(lua_State* L);
 #endif
 	static int lGetNumActiveBuilding(lua_State* L);
 	static int lGetID(lua_State* L);

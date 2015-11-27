@@ -336,6 +336,7 @@ CvCity::CvCity() :
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_ppaiReligionBuildingYieldRateModifier(0)
+	, m_ppaiLocalBuildingClassYield(0)
 #endif
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
@@ -1248,6 +1249,14 @@ void CvCity::uninit()
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiReligionBuildingYieldRateModifier);
+	if(MOD_BALANCE_CORE_POLICIES && m_ppaiLocalBuildingClassYield)
+	{
+		for(int i=0; i < GC.getNumBuildingClassInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield);
 #endif
 
 	m_pCityBuildings->Uninit();
@@ -1814,6 +1823,16 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
 				m_ppaiReligionBuildingYieldRateModifier[iI][iJ] = 0;
+			}
+		}
+		CvAssertMsg(m_ppaiLocalBuildingClassYield==NULL, "about to leak memory, CvCity::m_ppaiLocalBuildingClassYield");
+		m_ppaiLocalBuildingClassYield = FNEW(int*[iNumBuildingClassInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
+		{
+			m_ppaiLocalBuildingClassYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiLocalBuildingClassYield[iI][iJ] = 0;
 			}
 		}
 #endif
@@ -9022,6 +9041,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if(iYieldChange != 0)
 						{
 							m_pCityBuildings->ChangeBuildingYieldChange(eBuildingClassLocal, eYield, (iYieldChange * iChange));
+							changeLocalBuildingClassYield(eBuildingClassLocal, eYield, (iYieldChange * iChange));
 						}
 					}
 				}
@@ -10239,30 +10259,34 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		{
+			int iGrowthTourism = 0;
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) 
+			for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) 
 			{
 				if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) 
 				{
 					continue;
 				}
 
-				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+				const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 				CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 				CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 				if(pFromCity != NULL && pFromCity == this)
 				{
 					if (pToCity != NULL && pToCity->getOwner() != getOwner() && pToCity->getOwner() != NO_PLAYER && GET_PLAYER(pToCity->getOwner()).isMajorCiv()) 
 					{
-						int iGrowthTourism = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceTradeRouteGrowthBonus(pToCity->getOwner());
+						iGrowthTourism = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceTradeRouteGrowthBonus(pToCity->getOwner());
 						if(iGrowthTourism != 0)
 						{
 							iTotalMod += iGrowthTourism;
-							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
 						}
 
 					}
 				}
+			}
+			if(iGrowthTourism != 0)
+			{
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
 			}
 		}
 #endif
@@ -10811,9 +10835,8 @@ CvArea* CvCity::waterArea() const
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	CvUnit* pGarrison = m_hGarrisonOverride.pointer();
-	if (pGarrison != NULL)
-		return pGarrison;
+	if (m_hGarrisonOverride != -1)
+		return GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
 #else
 	CvUnit* pGarrison = NULL;
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -10824,22 +10847,22 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		UnitHandle garrison = pPlot->getBestDefender(getOwner());
 		if(garrison)
 		{
-			pGarrison = garrison.pointer();
+			return garrison.pointer();
 		}
 	}
 
-	return pGarrison;
+	return NULL;
 }
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-void CvCity::OverrideGarrison(CvUnit* pUnit)
+void CvCity::OverrideGarrison(const CvUnit* pUnit)
 {
-	m_hGarrisonOverride = pUnit;
+	m_hGarrisonOverride = pUnit->GetID();
 }
 
 void CvCity::UnsetGarrisonOverride()
 {
-	m_hGarrisonOverride.removeTarget();
+	m_hGarrisonOverride = -1;
 }
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
@@ -13345,17 +13368,17 @@ int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvStrin
 		bool bWonderResourceOut = false;
 		if (MOD_TRADE_WONDER_RESOURCE_ROUTES) {
 			CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-			for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+			for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 			{
 				if (pGameTrade->IsTradeRouteIndexEmpty(ui))
 				{
 					continue;
 				}
 
-				if (pGameTrade->m_aTradeConnections[ui].m_eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE)
+				if (pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE)
 				{
-					CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->m_aTradeConnections[ui]);
-					CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->m_aTradeConnections[ui]);
+					CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
+					CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
 
 					if (pDestCity->getX() == getX() && pDestCity->getY() == getY())
 					{
@@ -14178,7 +14201,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pUnit->setMoves(1);
-							pmUnit->setDamage(theGame.getJonRandNum(20, "damage"));
+							pUnit->setDamage(theGame.getJonRandNum(20, "damage"));
 						}
 					}
 				}
@@ -17347,17 +17370,17 @@ int CvCity::GetCorporationYieldModChange(YieldTypes eIndex) const
 		return 0;
 	}
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+	for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pGameTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		if (pGameTrade->m_aTradeConnections[ui].m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+		if (pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 		{
-			CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->m_aTradeConnections[ui]);
-			CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->m_aTradeConnections[ui]);
+			CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
+			CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
 			if(pOriginCity != NULL && pDestCity != NULL)
 			{
 				if (pOriginCity->getX() == getX() && pOriginCity->getY() == getY())
@@ -17369,10 +17392,10 @@ int CvCity::GetCorporationYieldModChange(YieldTypes eIndex) const
 				}
 			}
 		}
-		else if (GET_PLAYER(getOwner()).IsOrderCorp() && (pGameTrade->m_aTradeConnections[ui].m_eConnectionType == TRADE_CONNECTION_FOOD || pGameTrade->m_aTradeConnections[ui].m_eConnectionType == TRADE_CONNECTION_PRODUCTION))
+		else if (GET_PLAYER(getOwner()).IsOrderCorp() && (pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_FOOD || pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_PRODUCTION))
 		{
-			CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->m_aTradeConnections[ui]);
-			CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->m_aTradeConnections[ui]);
+			CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
+			CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
 			if(pOriginCity != NULL && pDestCity != NULL)
 			{
 				if (pOriginCity->getX() == getX() && pOriginCity->getY() == getY())
@@ -17833,6 +17856,30 @@ void CvCity::changeReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1,
 	if(iChange != 0)
 	{
 		m_ppaiReligionBuildingYieldRateModifier[eIndex1][eIndex2] += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaiLocalBuildingClassYield[eIndex1][eIndex2];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaiLocalBuildingClassYield[eIndex1][eIndex2] += iChange;
 	}
 }
 #endif
@@ -20875,16 +20922,16 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 		{
 			int iCount = 0;
 			CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-			for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+			for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 			{
 				if (pGameTrade->IsTradeRouteIndexEmpty(ui))
 				{
 					continue;
 				}
 
-				if (pGameTrade->m_aTradeConnections[ui].m_eConnectionType == TRADE_CONNECTION_PRODUCTION)
+				if (pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_PRODUCTION)
 				{
-					CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->m_aTradeConnections[ui]);
+					CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
 					if (pDestCity->getX() == getX() && pDestCity->getY() == getY())
 					{
 						iCount++;
@@ -21641,6 +21688,14 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if(eBuildingClass != NO_BUILDINGCLASS)
 					{
 						SetBuildingInvestment(eBuildingClass, true);
+						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						{
+							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+						}
+						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+						{
+							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
+						}
 					}
 				}
 			}
@@ -22127,32 +22182,37 @@ bool CvCity::doCheckProduction()
 					iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 					const BuildingClassTypes eWonderClass = (BuildingClassTypes)pkExpiredBuildingInfo->GetBuildingClassType();
-					if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass))
+					if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass) && isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
 					{
 						iProductionGold += ((25 * iMaxedBuildingGoldPercent) / 100);
 					}
 #endif
-					if(iProductionGold > 0)
+					if(iProductionGold > 0 && isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
 					{
 #if defined(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD)
 						if(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD && GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() != 0)
-						{						
+						{					
+							int iEra = thisPlayer.GetCurrentEra();
+							if(iEra <= 0)
+							{
+								iEra = 1;
+							}
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 1)
 							{
 								//Wonders converted into Gold (default).
-								thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+								thisPlayer.GetTreasury()->ChangeGold(iProductionGold * iEra);
 							}
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 2)
 							{
 								//Wonders converted into Culture Points.
 								iProductionGold = (iProductionGold * GC.getBALANCE_CULTURE_PERCENTAGE_VALUE()) / 100;
-								thisPlayer.changeJONSCulture(iProductionGold);
+								thisPlayer.changeJONSCulture(iProductionGold * iEra);
 							}
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 3)
 							{
 								//Wonders Converted into Golden Age Points.
 								iProductionGold = (iProductionGold * GC.getBALANCE_GA_PERCENTAGE_VALUE()) / 100;
-								thisPlayer.ChangeGoldenAgeProgressMeter(iProductionGold);
+								thisPlayer.ChangeGoldenAgeProgressMeter(iProductionGold * iEra);
 							}
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 4)
 							{
@@ -22164,11 +22224,11 @@ bool CvCity::doCheckProduction()
 									TechTypes eCurrentTech = thisPlayer.GetPlayerTechs()->GetCurrentResearch();
 									if(eCurrentTech == NO_TECH)
 									{
-										thisPlayer.changeOverflowResearch(iBeakersBonus);
+										thisPlayer.changeOverflowResearch(iBeakersBonus * iEra);
 									}
 									else
 									{
-										GET_TEAM(thisPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, thisPlayer.GetID());
+										GET_TEAM(thisPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iBeakersBonus * iEra), thisPlayer.GetID());
 									}
 								}
 							}
@@ -22176,7 +22236,7 @@ bool CvCity::doCheckProduction()
 							{
 								//Wonders Converted into Faith Points
 								iProductionGold = (iProductionGold * GC.getBALANCE_FAITH_PERCENTAGE_VALUE()) / 100;
-								thisPlayer.ChangeFaith(iProductionGold);
+								thisPlayer.ChangeFaith(iProductionGold * iEra);
 							}
 						}
 						else
@@ -22997,6 +23057,7 @@ void CvCity::read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
 #endif
 
 	kStream >> m_iPopulationRank;
@@ -23362,6 +23423,7 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
 #endif
 
 	kStream << m_iPopulationRank;
@@ -25468,12 +25530,12 @@ bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 bool CvCity::HasAnyDomesticTradeRoute() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 
@@ -25488,12 +25550,12 @@ bool CvCity::HasAnyDomesticTradeRoute() const
 bool CvCity::HasAnyInternationalTradeRoute() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 
@@ -25508,12 +25570,12 @@ bool CvCity::HasAnyInternationalTradeRoute() const
 bool CvCity::HasTradeRouteToAnyCity() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 
 		if (pFromCity == this) {
@@ -25527,12 +25589,12 @@ bool CvCity::HasTradeRouteToAnyCity() const
 bool CvCity::HasTradeRouteTo(CvCity* pCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 
@@ -25547,12 +25609,12 @@ bool CvCity::HasTradeRouteTo(CvCity* pCity) const
 bool CvCity::HasTradeRouteFromAnyCity() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 
 		if (pToCity == this) {
@@ -25566,12 +25628,12 @@ bool CvCity::HasTradeRouteFromAnyCity() const
 bool CvCity::HasTradeRouteFrom(CvCity* pCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint iTradeRoute = 0; iTradeRoute < pTrade->m_aTradeConnections.size(); iTradeRoute++) {
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
 		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[iTradeRoute]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
 		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
 		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 
@@ -25732,7 +25794,7 @@ void CvCity::UpdateClosestNeighbors()
 	std::sort(allNeighbors.begin(), allNeighbors.end());
 
 	m_vClosestNeighbors.clear();
-	for (size_t i=0; i<min<size_t>(4,allNeighbors.size()); i++)
+	for (size_t i=0; i<min<size_t>(6,allNeighbors.size()); i++)
 		m_vClosestNeighbors.push_back(allNeighbors[i].city->GetID());
 }
 

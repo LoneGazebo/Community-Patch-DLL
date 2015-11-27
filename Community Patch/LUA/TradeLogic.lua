@@ -1504,6 +1504,28 @@ function ResetDisplay()
 		Controls.ThemPocketOtherPlayer:GetTextControl():SetColorByName( "Gray_Black" );
 		Controls.ThemPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
 		Controls.ThemPocketOtherPlayer:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+
+		-- CBP
+		Controls.UsTableMakePeaceStack:SetDisabled( true );
+		Controls.UsTableMakePeaceStack:GetTextControl():SetColorByName( "Gray_Black" );
+		Controls.UsTableMakePeaceStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
+		Controls.UsTableMakePeaceStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+
+		Controls.ThemTableMakePeaceStack:SetDisabled( true );
+		Controls.ThemTableMakePeaceStack:GetTextControl():SetColorByName( "Gray_Black" );
+		Controls.ThemTableMakePeaceStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
+		Controls.ThemTableMakePeaceStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+
+		-- CBP
+		Controls.UsTableDeclareWarStack:SetDisabled( true );
+		Controls.UsTableDeclareWarStack:GetTextControl():SetColorByName( "Gray_Black" );
+		Controls.UsTableDeclareWarStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
+		Controls.UsTableDeclareWarStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+
+		Controls.ThemTableDeclareWarStack:SetDisabled( true );
+		Controls.ThemTableDeclareWarStack:GetTextControl():SetColorByName( "Gray_Black" );
+		Controls.ThemTableDeclareWarStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
+		Controls.ThemTableDeclareWarStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
 		
 	else
 		Controls.UsPocketOtherPlayer:SetDisabled( false );

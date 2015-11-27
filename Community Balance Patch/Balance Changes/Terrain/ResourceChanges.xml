@@ -52,16 +52,16 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
 	</Resource_YieldChangeFromMonopoly>
 
 	<Resource_CityYieldModFromMonopoly>
 		<Row>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>10</Yield>
 		</Row>

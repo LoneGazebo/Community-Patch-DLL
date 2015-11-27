@@ -10,7 +10,9 @@
 #include "CvBarbarians.h"
 #include "CvGameCoreUtils.h"
 #include "CvTypes.h"
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#include "CvMinorCivAI.h"
+#endif
 //static 
 short* CvBarbarians::m_aiPlotBarbCampSpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCampNumUnitsSpawned = NULL;
@@ -952,20 +954,7 @@ void CvBarbarians::DoUnits()
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-		{
-			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-			
-			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->IsCombatUnit())
-			{
-				if( ( !pUnit->hasMoved() && pUnit->IsHurt() ) && (pLoopPlot->getImprovementType() == eCamp) )
-				{
-					pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE()));
-				}
-			}
-		}
-#endif
+
 #if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		//Let's make Barbs scarier. If they end their move next to a city, let's have them pillage some Gold from the City. If they end their turn in owned land, let's give them a smaller chance to do so.
 		if(pLoopPlot != NULL && MOD_BALANCE_CORE_BARBARIAN_THEFT)
@@ -1134,6 +1123,52 @@ void CvBarbarians::DoUnits()
 		}
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iOtherMinorLoop;
+	PlayerTypes eOtherMinor;
+	TeamTypes eLoopTeam;
+	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		eLoopTeam = (TeamTypes) iTeamLoop;
+
+		// Another Minor
+		if(!GET_TEAM(eLoopTeam).isMinorCiv())
+			continue;
+
+		// They not alive!
+		if(!GET_TEAM(eLoopTeam).isAlive())
+			continue;
+
+		for(iOtherMinorLoop = 0; iOtherMinorLoop < MAX_CIV_TEAMS; iOtherMinorLoop++)
+		{
+			eOtherMinor = (PlayerTypes) iOtherMinorLoop;
+
+			if(eOtherMinor == NO_PLAYER)
+				continue;
+
+			// Other minor is on this team
+			if(GET_PLAYER(eOtherMinor).getTeam() == eLoopTeam)
+			{
+				if(GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion() > 0)
+				{
+					int iRebellionSpawn = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion();
+
+					GET_PLAYER(eOtherMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
+
+					//Rebel Spawn - once every 4 turns (on default speed)
+					if ((iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
+					|| (iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
+					|| (iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
+					|| (iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
+					|| (iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100))
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -3459,6 +3459,11 @@
 			<Text>[NEWLINE]Requires {1_FeatureName:textkey} near this City.</Text>
 		</Row>
 
+		<!-- LUA for Espionage -->
+		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT">
+			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because of a recent attempt in this City. Cooldown ends in {4_Num} Turn(s).</Text>
+		</Row>
+
 		<!-- LUA for Warscore -->
 		<Row Tag="TXT_KEY_WAR_SCORE">
 			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>

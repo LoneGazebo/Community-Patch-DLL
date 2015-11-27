@@ -412,6 +412,15 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiNumTimesCoopWarDenied(NULL),
 	m_pabDoFBroken(NULL),
 	m_paiNumTimesRazed(NULL),
+	m_pabPlayerEverMadeBorderPromise(NULL),
+	m_pabPlayerEverMadeExpansionPromise(NULL),
+	m_pabDoFEverAsked(NULL),
+	m_pabHelpRequestEverMade(NULL),
+	m_pabDemandEverMade(NULL),
+	m_pabPlayerNoSettleRequestEverAsked(NULL),
+	m_pabPlayerStopSpyingRequestEverAsked(NULL),
+	m_paiNumLandmarksBuiltForMeTurn(NULL),
+	m_paiCiviliansReturnedToMeTurn(NULL),
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	m_paiOtherPlayerWarmongerAmountTimes100(NULL),
@@ -627,6 +636,20 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiNumTimesCoopWarDenied = &m_pDiploData->m_aiNumTimesCoopWarDenied[0];
 	m_pabDoFBroken = &m_pDiploData->m_abDoFBroken[0];
 	m_paiNumTimesRazed = &m_pDiploData->m_aiNumTimesRazed[0];
+	m_pabPlayerEverMadeBorderPromise = &m_pDiploData->m_abPlayerEverMadeBorderPromise[0];
+	m_pabPlayerEverMadeExpansionPromise = &m_pDiploData->m_abPlayerEverMadeExpansionPromise[0];
+	m_pabDoFEverAsked = &m_pDiploData->m_abDoFEverAsked[0];
+	m_pabHelpRequestEverMade = &m_pDiploData->m_abHelpRequestEverMade[0];
+	m_pabDemandEverMade = &m_pDiploData->m_abDemandEverMade[0];
+	m_pabPlayerNoSettleRequestEverAsked = &m_pDiploData->m_abPlayerNoSettleRequestEverAsked[0];
+	m_pabPlayerStopSpyingRequestEverAsked = &m_pDiploData->m_abPlayerStopSpyingRequestEverAsked[0];
+	m_paiNumLandmarksBuiltForMeTurn = &m_pDiploData->m_aiNumLandmarksBuiltForMeTurn[0];
+	m_paiCiviliansReturnedToMeTurn = &m_pDiploData->m_aiCiviliansReturnedToMeTurn[0];
+	m_paiPlayerForgaveForSpyingTurn = &m_pDiploData->m_aiPlayerForgaveForSpyingTurn[0];
+	m_paiLiberatedCitiesTurn = &m_pDiploData->m_aiLiberatedCitiesTurn[0];
+	m_paiIntrigueSharedTurn = &m_pDiploData->m_aiIntrigueSharedTurn[0];
+	m_paiReligiousConversionTurn = &m_pDiploData->m_aiReligiousConversionTurn[0];
+	m_paiTimesRobbedTurn = &m_pDiploData->m_aiTimesRobbedTurn[0];
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	m_paiOtherPlayerWarmongerAmountTimes100 = &m_pDiploData->m_aiOtherPlayerWarmongerAmountTimes100[0];
@@ -916,6 +939,20 @@ void CvDiplomacyAI::Uninit()
 	m_paiNumTimesCoopWarDenied = NULL;
 	m_pabDoFBroken = NULL;
 	m_paiNumTimesRazed = NULL;
+	m_pabPlayerEverMadeBorderPromise = NULL;
+	m_pabPlayerEverMadeExpansionPromise = NULL;
+	m_pabDoFEverAsked = NULL;
+	m_pabHelpRequestEverMade = NULL;
+	m_pabDemandEverMade = NULL;
+	m_pabPlayerNoSettleRequestEverAsked = NULL;
+	m_pabPlayerStopSpyingRequestEverAsked = NULL;
+	m_paiNumLandmarksBuiltForMeTurn = NULL;
+	m_paiCiviliansReturnedToMeTurn = NULL;
+	m_paiPlayerForgaveForSpyingTurn = NULL;
+	m_paiLiberatedCitiesTurn = NULL;
+	m_paiIntrigueSharedTurn = NULL;
+	m_paiReligiousConversionTurn = NULL;
+	m_paiTimesRobbedTurn = NULL;
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	m_paiOtherPlayerWarmongerAmountTimes100 = NULL;
@@ -1099,6 +1136,20 @@ void CvDiplomacyAI::Reset()
 		m_paeDoFType[iI] = NO_DOF_TYPE;
 		m_paiNumTimesCoopWarDenied[iI] = 0;
 		m_pabDoFBroken[iI] = false;
+		m_pabPlayerEverMadeBorderPromise[iI] = false;
+		m_pabPlayerEverMadeExpansionPromise[iI] = false;
+		m_pabDoFEverAsked[iI] = false;
+		m_pabHelpRequestEverMade[iI] = false;
+		m_pabDemandEverMade[iI] = false;
+		m_pabPlayerNoSettleRequestEverAsked[iI] = false;
+		m_pabPlayerStopSpyingRequestEverAsked[iI] = false;
+		m_paiNumLandmarksBuiltForMeTurn[iI] = 0;
+		m_paiCiviliansReturnedToMeTurn[iI] = 0;
+		m_paiPlayerForgaveForSpyingTurn[iI] = 0;
+		m_paiLiberatedCitiesTurn[iI] = 0;
+		m_paiIntrigueSharedTurn[iI] = 0;
+		m_paiReligiousConversionTurn[iI] = 0;
+		m_paiTimesRobbedTurn[iI] = 0;
 #endif
 #if defined(MOD_API_EXTENSIONS)
 		m_paiOtherPlayerWarmongerAmountTimes100[iI] = 0;
@@ -1757,6 +1808,48 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	
 	ArrayWrapper<short> wrapm_paiNumTimesRazed(MAX_CIV_PLAYERS, m_paiNumTimesRazed);
 	kStream >> wrapm_paiNumTimesRazed;
+
+	ArrayWrapper<bool> wrapm_pabPlayerEverMadeBorderPromise(MAX_MAJOR_CIVS, m_pabPlayerEverMadeBorderPromise);
+	kStream >> wrapm_pabPlayerEverMadeBorderPromise; 
+
+	ArrayWrapper<bool> wrapm_pabPlayerEverMadeExpansionPromise(MAX_MAJOR_CIVS, m_pabPlayerEverMadeExpansionPromise);
+	kStream >> wrapm_pabPlayerEverMadeExpansionPromise; 
+
+	ArrayWrapper<bool> wrapm_pabDoFEverAsked(MAX_MAJOR_CIVS, m_pabDoFEverAsked);
+	kStream >> wrapm_pabDoFEverAsked; 
+
+	ArrayWrapper<bool> wrapm_pabHelpRequestEverMade(MAX_MAJOR_CIVS, m_pabHelpRequestEverMade);
+	kStream >> wrapm_pabHelpRequestEverMade; 
+
+	ArrayWrapper<bool> wrapm_pabDemandEverMade(MAX_MAJOR_CIVS, m_pabDemandEverMade);
+	kStream >> wrapm_pabDemandEverMade; 
+
+	ArrayWrapper<bool> wrapm_pabPlayerNoSettleRequestEverAsked(MAX_MAJOR_CIVS, m_pabPlayerNoSettleRequestEverAsked);
+	kStream >> wrapm_pabPlayerNoSettleRequestEverAsked; 
+
+	ArrayWrapper<bool> wrapm_pabPlayerStopSpyingRequestEverAsked(MAX_MAJOR_CIVS, m_pabPlayerStopSpyingRequestEverAsked);
+	kStream >> wrapm_pabPlayerStopSpyingRequestEverAsked; 
+
+	ArrayWrapper<short> wrapm_paiNumLandmarksBuiltForMeTurn(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMeTurn);
+	kStream >> wrapm_paiNumLandmarksBuiltForMeTurn; 
+
+	ArrayWrapper<short> wrapm_paiCiviliansReturnedToMeTurn(MAX_MAJOR_CIVS, m_paiCiviliansReturnedToMeTurn);
+	kStream >> wrapm_paiCiviliansReturnedToMeTurn; 
+
+	ArrayWrapper<short> wrapm_paiPlayerForgaveForSpyingTurn(MAX_MAJOR_CIVS, m_paiPlayerForgaveForSpyingTurn);
+	kStream >> wrapm_paiPlayerForgaveForSpyingTurn; 
+
+	ArrayWrapper<short> wrapm_paiLiberatedCitiesTurn(MAX_MAJOR_CIVS, m_paiLiberatedCitiesTurn);
+	kStream >> wrapm_paiLiberatedCitiesTurn; 
+
+	ArrayWrapper<short> wrapm_paiIntrigueSharedTurn(MAX_MAJOR_CIVS, m_paiIntrigueSharedTurn);
+	kStream >> wrapm_paiIntrigueSharedTurn; 
+
+	ArrayWrapper<short> wrapm_paiReligiousConversionTurn(MAX_MAJOR_CIVS, m_paiReligiousConversionTurn);
+	kStream >> wrapm_paiReligiousConversionTurn; 
+
+	ArrayWrapper<short> wrapm_paiTimesRobbedTurn(MAX_MAJOR_CIVS, m_paiTimesRobbedTurn);
+	kStream >> wrapm_paiTimesRobbedTurn;
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	ArrayWrapper<int> wrapm_paiOtherPlayerWarmongerAmount(MAX_MAJOR_CIVS, m_paiOtherPlayerWarmongerAmountTimes100);
@@ -2029,6 +2122,20 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumTimesCoopWarDenied);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTimesRazed);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerEverMadeBorderPromise);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerEverMadeExpansionPromise);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFEverAsked);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabHelpRequestEverMade);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDemandEverMade);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerNoSettleRequestEverAsked);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerStopSpyingRequestEverAsked);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMeTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiCiviliansReturnedToMeTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPlayerForgaveForSpyingTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiLiberatedCitiesTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiIntrigueSharedTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiReligiousConversionTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiTimesRobbedTurn);
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_paiOtherPlayerWarmongerAmountTimes100);
@@ -3530,7 +3637,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 	case THREAT_CRITICAL:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 2;
 #endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_CRITICAL();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*4*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_CRITICAL();
@@ -3539,7 +3646,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	case THREAT_SEVERE:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
 #endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_SEVERE();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*3*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_SEVERE();
@@ -3547,9 +3654,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getAPPROACH_FRIENDLY_MILITARY_THREAT_SEVERE();
 		break;
 	case THREAT_MAJOR:
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
-#endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_MAJOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*2*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_MAJOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += /*1*/ GC.getAPPROACH_AFRAID_MILITARY_THREAT_MAJOR();
@@ -3560,17 +3664,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*0*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_MINOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += /*1*/ GC.getAPPROACH_AFRAID_MILITARY_THREAT_MINOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getAPPROACH_FRIENDLY_MILITARY_THREAT_MINOR();
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
-#endif
 		break;
 	case THREAT_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += /*2*/ GC.getAPPROACH_HOSTILE_MILITARY_THREAT_NONE();
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
-		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += -1;
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += 1;
-#endif
 		break;
 	}
 
@@ -3734,12 +3830,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (iGPT >= 0 && (iDeltaGPT < 0))
 		{
 #if defined(MOD_BALANCE_CORE)
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (iDeltaGPT / 10);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (iDeltaGPT / 10);
-			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (iDeltaGPT / 10);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += ((iDeltaGPT * -1) / 10);
-			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((iDeltaGPT * -1) / 10);
-			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += ((iDeltaGPT * -1) / 10);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (iDeltaGPT / 2);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (iDeltaGPT / 5);
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (iDeltaGPT / 5);
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += ((iDeltaGPT * -1) / 5);
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((iDeltaGPT * -1) / 2);
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += ((iDeltaGPT * -1) / 2);
 #else
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDeltaGPT;
 #endif
@@ -3849,7 +3945,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 #if defined(MOD_BALANCE_CORE)
 			WarProjectionTypes eWarProjection = GetWarProjection(ePlayer);
-			if(eWarProjection > WAR_PROJECTION_STALEMATE)
+			if(eWarProjection >= WAR_PROJECTION_GOOD)
 			{
 				bThinkingAboutDogpiling = true;
 			}
@@ -3863,14 +3959,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				bThinkingAboutDogpiling = true;
 			}
-			iBonus = (int)eBlockLevel + (int)eDisputeLevel + (int)eWarProjection;
-			if(iBonus <= 0)
+			if(bThinkingAboutDogpiling)
 			{
-				iBonus = 1;
+				iBonus = (int)eBlockLevel + (int)eDisputeLevel + (int)eWarProjection;
+				iBonus /= 4;
 			}
 		}
 	}
-	if (bThinkingAboutDogpiling)
+	if (bThinkingAboutDogpiling && (iBonus > 0))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= (250 * iBonus);
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
@@ -4159,7 +4255,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #if defined(MOD_BALANCE_CORE)
 	// DEFENSIVE PACT
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= 50;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 #endif
 
 	////////////////////////////////////
@@ -7675,6 +7771,24 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 			{
 				iAverageScore = iWarScore + iTheirWarScore;
 			}
+		}
+	}
+	int iWarDuration = GetPlayerNumTurnsAtWar(ePlayer);
+	iWarDuration /= 4;
+	if(iAverageScore > 0)
+	{
+		iAverageScore -= iWarDuration;
+		if(iAverageScore < 0)
+		{
+			iAverageScore = 0;
+		}
+	}
+	else if(iAverageScore < 0)
+	{
+		iAverageScore += iWarDuration;
+		if(iAverageScore > 0)
+		{
+			iAverageScore = 0;
 		}
 	}
 	if(iAverageScore >= 100)
@@ -13957,6 +14071,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// If we had agreed to not settle near the player, break that off
 		SetPlayerNoSettleRequestAccepted(ePlayer, false);
 		SetPlayerNoSettleRequestCounter(ePlayer, -666);
+
 		// If we had agreed to not spy on the player, break that off
 		SetPlayerStopSpyingRequestAccepted(ePlayer, false);
 		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
@@ -21575,7 +21690,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else
 		{
 			SetPlayerNoSettleRequestCounter(eFromPlayer, 0);
-
+#if defined(MOD_BALANCE_CORE)
+			SetPlayerNoSettleRequestEverAsked(eFromPlayer, true);
+#endif
 			bool bAcceptable;
 
 			// Teammates
@@ -21624,6 +21741,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else
 		{
 			SetPlayerStopSpyingRequestCounter(eFromPlayer, 0);
+#if defined(MOD_BALANCE_CORE)
+			SetPlayerStopSpyingRequestEverAsked(eFromPlayer, true);
+#endif
 
 			bool bAcceptable;
 
@@ -22199,6 +22319,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerMadeExpansionPromise(eFromPlayer, true);
 			SetPlayerExpansionPromiseData(eFromPlayer, GetExpansionAggressivePosture(eFromPlayer));
+#if defined(MOD_BALANCE_CORE)
+			SetEverMadeExpansionPromise(eFromPlayer, true);
+#endif
 
 			if(bActivePlayer)
 			{
@@ -22245,6 +22368,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerMadeBorderPromise(eFromPlayer, true);
 			SetPlayerBorderPromiseData(eFromPlayer, GetPlotBuyingAggressivePosture(eFromPlayer));
+#if defined(MOD_BALANCE_CORE)
+			SetEverMadeBorderPromise(eFromPlayer, true);
+#endif
 
 			if(bActivePlayer)
 			{
@@ -22370,10 +22496,25 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 #endif
 				{
-					if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (80 - GetMeanness() - GetBoldness()))
+					int iChance = 80;
+					if(GetMajorCivOpinion(eFromPlayer) >= MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iChance = 110;
+					}
+					if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (iChance - GetMeanness() - GetBoldness()))
 					{
 						bDeclareWar = true;
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(bDeclareWar && IsDoFAccepted(eFromPlayer))
+					{
+						bDeclareWar = false;
+					}
+					if(bDeclareWar && GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam()))
+					{
+						bDeclareWar = false;
+					}
+#endif
 				}
 				if(bDeclareWar)
 				{
@@ -22389,10 +22530,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 				else
 				{
-					if(GetMajorCivApproach(eFromPlayer, true) <= MAJOR_CIV_APPROACH_GUARDED)
-					{
-						SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
+					SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 					//If player is offended, AI should take note as penalty to assistance.
 					CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 					int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
@@ -25067,6 +25205,9 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer)
 
 	// Reset counter
 	SetDemandCounter(ePlayer, 0);
+#if defined(MOD_BALANCE_CORE)
+	SetDemandEverMade(ePlayer, true);
+#endif
 
 	// See how long it'll be before we might agree to another demand
 
@@ -25106,10 +25247,16 @@ short CvDiplomacyAI::GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const
 
 bool CvDiplomacyAI::IsDemandEverMade(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabDemandEverMade[ePlayer];
+#else
 	if(GetDemandCounter(ePlayer) == -1)
 		return false;
 
 	return true;
+#endif
 }
 
 short CvDiplomacyAI::GetDemandCounter(PlayerTypes ePlayer) const
@@ -25264,11 +25411,16 @@ bool CvDiplomacyAI::IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const
 /// Has ePlayer ever asked about us not settling near him?
 bool CvDiplomacyAI::IsPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerNoSettleRequestEverAsked[ePlayer];
+#else
 	// Counter set to -1 at start. Gets reset to -666
 	if(GetPlayerNoSettleRequestCounter(ePlayer) == -1)
 		return false;
-
 	return true;
+#endif
 }
 
 bool CvDiplomacyAI::IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const
@@ -25402,13 +25554,18 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 /// Has ePlayer ever asked about us not spying on him?
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerStopSpyingRequestEverAsked[ePlayer];
+#else
 	// Counter set to -1 at start. Gets reset to -666
 	if(GetPlayerStopSpyingRequestCounter(ePlayer) == -1)
 	{
 		return false;
 	}
-
 	return true;
+#endif
 }
 
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestRejected(PlayerTypes ePlayer) const
@@ -25627,11 +25784,16 @@ bool CvDiplomacyAI::IsDoFMessageTooSoon(PlayerTypes ePlayer) const
 /// Has ePlayer ever asked about working with us?
 bool CvDiplomacyAI::IsDoFEverAsked(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerStopSpyingRequestEverAsked[ePlayer];
+#else
 	// Counter set to -1 at start. Gets reset to -666
 	if(GetDoFCounter(ePlayer) == -1)
 		return false;
-
 	return true;
+#endif
 }
 
 bool CvDiplomacyAI::IsDoFRejected(PlayerTypes ePlayer) const
@@ -27050,7 +27212,11 @@ void CvDiplomacyAI::DoTestPromises()
 				eOldPosture = GetPlayerExpansionPromiseData(eLoopPlayer);
 
 				// Player has been up to no good since we last warned him
+#if defined(MOD_BALANCE_CORE)
+				if((eOldPosture != NO_AGGRESSIVE_POSTURE_TYPE) && (GetExpansionAggressivePosture(eLoopPlayer) > eOldPosture))
+#else
 				if(GetExpansionAggressivePosture(eLoopPlayer) > eOldPosture)
+#endif
 				{
 					if (!IsPlayerBrokenExpansionPromise(eLoopPlayer))
 					{
@@ -27078,7 +27244,11 @@ void CvDiplomacyAI::DoTestPromises()
 				eOldPosture = GetPlayerBorderPromiseData(eLoopPlayer);
 
 				// Player has been up to no good since we last warned him
+#if defined(MOD_BALANCE_CORE)
+				if((eOldPosture != NO_AGGRESSIVE_POSTURE_TYPE) && (GetPlotBuyingAggressivePosture(eLoopPlayer) > eOldPosture))
+#else
 				if(GetPlotBuyingAggressivePosture(eLoopPlayer) > eOldPosture)
+#endif
 				{
 					if (!IsPlayerBrokenBorderPromise(eLoopPlayer))
 					{
@@ -27282,7 +27452,21 @@ void CvDiplomacyAI::SetPlayerExpansionPromiseData(PlayerTypes ePlayer, Aggressiv
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paePlayerExpansionPromiseData[ePlayer] = eValue;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvDiplomacyAI::SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	m_pabPlayerEverMadeExpansionPromise[ePlayer] = bValue;
+}
+bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerEverMadeExpansionPromise[ePlayer];
+}
+#else
 bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -27296,7 +27480,7 @@ bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 		return true;
 	}
 }
-
+#endif
 #if defined(MOD_BALANCE_CORE)
 int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
 {
@@ -27360,7 +27544,7 @@ void CvDiplomacyAI::SetPlayerMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 	}
 	else
 	{
-		m_paiPlayerMadeBorderPromiseTurn[ePlayer] = GC.getGame().getGameTurn();
+		m_paiPlayerMadeBorderPromiseTurn[ePlayer] = -1;
 		SetPlayerBorderPromiseData(ePlayer, NO_AGGRESSIVE_POSTURE_TYPE);
 	}
 }
@@ -27411,7 +27595,56 @@ void CvDiplomacyAI::SetPlayerBorderPromiseData(PlayerTypes ePlayer, AggressivePo
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paePlayerBorderPromiseData[ePlayer] = eValue;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvDiplomacyAI::SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	m_pabPlayerEverMadeBorderPromise[ePlayer] = bValue;
+}
+void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_pabDoFEverAsked[ePlayer] = bValue;
+}
+void CvDiplomacyAI::SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_pabHelpRequestEverMade[ePlayer] = bValue;
+}
+void CvDiplomacyAI::SetDemandEverMade(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_pabDemandEverMade[ePlayer] = bValue;
+}
+void CvDiplomacyAI::SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_pabPlayerNoSettleRequestEverAsked[ePlayer] = bValue;
+}
+void CvDiplomacyAI::SetPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_pabPlayerStopSpyingRequestEverAsked[ePlayer] = bValue;
+}
+bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerEverMadeBorderPromise[ePlayer];
+}
+#else
 bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -27425,7 +27658,7 @@ bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 		return true;
 	}
 }
-
+#endif
 bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -27834,6 +28067,9 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 		// Message for human
 		if(iChange > 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			SetCiviliansReturnedToMeTurn(ePlayer, GC.getGame().getGameTurn());
+#endif
 			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 			{
 				if(GC.getGame().getActivePlayer() == ePlayer)
@@ -27846,7 +28082,115 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Built a landmark?
+int CvDiplomacyAI::GetCiviliansReturnedToMeTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	return m_paiCiviliansReturnedToMeTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetCiviliansReturnedToMeTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiCiviliansReturnedToMeTurn[ePlayer] = iChange;
+}
+
+/// Built a landmark?
+int CvDiplomacyAI::GetLiberatedCitiesTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiLiberatedCitiesTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetLiberatedCitiesTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiLiberatedCitiesTurn[ePlayer] = iChange;
+}
+
+/// Built a landmark?
+int CvDiplomacyAI::GetForgaveForSpyingTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiPlayerForgaveForSpyingTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetForgaveForSpyingTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiPlayerForgaveForSpyingTurn[ePlayer] = iChange;
+}
+
+/// Built a landmark?
+int CvDiplomacyAI::GetIntrigueSharedTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiIntrigueSharedTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetIntrigueSharedTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiIntrigueSharedTurn[ePlayer] = iChange;
+}
+
+/// Built a landmark?
+int CvDiplomacyAI::GetReligiousConversionTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiReligiousConversionTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiReligiousConversionTurn[ePlayer] = iChange;
+}
+
+/// Built a landmark?
+int CvDiplomacyAI::GetRobbedTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiTimesRobbedTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetRobbedTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiTimesRobbedTurn[ePlayer] = iChange;
+}
+#endif
 /// Built a landmark?
 int CvDiplomacyAI::GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const
 {
@@ -27868,6 +28212,25 @@ void CvDiplomacyAI::ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChang
 		CvAssertMsg(m_paiNumLandmarksBuiltForMe[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Landmarks built. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Built a landmark?
+int CvDiplomacyAI::GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiNumLandmarksBuiltForMeTurn[ePlayer];
+}
+
+/// Built a landmark?
+void CvDiplomacyAI::SetLandmarksBuiltForMeTurn(PlayerTypes ePlayer, int iChange)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiNumLandmarksBuiltForMeTurn[ePlayer] = iChange;
+}
+#endif
 
 /// Brought player back to life?
 bool CvDiplomacyAI::WasResurrectedBy(PlayerTypes ePlayer) const
@@ -28037,7 +28400,12 @@ void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
-
+#if defined(MOD_BALANCE_CORE)
+		if(iChange > 0)
+		{
+			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+#endif
 		m_paiNumTimesRobbedBy[ePlayer] += iChange;
 		CvAssertMsg(m_paiNumTimesRobbedBy[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Robbed By returned. Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	}
@@ -28059,7 +28427,12 @@ void CvDiplomacyAI::ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iCha
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
-
+#if defined(MOD_BALANCE_CORE)
+		if(iChange > 0)
+		{
+			SetIntrigueSharedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+#endif
 		m_paiNumTimesIntrigueSharedBy[ePlayer] += iChange;
 		CvAssertMsg(m_paiNumTimesIntrigueSharedBy[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Robbed By returned. Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	}
@@ -28218,6 +28591,20 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 	if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
 		iOpinionWeight += (/*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() * GetNumCiviliansReturnedToMe(ePlayer));
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(iOpinionWeight > 0)
+	{
+		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
+		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > iTurn)
+		{
+			iOpinionWeight /= 2;
+			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > (iTurn * 2))
+			{
+				iOpinionWeight = 0;
+			}
+		}
+	}
+#endif
 	return iOpinionWeight;
 }
 
@@ -28236,6 +28623,20 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
 			iOpinionWeight += ((GC.getOPINION_WEIGHT_BUILT_LANDMARK() / 3) * (iNumLandmarks - 1));
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(iOpinionWeight > 0)
+	{
+		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
+		if((GC.getGame().getGameTurn() - GetLandmarksBuiltForMeTurn(ePlayer)) > iTurn)
+		{
+			iOpinionWeight /= 2;
+			if((GC.getGame().getGameTurn() - GetLandmarksBuiltForMeTurn(ePlayer)) > (iTurn * 2))
+			{
+				iOpinionWeight = 0;
+			}
+		}
+	}
+#endif
 	return iOpinionWeight;
 }
 
@@ -28263,6 +28664,20 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = /*-30*/ GC.getOPINION_WEIGHT_LIBERATED_ONE_CITY();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(iOpinionWeight > 0)
+	{
+		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
+		if((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) > iTurn)
+		{
+			iOpinionWeight /= 2;
+			if((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) > (iTurn * 2))
+			{
+				iOpinionWeight = 0;
+			}
+		}
+	}
+#endif
 	return iOpinionWeight;
 }
 
@@ -28277,6 +28692,17 @@ int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(IsPlayerForgaveForSpying(ePlayer))
+	{
+		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
+		if((GC.getGame().getGameTurn() - GetForgaveForSpyingTurn(ePlayer)) > iTurn)
+		{
+			SetPlayerForgaveForSpying(ePlayer, false);
+			SetForgaveForSpyingTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+	}
+#endif
 	if(IsPlayerForgaveForSpying(ePlayer))
 		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_FORGAVE_FOR_SPYING();
 	return iOpinionWeight;
@@ -28317,6 +28743,17 @@ int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(GetNegativeReligiousConversionPoints(ePlayer) > 0)
+	{
+		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
+		if((GC.getGame().getGameTurn() - GetReligiousConversionTurn(ePlayer)) > iTurn)
+		{
+			ChangeNegativeReligiousConversionPoints(ePlayer, -1);
+			SetReligiousConversionTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+	}
+#endif
 	if(GetNegativeReligiousConversionPoints(ePlayer) > 0)
 	{
 		iOpinionWeight += (GetNegativeReligiousConversionPoints(ePlayer) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion() * /*2*/ GC.getOPINION_WEIGHT_PER_NEGATIVE_CONVERSION());
@@ -28382,6 +28819,17 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(GetNumTimesRobbedBy(ePlayer) > 0)
+	{
+		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
+		if((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) > iTurn)
+		{
+			ChangeNumTimesRobbedBy(ePlayer, -1);
+			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+	}
+#endif
 	if(GetNumTimesRobbedBy(ePlayer) > 0)
 		iOpinionWeight += (GetNumTimesRobbedBy(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
 	return iOpinionWeight;
@@ -28392,6 +28840,17 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 	int iOpinionWeight = 0;
 	int iNumCivs = GetNumTimesIntrigueSharedBy(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	if(iNumCivs > 0)
+	{
+		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
+		if((GC.getGame().getGameTurn() - GetIntrigueSharedTurn(ePlayer)) > iTurn)
+		{
+			ChangeNumTimesIntrigueSharedBy(ePlayer, -1);
+			SetIntrigueSharedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+	}
+#endif
 	if (iNumCivs > 0)
 	{
 		if(iNumCivs >= 3)
@@ -35352,6 +35811,9 @@ void CvDiplomacyAI::DoHelpRequestMade(PlayerTypes ePlayer)
 
 	// Reset counter
 	SetHelpRequestCounter(ePlayer, 0);
+#if defined(MOD_BALANCE_CORE)
+	SetHelpRequestEverMade(ePlayer, true);
+#endif
 
 	// See how long it'll be before we might agree to another help request
 
@@ -35387,10 +35849,15 @@ short CvDiplomacyAI::GetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer) const
 
 bool CvDiplomacyAI::IsHelpRequestEverMade(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabHelpRequestEverMade[ePlayer];
+#else
 	if(GetHelpRequestCounter(ePlayer) == -1)
 		return false;
-
 	return true;
+#endif
 }
 
 short CvDiplomacyAI::GetHelpRequestCounter(PlayerTypes ePlayer) const

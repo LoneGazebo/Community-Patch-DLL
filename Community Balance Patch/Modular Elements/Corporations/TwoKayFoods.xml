@@ -224,7 +224,7 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, or [ICON_RES_CITRUS] Citrus.[NEWLINE][NEWLINE]Grants a free TwoKay Foods Office in this City, and unlocks construction of TwoKay Foods Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_TWOKAY_FOODS">
-			<Text>Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, and [ICON_RES_CITRUS] Citrus gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City's [ICON_FOOD] Growth rate by +10%.</Text>
+			<Text>Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, and [ICON_RES_CITRUS] Citrus gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City's [ICON_FOOD] Growth rate by +10%, and all owned Trade Routes have +1 Sight and reveal the Fog of War.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">

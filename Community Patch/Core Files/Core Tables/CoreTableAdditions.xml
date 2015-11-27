@@ -499,5 +499,21 @@
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
+		<Row>
+			<ID>12</ID>
+			<Type>YIELD_JFD_HEALTH</Type>
+			<Description>TXT_KEY_YIELD_JFD_HEALTH</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
+		<Row>
+			<ID>13</ID>
+			<Type>YIELD_JFD_DISEASE</Type>
+			<Description>TXT_KEY_YIELD_JFD_DISEASE</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
 	</Yields>
 </GameData>

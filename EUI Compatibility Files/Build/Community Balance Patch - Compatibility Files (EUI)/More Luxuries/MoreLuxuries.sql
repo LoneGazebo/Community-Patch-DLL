@@ -231,6 +231,14 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_GLASS';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '3'
+	WHERE Type = 'RESOURCE_GLASS';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
 	WHERE Type = 'RESOURCE_JADE';
 
 	UPDATE Resources

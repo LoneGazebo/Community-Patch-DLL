@@ -191,8 +191,6 @@ void CvPlayerAI::AI_unitUpdate()
 	bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
 #if defined(MOD_CORE_PATHFINDER)
 	bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#else
-	bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
 #endif
 	bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
 	bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
@@ -245,10 +243,7 @@ void CvPlayerAI::AI_unitUpdate()
 	GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
 #if defined(MOD_CORE_PATHFINDER)
 	GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#else
-	GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
 #endif
-
 	GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
@@ -300,6 +295,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 				bLiberate = true;
 			}
 #if defined(MOD_BALANCE_CORE)
+			if(isMinorCiv() && GetMinorCivAI()->GetAlly() == eOriginalOwner)
+			{
+				bLiberate = true;
+			}
 			if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
 			{
 				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
@@ -1845,69 +1844,78 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 {
-	CvCity* pBestCity = NULL;
-	int iBestScore = 0;
+	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through each city state
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
+		if(kPlayer.isAlive() && kPlayer.isMinorCiv())
 		{
 		//Loop through each city
 			int iLoop;
 			CvCity* pLoopCity;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity && (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv()))
+				if(pLoopCity)
 				{
 					int iScore = ScoreCityForDiplomat(pLoopCity, pUnit);
-					if(iScore > iBestScore)
-					{
-						iBestScore = iScore;
-						pBestCity = pLoopCity;
-					}
+					vTargets.push_back( SPlotWithScore(pLoopCity->plot(),iScore) );
 				}
 			}
 		}
 	}
-	return pBestCity;
+
+	//highest score first ..
+	std::sort(vTargets.begin(),vTargets.end());
+
+	//check if we can actually go there only if the city is promising
+	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
+	{
+		int iPathTurns;
+		if (pUnit->GeneratePath(it->pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
+			return it->pPlot->getPlotCity();
+	}
+
+	return NULL;
 }
 
 CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 {
-	CvCity* pBestCity = NULL;
-	int iBestScore = 0;
+	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through each city state
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
+		if(kPlayer.isAlive() && kPlayer.isMinorCiv())
 		{
 		//Loop through each city
 			int iLoop;
 			CvCity* pLoopCity;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity && (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv()))
+				if(pLoopCity)
 				{
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
-					if(iScore > iBestScore)
-					{
-						//check if we can actually go there only if the city is promising
-						int iPathTurns;
-						if (pUnit->GeneratePath(pLoopCity->plot(), MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
-						{
-							iBestScore = iScore;
-							pBestCity = pLoopCity;
-						}
-					}
+					vTargets.push_back( SPlotWithScore(pLoopCity->plot(),iScore) );
 				}
 			}
 		}
 	}
-	return pBestCity;
+
+	//highest score first ..
+	std::sort(vTargets.begin(),vTargets.end());
+
+	//check if we can actually go there only if the city is promising
+	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
+	{
+		int iPathTurns;
+		if (pUnit->GeneratePath(it->pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
+			return it->pPlot->getPlotCity();
+	}
+
+	return NULL;
 }	
 
 int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)

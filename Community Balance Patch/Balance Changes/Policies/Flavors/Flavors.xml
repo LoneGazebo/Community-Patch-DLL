@@ -168,7 +168,7 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
@@ -183,7 +183,7 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>9</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>

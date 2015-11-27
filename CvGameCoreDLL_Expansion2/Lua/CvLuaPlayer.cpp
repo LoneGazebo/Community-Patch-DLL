@@ -325,8 +325,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFoundedReligionEnemyCityCombatMod);
 	Method(GetFoundedReligionFriendlyCityCombatMod);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
-	Method(GetCombatVersusOtherReligionOwnLands);
-	Method(GetCombatVersusOtherReligionTheirLands);
 	Method(GetYieldPerTurnFromReligion);
 #endif
 	Method(GetMinimumFaithNextGreatProphet);
@@ -722,6 +720,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFriendshipFromUnitGift);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_MINORS)
 	Method(GetJerk);
+	Method(GetCoupCooldown);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetNumDenouncements);
@@ -3320,56 +3319,6 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 	return 1;
 }
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
-//------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionOwnLands();
-int CvLuaPlayer::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
-{
-	int iRtnValue = 0;
-
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	if(pkPlot)
-	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
-		if(eFoundedReligion != NO_RELIGION)
-		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
-			if(pReligion)
-			{
-				iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
-			}
-		}
-	}
-	lua_pushinteger(L, iRtnValue);
-
-	return 1;
-}
-//------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionTheirLands();
-int CvLuaPlayer::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
-{
-	int iRtnValue = 0;
-
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	if(pkPlot)
-	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
-		if(eFoundedReligion != NO_RELIGION)
-		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
-			if(pReligion)
-			{
-				iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
-			}
-		}
-	}
-	lua_pushinteger(L, iRtnValue);
-
-	return 1;
-}
 // int GetYieldPerTurnFromReligion(YieldTypes eYield)
 int CvLuaPlayer::lGetYieldPerTurnFromReligion(lua_State* L)
 {
@@ -4548,15 +4497,15 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 
 	CvString strResult = "";	
 
-	TradeConnection* pConnection = NULL;
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	const TradeConnection* pConnection = NULL;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		pConnection = &(pTrade->m_aTradeConnections[ui]);
+		pConnection = &(pTrade->GetTradeConnection(ui));
 		if (pConnection->m_eOriginOwner == pkPlayer->GetID())
 		{
 			CvPlot* pOriginPlot = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY);
@@ -4743,15 +4692,15 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 	CvString strResult = "";	
 
-	TradeConnection* pConnection = NULL;
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	const TradeConnection* pConnection = NULL;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		pConnection = &(pTrade->m_aTradeConnections[ui]);
+		pConnection = &(pTrade->GetTradeConnection(ui));
 
 		// don't include internal trade, but does this not count teams sharing stuff between each other
 		if (pConnection->m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
@@ -4915,14 +4864,14 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 	int index = 1;
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
 		if (pConnection->m_eOriginOwner != pkPlayer->GetID())
 		{
 			continue;
@@ -5105,7 +5054,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						kConnection.m_eDestOwner = pDestCity->getOwner();
 
 						int iTurnsLeft = -1;
-						TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
+						const TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
 						if (pConnection && pConnection->m_eDomain == eDomain)
 						{
 							iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
@@ -5215,14 +5164,14 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 	int index = 1;
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(ui))
 		{
 			continue;
 		}
 
-		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
 		// internal trade route. Ignore.
 		if (pConnection->m_eOriginOwner == pConnection->m_eDestOwner)
 		{
@@ -6106,7 +6055,15 @@ int CvLuaPlayer::lGetAttackBonusTurns(lua_State* L)
 //int GetCultureBonusTurns();
 int CvLuaPlayer::lGetCultureBonusTurns(lua_State* L)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = (pkPlayer->GetCultureBonusTurns() + pkPlayer->GetCultureBonusTurnsConquest()); 
+	lua_pushinteger(L, iResult);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::GetCultureBonusTurns);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -7860,6 +7817,16 @@ int CvLuaPlayer::lGetJerk(lua_State* L)
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetJerk(eTeam);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetCoupCooldown(TeamTypes eTeam);
+int CvLuaPlayer::lGetCoupCooldown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetCoupCooldown();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -108,6 +108,8 @@ protected:
 	LUAAPIEXTN(CanCreateGreatWork, bool, pPlot);
 	LUAAPIEXTN(CreateGreatWork, bool);
 	LUAAPIEXTN(greatperson, bool);
+	static int lGetCombatVersusOtherReligionOwnLands(lua_State* L);
+	static int lGetCombatVersusOtherReligionTheirLands(lua_State* L);
 #endif
 
 	static int lGetExoticGoodsGoldAmount(lua_State* L);

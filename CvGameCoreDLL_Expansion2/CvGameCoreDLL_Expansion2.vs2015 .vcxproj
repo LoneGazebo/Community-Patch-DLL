@@ -63,7 +63,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <MinimalRebuild>true</MinimalRebuild>
-      <SmallerTypeCheck>true</SmallerTypeCheck>
       <BrowseInformation>true</BrowseInformation>
       <CompileAsManaged>false</CompileAsManaged>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>

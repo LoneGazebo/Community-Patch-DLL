@@ -10,6 +10,8 @@
 #ifndef CIV5_TRADE_CLASSES_H
 #define CIV5_TRADE_CLASSES_H
 
+#include "CvAStar.h"
+
 // The map layer the trade units reside on
 #define TRADE_UNIT_MAP_LAYER	1
 
@@ -19,8 +21,7 @@ struct TradeConnectionPlot
 	int m_iY;
 };
 
-#define PROJECTED_MAX_TRADE_LENGTH 40
-typedef FStaticVector<TradeConnectionPlot, PROJECTED_MAX_TRADE_LENGTH, false, c_eCiv5GameplayDLL> TradeConnectionPlotList;
+typedef std::vector<TradeConnectionPlot> TradeConnectionPlotList;
 
 struct TradeConnection
 {
@@ -47,11 +48,9 @@ struct TradeConnection
 	int m_aiDestYields[NUM_YIELD_TYPES];
 };
 
-#define PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV 14
-#define LIKELY_NUM_OF_PLAYERS 12
-#define PROJECTED_MAX_TRADE_CONNECTIONS (PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV * LIKELY_NUM_OF_PLAYERS)
+typedef std::vector<TradeConnection> TradeConnectionList;
 
-typedef FStaticVector<TradeConnection, PROJECTED_MAX_TRADE_CONNECTIONS, false, c_eCiv5GameplayDLL > TradeConnectionList;
+typedef std::map<int,std::map<int,SPath>> TradePathLookup;
 
 class CvGameTrade
 {
@@ -69,9 +68,7 @@ public:
 	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction);
 	bool CreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
 
-	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain);
-	CvPlot* GetPlotAdjacentToWater (CvPlot* pTarget, CvPlot* pOrigin);
-
+	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL);
 	bool IsDestinationExclusive(const TradeConnection& kTradeConnection);
 	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
 
@@ -85,7 +82,7 @@ public:
 	int GetNumTimesOriginCity (CvCity* pCity, bool bOnlyInternational);
 	int GetNumTimesDestinationCity (CvCity* pCity, bool bOnlyInternational);
 
-	void CopyPathIntoTradeConnection (CvAStarNode* pNode, TradeConnection* pTradeConnection);
+	void CopyPathIntoTradeConnection (const SPath& path, TradeConnection* pTradeConnection);
 
 	int GetDomainModifierTimes100 (DomainTypes eDomain);
 
@@ -136,15 +133,31 @@ public:
 	CvString GetLogFileName() const;
 	void LogTradeMsg(CvString& strMsg);
 
-	TradeConnectionList m_aTradeConnections;
-	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
+	size_t GetNumTradeConnections() const { return m_aTradeConnections.size(); }
+	const TradeConnection& GetTradeConnection(size_t iIndex) const { return m_aTradeConnections[iIndex]; }
+	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
+	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
+	void UpdateTradePathCache(uint iOriginPlayer);
+
+protected:
+
+	TradeConnectionList m_aTradeConnections;
+
+	TradePathLookup m_aPotentialTradePathsLand;
+	TradePathLookup m_aPotentialTradePathsWater;
+	std::map<uint,int> m_lastTradePathUpdate;
+
+	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
 	int m_aaiTechDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
 
 	struct {
 		int iPlotX, iPlotY;
 		TradeConnectionType type;
 	} m_CurrentTemporaryPopupRoute;
+
+	friend FDataStream& operator>>(FDataStream&, CvGameTrade&);
+	friend FDataStream& operator<<(FDataStream&, const CvGameTrade&);
 };
 
 FDataStream& operator>>(FDataStream&, CvGameTrade&);
@@ -156,7 +169,7 @@ struct TradeConnectionWasPlundered
 	int m_iTurnPlundered;
 };
 
-typedef FStaticVector<TradeConnectionWasPlundered, 10, false, c_eCiv5GameplayDLL > TradeConnectionWasPlunderedList;
+typedef std::vector<TradeConnectionWasPlundered> TradeConnectionWasPlunderedList;
 
 class CvPlayerTrade
 {
@@ -201,7 +214,7 @@ public:
 
 	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
 
-	TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity);
+	const TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity);
 	int GetNumberOfCityStateTradeRoutes();
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetNumberOfInternalTradeRoutes();

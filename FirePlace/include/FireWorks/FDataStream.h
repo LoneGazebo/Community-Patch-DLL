@@ -20,10 +20,9 @@
 #include "FFastVector.h"
 #include "FArray.h"
 #include "FEndian.h"
+#include "FString.h"
 
 class YouMustImplementASerializeOperatorForThisTypeError;
-class FStringA;
-class FStringW;
 
 //
 // Stream base class

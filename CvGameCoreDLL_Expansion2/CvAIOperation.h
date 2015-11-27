@@ -277,7 +277,7 @@ public:
 	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	bool DeleteArmyAI(int iID);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
-	virtual CvPlot* ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppClosestCurrentCOMonPath=NULL) const;
+	virtual CvPlot* ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const;
 
 	bool HasOneMoreSlotToFill() const;
 	bool BuyFinalUnit();
@@ -304,6 +304,9 @@ protected:
 	{
 		return CvString("INVALID_AI_OPERATION");
 	}
+
+	CvPlot* GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const;
+	int GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget) const;
 
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 #if defined(MOD_BALANCE_CORE)

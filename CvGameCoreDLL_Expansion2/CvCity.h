@@ -406,7 +406,7 @@ public:
 
 	CvUnit* GetGarrisonedUnit() const;
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	void OverrideGarrison(CvUnit* pUnit);
+	void OverrideGarrison(const CvUnit* pUnit);
 	void UnsetGarrisonOverride();
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
@@ -973,6 +973,9 @@ public:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int getReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const;
 	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const;
+	void changeLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
 
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
@@ -1362,7 +1365,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_iGarrisonedUnit;  // unused
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	UnitHandle m_hGarrisonOverride;
+	int m_hGarrisonOverride;
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	FAutoVariable<int, CvCity> m_iResourceDemanded;
 	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;
@@ -1551,6 +1554,7 @@ protected:
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;
+	int ** m_ppaiLocalBuildingClassYield;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;
