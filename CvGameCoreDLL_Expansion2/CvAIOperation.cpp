@@ -1090,31 +1090,32 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_GATHERING_FORCES:
 						{
-							if(bCivilian)
+							if(bCivilian && pCivilian)
 							{
-								if(pCivilian)
+								pCivilianPlot = pCivilian->plot();
+								//there may be multiple escorts ...
+								for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
 								{
-									pCivilianPlot = pCivilian->plot();
-									if(pCivilianPlot != NULL)
+									pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
+									if (pEscort && pCivilianPlot == pEscort->plot())
 									{
-										//there may be multiple escorts ...
-										for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
+										int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+										pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+										if(pCenterOfMass && GetMusterPlot() &&
+											plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+											pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
 										{
-											pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
-											if (pEscort && pCivilianPlot == pEscort->plot())
-											{
-												int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-												pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-												if(pCenterOfMass && GetMusterPlot() &&
-													plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-													pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
-												{
-													pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-													m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-												}
-											}
+											pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+											m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 										}
 									}
+								}
+
+								//apparently it can also happen that the civilian is all alone
+								if (pThisArmy->GetNumSlotsFilled()==1)
+								{
+									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 								}
 							}
 							else
@@ -1133,19 +1134,13 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_MOVING_TO_TARGET:
 						{
-							if(bCivilian)
+							if(bCivilian && pCivilian)
 							{
-								if(pCivilian)
+								pCivilianPlot = pCivilian->plot();
+								if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 								{
-									pCivilianPlot = pCivilian->plot();
-									if(pCivilianPlot != NULL)
-									{
-										if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
-										{
-											pAIOp->ArmyInPosition(pThisArmy);
-											return true;
-										}
-									}
+									pAIOp->ArmyInPosition(pThisArmy);
+									return true;
 								}
 							}
 							else
