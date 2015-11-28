@@ -243,14 +243,11 @@ CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_iDominancePercentage(25),
 	m_iUnitStrengthMultiplier(5),
 	m_iTacticalRange(8),
-	m_iBestFriendlyRange(0),
-	m_bIgnoreLOS(false),
 	m_pPlayer(NULL),
 	m_iNumPlots(0)
 {
 	m_bIsBuilt = false;
 	m_iTurnBuilt = -1;
-	m_bAtWar = false;
 	m_DominanceZones.clear();
 }
 
@@ -921,16 +918,8 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 				
 				int iRangedStrength = pFriendlyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
 				pZone->AddFriendlyRangedStrength(iRangedStrength * m_iUnitStrengthMultiplier);
-
-				if(pFriendlyUnit->GetRange() > GetBestFriendlyRange())
-				{
-					SetBestFriendlyRange(pFriendlyUnit->GetRange());
-				}
-				if(pFriendlyUnit->IsRangeAttackIgnoreLOS())
-				{
-					SetIgnoreLOS(true);
-				}
 				pZone->AddFriendlyUnitCount(1);
+
 				if(pFriendlyUnit->isRanged())
 				{
 					pZone->AddFriendlyRangedUnitCount(1);
@@ -1120,16 +1109,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 									int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
 									pZone->AddFriendlyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
-
-									if(pLoopUnit->GetRange() > GetBestFriendlyRange())
-									{
-										SetBestFriendlyRange(pLoopUnit->GetRange());
-									}
-									if(pLoopUnit->IsRangeAttackIgnoreLOS())
-									{
-										SetIgnoreLOS(true);
-									}
 									pZone->AddFriendlyUnitCount(1);
+
 									if(pLoopUnit->isRanged())
 									{
 										pZone->AddFriendlyRangedUnitCount(1);

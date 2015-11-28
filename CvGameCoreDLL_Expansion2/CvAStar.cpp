@@ -1214,7 +1214,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const voi
 
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 	bool bToPlotIsWater = !pToPlot->isTerraFirma(pUnit) && !pToPlot->IsAllowsWalkWater();
-	bool bFromPlotIsWater = !pToPlot->isTerraFirma(pUnit) && !pToPlot->IsAllowsWalkWater();
+	bool bFromPlotIsWater = !pFromPlot->isTerraFirma(pUnit) && !pFromPlot->IsAllowsWalkWater();
 #else
 	bool bToPlotIsWater = pToPlot->isWater() && !pToPlot->IsAllowsWalkWater();
 #endif

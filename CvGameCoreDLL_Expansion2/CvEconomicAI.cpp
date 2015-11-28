@@ -937,7 +937,7 @@ CvCity* CvEconomicAI::GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGr
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 #if defined(MOD_BALANCE_CORE)
-			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2))
+			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2) && m_pPlayer->GetPlotDanger(*(pLoopCity->plot()),pLoopCity)==0 )
 #else
 			if (pLoopCity->getDamage() == 0)
 #endif

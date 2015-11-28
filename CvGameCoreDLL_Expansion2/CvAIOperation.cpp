@@ -6216,7 +6216,6 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 				{
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
-						CvAStarNode* pPathfinderNode;
 						// Water path between muster point and target?
 						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 						{
@@ -6241,7 +6240,6 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 							CvPlot* pCoastal = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopUnit->plot(), NULL);
 							if(pCoastal != NULL)
 							{
-								CvAStarNode* pPathfinderNode;
 								// Water path between muster point and target?
 								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 								{
@@ -9736,6 +9734,9 @@ bool CvAIOperationDestroyBarbarianCamp::VerifyTarget(CvArmyAI* pArmy)
 
 bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 {
+	if (!CvAIOperationEscorted::VerifyTarget(pArmy))
+		return false;
+
 	if (!pArmy)
 		return false;
 
@@ -9770,8 +9771,31 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	return (GetTargetPlot() != NULL);
 }
 
+bool CvAIOperationEscorted::VerifyTarget(CvArmyAI* pArmy)
+{
+	if (!pArmy)
+		return false;
+
+	CvPlot* pTarget = GetTargetPlot();
+	if (!pTarget)
+		return false;
+
+	//if we actually do have an escort, danger is ok
+	if (m_bEscorted)
+		return true;
+
+	UnitHandle pCivilian = pArmy->GetFirstUnit();
+	if (!pCivilian)
+		return false;
+
+	return GET_PLAYER(m_eOwner).GetPlotDanger(*pTarget,pCivilian.pointer()) < INT_MAX;
+}
+
 bool CvAIOperationMerchantDelegation::VerifyTarget(CvArmyAI* pArmy)
 {
+	if (!CvAIOperationEscorted::VerifyTarget(pArmy))
+		return false;
+
 	if (!pArmy)
 		return false;
 
@@ -9789,6 +9813,9 @@ bool CvAIOperationMerchantDelegation::VerifyTarget(CvArmyAI* pArmy)
 
 bool CvAIOperationDiplomatDelegation::VerifyTarget(CvArmyAI* pArmy)
 {
+	if (!CvAIOperationEscorted::VerifyTarget(pArmy))
+		return false;
+
 	if (!pArmy)
 		return false;
 
@@ -9806,6 +9833,9 @@ bool CvAIOperationDiplomatDelegation::VerifyTarget(CvArmyAI* pArmy)
 
 bool CvAIOperationConcertTour::VerifyTarget(CvArmyAI* pArmy)
 {
+	if (!CvAIOperationEscorted::VerifyTarget(pArmy))
+		return false;
+
 	if (!pArmy)
 		return false;
 
@@ -9926,7 +9956,6 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 				{
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
-						CvAStarNode* pPathfinderNode;
 						// Water path between muster point and target?
 						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 						{
@@ -9951,7 +9980,6 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 							CvPlot* pCoastal = GET_PLAYER(ePlayer).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopUnit->plot(), NULL);
 							if(pCoastal != NULL)
 							{
-								CvAStarNode* pPathfinderNode;
 								// Water path between muster point and target?
 								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
 								{

@@ -582,6 +582,7 @@ public:
 		return true;
 	};
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 
 #if defined(MOD_BALANCE_CORE)
 	virtual bool IsEscorted();

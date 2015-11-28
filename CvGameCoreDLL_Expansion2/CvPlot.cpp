@@ -7630,14 +7630,11 @@ RouteTypes CvPlot::getRouteType() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setRouteType(RouteTypes eNewValue)
 {
-	bool bOldRoute;
 	RouteTypes eOldRoute = getRouteType();
 	int iI;
 
 	if(eOldRoute != eNewValue || (eOldRoute == eNewValue && IsRoutePillaged()))
 	{
-		bOldRoute = isRoute(); // XXX is this right???
-
 		// Remove old effects
 		if(eOldRoute != NO_ROUTE && !isCity())
 		{

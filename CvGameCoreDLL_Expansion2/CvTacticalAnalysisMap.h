@@ -738,24 +738,6 @@ public:
 	};
 	bool IsInEnemyDominatedZone(CvPlot* pPlot);
 
-	// Properties of current player's military
-	int GetBestFriendlyRange() const
-	{
-		return m_iBestFriendlyRange;
-	};
-	void SetBestFriendlyRange(int iNewRange)
-	{
-		m_iBestFriendlyRange = iNewRange;
-	};
-	bool CanIgnoreLOS() const
-	{
-		return m_bIgnoreLOS;
-	};
-	void SetIgnoreLOS(bool bNewValue)
-	{
-		m_bIgnoreLOS = bNewValue;
-	};
-
 	// Routines to update the map
 	void ClearDynamicFlags();
 	void SetTargetFlankBonusCells(CvPlot* pTarget);
@@ -788,10 +770,8 @@ protected:
 	int m_iNumPlots;
 	CvPlayer* m_pPlayer;
 	int m_iTurnBuilt;
-	int m_iBestFriendlyRange;
-	bool m_bIgnoreLOS;
-	bool m_bAtWar;
 	bool m_bIsBuilt;
+
 	CvTacticalDominanceZone m_TempZone;
 	FStaticVector<CvTacticalDominanceZone, SAFE_ESTIMATE_NUM_DOMINANCE_ZONES, true, c_eCiv5GameplayDLL, 0> m_DominanceZones;
 	FStaticVector<CvUnit*, SAFE_ESTIMATE_NUM_ENEMIES, true, c_eCiv5GameplayDLL, 0> m_EnemyUnits;

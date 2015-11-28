@@ -7634,6 +7634,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		}
 	}
 
+	//important - otherwise the update below will not change anything
+	DoUpdateBestRoute();
+
 	for(iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		CvBuildInfo* pBuildInfo = GC.getBuildInfo((BuildTypes) iI);

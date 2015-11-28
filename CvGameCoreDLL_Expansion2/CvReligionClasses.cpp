@@ -6278,7 +6278,7 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanSpreadReligion(pLoopPlot))
+			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -6396,7 +6396,7 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanRemoveHeresy(pLoopPlot))
+			if(pUnit->CanRemoveHeresy(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -6627,7 +6627,7 @@ CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanSpreadReligion(pLoopPlot))
+			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0 )
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -9067,17 +9067,22 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
 	}
 #endif
 
-	// Skip if already our religion
-	if(pCity->GetCityReligions()->GetReligiousMajority() == eMyReligion)
-	{
-		return iScore;
-	}
+	// How many other followers are there?
+	int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
+	if (iOtherFollowers==0)
+		return 0;
 
 	// Base score based on if we are establishing majority
-	iScore = 100;
+	iScore = 100 + iOtherFollowers;
 
 	// Then subtract distance
 	iScore -= plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
+
+	// Not so pressing if already our religion
+	if(pCity->GetCityReligions()->GetReligiousMajority() == eMyReligion)
+	{
+		iScore /= 2;
+	}
 
 	return iScore;
 }

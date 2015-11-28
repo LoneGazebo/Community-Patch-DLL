@@ -1813,9 +1813,10 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
 
 			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-			{
 				continue;
-			}
+
+			if (m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer())>0)
+				continue;
 
 #ifdef AUI_ASTAR_TURN_LIMITER
 			int iMoves = TurnsToReachTarget(pUnit.pointer(), pTarget, iTargetMoves);
@@ -2864,6 +2865,9 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
+							if (m_pPlayer->GetPlotDanger(*pLoopPlotSearch,pUnit.pointer())>20)
+								continue;
+
 							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch) )
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
@@ -2929,6 +2933,9 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
+							if (m_pPlayer->GetPlotDanger(*pLoopPlotSearch,pUnit.pointer())>20)
+								continue;
+
 							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
@@ -8994,12 +9001,12 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 	switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
 	{
 	case UNITAI_DEFENSE_AIR:
-		return iDefensive<iOffensive+2;
+		return iDefensive<iOffensive+3;
 		break;
 	case UNITAI_ATTACK_AIR:
 	case UNITAI_ICBM:
 	case UNITAI_MISSILE_AIR:
-		return iOffensive<iDefensive+2;
+		return iOffensive<iDefensive+3;
 		break;
 	}
 

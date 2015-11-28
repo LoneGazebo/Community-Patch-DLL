@@ -27201,7 +27201,6 @@ void CvUnit::DumpDangerInNeighborhood()
 void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
 	VALIDATE_OBJECT
-	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
@@ -27214,16 +27213,18 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		if (!pFromPlot || !pToPlot)
 			return;
 
-		if (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner()))
+		if ( (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner())) || (IsCombatUnit() && pToPlot->isWater() && getDomainType()==DOMAIN_LAND) )
 		{
 			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
 			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
-			if (iFromDanger < iToDanger)
-				OutputDebugString(CvString::format("%s moving into danger!\n", getName().c_str()).c_str());
+			if (iFromDanger < iToDanger || iToDanger==INT_MAX)
+				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
+					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
 		}
 	}
 #endif
 
+	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 }
 
 //	--------------------------------------------------------------------------------
@@ -28180,7 +28181,7 @@ void CvUnit::AI_promote()
 	if(iNumValidPromotions == 1)
 	{
 		promote(eBestPromotion, -1);
-		AI_promote();
+		//AI_promote();
 		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
