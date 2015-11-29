@@ -150,6 +150,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMinorBullyScoreModifier(0),
 	m_iThemingBonusMultiplier(0),
 	m_iInternalTradeRouteYieldModifier(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iInternalTradeRouteYieldModifierCapital(0),
+#endif
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
@@ -521,6 +524,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMinorBullyScoreModifier = kResults.GetInt("MinorBullyScoreModifier");
 	m_iThemingBonusMultiplier = kResults.GetInt("ThemingBonusMultiplier");
 	m_iInternalTradeRouteYieldModifier = kResults.GetInt("InternalTradeRouteYieldModifier");
+#if defined(MOD_BALANCE_CORE)
+	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
+#endif
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
@@ -1835,6 +1841,13 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifier() const
 {
 	return m_iInternalTradeRouteYieldModifier;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Boost to internal trade routes from Capital
+int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
+{
+	return m_iInternalTradeRouteYieldModifierCapital;
+}
+#endif
 
 /// Boost to tourism bonus for shared religion
 int CvPolicyEntry::GetSharedReligionTourismModifier() const
@@ -3640,6 +3653,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_INTERNAL_TRADE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifier();
 				break;
+#if defined(MOD_BALANCE_CORE)
+			case POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifierCapital();
+				break;
+#endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetSharedReligionTourismModifier();
 				break;

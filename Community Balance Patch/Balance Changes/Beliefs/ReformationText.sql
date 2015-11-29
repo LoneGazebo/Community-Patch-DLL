@@ -1,10 +1,10 @@
 -- Charitable Missions (Now Missionary Influence)
 UPDATE Language_en_US
-SET Text = '20 [ICON_INFLUENCE] Influence (scaling with Era) when Missionaries and Prophets spread your Religion to City-States. When a foreign City converts to your Religion, your [ICON_INFLUENCE] Influence with all known City-States increases by 10 (scaling with Era).'
+SET Text = '+10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points per turn while the Host of the World Congress. Receive 150 of these yields instantly when you pass a Proposal. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Missionary Influence'
+SET Text = 'Global Commandments'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Evangelism (Now Crusader Zeal)
@@ -13,7 +13,7 @@ SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Uni
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Crusaders'
+SET Text = 'Crusader Spirit'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Defender Faith

@@ -1217,6 +1217,11 @@ protected:
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetInternationalTradeRouteProduction(lua_State* L);
+	static int lGetInternationalTradeRouteFood(lua_State* L);
+	static int lGetMinorCivGoldBonus(lua_State* L);
+#endif
 	static int lGetPotentialTradeUnitNewHomeCity(lua_State* L);
 	static int lGetPotentialAdmiralNewPort(lua_State* L);
 	static int lGetNumAvailableTradeUnits(lua_State* L);

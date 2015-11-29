@@ -12,9 +12,9 @@
 #include "CvPlayerManager.h"
 #include "CvDangerPlots.h"
 //	-----------------------------------------------------------------------------------------------
-//	Loop through all the players and do any deferred updates of their danger plots
+//	Loop through all the players and update cached values
 // static
-void CvPlayerManager::RefreshDangerPlots()
+void CvPlayerManager::Refresh(bool /*bWarDeclaration*/)
 {
 	for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_CIV_PLAYERS; iPlayerCivLoop++)
 	{

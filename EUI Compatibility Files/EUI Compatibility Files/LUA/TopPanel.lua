@@ -1685,7 +1685,7 @@ if civ5_mode then
 			tips:insert( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
 		end
 	end
-	Controls.GoldenAgeAnim:SetSizeVal(50,50)
+	Controls.GoldenAgeAnim:SetSizeVal(46,46)
 	Controls.GoldenAgeString:SetToolTipCallback( requestTextToolTip )
 
 	-------------------------------------------------
@@ -2404,7 +2404,7 @@ local function ResourcesToolTip( control )
 							-- Policy Requirement
 							local policy = civ5bnw_mode and unit.PolicyType and GameInfo.Policies[ unit.PolicyType ]
 							if policy and not g_activePlayer:HasPolicy( policy.ID ) then
-								tip = S( "%s [COLOR_MAGENTA]%s[ENDCOLOR]", tip, L(policy.Description) )
+								tip = S( "%s [COLOR_MAGENTA]%s[ENDCOLOR]", tip, L(policyBranch.Description) )
 							end
 							if civBE_mode then
 								-- Affinity Level Requirements

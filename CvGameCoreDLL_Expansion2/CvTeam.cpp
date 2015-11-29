@@ -1194,7 +1194,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 	DoDeclareWar(eTeam, bDefensivePact);
 #endif
 
-	CvPlayerManager::RefreshDangerPlots();
+	CvPlayerManager::Refresh(true);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -7633,6 +7633,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
+
+	//important - otherwise the update below will not change anything
+	DoUpdateBestRoute();
 
 	for(iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{

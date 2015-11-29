@@ -1232,7 +1232,7 @@ local function UpdatePlotHelp( timeChange )
 									buildTip = S("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
 								end
 							elseif isResourceConnected then
-								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%-i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
+								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, -numResource, resource.IconString )
 							end
 						end
 					end

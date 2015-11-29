@@ -102,6 +102,8 @@ public:
 	int GetYieldFromEraUnlock(int i) const;
 	int GetYieldFromConversion(int i) const;
 	int GetYieldFromWLTKD(int i) const;
+	int GetYieldFromProposal(int i) const;
+	int GetYieldFromHost(int i) const;
 	int GetCombatVersusOtherReligionOwnLands() const;
 	int GetCombatVersusOtherReligionTheirLands() const;
 	int GetMissionaryInfluenceCS()const;
@@ -307,6 +309,8 @@ protected:
 	int* m_piYieldFromEraUnlock;
 	int* m_piYieldFromConversion;
 	int* m_piYieldFromWLTKD;
+	int* m_piYieldFromProposal;
+	int* m_piYieldFromHost;
 	int* m_piMaxYieldPerFollower;
 	int m_iCombatVersusOtherReligionOwnLands;
 	int m_iCombatVersusOtherReligionTheirLands;
@@ -594,6 +598,8 @@ public:
 	int GetYieldFromEraUnlock(YieldTypes eYieldType) const;
 	int GetYieldFromConversion(YieldTypes eYieldType) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType) const;
+	int GetYieldFromProposal(YieldTypes eYieldType) const;
+	int GetYieldFromHost(YieldTypes eYieldType) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType) const;
 	CivilizationTypes GetUniqueCiv() const;
 #endif

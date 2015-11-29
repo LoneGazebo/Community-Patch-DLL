@@ -34091,6 +34091,10 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 		case DIPLO_STATEMENT_EMBASSY_EXCHANGE:
 			strTemp.Format("***** Embassy Exchange *****");
 			break;
+
+		case DIPLO_STATEMENT_EMBASSY_OFFER:
+			strTemp.Format("***** Embassy Offer *****");
+			break;
 		
 		case DIPLO_STATEMENT_MINOR_CIV_COMPETITION:
 			strTemp.Format("***** MINOR CIV COMPETITION *****");

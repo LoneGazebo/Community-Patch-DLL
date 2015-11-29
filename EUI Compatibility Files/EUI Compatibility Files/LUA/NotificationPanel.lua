@@ -628,8 +628,8 @@ end
 -------------------------------------------------
 -- Notification Added
 -------------------------------------------------
-
-local function NotificationAdded( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, playerID )
+Events.NotificationAdded.Add(
+function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, playerID )
 
 	local name = not g_ActiveNotifications[ Id ] and (g_notificationNames[ type ] or "Generic")
 	if name then
@@ -668,7 +668,7 @@ local function NotificationAdded( Id, type, ... ) -- toolTip, strSummary, iGameV
 
 		ProcessStackSizes( true )
 	end
-end
+end)
 
 -------------------------------------------------
 -- Remove Notification
@@ -706,20 +706,21 @@ local function RemoveNotificationID( Id )
 	end
 end
 
-local function NotificationRemoved( Id )
+Events.NotificationRemoved.Add(
+function( Id )
 
 --print( "removing Notification " .. Id .. " " .. tostring( g_ActiveNotifications[ Id ] ) .. " " .. tostring( g_notificationNames[ g_ActiveNotifications[ Id ] ] ) )
 
 	RemoveNotificationID( Id )
 	ProcessStackSizes()
 
-end
+end)
 
 -------------------------------------------------
 -- Additional notifications
 -------------------------------------------------
-
-local function OnCitySetPopulation( x, y, oldPopulation, newPopulation )
+GameEvents.SetPopulation.Add(
+function( x, y, oldPopulation, newPopulation )
 	local plot = Map.GetPlot( x, y )
 	local city = plot and plot:GetPlotCity()
 	local playerID = city and city:GetOwner()
@@ -731,37 +732,34 @@ local function OnCitySetPopulation( x, y, oldPopulation, newPopulation )
 		and not city:IsResistance()		-- who cares ? nothing to be done
 		and Game.GetGameTurn() > city:GetGameTurnAcquired() -- inhibit upon city creation & capture
 	then
-		Players[playerID]:AddNotification(NotificationTypes.NOTIFICATION_CITY_GROWTH,
+		g_activePlayer:AddNotification(NotificationTypes.NOTIFICATION_CITY_GROWTH,
 			L("TXT_KEY_NOTIFICATION_CITY_GROWTH", city:GetName(), newPopulation ),
 			L("TXT_KEY_NOTIFICATION_SUMMARY_CITY_GROWTH", city:GetName() ),
 			x, y, plot:GetPlotIndex() )	--iGameDataIndex, int iExtraGameData
 		--print( "Notification sent:", NotificationTypes.NOTIFICATION_CITY_GROWTH, sTip, sTitle, x, y )
 	end
-end
+end)
 
-local function OnCityTileNotification( hexX, hexY, playerID, isUnknown )
+GameEvents.CityBoughtPlot.Add(
+function( playerID, cityID, x, y, isWithGold, isWithFaithOrCulture )
 
-	if playerID == g_activePlayerID then
-		--print( "Border growth at coordinates: ", hexX, hexY, "playerID:", playerID, "wtf?:", isUnknown )
-		local x, y = ToGridFromHex( hexX, hexY )
-		local plot = x and y and Map.GetPlot( x, y )
-		local city = plot and plot:GetWorkingCity()	-- doesnt work correctly for plots outside city working radius, but don't care about those anyway
+	if isWithFaithOrCulture and playerID == g_activePlayerID then
+		--print( "Border growth at coordinates: ", x, y, "playerID:", playerID, "isWithGold", isWithGold, "isWithFaithOrCulture", isWithFaithOrCulture )
+		local plot = Map.GetPlot( x, y )
+		local city = g_activePlayer:GetCityByID( cityID )
 		--print( "CityTileNotification:", city and city:GetName(), x, y, plot, city and city:GetCityPlotIndex(plot) )
 
-		if city
-			and Game.GetGameTurn() > city:GetGameTurnAcquired() -- inhibit upon city creation or capture
-			and ( not city:IsPuppet() or not city:IsResistance() or plot:GetResourceType( g_activeTeamID ) >= 0 )	-- who cares ? nothing to be done
---			and city:GetJONSCulturePerTurn() > city:GetJONSCultureStored() -- only for natural growth, inhibit for plot purchase
---			and not Players[playerID]:IsTurnActive()	-- inhibit for plot purchases / but doesn't work
+		if plot and city and ( ( plot:GetWorkingCity() and not city:IsPuppet() ) or Game.GetResourceUsageType( plot:GetResourceType( g_activeTeamID ) ) > 0 )
+		-- valid plot, either worked by city which is not a puppet, or has some kind of resource we can use
 		then
-			Players[playerID]:AddNotification( NotificationTypes.NOTIFICATION_CITY_TILE,
+			g_activePlayer:AddNotification( NotificationTypes.NOTIFICATION_CITY_TILE,
 				L( "TXT_KEY_NOTIFICATION_CITY_CULTURE_ACQUIRED_NEW_PLOT", city:GetName() ),
 				L( "TXT_KEY_NOTIFICATION_SUMMARY_CITY_CULTURE_ACQUIRED_NEW_PLOT", city:GetName() ),
 				x, y, plot:GetPlotIndex() )	--iGameDataIndex, int iExtraGameData
-			--print( "CityTileNotification sent:", NotificationTypes.NOTIFICATION_CITY_TILE, sTip, sTitle, x, y )
+			--print( "CityTileNotification sent:", NotificationTypes.NOTIFICATION_CITY_TILE, city:GetName(), x, y )
 		end
 	end
-end
+end)
 
 --[[ 
   ____ _       _ _ _          _   _                   ____  _ _     _                 
@@ -770,20 +768,7 @@ end
 | |___| |\ V /| | | |/ / (_| | |_| | (_) | | | \__ \ |  _ <| | |_) | |_) | (_) | | | |
  \____|_| \_/ |_|_|_/___\__,_|\__|_|\___/|_| |_|___/ |_| \_\_|_.__/|_.__/ \___/|_| |_|
 ]]
---[[todo
---todo: DiploWaiting (Diplomacy_32.dds & TXT_KEY_DIPLO_REQUEST_INCOMING), WarButton {TXT_KEY_POP_CSTATE_DECLARE_WAR:upper}
-	<Label Anchor="R,C" String="[ICON_CAPITAL]" ID="HostIcon" ToolTip="TXT_KEY_HOST" hidden="1" />
-	<Image Anchor="L,C" ID="ConnectionStatus" Size="32,32" Texture="MarcPips.dds" hidden="1" />
-	<Button Anchor="L,C" Texture="Diplomacy_24.dds" Size="24.24" ID="DiploWaiting" NoStateChange="1" ToolTip="TXT_KEY_DIPLO_REQUEST_INCOMING"/>
-	<Label Anchor="R,C" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" String="999ms" ID="Ping" Hidden="1" ConsumeMouse="0"/>
-	<Label ID="HotJoinNotice" Anchor ="C,C" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" String="TXT_KEY_MP_HOT_JOIN_NOTICE" Hidden="1" />
 
-	<Button ID="KickButton" Anchor="R,C" Size="24,24" Texture="IconFrame24Delete.dds" ToolTip="TXT_KEY_MP_KICK_PLAYER" />
-	<LuaContext FileName="Assets/DLC/Shared/UI/InGame/Popups/ConfirmKick" ID="ConfirmKick" Hidden="1" />
-Events.AIProcessingStartedForPlayer.Add( OnAITurnStart );
-Events.ActivePlayerTurnStart.Add( OnPlayerTurnStart );
-Events.RemotePlayerTurnStart.Add( OnPlayerTurnStart );
---]]
 -------------------------------------------------
 -- Sort Functions
 -------------------------------------------------
@@ -1379,8 +1364,8 @@ local function UpdateCivListNow()
 					end
 				end
 				local minKeepLuxuries = 1
-				-- Reasonable trade is not possible if war or hostile
-				if player:GetMajorCivApproach( g_activePlayerID ) >= MajorCivApproachTypes.MAJOR_CIV_APPROACH_DECEPTIVE then
+				-- Reasonable trade is not possible if hostile
+				if player:GetMajorCivApproach( g_activePlayerID ) ~= MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then --MAJOR_CIV_APPROACH_DECEPTIVE then
 					-- Luxuries available from them
 					for resource in GameInfo.Resources() do
 						local resourceID = resource.ID
@@ -1392,27 +1377,32 @@ local function UpdateCivListNow()
 							minKeepLuxuries = 0	-- if they have luxes to trade, we can trade even our last one
 						end
 					end
-
 					local dealDuration = Game.GetDealDuration()
-					local luxMinGold = dealDuration * 5
-					local strategicMinGold = dealDuration
 					if goldRate > 0 then
 						gold = dealDuration * goldRate + gold
 					end
-					local happyWithoutLux = g_activePlayer:GetExcessHappiness() > 4 + g_activePlayer:GetNumCities() -- approximation... should take actual happy value + scan city growth
+					local canPayForLux = gold >= dealDuration * 5  or minKeepLuxuries == 0 -- they can pay for it or trade for another lux
+					local canPayForStrat = gold >= dealDuration -- they can pay at least 1GPT for it
+					local happyWithoutLux = minKeepLuxuries == 0 or g_activePlayer:GetExcessHappiness() > 4 + g_activePlayer:GetNumCities() -- approximation... should take actual happy value + scan city growth
 					-- Resources available from us
 					for resource in GameInfo.Resources() do
 						local resourceID = resource.ID
 						-- IsPossibleToTradeItem includes check on min quantity, banned luxes and obsolete strategics
 						if g_deal:IsPossibleToTradeItem( g_activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) then
 							local usage = Game.GetResourceUsageType( resourceID )
-							if ( usage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
-								and (gold >= luxMinGold  or minKeepLuxuries == 0) -- they can pay for it or trade for another lux
+							if usage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
+								and canPayForLux
 								and player:GetNumResourceAvailable( resourceID, true ) == 0 -- they do not already have or import
-								and ( happyWithoutLux or g_activePlayer:GetNumResourceAvailable( resourceID, true ) > minKeepLuxuries ) ) -- we keep some, including imports
-							   or ( usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
-								and gold >= strategicMinGold -- they can pay for it
-								and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() ) -- game limit on AI trading
+							then
+								if g_activePlayer:GetNumResourceAvailable( resourceID, true ) > 1 then
+									table.insert( ourTradeItems, 1, resource.IconString )
+								elseif happyWithoutLux then
+									table.insert( ourTradeItems, resource.IconString )
+								end
+							elseif usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
+								and canPayForStrat
+								and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() -- game limit on AI trading
+								and (not resource.AIStopTradingEra or player:GetCurrentEra() < GameInfoTypes[resource.AIStopTradingEra]) -- not obsolete
 							then
 								table.insert( ourTradeItems, resource.IconString )
 							end
@@ -1421,10 +1411,11 @@ local function UpdateCivListNow()
 				end
 			end
 			instance.TheirTradeItems:SetText( table.concat( theirTradeItems ) )
-			if #ourTradeItems < 5 then
+			if #ourTradeItems < 4 then
 				instance.OurTradeItems:SetText( table.concat( ourTradeItems ) )
 			else
-				instance.OurTradeItems:SetText( "[ICON_PLUS]" )
+				ourTradeItems[4] = "..." --"[ICON_PLUS]"
+				instance.OurTradeItems:SetText( table.concat( ourTradeItems, nil, 1, 4 ) )
 			end
 
 			-- disable the button if we have a pending deal with this player
@@ -1453,7 +1444,7 @@ local function UpdateCivListNow()
 			instance.Button:SetHide( false )
 
 			-- Update Background
-			UpdateCityStateStatusIconBG( g_activePlayerID, minorPlayerID, instance.StatusIconBG )
+			UpdateCityStateStatusIconBG( g_activePlayerID, minorPlayerID, instance.Portrait )
 
 			-- Update Allies
 			local allyID = minorPlayer:GetAlly()
@@ -1549,7 +1540,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 
 			-- Setup icons
 			local leader = GameInfo.Leaders[player:GetLeaderType()]
-			IconHookup( leader.PortraitIndex, instance.LeaderPortrait:GetSizeY(), leader.IconAtlas, instance.LeaderPortrait )
+			IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, instance.Portrait )
 			CivIconHookup( playerID, 32, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
 			instance.Connection:SetHide( not g_isNetworkMultiPlayer )
 			instance.Diplomacy:SetHide( not g_isNetworkMultiPlayer and not g_isHotSeatGame )
@@ -1671,22 +1662,42 @@ OnSetActivePlayer()
 Events.GameOptionsChanged.Add( OnOptionsChanged )
 Events.GameplaySetActivePlayer.Add( OnSetActivePlayer )
 LuaEvents.ChatShow.Add( OnChatToggle )
-Events.NotificationAdded.Add( NotificationAdded )
-Events.NotificationRemoved.Add( NotificationRemoved )
-Events.SerialEventHexCultureChanged.Add( OnCityTileNotification )
-GameEvents.SetPopulation.Add( OnCitySetPopulation )
+Events.SerialEventGameDataDirty.Add( UpdateCivList )
 Events.SerialEventScoreDirty.Add( UpdateCivList )
 Events.SerialEventCityInfoDirty.Add( UpdateCivList )
 Events.SerialEventImprovementCreated.Add( UpdateCivList )	-- required to update trades when a resource gets hooked up
 Events.WarStateChanged.Add( UpdateCivList )			-- update when war is declared
 Events.MultiplayerGamePlayerDisconnected.Add( UpdateCivList )
 Events.MultiplayerGamePlayerUpdated.Add( UpdateCivList )
-Events.MultiplayerHotJoinStarted.Add( function() Controls.HotJoinNotice:SetHide(false) UpdateCivList() end )
-Events.MultiplayerHotJoinCompleted.Add( function() Controls.HotJoinNotice:SetHide(true) UpdateCivList() end )
-Events.RemotePlayerTurnStart.Add( UpdateCivList )
-Events.RemotePlayerTurnEnd.Add( UpdateCivList )
-Events.ActivePlayerTurnStart.Add( UpdateCivList )
-Events.SerialEventGameDataDirty.Add( UpdateCivList )
+Events.MultiplayerHotJoinStarted.Add(
+function()
+	Controls.HotJoinNotice:SetHide(false)
+	return UpdateCivList()
+end )
+Events.MultiplayerHotJoinCompleted.Add(
+function()
+	Controls.HotJoinNotice:SetHide(true)
+	return UpdateCivList()
+end )
+local function HighlightAndUpdateCivList( playerID, isActive )
+	local instance = g_majorControlTable[ playerID ]
+	if instance then
+		instance.Portrait:ChangeParent( isActive and instance.ActiveTurn or instance.NotYourTurn )
+	else
+		instance = g_minorControlTable[ playerID ]
+		if instance then
+			instance.Active:SetHide( not isActive )
+		end
+	end
+	return UpdateCivList()
+end
+Events.RemotePlayerTurnStart.Add( function() return HighlightAndUpdateCivList( g_activePlayerID, true ) end)
+Events.RemotePlayerTurnEnd.Add( function() return HighlightAndUpdateCivList( g_activePlayerID, false ) end)
+Events.ActivePlayerTurnStart.Add( function() return HighlightAndUpdateCivList( g_activePlayerID, true ) end)
+Events.ActivePlayerTurnEnd.Add( function() return HighlightAndUpdateCivList( g_activePlayerID, false ) end)
+Events.AIProcessingStartedForPlayer.Add( function( playerID ) return HighlightAndUpdateCivList( playerID, true ) end)
+Events.AIProcessingEndedForPlayer.Add( function( playerID ) return HighlightAndUpdateCivList( playerID, false ) end)
+
 g_LeaderPopups = { LookUpControl( "/LeaderHeadRoot" ), LookUpControl( "/LeaderHeadRoot/DiploTrade" ), LookUpControl( "/LeaderHeadRoot/DiscussionDialog" ) }
 if #g_LeaderPopups > 0 then
 	Events.LeavingLeaderViewMode.Add(

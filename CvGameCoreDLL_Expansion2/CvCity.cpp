@@ -286,6 +286,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abIsPurchased("CvCity::m_abIsPurchased", m_syncArchive)
 	, m_abFranchised("CvCity::m_abFranchised", m_syncArchive)
+	, m_abTraded("CvCity::m_abTraded", m_syncArchive)
 	, m_bHasOffice("CvCity::m_bHasOffice", m_syncArchive)
 	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
@@ -1517,6 +1518,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_abIsPurchased.setAt(iI, false);
 	}
+	m_abTraded.resize(REALLY_MAX_PLAYERS);
 	m_abFranchised.resize(REALLY_MAX_PLAYERS);
 #endif
 	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
@@ -1524,6 +1526,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_abEverOwned.setAt(iI, false);
 #if defined(MOD_BALANCE_CORE)
 		m_abFranchised.setAt(iI, false);
+		m_abTraded.setAt(iI, false);
 #endif
 	}
 
@@ -3224,9 +3227,9 @@ void CvCity::SetEspionageRanking(int iPotential)
 	int iRank = 0;
 
 	//Don't want to divide by zero!
-	if(GC.getGame().m_iLargestBasePotential > 0)
+	if(GC.getGame().GetLargestSpyPotential() > 0)
 	{
-		iRank = ((iPotential * 100) / GC.getGame().m_iLargestBasePotential);
+		iRank = ((iPotential * 100) / GC.getGame().GetLargestSpyPotential());
 		//Rank time - 10 is worst, 1 is best
 		iRank /= 10;
 	}
@@ -9911,6 +9914,20 @@ void CvCity::DoSellBuilding()
 			}
 		}
 	}
+}
+void CvCity::SetTraded(PlayerTypes ePlayer, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	m_abTraded.setAt(ePlayer, bValue);
+}
+bool CvCity::IsTraded(PlayerTypes ePlayer)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	return m_abTraded[ePlayer];
 }
 void CvCity::CheckForOperationUnits()
 {
@@ -22889,6 +22906,7 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_abIsPurchased;
 	kStream >> m_abFranchised;
+	kStream >> m_abTraded;
 	kStream >> m_bHasOffice;
 	kStream >> m_iExtraBuildingMaintenance;
 #endif
@@ -23322,6 +23340,7 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_abIsPurchased;
 	kStream << m_abFranchised;
+	kStream << m_abTraded;
 	kStream << m_bHasOffice;
 	kStream << m_iExtraBuildingMaintenance;
 #endif
@@ -25762,12 +25781,12 @@ bool CvCity::isInDangerOfFalling() const
 
 #if defined(MOD_BALANCE_CORE)
 //the closest friendly cities - up to 4 entries 
-const std::vector<int>& CvCity::GetClosestNeighboringCities() const
+const std::vector<int>& CvCity::GetClosestFriendlyNeighboringCities() const
 {
 	return m_vClosestNeighbors;
 }
 
-void CvCity::UpdateClosestNeighbors()
+void CvCity::UpdateClosestFriendlyNeighbors()
 {
 	struct SCityWithScore
 	{

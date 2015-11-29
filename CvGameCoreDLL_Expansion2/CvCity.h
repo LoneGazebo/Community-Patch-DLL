@@ -362,6 +362,8 @@ public:
 	void ChangeBuildingPurchaseCooldown(int iValue);
 	void CheckForOperationUnits();
 	void DoSellBuilding();
+	void SetTraded(PlayerTypes ePlayer, bool bValue);
+	bool IsTraded(PlayerTypes ePlayer);
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
@@ -1279,9 +1281,9 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	//the closest friendly cities - up to 4 entries 
-	const std::vector<int>& GetClosestNeighboringCities() const;
-	void UpdateClosestNeighbors();
+	//the closest friendly cities - up to 6 entries 
+	const std::vector<int>& GetClosestFriendlyNeighboringCities() const;
+	void UpdateClosestFriendlyNeighbors();
 
 	//temporary mapping from city to related units. not serialized!
 	void AttachUnit(CvUnit* pUnit);
@@ -1485,6 +1487,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
+	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;

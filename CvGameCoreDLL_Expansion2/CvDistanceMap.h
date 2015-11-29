@@ -15,13 +15,13 @@ public:
 	CvDistanceMap(void);
 	~CvDistanceMap(void);
 
-	void Init(PlayerTypes ePlayer, bool bAllocate);
-	void Uninit();
-	void Reset();
+	virtual void SetPlayer(PlayerTypes ePlayer);
+	virtual void Reset();
 
-	void Update();
-	int GetDistanceFromFriendlyCity(const CvPlot& pPlot) const;
-	int GetClosestFriendlyCity(const CvPlot& pPlot) const;
+	//not const because of deferred updates ...
+	virtual int GetClosestFeatureDistance(const CvPlot& pPlot);
+	virtual int GetClosestFeatureID(const CvPlot& pPlot);
+	virtual int GetClosestFeatureOwner(const CvPlot& pPlot);
 
 	void SetDirty();
 	bool IsDirty() const
@@ -31,12 +31,14 @@ public:
 
 protected:
 
-	PlayerTypes m_ePlayer;
+	virtual void Update();
+
+	PlayerTypes m_ePlayer; //may be no_player
 	bool m_bArrayAllocated;
 	bool m_bDirty;
 
-	FFastVector<int, true, c_eCiv5GameplayDLL, 0> m_vDistance;
-	FFastVector<int, true, c_eCiv5GameplayDLL, 0> m_vCityID;
+	std::vector<int> m_vClosestFeature; //plot index to feature
+	std::vector<int> m_vDistance;		//plot index to distance
 };
 
 #endif //CIV5_PROJECT_CLASSES_H

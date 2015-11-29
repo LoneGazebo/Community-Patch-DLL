@@ -645,6 +645,9 @@ public:
 	int GetCoupCooldown() const;
 	void SetCoupCooldown(int iValue);
 	void ChangeCoupCooldown(int iValue);
+
+	bool IsSiphoned(PlayerTypes ePlayer) const;
+	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
 #endif
 
 	// ******************************
@@ -703,6 +706,7 @@ private:
 	PlayerTypes m_ePermanentAlly;
 	bool m_bNoAlly;
 	int m_iCoup;
+	bool m_abSiphoned[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;

@@ -4221,26 +4221,17 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
 			if(eFoundedReligion != NO_RELIGION)
 			{
-				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 				if(pReligion)
 				{
 					if(pReligion->m_Beliefs.GetExtraVotes() > 0)
 					{
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
+						int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+						if((iNumMinor) > 0)
 						{
-							CvCity* pHolyCity = pHolyCityPlot->getPlotCity();
-
-							if (pHolyCity && (pHolyCity->getOwner() == ePlayer))
-							{
-								int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
-								if((iNumMinor) > 0)
-								{
-									iReligionVotes = (pReligion->m_Beliefs.GetExtraVotes() * iNumMinor);
-								}
-								iVotes += iReligionVotes;
-							}
+							iReligionVotes = (pReligion->m_Beliefs.GetExtraVotes() * iNumMinor);
 						}
+						iVotes += iReligionVotes;
 					}
 				}
 			}
@@ -6921,6 +6912,100 @@ void CvLeague::FinishSession()
 				{
 					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheySupportedOurProposal(*playerIt, 0);
 				}
+#if defined(MOD_BALANCE_CORE)
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(eProposer);
+				if(eFoundedReligion != NO_RELIGION)
+				{
+					int iEra = GET_PLAYER(eProposer).GetCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, eProposer);
+					if(pReligion)
+					{
+						int iLoop;
+						float fDelay = 0.5f;
+						CvCity* pHolyCity = NULL;
+						for (CvCity* pLoopCity = GET_PLAYER(eProposer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eProposer).nextCity(&iLoop)) 
+						{
+							if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eFoundedReligion)) 
+							{
+								pHolyCity = pLoopCity;
+								break;
+							}
+							else if(GET_PLAYER(eProposer).getCapitalCity() == pLoopCity)
+							{
+								pHolyCity = pLoopCity;
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
+						{
+							GET_PLAYER(eProposer).ChangeFaith(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
+						{
+							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
+						{
+							TechTypes eCurrentTech = GET_PLAYER(eProposer).GetPlayerTechs()->GetCurrentResearch();
+							if(eCurrentTech == NO_TECH)
+							{
+								GET_PLAYER(eProposer).changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+							}
+							else
+							{
+								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra, eProposer);
+							}
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
+						{
+							GET_PLAYER(eProposer).changeJONSCulture(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
+						{
+							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+					}
+				}
+#endif
 			}
 
 			DoRepealResolution(it);
@@ -6957,6 +7042,100 @@ void CvLeague::FinishSession()
 				{
 					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheySupportedOurProposal(*playerIt, 0);
 				}
+#if defined(MOD_BALANCE_CORE)
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(eProposer);
+				if(eFoundedReligion != NO_RELIGION)
+				{
+					int iEra = GET_PLAYER(eProposer).GetCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, eProposer);
+					if(pReligion)
+					{
+						int iLoop;
+						float fDelay = 0.5f;
+						CvCity* pHolyCity = NULL;
+						for (CvCity* pLoopCity = GET_PLAYER(eProposer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eProposer).nextCity(&iLoop)) 
+						{
+							if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eFoundedReligion)) 
+							{
+								pHolyCity = pLoopCity;
+								break;
+							}
+							else if(GET_PLAYER(eProposer).getCapitalCity() == pLoopCity)
+							{
+								pHolyCity = pLoopCity;
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
+						{
+							GET_PLAYER(eProposer).ChangeFaith(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
+						{
+							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
+						{
+							TechTypes eCurrentTech = GET_PLAYER(eProposer).GetPlayerTechs()->GetCurrentResearch();
+							if(eCurrentTech == NO_TECH)
+							{
+								GET_PLAYER(eProposer).changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+							}
+							else
+							{
+								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra, eProposer);
+							}
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
+						{
+							GET_PLAYER(eProposer).changeJONSCulture(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
+						{
+							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+							}
+						}
+					}
+				}
+#endif
 			}
 
 			if (it->GetEffects()->bChangeLeagueHost)

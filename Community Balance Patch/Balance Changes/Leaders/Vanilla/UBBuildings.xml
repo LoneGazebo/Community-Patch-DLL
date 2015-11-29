@@ -285,6 +285,7 @@
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<Defense>400</Defense>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<TechEnhancedTourism>2</TechEnhancedTourism>
@@ -358,18 +359,16 @@
 	</Building_ResourceYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_ODEON">
-			<Text>Odeon</Text>
+			<Text>Acropolis</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT">
-			<Text>
-				The oldest known odeon in Greece was the Skias at Sparta, so called from its resemblance to the top of a parasol, said to have been erected by Theodorus of Samos (600 B.C.); in Athens an odeon near the spring Enneacrunus on the Ilissus was referred to the age of Peisistratus, and appears to have been rebuilt or restored by Lycurgus (c. 330 B.C.). This is probably the building which, according to Aristophanes, was used for judicial purposes, for the distribution of corn, and even for the billeting of soldiers.
-			</Text>
+			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>Increases City Defense by 4. Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
-			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism, especially while at war. Produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city's Defense, Culture, and Tourism, especially while at war for the latter two. Produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Triumphal Arch -->

@@ -34,6 +34,14 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iYourBuildingBonus ~= 0) then
 		strYourBuildingValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_BUILDING", pOriginCity:GetNameKey(), iYourBuildingBonus / 100);
 	end
+
+	--CBP
+	local iMinorBonus = pPlayer:GetMinorCivGoldBonus(pOriginCity, pTargetCity, eDomain, true);
+	local strMinorBonus = "";
+	if (iMinorBonus ~= 0) then
+		strMinorBonus = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_MINOR_CS_TT_BONUS", pTargetCity:GetNameKey(), iMinorBonus / 100);
+	end
+	--END
 	
 	local iTheirBuildingBonus = pPlayer:GetInternationalTradeRouteTheirBuildingBonus(pOriginCity, pTargetCity, eDomain, true);
 	local strTheirBuildingValue = "";
@@ -161,6 +169,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 			strOtherTotal = strOtherTotal .. "[NEWLINE]";
 		end
 
+
 -- COMMUNITY PATCH
 		if(iTheirInfluenceGold > 0) then
 			if (iPlayer == Game.GetActivePlayer()) then
@@ -228,6 +237,13 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 		strResult = strResult .. strRiverModifier;
 		strResult = strResult .. "[NEWLINE]";
 	end
+
+	--CBP
+	if (strMinorBonus ~= "") then
+		strResult = strResult .. strMinorBonus;
+		strResult = strResult .. "[NEWLINE]";
+	end
+	--END
 
 -- Community Patch
 	if (strInfluenceValue ~= "") then
@@ -352,7 +368,37 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 
 	return strResult;
 end
+--CBP
+function BuildTradeRouteProductionToolTipString (pOriginCity, pTargetCity, eDomain)
 
+	local strResult = "";
+	local iPlayer = pOriginCity:GetOwner();
+	local pOriginPlayer = Players[iPlayer];
+
+	local iOriginProduction  = pOriginPlayer:GetInternationalTradeRouteProduction(pOriginCity, pTargetCity, eDomain, true) / 100;
+
+	if (iOriginProduction > 0) then
+		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_PRODUCTION", iOriginProduction);
+	end
+
+	return strResult;
+end
+function BuildTradeRouteFoodToolTipString (pOriginCity, pTargetCity, eDomain)
+
+	local strResult = "";
+	local iPlayer = pOriginCity:GetOwner();
+	local pOriginPlayer = Players[iPlayer];
+
+	local iOriginFood  = pOriginPlayer:GetInternationalTradeRouteFood(pOriginCity, pTargetCity, eDomain, true) / 100;
+
+	if (iOriginFood > 0) then
+		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_FOOD", iOriginFood);
+	end
+
+	return strResult;
+end
+
+--END
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain)
@@ -362,6 +408,10 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 	if (pPlayer:GetInternationalTradeRouteTotal(pOriginCity, pTargetCity, true, true) > 0) then
 		local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
+		-- CBP
+		local strProductionToolTip = BuildTradeRouteProductionToolTipString(pOriginCity, pTargetCity, eDomain);
+		local strFoodToolTip = BuildTradeRouteFoodToolTipString(pOriginCity, pTargetCity, eDomain);
+		--END
 		strResult = strGoldToolTip;
 		if (strScienceToolTip ~= "") then
 			if (strResult ~= "") then
@@ -370,6 +420,22 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 		
 			strResult = strResult .. strScienceToolTip;
 		end
+		--CBP
+		if (strProductionToolTip ~= "") then
+			if (strResult ~= "") then
+				strResult = strResult .. "[NEWLINE][NEWLINE]";
+			end
+		
+			strResult = strResult .. strProductionToolTip;
+		end
+		if (strFoodToolTip ~= "") then
+			if (strResult ~= "") then
+				strResult = strResult .. "[NEWLINE][NEWLINE]";
+			end
+		
+			strResult = strResult .. strFoodToolTip;
+		end
+		--END
 	end
 	
 	return strResult;

@@ -3574,9 +3574,9 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 				continue;
 
 			//how useful is the shortcut is we could generate
-			if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
+			if(GC.getStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
 			{
-				if (GC.GetInternationalTradeRouteWaterFinder().GetPathLength()>=iMinDistanceSaved)
+				if (GC.getStepFinder().GetPathLength()>=iMinDistanceSaved)
 					return true;
 			}
 			else
@@ -5620,6 +5620,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							if (GET_PLAYER(eOldOwner).isMinorCiv())
 							{
 								GET_PLAYER(GetPlayerThatBuiltImprovement()).changeSiphonLuxuryCount(eOldOwner, -1 * pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
+#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER(eOldOwner).GetMinorCivAI()->SetSiphoned(GetPlayerThatBuiltImprovement(), false);
+#endif
 							}
 						}
 					}
@@ -5822,6 +5825,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							if (GET_PLAYER(eNewValue).isMinorCiv())
 							{
 								GET_PLAYER(GetPlayerThatBuiltImprovement()).changeSiphonLuxuryCount(eNewValue, pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
+#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER(eNewValue).GetMinorCivAI()->SetSiphoned(GetPlayerThatBuiltImprovement(), true);
+#endif
 							}
 						}
 					}
@@ -7006,6 +7012,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (owningPlayer.isMinorCiv())
 					{
 						GET_PLAYER(eOldBuilder).changeSiphonLuxuryCount(owningPlayerID, -1 * oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
+#if defined(MOD_BALANCE_CORE)
+						GET_PLAYER(owningPlayerID).GetMinorCivAI()->SetSiphoned(eOldBuilder, false);
+#endif
 					}
 				}
 #if defined(MOD_BALANCE_CORE)
@@ -7210,6 +7219,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (owningPlayer.isMinorCiv())
 					{
 						GET_PLAYER(eBuilder).changeSiphonLuxuryCount(owningPlayerID, newImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
+#if defined(MOD_BALANCE_CORE)
+						GET_PLAYER(owningPlayerID).GetMinorCivAI()->SetSiphoned(eBuilder, true);
+#endif
 					}
 				}
 #if defined(MOD_BALANCE_CORE)
@@ -7630,14 +7642,11 @@ RouteTypes CvPlot::getRouteType() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setRouteType(RouteTypes eNewValue)
 {
-	bool bOldRoute;
 	RouteTypes eOldRoute = getRouteType();
 	int iI;
 
 	if(eOldRoute != eNewValue || (eOldRoute == eNewValue && IsRoutePillaged()))
 	{
-		bOldRoute = isRoute(); // XXX is this right???
-
 		// Remove old effects
 		if(eOldRoute != NO_ROUTE && !isCity())
 		{

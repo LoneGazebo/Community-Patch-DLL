@@ -1072,7 +1072,7 @@ void CvPlayer::uninit()
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance->Uninit();
+	m_pCityDistance->Reset();
 #endif
 
 	m_ppaaiSpecialistExtraYield.clear();
@@ -1752,8 +1752,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		//don't allocate here, map size is not known
-		m_pCityDistance->Init(eID, false);
+		m_pCityDistance->SetPlayer(eID);
 #endif
 
 		m_pTreasury->Init(this);
@@ -1914,7 +1913,7 @@ void CvPlayer::gameStartInit()
 #if defined(MOD_BALANCE_CORE)
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
-	m_pCityDistance->Init(GetID(), true);
+	m_pCityDistance->SetPlayer(GetID());
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)
@@ -2443,13 +2442,13 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		m_pCityDistance->Update();
+		SetClosestCityMapDirty();
 #endif
 
 #if defined(MOD_BALANCE_CORE)
 		int iLoop=0;
 		for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
-			pCity->UpdateClosestNeighbors();
+			pCity->UpdateClosestFriendlyNeighbors();
 #endif
 	}
 
@@ -3196,6 +3195,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 	abEverOwned[GetID()] = true;
+#if defined(MOD_BALANCE_CORE)
+	bool abTraded[MAX_PLAYERS];
+	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		abTraded[iI] = pOldCity->IsTraded((PlayerTypes)iI);
+	}
+#endif
 
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -3496,6 +3502,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pNewCity->SetFranchised((PlayerTypes)iI, false);
 			pNewCity->SetHasOffice(false);
 		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		pNewCity->SetTraded(((PlayerTypes)iI), abTraded[iI]);
 #endif
 	}
 
@@ -14326,6 +14335,23 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					iYieldPerTurn += (GetScience() / iYieldPerScience);
 				}
 			}
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if(pLeague != NULL)
+			{
+				int iEra = GetCurrentEra();
+				if(iEra <= 1)
+				{
+					iEra = 1;
+				}
+				int iHostYield = (pReligion->m_Beliefs.GetYieldFromHost(eYield) * iEra);
+				if(iHostYield > 0)
+				{
+					if(pLeague->GetHostMember() == GetID())
+					{
+						iYieldPerTurn += iHostYield;
+					}
+				}
+			}
 		}
 	}
 	//Pantheons
@@ -20329,7 +20355,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
 
-	CvCity* pMajorCity = GetClosestFriendlyCity(*pMinorPlot, MAX_INT);
+	CvCity* pMajorCity = GetClosestCity(*pMinorPlot, MAX_INT);
 
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
@@ -29378,15 +29404,29 @@ void CvPlayer::deleteCity(int iID)
 	m_cities.Remove(iID);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance->Update();
+	SetClosestCityMapDirty();
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	int iLoop=0;
+	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
+		pCity->UpdateClosestFriendlyNeighbors();
 #endif
 }
 
 #if defined(MOD_BALANCE_CORE)
+void CvPlayer::SetClosestCityMapDirty()
+{
+	if (m_pCityDistance)
+		m_pCityDistance->SetDirty();
+
+	GC.getGame().SetClosestCityMapDirty();
+}
+
 int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
-		return m_pCityDistance->GetDistanceFromFriendlyCity( *pPlot );
+		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
 	else
 		return INT_MAX;
 }
@@ -29394,7 +29434,7 @@ int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
 CvCity* CvPlayer::GetClosestCity( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
-		return getCity(m_pCityDistance->GetClosestFriendlyCity( *pPlot ));
+		return getCity(m_pCityDistance->GetClosestFeatureID( *pPlot ));
 	else
 		return NULL;
 }
@@ -33746,7 +33786,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	int iLoop=0;
 	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
-		pCity->UpdateClosestNeighbors();
+		pCity->GetClosestFriendlyNeighboringCities();
 #endif
 }
 
@@ -34928,10 +34968,6 @@ void CvPlayer::UpdatePlots(void)
 		m_aiPlots[iPlotIndex] = iI;
 		iPlotIndex++;
 	}
-
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance->Update();
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -35339,7 +35375,7 @@ bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot) const
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
-CvCity* CvPlayer::GetClosestFriendlyCity(CvPlot& plot, int iSearchRadius)
+CvCity* CvPlayer::GetClosestCity(CvPlot& plot, int iSearchRadius)
 {
 	CvCity* pClosestCity = NULL;
 	CvCity* pLoopCity;
@@ -37825,7 +37861,6 @@ void CvPlayer::updatePlotFoundValues()
 	}
 
 	// important preparation
-	m_pCityDistance->Update();
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
 	// first pass: precalculate found values

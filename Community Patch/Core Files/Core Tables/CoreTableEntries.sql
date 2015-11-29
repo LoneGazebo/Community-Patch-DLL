@@ -534,6 +534,8 @@ ALTER TABLE Policies ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 -- Investment reduction costs -- trait -- negative makes it stronger!
 ALTER TABLE Traits ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 
+-- Trade Route Internal Capital Bonus -- policy -- Internal TR from Capital stronger!
+ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
 
 -- C4DF Function
 

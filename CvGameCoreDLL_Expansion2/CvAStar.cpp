@@ -1214,7 +1214,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const voi
 
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 	bool bToPlotIsWater = !pToPlot->isTerraFirma(pUnit) && !pToPlot->IsAllowsWalkWater();
-	bool bFromPlotIsWater = !pToPlot->isTerraFirma(pUnit) && !pToPlot->IsAllowsWalkWater();
+	bool bFromPlotIsWater = !pFromPlot->isTerraFirma(pUnit) && !pFromPlot->IsAllowsWalkWater();
 #else
 	bool bToPlotIsWater = pToPlot->isWater() && !pToPlot->IsAllowsWalkWater();
 #endif
@@ -3232,7 +3232,7 @@ int RebaseGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 	// if there is a city and the city is on our team
 	if(pCity && pCity->getTeam()==eTeam)
 	{
-		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
 		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
 
 		return (int)vNeighbors.size()+vAttachedUnits.size();
@@ -3266,7 +3266,7 @@ int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, c
 	// if there is a city and the city is on our team
 	if(pCity && pCity->getTeam()==eTeam)
 	{
-		std::vector<int> vNeighbors = pCity->GetClosestNeighboringCities();
+		std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
 		std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
 
 		if ( (size_t)iIndex<vNeighbors.size())
@@ -3714,53 +3714,42 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int, const void*, const CvAStar*)
 {
 	if(parent == NULL)
-	{
 		return TRUE;
-	}
 
 	CvMap& kMap = GC.getMap();
-	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->getArea() != pNewPlot->getArea())
+	if (pToPlot->isWater())
 	{
 		return FALSE;
 	}
 
-	if (pNewPlot->isWater())
+	if(pFromPlot->getArea() != pToPlot->getArea())
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if (pNewPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
-	{
-		return FALSE;
-	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
-	int iFromPlotX = parent->m_iX;
-	int iFromPlotY = parent->m_iY;
-	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
-	if(pFromPlot != NULL && pFromPlot->getOwner() != NO_PLAYER)
+	if (pToPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{
-		if(pNewPlot->isImpassable(GET_PLAYER(pFromPlot->getOwner()).getTeam()) || (pNewPlot->isMountain() && !GET_PLAYER(pFromPlot->getOwner()).GetPlayerTraits()->IsMountainPass()))
+		return FALSE;
+	}
+
+	PlayerTypes eOwner = pToPlot->getOwner();
+	if(eOwner != NO_PLAYER)
+	{
+		if(pToPlot->isImpassable(GET_PLAYER(eOwner).getTeam()) || (pToPlot->isMountain() && !GET_PLAYER(eOwner).GetPlayerTraits()->IsMountainPass()))
 		{
 			return FALSE;
 		}
 	}
 	else
 	{
-		if(pNewPlot->isMountain() || pNewPlot->isImpassable(BARBARIAN_TEAM))
+		if(pToPlot->isMountain() || pToPlot->isImpassable(BARBARIAN_TEAM))
 		{
 			return FALSE;
 		}
 	}
-#else
-	if(pNewPlot->isMountain() || pNewPlot->isImpassable())
-	{
-		return FALSE;
-	}
-#endif
 
 	return TRUE;
 }

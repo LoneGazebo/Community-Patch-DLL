@@ -2634,6 +2634,7 @@ void CvMinorCivAI::Reset()
 		m_aiMajorScratchPad[iI] = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
+		m_abSiphoned[iI] = false;
 #endif
 	}
 
@@ -2750,6 +2751,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_ePermanentAlly;
 	kStream >> m_bNoAlly;
 	kStream >> m_iCoup;
+	kStream >> m_abSiphoned;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iTurnLiberated;
@@ -2840,6 +2842,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_ePermanentAlly;
 	kStream << m_bNoAlly;
 	kStream << m_iCoup;
+	kStream << m_abSiphoned;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iTurnLiberated;
@@ -11106,7 +11109,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #endif
 		}
 
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestFriendlyCity(*pMinorCapitalPlot, MAX_INT);
+		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCity(*pMinorCapitalPlot, MAX_INT);
 
 		int iX = pMinorCapital->getX();
 		int iY = pMinorCapital->getY();
@@ -13901,6 +13904,22 @@ void CvMinorCivAI::SetCoupCooldown(int iValue)
 	if(GetCoupCooldown() != iValue)
 	{
 		m_iCoup = iValue;
+	}
+}
+bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return 0;  // as defined in Reset()
+	return m_abSiphoned[ePlayer];
+}
+void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(IsSiphoned(ePlayer) != bValue)
+	{
+		m_abSiphoned[ePlayer] = bValue;
 	}
 }
 #endif

@@ -72,7 +72,20 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-	
+
+	<!-- Reformation: Allows you to define any a value gained while the Host of the World Congress -->
+	<Table name="Belief_YieldFromHost">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Reformation: Allows you to define any a value gained from passing a proposal in WC -->
+	<Table name="Belief_YieldFromProposal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<!-- PANTHEON: Allows you to define yields gained by working (not just owning!) x type of terrain/feature. Can be modified by 'NoImprovement' and 'NoImprovementFeature elementss
 		Works by taking the 'yield' value below and dividing it against the number of plots being worked. So '1' Yield = +1 yield per worked tile of that type. 2 = +1 per 2, etc.
 	-->

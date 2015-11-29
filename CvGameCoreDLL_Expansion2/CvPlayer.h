@@ -2048,7 +2048,7 @@ public:
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;
 #endif // AUI_DANGER_PLOTS_REMADE
 
-	CvCity* GetClosestFriendlyCity(CvPlot& plot, int iSearchRadius);
+	CvCity* GetClosestCity(CvPlot& plot, int iSearchRadius);
 
 	int GetNumPuppetCities() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
@@ -2339,6 +2339,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
+	void SetClosestCityMapDirty();
 	int GetCityDistance( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCity( const CvPlot* pPlot ) const;
 #endif

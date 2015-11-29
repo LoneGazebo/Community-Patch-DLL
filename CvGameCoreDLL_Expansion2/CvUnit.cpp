@@ -8823,8 +8823,6 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 		return false;
 	}
 
-	kill(true);
-
 	CvCity* pFromCity = NULL;
 	CvCity* pToCity = NULL;
 
@@ -8840,6 +8838,10 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 	}
 
 	bool bResult = GET_PLAYER(getOwner()).GetTrade()->CreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType);
+
+	if (bResult)
+		kill(true);
+
 	return bResult;
 }
 
@@ -9283,7 +9285,12 @@ bool CvUnit::createGreatWork()
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatWorkCreated, getOwner(), GetID(), iGWindex);
+		CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+		if(pCulture != NULL)
+		{
+			int iValue = (int)eGreatWorkType;
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatWorkCreated, getOwner(), GetID(), iValue);
+		}
 #endif
 
 		return true;
@@ -23351,7 +23358,17 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 	if(pCombatUnit != NULL)
 	{
 		CvAssertMsg(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
-		m_bCombatFocus = (bAttacking && !(DLLUI->isFocusedWidget()) && ((getOwner() == GC.getGame().getActivePlayer()) || ((pCombatUnit->getOwner() == GC.getGame().getActivePlayer()) && !(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns()))));
+		m_bCombatFocus = (
+			bAttacking && 
+			!(DLLUI->isFocusedWidget()) && 
+			(
+				(getOwner() == GC.getGame().getActivePlayer()) || 
+				(
+					(pCombatUnit->getOwner() == GC.getGame().getActivePlayer()) && 
+					!(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns())
+				)
+			)
+		);
 		m_combatUnit = pCombatUnit->GetIDInfo();
 	}
 	else
@@ -27217,7 +27234,6 @@ void CvUnit::DumpDangerInNeighborhood()
 void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
 	VALIDATE_OBJECT
-	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
@@ -27230,16 +27246,18 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		if (!pFromPlot || !pToPlot)
 			return;
 
-		if (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner()))
+		if ( (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner())) || (IsCombatUnit() && pToPlot->isWater() && getDomainType()==DOMAIN_LAND) )
 		{
 			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
 			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
-			if (iFromDanger < iToDanger)
-				OutputDebugString(CvString::format("%s moving into danger!\n", getName().c_str()).c_str());
+			if (iFromDanger < iToDanger || iToDanger==INT_MAX)
+				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
+					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
 		}
 	}
 #endif
 
+	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 }
 
 //	--------------------------------------------------------------------------------

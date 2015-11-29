@@ -91,6 +91,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromEraUnlock(NULL),
 	m_piYieldFromConversion(NULL),
 	m_piYieldFromWLTKD(NULL),
+	m_piYieldFromProposal(NULL),
+	m_piYieldFromHost(NULL),
 	m_iCombatVersusOtherReligionOwnLands(0),
 	m_iCombatVersusOtherReligionTheirLands(0),
 	m_iMissionaryInfluenceCS(0),
@@ -601,6 +603,20 @@ int CvBeliefEntry::GetYieldFromWLTKD(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromWLTKD ? m_piYieldFromWLTKD[i] : -1;
 }
+/// Accessor:: Yield from Proposal
+int CvBeliefEntry::GetYieldFromProposal(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromProposal ? m_piYieldFromProposal[i] : -1;
+}
+/// Accessor:: Yield from Vote
+int CvBeliefEntry::GetYieldFromHost(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromHost ? m_piYieldFromHost[i] : -1;
+}
 /// Accessor:: Yield from Followers
 int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 {
@@ -1099,6 +1115,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromEraUnlock, "Belief_YieldFromEraUnlock", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromConversion, "Belief_YieldFromConversion", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Belief_YieldFromWLTKD", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromProposal, "Belief_YieldFromProposal", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
@@ -3067,6 +3085,38 @@ int CvReligionBeliefs::GetYieldFromWLTKD(YieldTypes eYieldType) const
 		if(HasBelief((BeliefTypes)i))
 		{
 			rtnValue += pBeliefs->GetEntry(i)->GetYieldFromWLTKD(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+/// Get yield modifier from beliefs from passing a WC proposal
+int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldFromProposal(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+/// Get yield modifier from beliefs from Hosting WC
+int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldFromHost(eYieldType);
 		}
 	}
 

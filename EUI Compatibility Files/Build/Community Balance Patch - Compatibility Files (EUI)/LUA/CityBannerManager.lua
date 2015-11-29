@@ -106,7 +106,7 @@ local CityAIFocusTypes = CityAIFocusTypes
 --local ChatTargetTypes = ChatTargetTypes
 --local ReligionTypes = ReligionTypes
 --local BeliefTypes = BeliefTypes
-local FaithPurchaseTypes = FaithPurchaseTypes
+--local FaithPurchaseTypes = FaithPurchaseTypes
 --local ResolutionDecisionTypes = ResolutionDecisionTypes
 --local InfluenceLevelTypes = InfluenceLevelTypes
 --local InfluenceLevelTrend = InfluenceLevelTrend
@@ -165,7 +165,6 @@ local g_primaryColors = EUI.PrimaryColors
 local g_backgroundColors = EUI.BackgroundColors
 
 local g_cityHexHighlight, g_toolTipControl, g_toolTipPlotIndex
-local g_toolTipHandler = {}
 
 local g_dirtyCityBanners = {}
 local g_missingCityBanners = {}
@@ -193,7 +192,7 @@ local function IsTurnActive( player )
 	return player and player:IsTurnActive() and not Game.IsProcessingMessages()
 end
 
-local function BannerError( n, arg )
+local function BannerError( where, arg )
 	if Game.IsDebugMode() then
 		local txt = ""
 		if arg and arg.PlotIndex then
@@ -207,20 +206,15 @@ local function BannerError( n, arg )
 		if arg and arg.GetCityPlotIndex then
 			txt = "city " .. arg:GetName()
 		end
-		print( "glitch", n, txt, debug and debug.traceback and debug.traceback() )
+		print( "glitch", where, txt, debug and debug.traceback and debug.traceback() )
 	end
 end
 
 local RefreshCityBanner
 
-------------------------------------------------------------
--- CityBanner ToolTip
-------------------------------------------------------------
-function g_toolTipHandler.BannerButton( control )
-	local plotIndex = control:GetVoid1()
-	local plot = Map.GetPlotByIndex( plotIndex )
-	local city = plot and plot:GetPlotCity()
-	if city then
+local g_toolTipHandler = {
+	-- CityBanner ToolTip
+	BannerButton = function( city )
 		local tipText = ""
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[ cityOwnerID ]
@@ -456,21 +450,11 @@ function g_toolTipHandler.BannerButton( control )
 				tipText = L("TXT_KEY_HAVENT_MET")
 			end
 		end
-		control:SetToolTipString( tipText )
-	else
-		BannerError( 354, plot )
-	end
-end
+		return tipText
+	end,
 
-------------------------------------------------------------
--- City Production ToolTip
-------------------------------------------------------------
-function g_toolTipHandler.CityBannerProductionButton( control )
-	local plotIndex = control:GetVoid1()
-	local plot = Map.GetPlotByIndex( plotIndex )
-	local city = plot and plot:GetPlotCity()
-
-	if city then
+	-- City Production ToolTip
+	CityBannerProductionButton = function( city )
 		local cityName = city:GetName()
 		local isNoob = not OptionsManager.IsNoBasicHelp()
 		local cityProductionName = city:GetProductionNameKey()
@@ -530,21 +514,11 @@ function g_toolTipHandler.CityBannerProductionButton( control )
 			end
 		end
 
-		control:SetToolTipString( tipText )
-	else
-		BannerError( 431, plot )
-	end
-end
+		return tipText
+	end,
 
-------------------------------------------------------------
--- City Growth ToolTip
-------------------------------------------------------------
-function g_toolTipHandler.PopulationBox( control )
-	local plotIndex = control:GetVoid1()
-	local plot = Map.GetPlotByIndex( plotIndex )
-	local city = plot and plot:GetPlotCity()
-
-	if city then
+	-- City Growth ToolTip
+	PopulationBox = function( city )
 		local tipText
 		local isNoob = not OptionsManager.IsNoBasicHelp()
 		local cityName = city:GetName()
@@ -599,27 +573,59 @@ function g_toolTipHandler.PopulationBox( control )
 					.. S( " %+g[ICON_FOOD]", foodOverflowTimes100 / 100 )
 		end
 
-		control:SetToolTipString( tipText )
-	else
-		BannerError( 503, plot )
-	end
-end
+		return tipText
+	end,
 
--------------------------------------------------
--- City Religion Tooltip
--------------------------------------------------
-
-function g_toolTipHandler.ReligiousIcon( control )
-	local plotIndex = control:GetVoid1()
-	local plot = Map.GetPlotByIndex( plotIndex )
-	local city = plot and plot:GetPlotCity()
-
-	if city then
-		control:SetToolTipString( GetReligionTooltip(city) )
-	else
-		BannerError( 522, plot )
-	end
-end
+	-- City Religion Tooltip
+	ReligiousIcon = GetReligionTooltip,
+	PuppetIcon = function( city )
+		if bnw_mode and g_activePlayer:MayNotAnnex() or city:GetOwner() == g_activePlayerID then
+			return L"TXT_KEY_CITY_PUPPET"
+		else
+			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"
+		end
+	end,
+	RazingIcon = function( city )
+		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
+	end,
+	ResistanceIcon = function( city )
+		return L( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() )
+	end,
+	RazingIcon = function( city )
+		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
+	end,
+	ResistanceIcon = function( city )
+		return L( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() )
+	end,
+	ConnectedIcon = function( city )
+		local connectionTip = L("TXT_KEY_CITY_CONNECTED")
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[ cityOwnerID ]
+		if not cityOwner then
+		elseif cityOwner.GetRouteGoldTimes100 then
+			connectionTip = connectionTip .. S(" (%+g[ICON_GOLD])", cityOwner:GetRouteGoldTimes100( city ) / 100 )
+		elseif cityOwner.GetCityConnectionRouteGoldTimes100 then
+			connectionTip = connectionTip .. S(" (%+g[ICON_GOLD])", cityOwner:GetCityConnectionRouteGoldTimes100( city ) / 100 )
+		end
+		return connectionTip
+	end,
+	QuestIcons = function( city )
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[ cityOwnerID ]
+		if cityOwner and cityOwner:IsMinorCiv() then
+			return GetActiveQuestToolTip( g_activePlayerID, cityOwnerID )
+		else
+			-- We love the king
+			local resource = GameInfo.Resources[ city:GetResourceDemanded() ]
+			local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
+			if weLoveTheKingDayCounter > 0 then
+				return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+			elseif resource then
+				return L( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resource.IconString .. " " .. L(resource.Description) )
+			end
+		end
+	end,
+} -- g_toolTipHandler
 
 -------------------------------------------------
 -- Clear Hex Highlighting
@@ -892,6 +898,17 @@ local function OnMouseEnter( plotIndex, _, control )
 	return RefreshCityBanner( plotIndex )
 end
 
+local function OnToolTip( control )
+	local controlID = control:GetID()
+	for plotIndex, cityBanner in pairs( g_cityBanners ) do
+		if cityBanner[ controlID ] == control then
+			g_toolTipControl = control
+			g_toolTipPlotIndex = plotIndex
+			return RefreshCityBanner( plotIndex, true )
+		end
+	end
+end
+
 local function OnBannerMouseEnter( ... )
 	g_cityHexHighlight = ...
 	return OnMouseEnter( ... )
@@ -930,9 +947,18 @@ local function InitBannerCallbacks( cityBanner )
 	cityBanner.BannerButton:RegisterCallback( Mouse.eMouseEnter, OnBannerMouseEnter )
 	cityBanner.BannerButton:RegisterCallback( Mouse.eMouseExit, OnBannerMouseExit )
 	cityBanner.ReligiousIcon:RegisterCallback( Mouse.eLClick, OnBannerClick )
-	cityBanner.ReligiousIcon:RegisterCallback( Mouse.eMouseEnter, OnMouseEnter )
+	cityBanner.ReligiousIcon:SetToolTipCallback( OnToolTip )
 	cityBanner.DiplomatIcon:RegisterCallback( Mouse.eLClick, EspionagePopup )
 	cityBanner.SpyIcon:RegisterCallback( Mouse.eLClick, EspionagePopup )
+	cityBanner.PuppetIcon:SetToolTipCallback( OnToolTip )
+	cityBanner.RazingIcon:SetToolTipCallback( OnToolTip )
+	cityBanner.ResistanceIcon:SetToolTipCallback( OnToolTip )
+	cityBanner.RazingIcon:SetToolTipCallback( OnToolTip )
+	cityBanner.ResistanceIcon:SetToolTipCallback( OnToolTip )
+	cityBanner.QuestIcons:SetToolTipCallback( OnToolTip )
+	if cityBanner.ConnectedIcon then
+		cityBanner.ConnectedIcon:SetToolTipCallback( OnToolTip )
+	end
 end
 
 -------------------------------------------------
@@ -1058,38 +1084,16 @@ local function RefreshCityBannersNow()
 			cityBanner.CityStrength:SetText(math.floor(city:GetStrengthValue() / 100))
 
 			-- Update population
-			local cityPopulation = math.floor(city:GetPopulation())
-			cityBanner.CityPopulation:SetText(cityPopulation)
+			cityBanner.CityPopulation:SetText( city:GetPopulation() )
 
 			-- Being Razed ?
-			if city:IsRazing() then
-				cityBanner.RazingIcon:SetHide( false )
-				cityBanner.RazingIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
-			else
-				cityBanner.RazingIcon:SetHide( true )
-			end
+			cityBanner.RazingIcon:SetHide( not city:IsRazing() )
 
 			-- In Resistance ?
-			if city:IsResistance() then
-				cityBanner.ResistanceIcon:SetHide( false )
-				cityBanner.ResistanceIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() )
-			else
-				cityBanner.ResistanceIcon:SetHide( true )
-			end
+			cityBanner.ResistanceIcon:SetHide( not city:IsResistance() )
 
 			-- Puppet ?
-			if city:IsPuppet() then
-				cityBanner.PuppetIcon:SetHide( false )
-				if isActivePlayerCity then
-					if bnw_mode and g_activePlayer:MayNotAnnex() then
-						cityBanner.PuppetIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_PUPPET" )
-					else
-						cityBanner.PuppetIcon:SetToolTipString( L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT" )
-					end
-				end
-			else
-				cityBanner.PuppetIcon:SetHide( true )
-			end
+			cityBanner.PuppetIcon:SetHide( not city:IsPuppet() )
 
 			-- Occupied ?
 			cityBanner.OccupiedIcon:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
@@ -1201,21 +1205,10 @@ local function RefreshCityBannersNow()
 				end
 
 				-- Connected to capital?
-				if cityOwner:IsCapitalConnectedToCity(city) and not city:IsCapital() then -- and not city:IsBlockaded()
-					local connectionTip = L("TXT_KEY_CITY_CONNECTED")
-					if cityOwner.GetRouteGoldTimes100 then
-						connectionTip = connectionTip .. S(" (%+g[ICON_GOLD])", cityOwner:GetRouteGoldTimes100( city ) / 100 )
-					elseif cityOwner.GetCityConnectionRouteGoldTimes100 then
-						connectionTip = connectionTip .. S(" (%+g[ICON_GOLD])", cityOwner:GetCityConnectionRouteGoldTimes100( city ) / 100 )
-					end
-					cityBanner.ConnectedIcon:SetHide( false )
-					cityBanner.ConnectedIcon:SetToolTipString( connectionTip )
-				else
-					cityBanner.ConnectedIcon:SetHide( true )
-				end
+				cityBanner.ConnectedIcon:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) )
 
 				-- Demand resource / King day ?
-				local resource = GameInfo.Resources[city:GetResourceDemanded()]
+				local resource = GameInfo.Resources[ city:GetResourceDemanded() ]
 				local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
 				-- We love the king
 				if weLoveTheKingDayCounter > 0 then
@@ -1233,7 +1226,6 @@ local function RefreshCityBannersNow()
 
 				elseif resource then
 					cityBanner.QuestIcons:SetText( resource.IconString )
-					cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resource.IconString .. " " .. L(resource.Description) )
 					cityBanner.QuestIcons:SetHide( false )
 				else
 					cityBanner.QuestIcons:SetHide( true )
@@ -1253,7 +1245,6 @@ local function RefreshCityBannersNow()
 				if isMinorCiv then
 					-- Update Quests
 					cityBanner.QuestIcons:SetText( GetActiveQuestText( g_activePlayerID, cityOwnerID ) )
-					cityBanner.QuestIcons:SetToolTipString( GetActiveQuestToolTip( g_activePlayerID, cityOwnerID ) )
 					cityBanner.QuestIcons:SetHide( false )
 
 					color = g_colorWhite
@@ -1440,17 +1431,20 @@ local function RefreshCityBannersNow()
 		g_cityHexHighlight = false
 	end
 	if g_toolTipControl then
-		local toolTipHandler = g_toolTipHandler[g_toolTipControl:GetID()]
+		local controlID = g_toolTipControl:GetID()
+		local toolTipHandler = g_toolTipHandler[ controlID ]
 		if toolTipHandler then
-			toolTipHandler( g_toolTipControl )
+			local plot = Map.GetPlotByIndex( g_toolTipPlotIndex )
+			local city = plot and plot:GetPlotCity()
+			g_toolTipControl:SetToolTipString( city and toolTipHandler( city ) )
 		end
 		g_toolTipControl = nil
 	end
 end
 
-RefreshCityBanner = function( plotIndex )
+RefreshCityBanner = function( plotIndex, isToolTipOnly )
 	if plotIndex then
-		g_dirtyCityBanners[ plotIndex ] = true
+		g_dirtyCityBanners[ plotIndex ] = not isToolTipOnly
 		return ContextPtr:SetUpdate( RefreshCityBannersNow )
 	end
 end
@@ -1745,5 +1739,5 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 	end
 end
 
-print("Finished loading EUI city banners -- CBP Version", os.clock())
+print("Finished loading EUI city banners", os.clock())
 end)

@@ -263,10 +263,9 @@ public:
 	virtual bool DoDelayedDeath();
 
 	virtual void BuildListOfUnitsWeStillNeedToBuild();
-	unsigned int GetNumUnitsNeededToBeBuilt()
-	{
-		return m_viListOfUnitsWeStillNeedToBuild.size();
-	}
+	size_t GetNumUnitsNeededToBeBuilt()	{ return m_viListOfUnitsWeStillNeedToBuild.size(); }
+	size_t GetNumUnitsCommittedToBeBuilt()	{ return m_viListOfUnitsCitiesHaveCommittedToBuild.size(); }
+
 	virtual OperationSlot PeekAtNextUnitToBuild(int iAreaID);
 	virtual OperationSlot CommitToBuildNextUnit(int iAreaID, int iTurns, CvCity* pCity);
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
@@ -317,7 +316,6 @@ protected:
 
 	std::vector<int> m_viArmyIDs;
 	std::deque<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
-	std::vector<OperationSlot> m_viListOfUnitsWeSkipped;
 	std::vector<OperationSlot> m_viListOfUnitsCitiesHaveCommittedToBuild;
 
 	int m_iID;
@@ -584,6 +582,7 @@ public:
 		return true;
 	};
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 
 #if defined(MOD_BALANCE_CORE)
 	virtual bool IsEscorted();

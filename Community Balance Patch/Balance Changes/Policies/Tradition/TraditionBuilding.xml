@@ -34,7 +34,7 @@
 		<Row>
 			<BuildingType>BUILDING_THRONE_ROOM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -60,8 +60,7 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<GlobalPlotBuyCostModifier>-10</GlobalPlotBuyCostModifier>
-			<GlobalPlotCultureCostModifier>-10</GlobalPlotCultureCostModifier>
+			<GoldenAgeModifier>25</GoldenAgeModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -82,7 +81,7 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_TREASURY</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -90,7 +89,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>Allows for a Merchant specialist in your Capital. Reduces the amount of [ICON_CULTURE] Culture and [ICON_GOLD] Gold needed to acquire Tiles in all Cities by 10%. Can only be constructed via the Sovereignty Policy.</Text>
+			<Text>Allows for a Merchant specialist in your Capital. +25% [ICON_GOLDEN_AGE] Golden Age duration. Can only be constructed via the Sovereignty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -141,7 +140,7 @@
 		<Row>
 			<BuildingType>BUILDING_CAPITAL_ENGINEER</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Buildings>
@@ -156,7 +155,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<CapitalOnly>true</CapitalOnly>
-			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>22</PortraitIndex>
@@ -175,7 +174,7 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_GARDEN</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -215,9 +214,9 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<CapitalOnly>true</CapitalOnly>
-			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>61</PortraitIndex>
@@ -236,7 +235,7 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_COURT_CHAPEL</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>

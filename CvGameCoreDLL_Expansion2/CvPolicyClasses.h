@@ -160,6 +160,9 @@ public:
 	int GetMinorBullyScoreModifier() const;
 	int GetThemingBonusMultiplier() const;
 	int GetInternalTradeRouteYieldModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetInternalTradeRouteYieldModifierCapital() const;
+#endif
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
@@ -456,6 +459,10 @@ private:
 	int m_iMinorBullyScoreModifier;
 	int m_iThemingBonusMultiplier;
 	int m_iInternalTradeRouteYieldModifier;
+#if defined(MOD_BALANCE_CORE)
+	int m_iInternalTradeRouteYieldModifierCapital;
+#endif
+
 	int m_iSharedReligionTourismModifier;
 	int m_iTradeRouteTourismModifier;
 	int m_iOpenBordersTourismModifier;
@@ -752,6 +759,9 @@ enum PolicyModifierType
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
+#if defined(MOD_BALANCE_CORE)
+	POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER,
+#endif
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,

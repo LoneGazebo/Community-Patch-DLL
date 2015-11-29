@@ -5,14 +5,6 @@
 			<PrereqPolicy>POLICY_ARISTOCRACY</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	<Policy_BuildingClassYieldChanges>
-		<Row>
-			<PolicyType>POLICY_TRADITION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-	</Policy_BuildingClassYieldChanges>
 	<Policy_YieldGPExpend>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
@@ -32,7 +24,7 @@
 			<Count>1</Count>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE_TREASURY</BuildingClassType>
 			<Count>1</Count>
 		</Row>
@@ -42,76 +34,108 @@
 			<Count>1</Count>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_LEGALISM</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_THRONE_ROOM</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE_COURT_CHAPEL</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 	</Policy_FreeBuilding>
 	<Policy_BuildingClassHappiness>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CIRCUS_MAXIMUS</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_IRONWORKS</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType>
-			<Happiness>1</Happiness>
+			<Happiness>2</Happiness>
 		</Row>
 	</Policy_BuildingClassHappiness>
+	<Policy_CapitalYieldChanges>
+		<Row>
+			<PolicyType>POLICY_TRADITION</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Policy_CapitalYieldChanges>
 </GameData>

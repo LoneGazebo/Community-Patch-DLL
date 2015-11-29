@@ -17,7 +17,7 @@
 #include "FTimer.h"
 #include "CvPreGame.h"
 #include <CvLocalization.h>
-
+#include "CvDistanceMap.h"
 #include "CvDealClasses.h"
 
 class CvPlot;
@@ -636,17 +636,20 @@ public:
 	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
 #endif
 
-public:
-
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
+
 #if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iLargestBasePotential;
+	int GetLargestSpyPotential() { return m_iLargestBasePotential; }
 #endif
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { return ++m_iGlobalAssetCounter; }
 #endif
+
+	void SetClosestCityMapDirty();
+	int GetClosestCityDistance( const CvPlot* pPlot );
+	CvCity* GetClosestCity( const CvPlot* pPlot );
 
 	//------------------------------------------------------------
 	//------------------------------------------------------------
@@ -820,6 +823,13 @@ protected:
 	float	m_fCurrentTurnTimerPauseDelta;	//
 	bool    m_sentAutoMoves;
 	bool	m_bForceEndingTurn;
+
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int		m_iLargestBasePotential;
+#endif
+	CvDistanceMap m_globalCityDistance;
+
+	//----------------------------------------------------------------
 
 	void initDiplomacy();
 	void initFreeState(CvGameInitialItemsOverrides& kOverrides);

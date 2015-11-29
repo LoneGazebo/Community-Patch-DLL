@@ -5343,43 +5343,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 			}
 #endif
-#if defined(MOD_BALANCE_CORE)
-			if(m_pCity->getOwner() != pNewReligion->m_eFounder)
-			{
-				int iCSInfluence = (pNewReligion->m_Beliefs.GetMissionaryInfluenceCS() * iEra);
-				if(iCSInfluence > 0)
-				{
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-						if(eLoopPlayer == NO_PLAYER)
-							continue;
-
-						if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-						{
-							GET_PLAYER(eLoopPlayer).GetMinorCivAI()->ChangeFriendshipWithMajor(pNewReligion->m_eFounder, iCSInfluence, false);
-
-						}
-					}
-					if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-					{
-						if(GET_PLAYER(pNewReligion->m_eFounder).GetNotifications())
-						{
-							Localization::String strMessage;
-							Localization::String strSummary;
-							strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS", m_pCity->getName(), iCSInfluence);
-							strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_CS_BONUS_S");
-#if defined(MOD_API_EXTENSIONS)
-							GET_PLAYER(pNewReligion->m_eFounder).GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
-#else
-							GET_PLAYER(pNewReligion->m_eFounder).GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD_NATURAL, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
-#endif
-
-						}
-					}
-				}
-			}
-#endif
 		}
 
 		// Notification if the player's city was converted to a religion they didn't found
@@ -6334,7 +6297,7 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanSpreadReligion(pLoopPlot))
+			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -6452,7 +6415,7 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanRemoveHeresy(pLoopPlot))
+			if(pUnit->CanRemoveHeresy(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -6683,7 +6646,7 @@ CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			if(pUnit->CanSpreadReligion(pLoopPlot))
+			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0 )
 			{
 #ifdef AUI_ASTAR_TURN_LIMITER
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
@@ -7884,7 +7847,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
 			// Also skip if closest city of ours is not within 3
-			CvCity* pClosestCity = m_pPlayer->GetClosestFriendlyCity(*pPlot, 3);
+			CvCity* pClosestCity = m_pPlayer->GetClosestCity(*pPlot, 3);
 			if(pClosestCity)
 			{
 				// Score it
@@ -8701,6 +8664,35 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		{
 			iRtnValue += ((iFlavorGrowth + m_pPlayer->getTotalPopulation() * 2) / pEntry->GetYieldPerXFollowers(iI));
 		}
+		if(pEntry->GetYieldFromHost(iI) > 0)
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if(pLeague != NULL)
+			{
+				iRtnValue += ((pEntry->GetYieldFromHost(iI) / 2) * (iFlavorDiplomacy / 2));
+				if(pLeague->GetHostMember() == m_pPlayer->GetID())
+				{
+					iRtnValue *= (pEntry->GetYieldFromHost(iI) / 2);
+				}
+			}
+			else
+			{
+				iRtnValue += ((pEntry->GetYieldFromHost(iI) / 2) * (iFlavorDiplomacy / 2));
+			}
+		}
+		if(pEntry->GetYieldFromProposal(iI) > 0)
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if(pLeague != NULL)
+			{
+				iRtnValue += pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID());
+				iRtnValue += ((pEntry->GetYieldFromProposal(iI) / 5) * (iFlavorDiplomacy / 2));
+			}
+			else
+			{
+				iRtnValue += ((pEntry->GetYieldFromProposal(iI) / 5) * (iFlavorDiplomacy / 2));
+			}
+		}
 
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -9142,17 +9134,22 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
 	}
 #endif
 
-	// Skip if already our religion
-	if(pCity->GetCityReligions()->GetReligiousMajority() == eMyReligion)
-	{
-		return iScore;
-	}
+	// How many other followers are there?
+	int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
+	if (iOtherFollowers==0)
+		return 0;
 
 	// Base score based on if we are establishing majority
-	iScore = 100;
+	iScore = 100 + iOtherFollowers;
 
 	// Then subtract distance
 	iScore -= plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
+
+	// Not so pressing if already our religion
+	if(pCity->GetCityReligions()->GetReligiousMajority() == eMyReligion)
+	{
+		iScore /= 2;
+	}
 
 	return iScore;
 }
