@@ -284,7 +284,7 @@ public:
 
 	bool isUnit() const;
 	bool isVisibleEnemyDefender(const CvUnit* pUnit) const;
-	CvUnit* getVisibleEnemyDefender(PlayerTypes ePlayer);
+	CvUnit* getVisibleEnemyDefender(PlayerTypes ePlayer) const;
 	int getNumDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
@@ -922,7 +922,7 @@ public:
 
 	int GetDefenseBuildValue(PlayerTypes eOwner);
 	void UpdatePlotsWithLOS();
-	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult);
+	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const;
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 #endif

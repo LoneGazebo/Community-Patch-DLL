@@ -778,23 +778,23 @@ int CvLuaUnit::lCanMoveOrAttackInto(lua_State* L)
 	const bool bDeclareWar = luaL_optint(L, 3, 0);
 	const bool bDestination = luaL_optint(L, 4, 0);
 
-	byte bMoveFlags = 0;
+	int iMoveFlags = 0;
 	if(bDeclareWar)
 	{
-		bMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
+		iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
 	}
 	if(bDestination)
 	{
-		bMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 	}
 
 	bool bResult = false;
 	if(pkPlot)
 	{
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_MINOR)
-		bResult = pkUnit->canMoveOrAttackInto(*pkPlot, bMoveFlags);
+		bResult = pkUnit->canMoveOrAttackInto(*pkPlot, iMoveFlags);
 #else
-		pkUnit->canMoveOrAttackInto(*pkPlot, bMoveFlags);
+		pkUnit->canMoveOrAttackInto(*pkPlot, iMoveFlags);
 #endif
 	}
 
@@ -810,7 +810,7 @@ int CvLuaUnit::lCanMoveThrough(lua_State* L)
 	bool bResult = false;
 	if(pkPlot)
 	{
-		bResult = pkUnit->canMoveThrough(*pkPlot);
+		bResult = pkUnit->canMoveInto(*pkPlot);
 	}
 
 	lua_pushboolean(L, bResult);

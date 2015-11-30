@@ -3097,10 +3097,6 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 	CvPlot* pPlot2 = NULL;
 
 	int iFurthestPlotDistance = 0;
-
-	GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
-	GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
-
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)ui;
@@ -3109,6 +3105,8 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 		CvCity* pSecondCity = NULL;
 		int iLoop1;
 		int iLoop2;
+
+		SPathFinderUserData data(ePlayer, PT_CITY_ROUTE_LAND, ROUTE_RAILROAD);
 
 		for (pFirstCity = GET_PLAYER(ePlayer).firstCity(&iLoop1); pFirstCity != NULL; pFirstCity = GET_PLAYER(ePlayer).nextCity(&iLoop1))
 		{
@@ -3124,43 +3122,10 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 
 				CvPlot* pSecondCityPlot = pSecondCity->plot();
 
-#if !defined(NO_ACHIEVEMENTS)
-				bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
-				if(bUsingXP2Scenario2)
-				{
-					// active player
-					if (GC.getGame().getActivePlayer() == ePlayer)
-					{
-						const char* szCivKey = GET_PLAYER(ePlayer).getCivilizationTypeKey();
-						if (strcmp(szCivKey, "CIVILIZATION_ENGLAND") == 0)
-						{
-							if (pFirstCityPlot->getX() == 41 && pFirstCityPlot->getY() == 62 && // cairo
-								pSecondCityPlot->getX() == 32 && pSecondCityPlot->getY() == 6) // cape town
-							{
-								// assuming that there are fewer than 256 players
-								int iRouteValue = ROUTE_RAILROAD + 1;
-								int iPathfinderFlags = ui;
-								iPathfinderFlags |= (iRouteValue << 8);
-
-								if (GC.getRouteFinder().GeneratePath(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY(), iPathfinderFlags, true))
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_XP2_53);
-								}								
-							}
-						}
-					}
-				}
-#endif
-
 				int iThisPlotDistance = plotDistance(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY());
 				if (iThisPlotDistance > iFurthestPlotDistance)
 				{
-					// assuming that there are fewer than 256 players
-					int iRouteValue = ROUTE_RAILROAD + 1;
-					int iPathfinderFlags = ui;
-					iPathfinderFlags |= (iRouteValue << 8);
-
-					if (GC.getRouteFinder().GeneratePath(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY(), iPathfinderFlags, true))
+					if (GC.GetStepFinder().GeneratePath(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY(), data))
 					{
 						// found a connection
 						pPlot1 = pFirstCityPlot;
@@ -3171,10 +3136,6 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 			}
 		}
 	}
-
-	// reconnect the land route pathfinder water methods
-	GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
-	GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
 
 	CvLuaPlot::Push(L, pPlot1);
 	CvLuaPlot::Push(L, pPlot2);

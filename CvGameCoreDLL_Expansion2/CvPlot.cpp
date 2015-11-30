@@ -3555,6 +3555,8 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 	if(isWater() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_SAME_AREA, NO_PLAYER);
+
 	const CvPlot *pFirstPlot = 0, *pSecondPlot = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -3574,9 +3576,9 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 				continue;
 
 			//how useful is the shortcut is we could generate
-			if(GC.getStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
+			if(GC.GetStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY(), data))
 			{
-				if (GC.getStepFinder().GetPathLength()>=iMinDistanceSaved)
+				if (GC.GetStepFinder().GetPathLength()>=iMinDistanceSaved)
 					return true;
 			}
 			else
@@ -4014,7 +4016,7 @@ bool CvPlot::isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool) cons
 bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 {
 	// No friendly territory for barbs!
-	if(GET_PLAYER(ePlayer).isBarbarian())
+	if(ePlayer==NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return false;
 	}
@@ -4144,7 +4146,7 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 }
 
 //	-----------------------------------------------------------------------------------------------
-CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer)
+CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
@@ -4152,14 +4154,14 @@ CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer)
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 		do
 		{
-			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 			{
 				if(pLoopUnit->IsCanDefend() && isEnemy(pLoopUnit, eTeam, false))
 				{
-					return const_cast<CvUnit*>(pLoopUnit);
+					return pLoopUnit;
 				}
 			}
 		}
@@ -6270,8 +6272,6 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 			}
 		}
 
-		GC.getStepFinder().ForceReset();
-
 		if(bWasWater != isWater())
 		{
 			if(bRecalculate)
@@ -8282,6 +8282,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	int iYield;
 	ReligionTypes eMajority = NO_RELIGION;
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+
 #if defined(MOD_BALANCE_CORE)
 	if((YieldTypes)eYield > YIELD_FAITH)
 	{
@@ -8313,9 +8314,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 
 #if defined(MOD_RELIGION_PLOT_YIELDS) || defined(MOD_API_PLOT_YIELDS)
 	// Impassable terrain and mountains have no base yield
-	if(isImpassable(BARBARIAN_TEAM) || isMountain()) {
+	if(isImpassable(BARBARIAN_TEAM) || isMountain() || getTerrainType()==NO_TERRAIN )
+	{
 		iYield = 0;
-	} else
+	} 
+	else
 #endif
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
 
@@ -13901,7 +13904,7 @@ int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
 int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
 int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
 
-bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult)
+bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
 {
 	vResult.clear();
 

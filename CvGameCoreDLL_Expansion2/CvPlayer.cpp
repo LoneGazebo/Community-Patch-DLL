@@ -7233,39 +7233,7 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
 {
-#if defined(MOD_API_EXTENSIONS)
 	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
-#else
-	int iPathfinderFlags = GetID() | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
-	if(eRestrictRoute == NO_ROUTE)
-	{
-		iPathfinderFlags |= MOVE_ANY_ROUTE;
-	}
-	else
-	{
-		// assuming that there are fewer than 256 players
-		int iRouteValue = eRestrictRoute + 1;
-		iPathfinderFlags |= (iRouteValue << 8);
-	}
-
-	if (bIgnoreHarbors)
-	{
-		GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
-		GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
-	}
-
-	GC.getRouteFinder().ForceReset();
-	bool bReturnValue = GC.getRouteFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), iPathfinderFlags, false);
-
-	if (bIgnoreHarbors)
-	{
-		// reconnect the land route pathfinder water methods
-		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
-		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
-	}
-
-	return bReturnValue;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -24262,16 +24230,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
-
-				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
-				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if defined(MOD_CORE_PATHFINDER)
-				bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#endif
-				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
-				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
-				bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
-
 				{
 					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
@@ -24304,15 +24262,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 						doTurnUnits();
 					}
 				}
-
-				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
-				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if defined(MOD_CORE_PATHFINDER)
-				GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#endif
-				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
-				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
-				GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
 
 				if((GetID() == kGame.getActivePlayer()) && (kGame.getElapsedGameTurns() > 0))
 				{
@@ -35888,13 +35837,14 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 
 		if(bOnlySafePaths)
 		{
-			CvTwoLayerPathFinder& kPathfinder = GC.getPathFinder();
+			CvTwoLayerPathFinder& kPathfinder = GC.GetPathFinder();
 			//find our closest city, which should become our muster plot
 			CvCity* pClosestCity = GetClosestCity(pUnit->plot());
 			CvPlot* pMusterPlot = pClosestCity->plot();
 
 			//if the muster plot is more than 12 turns away it's unsafe by definition
-			if (! kPathfinder.GenerateUnitPath(pUnit, pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), 0, false, 12) )
+			SPathFinderUserData data(pUnit,0,12);
+			if (! kPathfinder.GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), data) )
 			{
 				//--------------
 				if (bLogging) 
@@ -36397,7 +36347,7 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 			}
 
 			int iReturnValue = INT_MAX;
-			bool bResult = pLoopUnit->GeneratePath(pPlot, MOVE_UNITS_IGNORE_DANGER, true, &iReturnValue);
+			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iReturnValue);
 
 			if(bResult)
 			{

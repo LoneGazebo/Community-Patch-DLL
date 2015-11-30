@@ -370,11 +370,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	// build a path between the two cities
-	int iPathfinderFlags = m_pPlayer->GetID();
-	int iRouteValue = eRoute + 1;
-	// assuming that there are fewer than 256 players
-	iPathfinderFlags |= (iRouteValue << 8);
-	bool bFoundPath = GC.GetBuildRouteFinder().GeneratePath(pPlayerCapital->plot()->getX(), pPlayerCapital->plot()->getY(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), iPathfinderFlags);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pPlayerCapital->plot()->getX(), pPlayerCapital->plot()->getY(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), data);
 
 	//  if no path, then bail!
 	if(!bFoundPath)
@@ -388,7 +385,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
-	CvAStarNode* pNode = GC.GetBuildRouteFinder().GetLastNode();
+	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 	while(pNode)
 	{
 		pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
@@ -466,7 +463,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	pPlot = NULL;
-	pNode = GC.GetBuildRouteFinder().GetLastNode();
+	pNode = GC.GetStepFinder().GetLastNode();
 
 	int iGameTurn = GC.getGame().getGameTurn();
 
@@ -529,11 +526,9 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	}
 
 	// build a path between the two cities
-	int iPathfinderFlags = m_pPlayer->GetID();
-	int iRouteValue = eRoute + 1;
-	// assuming that there are fewer than 256 players
-	iPathfinderFlags |= (iRouteValue << 8);
-	bool bFoundPath = GC.GetBuildRouteFinder().GeneratePath(pCity1->plot()->getX(), pCity1->plot()->getY(), pCity2->plot()->getX(), pCity2->plot()->getY(), iPathfinderFlags);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->plot()->getX(), pCity1->plot()->getY(), pCity2->plot()->getX(), pCity2->plot()->getY(), data);
 
 	//  if no path, then bail!
 	if(!bFoundPath)
@@ -542,7 +537,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	}
 
 	CvPlot* pPlot = NULL;
-	CvAStarNode* pNode = GC.GetBuildRouteFinder().GetLastNode();
+	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 	int iGameTurn = GC.getGame().getGameTurn();
 
 	while(pNode)

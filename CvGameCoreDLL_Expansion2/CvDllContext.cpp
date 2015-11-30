@@ -1244,76 +1244,41 @@ void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	CvTwoLayerPathFinder& thePathfinder = GC.getInterfacePathFinder();
+	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
-	// change the unit pathfinder to use these funcs instead
-	thePathfinder.SetDestValidFunc(NULL);
-	thePathfinder.SetValidFunc(UIPathValid);
-	thePathfinder.SetNotifyChildFunc(UIPathAdd);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
+	data.ePathType = PT_UI_PLOT_MOVE_HIGHLIGHT;
 
-	// call the pathfinder
-	thePathfinder.SetData(pkUnit);
-	bool bCanFindPath = thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, MOVE_DECLARE_WAR, false);
-
-	// change the unit pathfinder back
-	thePathfinder.SetDestValidFunc(PathDestValid);
-	thePathfinder.SetValidFunc(PathValid);
-	thePathfinder.SetNotifyChildFunc(PathAdd);
-	thePathfinder.ForceReset();
-
+	thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, data);
 }
 //------------------------------------------------------------------------------
 void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	CvTwoLayerPathFinder& thePathfinder = GC.getInterfacePathFinder();
+	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
-	// change the unit pathfinder to use these funcs instead
-	thePathfinder.SetDestValidFunc(NULL);
-	thePathfinder.SetValidFunc(UIPathValid);
-	thePathfinder.SetNotifyChildFunc(AttackPathAdd);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
+	data.ePathType = PT_UI_PLOT_ATTACK_HIGHLIGHT;
 
-	// call the pathfinder
-	thePathfinder.SetData(pkUnit);
-	bool bCanFindPath = thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, MOVE_DECLARE_WAR, false);
-
-	// change the unit pathfinder back
-	thePathfinder.SetDestValidFunc(PathDestValid);
-	thePathfinder.SetValidFunc(PathValid);
-	thePathfinder.SetNotifyChildFunc(PathAdd);
-	thePathfinder.ForceReset();
+	thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, data);
 }
 //------------------------------------------------------------------------------
 ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadSelectedUnit, int iMouseMapX, int iMouseMapY)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
-	CvTwoLayerPathFinder& thePathfinder = GC.getInterfacePathFinder();
+	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
-	thePathfinder.SetData(pkUnit);
-	if(thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, MOVE_DECLARE_WAR, false))
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
+	data.ePathType = PT_UI_PATH_VISUALIZIATION;
+
+	if (thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data))
 	{
-		// seed the pathfinder with a unit
-		thePathfinder.SetData(pkUnit);
-
-		//get the number of waypoints on the path
-		CvAStarNode* lastNode = thePathfinder.GetLastNode();
-		CvAStarNode* pathNode = lastNode;
-
-		pathNode = lastNode;
-		int size = 0;
-		while(pathNode != NULL)
-		{
-			size++;
-			pathNode = pathNode->m_pParent;
-		}
-
-
+		int size = thePathfinder.GetPathLength();
 		std::vector<CvDllPathFinderUpdateListData> pUpdateData;
-
 		pUpdateData.reserve(size);
 
 		// now fill out the event array in reverse order
-		pathNode = lastNode;
+		CvAStarNode* pathNode = thePathfinder.GetLastNode();
 		int index = 0;
 		while(pathNode != NULL)
 		{
@@ -1337,7 +1302,8 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 //------------------------------------------------------------------------------
 void CvDllGameContext::ResetPathFinder()
 {
-	GC.getInterfacePathFinder().ForceReset();
+	// -- not necessary anymore
+	//GC.GetInterfacePathFinder().ForceReset();
 }
 //------------------------------------------------------------------------------
 void CvDllGameContext::SetEngineUserInterface(ICvUserInterface2* pUI)

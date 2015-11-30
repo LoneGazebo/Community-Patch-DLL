@@ -536,21 +536,10 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 // Initializes all data that is not serialized but needs to be initialized after loading.
 void CvMap::setup()
 {
-	GC.getPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest,  IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize, NULL);
-	GC.getStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL, NULL);
-	GC.getRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL, NULL);
-	GC.GetWaterRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	GC.getAreaFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL, NULL);
-	GC.getInfluenceFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, InfluenceAdd, NULL, NULL, NULL, NULL, NULL, NULL);
-	GC.GetBuildRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	GC.GetInternationalTradeRouteLandFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL,	TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, TradeRoutePathAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
-	GC.GetInternationalTradeRouteWaterFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, TradeRoutePathAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
-
-#if defined(MOD_CORE_PATHFINDER)
-	GC.GetRebasePathfinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, NULL, NULL, NULL);
-#endif
+	GC.GetPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
+	GC.GetInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
+	GC.GetIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
+	GC.GetStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 }
 
 //////////////////////////////////////
@@ -1412,7 +1401,7 @@ void CvMap::recalculateAreas()
 
 
 //	--------------------------------------------------------------------------------
-int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange, bool bCorrectButSlower)
+int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange)
 {
 	CvAStarNode* pNode;
 
@@ -1421,10 +1410,11 @@ int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRa
 		return -1;
 	}
 
-	GC.getInfluenceFinder().SetData(&iMaxRange);
-	if(GC.getInfluenceFinder().GeneratePath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), 0, !bCorrectButSlower))
+	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
+
+	if(GC.GetStepFinder().GeneratePath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data))
 	{
-		pNode = GC.getInfluenceFinder().GetLastNode();
+		pNode = GC.GetStepFinder().GetLastNode();
 
 		if(pNode != NULL)
 		{
@@ -1602,7 +1592,8 @@ void CvMap::calculateAreas()
 
 			pLoopPlot->setArea(iArea);
 
-			GC.getAreaFinder().GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, iArea);
+			SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION, iArea);
+			GC.GetStepFinder().GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, data);
 
 			CvAreaBoundaries boundaries;
 			boundaries.m_iEastEdge = pLoopPlot->getX();
@@ -2249,12 +2240,6 @@ void CvMap::calculateLandmasses()
 	CvLandmass* pLandmass;
 	int iLandmassID;
 
-	CvAStar& thePathfinder = GC.getAreaFinder();
-
-	// change the area pathfinder to use these funcs instead
-	thePathfinder.SetValidFunc(LandmassValid);
-	thePathfinder.SetNotifyListFunc(JoinLandmass);
-
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		pLoopPlot = plotByIndexUnchecked(iI);
@@ -2267,11 +2252,10 @@ void CvMap::calculateLandmasses()
 
 			pLoopPlot->setLandmass(iLandmassID);
 
-			thePathfinder.GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, iLandmassID);
+			SPathFinderUserData data(NO_PLAYER, PT_LANDMASS_CONNECTION, iLandmassID);
+			GC.GetStepFinder().GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, data);
 		}
 	}
-	thePathfinder.SetValidFunc(AreaValid);
-	thePathfinder.SetNotifyListFunc(JoinArea);
 
 	// KWG: Rebuild the yields here.  Yes, this is called during the landmass rebuild process if the landmass' 'lake' field changes, but
 	//      there is a problem with that. The yield bonus for a lake is dependent on the proximity to a plot that is a lake, and not the general landmass

@@ -65,7 +65,6 @@
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
 
-#define AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 #define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
 
 #ifdef AUI_DANGER_PLOTS_REMADE
@@ -80,8 +79,6 @@
 #define AUI_BINOM_RNG
 /// Reorders some checks to make sure ones that process faster get executed first (if they fail, then the function skips checking the slower ones)
 #define AUI_ASTAR_FIX_FASTER_CHECKS
-/// Gets the last node before the parent (used for planning melee attacks to know where they'd attack from)
-#define AUI_ASTAR_GET_PENULTIMATE_NODE
 /// The danger of a tile will only be considered when checking path nodes, not when checking the destination (stops units from freezing in panic)
 #define AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched

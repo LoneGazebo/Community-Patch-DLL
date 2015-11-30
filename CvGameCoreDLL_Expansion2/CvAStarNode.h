@@ -70,19 +70,15 @@ struct CvPathNodeCacheData
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int iUnitPlotLimit;
 #endif
-#ifdef AUI_DANGER_PLOTS_REMADE
+
 	int iPlotDanger;
-#endif
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+
 	//tells when to update the cache ...
 	unsigned short iGenerationID;
-#endif
 
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	//housekeeping
 	CvPathNodeCacheData() { clear(); }
 	void clear() { memset(this,0,sizeof(CvPathNodeCacheData)); }
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -115,9 +111,7 @@ public:
 		m_pPrev = NULL;
 		m_pStack = NULL;
 
-#if defined(MOD_BALANCE_CORE)
 		m_apNeighbors = NULL;
-#endif
 	}
 
 	void clear()
@@ -139,10 +133,7 @@ public:
 		m_pStack = NULL;
 
 		m_apChildren.clear();
-
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 		m_kCostCacheData.clear();
-#endif
 	}
 
 	int m_iTotalCost;	  // Fitness (f)
@@ -164,10 +155,8 @@ public:
 	short m_iNumChildren;
 	bool m_bOnStack;
 
-#if defined(MOD_BALANCE_CORE)
 	//for faster neighbor lookup (potential children)
 	CvAStarNode** m_apNeighbors;
-#endif
 	CvPathNodeCacheData m_kCostCacheData;
 };
 

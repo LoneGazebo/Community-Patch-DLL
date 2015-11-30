@@ -18995,7 +18995,7 @@ bool CvCity::CanBuyAnyPlot(void)
 				}
 
 				// we can use the faster, but slightly inaccurate pathfinder here - after all we just need the existence of a path
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange, false);
+				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange);
 
 				if(iInfluenceCost > 0)
 				{
@@ -19151,7 +19151,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 #endif				
 
 				// we can use the faster, but slightly inaccurate pathfinder here - after all we are using a rand in the equation
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange, false) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
+				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
 
 				if (iInfluenceCost > 0)
 				{
@@ -19389,7 +19389,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER = /*100*/ GC.getPLOT_INFLUENCE_DISTANCE_MULTIPLIER();
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GC.getPLOT_INFLUENCE_DISTANCE_DIVISOR();
 	int iPLOT_BUY_RESOURCE_COST = /*-100*/ GC.getPLOT_BUY_RESOURCE_COST();
-	int iDistance = thisMap.calculateInfluenceDistance(pThisPlot, pPlot, iMaxRange, false);
+	int iDistance = thisMap.calculateInfluenceDistance(pThisPlot, pPlot, iMaxRange);
 	iDistance -= GetCheapestPlotInfluence(); // Reduce distance by the cheapest available (so that the costs don't ramp up ridiculously fast)
 
 	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE_MULTIPLIER;
@@ -20005,7 +20005,7 @@ void CvCity::DoUpdateCheapestPlotInfluence()
 #endif				
 
 				// we can use the faster, but slightly inaccurate pathfinder here - after all we are using a rand in the equation
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange, false);
+				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange);
 
 				if(iInfluenceCost > 0)
 				{
@@ -24901,7 +24901,8 @@ UnitTypes CvCity::GetUnitForOperation()
 			}
 			if(pThisArmy->Plot() != NULL)
 			{
-				if(!GC.getStepFinder().GeneratePath(getX(), getY(), pThisArmy->Plot()->getX(), pThisArmy->Plot()->getY()))
+				SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,23);
+				if(!GC.GetStepFinder().GeneratePath(getX(), getY(), pThisArmy->Plot()->getX(), pThisArmy->Plot()->getY(), data))
 				{
 					return NO_UNIT;
 				}

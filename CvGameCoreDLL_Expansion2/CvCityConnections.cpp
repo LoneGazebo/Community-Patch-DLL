@@ -315,9 +315,6 @@ void CvCityConnections::UpdateRouteInfo(void)
 		CvCity* pFirstCity = NULL;
 		CvCity* pSecondCity = NULL;
 
-		CvAStar* pkLandRouteFinder;
-		pkLandRouteFinder = &GC.getRouteFinder();
-
 		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < vpCities.size(); uiFirstCityIndex++)
 		{
 			pFirstCity = vpCities[uiFirstCityIndex];
@@ -356,7 +353,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 					//Actually check land route.
 					bool bAnyRouteFound = false;
 
-					if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
+					SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_ROUTE_LAND, NO_ROUTE);
+					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 					{
 						bAnyRouteFound = true;
 					}
@@ -380,7 +378,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 						if(bAnyRouteFound)
 						{
 							CvPlot* pPlot = NULL;
-							CvAStarNode* pNode = pkLandRouteFinder->GetLastNode();
+							CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 							while(pNode)
 							{
 								pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
@@ -405,7 +403,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 					//Actually check land route.
 					bool bAnyRouteFound = false;
 
-					if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
+					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, NO_ROUTE );
+					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 					{
 						bAnyRouteFound = true;
 					}
@@ -440,7 +439,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 						if(bFirstCityHasHarbor && bSecondCityHasHarbor)
 						{
-							if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
+							SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_WATER);
+							if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 							{
 								pRouteInfo->m_cRouteState |= HAS_INDIRECT_ROUTE;
 								if(pFirstCity->isCapital() || pSecondCity->isCapital())
@@ -464,7 +464,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 					//Check land route again.
 					bool bAnyRouteFound = false;
 
-					if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
+					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, NO_ROUTE);
+					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 					{
 						bAnyRouteFound = true;
 					}
@@ -488,7 +489,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 						if(bAnyRouteFound)
 						{
 							CvPlot* pPlot = NULL;
-							CvAStarNode* pNode = pkLandRouteFinder->GetLastNode();
+							CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 							while(pNode)
 							{
 								pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
@@ -574,7 +575,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		CvCity* pSecondCity = NULL;
 
 		CvAStar* pkLandRouteFinder;
-		pkLandRouteFinder = &GC.getRouteFinder();
+		pkLandRouteFinder = &GC.GetCityConnectionFinder();
 
 		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < vpCities.size(); uiFirstCityIndex++)
 		{

@@ -22,8 +22,7 @@ class CvRandom;
 class CvGame;
 class CvPlayerAI;
 class CvAStar;
-class CvStepPathFinder;
-class CvIgnoreUnitsPathFinder;
+class CvPathFinder;
 class CvTwoLayerPathFinder;
 class CvInterface;
 class CvEngine;
@@ -206,20 +205,12 @@ public:
 	}
 
 	CvRandom& getASyncRand();
-	CvTwoLayerPathFinder& getPathFinder();
-	CvTwoLayerPathFinder& getInterfacePathFinder();
-	CvIgnoreUnitsPathFinder& getIgnoreUnitsPathFinder();
-	CvStepPathFinder& getStepFinder();
-	CvAStar& getRouteFinder();
-	CvAStar& GetWaterRouteFinder();
-	CvAStar& getAreaFinder();
-	CvAStar& getInfluenceFinder();
-	CvAStar& GetBuildRouteFinder();
-	CvAStar& GetInternationalTradeRouteLandFinder();
-	CvAStar& GetInternationalTradeRouteWaterFinder();
-#if defined(MOD_CORE_PATHFINDER)
-	CvIgnoreUnitsPathFinder& GetRebasePathfinder();
-#endif
+
+	CvTwoLayerPathFinder& GetPathFinder();
+	CvTwoLayerPathFinder& GetInterfacePathFinder();
+	CvPathFinder& GetIgnoreUnitsPathFinder();
+	CvPathFinder& GetStepFinder();
+
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
 
 	std::vector<CvInterfaceModeInfo*>& getInterfaceModeInfo();
@@ -8796,20 +8787,10 @@ public:
 	//
 	// additional accessors for initting globals
 	//
-	void setPathFinder(CvTwoLayerPathFinder* pVal);
-	void setInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void setIgnoreUnitsPathFinder(CvIgnoreUnitsPathFinder* pVal);
-	void setStepFinder(CvStepPathFinder* pVal);
-	void setRouteFinder(CvAStar* pVal);
-	void SetWaterRouteFinder(CvAStar* pVal);
-	void setAreaFinder(CvAStar* pVal);
-	void setInfluenceFinder(CvAStar* pVal);
-	void SetBuildRouteFinder(CvAStar* pVal);
-	void SetInternationalTradeRouteLandFinder(CvAStar* pVal);
-	void SetInternationalTradeRouteWaterFinder(CvAStar* pVal);
-#if defined(MOD_CORE_PATHFINDER)
-	void SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal);
-#endif
+	void SetPathFinder(CvTwoLayerPathFinder* pVal);
+	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
+	void SetIgnoreUnitsPathFinder(CvPathFinder* pVal);
+	void SetStepFinder(CvPathFinder* pVal);
 
 	// So that CvEnums are moddable in the DLL
 	int getNumDirections() const;
@@ -8861,20 +8842,9 @@ protected:
 
 	CvTwoLayerPathFinder* m_pathFinder;
 	CvTwoLayerPathFinder* m_interfacePathFinder;
-	CvIgnoreUnitsPathFinder* m_ignoreUnitsPathFinder;
-	CvStepPathFinder* m_stepFinder;
-	CvAStar* m_routeFinder;
-	CvAStar* m_waterRouteFinder;
-	CvAStar* m_borderFinder;
-	CvAStar* m_areaFinder;
-	CvAStar* m_influenceFinder;
-	CvAStar* m_buildRouteFinder;
-	CvAStar* m_internationalTradeRouteLandFinder;
-	CvAStar* m_internationalTradeRouteWaterFinder;
+	CvPathFinder* m_ignoreUnitsPathFinder;
+	CvPathFinder* m_stepFinder;
 
-#if defined(MOD_CORE_PATHFINDER)
-	CvIgnoreUnitsPathFinder* m_rebasePathFinder;
-#endif
 
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
 #if defined(MOD_BALANCE_CORE)

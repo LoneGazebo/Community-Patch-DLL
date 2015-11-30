@@ -180,22 +180,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 //	---------------------------------------------------------------------------
 void CvPlayerAI::AI_unitUpdate()
 {
-	GC.getPathFinder().ForceReset();
-	GC.getIgnoreUnitsPathFinder().ForceReset();
-	GC.getRouteFinder().ForceReset();
-	GC.GetWaterRouteFinder().ForceReset();
-
-	// Set individual pathers as MP cache safe.  A global for all pathers might be simpler,
-	// but this will allow selective control in case one type of pather is causing out-of-syncs.
-	bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
-	bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if defined(MOD_CORE_PATHFINDER)
-	bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#endif
-	bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
-	bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
-	bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
-
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -238,16 +222,8 @@ void CvPlayerAI::AI_unitUpdate()
 			GetHomelandAI()->Update();
 		}
 	}
-
-	GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
-	GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if defined(MOD_CORE_PATHFINDER)
-	GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#endif
-	GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
-	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
-	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
 }
+
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift)
 #else
@@ -1869,7 +1845,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 
@@ -1907,7 +1883,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, MOVE_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 

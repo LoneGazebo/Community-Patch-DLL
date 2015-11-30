@@ -165,11 +165,6 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iOriginCityLoop;
 		for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 		{
-			CvAStar& landfinder = GC.GetInternationalTradeRouteLandFinder();
-			CvAStar& waterfinder = GC.GetInternationalTradeRouteWaterFinder();
-			landfinder.ForceReset();
-			waterfinder.ForceReset();
-
 			int iDestCityLoop;
 			for (CvCity* pDestCity = kPlayer2.firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = kPlayer2.nextCity(&iDestCityLoop))
 			{
@@ -190,7 +185,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 						//if the destination is in reach and the path is still good, we can re-use it
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iCost<=iMaxCost && waterfinder.VerifyPath(previousPath))
+						if (previousPath.iCost<=iMaxCost && GC.GetStepFinder().VerifyPath(previousPath))
 						{
 							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
@@ -200,9 +195,10 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 					//ok, we need to check for real
 					if (!bReusePath)
 					{
-						waterfinder.SetData(NULL,INT_MAX,iMaxCost);
-						if (waterfinder.GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), iPlayer1, true))
-							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),waterfinder.GetPath());
+						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
+						data.iMaxCost = iMaxCost;
+						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
+							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
 				}
 					
@@ -219,7 +215,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 						//if the destination is in reach and the path is still good, we can re-use it
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iCost<=iMaxCost && landfinder.VerifyPath(previousPath))
+						if (previousPath.iCost<=iMaxCost && GC.GetStepFinder().VerifyPath(previousPath))
 						{
 							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
@@ -229,9 +225,10 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 					//ok, we need to check for real
 					if (!bReusePath)
 					{
-						landfinder.SetData(NULL,INT_MAX,iMaxCost);
-						if (landfinder.GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), iPlayer1, true))
-							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),landfinder.GetPath());
+						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_LAND);
+						data.iMaxCost = iMaxCost;
+						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
+							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
 				}
 			}
@@ -502,28 +499,32 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)  A better check would be to see if they are adjacent to the same water body.
 		{
 			int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
-			GC.GetInternationalTradeRouteWaterFinder().SetData(NULL,INT_MAX,iMaxCost);
 
-			bSuccess = GC.GetInternationalTradeRouteWaterFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
+			SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_WATER);
+			data.iMaxCost = iMaxCost;
+
+			bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
 			if (!bSuccess)
 				return false;
 
 			//update the current path, might be better than what we have
-			path = GC.GetInternationalTradeRouteWaterFinder().GetPath();
+			path = GC.GetStepFinder().GetPath();
 			AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 		}
 	}
 	else if (eDomain == DOMAIN_LAND)
 	{
 		int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
-		GC.GetInternationalTradeRouteLandFinder().SetData(NULL,INT_MAX,iMaxCost);
 
-		bSuccess = GC.GetInternationalTradeRouteLandFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
+		SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_LAND);
+		data.iMaxCost = iMaxCost;
+
+		bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
 		if (!bSuccess)
 			return false;
 
 		//update the current path, might be better than what we have
-		path = GC.GetInternationalTradeRouteLandFinder().GetPath();
+		path = GC.GetStepFinder().GetPath();
 		AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 	}
 
@@ -2055,23 +2056,12 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 		}
 	}
 
-	SPath path;
-	switch (eDomain)
-	{
-	case DOMAIN_LAND:
-		GC.GetInternationalTradeRouteLandFinder().ForceReset();
-		bSuccess = GC.GetInternationalTradeRouteLandFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
-		path = GC.GetInternationalTradeRouteLandFinder().GetPath();
-		break;
-	case DOMAIN_SEA:
-		GC.GetInternationalTradeRouteWaterFinder().ForceReset();
-		bSuccess = GC.GetInternationalTradeRouteWaterFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, eOriginPlayer, false);
-		path = GC.GetInternationalTradeRouteWaterFinder().GetPath();
-		break;
-	}
+	SPathFinderUserData data(eOriginPlayer, eDomain==DOMAIN_LAND ? PT_TRADE_LAND : PT_TRADE_WATER);
+	bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
 
 	gDLL->TradeVisuals_DestroyRoute(TEMPORARY_POPUPROUTE_ID,GC.getGame().getActivePlayer());
 	if (bSuccess) {
+		SPath path = GC.GetStepFinder().GetPath();
 		n = path.vPlots.size();
 		if (n>0 && n <=MAX_PLOTS_TO_DISPLAY) {
 			for (i=0;i<n;++i) {

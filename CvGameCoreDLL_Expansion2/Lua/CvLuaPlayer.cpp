@@ -10227,7 +10227,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 		for (uint i = 0; i < uiListSize; ++i )	
 		{
 			CvPlot* pPlot = aBestPlots.GetElement(i);
-			bool bCanFindPath = pFoundingUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_UNEXPLORED, true, &iPathTurns);
+			bool bCanFindPath = pFoundingUnit->GeneratePath(pPlot, 0, true, &iPathTurns);
 			if(bCanFindPath)
 			{
 				aPlots[iReturnSize] = pPlot;

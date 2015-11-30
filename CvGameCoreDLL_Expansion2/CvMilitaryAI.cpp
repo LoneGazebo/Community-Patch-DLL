@@ -1949,7 +1949,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			}
 			CvPlot *pSeaPlotNearMuster = GetCoastalPlotAdjacentToTarget(target.m_pMusterCity->plot(), NULL);
 			CvPlot *pSeaPlotNearTarget = GetCoastalPlotAdjacentToTarget(target.m_pTargetCity->plot(), NULL);
-			if(!GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, pSeaPlotNearMuster, pSeaPlotNearTarget))
+			if(!GC.GetStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, pSeaPlotNearMuster, pSeaPlotNearTarget))
 			{
 				continue;
 			}
@@ -2020,13 +2020,15 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 	if(target.m_pMusterCity == NULL || target.m_pTargetCity == NULL)
 		return;
 
-	// Check land connection in any case (same area is enforced automatically)
-	if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, true, target.m_pMusterCity->plot(), target.m_pTargetCity->plot()))
+	// Check land connection in any case
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
+
+	if(GC.GetStepFinder().DoesPathExist(target.m_pMusterCity->plot(), target.m_pTargetCity->plot(), data))
 	{
-		CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+		CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 		if(pNode != NULL)
 		{
-			int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
+			int iEnemyPlots = GC.GetStepFinder().CountPlotsOwnedByXInPath(eEnemy);
 			iLandPathLength = pNode->m_iTurns + iEnemyPlots*3;
 		}
 
@@ -2680,9 +2682,6 @@ CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 	CvCity* pLoopCity, *pEnemyCity;
 	int iLoop, iEnemyLoop;
 	int iBestDistance = MAX_INT;
-#if defined(MOD_BALANCE_CORE)
-	bool bIsBad = false;
-#endif
 
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
@@ -2705,36 +2704,14 @@ CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
 #if defined(MOD_BALANCE_CORE)
-						CvAStarNode* pNode;
-						CvPlot* pCurrentPlot;		
-						GC.getStepFinder().SetData(&eEnemy);
-						if(GC.getStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), m_pPlayer->GetID(), false))
+						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
+						if(GC.GetStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data))
 						{
-							pNode = GC.getStepFinder().GetLastNode();
-
-							while(pNode)
+							int iDistance = GC.GetStepFinder().GetPathLength();
+							if(iDistance < iBestDistance)
 							{
-								pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-
-								if(pCurrentPlot != NULL)
-								{
-									if(pCurrentPlot->getPlotType() == PLOT_OCEAN && !GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage())
-									{
-										bIsBad = true;
-										break;
-									}
-								}
-								pNode = pNode->m_pParent;
-							}
-							if(!bIsBad)
-							{
-								CvAStarNode* pNode2 = GC.getStepFinder().GetLastNode();
-								int iDistance = pNode2->m_iTotalCost;
-								if(iDistance < iBestDistance)
-								{
-									iBestDistance = iDistance;
-									pBestCoastalCity = pLoopCity;
-								}
+								iBestDistance = iDistance;
+								pBestCoastalCity = pLoopCity;
 							}
 						}
 #else
@@ -2761,7 +2738,6 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 	CvCity* pLoopCity, *pEnemyCity;
 	int iLoop, iEnemyLoop;
 	int iBestDistance = MAX_INT;
-	bool bIsBad = false;
 
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
@@ -2775,36 +2751,14 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 					// On same body of water?
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
-						CvAStarNode* pNode;
-						CvPlot* pCurrentPlot;		
-						GC.getStepFinder().SetData(&eEnemy);
-						if(GC.getStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), m_pPlayer->GetID(), false))
+						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,eEnemy);
+						if(GC.GetStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data))
 						{
-							pNode = GC.getStepFinder().GetLastNode();
-
-							while(pNode)
+							int iDistance = GC.GetStepFinder().GetPathLength();
+							if(iDistance < iBestDistance)
 							{
-								pCurrentPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-
-								if(pCurrentPlot != NULL)
-								{
-									if(pCurrentPlot->getPlotType() == PLOT_OCEAN && !GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage())
-									{
-										bIsBad = true;
-										break;
-									}
-								}
-								pNode = pNode->m_pParent;
-							}
-							if(!bIsBad)
-							{
-								CvAStarNode* pNode2 = GC.getStepFinder().GetLastNode();
-								int iDistance = pNode2->m_iTotalCost;
-								if(iDistance < iBestDistance)
-								{
-									iBestDistance = iDistance;
-									pBestCoastalCity = pLoopCity;
-								}
+								iBestDistance = iDistance;
+								pBestCoastalCity = pLoopCity;
 							}
 						}
 					}
@@ -4832,7 +4786,7 @@ void CvMilitaryAI::UpdateOperations()
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BOMBARDMENT, &iOperationID);
 			if (!bHasOperationUnderway)
 			{
-				CvPlot* pTarget = OperationalAIHelpers::FindBestBombardmentTarget(m_pPlayer->GetID());
+				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbarianBombardmentTarget(m_pPlayer->GetID());
 				if(pTarget != NULL)
 				{
 					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, BARBARIAN_PLAYER, MUFORMATION_NAVAL_BOMBARDMENT, true, false, NULL, NULL, &iNumRequiredSlots);
@@ -7342,7 +7296,7 @@ MultiunitFormationTypes MilitaryAIHelpers::GetBestFormationType()
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
+int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
 	std::vector< CvFormationSlotEntry > slotsToFill;
 	std::vector< CvFormationSlotEntry >::iterator it;
@@ -7351,15 +7305,18 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 
 	int iWillBeFilled = 0;
 	int iLandReservesUsed = 0;
+	int iRequiredSlots = 0;
 
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
 	{
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iThisSlotIndex);
 		slotsToFill.push_back(thisSlotEntry);
+		if (thisSlotEntry.m_requiredSlot)
+			iRequiredSlots++;
 	}
 
-	if(pPlayer && pEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL)
+	if(pPlayer && eEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL)
 	{
 		if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
 		{
@@ -7381,7 +7338,8 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEne
 		}
 		else
 		{
-			if(!GC.getStepFinder().DoesPathExist(pPlayer->GetID(), pEnemy, true, pMuster, pTarget))
+			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>4 ? PT_GENERIC_SAME_AREA_WIDE : PT_GENERIC_SAME_AREA, eEnemy );
+			if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 			{
 				*piNumberSlotsRequired = 100;
 				if(GC.getLogging() && GC.getAILogging())

@@ -271,18 +271,18 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
 			continue;
 
-		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), 
-							MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
+		SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE,iMaxDistance);
+		bool bCanFindPath = GC.GetPathFinder().GeneratePath(iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), data);
 
 		if(!bCanFindPath)
 			continue;
 
-		int iDistance = GC.getPathFinder().GetPathLength();
+		int iDistance = GC.GetPathFinder().GetPathLength();
 		int iPlotScore = (1000 * iRating) / max(1,iDistance);
 
 		if (iPlotScore>iBestPlotScore)
 		{
-			CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+			CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 
 			if(pEndTurnPlot == pUnit->plot())
 			{
@@ -365,7 +365,7 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 				}
 
 				// hitting the path finder, may not be the best idea. . .
-				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(!bCanFindPath)
 				{
 					continue;
@@ -1712,7 +1712,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 					int iPathTurns;
 					CvPlot* pFoundPlot = aBestPlots.GetElement(i);
 					// CUSTOMLOG("  ... possible city plot at (%i, %i)", pFoundPlot->getX(), pFoundPlot->getY());
-					bool bCanFindPath = pUnit->GeneratePath(pFoundPlot, MOVE_TERRITORY_NO_UNEXPLORED, true, &iPathTurns);
+					bool bCanFindPath = pUnit->GeneratePath(pFoundPlot, 0, true, &iPathTurns);
 
 					if (bCanFindPath) {
 						// CUSTOMLOG("    ... is %i moves away", iPathTurns)
@@ -3417,7 +3417,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
 			it->PushPrevPlot( pCurPlot->GetPlotIndex() );
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement
 			if(pUnit->getMoves() <= 0)
@@ -3529,7 +3529,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 	aBestPlotList.reserve(100);
 #endif
 
-	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
+	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -3600,7 +3600,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 			if (!pkStepPlot || !bCanFindPath)
 			{
-				bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(bCanFindPath)
 				{
 					pkStepPlot = kPathFinder.GetPathEndTurnPlot();
@@ -3618,7 +3618,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						strLogString.Format("UnitID: %d Moving to goody hut, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pkStepPlot->getX(), pkStepPlot->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pkStepPlot->getX(), pkStepPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pkStepPlot);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pkStepPlot->getX(), pkStepPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pkStepPlot);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 				}
@@ -3680,7 +3680,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				}
 
 #if !defined(PATH_PLAN_LAST)
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), pUnit->getX(), pUnit->getY(), pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), pUnit->getX(), pUnit->getY(), pEvalPlot->getX(), pEvalPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(!bCanFindPath)
 				{
 					continue;
@@ -3754,13 +3754,13 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			for (uint i = 0; i < uiListSize; ++i )	
 			{
 				CvPlot* pPlot = aBestPlotList.GetElement(i);
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pPlot->getX(), pPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(!bCanFindPath)
 				{
 					continue;
 				}
 
-				CvAStarNode* pNode = GC.getPathFinder().GetLastNode();
+				CvAStarNode* pNode = GC.GetPathFinder().GetLastNode();
 				int iDistance = pNode->m_iData2;
 				if(iDistance <= 1)
 				{
@@ -3821,13 +3821,13 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					aBestPlotList.push_back(pEvalPlot, iPlotScore);
 #else
 					// hitting the path finder, may not be the best idea. . .
-					bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+					bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 					if(!bCanFindPath)
 					{
 						continue;
 					}
 
-					CvAStarNode* pNode = GC.getPathFinder().GetLastNode();
+					CvAStarNode* pNode = GC.GetPathFinder().GetLastNode();
 					int iDistance = pNode->m_iData2;
 					if(iDistance == 0)
 					{
@@ -3840,7 +3840,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 					if(iPlotScore > iBestPlotScore)
 					{
-						CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+						CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 						if(pEndTurnPlot == pUnit->plot())
 						{
 							pBestPlot = NULL;
@@ -3867,13 +3867,13 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					for (uint i = 0; i < uiListSize ; ++i )	
 					{
 						CvPlot* pPlot = aBestPlotList.GetElement(i);
-						bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pPlot->getX(), pPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+						bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 						if(!bCanFindPath)
 						{
 							continue;
 						}
 
-						CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+						CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 						if(pEndTurnPlot == pUnit->plot())
 						{
 							continue;
@@ -3897,7 +3897,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		if(pBestPlot)
 		{
 			CvAssertMsg(!pUnit->atPlot(*pBestPlot), "Exploring unit is already at the best place to explore");
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement
 			if(pUnit->getMoves() <= 0)
@@ -3949,7 +3949,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					bool bFoundPath = false;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
+						if(GC.GetIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
 						{
 							bFoundPath = true;
 							break;
@@ -4293,7 +4293,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 			if(pBestPlot != NULL)
 			{
 				// Move to the lowest danger value found
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 
@@ -6885,7 +6885,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	//todo: sort also by plot distance? right now there are many targets with the same score
 
 	//for now we simply try to move units to the most desirable base
-	CvIgnoreUnitsPathFinder& pf = GC.GetRebasePathfinder();
 	std::stable_sort(vPotentialBases.begin(),vPotentialBases.end());
 
 	for (size_t i=0; i<vHealingUnits.size(); ++i)
@@ -6911,10 +6910,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				if (pUnit->plot() == it->pPlot)
 					continue;
 
-				pf.SetData(pUnit,5);
-				if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))
+				SPathFinderUserData data(pUnit, 0, 5);
+				if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
 				{
-					CvPlot* pFirstWaypoint = pf.GetPathFirstPlot();
+					CvPlot* pFirstWaypoint = GC.GetStepFinder().GetPathFirstPlot();
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -6974,10 +6973,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			if (!HomelandAIHelpers::IsGoodUnitMix(it->pPlot,pUnit))
 				continue;
 
-			pf.SetData(pUnit,5);
-			if (pf.GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),m_pPlayer->GetID()))
+			SPathFinderUserData data(pUnit, 0, 5);
+			if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
 			{
-				CvPlot* pFirstWaypoint = pf.GetPathFirstPlot();
+				CvPlot* pFirstWaypoint = GC.GetStepFinder().GetPathFirstPlot();
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -7285,7 +7284,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			CvPlot* pPlot = aBestPlotList.GetElement(i);
 
 			int iPathTurns;
-			if(!pUnit->GeneratePath(pPlot, MOVE_UNITS_IGNORE_DANGER, true, &iPathTurns))
+			if(!pUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iPathTurns))
 			{
 				continue;
 			}
@@ -7344,7 +7343,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_UNITS_IGNORE_DANGER);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 			return true;
 		}
 	}
@@ -8591,10 +8590,11 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 /// Move an exploring unit to a designated target (special function exposed to Lua)
 bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 {
-	bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+	SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER);
+	bool bCanFindPath = GC.GetPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
 	if(bCanFindPath)
 	{
-		CvPlot* pPlot = GC.getPathFinder().GetPathEndTurnPlot();
+		CvPlot* pPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 		if(pPlot)
 		{
 			CvAssert(!pUnit->atPlot(*pPlot));
@@ -8604,7 +8604,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 				strLogString.Format("UnitID: %d Moving to script explore target, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pPlot);
 			pUnit->finishMoves();
 			UnitProcessed(pUnit->GetID());
 
@@ -8799,7 +8799,7 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 	}
 
 	// If a land unit, get path to target
-	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : MOVE_UNITS_IGNORE_DANGER;
+	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : CvUnit::MOVEFLAG_IGNORE_DANGER;
 	if (!pUnit->GeneratePath(pTargetPlot, iMoveFlags))
 	{
 		// No path this may happen if a unit has moved up and blocked our path to our target plot
@@ -8821,10 +8821,10 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 
 			if (bDangerous)
 			{
-				bool bHavePathOnLand = pUnit->GeneratePath(pTargetPlot, MOVE_NO_EMBARK);
+				bool bHavePathOnLand = pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_NO_EMBARK);
 				if (bHavePathOnLand)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_NO_EMBARK);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_NO_EMBARK);
 					return true;
 				}
 				else
