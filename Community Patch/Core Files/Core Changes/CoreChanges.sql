@@ -242,9 +242,15 @@ UPDATE TacticalMoves
 SET Priority = '65'
 WHERE Type = 'TACTICAL_PILLAGE_RESOURCE_NEXT_TURN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
 
+-- should be very low, otherwise it sweeps up all units and other moves are effectively skipped
 UPDATE TacticalMoves
-SET Priority = '9'
+SET Priority = '5'
 WHERE Type = 'TACTICAL_REPOSITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
+
+-- higher than all offensive moves so that the damaged units retreat from the front first to make space
+UPDATE TacticalMoves
+SET Priority = '190'
+WHERE Type = 'TACTICAL_HEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
 
 UPDATE TacticalMoves
 SET Priority = '150'
