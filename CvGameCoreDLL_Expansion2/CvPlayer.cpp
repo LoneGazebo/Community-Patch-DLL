@@ -35793,7 +35793,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam) || pPlot->IsAdjacentToImprovement((ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 
@@ -35870,7 +35870,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
 
 		//take into account distance from existing cities
-		int iScale = MapToPercent( GetCityDistance(pPlot), iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
+		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
+		int iRelevantDistance = min(iUnitDistance,GetCityDistance(pPlot));
+		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
 		if (bNewContinent && !pPlot->isCoastalLand())

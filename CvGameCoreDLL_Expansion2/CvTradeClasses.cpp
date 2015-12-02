@@ -84,6 +84,7 @@ void CvGameTrade::DoTurn (void)
 	BuildTechDifference();
 }
 
+// helper function
 bool HaveTradePath(const TradePathLookup& cache, int iCityA, int iCityB)
 {
 	TradePathLookup::const_iterator itA = cache.find(iCityA);
@@ -96,6 +97,7 @@ bool HaveTradePath(const TradePathLookup& cache, int iCityA, int iCityB)
 	return false;
 }
 
+// helper function
 bool AddTradePath(TradePathLookup& cache, int iCityA, int iCityB, const SPath& path)
 {
 	TradePathLookup::const_iterator itA = cache.find(iCityA);
@@ -114,6 +116,21 @@ bool AddTradePath(TradePathLookup& cache, int iCityA, int iCityB, const SPath& p
 		cache.insert( std::make_pair(iCityA,newDestinations) );
 	}
 	
+	return false;
+}
+
+bool CvGameTrade::HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPathOut)
+{
+	//can't use const here, otherwise the [] operator does not work ...
+	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+
+	if (::HaveTradePath(cache, iCityA, iCityB))
+	{
+		if (pPathOut)
+			*pPathOut = cache[iCityA][iCityB];
+		return true;
+	}
+
 	return false;
 }
 
@@ -179,7 +196,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 					//is the old path still good?
 					bool bReusePath = false;
-					if (HaveTradePath(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
+					if (::HaveTradePath(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
 					{
 						const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
 
@@ -209,7 +226,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 					//is the old path still good?
 					bool bReusePath = false;
-					if (HaveTradePath(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
+					if (::HaveTradePath(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
 					{
 						const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
 
@@ -723,27 +740,21 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 {
 	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+
 	SPath path;
+	//if we did not get an external pointer, make up our own
+	if (!pPath)
+		pPath = &path;
 
-	if (eDomain == DOMAIN_SEA)
+	if (HaveTradePath(eDomain==DOMAIN_SEA,pOriginCity->GetID(),pDestCity->GetID(),pPath))
 	{
-		if (HaveTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID()))
-			path = m_aPotentialTradePathsWater[pOriginCity->GetID()][pDestCity->GetID()];
-	}
-	else if (eDomain == DOMAIN_LAND)
-	{
-		if (HaveTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID()))
-			path = m_aPotentialTradePathsLand[pOriginCity->GetID()][pDestCity->GetID()];
-	}
+		// check if beyond the origin player's trade range
+		int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
 
-	int iMovementCost = path.vPlots.empty() ? 0 : path.iCost;
-	if (pPath)
-		*pPath = path;
-
-	// check if beyond the origin player's trade range
-	int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
-	if (iMovementCost>0 && iMovementCost<=iMaxCost)
-		return true;
+		int iMovementCost = pPath->iCost;
+		if (iMovementCost>0 && iMovementCost<=iMaxCost)
+			return true;
+	}
 
 	return false;
 }

@@ -1008,7 +1008,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 				// Message slightly different for founder player
 				if(newReligion.m_eFounder == eNotifyPlayer)
 				{
-					Localization::String localizedText = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER");
+					Localization::String localizedText = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER").c_str();
 					localizedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
 
 #if defined(MOD_API_EXTENSIONS)
@@ -2765,7 +2765,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #endif
 
 	// Are the cities within the minimum distance?
-	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
+	int iMaxDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier();
@@ -2803,11 +2803,23 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #endif
 	if(iDistanceMod > 0)
 	{
-		iDistance *= (100 + iDistanceMod);
-		iDistance /= 100;
+		iMaxDistance *= (100 + iDistanceMod);
+		iMaxDistance /= 100;
 	}
 
-	bool bWithinDistance = (plotDistance(pFromCity->getX(), pFromCity->getY(), pToCity->getX(), pToCity->getY()) <= iDistance);
+	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
+	int iApparentDistance = INT_MAX;
+	SPath path;
+	if ( GC.getGame().GetGameTrade()->HaveTradePath( false,pFromCity->GetID(),pToCity->GetID(),&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+	}
+	if ( GC.getGame().GetGameTrade()->HaveTradePath( true,pFromCity->GetID(),pToCity->GetID(),&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+	}
+
+	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
 	bool bConnectedWithTrade = GC.getGame().GetGameTrade()->IsCityConnectedToCity(pFromCity, pToCity) || bPretendTradeConnection;
 
 	if(bWithinDistance || bConnectedWithTrade)
@@ -2940,6 +2952,14 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			}
 		}
 #endif
+
+		//if there is an explicit trade route, there is no distance taper
+		if (!bConnectedWithTrade)
+		{
+			int iDistanceScale = MapToPercent( iApparentDistance, iMaxDistance, iMaxDistance/2+1 );
+			iPressure *= iDistanceScale;
+			iPressure /= 100;
+		}
 	}
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)

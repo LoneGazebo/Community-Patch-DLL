@@ -20,6 +20,7 @@
 #include "CvBarbarians.h"
 #endif
 
+#include <cmath>
 #include "LintFree.h"
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -6894,8 +6895,8 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 	int iDirY = pTurnTarget->getY() - pCurrent->getY();
 	float fDist = max(1.f,sqrt((float)iDirX*iDirX+iDirY*iDirY));
 	//this is an approximate unit vector of the direction we should be moving in
-	int iDX = int(iDirX/fDist+0.5f);
-	int iDY = int(iDirY/fDist+0.5f);
+	int iDX = (iDirX > 0) ? int(iDirX/fDist+0.5f) : int(iDirX/fDist-0.5f);
+	int iDY = (iDirY > 0) ? int(iDirY/fDist+0.5f) : int(iDirY/fDist-0.5f);
 #endif
 
 	// See if we have enough places to put everyone
@@ -7441,7 +7442,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						}
 
 						// Safe for ranged?
-						if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND)>0)
+						if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND)==0)
 						{
 							pCell->SetSafeForDeployment(true);
 							// A bit of a hack -- use high priority targets to indicate safe plots for ranged units
@@ -14700,7 +14701,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
 				pCell->SetTargetDistance(iDistance);
-				if (iDistance > 1)
+				if (iDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND, NULL, false)==0)
 					bChoiceBombardSpot = true;
 
 				if (pPlot->canSeePlot(pTarget,m_pPlayer->getTeam(),iDistance,NO_DIRECTION))
@@ -14764,7 +14765,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				iScore -= iDistance * 50;
 
 				//we want to be able to attack a lot of plots
-				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND))
+				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND)>0)
 				{
 					//good plot for melee
 					iScore += pPlot->countPassableNeighbors(pPlot->isWater(), NULL) * 30;

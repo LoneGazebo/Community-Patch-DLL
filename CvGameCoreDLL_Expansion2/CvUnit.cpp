@@ -4972,31 +4972,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 					}
 				}
 			}
-
-			/*
-			//ilteroi: does this have any purpose?
-			if(plot.isVisible(getTeam()))
-			{
-				const UnitHandle pDefender = plot.getBestDefender(NO_PLAYER, getOwner(), this, true);
-				if(pDefender)
-				{
-					if(pDefender->getDamage() >= GetCombatLimit())
-					{
-						return false;
-					}
-
-					// EFB: Check below is not made when capturing civilians
-					else if(pDefender->GetBaseCombatStrength() > 0)	// Note: this value will be 0 for embarked Units
-					{
-						// EFB: Added so units can't come out of cities to attack (but so that units in city's pathing doesn't fail all the time)
-						if(!(iMoveFlags & CvUnit::MOVEFLAG_NOT_ATTACKING_THIS_TURN) && !IsCanAttackWithMoveNow())
-						{
-							return false;
-						}
-					}
-				}
-			}
-			*/
 		}
 		else //if !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 		{
@@ -26504,25 +26479,6 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 
 	bool bAttack = false;
 	bool bAdjacent = false;
-
-	/*
-	//ilteroi: to be removed
-	// No path or air unit?
-	if(kPathNodeArray.size() == 0 || getDomainType() == DOMAIN_AIR)
-	{
-		// Manually check for adjacency
-		if((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), iX, iY) == 1))
-		{
-			if((iFlags & MISSION_MODIFIER_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (GeneratePath(pDestPlot, iFlags) && (GetPathFirstPlot() == pDestPlot)))
-			{
-				bAdjacent = true;
-			}
-		}
-	}
-	// Multi-turn move
-	else if(kPathNodeArray.size() != 0)
-	{
-	*/
 
 	if(kPathNodeArray.size() > 1)
 	{

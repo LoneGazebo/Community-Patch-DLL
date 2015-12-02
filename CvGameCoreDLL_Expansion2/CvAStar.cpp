@@ -176,8 +176,11 @@ void CvAStar::SetFunctionPointers(CvAPointFunc IsPathDestFunc, CvAPointFunc Dest
 
 //	--------------------------------------------------------------------------------
 /// Generates a path from iXstart,iYstart to iXdest,iYdest
-bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
+	if (data.ePathType != m_sData.ePathType)
+		return false;
+
 	CvAStarNode* temp;
 
 	//this is the version number for the node cache
@@ -435,6 +438,7 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
 			return;
 
+	// seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
 		return; //don't even link it up, it's a dead end
@@ -1596,17 +1600,27 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	{
 		if(pToPlot->isImpassable(thisPlayer.getTeam()) || (pToPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
 			return FALSE;
+
+		// Ocean hex and team can't navigate on oceans?
+		if (!GET_TEAM(thisPlayer.getTeam()).getEmbarkedAllWaterPassage() || finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
+		{
+			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+			{
+				return FALSE;
+			}
+		}
 	}
 	else
+	{
 		if(pToPlot->isImpassable() || pToPlot->isMountain())
 			return FALSE;
 
-	// Ocean hex and team can't navigate on oceans?
-	if (!GET_TEAM(thisPlayer.getTeam()).getEmbarkedAllWaterPassage() || finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
-	{
-		if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
 		{
-			return FALSE;
+			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+			{
+				return FALSE;
+			}
 		}
 	}
 
@@ -1639,9 +1653,9 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
-		if (!StepValidGeneric(parent,rl,0,data,finder,bAnyArea,false))
+		if (!rl || !StepValidGeneric(parent,rl,0,data,finder,bAnyArea,false))
 			return false;
-		if (!StepValidGeneric(parent,rr,0,data,finder,bAnyArea,false))
+		if (!rr || !StepValidGeneric(parent,rr,0,data,finder,bAnyArea,false))
 			return false;
 	}
 
@@ -2318,6 +2332,8 @@ CvAStarNode* CvTwoLayerPathFinder::GetPartialMoveNode(int iCol, int iRow)
 	return &(m_ppaaPartialMoveNodes[iCol][iRow]);
 }
 
+//	--------------------------------------------------------------------------------
+/// can do only certain types of path here
 bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 {
 	switch(ePathType)
@@ -2338,30 +2354,9 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 		//not implemented here
 		return false;
 	}
+
+	m_sData.ePathType = ePathType;
 	return true;
-}
-
-//	--------------------------------------------------------------------------------
-/// can do only type of path here
-bool CvTwoLayerPathFinder::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
-{
-	switch(data.ePathType)
-	{
-	case PT_UNIT_WITH_ZOC:
-	case PT_UI_PLOT_MOVE_HIGHLIGHT:
-	case PT_UI_PLOT_ATTACK_HIGHLIGHT:
-	case PT_UI_PATH_VISUALIZIATION:
-		if (data.ePathType != m_sData.ePathType)
-			if (!Configure(data.ePathType))
-				return false;
-		break;
-	default:
-		//not implemented?
-		return false;
-	}
-
-	//don't call the parent class, call the base class directly!
-	return CvAStar::GeneratePath(iXstart,iYstart,iXdest,iYdest,data);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2421,6 +2416,7 @@ bool CvPathFinder::Configure(PathType ePathType)
 		return false;
 	}
 
+	m_sData.ePathType = ePathType;
 	return true;
 }
 
@@ -2428,33 +2424,10 @@ bool CvPathFinder::Configure(PathType ePathType)
 /// configure the pathfinder and do the magic
 bool CvPathFinder::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
-	switch(data.ePathType)
-	{
-	case PT_GENERIC_SAME_AREA:
-	case PT_GENERIC_ANY_AREA:
-	case PT_GENERIC_SAME_AREA_WIDE:
-	case PT_GENERIC_ANY_AREA_WIDE:
-	case PT_UNIT_IGNORE_OTHERS:
-	case PT_TRADE_WATER:
-	case PT_TRADE_LAND:
-	case PT_BUILD_ROUTE:
-	case PT_AREA_CONNECTION:
-	case PT_LANDMASS_CONNECTION:
-	case PT_CITY_INFLUENCE:
-	case PT_CITY_ROUTE_LAND:
-	case PT_CITY_ROUTE_WATER:
-	case PT_CITY_ROUTE_MIXED:
-	case PT_AIR_REBASE:
-		if (data.ePathType != m_sData.ePathType)
-			if (!Configure(data.ePathType))
-				return false;
-		break;
-	default:
-		//not implemented?
+	if (!Configure(data.ePathType))
 		return false;
-	}
 
-	return CvAStar::GeneratePath(iXstart, iYstart, iXdest, iYdest, data);
+	return CvAStar::GeneratePathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3134,18 +3107,18 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 
 	//try to avoid these plots
 	if (pToPlot->isRoughGround())
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/2;
 
 	//prefer oasis
-	if (eFeature != FEATURE_OASIS)
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+	if (eFeature == FEATURE_OASIS)
+		iCost -= MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
 	
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->getTeam().GetID() != eToPlotTeam)
 	{
 		//try to stick to friendly territory
 		if (pToPlot->getOwner()==NO_PLAYER || !pCacheData->getTeam().IsAllowsOpenBordersToTeam(eToPlotTeam))
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/10;
+			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
 	}
 
 	// avoid enemy lands

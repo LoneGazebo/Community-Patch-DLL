@@ -13540,7 +13540,7 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 	return false;
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
 	int iNumEnemiesAdjacent = 0;
 	CvPlot* pLoopPlot;
@@ -13575,6 +13575,9 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 					// Must be a combat Unit
 					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
 					{
+						if (pLoopUnit->isRanged() && !bCountRanged)
+							continue;
+
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us

@@ -110,7 +110,7 @@ public:
 	void DeInit();
 
 	// Generates a route
-	virtual bool GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
+	virtual bool GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 
 	// Gets the last node in the path (from the origin) - Traverse the parents to get full path (linked list starts at destination)
 	inline CvAStarNode* GetLastNode() const
@@ -403,7 +403,6 @@ public:
 	virtual bool Configure(PathType ePathType);
 
 	CvAStarNode* GetPartialMoveNode(int iCol, int iRow);
-	virtual bool GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 
 private:
 	CvAStarNode** m_ppaaPartialMoveNodes;
