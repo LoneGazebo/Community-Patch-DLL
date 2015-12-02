@@ -104,6 +104,10 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if (pLoopUnit->isMustSetUpToRangedAttack())
 		iMinMovesLeft += GC.getMOVE_DENOMINATOR();
 
+	//specialty for barbarian who won't leave camp
+	if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		iMinMovesLeft = pLoopUnit->getMoves();
+
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	TacticalAIHelpers::ReachablePlotSet reachablePlots;
 	TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);

@@ -2824,42 +2824,27 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 
 	if(bWithinDistance || bConnectedWithTrade)
 	{
-		bool bIncrementTRInfluencing = false;
 		iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-		if (bConnectedWithTrade && !bWithinDistance)
-		{
-			if (!bIncrementTRInfluencing)
-			{
-				iNumTradeRoutesInfluencing++;
-				bIncrementTRInfluencing = true;
-			}
-		}
 
 		if (bConnectedWithTrade)
 		{
-			if (GC.getGame().GetGameTrade()->IsCityConnectedFromCityToCity(pFromCity, pToCity))
-			{
-				int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
+			if (!bPretendTradeConnection)
+				iNumTradeRoutesInfluencing++;
+
+			int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
 #if defined(MOD_BALANCE_CORE_POLICIES)
-				iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
+			iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if(pFromCity->GetReligiousTradeModifier() > 0)
-				{
-					iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
-				}
+			if(pFromCity->GetReligiousTradeModifier() > 0)
+			{
+				iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
+			}
 #endif
-				if (iTradeReligionModifer != 0)
-				{
-					iPressure *= 100 + iTradeReligionModifer;
-					iPressure /= 100;
-
-					if (!bIncrementTRInfluencing)
-					{
-						iNumTradeRoutesInfluencing++;
-						bIncrementTRInfluencing = true;
-					}
-				}
+			if (iTradeReligionModifer != 0)
+			{
+				iPressure *= 100 + iTradeReligionModifer;
+				iPressure /= 100;
 			}
 		}
 

@@ -35715,24 +35715,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 
-	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-	if(iSettlers > 1)
-	{
-		iBestFoundValue -= (iSettlers * 1000);
-	}
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
-
 	if(iNumSettleAreas == 0)
 	{
 		return NULL;
 	}
 
-	int iTurnsWaiting = 0;
 	if(pUnit)
 	{
-		iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
+		int iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
+		iBestFoundValue -= (iTurnsWaiting * 200);
 	}
-	iBestFoundValue -= (iTurnsWaiting * 100);
 
 	CvPlot* pBestFoundPlot = NULL;
 
