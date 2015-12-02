@@ -27175,26 +27175,21 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (eMission==CvTypes::getMISSION_MOVE_TO())
+	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
 	{
-		SetMissionAI(NO_MISSIONAI, GC.getMap().plot(iData1, iData2), NULL);
-
 		CvPlot* pFromPlot = plot();
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
 
 		if (!pFromPlot || !pToPlot)
 			return;
 
-		if (MOD_BALANCE_CORE_MILITARY_LOGGING)
+		if ( (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner())) || (IsCombatUnit() && pToPlot->isWater() && getDomainType()==DOMAIN_LAND) )
 		{
-			if ( (!IsCombatUnit() && !pToPlot->getBestDefender(getOwner())) || (IsCombatUnit() && pToPlot->isWater() && getDomainType()==DOMAIN_LAND) )
-			{
-				int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
-				int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
-				if (iFromDanger < iToDanger || iToDanger==INT_MAX)
-					OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
-						GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
-			}
+			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
+			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
+			if (iFromDanger < iToDanger || iToDanger==INT_MAX)
+				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
+					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
 		}
 	}
 #endif

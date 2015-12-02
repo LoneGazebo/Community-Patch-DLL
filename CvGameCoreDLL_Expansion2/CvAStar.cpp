@@ -862,7 +862,6 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
-	kToNodeCacheData.iNumFriendlyUnitsOfType = pPlot->getNumFriendlyUnitsOfType(pUnit);
 	kToNodeCacheData.bIsMountain = pPlot->isMountain();
 	kToNodeCacheData.bIsWater = (pPlot->isWater() && !pPlot->IsAllowsWalkWater());
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
@@ -886,9 +885,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
 	}
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	kToNodeCacheData.iUnitPlotLimit = pPlot->getUnitLimit();
-#endif
+	kToNodeCacheData.bUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 	kToNodeCacheData.bIsTerraFirma = pPlot->isTerraFirma(pUnit) && !pPlot->IsAllowsWalkWater();
 #endif
@@ -991,6 +989,12 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 		if(!bCheckStacking) 
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		}
+		else
+		{
+			//check friendly stacking, that's not handled in canMoveOrAttackInto
+			if (pToPlot->getNumFriendlyUnitsOfType(pUnit) >= pToPlot->getUnitLimit())
+				return FALSE;
 		}
 
 		if(!(pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags)))
@@ -1284,13 +1288,14 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
 	// we would start a new turn or run into an enemy or run into unknown territory, so we must be able to end the turn on the parent plot
+	// the bNewTurn check should really be done when validating the parent node, but at that point we don't know the movement cost yet (PathCost is called after PathValid)
 	if (bNewTurn || bNextNodeHostile || !bNextNodeVisibleToTeam)
 	{
 		// however, the checks only apply if the plot is visible
 		if (kFromNodeCacheData.bPlotVisibleToTeam)
 		{
 			// check stacking (if visible)
-			if(bCheckStacking && kFromNodeCacheData.iNumFriendlyUnitsOfType >= kFromNodeCacheData.iUnitPlotLimit)
+			if(bCheckStacking && kFromNodeCacheData.bUnitLimitReached)
 			{
 				// Don't count origin, or else a unit will block its own movement!
 				if(parent->m_iX != pUnit->getX() || parent->m_iY != pUnit->getY())
@@ -1359,6 +1364,7 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	}
 #endif
 
+	//normally we would be able to enter enemy territory if at war
 	if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
 	{
 		if(pToPlot->isOwned())
@@ -1370,18 +1376,39 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		}
 	}
 
+	//ocean allowed?
+	if ( finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
+	{
+		if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+		{
+			return FALSE;
+		}
+	}
+
 	int iMoveFlags = CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE;
 	if (!bCheckStacking)
 		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
-	//on the last node, it may be required to attack
-	if (finder->IsPathDest(node->m_iX,node->m_iY) && !pUnit->isRanged())
+	//special checks for last node - similar as in PathDestValid
+	if (finder->IsPathDest(node->m_iX,node->m_iY))
 	{
-		if(!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
+		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+
+		//check friendly stacking
+		if(bCheckStacking && kToNodeCacheData.bUnitLimitReached)
+			return FALSE;
+
+		//melee units may enter plots occupied by the enemy
+		if (!pUnit->isRanged() && !pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
+			return FALSE;
+
+		//ranged units may not attack via movement
+		if (pUnit->isRanged() && !pUnit->canMoveInto(*pToPlot, iMoveFlags))
 			return FALSE;
 	}
 	else
 	{
+		//normal "along the way" plot
 		if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
 			return FALSE;
 	}
@@ -1564,14 +1591,15 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		return FALSE;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if(pToPlot->isImpassable(thisPlayer.getTeam()) || (pToPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
-#else
-	if(pToPlot->isImpassable() || pToPlot->isMountain())
-#endif
+	//if we have a given player, check their particular impassability (depends on techs etc)
+	if (ePlayer!=NO_PLAYER)
 	{
-		return FALSE;
+		if(pToPlot->isImpassable(thisPlayer.getTeam()) || (pToPlot->isMountain() && !thisPlayer.GetPlayerTraits()->IsMountainPass()))
+			return FALSE;
 	}
+	else
+		if(pToPlot->isImpassable() || pToPlot->isMountain())
+			return FALSE;
 
 	// Ocean hex and team can't navigate on oceans?
 	if (!GET_TEAM(thisPlayer.getTeam()).getEmbarkedAllWaterPassage() || finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
@@ -2751,16 +2779,14 @@ int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 int UIPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder)
 {
 	PathAdd(parent, node, operation, data, finder);
-	if(node)
+	if(node && node->m_iTurns < 2)
 	{
-		if(node->m_iTurns < 2 /*&& node->m_eCvAStarListType == NO_CVASTARLIST*/)
+		CvPlot* pPlot = GC.getMap().plot(node->m_iX, node->m_iY);
+
+		if(pPlot)
 		{
-			CvPlot* pPlot = GC.getMap().plot(node->m_iX, node->m_iY);
-			if(pPlot)
-			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
-			}
+			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
 		}
 	}
 

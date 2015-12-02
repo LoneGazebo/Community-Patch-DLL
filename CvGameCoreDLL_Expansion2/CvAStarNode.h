@@ -65,11 +65,7 @@ struct CvPathNodeCacheData
 	bool bContainsEnemyCity:1;
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
-	int iNumFriendlyUnitsOfType;
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	int iUnitPlotLimit;
-#endif
+	bool bUnitLimitReached:1;
 
 	int iPlotDanger;
 

@@ -1257,7 +1257,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
 	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR | CvUnit::MOVEFLAG_ATTACK);
 	data.ePathType = PT_UI_PLOT_ATTACK_HIGHLIGHT;
 
 	thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, data);
