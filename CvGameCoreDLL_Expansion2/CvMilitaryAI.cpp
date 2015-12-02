@@ -4783,8 +4783,7 @@ void CvMilitaryAI::UpdateOperations()
 					RequestNukeAttack(eLoopPlayer);
 				}
 
-				
-				
+				CvCity* pMostThreatenedCity = NULL;
 				int iOperation;
 				eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
 				switch(eWarState)
@@ -4991,50 +4990,50 @@ void CvMilitaryAI::UpdateOperations()
 						}	
 					}
 
-						//we can have a city which is needs defending even if the war is going well overall
-						CvCity* pMostThreatenedCity = GetMostThreatenedCity(0);
-						if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+					//we can have a city which is needs defending even if the war is going well overall
+					pMostThreatenedCity = GetMostThreatenedCity(0);
+					if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						if(pMostThreatenedCity != NULL)
 						{
-							if(pMostThreatenedCity != NULL)
+							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
+							if (!bHasOperationUnderway)
 							{
-								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+								if (iFilledSlots >= iNumRequiredSlots)
+								{
+									m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
+								}
+							}
+							else
+							{
+								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID);
 								if (!bHasOperationUnderway)
 								{
-									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, NULL, NULL, &iNumRequiredSlots);
+
+									// Not willing to build units to get this off the ground
 									if (iFilledSlots >= iNumRequiredSlots)
 									{
-										m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
+										m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
 									}
 								}
-								else
+							}
+							//Let's look for a coastal city in danger, and send some support over if we can.
+							if(pMostThreatenedCity->isCoastal())
+							{
+								CvCity* pLoopMusterCity = GetNearestCoastalCity(eLoopPlayer);
+								if(pLoopMusterCity != NULL)
 								{
-									bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID);
-									if (!bHasOperationUnderway)
+									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_NAVAL_BOMBARDMENT, true, false, pLoopMusterCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
+									if(iFilledSlots >= iNumRequiredSlots)
 									{
-										iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, NULL, NULL, &iNumRequiredSlots);
-
-										// Not willing to build units to get this off the ground
-										if (iFilledSlots >= iNumRequiredSlots)
-										{
-											m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
-										}
-									}
-								}
-								//Let's look for a coastal city in danger, and send some support over if we can.
-								if(pMostThreatenedCity->isCoastal())
-								{
-									CvCity* pLoopMusterCity = GetNearestCoastalCity(eLoopPlayer);
-									if(pLoopMusterCity != NULL)
-									{
-										iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_NAVAL_BOMBARDMENT, true, false, pLoopMusterCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-										if(iFilledSlots >= iNumRequiredSlots)
-										{
-											m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, eLoopPlayer, pLoopMusterCity->getArea(), pMostThreatenedCity, pLoopMusterCity);
-										}
+										m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, eLoopPlayer, pLoopMusterCity->getArea(), pMostThreatenedCity, pLoopMusterCity);
 									}
 								}
 							}
 						}
+					}
 					//////////////
 					//Ones to end....
 					/////////////
@@ -5074,7 +5073,7 @@ void CvMilitaryAI::UpdateOperations()
 				case WAR_STATE_DEFENSIVE:
 				case WAR_STATE_NEARLY_DEFEATED:
 					//Ones to begin....
-					CvCity* pMostThreatenedCity = GetMostThreatenedCity(0);
+					pMostThreatenedCity = GetMostThreatenedCity(0);
 					if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 					{
 						if(pMostThreatenedCity != NULL)
