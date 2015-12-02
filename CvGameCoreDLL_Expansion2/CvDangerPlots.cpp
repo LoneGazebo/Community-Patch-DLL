@@ -104,6 +104,10 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if (pLoopUnit->isMustSetUpToRangedAttack())
 		iMinMovesLeft += GC.getMOVE_DENOMINATOR();
 
+	//specialty for barbarian who won't leave camp
+	if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		iMinMovesLeft = pLoopUnit->getMoves();
+
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	TacticalAIHelpers::ReachablePlotSet reachablePlots;
 	TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);
@@ -888,7 +892,7 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 			//int iRange = pUnit->baseMoves();
 			//FAssertMsg(iRange > 0, "0 range? Uh oh");
 
-			CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();
+			CvIgnoreUnitsPathFinder& kPathFinder = GC.GetIgnoreUnitsPathFinder();
 			kPathFinder.SetData(pUnit);
 
 			int iPlotX = pPlot->getX();
@@ -927,7 +931,7 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 			{
 				CvAStarNode* pNode = NULL;
 				// can the unit actually walk there
-				if (kPathFinder.GeneratePath(pUnit->getX(), pUnit->getY(), iPlotX, iPlotY, MOVE_UNITS_IGNORE_DANGER, true /*bReuse*/))
+				if (kPathFinder.GeneratePath(pUnit->getX(), pUnit->getY(), iPlotX, iPlotY, CvUnit::MOVEFLAG_IGNORE_DANGER, true /*bReuse*/))
 				{
 					pNode = kPathFinder.GetLastNode();
 				}

@@ -1388,12 +1388,14 @@ local function RefreshCityBannersNow()
 				end
 
 				local normalView = not (civ5_mode and InStrategicView())
+
 				-- Show plots that will be acquired by culture
-				local purchasablePlots = {city:GetBuyablePlotList()}
-				for i = 1, #purchasablePlots do
-					local hexPos = ToHexFromGrid{ x= purchasablePlots[i]:GetX(), y= purchasablePlots[i]:GetY() }
-					Events.SerialEventHexHighlight( hexPos , true, g_colorCulture, "Culture" )
-				end
+-- ilteroi: this causes a pathfinder access. disable it for now
+--				local purchasablePlots = {city:GetBuyablePlotList()}
+--				for i = 1, #purchasablePlots do
+--					local hexPos = ToHexFromGrid{ x= purchasablePlots[i]:GetX(), y= purchasablePlots[i]:GetY() }
+--					Events.SerialEventHexHighlight( hexPos , true, g_colorCulture, "Culture" )
+--				end
 
 				-- Show city plots
 

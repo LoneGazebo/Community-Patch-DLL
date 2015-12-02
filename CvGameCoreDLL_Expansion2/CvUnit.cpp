@@ -4217,7 +4217,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
+bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
@@ -4311,14 +4311,14 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 	}
 
 	bool bAllowsWalkWater = enterPlot.IsAllowsWalkWater();
-	if (enterPlot.isWater() && (bMoveFlags & CvUnit::MOVEFLAG_STAY_ON_LAND) && !bAllowsWalkWater)
+	if (enterPlot.isWater() && (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK) && !bAllowsWalkWater)
 	{
 		return false;
 	}
 
 	TeamTypes eTeam = getTeam();
 
-	if(canEnterTerritory(enterPlot.getTeam(), false /*bIgnoreRightOfPassage*/, enterPlot.getPlotCity() != NULL, bMoveFlags & MOVEFLAG_DECLARE_WAR))
+	if(canEnterTerritory(enterPlot.getTeam(), false /*bIgnoreRightOfPassage*/, enterPlot.getPlotCity() != NULL, iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
 	{
 		if(enterPlot.getFeatureType() != NO_FEATURE && enterPlot.getRouteType() == NO_ROUTE)  // assume that all units can use roads and rails
 		{
@@ -4440,7 +4440,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 			return true;
 		}
 
-		if(bMoveFlags & MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)
+		if(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)
 		{
 			// if this is water and this unit can embark
 			if(enterPlot.isWater() && !canMoveAllTerrain())
@@ -4483,7 +4483,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 		else
 		{
 			// slewis - not my best piece of logic, but yeah
-			bool bEmbarked = (isEmbarked() || (bMoveFlags & MOVEFLAG_PRETEND_EMBARKED)) && !(bMoveFlags & MOVEFLAG_PRETEND_UNEMBARKED);
+			bool bEmbarked = (isEmbarked() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_EMBARKED)) && !(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_UNEMBARKED);
 
 			if(bEmbarked)
 			{
@@ -4782,7 +4782,7 @@ bool CvUnit::willRevealByMove(const CvPlot& plot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
+bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 	TeamTypes ePlotTeam;
@@ -4794,7 +4794,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 
 	// Cannot move around in unrevealed land freely
-	if(!(bMoveFlags & MOVEFLAG_PRETEND_UNEMBARKED) && isNoRevealMap() && willRevealByMove(plot))
+	if(!(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_UNEMBARKED) && isNoRevealMap() && willRevealByMove(plot))
 	{
 		return false;
 	}
@@ -4807,13 +4807,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if((bMoveFlags & MOVEFLAG_DESTINATION) && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || !IsCivilianUnit()))
+	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || !IsCivilianUnit()))
 #else
-	if(bMoveFlags & MOVEFLAG_DESTINATION)
+	if(iMoveFlags & CvUnit::MOVEFLAG_DESTINATION)
 #endif
 	{
 		// Don't let another player's unit inside someone's city
-		if(!(bMoveFlags & MOVEFLAG_ATTACK) && !(bMoveFlags & MOVEFLAG_DECLARE_WAR))
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && !(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
 		{
 			if(plot.isCity() && plot.getPlotCity()->getOwner() != getOwner())
 				return false;
@@ -4821,9 +4821,9 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 		// Check to see if any units are present at this full-turn move plot (borrowed from CvGameCoreUtils::pathDestValid())
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(!(bMoveFlags & MOVEFLAG_IGNORE_STACKING) && plot.getUnitLimit() > 0)
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && plot.getUnitLimit() > 0)
 #else
-		if(!(bMoveFlags & MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
 #endif
 		{
 			// pSelectionGroup has no Team but the HeadUnit does... ???
@@ -4840,7 +4840,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 	if(isNoCapture())
 	{
-		if(!(bMoveFlags & MOVEFLAG_ATTACK))
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
 			if(plot.isEnemyCity(*this))
 			{
@@ -4849,7 +4849,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 		}
 	}
 
-	if(bMoveFlags & MOVEFLAG_ATTACK)
+	if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 	{
 		if(isOutOfAttacks())
 		{
@@ -4875,11 +4875,11 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	// Can't enter an enemy city until it's "defeated"
 	if(plot.isEnemyCity(*this))
 	{
-		if(plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints() && !(bMoveFlags & MOVEFLAG_ATTACK))
+		if(plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints() && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
 			return false;
 		}
-		if(bMoveFlags & MOVEFLAG_ATTACK)
+		if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 		{
 			if(getDomainType() == DOMAIN_AIR)
 				return false;
@@ -4890,7 +4890,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 	if(getDomainType() == DOMAIN_AIR)
 	{
-		if(bMoveFlags & MOVEFLAG_ATTACK)
+		if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 		{
 			if(!canRangeStrikeAt(plot.getX(), plot.getY()))
 			{
@@ -4900,7 +4900,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 	else
 	{
-		if(bMoveFlags & MOVEFLAG_ATTACK)
+		if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 		{
 			if(!IsCanAttack())  // trying to give an attack order to a unit that can't fight. That doesn't work!
 			{
@@ -4959,12 +4959,12 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 				if(!bCanAdvanceOnDeadUnit)
 				{
-					if(plot.isVisibleEnemyUnit(this) != (bMoveFlags & MOVEFLAG_ATTACK))
+					if(plot.isVisibleEnemyUnit(this) != (iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 					{
 						// Prevent an attack from failing if a city is empty but still an "enemy" capable of being attacked (this wouldn't happen before in Civ 4)
-						if(!(bMoveFlags & MOVEFLAG_ATTACK) || !plot.isEnemyCity(*this))
+						if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) || !plot.isEnemyCity(*this))
 						{
-							if(!(bMoveFlags & MOVEFLAG_DECLARE_WAR) || (plot.isVisibleOtherUnit(getOwner()) != (bMoveFlags & MOVEFLAG_ATTACK) && !((bMoveFlags & MOVEFLAG_ATTACK) && plot.getPlotCity() && !isNoCapture())))
+							if(!(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR) || (plot.isVisibleOtherUnit(getOwner()) != (iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && !((iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && plot.getPlotCity() && !isNoCapture())))
 							{
 								return false;
 							}
@@ -4972,36 +4972,14 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 					}
 				}
 			}
-
-			if(plot.isVisible(getTeam()))
-			{
-				const UnitHandle pDefender = plot.getBestDefender(NO_PLAYER, getOwner(), this, true);
-				if(pDefender)
-				{
-					if(pDefender->getDamage() >= GetCombatLimit())
-					{
-						return false;
-					}
-
-					// EFB: Check below is not made when capturing civilians
-					else if(pDefender->GetBaseCombatStrength() > 0)	// Note: this value will be 0 for embarked Units
-					{
-						// EFB: Added so units can't come out of cities to attack (but so that units in city's pathing doesn't fail all the time)
-						if(!(bMoveFlags & MOVEFLAG_NOT_ATTACKING_THIS_TURN) && !IsCanAttackWithMoveNow())
-						{
-							return false;
-						}
-					}
-				}
-			}
 		}
-		else //if !(bMoveFlags & MOVEFLAG_ATTACK)
+		else //if !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
 		{
 			bool bEmbarkedAndAdjacent = false;
 			bool bEnemyUnitPresent = false;
 
 			// Without this code, Embarked Units can move on top of enemies because they have no visibility
-			if(isEmbarked() || (bMoveFlags & MOVEFLAG_PRETEND_EMBARKED))
+			if(isEmbarked() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_EMBARKED))
 			{
 				if(plotDistance(getX(), getY(), plot.getX(), plot.getY()) == 1)
 				{
@@ -5050,7 +5028,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/, plot.isCity(), bMoveFlags & MOVEFLAG_DECLARE_WAR))
+		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/, plot.isCity(), iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
@@ -5065,7 +5043,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 			if(isHuman())
 			{
-				if(!(bMoveFlags & MOVEFLAG_DECLARE_WAR))
+				if(!(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
 				{
 					return false;
 				}
@@ -5079,14 +5057,14 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	if (MOD_EVENTS_CAN_MOVE_INTO && m_pUnitInfo->IsSendCanMoveIntoEvent()) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanMoveInto, getOwner(), GetID(), plot.getX(), plot.getY(), ((bMoveFlags & MOVEFLAG_ATTACK) != 0), ((bMoveFlags & MOVEFLAG_DECLARE_WAR) != 0)) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanMoveInto, getOwner(), GetID(), plot.getX(), plot.getY(), ((iMoveFlags & CvUnit::MOVEFLAG_ATTACK) != 0), ((iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR) != 0)) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
 #endif
 
 	// Make sure we can enter the terrain.  Somewhat expensive call, so we do this last.
-	if(!canEnterTerrain(plot, bMoveFlags))
+	if(!canEnterTerrain(plot, iMoveFlags))
 	{
 		return false;
 	}
@@ -5096,18 +5074,10 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canMoveOrAttackInto(const CvPlot& plot, byte bMoveFlags) const
+bool CvUnit::canMoveOrAttackInto(const CvPlot& plot, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
-	return (canMoveInto(plot, bMoveFlags & ~(MOVEFLAG_ATTACK)) || canMoveInto(plot, bMoveFlags | MOVEFLAG_ATTACK));
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::canMoveThrough(const CvPlot& plot, byte bMoveFlags) const
-{
-	VALIDATE_OBJECT
-	return canMoveInto(plot, bMoveFlags);
+	return (canMoveInto(plot, iMoveFlags & ~CvUnit::MOVEFLAG_ATTACK) || canMoveInto(plot, iMoveFlags | CvUnit::MOVEFLAG_ATTACK));
 }
 
 //	--------------------------------------------------------------------------------
@@ -8314,8 +8284,8 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 	}
 
 	pTargetPlot = GC.getMap().plot(iX, iY);
-	byte bMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
-	if(!pTargetPlot || !canMoveInto(*pTargetPlot, bMoveFlags) || pTargetPlot->isWater())
+	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
+	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
 	{
 		return false;
 	}
@@ -18402,23 +18372,38 @@ bool CvUnit::IsHasNoValidMove() const
 		return false;
 	}
 
-	CvTwoLayerPathFinder& thePathfinder = GC.getPathFinder();
+	TacticalAIHelpers::ReachablePlotSet plots;
+	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
 
-	// change the unit pathfinder to use these funcs instead
-	thePathfinder.SetDestValidFunc(NULL);
-	thePathfinder.SetIsPathDestFunc(FindValidDestinationDest);
-	thePathfinder.SetValidFunc(FindValidDestinationPathValid);
+	for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=plots.begin(); it!=plots.end(); ++it)
+	{
+		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
-	// call the pathfinder
-	bool bCanFindPath = thePathfinder.GenerateUnitPath(this, getX(), getY(), -1, -1, 0, false);
+	#if defined(MOD_GLOBAL_STACKING_RULES)
+		if(pToPlot->getNumFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
+	#else
+		if(pToPlot->getNumFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
+	#endif
+		{
+			continue;
+		}
 
-	// change the unit pathfinder back
-	thePathfinder.SetDestValidFunc(PathDestValid);
-	thePathfinder.SetIsPathDestFunc(PathDest);
-	thePathfinder.SetValidFunc(PathValid);
-	thePathfinder.ForceReset();
+		if(pToPlot->getNumVisibleEnemyDefenders(this) > 0)
+		{
+			continue;
+		}
 
-	return !bCanFindPath;
+		// can't capture the unit with a non-combat unit
+		if(!IsCombatUnit() && pToPlot->isVisibleEnemyUnit(this))
+		{
+			continue;
+		}
+
+		//if we get here the plot is valid
+		return false;
+	}
+
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20475,7 +20460,6 @@ void CvUnit::setMoves(int iNewValue)
 
 		if(IsSelected())
 		{
-			GC.getPathFinder().ForceReset();
 			DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		}
 
@@ -24904,16 +24888,11 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 		{
 			// Can I get there this turn?
 			CvUnit* pUnit = (CvUnit*)this;
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getPathFinder().DoesPathExist(pUnit, plot(), &swapPlot, MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
-			{
-				CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
-#else
-			if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), plot(), &swapPlot))
-			{
-				CvPlot* pEndTurnPlot = GC.getIgnoreUnitsPathFinder().GetPathEndTurnPlot();
-#endif
 
+			SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+			if(GC.GetPathFinder().DoesPathExist(plot(), &swapPlot, data))
+			{
+				CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 				if(pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -24944,17 +24923,12 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									CvPlot* here = plot();
 									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
 									{
-#if defined(MOD_BALANCE_CORE)
 										// Can the unit I am swapping with get to me this turn?
-										if(pLoopUnit->canMove() && GC.getPathFinder().DoesPathExist(pLoopUnit, pLoopUnit->plot(), pUnit->plot(), MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, 1))
+										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+
+										if(pLoopUnit->canMove() && GC.GetPathFinder().DoesPathExist(pLoopUnit->plot(), pUnit->plot(), data))
 										{
-											CvPlot* pPathEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
-#else
-										// Can the unit I am swapping with get to me this turn?
-										if(pLoopUnit->ReadyToMove() && GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pLoopUnit), &swapPlot, plot()))
-										{
-											CvPlot* pPathEndTurnPlot = GC.getIgnoreUnitsPathFinder().GetPathEndTurnPlot();
-#endif
+											CvPlot* pPathEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
 											if(pPathEndTurnPlot == plot())
 											{
 												bSwapPossible = true;
@@ -26239,37 +26213,6 @@ bool CvUnit::SentryAlert() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::ShowMoves() const
-{
-	VALIDATE_OBJECT
-	if(CvPreGame::quickMovement())
-	{
-		return false;
-	}
-
-	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kLoopPlayer.isAlive())
-		{
-			if(kLoopPlayer.isHuman())
-			{
-				if(isEnemy(kLoopPlayer.getTeam()))
-				{
-					return false;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::IsDeclareWar() const
 {
 	VALIDATE_OBJECT
@@ -26543,7 +26486,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 
 	const CvPathNodeArray& kPathNodeArray = GetPathNodeArray();
 
-	if(iFlags & MOVE_UNITS_THROUGH_ENEMY)
+	if(iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING)
 	{
 		if(GeneratePath(pDestPlot, iFlags))
 		{
@@ -26570,34 +26513,18 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	bool bAttack = false;
 	bool bAdjacent = false;
 
-	// No path or air unit?
-	if(kPathNodeArray.size() == 0 || getDomainType() == DOMAIN_AIR)
+	if(kPathNodeArray.size() > 1)
 	{
-		// Manually check for adjacency
-		if((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), iX, iY) == 1))
+		// Previous node is the same plot as the one before the destination (attack point)?
+		// Prevents unit from stopping while adjacent to the enemy, but on top of another unit so it has to move to another tile before it can attack
+		const CvPathNode& kNode = kPathNodeArray[1];
+		if(kNode.m_iX == getX() && kNode.m_iY == getY())
 		{
-			if((iFlags & MISSION_MODIFIER_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (GeneratePath(pDestPlot, iFlags) && (GetPathFirstPlot() == pDestPlot)))
+			// The path may not be all the way to the destination, it may be only to the unit's turn limit, so check against the final destination
+			const CvPathNode& kDestNode = kPathNodeArray[0];
+			if (kDestNode.m_iX == iX && kDestNode.m_iY == iY)
 			{
 				bAdjacent = true;
-			}
-		}
-	}
-	// Multi-turn move
-	else if(kPathNodeArray.size() != 0)
-	{
-		if(kPathNodeArray.size() > 1)
-		{
-			// Previous node is the same plot as the one before the destination (attack point)?
-			// Prevents unit from stopping while adjacent to the enemy, but on top of another unit so it has to move to another tile before it can attack
-			const CvPathNode& kNode = kPathNodeArray[1];
-			if(kNode.m_iX == getX() && kNode.m_iY == getY())
-			{
-				// The path may not be all the way to the destination, it may be only to the unit's turn limit, so check against the final destination
-				const CvPathNode& kDestNode = kPathNodeArray[0];
-				if (kDestNode.m_iX == iX && kDestNode.m_iY == iY)
-				{
-					bAdjacent = true;
-				}
 			}
 		}
 	}
@@ -26617,7 +26544,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			{
 				if(canRangeStrikeAt(iX, iY))
 				{
-					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 					bAttack = true;
 				}
 			}
@@ -26635,7 +26562,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 							return false;
 						}
 
-						CvUnitCombat::AttackCity(*this, *pDestPlot, (iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+						CvUnitCombat::AttackCity(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 						bAttack = true;
 					}
 				}
@@ -26658,7 +26585,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 				}
 
 				bAttack = true;
-				CvUnitCombat::Attack(*this, *pDestPlot, (iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+				CvUnitCombat::Attack(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 			}
 
 			// Barb camp here that was attacked?
@@ -26781,13 +26708,14 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	{
 		if(bBuildingRoute)
 		{
-			if(!GC.GetBuildRouteFinder().GeneratePath(getX(), getY(), iX, iY, getOwner()))
+			SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
+			if(!GC.GetStepFinder().GeneratePath(getX(), getY(), iX, iY, data))
 			{
 				LOG_UNIT_MOVES_MESSAGE("Unable to generate path with BuildRouteFinder");
 				return 0;
 			}
 
-			CvAStarNode* pNode = GC.GetBuildRouteFinder().GetLastNode();
+			CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 			if(pNode)
 			{
 				// walk the nodes until the next node
@@ -26858,7 +26786,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			if(!pDefender && !pDestPlot->isEnemyCity(*this) && canMoveInto(*pDestPlot, MOVEFLAG_ATTACK | MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
 			{
 				// Turn on ability to move into enemy units in this case so we can capture civilians
-				iFlags |= MOVE_UNITS_THROUGH_ENEMY;
+				iFlags |= MOVEFLAG_IGNORE_STACKING;
 			}
 
 			const MissionData* pkMissionData = GetHeadMissionData();
@@ -26881,7 +26809,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	// end slewis'd
 
 	bool bEndMove = (pPathPlot == pDestPlot);
-	bool bMoved = UnitMove(pPathPlot, iFlags & MOVE_UNITS_THROUGH_ENEMY, NULL, bEndMove);
+	bool bMoved = UnitMove(pPathPlot, iFlags & MOVEFLAG_IGNORE_STACKING, NULL, bEndMove);
 
 	int iETA = 1;
 	uint uiCachedPathSize = m_kLastPath.size();
@@ -27238,8 +27166,6 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
 	{
-		SetMissionAI(NO_MISSIONAI, GC.getMap().plot(iData1, iData2), NULL);
-
 		CvPlot* pFromPlot = plot();
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
 
@@ -27576,122 +27502,47 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 {
 	VALIDATE_OBJECT
+	TacticalAIHelpers::ReachablePlotSet plots;
+	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
 
-#ifndef AUI_ASTAR_TURN_LIMITER // Possibly no need to perform check anymore
-	CvTeam& kTeam = GET_TEAM(getTeam());
-	int iMovementRange = maxMoves() / GC.getMOVE_DENOMINATOR();
-
-	// check quickly around the unit before hitting the pathfinder
-
-	bool bPotentialTargetFound = false;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
-		if(bPotentialTargetFound)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		if(pPlot->isVisible(getTeam()) && (pPlot->isVisibleEnemyUnit(this) || pPlot->isEnemyCity(*this)))
 		{
-			break;
-		}
-
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-		if(kTeam.isAtWar(kPlayer.getTeam()))
-		{
-			if(!bOnlyFortified)
+			if (canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))
 			{
-				CvCity* pLoopCity = NULL;
-				int iLoop = 0;
-				for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+				if(bOnlyFortified)
 				{
-					CvPlot* pPlot = pLoopCity->plot();
-					if(pPlot && pPlot->isVisible(getTeam()) && area() == pPlot->area())
+					CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
+					if(pEnemyUnit && pEnemyUnit->IsFortifiedThisTurn())
 					{
-						if(plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY()) <= iMovementRange)
-						{
-							bPotentialTargetFound = true;
-							break;
-						}
+						return true;
 					}
 				}
-			}
-
-			if(!bOnlyCities)
-			{
-				CvUnit* pLoopUnit = NULL;
-				int iLoop = 0;
-				for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				else if(bOnlyCities)
 				{
-					// shortcut out
-					if(bOnlyFortified)
+					if(pPlot->isEnemyCity(*this))
 					{
-						// if the unit is not fortified, skip it!
-						if(!pLoopUnit->IsFortifiedThisTurn())
-						{
-							continue;
-						}
+						return true;
 					}
-
-					CvPlot* pPlot = pLoopUnit->plot();
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-					if(pPlot && pPlot->isVisible(getTeam()) && (area() == pPlot->area() || IsHoveringUnit() || canMoveAllTerrain()))
-#else
-					if(pPlot && pPlot->isVisible(getTeam()) && (area() == pPlot->area() || IsHoveringUnit()))
-#endif
-					{
-						if(plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= iMovementRange)
-						{
-							bPotentialTargetFound = true;
-							break;
-						}
-					}
+				}
+				else
+				{
+					return true;
 				}
 			}
 		}
 	}
 
-	if(!bPotentialTargetFound)
-	{
-		return false;
-	}
-#endif // AUI_ASTAR_TURN_LIMITER
-
-	CvTwoLayerPathFinder& thePathfinder = GC.getInterfacePathFinder();
-
-	// change the unit pathfinder to use these funcs instead
-	thePathfinder.SetDestValidFunc(NULL);
-	thePathfinder.SetValidFunc(UIPathValid);
-	if(bOnlyFortified)
-	{
-		thePathfinder.SetIsPathDestFunc(AttackFortifiedPathDest);
-	}
-	else if(bOnlyCities)
-	{
-		thePathfinder.SetIsPathDestFunc(AttackCityPathDest);
-	}
-	else
-	{
-		thePathfinder.SetIsPathDestFunc(AttackPathDest);
-	}
-
-	// call the pathfinder
-#ifdef AUI_ASTAR_TURN_LIMITER
-	thePathfinder.SetData(this, 1);
-#else
-	thePathfinder.SetData(this);
-#endif // AUI_ASTAR_TURN_LIMITER
-	bool bCanFindPath = thePathfinder.GeneratePath(getX(), getY(), -1, -1, MOVE_DECLARE_WAR, false);
-
-	// change the unit pathfinder back
-	thePathfinder.SetValidFunc(PathValid);
-	thePathfinder.SetDestValidFunc(PathDestValid);
-	thePathfinder.SetIsPathDestFunc(PathDest);
-	thePathfinder.ForceReset();
-
-	return bCanFindPath;
+	return false;
 }
 
 // PATH-FINDING ROUTINES
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns) const
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, int* piPathTurns) const
 {
 	VALIDATE_OBJECT
 	// slewis - a bit of baffling logic
@@ -27704,9 +27555,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 
 	bool bSuccess;
 
-	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
+	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
+	SPathFinderUserData data(this,iFlags);
 
-	bSuccess = kPathFinder.GenerateUnitPath(this, getX(), getY(), pToPlot->getX(), pToPlot->getY(), iFlags, bReuse);
+	bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
@@ -27714,7 +27566,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 	m_uiLastPathFlags = iFlags;
 #endif
 
-	CvAStar::CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
+	CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
 
 	if(m_kLastPath.size() != 0)
 	{
@@ -27768,7 +27620,9 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
 void CvUnit::ResetPath()
 {
 	VALIDATE_OBJECT
-	GC.getPathFinder().ForceReset();
+	m_uiLastPathCacheDest = 0xFFFFFFFF;
+	m_uiLastPathFlags = 0xFFFFFFFF;
+	m_kLastPath.clear();
 }
 
 //	--------------------------------------------------------------------------------
@@ -27887,7 +27741,7 @@ int CvUnit::SearchRange(int iRange) const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_AI_SECONDARY_WORKERS)
-bool CvUnit::PlotValid(CvPlot* pPlot, byte bMoveFlags) const
+bool CvUnit::PlotValid(CvPlot* pPlot, int iMoveFlags) const
 #else
 bool CvUnit::PlotValid(CvPlot* pPlot) const
 #endif
@@ -27899,7 +27753,7 @@ bool CvUnit::PlotValid(CvPlot* pPlot) const
 	}
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
-	if(!canEnterTerrain(*pPlot, bMoveFlags))
+	if(!canEnterTerrain(*pPlot, iMoveFlags))
 #else
 	if(!canEnterTerrain(*pPlot))
 #endif
@@ -27938,7 +27792,7 @@ bool CvUnit::PlotValid(CvPlot* pPlot) const
 	case DOMAIN_LAND:
 #if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
 #if defined(MOD_AI_SECONDARY_WORKERS)
-		if((pPlot->getArea() == getArea() || (bMoveFlags&MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)) || canMoveAllTerrain() || IsHoveringUnit() || pPlot->IsAllowsWalkWater())
+		if((pPlot->getArea() == getArea() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)) || canMoveAllTerrain() || IsHoveringUnit() || pPlot->IsAllowsWalkWater())
 #else
 		if(pPlot->getArea() == getArea() || canMoveAllTerrain() || IsHoveringUnit() || pPlot->IsAllowsWalkWater())
 #endif
@@ -28214,7 +28068,7 @@ void CvUnit::AI_promote()
 	if(iNumValidPromotions == 1 && eBestPromotion != NO_PROMOTION)
 	{
 		promote(eBestPromotion, -1);
-		AI_promote();
+		//AI_promote();
 		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())

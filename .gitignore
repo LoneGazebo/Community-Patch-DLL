@@ -31,3 +31,6 @@
 
 BuildOutput/
 BuildTemp/
+Mod/
+/Mod/CvGameCore_Expansion2.lib
+/Mod/CvGameCore_Expansion2.dll

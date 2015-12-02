@@ -372,17 +372,7 @@ bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);
 CvCity* getCity(IDInfo city);
 CvUnit* getUnit(const IDInfo& unit);
 
-inline CvUnit* GetPlayerUnit(IDInfo& unit)
-{
-	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
-	{
-		return (GET_PLAYER((PlayerTypes)unit.eOwner).getUnit(unit.iID));
-	}
-
-	return NULL;
-}
-
-inline const CvUnit* GetPlayerUnit(const IDInfo& unit)
+inline CvUnit* GetPlayerUnit(const IDInfo& unit)
 {
 	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
 	{

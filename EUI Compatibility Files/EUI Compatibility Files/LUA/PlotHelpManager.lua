@@ -1,4 +1,4 @@
--------------------------------
+﻿-------------------------------
 -- PlotHelpManager.lua
 -- coded by bc1 from Civ V 1.0.3.276 and Civ BE code
 -- without the caching optimizations (no longer applicable)
@@ -723,12 +723,11 @@ local function UpdatePlotHelp( timeChange )
 					tips:insert( unitTip )
 
 --CBP
-					--if isNoob then
-					--	tips:insert( S("Unit %d - ", L(unit:GetID())))
-					--	tips:insert( S("Danger: %d", L(unit:GetDanger())))
-					--	tips:insert( L(unit:GetAIOperationInfo()) )
-					--	tips:insert( L(unit:GetMissionInfo()) )
-					--end
+					if isNoob then
+						tips:insert( S("Unit %d - Danger: %d", unit:GetID(), unit:GetDanger()) )
+						tips:insert( L(unit:GetAIOperationInfo()) )
+						tips:insert( L(unit:GetMissionInfo()) )
+					end
 -- END CBP
 
 					-- Can build something?

@@ -105,20 +105,25 @@ public:
 
 	enum
 	{
-	    MOVEFLAG_ATTACK						  = 0x001,
-	    MOVEFLAG_DECLARE_WAR				  = 0x002,
-	    MOVEFLAG_DESTINATION				  = 0x004,
-	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x008,
-	    MOVEFLAG_IGNORE_STACKING			  = 0x010,
-	    MOVEFLAG_PRETEND_EMBARKED			  = 0x020, // so we can check movement as if the unit was embarked
-	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x040, // to check movement as if the unit was unembarked
-	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x080, // check to see if the unit can move into the tile in an embarked or unembarked state
-		MOVEFLAG_STAY_ON_LAND                 = 0x100, // don't embark, even if you can
-#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
-		//moved here from CvAStar because that's where they belong
-		MISSION_MODIFIER_DIRECT_ATTACK			= 0x200,
-		MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT	= 0x400,
-#endif
+		//these values can be called via the dll external interface, don't modify them
+	    MOVEFLAG_ATTACK						  = 0x0001,
+	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
+	    MOVEFLAG_DESTINATION				  = 0x0004,
+	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,
+	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,
+	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // so we can check movement as if the unit was embarked
+	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // to check movement as if the unit was unembarked
+	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // check to see if the unit can move into the tile in an embarked or unembarked state
+		//these values are used internally only
+		MOVEFLAG_IGNORE_DANGER					= 0x0100,
+		MOVEFLAG_NO_EMBARK						= 0x0200,
+		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400,
+		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800,
+		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000,
+		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
+		//reserved
+		MOVEFLAG_UNUSED_1						= 0x4000,
+		MOVEFLAG_UNUSED_2						= 0x8000,
 	};
 
 	DestructionNotification<UnitHandle>& getDestructionNotification();
@@ -175,7 +180,6 @@ public:
 	bool SentryAlert() const;
 #endif
 
-	bool ShowMoves() const;
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
 	bool IsDeclareWar() const;
@@ -188,14 +192,15 @@ public:
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false); // slewis'd the iPrevETA
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);
-	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false, bool bIsDeclareWarMove = false) const;
-	bool canEnterTerrain(const CvPlot& pPlot, byte bMoveFlags = 0) const;
+
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
 	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
-	bool canMoveInto(const CvPlot& pPlot, byte bMoveFlags = 0) const;
-	bool canMoveOrAttackInto(const CvPlot& pPlot, byte bMoveFlags = 0) const;
-	bool canMoveThrough(const CvPlot& pPlot, byte bMoveFlags = 0) const;
+
+	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false, bool bIsDeclareWarMove = false) const;
+	bool canEnterTerrain(const CvPlot& pPlot, int iMoveFlags = 0) const;
+	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
+	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 
 	bool IsAngerFreeUnit() const;
 
@@ -1479,7 +1484,7 @@ public:
 #endif // AUI_UNIT_DO_AITYPE_FLIP
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
-	bool PlotValid(CvPlot* pPlot, byte bMoveFlags = 0) const;
+	bool PlotValid(CvPlot* pPlot, int iMoveFlags = 0) const;
 #else
 	bool PlotValid(CvPlot* pPlot) const;
 #endif

@@ -955,7 +955,7 @@ private:
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, int iNumTurnsAway, int iPreferredDamageLevel, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false, bool bWillPillage=false, bool bTargetUndefended=false);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool FindUnitsWithinStrikingDistance2(CvPlot *pTargetPlot, int iMinHitpoints, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false);
+	bool FindUnitsWithinStrikingDistance2(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false);
 	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints);
 #endif
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
@@ -1113,16 +1113,16 @@ namespace TacticalAIHelpers
 	bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
 	typedef std::set<std::pair<int,int>> ReachablePlotSet; //don't store pointers in a set, the ordering is unpredictable
 
-	int GetAllPlotsInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
-	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<int>& resultSet);
-	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
+	int GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
+	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet);
+	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
-	bool PerformAttack(CvUnit* pUnit, CvPlot* pTarget);
-	bool IsAttackNetPositive(CvUnit* pUnit, CvPlot* pTarget);
-	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
-	CvPlot* FindSafestPlotInReach(CvUnit* pUnit, bool bAllowEmbark);
-	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
-	bool GetPlotsForRangedAttack(CvPlot* pTarget, CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
+	bool PerformAttack(CvUnit* pUnit, const CvPlot* pTarget);
+	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
+	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
+	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark);
+	CvPlot* FindClosestSafePlotForHealing(const CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
+	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 	int GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker, int& iAttackerDamage);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, int& iAttackerDamage);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);

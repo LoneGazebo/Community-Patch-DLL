@@ -284,7 +284,7 @@ public:
 	void recalculateLandmasses();
 	void calculateLandmasses();
 
-	int calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange, bool bCorrectButSlower=true);
+	int calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange);
 	/// this is the default "continent stamper" a given lua map script can use it or not
 	void DefaultContinentStamper();
 

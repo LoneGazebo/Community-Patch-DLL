@@ -242,7 +242,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_MULTIPLIER" />
-			<Set Value="1" />
+			<Set Value="0" />
 			<!-- 1 -->
 		</Update>
 		<Update>

@@ -3555,6 +3555,8 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 	if(isWater() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_SAME_AREA, NO_PLAYER);
+
 	const CvPlot *pFirstPlot = 0, *pSecondPlot = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -3574,9 +3576,9 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 				continue;
 
 			//how useful is the shortcut is we could generate
-			if(GC.getStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
+			if(GC.GetStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY(), data))
 			{
-				if (GC.getStepFinder().GetPathLength()>=iMinDistanceSaved)
+				if (GC.GetStepFinder().GetPathLength()>=iMinDistanceSaved)
 					return true;
 			}
 			else
@@ -4014,7 +4016,444 @@ bool CvPlot::isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool) cons
 bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 {
 	// No friendly territory for barbs!
-	if(GET_PLAYER(ePlayer).isBarbarian())
+					return true;
+			}
+			else
+			{
+				//no path found, perhaps it's two different oceans?
+				if (pFirstPlot->getArea()!=pSecondPlot->getArea() && pFirstPlot->area()->getNumTiles()>iMinOceanSize && pSecondPlot->area()->getNumTiles()>iMinOceanSize)
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+#endif
+//	--------------------------------------------------------------------------------
+void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
+{
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+	pUnitNode = headUnitNode();
+
+	while(pUnitNode != NULL)
+	{
+		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if(pLoopUnit)
+		{
+			if((eOwner == NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
+			{
+				if((eTeam == NO_TEAM) || (pLoopUnit->getTeam() == eTeam))
+				{
+					func(pLoopUnit, iData1, iData2);
+				}
+			}
+		}
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+{
+	const IDInfo* pUnitNode;
+	const CvUnit* pLoopUnit;
+	int iCount;
+
+	iCount = 0;
+
+	pUnitNode = headUnitNode();
+
+	while(pUnitNode != NULL)
+	{
+		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if(pLoopUnit)
+		{
+			if((eOwner == NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
+			{
+				if((eTeam == NO_TEAM) || (pLoopUnit->getTeam() == eTeam))
+				{
+					if((funcA == NULL) || funcA(pLoopUnit, iData1A, iData2A))
+					{
+						if((funcB == NULL) || funcB(pLoopUnit, iData1B, iData2B))
+						{
+							iCount++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iCount;
+}
+
+
+//	--------------------------------------------------------------------------------
+const CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+{
+	return const_cast<CvPlot*>(this)->plotCheck(funcA, iData1A, iData2A, eOwner, eTeam, funcB, iData1B, iData2B);
+}
+
+//	--------------------------------------------------------------------------------
+CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B)
+{
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+	pUnitNode = headUnitNode();
+
+	while(pUnitNode != NULL)
+	{
+		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if(pLoopUnit)
+		{
+			if((eOwner == NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
+			{
+				if((eTeam == NO_TEAM) || (pLoopUnit->getTeam() == eTeam))
+				{
+					if(funcA(pLoopUnit, iData1A, iData2A))
+					{
+						if((funcB == NULL) || funcB(pLoopUnit, iData1B, iData2B))
+						{
+							return pLoopUnit;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isOwned() const
+{
+	return (getOwner() != NO_PLAYER);
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isBarbarian() const
+{
+	return (getOwner() == BARBARIAN_PLAYER);
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isRevealedBarbarian() const
+{
+	return (getRevealedOwner(GC.getGame().getActiveTeam(), true) == BARBARIAN_PLAYER);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::HasBarbarianCamp()
+{
+	return (getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT());
+}
+
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+//	--------------------------------------------------------------------------------
+bool CvPlot::HasDig()
+{
+	return (getResourceType() == GC.getARTIFACT_RESOURCE());
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isActiveVisible(bool bDebug) const
+{
+	return isVisible(GC.getGame().getActiveTeam(), bDebug);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isActiveVisible() const
+{
+	return isVisible(GC.getGame().getActiveTeam());
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isVisibleToCivTeam() const
+{
+	int iI;
+
+	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	{
+		if(GET_TEAM((TeamTypes)iI).isAlive())
+		{
+			if(isVisible(((TeamTypes)iI)))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
+{
+	int iI;
+
+	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	{
+		CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
+
+		if(kTeam.isAlive())
+		{
+			if(kTeam.isAtWar(eFriendlyTeam))
+			{
+				if(isVisible(((TeamTypes)iI)))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isVisibleToWatchingHuman() const
+{
+	int iI;
+
+	for(iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
+	{
+		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
+		if( (thisPlayer.isAlive() && thisPlayer.isHuman()) || ( CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_ASSIGNED) )
+		{
+			if(isVisible(thisPlayer.getTeam()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
+	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+#endif
+		if(pAdjacentPlot != NULL)
+		{
+			if(pAdjacentPlot->isVisible(eTeam, bDebug))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
+	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+#endif
+		if(pAdjacentPlot != NULL)
+		{
+			if(!pAdjacentPlot->isVisible(eTeam))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlot::getNumAdjacentNonvisible(TeamTypes eTeam) const
+{
+	CvPlot* pAdjacentPlot;
+	int iCount = 0;
+
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if(!pAdjacentPlot->isVisible(eTeam))
+			{
+				iCount++;
+			}
+		}
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isGoody(TeamTypes eTeam) const
+{
+	if((eTeam != NO_TEAM) && (GET_TEAM(eTeam).isBarbarian() || GET_TEAM(eTeam).isMinorCiv()))
+	{
+		return false;
+	}
+
+	return ((getImprovementType() == NO_IMPROVEMENT) ? false : GC.getImprovementInfo(getImprovementType())->IsGoody());
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isRevealedGoody(TeamTypes eTeam) const
+{
+	if(eTeam == NO_TEAM)
+	{
+		return isGoody();
+	}
+
+	if(GET_TEAM(eTeam).isBarbarian() || GET_TEAM(eTeam).isMinorCiv())
+	{
+		return false;
+	}
+
+	if(!isRevealed(eTeam))
+	{
+		return false;
+	}
+
+	return ((getRevealedImprovementType(eTeam) == NO_IMPROVEMENT) ? false : GC.getImprovementInfo(getRevealedImprovementType(eTeam))->IsGoody());
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlot::removeGoody()
+{
+	setImprovementType(NO_IMPROVEMENT);
+	// Make sure the player's redo their goody hut searches
+	for(int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if(GET_PLAYER((PlayerTypes)i).isAlive())
+		{
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->m_bExplorationPlotsDirty = true;
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
+{
+	if(!getPlotCity())
+	{
+		return false;
+	}
+
+	TeamTypes ePlotTeam = getTeam();
+
+	if(NO_TEAM != ePlotTeam)
+	{
+		TeamTypes eTeam = GET_PLAYER(kUnit.getCombatOwner(ePlotTeam, *this)).getTeam();
+
+		if(eTeam == ePlotTeam)
+		{
+			return true;
+		}
+
+		if(GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTeam))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+bool CvPlot::isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool) const
+{
+	ImprovementTypes eImprovement = getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsCityOrPassable = getPlotCity() || bIsPassable;
+
+	if (!bIsCityOrPassable) {
+		// Not a city or a fort
+		return false;
+	}
+
+	if (IsFriendlyTerritory(kUnit.getOwner())) {
+		// In friendly lands (ours, an allied CS or a major with open borders)
+		return true;
+	}
+
+	if (getTeam() == NO_TEAM) {
+		// In no-mans land ...
+		TeamTypes eTeam = kUnit.getTeam();
+
+		if (getNumUnits() == 0) {
+			return true;
+		}
+
+		// ... make sure there are only friendly units here
+		const IDInfo* pUnitNode = headUnitNode();
+		while (pUnitNode != NULL) {
+			if ((pUnitNode->eOwner >= 0) && pUnitNode->eOwner < MAX_PLAYERS) {
+				CvUnit* pLoopUnit = (GET_PLAYER(pUnitNode->eOwner).getUnit(pUnitNode->iID));
+
+				if (pLoopUnit && (eTeam == pLoopUnit->getTeam())) {
+					// Any friendly unit will do
+					return true;
+				}
+			}
+
+			pUnitNode = nextUnitNode(pUnitNode);
+		}
+	}
+
+	return false;
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+/// Is this a plot that's friendly to our team? (owned by us or someone we have Open Borders with)
+bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
+{
+	// No friendly territory for barbs!
+	if(ePlayer==NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return false;
 	}
@@ -4144,7 +4583,7 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 }
 
 //	-----------------------------------------------------------------------------------------------
-CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer)
+CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
@@ -4152,14 +4591,14 @@ CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer)
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 		do
 		{
-			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 			{
 				if(pLoopUnit->IsCanDefend() && isEnemy(pLoopUnit, eTeam, false))
 				{
-					return const_cast<CvUnit*>(pLoopUnit);
+					return pLoopUnit;
 				}
 			}
 		}
@@ -6276,8 +6715,6 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 			}
 		}
 
-		GC.getStepFinder().ForceReset();
-
 		if(bWasWater != isWater())
 		{
 			if(bRecalculate)
@@ -8294,6 +8731,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	int iYield;
 	ReligionTypes eMajority = NO_RELIGION;
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+
 #if defined(MOD_BALANCE_CORE)
 	if((YieldTypes)eYield > YIELD_FAITH)
 	{
@@ -8325,9 +8763,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 
 #if defined(MOD_RELIGION_PLOT_YIELDS) || defined(MOD_API_PLOT_YIELDS)
 	// Impassable terrain and mountains have no base yield
-	if(isImpassable(BARBARIAN_TEAM) || isMountain()) {
+	if(isImpassable(BARBARIAN_TEAM) || isMountain() || getTerrainType()==NO_TERRAIN )
+	{
 		iYield = 0;
-	} else
+	} 
+	else
 #endif
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
 
@@ -13531,7 +13971,7 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 	return false;
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
 	int iNumEnemiesAdjacent = 0;
 	CvPlot* pLoopPlot;
@@ -13566,6 +14006,9 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 					// Must be a combat Unit
 					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
 					{
+						if (pLoopUnit->isRanged() && !bCountRanged)
+							continue;
+
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
@@ -13895,7 +14338,7 @@ int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
 int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
 int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
 
-bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult)
+bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
 {
 	vResult.clear();
 
