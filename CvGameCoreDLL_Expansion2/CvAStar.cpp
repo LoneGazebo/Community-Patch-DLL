@@ -852,24 +852,31 @@ void UnitPathUninitialize(const SPathFinderUserData&, CvAStar*)
 //-------------------------------------------------------------------------------------
 // get all information which depends on a particular node. 
 // this is versioned, so we don't need to recalculate during the same pathfinding operation
-void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger, unsigned short iGenerationID)
+void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger, const CvAStar* finder)
 {
 	if (!node || !pUnit)
 		return;
 
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-	if (kToNodeCacheData.iGenerationID==iGenerationID)
+	if (kToNodeCacheData.iGenerationID==finder->GetCurrentGenerationID())
 		return;
 
 	const CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+	TeamTypes ePlotTeam = pPlot->getTeam();
 
+	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
 	kToNodeCacheData.bIsMountain = pPlot->isMountain();
 	kToNodeCacheData.bIsWater = (pPlot->isWater() && !pPlot->IsAllowsWalkWater());
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	kToNodeCacheData.bIsTerraFirma = pPlot->isTerraFirma(pUnit) && !pPlot->IsAllowsWalkWater();
+#endif
+
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
-	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
+	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,false,pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
+
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
 	CvCity* pCity = pPlot->getPlotCity();
 	if (pCity)
@@ -891,17 +898,13 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 
 	kToNodeCacheData.bUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	kToNodeCacheData.bIsTerraFirma = pPlot->isTerraFirma(pUnit) && !pPlot->IsAllowsWalkWater();
-#endif
-
 	if (bDoDanger)
 		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
 	else
 		kToNodeCacheData.iPlotDanger = 0;
 
 	//done!
-	kToNodeCacheData.iGenerationID = iGenerationID;
+	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 }
 
 //	--------------------------------------------------------------------------------
@@ -925,8 +928,10 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 	CvPlot* pToPlot = GC.getMap().plotCheckInvalid(iToX, iToY);
 	FAssert(pToPlot != NULL);
 
+	//do not use the node data cache here yet, only the unit data cache
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
+	TeamTypes eTeam = pCacheData->getTeam();
 
 	if(pToPlot == NULL || pUnit == NULL)
 		return FALSE;
@@ -936,51 +941,13 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 		return TRUE;
 	}
 
-	//do not use the node cache data here ...
-	if(pToPlot->isMountain() && !pUnit->canEnterTerrain(*pToPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && pCacheData->isAIControl())
-	{
-		return FALSE;
-	}
-
 	if(pCacheData->IsImmobile())
 	{
 		return FALSE;
 	}
 
-	if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && pToPlot->isWater() && !pToPlot->IsAllowsWalkWater())
-	{
-		return FALSE;
-	}
-
-	bCheckStacking = bCheckStacking && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
-
-	TeamTypes eTeam = pCacheData->getTeam();
-	bool bToPlotRevealed = pToPlot->isRevealed(eTeam);
-	if(!bToPlotRevealed)
-	{
-		if(pCacheData->isNoRevealMap())
-		{
-			return FALSE;
-		}
-	}
-
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if(bToPlotRevealed && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || pUnit->IsCombatUnit()))
-#else
-	if(bToPlotRevealed)
-#endif
-	{
-		CvCity* pCity = pToPlot->getPlotCity();
-		if(pCity)
-		{
-			if(pCacheData->getOwner() != pCity->getOwner() && !GET_TEAM(eTeam).isAtWar(pCity->getTeam()) && bCheckStacking)
-			{
-				return FALSE;
-			}
-		}
-	}
-
-	if(pCacheData->isAIControl() || bToPlotRevealed)
+	//checks which need visibility (logically so they don't leak information)
+	if (pToPlot->isVisible(eTeam))
 	{
 		// assume that we can change our embarking state
 		int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE;
@@ -990,6 +957,7 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 			iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 		}
 
+		bCheckStacking = bCheckStacking && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
 		if(!bCheckStacking) 
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
@@ -1001,11 +969,51 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 				return FALSE;
 		}
 
-		if(!(pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags)))
+		//melee units may enter plots occupied by the enemy
+		if (!pUnit->isRanged() && !pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
+			return FALSE;
+
+		//ranged units may not attack via movement
+		if (pUnit->isRanged() && !pUnit->canMoveInto(*pToPlot, iMoveFlags))
+			return FALSE;
+	}
+
+	//checks which need a revealed plot (logically so they don't leak information)
+	if (pToPlot->isRevealed(eTeam))
+	{
+		if(!pUnit->canEnterTerrain(*pToPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			return FALSE;
+
+		if(!pUnit->canEnterTerritory(eTeam,false,pToPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR)))
+			return FALSE;
+
+		//cannot end turn on top of a mountain (even if it's passable)
+		if(pToPlot->isMountain())
+			return FALSE;
+
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && pToPlot->isWater() && !pToPlot->IsAllowsWalkWater())
+			return FALSE;
+
+		if(pUnit->IsCombatUnit())
+		{
+			CvCity* pCity = pToPlot->getPlotCity();
+			if(pCity)
+			{
+				if(pCacheData->getOwner() != pCity->getOwner() && !GET_TEAM(eTeam).isAtWar(pCity->getTeam()))
+				{
+					return FALSE;
+				}
+			}
+		}
+	}
+	else
+	{
+		if(pCacheData->isNoRevealMap())
 		{
 			return FALSE;
 		}
 	}
+
 	return TRUE;
 }
 
@@ -1024,7 +1032,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return (plotDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT);
+	return (plotDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT*10); //a normal move is 60 times the base cost!
 }
 
 //	--------------------------------------------------------------------------------
@@ -1266,22 +1274,12 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	if (parent == NULL)
 		return TRUE;
 
-	// Cache values for this node that we will use
+	// Cached values for this node that we will use
 	const CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
 	const CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-
-	// check impassable terrain
-	if(!kToNodeCacheData.bCanEnterTerrain)
-		return FALSE;
-
-	CvMap& theMap = GC.getMap();
-	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
-	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
-
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
-	PlayerTypes unit_owner = pCacheData->getOwner();
 
 	//overwrite the parameter we're given if necessary
 	bCheckStacking	= bCheckStacking && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
@@ -1324,110 +1322,46 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		}
 	}
 
-	if(pCacheData->getDomainType() == DOMAIN_LAND)
-	{
-		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && kFromNodeCacheData.bIsTerraFirma)
-		{
-			return FALSE;
-		}
+	CvMap& theMap = GC.getMap();
+	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
+	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-		if( kFromNodeCacheData.bIsTerraFirma && !kToNodeCacheData.bIsTerraFirma && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#else
-		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#endif
+	//some checks about units etc. they need to be visible, we leak information
+	if (kToNodeCacheData.bPlotVisibleToTeam)
+	{
+		int iMoveFlags = CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE;
+		if (!bCheckStacking)
+			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+		//special checks for last node - similar as in PathDestValid
+		if (finder->IsPathDest(node->m_iX,node->m_iY))
 		{
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-			if(!pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#else
-			if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#endif
-			{
+			iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+
+			//check friendly stacking
+			if(bCheckStacking && kToNodeCacheData.bUnitLimitReached)
 				return FALSE;
-			}
-		}
-	}
 
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-		if(bCheckStacking && !pCacheData->m_bCanAttack && pCacheData->getDomainType() != DOMAIN_AIR)
-		{
-			const PlayerTypes eUnitPlayer = unit_owner;
-			const int iUnitCount = pToPlot->getNumUnits();
-			for(int iUnit = 0; iUnit < iUnitCount; ++iUnit)
-			{
-				const CvUnit* pToPlotUnit = pToPlot->getUnitByIndex(iUnit);
-				if(pToPlotUnit != NULL && pToPlotUnit->getOwner() != eUnitPlayer)
-				{
-					return FALSE; // Plot occupied by another player
-				}
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-
-	//normally we would be able to enter enemy territory if at war
-	if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
-	{
-		if(pToPlot->isOwned())
-		{
-			if(atWar(pToPlot->getTeam(), eUnitTeam))
-			{
+			//melee units may enter plots occupied by the enemy
+			if (!pUnit->isRanged() && !pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
 				return FALSE;
-			}
+
+			//ranged units may not attack via movement
+			if (pUnit->isRanged() && !pUnit->canMoveInto(*pToPlot, iMoveFlags))
+				return FALSE;
 		}
-	}
-
-	//ocean allowed?
-	if ( finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
-	{
-		if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+		else
 		{
-			return FALSE;
-		}
-	}
+			//normal "along the way" plot
+			if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
+				return FALSE;
 
-	int iMoveFlags = CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE;
-	if (!bCheckStacking)
-		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-
-	//special checks for last node - similar as in PathDestValid
-	if (finder->IsPathDest(node->m_iX,node->m_iY))
-	{
-		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
-
-		//check friendly stacking
-		if(bCheckStacking && kToNodeCacheData.bUnitLimitReached)
-			return FALSE;
-
-		//melee units may enter plots occupied by the enemy
-		if (!pUnit->isRanged() && !pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-			return FALSE;
-
-		//ranged units may not attack via movement
-		if (pUnit->isRanged() && !pUnit->canMoveInto(*pToPlot, iMoveFlags))
-			return FALSE;
-	}
-	else
-	{
-		//normal "along the way" plot
-		if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
-			return FALSE;
-	}
-
-	if(pCacheData->isAIControl())
-	{
-		//danger check
-		if( pCacheData->DoDanger() )
-		{
-			int iPlotDanger = node->m_kCostCacheData.iPlotDanger;
-
-			if (iPlotDanger>0)
+			//danger check
+			if( pCacheData->DoDanger() )
 			{
-				//do not allow dangerous nodes unless it's the destination ...
-				if (node->m_iX!=finder->GetDestX() || node->m_iY!=finder->GetDestY())
+				int iPlotDanger = node->m_kCostCacheData.iPlotDanger;
+
+				if (iPlotDanger>0)
 				{
 					if (iPlotDanger == MAX_INT)
 						return FALSE;
@@ -1445,6 +1379,62 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 						return FALSE;
 					}
 				}
+			}
+		}
+	}
+
+	//some checks about terrain etc. needs to be revealed, otherwise we leak information
+	if (kToNodeCacheData.bIsRevealedToTeam)
+	{
+		// check impassable terrain
+		if(!kToNodeCacheData.bCanEnterTerrain)
+			return FALSE;
+
+		if(!kToNodeCacheData.bCanEnterTerritory)
+			return FALSE;
+
+		if(pCacheData->getDomainType() == DOMAIN_LAND)
+		{
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && kFromNodeCacheData.bIsTerraFirma)
+			{
+				return FALSE;
+			}
+
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+			if( kFromNodeCacheData.bIsTerraFirma && !kToNodeCacheData.bIsTerraFirma && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
+#else
+			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
+#endif
+			{
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+				if(!pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
+#else
+				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
+#endif
+				{
+					return FALSE;
+				}
+			}
+		}
+
+		//normally we would be able to enter enemy territory if at war
+		if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+		{
+			if(pToPlot->isOwned())
+			{
+				if(atWar(pToPlot->getTeam(), eUnitTeam))
+				{
+					return FALSE;
+				}
+			}
+		}
+
+		//ocean allowed?
+		if ( finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
+		{
+			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
+			{
+				return FALSE;
 			}
 		}
 	}
@@ -1475,20 +1465,20 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 		node->m_iMoves = pUnit->movesLeft();
 		node->m_iTurns = 1;
 
-		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
+		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
 	}
 
 	//update cache for all possible children
 	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* neighbor = node->m_apNeighbors[i];
-		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
+		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder);
 	}
 
 	for(int i = 0; i < finder->GetNumExtraChildren(node); i++)
 	{
 		CvAStarNode* neighbor = finder->GetExtraChild(node,i);
-		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
+		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder);
 	}
 
 	return 1;

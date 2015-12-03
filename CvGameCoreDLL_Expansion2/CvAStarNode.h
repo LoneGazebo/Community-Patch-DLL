@@ -53,6 +53,7 @@ enum CvAStarListType
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvPathNodeCacheData
 {
+	bool bIsRevealedToTeam:1;
 	bool bPlotVisibleToTeam:1;
 	bool bIsMountain:1;
 	bool bIsWater:1;
@@ -60,7 +61,7 @@ struct CvPathNodeCacheData
 	bool bIsTerraFirma:1;
 #endif
 	bool bCanEnterTerrain:1;
-	bool bIsRevealedToTeam:1;
+	bool bCanEnterTerritory:1;
 	bool bContainsOtherFriendlyTeamCity:1;
 	bool bContainsEnemyCity:1;
 	bool bContainsVisibleEnemy:1;
