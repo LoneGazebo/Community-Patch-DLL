@@ -2282,13 +2282,16 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	/* Try to log the callstack */
-	FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
-	if (pLog)
+	if(MOD_BALANCE_CORE_DEBUGGING)
 	{
-		gStackWalker.SetLog(pLog);	
-		gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
-		pLog->Close();
+		/* Try to log the callstack */
+		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			gStackWalker.SetLog(pLog);	
+			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			pLog->Close();
+		}
 	}
 #endif
 

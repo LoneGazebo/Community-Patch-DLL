@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -191,6 +191,16 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	//Final failsafe
+	if(!pDeal->IsPeaceTreatyTrade(eFromPlayer))
+	{
+		//Getting 'error' values in this deal? It is bad, abort!
+		if((iValueTheyreOffering == MAX_INT) || (iValueImOffering == MAX_INT))
+		{
+			bDealAcceptable = false;
+			iDealValueToMe = -500;
+		}
+	}
 	if(!pDeal->IsPeaceTreatyTrade(eFromPlayer))
 	{
 		if(pDeal->GetRequestingPlayer() == GetPlayer()->GetID())
@@ -890,6 +900,18 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 				if (bCantMatchOffer)
 				{
 					GetPlayer()->GetDiplomacyAI()->SetCantMatchDeal(eOtherPlayer, true);
+				}
+				if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
+				{
+					//Getting 'error' values in this deal? It is bad, abort!
+					if((iValueTheyreOffering == MAX_INT) || (iValueImOffering == MAX_INT))
+					{
+						return false;
+					}
+				}
+				if(iValueImOffering > 0 && (iTotalValueToMe > 0))
+				{
+					return true;
 				}
 #else
 				bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, /*passed by reference*/bCantMatchOffer);
