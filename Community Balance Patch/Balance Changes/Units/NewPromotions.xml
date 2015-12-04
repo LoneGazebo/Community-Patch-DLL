@@ -277,6 +277,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<AttackMod>15</AttackMod>
 			<PortraitIndex>59</PortraitIndex>
+			<CannotBeChosen>true</CannotBeChosen>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</PediaEntry>
@@ -289,6 +290,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<IgnoreTerrainCost>true</IgnoreTerrainCost>
 			<IgnoreZOC>true</IgnoreZOC>
+			<CannotBeChosen>true</CannotBeChosen>
 			<AttackWoundedMod>50</AttackWoundedMod>
 			<FlankAttackModifier>50</FlankAttackModifier>
 			<FriendlyHealChange>10</FriendlyHealChange>
@@ -303,6 +305,7 @@
 			<Help>TXT_KEY_PROMOTION_COERCION_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
+			<CannotBeChosen>true</CannotBeChosen>
 			<InstaHeal>true</InstaHeal>
 			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
 			<FlankAttackModifier>100</FlankAttackModifier>
@@ -310,6 +313,28 @@
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COERCION</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_KNOCKOUT_I</Type>
+			<Description>TXT_KEY_PROMOTION_KNOCKOUT_I</Description>
+			<Help>TXT_KEY_PROMOTION_KNOCKOUT_I_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>59</PortraitIndex>
+			<CannotBeChosen>true</CannotBeChosen>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT_I</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_KNOCKOUT_II</Type>
+			<Description>TXT_KEY_PROMOTION_KNOCKOUT_II</Description>
+			<Help>TXT_KEY_PROMOTION_KNOCKOUT_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>59</PortraitIndex>
+			<CannotBeChosen>true</CannotBeChosen>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT_II</PediaEntry>
 		</Row>
 	</UnitPromotions>
 	<UnitPromotions_YieldFromKills>
@@ -319,7 +344,32 @@
 			<Yield>75</Yield>
 		</Row>
 	</UnitPromotions_YieldFromKills>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_KNOCKOUT_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+			<Modifier>50</Modifier>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_KNOCKOUT_I</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+			<Modifier>50</Modifier>
+		</Row>
+	</UnitPromotions_UnitCombatMods>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
+			<Text>Bonus v. Gun (20)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I_HELP">
+			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II">
+			<Text>Bonus v. Siege (25)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II_HELP">
+			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
 			<Text>Coercion</Text>
 		</Row>
@@ -579,6 +629,30 @@
 		<Row>
 			<PromotionType>PROMOTION_BUSHIDO</PromotionType>
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_CHARGE_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_CHARGE_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FORMATION_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FORMATION_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FORMATION_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FORMATION_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
 </GameData>

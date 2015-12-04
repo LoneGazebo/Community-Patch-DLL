@@ -47,7 +47,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
 
 		// Hill cost, except for when a City is present here, then it just counts as flat land
-		if((PlotTypes)pToPlot->getPlotType() == PLOT_HILLS && !pToPlot->isCity())
+		PlotTypes ePlotType = pToPlot->getPlotType();
+		if( (ePlotType==PLOT_HILLS || ePlotType==PLOT_MOUNTAIN) && !pToPlot->isCity())
 		{
 			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
 		}
@@ -507,17 +508,23 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 						DomainTypes loop_unit_domain_type = pLoopUnit->getDomainType();
 						if(loop_unit_domain_type != unit_domain_type)
 						{
-							// this is valid
-							if(loop_unit_domain_type == DOMAIN_SEA && unit_domain_type)
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+							// hovering units always exert a ZOC
+							if (pLoopUnit->IsHoveringUnit())
 							{
 								// continue on
 							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							// hovering units always exert a ZOC
-							else if (pLoopUnit->IsHoveringUnit()) {
+#endif
+#if defined(MOD_BALANCE_CORE)
+							// water unit can ZoC embarked land unit
+							else if(loop_unit_domain_type == DOMAIN_SEA && pUnit->isEmbarked())
+#else
+							// water unit can ZoC land unit
+							else if(loop_unit_domain_type == DOMAIN_SEA && unit_domain_type)
+#endif
+							{
 								// continue on
 							}
-#endif
 							else
 							{
 								continue;

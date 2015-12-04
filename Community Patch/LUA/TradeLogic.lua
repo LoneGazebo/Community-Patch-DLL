@@ -3276,6 +3276,10 @@ function ShowOtherPlayerChooser( isUs, type )
 					elseif (Teams[iLoopTeam]:IsDefensivePact(g_iUsTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
 
+										-- DP You
+					elseif (not g_pUsTeam:canDeclareWar(iLoopTeam, iFromPlayer)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
+
 -- END
 					end
     				

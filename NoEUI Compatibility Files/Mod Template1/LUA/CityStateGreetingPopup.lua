@@ -155,6 +155,7 @@ print(string.format("City State: Need to add a message and a quest"))
 	end
 	
 	strPersonalityText = "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(strPersonalityKey) .. "[ENDCOLOR]";
+
 	strPersonalityTT = Locale.ConvertTextKey(strPersonalityKey .. "_TT");
 	
 	Controls.PersonalityInfo:SetText(strPersonalityText);

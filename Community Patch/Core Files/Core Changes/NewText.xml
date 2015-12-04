@@ -352,6 +352,10 @@
 			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
+			<Text>A diplomatic situation prevents war.</Text>
+		</Row>
+
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
 			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
@@ -3462,6 +3466,15 @@
 		<!-- LUA for Espionage -->
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT">
 			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because of a recent attempt in this City. Cooldown ends in {4_Num} Turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA">
+			<Text>[COLOR_NEGATIVE_TEXT]Spies may not attempt a coup here because of a recent attempt in this City. Cooldown ends in {1_Num} Turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT">
+			<Text>A Coup was recently attempted in this City, and cannot be attempted again for another {1_Num} turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
+			<Text>Allied with the {1_Player}.</Text>
 		</Row>
 
 		<!-- LUA for Warscore -->

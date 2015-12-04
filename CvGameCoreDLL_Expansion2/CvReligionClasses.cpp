@@ -1008,7 +1008,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 				// Message slightly different for founder player
 				if(newReligion.m_eFounder == eNotifyPlayer)
 				{
-					Localization::String localizedText = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER");
+					Localization::String localizedText = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER").c_str();
 					localizedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
 
 #if defined(MOD_API_EXTENSIONS)
@@ -1808,8 +1808,9 @@ bool CvGameReligions::IsInSomeReligion(BeliefTypes eBelief) const
 				} else if (bAnyBelief) {
 					// In the religion of someone else, but I can have any belief, so I can have it as well
 					continue;
-				} else if (GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAnyBelief()) {
+				} else if (GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAnyBelief() && !GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAlwaysReligion()) {
 					// In a religion of someone who can have any belief, so I can have it as well
+					// But not if we're guaranteed a religion.
 					continue;
 				}
 			}
@@ -2781,7 +2782,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #endif
 
 	// Are the cities within the minimum distance?
-	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
+	int iMaxDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier();
@@ -2819,51 +2820,48 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #endif
 	if(iDistanceMod > 0)
 	{
-		iDistance *= (100 + iDistanceMod);
-		iDistance /= 100;
+		iMaxDistance *= (100 + iDistanceMod);
+		iMaxDistance /= 100;
 	}
 
-	bool bWithinDistance = (plotDistance(pFromCity->getX(), pFromCity->getY(), pToCity->getX(), pToCity->getY()) <= iDistance);
+	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
+	int iApparentDistance = INT_MAX;
+	SPath path;
+	if ( GC.getGame().GetGameTrade()->HaveTradePath( false,pFromCity->GetID(),pToCity->GetID(),&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+	}
+	if ( GC.getGame().GetGameTrade()->HaveTradePath( true,pFromCity->GetID(),pToCity->GetID(),&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+	}
+
+	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
 	bool bConnectedWithTrade = GC.getGame().GetGameTrade()->IsCityConnectedToCity(pFromCity, pToCity) || bPretendTradeConnection;
 
 	if(bWithinDistance || bConnectedWithTrade)
 	{
-		bool bIncrementTRInfluencing = false;
 		iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-		if (bConnectedWithTrade && !bWithinDistance)
-		{
-			if (!bIncrementTRInfluencing)
-			{
-				iNumTradeRoutesInfluencing++;
-				bIncrementTRInfluencing = true;
-			}
-		}
 
 		if (bConnectedWithTrade)
 		{
-			if (GC.getGame().GetGameTrade()->IsCityConnectedFromCityToCity(pFromCity, pToCity))
-			{
-				int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
+			if (!bPretendTradeConnection)
+				iNumTradeRoutesInfluencing++;
+
+			int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
 #if defined(MOD_BALANCE_CORE_POLICIES)
-				iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
+			iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if(pFromCity->GetReligiousTradeModifier() > 0)
-				{
-					iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
-				}
+			if(pFromCity->GetReligiousTradeModifier() > 0)
+			{
+				iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
+			}
 #endif
-				if (iTradeReligionModifer != 0)
-				{
-					iPressure *= 100 + iTradeReligionModifer;
-					iPressure /= 100;
-
-					if (!bIncrementTRInfluencing)
-					{
-						iNumTradeRoutesInfluencing++;
-						bIncrementTRInfluencing = true;
-					}
-				}
+			if (iTradeReligionModifer != 0)
+			{
+				iPressure *= 100 + iTradeReligionModifer;
+				iPressure /= 100;
 			}
 		}
 
@@ -2956,6 +2954,14 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			}
 		}
 #endif
+
+		//if there is an explicit trade route, there is no distance taper
+		if (!bConnectedWithTrade)
+		{
+			int iDistanceScale = MapToPercent( iApparentDistance, iMaxDistance, iMaxDistance/2+1 );
+			iPressure *= iDistanceScale;
+			iPressure /= 100;
+		}
 	}
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -4540,46 +4546,21 @@ int CvCityReligions::GetNumTradeRouteConnections (ReligionTypes eReligion)
 /// Would this city exert religious pressure toward the target city if connected with a trade route
 bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, ReligionTypes& eReligion, int& iAmount)
 {
-	eReligion = NO_RELIGION;
-	iAmount = 0;
-
-	ReligionTypes eReligiousMajority = GetReligiousMajority();
+	eReligion = GetReligiousMajority();
 
 	// if there isn't a religious connection, whatvz
-	if (eReligiousMajority == NO_RELIGION)
+	if (eReligion == NO_RELIGION)
 	{
+		iAmount = 0;
 		return false;
 	}
 
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligiousMajority, m_pCity->getOwner());
-	if (!pReligion)
-	{
-		return false;
-	}
+	int iNumTradeRoutes = 0;
+	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, true);
+	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false);
 
-	// Are the cities within the minimum distance?
-	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
-
-	// Boost to distance due to belief?
-	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier();
-	if(iDistanceMod > 0)
-	{
-		iDistance *= (100 + iDistanceMod);
-		iDistance /= 100;
-	}
-
-	bool bWithinDistance = (plotDistance(m_pCity->getX(), m_pCity->getY(), pTargetCity->getX(), pTargetCity->getY()) <= iDistance);
-
-	// if not within distance, then we're using a trade route
-	if (!bWithinDistance) 
-	{
-		eReligion = eReligiousMajority;
-		int iNumTradeRoutes = 0;
-		iAmount = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligiousMajority, m_pCity, pTargetCity, iNumTradeRoutes, true);
-		return true;
-	}
-
-	return false;
+	iAmount = (iWithTR-iNoTR);
+	return (iAmount>0);
 }
 
 

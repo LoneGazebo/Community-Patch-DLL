@@ -138,6 +138,7 @@ public:
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
 	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
+	bool HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(uint iOriginPlayer);
 
 protected:

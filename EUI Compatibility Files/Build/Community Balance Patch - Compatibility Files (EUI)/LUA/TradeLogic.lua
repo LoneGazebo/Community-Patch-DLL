@@ -3167,27 +3167,23 @@ Controls.ThemTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgre
 -----------------------------------------------------------------------------------------------------------------------
 function PocketResourceHandler( isUs, resourceId )
 
-	local iAmount = 1;
+	local iAmount = 3;
 
---	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
---		iAmount = 1;
---	end
-
-	if( isUs == 1 ) then
-		if gk_mode then
-			iAmount = math.min(g_Deal:GetNumResource(g_iUs, resourceId),iAmount);
-		else
-			iAmount = math.min(Players[g_iUs]:GetNumResourceAvailable(resourceId, false),iAmount);
-		end
-		g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
-	else
-		if gk_mode then
-			iAmount = math.min(g_Deal:GetNumResource(g_iThem, resourceId),iAmount);
-		else
-			iAmount = math.min(Players[g_iThem]:GetNumResourceAvailable(resourceId, false),iAmount);
-		end
-		g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
+	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
+		iAmount = 1;
 	end
+	
+    if( isUs == 1 ) then
+		if (iAmount > g_Deal:GetNumResource(g_iUs, resourceId)) then
+			iAmount = g_Deal:GetNumResource(g_iUs, resourceId);
+		end
+        g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
+    else
+		if (iAmount > g_Deal:GetNumResource(g_iThem, resourceId)) then
+			iAmount = g_Deal:GetNumResource(g_iThem, resourceId);
+		end
+        g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
+    end
 
 	DisplayDeal();
 	DoUIDealChangedByHuman();

@@ -404,3 +404,61 @@ WHERE Type = 'ROUTE_RAILROAD';
 UPDATE Routes
 SET FlatMovement = '30'
 WHERE Type = 'ROUTE_RAILROAD';
+
+-- TR Food/Production Scaling
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '100'
+WHERE Type = 'ERA_CLASSICAL';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '100'
+WHERE Type = 'ERA_CLASSICAL';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '200'
+WHERE Type = 'ERA_MEDIEVAL';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '200'
+WHERE Type = 'ERA_MEDIEVAL';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '400'
+WHERE Type = 'ERA_RENAISSANCE';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '400'
+WHERE Type = 'ERA_RENAISSANCE';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '600'
+WHERE Type = 'ERA_INDUSTRIAL';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '600'
+WHERE Type = 'ERA_INDUSTRIAL';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '800'
+WHERE Type = 'ERA_MODERN';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '800'
+WHERE Type = 'ERA_MODERN';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '1000'
+WHERE Type = 'ERA_POSTMODERN';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '1000'
+WHERE Type = 'ERA_POSTMODERN';
+
+UPDATE Eras
+SET TradeRouteFoodBonusTimes100 = '1200'
+WHERE Type = 'ERA_FUTURE';
+
+UPDATE Eras
+SET TradeRouteProductionBonusTimes100 = '1200'
+WHERE Type = 'ERA_FUTURE';

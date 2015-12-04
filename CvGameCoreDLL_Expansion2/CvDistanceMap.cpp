@@ -79,7 +79,7 @@ void CvDistanceMap::Update()
 					bool bUpdate = (iDistance < m_vDistance[iPlotIndex]);
 					
 					//in case of equal distance, take care not to prefer the player with the lower ID
-					if (!bUpdate) 
+					if (iDistance == m_vDistance[iPlotIndex]) 
 					{
 						PlayerTypes currentOwner = (PlayerTypes) UNPACK_OWNER(m_vClosestFeature[iPlotIndex]);
 						CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity( UNPACK_ID(m_vClosestFeature[iPlotIndex]) );

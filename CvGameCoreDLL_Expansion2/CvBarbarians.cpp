@@ -568,7 +568,7 @@ void CvBarbarians::DoCamps()
 				if(!pLoopPlot->isWater())
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(!pLoopPlot->isImpassable(BARBARIAN_TEAM) && !pLoopPlot->isMountain())
+					if(!pLoopPlot->isImpassable(BARBARIAN_TEAM) && !pLoopPlot->isMountain() && pLoopPlot->getArea()!=-1)
 #else
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
 #endif

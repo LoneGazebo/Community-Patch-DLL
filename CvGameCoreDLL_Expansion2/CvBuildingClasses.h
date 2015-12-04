@@ -377,6 +377,12 @@ public:
 	int GetYieldFromGPExpend(int i) const;
 	int* GetYieldFromGPExpendArray() const;
 
+	int GetYieldFromTech(int i) const;
+	int* GetYieldFromTechArray() const;
+
+	int GetYieldFromConstruction(int i) const;
+	int* GetYieldFromConstructionArray() const;
+
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
 #endif
@@ -766,6 +772,8 @@ private:
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
+	int* m_piYieldFromTech;
+	int* m_piYieldFromConstruction;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

@@ -518,7 +518,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
 
-		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & MOVE_UNITS_THROUGH_ENEMY))
+		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && hUnit->m_unitMoveLocs.size() == 0)
 			{
@@ -675,7 +675,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						if(pUnit2->AreUnitsOfSameType(*(hUnit)) && pUnit2->ReadyToMove())
 						{
 							// Start the swap
-							hUnit->UnitPathTo(HeadMissionQueueNode(kMissionQueue)->iData1, HeadMissionQueueNode(kMissionQueue)->iData2, MOVE_IGNORE_STACKING);
+							hUnit->UnitPathTo(HeadMissionQueueNode(kMissionQueue)->iData1, HeadMissionQueueNode(kMissionQueue)->iData2, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
 							// Move the other unit back out
 							pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 0);
@@ -733,7 +733,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK())
 			{
-				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}
@@ -741,7 +741,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_NUKE())
 			{
-				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}
@@ -884,12 +884,6 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			if(bAction && (bDone || !hUnit->canMove()) && hUnit->plot()->isVisibleToWatchingHuman())
 			{
 				UpdateMissionTimer(hUnit, iSteps);
-
-				if(hUnit->ShowMoves() && GC.getGame().getActivePlayer() != NO_PLAYER && hUnit->getOwner() != GC.getGame().getActivePlayer() && hUnit->plot()->isActiveVisible(false))
-				{
-					auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(hUnit->plot());
-					GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
-				}
 			}
 
 			if(bDone)
@@ -1966,7 +1960,7 @@ int CvUnitMission::CalculateMissionTimer(UnitHandle hUnit, int iSteps)
 	int iTime = 0;
 
 	MissionQueueNode* pkMissionNode;
-	if(!hUnit->isHuman() && !hUnit->ShowMoves())
+	if(!hUnit->isHuman())
 	{
 		iTime = 0;
 	}

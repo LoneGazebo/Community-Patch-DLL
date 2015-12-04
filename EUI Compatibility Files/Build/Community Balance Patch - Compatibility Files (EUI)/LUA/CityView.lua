@@ -842,7 +842,10 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
 		local defenseChange = tonumber(building.Defense) or 0
 		local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
-		local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and city:GetCultureFromSpecialist( specialist.ID ) or 0) * numSpecialistsInBuilding
+		--CBP
+		--local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and city:GetCultureFromSpecialist( specialist.ID ) or 0) * numSpecialistsInBuilding
+		local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and (city:GetSpecialistYield( specialist.ID, YieldTypes.YIELD_CULTURE ) + city:GetCultureFromSpecialist( specialist.ID ) + city:GetSpecialistYieldChange( specialist.ID, YieldTypes.YIELD_CULTURE)) or 0) * numSpecialistsInBuilding
+		--END
 		local buildingCultureModifier = tonumber(building.CultureRateModifier) or 0
 		local cityCultureRateModifier = cityOwner:GetCultureCityModifier() + city:GetCultureRateModifier() + (city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0)
 		local cityCultureRate
@@ -893,7 +896,11 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			end
 			-- Specialists yield
 			if specialist then
-				buildingYieldRate = buildingYieldRate + numSpecialistsInBuilding * city:GetSpecialistYield( specialist.ID, yieldID )
+				--CBP
+				if(yieldID ~= YieldTypes.YIELD_CULTURE) then
+					buildingYieldRate = buildingYieldRate + (numSpecialistsInBuilding * (city:GetSpecialistYield( specialist.ID, yieldID ) + city:GetSpecialistYieldChange( specialist.ID, yieldID)))
+				end
+				--END
 			end
 			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
 			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID )

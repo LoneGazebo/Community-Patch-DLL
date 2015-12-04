@@ -731,15 +731,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	// We're surrendering
 	if(pDeal->GetSurrenderingPlayer() == GetPlayer()->GetID())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(iTotalValueToMe < 0)
-		{
-			iTotalValueToMe *= -1;
-		}
-		if (iTotalValueToMe <= GetCachedValueOfPeaceWithHuman())
-#else
 		if (iTotalValueToMe >= GetCachedValueOfPeaceWithHuman())
-#endif
 		{
 			return true;
 		}
@@ -1629,10 +1621,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		}
 		else
 		{
-			if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource) == 1)
-			{
-				iItemValue *= 2;
-			}
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 			{
 				return 0;
@@ -3551,7 +3539,22 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		//Not friends? Don't care.
 		else
 		{
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if(MOD_DIPLOMACY_CIV4_FEATURES) 
+			{
+				//Only if they are NOT a vassal.
+				if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+				{
+					return INT_MAX;
+				}
+			}
+			else
+			{
+#endif
 			return INT_MAX;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			}
+#endif
 		}
 
 		// Add 30 gold per era
@@ -3705,6 +3708,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 100;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
+			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
+				iItemValue += 300;
+			else if(eWarProjection == WAR_PROJECTION_STALEMATE)
+				iItemValue += 300;
 			else
 				return INT_MAX;
 		}
@@ -3721,7 +3728,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		iItemValue += (GetPlayer()->GetDiplomacyAI()->GetCoopWarScore(eOtherPlayer, eWithPlayer, false) * 2);
 
 		// Add 25 gold per era
-		int iExtraCost = eOurEra * 50;
+		int iExtraCost = eOurEra * 25;
 		iItemValue += iExtraCost;
 
 		// Minor
@@ -3751,6 +3758,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
+			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
+			{
+				iItemValue *= 150;
+				iItemValue /= 100;
+			}
 			else
 			{
 				return INT_MAX;
@@ -3760,7 +3772,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		//Approach Vector, Sir!
 		if(!bMinor)
 		{
-			if(eMajorApproachTowardsWarPlayer > MAJOR_CIV_APPROACH_DECEPTIVE)
+			if((eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_FRIENDLY) || (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_AFRAID))
 			{
 				return INT_MAX;
 			}
@@ -3999,7 +4011,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		//Approach Vector, Sir!
 		if(!bMinor)
 		{
-			if(eMajorApproachTowardsWarPlayer > MAJOR_CIV_APPROACH_DECEPTIVE)
+			if((eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_FRIENDLY) || (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_AFRAID))
 			{
 				return INT_MAX;
 			}
@@ -6762,48 +6774,58 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
-		else
+#endif
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		PlayerTypes eMajor;
+		CvPlayer* pMajor;
+		for(int iMajorLoop = 0; iMajorLoop < MAX_CIV_PLAYERS; iMajorLoop++)
 		{
-			TeamTypes eMasterTeam = GET_TEAM(pMinor->getTeam()).GetMaster();
-			// master of other player
-			if (eMasterTeam == GET_PLAYER(eToPlayer).getTeam())
+			eMajor = (PlayerTypes) iMajorLoop;
+			pMajor = &GET_PLAYER(eMajor);
+			if(eMajor == NO_PLAYER)
 			{
-				// if they are not at war with us, continue
-				if (!GET_TEAM(GetTeam()).isAtWar(pMinor->getTeam()))
-				{
-					continue;
-				}
-				// Add peace with this minor to the deal
-				// slewis - if there is not a peace deal with them already on the table and we can trade it
-				if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
-				{
-					pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
-				}
+				continue;
 			}
-			else if (eMasterTeam == GetPlayer()->getTeam())
+			if(!pMajor->isMinorCiv() && !pMajor->isBarbarian() && GET_TEAM(pMajor->getTeam()).IsVassalOfSomeone())
 			{
-				// if they are not at war with the opponent, continue
-				if (!GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).isAtWar(pMinor->getTeam()))
+				TeamTypes eMasterTeam = GET_TEAM(pMajor->getTeam()).GetMaster();
+				// master of other player
+				if (eMasterTeam == GET_PLAYER(eToPlayer).getTeam())
 				{
-					continue;
+					// if they are not at war with us, continue
+					if (!GET_TEAM(GetTeam()).isAtWar(pMajor->getTeam()))
+					{
+						continue;
+					}
+					// Add peace with this major to the deal
+					// slewis - if there is not a peace deal with them already on the table and we can trade it
+					if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMajor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMajor->getTeam()))
+					{
+						pDeal->AddThirdPartyPeace(eToPlayer, pMajor->getTeam(), iPeaceDuration);
+					}
 				}
-
-				// if they are always at war with them, continue
-				if (pMinor->GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eToPlayer).getTeam()))
+				else if (eMasterTeam == GetPlayer()->getTeam())
 				{
-					continue;
-				}
+					// if they are not at war with the opponent, continue
+					if (!GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).isAtWar(pMajor->getTeam()))
+					{
+						continue;
+					}
 
-				// Add peace with this minor to the deal
-				// slewis - if there is not a peace deal with them already on the table and we can trade it
-				if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
-				{
-					pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
+					// Add peace with this minor to the deal
+					// slewis - if there is not a peace deal with them already on the table and we can trade it
+					if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMajor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMajor->getTeam()))
+					{
+						pDeal->AddThirdPartyPeace(eToPlayer, pMajor->getTeam(), iPeaceDuration);
+					}
 				}
 			}
 		}
-#endif
 	}
+#endif
 }
 
 /// AI making a demand of eOtherPlayer

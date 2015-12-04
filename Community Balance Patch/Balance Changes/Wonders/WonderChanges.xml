@@ -68,7 +68,6 @@
 			<IsReformation>true</IsReformation>
 			<HolyCity>true</HolyCity>
 			<DisplayPosition>1</DisplayPosition>
-			<FreePolicies>1</FreePolicies>
 			<IconAtlas>BW_ATLAS_2</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
 			<WonderSplashImage>WonderConceptKremlin.dds</WonderSplashImage>
@@ -202,6 +201,13 @@
 			<Yield>50</Yield>
 		</Row>
 	</Building_YieldFromGPExpend>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_TAJ_MAHAL</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 	<Building_FreeUnits>
 		<Row>
 			<BuildingType>BUILDING_HANGING_GARDEN</BuildingType>

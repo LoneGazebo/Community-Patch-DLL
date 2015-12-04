@@ -59,4 +59,17 @@
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 	</IconTextureAtlases>
+	<IconFontTextures>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
+			<IconFontTextureFile>Austria</IconFontTextureFile>
+		</Row>
+	</IconFontTextures>
+	<IconFontMapping>
+		<Row>
+			<IconName>ICON_RES_MARRIAGE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+	</IconFontMapping>
 </GameData>

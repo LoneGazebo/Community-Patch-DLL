@@ -149,8 +149,26 @@ function RefreshData()
 		end		
 	
 		local pTargetPlayer = Players[iTargetOwner];
-		
-		tradeRoute.CityName = pTargetCity:GetName();
+-- CBP
+		local strTraitText = "";
+		if (pTargetPlayer ~= nil and pTargetPlayer:IsMinorCiv()) then		
+			local iTrait = pTargetPlayer:GetMinorCivTrait();
+			if (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_CULTURED_ADJECTIVE") .. ") ";
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_MILITARISTIC_ADJECTIVE") .. ") ";
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_MARITIME_ADJECTIVE") .. ") ";
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_MERCANTILE_ADJECTIVE") .. ") ";
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_RELIGIOUS_ADJECTIVE") .. ") ";
+			end
+		end
+		tradeRoute.CityName = (pTargetCity:GetName() .. strTraitText);
+--END		
+--EDITED		tradeRoute.CityName = pTargetCity:GetName();
+
 		tradeRoute.CityIcons = "";
 		tradeRoute.CivName = pTargetPlayer:GetCivilizationDescription();	
 		
@@ -188,7 +206,14 @@ function RefreshData()
 			elseif (iYield == YieldTypes.YIELD_SCIENCE) then
 				tradeRoute.Science = u.Mine;
 				tradeRoute.ScienceDelta = u.Mine - u.Theirs;
+--			end
+-- CBP
+			elseif (iYield == YieldTypes.YIELD_PRODUCTION) then
+				tradeRoute.Production = u.Theirs;
+			elseif (iYield == YieldTypes.YIELD_FOOD) then
+				tradeRoute.Food = u.Theirs;
 			end
+-- END
 			
 			local entry = BonusTips[iYield];
 			if(entry ~= nil) then
@@ -205,16 +230,6 @@ function RefreshData()
 		if (v.TradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_WONDER_RESOURCE) then
 			theirBonuses = theirBonuses .. "  [ICON_RES_MARBLE]";
 		end
-
--- CBP
-		if (pTargetCity ~= nil and tradeRoute.Category == 1) then
-			local iIsolation = pTargetCity:GetUnhappinessFromConnection();
-			if(iIsolation > 0 and pOriginCity:IsConnectedToCapital()) then
-				tradeRoute.OtherIsolation = iIsolation;
-				theirBonuses = theirBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER", -iIsolation);
-			end
-		end
--- END
 		
 		if (v.FromReligion ~= 0 and v.FromPressureAmount ~= 0) then
 			local religion = GameInfo.Religions[v.FromReligion];
@@ -237,8 +252,49 @@ function RefreshData()
 		if (theirBonuses ~= "") then
 			theirBonuses = "[ICON_ARROW_RIGHT]" .. theirBonuses;
 		end
-		
-		tradeRoute.Bonuses = myBonuses .. theirBonuses;
+-- CBP
+		local otherBonuses = "";
+		tradeRoute.OtherIsolation = 0;
+		if (pTargetCity ~= nil and pPlayer ~= nil and tradeRoute.Category == 1) then
+			local iIsolation = pTargetCity:GetUnhappinessFromConnection();
+			if(iIsolation > 0 and pOriginCity:IsConnectedToCapital()) then
+				tradeRoute.OtherIsolation = iIsolation;
+				otherBonuses = otherBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER", -iIsolation);
+			end
+		end
+		tradeRoute.OtherInfluence = 0;
+		if (pTargetCity ~= nil and tradeRoute.Category == 2) then
+			local iInfluence = pPlayer:GetInfluenceOn(iTargetOwner);
+			local iCulture = pPlayer:GetJONSCultureEverGenerated();
+			local iPercent = 0;
+			if (iCulture > 0) then
+				iPercent = iInfluence / iCulture;
+			end
+			if(iPercent > 0) then
+				tradeRoute.OtherInfluence = (iPercent * 100);
+				if(otherBonuses ~= "") then
+					otherBonuses = otherBonuses .. ", ";
+				end
+				otherBonuses = otherBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_INFLUENCE_OTHER", Locale.ToNumber((iPercent * 100), "#.#"));
+			end
+		end
+		if (pTargetCity ~= nil and tradeRoute.Category ~= 1) then
+			if(pPlayer:IsConnectedToPlayer(iTargetOwner)) then
+				if(otherBonuses ~= "") then
+					otherBonuses = otherBonuses .. ", ";
+				end
+				otherBonuses = otherBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_CONNECTED");
+			end
+		end
+		if (myBonuses ~= "" or theirBonuses ~= "") then
+			if(otherBonuses ~= "") then
+				otherBonuses = "[NEWLINE]" .. "[ICON_INTERNATIONAL_TRADE] " .. otherBonuses;
+			end
+		end
+
+		tradeRoute.Bonuses = myBonuses .. theirBonuses .. otherBonuses;
+-- END		
+-- EDITED tradeRoute.Bonuses = myBonuses .. theirBonuses;
 		tradeRoute.TargetPlayerId = pTargetPlayer:GetID();
 		tradeRoute.ToolTip = BuildTradeRouteToolTipString(pPlayer, pOriginCity, pTargetCity, eDomain);
 		tradeRoute.eDomain = eDomain;
@@ -286,6 +342,15 @@ end
 function SortByOtherIsolation(a, b)
 	return a.OtherIsolation > b.OtherIsolation;
 end
+function SortByOtherInfluence(a, b)
+	return a.OtherInfluence > b.OtherInfluence;
+end
+function SortByFood(a, b)
+	return a.Food > b.Food;
+end
+function SortByProduction(a, b)
+	return a.Production > b.Production;
+end
 --END
 
 g_SortOptions = {
@@ -297,6 +362,9 @@ g_SortOptions = {
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_SCIENCE_DELTA", SortByScienceDelta},
 	--CBP
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_ISOLATION_OTHER", SortByOtherIsolation},
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_INFLUENCE_OTHER", SortByOtherInfluence},
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_PRODUCTION", SortByProduction},
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_FOOD", SortByFood},
 	--END
 }
 g_CurrentSortOption = 1;
