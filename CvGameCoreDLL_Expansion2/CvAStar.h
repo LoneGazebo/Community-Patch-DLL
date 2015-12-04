@@ -445,7 +445,6 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int InfluenceAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 int BuildRouteCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
@@ -463,7 +462,6 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int ope
 int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int TradeRouteWaterPathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder);
 void UnitPathUninitialize(const SPathFinderUserData& data, CvAStar* finder);

@@ -20,9 +20,6 @@
 #include "CvInfos.h"
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"
-#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-#include "CvWeightedVector.h"
-#endif
 
 #define DEFAULT_UNIT_MAP_LAYER 0
 
@@ -589,10 +586,6 @@ public:
 #endif
 
 	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
-#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-	void BuildInterceptorVector(CvWeightedVector<CvUnit*, 8, true>& kVector, const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
-	CvUnit* GetNthBestInterceptor(const CvPlot& pPlot, int iIndex = 0, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
-#endif
 	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;

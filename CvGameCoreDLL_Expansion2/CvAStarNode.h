@@ -68,7 +68,7 @@ struct CvPathNodeCacheData
 	bool bContainsVisibleEnemyDefender:1;
 	bool bUnitLimitReached:1;
 
-	int iPlotDanger;
+	int iPlotDanger; 
 
 	//tells when to update the cache ...
 	unsigned short iGenerationID;
@@ -120,41 +120,43 @@ public:
 		m_iMoves = 0;
 		m_iTurns = 0;
 
-		m_bOnStack = false;
-
-		m_eCvAStarListType = NO_CVASTARLIST;
-
 		m_pParent = NULL;
 		m_pNext = NULL;
 		m_pPrev = NULL;
-		m_pStack = NULL;
+		m_eCvAStarListType = NO_CVASTARLIST;
 
-		m_apChildren.clear();
+		m_pStack = NULL;
+		m_bOnStack = false;
+
+		memset(m_apChildren,0,sizeof(CvAStarNode*)*6);
 		m_kCostCacheData.clear();
 	}
+
+	short m_iX, m_iY;	  // Coordinate position - persistent
 
 	int m_iTotalCost;	  // Fitness (f)
 	int m_iKnownCost;	  // Goal (g)
 	int m_iHeuristicCost; // Heuristic (h)
-	int m_iMoves;
-	int m_iTurns;
 
-	CvAStarListType m_eCvAStarListType;
+	int m_iMoves;		//unit-specific, movement points left. if no unit is given, always zero
+	int m_iTurns;		//unit-specific, how many turns does it take to get here. if no unit given: equal to number of plots in path up to here
 
-	CvAStarNode* m_pParent;
+	CvAStarNode* m_pParent;					// Parent in current path
 	CvAStarNode* m_pNext;					// For Open and Closed lists
 	CvAStarNode* m_pPrev;					// For Open and Closed lists
+	CvAStarListType m_eCvAStarListType;
+
 	CvAStarNode* m_pStack;					// For Push/Pop Stack
-
-	FStaticVector<CvAStarNode*, 6, true, c_eCiv5GameplayDLL, 0> m_apChildren;
-
-	short m_iX, m_iY;         // Coordinate position
-	short m_iNumChildren;
 	bool m_bOnStack;
 
-	//for faster neighbor lookup (potential children)
+	//nodes we could reach from this node
+	CvAStarNode* m_apChildren[6];
+	short m_iNumChildren;
+
+	//for faster neighbor lookup (potential children) - always 6 - persistent
 	CvAStarNode** m_apNeighbors;
-	CvPathNodeCacheData m_kCostCacheData;
+
+	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -3508,6 +3508,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 	}
 
+	//I've traded for this? I don't want to give away again
+	if (bGift)
+		pNewCity->SetTraded( GetID(), true);
+
 	pNewCity->SetJONSCultureLevel(iOldCultureLevel);
 	pNewCity->GetCityReligions()->Copy(&tempReligions);
 	pNewCity->GetCityReligions()->RemoveFormerPantheon();
@@ -35268,15 +35272,15 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 
 #ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction) const
 {
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction, iAfterNIntercepts);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison) const
 {
-	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison, iAfterNIntercepts);
+	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison);
 }
 
 //	--------------------------------------------------------------------------------

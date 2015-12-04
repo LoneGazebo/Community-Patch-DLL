@@ -5630,12 +5630,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			continue;
 #endif
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//might have been used in tactical AI already
-		if (!pUnit->canMove())
-			continue;
-#endif
-
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
@@ -5749,6 +5743,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
 				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
 				int iGeneralDanger = m_pPlayer->GetPlotDanger(*pCandidate,pDefender.pointer());
+				//careful with overflow, we expect a lot of INT_MAX value here ...
+				iGeneralDanger = min(100000,iGeneralDanger);
 
 				//for each candidate plot, look at the neighbors
 				int iSupportedDanger = iGeneralDanger;
@@ -5865,24 +5861,26 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					continue;
 				}
 
-				// Weight is defense of city
-				int iWeight = (pLoopCity->getStrengthValue(true) / 100);
+				// Weight is current hitpoints
+				int iWeight = (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
 
 				// Subtract off the distance
-				iWeight -= plotDistance(pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-				iWeight = max(0,iWeight);
-
-				if(pLoopCity->GetGarrisonedUnit() != NULL)
+				iWeight -= plotDistance(pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY())*10;
+				
+				if (iWeight>0)
 				{
-					iWeight *= 2;
-				}
-				if(iNumCommanders > 0)
-				{
-					//discourage more than one general in a city
-					iWeight /= (iNumCommanders + 1);
-				}
+					if(pLoopCity->GetGarrisonedUnit() != NULL)
+					{
+						iWeight *= 2;
+					}
+					if(iNumCommanders > 0)
+					{
+						//discourage more than one general in a city
+						iWeight /= (iNumCommanders + 1);
+					}
 
-				weightedCityList.push_back(pLoopCity, iWeight);
+					weightedCityList.push_back(pLoopCity, iWeight);
+				}
 			}
 
 			weightedCityList.SortItems();

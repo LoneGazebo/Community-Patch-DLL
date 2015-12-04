@@ -1010,7 +1010,7 @@ private:
 	// Blocking position functions
 	bool AssignFlankingUnits(int iNumUnitsRequiredToFlank);
 	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
-	void PerformChosenMoves(int iFallbackMoveRange = 1);
+	void PerformChosenMoves(int iFallbackMoveRange = 1, CvPlot* pFinalTarget=NULL);
 	void MoveGreatGeneral(CvArmyAI* pArmyAI = NULL);
 	bool HaveDuplicateUnit();
 	void RemoveChosenUnits(int iStartIndex = 0);

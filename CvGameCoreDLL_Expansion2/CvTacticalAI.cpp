@@ -442,10 +442,14 @@ void CvTacticalAI::CommandeerUnits()
 			pLoopUnit->DumpDangerInNeighborhood();
 		}
 
+		// reset mission AI so we don't see stale information
+		if (pLoopUnit->GetMissionAIType()==MISSIONAI_ASSAULT)
+			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
+
 		// is the unit healing?
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
-			if ( pLoopUnit->getDamage()>20 )
+			if ( pLoopUnit->getDamage()>30 )
 				//need to continue healing
 				continue;
 			else
@@ -8467,6 +8471,9 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 										bFirstAttackRanged = true;
 									}
 
+									//just for inspection in GUI
+									pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
+
 									// Subtract off expected damage etc
 									iDamageRemaining -= iExpectedDamage;
 									iMovesLeft -= GC.getMOVE_DENOMINATOR();
@@ -8587,6 +8594,10 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 							{
 								pFirstAttacker = (void*)pUnit.pointer();
 							}
+
+							//just for inspection in GUI
+							pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
+
 							pUnit->SetTacticalAIPlot(NULL);
 							UnitProcessed(m_CurrentMoveUnits[iI].GetID(), false /*bMarkTacticalMap*/);
 
@@ -12653,8 +12664,6 @@ bool CvTacticalAI::IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPl
 	return iExpectedDamage >= iMinDamage;
 }
 
-#if defined(MOD_BALANCE_CORE)
-
 /// Move up to our target avoiding our own units if possible
 bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand, int iMaxTurns)
 {
@@ -12818,266 +12827,6 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 		}
 	}
 }
-
-#else
-
-/// Move up to our target avoiding our own units if possible
-bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand)
-{
-	CvPlot* pLoopPlot;
-
-	// Look at spaces adjacent to target
-#if defined(MOD_BALANCE_CORE)
-	int iBestTurns = INT_MAX;
-	CvPlot* pBestPlot = NULL;
-
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
-	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = aPlotsToCheck[iI];
-#else
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iI));
-#endif
-		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
-		{
-			// Must be currently empty of friendly combat units
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			if(!pLoopPlot->getBestDefender(m_pPlayer->GetID()) || (pUnit->IsCivilianUnit()))
-#else
-			if(!pLoopPlot->getBestDefender(m_pPlayer->GetID()))
-#endif
-			{
-				// Enemies too
-				if(!pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID()))
-				{
-					// And if it is a city, make sure we are friends with them, else we will automatically attack
-					if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
-					{
-#ifdef AUI_DANGER_PLOTS_REMADE
-						//note: this check works for civilian also, they have infinite danger if they could be captured 
-						//note: this check works for civilian also, they have infinite danger if they could be captured 
-						if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*2 > pUnit->GetCurrHitPoints())
-							continue;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-						//we check all plots and use the one with the lowest danger, even if it's more pathfinding
-						int iTurns = TurnsToReachTarget(pUnit,pLoopPlot,true,false,false,iBestTurns);
-						if (iTurns<iBestTurns)
-						{
-							iBestTurns = iTurns;
-							pBestPlot = pLoopPlot;
-						}
-#else
-						// Find a path to this space
-						if(pUnit->GeneratePath(pLoopPlot))
-						{
-							// Go ahead with mission
-							bool bMoveWasSafe;
-							MoveToUsingSafeEmbark(pUnit, pLoopPlot, bMoveWasSafe);
-							return true;
-						}
-#endif
-					}
-				}
-			}
-		}
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	if (pBestPlot)
-	{
-		bool bResult = MoveToUsingSafeEmbark(pUnit, pBestPlot, false);
-		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer());
-		return bResult;
-	}
-#endif
-
-	return false;
-}
-
-/// Move up to our target (this time within 2 spaces) avoiding our own units if possible
-bool CvTacticalAI::MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand)
-{
-	CvPlot* pLoopPlot;
-
-	// Look at spaces adjacent to target
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
-	{
-		pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
-		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() == 2))
-		{
-			// Must be currently empty of friendly combat units
-			if(!pLoopPlot->getBestDefender(m_pPlayer->GetID()))
-			{
-				// Enemies too
-				if(!pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID()))
-				{
-					// And if it is a city, make sure we are friends with them, else we will automatically attack
-					if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
-					{
-						// Find a path to this space
-						if(pUnit->GeneratePath(pLoopPlot))
-						{
-							// Go ahead with mission
-#if defined(MOD_BALANCE_CORE)
-							return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false);
-#else
-							bool bMoveWasSafe;
-							MoveToUsingSafeEmbark(pUnit, pLoopPlot, bMoveWasSafe);
-							return true;
-#endif
-						}
-					}
-				}
-			}
-		}
-	}
-	return false;
-}
-
-/// Low-level wrapper on CvUnit::PushMission() for move to missions that avoids embarking if dangerous. Returns true if any move made
-#if defined(MOD_BALANCE_CORE_MILITARY)
-bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo)
-{
-#else
-bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool &bMoveWasSafe)
-{
-	bMoveWasSafe = true;
-#endif
-
-	// Move right away if not a land unit
-	if (pUnit->getDomainType() != DOMAIN_LAND)
-	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-		return true;
-	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isEmbarked() && pUnit->IsCivilianUnit())
-	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-		return true;
-	}
-
-	// If a land unit, get path to target
-	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : CvUnit::MOVEFLAG_IGNORE_DANGER;
-	if(!pUnit->GeneratePath(pTargetPlot,iMoveFlags))
-	{
-		// No path this may happen if a unit has moved up and blocked our path to our target plot
-		// If calling routine is moving a bunch of units like this it should retry these units
-		return false;
-	}
-#else
-
-	// If a land unit, get path to target
-	if(!pUnit->GeneratePath(pTargetPlot))
-	{
-		// No path this may happen if a unit has moved up and blocked our path to our target plot
-		// If calling routine is moving a bunch of units like this it should retry these units
-		bMoveWasSafe = false;
-		return false;
-	}
-#endif
-	else
-	{
-		CvPlot *pMovePlot = pUnit->GetPathEndTurnPlot();
-#if !defined(MOD_BALANCE_CORE_MILITARY)
-		// On land?  If so go ahead and move there
-		if (!pMovePlot->isWater())
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-			return true;
-		}
-		// How dangerous is this plot?
-		else
-		{
-#endif
-		
-			bool bDangerous = false;
-
-#ifdef AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-			int iPlotIndex = GC.getMap().plotNum(pMovePlot->getX(), pMovePlot->getY());
-#else
-			int iPlotIndex = GC.getMap().plotNum(pTargetPlot->getX(), pTargetPlot->getY());
-#endif // AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-			CvTacticalAnalysisCell *pCell = m_pMap->GetCell(iPlotIndex);
-			if (pCell->IsSubjectToAttack())
-			{
-				// Enemy naval unit can definitely attack this plot
-				bDangerous = true;
-			}
-
-			else
-			{
-#ifdef AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-				if (GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMovePlot))
-#else
-				if (GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pTargetPlot))
-#endif // AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-				{
-					// Also dangerous in an enemy dominated naval zone
-					bDangerous = true;
-				}
-			}
-
-			// Not dangerous, proceed
-			if (!bDangerous)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-				return true;	
-			}
-
-			// Dangerous - try to move just on land
-			else
-			{
-#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
-				if(!pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_NO_EMBARK))
-#else
-				if(!pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_STAY_ON_LAND))
-#endif
-				{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-					if (MOD_BALANCE_CORE_MILITARY) 
-					{
-						// No land path so just stay put and fortify until life improves for you.
-						if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
-						{
-							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-						}
-					}
-					return true;	
-#else
-					// No land path so just risk move to sea
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-					// Hopefully the calling routine might be able to pull escort over to stack with this unit
-					bMoveWasSafe = false;
-					return true;	
-#endif
-				}
-				else
-				{
-#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_NO_EMBARK);
-#else
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_STAY_ON_LAND);
-#endif
-					return true;	
-				}
-			}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-#else
-		}
-#endif
-	}
-}
-
-#endif
 
 /// Find a multi-turn target for a land barbarian to wander towards
 CvPlot* CvTacticalAI::FindBestBarbarianLandMove(UnitHandle pUnit)
@@ -13822,7 +13571,7 @@ bool CvTacticalAI::AssignDeployingUnits(int iNumUnitsRequiredToDeploy)
 }
 
 /// Make and log selected movements
-void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
+void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange, CvPlot* pFinalTarget)
 {
 	// Make moves up into hexes, starting with units already close to their final destination
 	std::stable_sort(m_ChosenBlocks.begin(), m_ChosenBlocks.end(), TacticalAIHelpers::CvBlockingUnitDistanceSort);
@@ -13835,24 +13584,20 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 		{
 			if(pUnit->plot() != m_ChosenBlocks[iI].GetPlot() && IsInChosenMoves(pUnit->plot()) && m_ChosenBlocks[iI].GetPlot()->getNumFriendlyUnitsOfType(pUnit) == 0)
 			{
-#if defined(MOD_BALANCE_CORE)
-				MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false);
-#else
-				bool bMoveWasSafe;
-				MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), bMoveWasSafe);
-#endif
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false))
 				{
-					CvString strMsg;
-					strMsg.Format("Deploying %s %d (to get out of way), To X: %d, To Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
-					              pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
-					              pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
-					LogTacticalMessage(strMsg);
-				}
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Deploying %s %d (to get out of way), To X: %d, To Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
+									  pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
+									  pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
+						LogTacticalMessage(strMsg);
+					}
 
-				// Use number of choices field to indicate already moved
-				m_ChosenBlocks[iI].SetNumChoices(-1);
+					// Use number of choices field to indicate already moved
+					m_ChosenBlocks[iI].SetNumChoices(-1);
+				}
 			}
 		}
 	}
@@ -13883,18 +13628,17 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 					MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), bMoveWasSafe);
 #endif
 
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Deploying %s %d, To X: %d, To Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
-						              pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
-						              pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
-						LogTacticalMessage(strMsg);
-					}
-
 					// Use number of choices field to indicate already moved
 					if(pPlotBeforeMove != pUnit->plot())
 					{
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Deploying %s %d, To X: %d, To Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
+										  pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
+										  pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
+							LogTacticalMessage(strMsg);
+						}
 						m_ChosenBlocks[iI].SetNumChoices(-1);
 					}
 				}
@@ -13916,17 +13660,16 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 					CvPlot* pPlotBeforeMove = pUnit->plot();
 					if(MoveToEmptySpaceNearTarget(UnitHandle(pUnit), m_ChosenBlocks[iI].GetPlot(), (pUnit->getDomainType()==DOMAIN_LAND)))
 					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Deploying %s %d to space near target, Target X: %d, Target Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
-								pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
-								pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
-							LogTacticalMessage(strMsg);
-						}
-
 						if(pPlotBeforeMove != pUnit->plot())
 						{
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Deploying %s %d to space near target, Target X: %d, Target Y: %d, At X: %d, At Y: %d, Distance Before Move: %d",
+									pUnit->getName().GetCString(), pUnit->GetID(), m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(),
+									pUnit->getX(), pUnit->getY(), m_ChosenBlocks[iI].GetDistanceToTarget());
+								LogTacticalMessage(strMsg);
+							}
 							m_ChosenBlocks[iI].SetNumChoices(-1);
 						}
 					}
@@ -13955,14 +13698,15 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 											if(pPlotBeforeMove != pUnit->plot())
 											{
 												m_ChosenBlocks[iI].SetNumChoices(-1);
-											}
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString strTemp;
-												CvString strMsg;
-												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-												strMsg.Format("Moving %s for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
-												LogTacticalMessage(strMsg);
+
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+													LogTacticalMessage(strMsg);
+												}
 											}
 											break;
 										}
@@ -13980,16 +13724,17 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 												if(pPlotBeforeMove != pUnit->plot())
 												{
 													m_ChosenBlocks[iI].SetNumChoices(-1);
-												}
-												if(GC.getLogging() && GC.getAILogging())
-												{
-													CvString strTemp;
-													CvString strTemp2;
-													CvString strMsg;
-													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
-													strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
-													LogTacticalMessage(strMsg);
+
+													if(GC.getLogging() && GC.getAILogging())
+													{
+														CvString strTemp;
+														CvString strTemp2;
+														CvString strMsg;
+														strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+														strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+														strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+														LogTacticalMessage(strMsg);
+													}
 												}
 												break;
 											}
@@ -14036,6 +13781,10 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 	for(unsigned int iI = 0; iI < m_ChosenBlocks.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_ChosenBlocks[iI].GetUnitID());
+
+		//just for inspection in GUI
+		pUnit->SetMissionAI(MISSIONAI_ASSAULT,pFinalTarget,NULL);
+
 		if(!pUnit->isDelayedDeath())
 		{
 #if defined(MOD_BALANCE_CORE)

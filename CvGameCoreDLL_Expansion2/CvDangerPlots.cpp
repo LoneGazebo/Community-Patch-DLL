@@ -408,18 +408,18 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 }
 
 /// Return the maximum amount of damage a city could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts)
+int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
 	if (pCity != NULL)
 	{
-		return m_DangerPlots[idx].GetDanger(pCity, pPretendGarrison, iAfterNIntercepts);
+		return m_DangerPlots[idx].GetDanger(pCity, pPretendGarrison);
 	}
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
+int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction)
 #else
 /// Return the danger value of a given plot
 int CvDangerPlots::GetDanger(const CvPlot& pPlot) const
@@ -429,7 +429,7 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot) const
 #ifdef AUI_DANGER_PLOTS_REMADE
 	if (pUnit)
 	{
-		return m_DangerPlots[idx].GetDanger(pUnit, iAirAction, iAfterNIntercepts);
+		return m_DangerPlots[idx].GetDanger(pUnit, iAirAction);
 	}
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 #else
@@ -1180,7 +1180,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 }
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -1229,11 +1229,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAf
 		}
 		else
 		{
-#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-			CvUnit* pInterceptor = pUnit->GetNthBestInterceptor(*m_pPlot, iAfterNIntercepts);
-#else
 			CvUnit* pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
-#endif
 			if (pInterceptor)
 			{
 				// Air sweeps take modified damage from interceptors
@@ -1288,8 +1284,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAf
 	if (pFriendlyCity && !m_pPlot->isFriendlyCity(*pUnit, false))
 		pFriendlyCity = NULL;
 
-	// Civilians can be captured
-	if (!pUnit->IsCombatUnit() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit)))
+	// Civilians can be captured - unless they would need to be embarked on this plot
+	if (!pUnit->IsCombatUnit() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND))
 	{
 		// If plot contains an enemy unit, mark it as max danger
 		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), NULL, true))
@@ -1357,13 +1353,16 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAf
 				return iPlotDamage;
 			}
 		}
+
+		return 0;
 	}
 
 	// Garrisoning in a city will have the city's health stats replace the unit's health stats (capturing a city with a garrisoned unit destroys the garrisoned unit)
 	if (pFriendlyCity)
 	{
 		// If the city survives all possible attacks this turn, so will the unit
-		if (GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL)) + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
+		int iCityDanger = GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL));
+		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
 		{
 			// Damage from features
 			iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
@@ -1395,17 +1394,12 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, int iAirAction, int iAf
 			{
 				if (pAttacker->getDomainType() == DOMAIN_AIR)
 				{
-#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-					pInterceptor = pAttacker->GetNthBestInterceptor(*m_pPlot, iAfterNIntercepts, pUnit);
-#else
 					pInterceptor = pAttacker->GetBestInterceptor(*m_pPlot, pUnit);
-#endif
 					int iInterceptDamage = 0;
 					if (pInterceptor)
 					{
 						// Always assume interception is successful
 						iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
-						++iAfterNIntercepts;
 					}
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage, m_pPlot);
@@ -1577,7 +1571,7 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(const CvUnit* pUnit)
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot
-int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts)
+int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	if (!m_pPlot || !pCity)
 		return 0;
@@ -1611,17 +1605,12 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-				pInterceptor = pUnit->GetNthBestInterceptor(*m_pPlot, iAfterNIntercepts);
-#else
 				pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
-#endif
 				int iInterceptDamage = 0;
 				if (pInterceptor)
 				{
 					// Always assume interception is successful
 					iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
-					++iAfterNIntercepts;
 				}
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetAirCombatDamage(NULL, pCity, false, iInterceptDamage, m_pPlot);

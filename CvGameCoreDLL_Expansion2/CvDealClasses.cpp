@@ -2522,15 +2522,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				{
 					CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
 					if(pCity != NULL)
-#if defined(MOD_BALANCE_CORE)
-					{
-#endif
 						GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, false, true);
-#if defined(MOD_BALANCE_CORE)
-						//I've traded for? I don't want to give away again.
-						pCity->SetTraded(eAcceptedToPlayer, true);
-					}
-#endif
 				}
 				else if(it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY)
 				{

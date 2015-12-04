@@ -2036,8 +2036,8 @@ public:
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
 #ifdef AUI_DANGER_PLOTS_REMADE
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0) const;
-	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0) const;
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK) const;
+	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
