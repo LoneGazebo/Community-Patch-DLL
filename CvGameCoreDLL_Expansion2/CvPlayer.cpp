@@ -991,6 +991,19 @@ void CvPlayer::init(PlayerTypes eID)
 
 		SetGreatGeneralCombatBonus(GC.getGREAT_GENERAL_STRENGTH_MOD());
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		setAdvancedActionGold(10);
+		setAdvancedActionScience(10);
+		setAdvancedActionUnrest(4);
+		setAdvancedActionRebellion(4);
+		setAdvancedActionGP(5);
+		setAdvancedActionUnit(6);
+		setAdvancedActionWonder(6);
+		setAdvancedActionBuilding(6);
+	}
+#endif
 
 	m_aiPlots.clear();
 	m_bfEverConqueredBy.ClearAll();
@@ -1405,14 +1418,14 @@ void CvPlayer::uninit()
 	m_iTradeReligionModifier = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	m_iAdvancedActionGold = 3;
-	m_iAdvancedActionScience = 3;
-	m_iAdvancedActionUnrest = 1;
-	m_iAdvancedActionRebellion = 1;
-	m_iAdvancedActionGP = 1;
-	m_iAdvancedActionUnit = 2;
-	m_iAdvancedActionWonder = 1;
-	m_iAdvancedActionBuilding = 2;
+	m_iAdvancedActionGold = 0;
+	m_iAdvancedActionScience = 0;
+	m_iAdvancedActionUnrest = 0;
+	m_iAdvancedActionRebellion = 0;
+	m_iAdvancedActionGP = 0;
+	m_iAdvancedActionUnit = 0;
+	m_iAdvancedActionWonder = 0;
+	m_iAdvancedActionBuilding = 0;
 	m_iCannotFailSpies = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2533,7 +2546,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-
 	if(bConquest)
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -3111,11 +3123,32 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				bDoWarmonger = false;
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE)
+			// Don't award warmongering if you're conquering a city that you were the last to own.
+			if (pOldCity->getPreviousOwner() == GetID())
+			{
+				bDoWarmonger = false;
+			}
 			//Captured a city from barbs? Everyone likes that!
 			if(GET_PLAYER(pOldCity->getOwner()).isBarbarian())
 			{
 				bDoWarmonger = false;
+			}
+			PlayerTypes eLiberatedPlayer = NO_PLAYER;
+
+			// Captured someone's city that didn't originally belong to us - Liberate a player?
+			eOldOwner = pOldCity->getOwner();
+			if(pOldCity->getOriginalOwner() != eOldOwner && pOldCity->getOriginalOwner() != GetID())
+			{
+				eLiberatedPlayer = pOldCity->getOriginalOwner();
+				if(eLiberatedPlayer != NO_PLAYER)
+				{
+					if(CanLiberatePlayerCity(eLiberatedPlayer))
+					{
+						bDoWarmonger = false;
+						pOldCity->SetNoWarmonger(true);
+					}
+				}
 			}
 #endif
 
@@ -3171,6 +3204,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	strName = pOldCity->getNameKey();
 	int iOldCultureLevel = pOldCity->GetJONSCultureLevel();
 	bool bHasMadeAttack = pOldCity->isMadeAttack();
+#if defined(MOD_BALANCE_CORE)
+	bool bNeedsWarmonger = pOldCity->IsNoWarmongerYet();
+#endif
 
 	tempReligions.Init(pOldCity);
 	tempReligions.Copy(pOldCity->GetCityReligions());
@@ -3197,9 +3233,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	abEverOwned[GetID()] = true;
 #if defined(MOD_BALANCE_CORE)
 	bool abTraded[MAX_PLAYERS];
+	int aiNumTimesOwned[MAX_PLAYERS];
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		abTraded[iI] = pOldCity->IsTraded((PlayerTypes)iI);
+		aiNumTimesOwned[iI] = pOldCity->GetNumTimesOwned((PlayerTypes)iI);
 	}
 #endif
 
@@ -3492,6 +3530,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity->setNeverLost(false);
 	pNewCity->setDamage(iBattleDamage,true);
 	pNewCity->setMadeAttack(bHasMadeAttack);
+#if defined(MOD_BALANCE_CORE)
+	pNewCity->SetNoWarmonger(bNeedsWarmonger);
+#endif
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -3505,8 +3546,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 #if defined(MOD_BALANCE_CORE)
 		pNewCity->SetTraded(((PlayerTypes)iI), abTraded[iI]);
+		pNewCity->SetNumTimesOwned(((PlayerTypes)iI), aiNumTimesOwned[iI]);
 #endif
 	}
+
+	//I've traded for this? I don't want to give away again
+	if (bGift)
+		pNewCity->SetTraded( GetID(), true);
 
 	pNewCity->SetJONSCultureLevel(iOldCultureLevel);
 	pNewCity->GetCityReligions()->Copy(&tempReligions);
@@ -4885,7 +4931,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 			if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 			{
 #if defined(MOD_CONFIG_AI_IN_XML)
-				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(ePlayer, pNewCity->isCapital());
+				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(ePlayer, pNewCity->isCapital(), pNewCity, GetID());
 				//Sanity check - should be positive!
 				if(iWarmongerOffset < 0)
 				{
@@ -7258,39 +7304,7 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
 {
-#if defined(MOD_API_EXTENSIONS)
 	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
-#else
-	int iPathfinderFlags = GetID() | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
-	if(eRestrictRoute == NO_ROUTE)
-	{
-		iPathfinderFlags |= MOVE_ANY_ROUTE;
-	}
-	else
-	{
-		// assuming that there are fewer than 256 players
-		int iRouteValue = eRestrictRoute + 1;
-		iPathfinderFlags |= (iRouteValue << 8);
-	}
-
-	if (bIgnoreHarbors)
-	{
-		GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
-		GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
-	}
-
-	GC.getRouteFinder().ForceReset();
-	bool bReturnValue = GC.getRouteFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), iPathfinderFlags, false);
-
-	if (bIgnoreHarbors)
-	{
-		// reconnect the land route pathfinder water methods
-		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
-		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
-	}
-
-	return bReturnValue;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7559,7 +7573,17 @@ void CvPlayer::raze(CvCity* pCity)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(pCity->IsNoWarmongerYet())
+	{
+		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
+		if(eFormerOwner != NO_PLAYER)
+		{
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity->IsOriginalMajorCapital());
+			pCity->SetNoWarmonger(false);
+		}
+	}
+#endif
 	int iPopulationDrop = 1;
 	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier());
 	iPopulationDrop /= 100;
@@ -9333,12 +9357,23 @@ void CvPlayer::ClearNoSettling()
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::canFound(int iX, int iY, bool bForce) const
+#else
 bool CvPlayer::canFound(int iX, int iY) const
+#endif
 {
+#if defined(MOD_BALANCE_CORE)
+	return canFound(iX,iY,false,false,NULL, bForce);
+#else
 	return canFound(iX,iY,false,false,NULL);
+#endif
 }
-
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce) const
+#else
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
+#endif
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 #if defined(MOD_EVENTS_CITY_FOUNDING)
@@ -9363,7 +9398,7 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 		return false;
 
 #if defined(MOD_BALANCE_CORE)
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit, bForce);
 #else
 	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
 #endif
@@ -9371,12 +9406,16 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-void CvPlayer::found(int iX, int iY, ReligionTypes eReligion)
+void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
 #else
 void CvPlayer::found(int iX, int iY)
 #endif
 {
+#if defined(MOD_BALANCE_CORE)
+	if(!canFound(iX, iY, bForce))
+#else
 	if(!canFound(iX, iY))
+#endif
 	{
 		return;
 	}
@@ -11509,6 +11548,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		{
 			ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
 		}
+		changeYieldFromTech(((YieldTypes)iI), (pBuildingInfo->GetYieldFromTech(iI) * iChange));
 #endif
 	}
 
@@ -18595,17 +18635,21 @@ void CvPlayer::DoProcessGoldenAge()
 				changeGoldenAgeTurns(-1);
 			}
 		}
-
+#if !defined(MOD_BALANCE_CORE)
 		// Not in GA
 		else
 		{
+#endif
 			// Note: This will actually REDUCE the GA meter if the player is running in the red
 			ChangeGoldenAgeProgressMeter(GetExcessHappiness());
 			
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			ChangeGoldenAgeProgressMeter(GetGoldenAgePointsFromEmpire());
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+			if(getGoldenAgeTurns() <= 0)
+			{
+#endif
 			// Enough GA Progress to trigger new GA?
 			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())
 			{
@@ -18627,7 +18671,12 @@ void CvPlayer::DoProcessGoldenAge()
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
+#if !defined(MOD_BALANCE_CORE)
 		}
+#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE)
@@ -18706,6 +18755,7 @@ void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
 void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 {
 	SetGoldenAgeProgressMeter(GetGoldenAgeProgressMeter() + iChange);
+
 }
 
 //	--------------------------------------------------------------------------------
@@ -24339,16 +24389,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
-
-				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
-				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-#if defined(MOD_CORE_PATHFINDER)
-				bool bRebasePathfinderMPCaching = GC.GetRebasePathfinder().SetMPCacheSafe(true);
-#endif
-				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
-				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
-				bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
-
 				{
 					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
@@ -24381,15 +24421,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 						doTurnUnits();
 					}
 				}
-
-				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
-				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-#if defined(MOD_CORE_PATHFINDER)
-				GC.GetRebasePathfinder().SetMPCacheSafe(bRebasePathfinderMPCaching);
-#endif
-				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
-				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
-				GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
 
 				if((GetID() == kGame.getActivePlayer()) && (kGame.getElapsedGameTurns() > 0))
 				{
@@ -25780,6 +25811,11 @@ void CvPlayer::changeAdvancedActionGold(int iChange)
 	m_iAdvancedActionGold += iChange;
 }
 //	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionGold(int iChange)
+{
+	m_iAdvancedActionGold = iChange;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionScience() const
 {
 	return m_iAdvancedActionScience;
@@ -25788,6 +25824,11 @@ int CvPlayer::GetAdvancedActionScience() const
 void CvPlayer::changeAdvancedActionScience(int iChange)
 {
 	m_iAdvancedActionScience += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionScience(int iChange)
+{
+	m_iAdvancedActionScience = iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionUnrest() const
@@ -25800,6 +25841,11 @@ void CvPlayer::changeAdvancedActionUnrest(int iChange)
 	m_iAdvancedActionUnrest += iChange;
 }
 //	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionUnrest(int iChange)
+{
+	m_iAdvancedActionUnrest = iChange;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionRebellion() const
 {
 	return m_iAdvancedActionRebellion;
@@ -25808,6 +25854,11 @@ int CvPlayer::GetAdvancedActionRebellion() const
 void CvPlayer::changeAdvancedActionRebellion(int iChange)
 {
 	m_iAdvancedActionRebellion += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionRebellion(int iChange)
+{
+	m_iAdvancedActionRebellion = iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionGP() const
@@ -25820,6 +25871,11 @@ void CvPlayer::changeAdvancedActionGP(int iChange)
 	m_iAdvancedActionGP += iChange;
 }
 //	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionGP(int iChange)
+{
+	m_iAdvancedActionGP = iChange;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionUnit() const
 {
 	return m_iAdvancedActionUnit;
@@ -25828,6 +25884,11 @@ int CvPlayer::GetAdvancedActionUnit() const
 void CvPlayer::changeAdvancedActionUnit(int iChange)
 {
 	m_iAdvancedActionUnit += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionUnit(int iChange)
+{
+	m_iAdvancedActionUnit = iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionWonder() const
@@ -25840,6 +25901,11 @@ void CvPlayer::changeAdvancedActionWonder(int iChange)
 	m_iAdvancedActionWonder += iChange;
 }
 //	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionWonder(int iChange)
+{
+	m_iAdvancedActionWonder = iChange;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetAdvancedActionBuilding() const
 {
 	return m_iAdvancedActionBuilding;
@@ -25848,6 +25914,11 @@ int CvPlayer::GetAdvancedActionBuilding() const
 void CvPlayer::changeAdvancedActionBuilding(int iChange)
 {
 	m_iAdvancedActionBuilding += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setAdvancedActionBuilding(int iChange)
+{
+	m_iAdvancedActionBuilding = iChange;
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCannotFailSpies() const
@@ -33474,14 +33545,14 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(60, kStream, m_iTradeReligionModifier, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionGold, 3);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionScience, 3);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionUnrest, 1);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionRebellion, 1);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionGP, 1);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionUnit, 2);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionWonder, 1);
-	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionBuilding, 2);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionGold, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionScience, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionUnrest, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionRebellion, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionGP, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionUnit, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionWonder, 0);
+	MOD_SERIALIZE_READ(60, kStream, m_iAdvancedActionBuilding, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iCannotFailSpies, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -35319,15 +35390,15 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 
 #ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction) const
 {
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction, iAfterNIntercepts);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison, int iAfterNIntercepts) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison) const
 {
-	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison, iAfterNIntercepts);
+	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison);
 }
 
 //	--------------------------------------------------------------------------------
@@ -35845,24 +35916,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 
-	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-	if(iSettlers > 1)
-	{
-		iBestFoundValue -= (iSettlers * 1000);
-	}
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
-
 	if(iNumSettleAreas == 0)
 	{
 		return NULL;
 	}
 
-	int iTurnsWaiting = 0;
 	if(pUnit)
 	{
-		iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
+		int iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
+		iBestFoundValue -= (iTurnsWaiting * 200);
 	}
-	iBestFoundValue -= (iTurnsWaiting * 100);
 
 	CvPlot* pBestFoundPlot = NULL;
 
@@ -35923,7 +35987,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam) || pPlot->IsAdjacentToImprovement((ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 
@@ -35967,13 +36031,14 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 
 		if(bOnlySafePaths)
 		{
-			CvTwoLayerPathFinder& kPathfinder = GC.getPathFinder();
+			CvTwoLayerPathFinder& kPathfinder = GC.GetPathFinder();
 			//find our closest city, which should become our muster plot
 			CvCity* pClosestCity = GetClosestCity(pUnit->plot());
 			CvPlot* pMusterPlot = pClosestCity->plot();
 
 			//if the muster plot is more than 12 turns away it's unsafe by definition
-			if (! kPathfinder.GenerateUnitPath(pUnit, pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), 0, false, 12) )
+			SPathFinderUserData data(pUnit,0,12);
+			if (! kPathfinder.GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), data) )
 			{
 				//--------------
 				if (bLogging) 
@@ -35999,7 +36064,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
 
 		//take into account distance from existing cities
-		int iScale = MapToPercent( GetCityDistance(pPlot), iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
+		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
+		int iRelevantDistance = min(iUnitDistance,GetCityDistance(pPlot));
+		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
 		if (bNewContinent && !pPlot->isCoastalLand())
@@ -36476,7 +36543,7 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 			}
 
 			int iReturnValue = INT_MAX;
-			bool bResult = pLoopUnit->GeneratePath(pPlot, MOVE_UNITS_IGNORE_DANGER, true, &iReturnValue);
+			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iReturnValue);
 
 			if(bResult)
 			{

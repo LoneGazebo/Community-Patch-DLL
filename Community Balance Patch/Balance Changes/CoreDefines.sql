@@ -22,7 +22,7 @@
 
 -- Trade Route Stuff
 	UPDATE Defines
-	SET Value = '33'
+	SET Value = '20'
 	WHERE Name = 'TRADE_ROUTE_RIVER_CITY_MODIFIER';
 
 -- SR Penalty
@@ -30,10 +30,15 @@
 	SET Value = '0'
 	WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY';
 
--- 
+-- Cannot Train Settlers
 	UPDATE Defines
 	SET Value = '0'
 	WHERE Name = 'VERY_UNHAPPY_CANT_TRAIN_SETTLERS';
+
+-- Change for Austria UA
+	UPDATE Defines
+	SET Value = '20'
+	WHERE Name = 'MINOR_CIV_BUYOUT_TURNS';
 
 -- City Growth Defines
 

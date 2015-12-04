@@ -1091,7 +1091,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			if (pCity->GetBlockBuildingDestruction() <= 0 && pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				//Can we affect this building?
-				if((pCity->getProduction() > 0) && (iCityRank > 4))
+				if((pCity->getProduction() > 0) && (iCityRank > 3))
 				{
 					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionBuilding(); iAdvancedActionLoop++)
 					{
@@ -1102,7 +1102,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			if (pCity->GetBlockWWDestruction() <= 0 && pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				//Can we affect this building?
-				if((pCity->getProduction() > 0) && (iCityRank > 5))
+				if((pCity->getProduction() > 0) && (iCityRank > 4))
 				{
 					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionWonder(); iAdvancedActionLoop++)
 					{
@@ -1112,7 +1112,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			}
 		}	
 		//Production setback for military units
-		if (eUnit != NO_UNIT && (iCityRank > 3) && pCity->GetBlockUDestruction() <= 0)
+		if (eUnit != NO_UNIT && (iCityRank > 2) && pCity->GetBlockUDestruction() <= 0)
 		{
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
 			CvAssertMsg(pUnitInfo, "pUnitInfo is null");
@@ -1132,7 +1132,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			}
 		}
 		//GP setback
-		if(iCityRank > 6  && pCity->GetBlockGPDestruction() <= 0)
+		if(iCityRank > 4  && pCity->GetBlockGPDestruction() <= 0)
 		{
 			int iBestRate = 0;
 			int iRate = 0;
@@ -1164,14 +1164,14 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		//Only possible if very unhappy
 		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
 		{
-			if(iCityRank > 8 && pCity->GetBlockRebellion() <= 0)
+			if(iCityRank > 7 && pCity->GetBlockRebellion() <= 0)
 			{
 				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
 				{
 					aiAdvancedAction.push_back(5);
 				}
 			}
-			else if(iCityRank > 7 && pCity->GetBlockUnrest() <= 0)
+			else if(iCityRank > 5 && pCity->GetBlockUnrest() <= 0)
 			{	
 				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
 				{
@@ -1571,7 +1571,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//Riots!
 				else if (iSpyResult == 6)
 				{
-					int iFood = ((pCity->getFood() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					int iFood = ((pCity->getFood() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
 					if(iFood > pCity->getFood())
 					{
 						iFood = pCity->getFood();
@@ -1649,7 +1649,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//WONDER
 				else if(iSpyResult == 2)
 				{
-					int iSetback = ((pCity->getProduction() * (iTurnsActive + GC.getBALANCE_SPY_SABOTAGE_RATE()))  / 100);
+					int iSetback = ((pCity->getProduction() * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2)))  / 100);
 					if(iSetback > pCity->getProduction())
 					{
 						iSetback = pCity->getProduction();
@@ -1731,7 +1731,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//GREAT PERSON
 				else if(iSpyResult == 4)
 				{
-					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive + GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
 					if(iPercentage > pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist))
 					{
 						iPercentage = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist);
@@ -1818,7 +1818,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//BUILDING
 				else if(iSpyResult == 1)
 				{
-					int iSetback = (pCity->getProduction() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100;
+					int iSetback = (pCity->getProduction() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100;
 					if(iSetback > pCity->getProduction())
 					{
 						iSetback = pCity->getProduction();
@@ -1900,7 +1900,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				// UNIT
 				else if(iSpyResult == 3)
 				{
-					int iSetback = (pCity->getProduction() * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iSetback = (pCity->getProduction() * (iTurnsActive * (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
 					if(iSetback > pCity->getProduction())
 					{
 						iSetback = pCity->getProduction();
@@ -1982,7 +1982,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				// Science
 				else if(iSpyResult == 7)
 				{
-					int iSetback = ((GET_PLAYER(pCity->getOwner()).GetScience() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					int iSetback = ((GET_PLAYER(pCity->getOwner()).GetScience() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
 					if(iSetback > GET_PLAYER(pCity->getOwner()).GetScience())
 					{
 						iSetback = GET_PLAYER(pCity->getOwner()).GetScience();
@@ -2083,7 +2083,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//Gold Theft
 				else if(iSpyResult == 8)
 				{
-					int iTheft = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					int iTheft = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
 					if(iTheft > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
 					{
 						iTheft = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
@@ -3761,9 +3761,9 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
 #if defined(MOD_BALANCE_CORE)
 	iDeltaInfluence /= 2;
-	if(iDeltaInfluence >  85)
+	if(iDeltaInfluence >  8500)
 	{
-		iDeltaInfluence = 85;
+		iDeltaInfluence = 8500;
 	}
 #endif
 	//float fNobodyBonus = 0.5;

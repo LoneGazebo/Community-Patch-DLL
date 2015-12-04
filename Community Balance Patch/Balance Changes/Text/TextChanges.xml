@@ -85,7 +85,7 @@
 
 		<!-- Pantheons -->
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE">
-			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide yield bonus will remain inactive until you convert a majority of Cities to your new Religion!</Text>
+			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide bonus (i.e. God-King) will remain inactive until you convert a majority of Cities to your new Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S">
 			<Text>Decline of Your Pantheon</Text>
@@ -106,6 +106,12 @@
 <!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
 			<Text>[COLOR_POSITIVE_TEXT]MARRIED[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_SMALL">
+			<Text>[COLOR_POSITIVE_TEXT]Married[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
+			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] While at peace with this City-State, your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +10% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 <!-- Text for GPs -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT">
@@ -498,6 +504,15 @@
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_ISOLATION_OTHER">
 			<Text>Highest Isolation</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_INFLUENCE_OTHER">
+			<Text>Highest Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_PRODUCTION">
+			<Text>Highest Production</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_FOOD">
+			<Text>Highest Food</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY">
 			<Text>[ICON_GOLD] Poverty: {1_Num}</Text>
 		</Row>
@@ -508,9 +523,15 @@
 			<Text>[ICON_BLOCKADED] Isolation: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER">
-			<Text>, [ICON_BLOCKADED] Isolation: {1_Num}</Text>
+			<Text>[ICON_BLOCKADED] Isolation: {1_Num}</Text>
 		</Row>
-		
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_INFLUENCE_OTHER">
+			<Text>Our [ICON_TOURISM] Influence: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_CONNECTED">
+			<Text>[ICON_CONNECTED] Connected</Text>
+		</Row>
+
 		<!-- Partisans -->
 		<Row Tag="TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY">
 			<Text>Because you are burning their city to the ground, partisans have spawned near {1_Name}!</Text>

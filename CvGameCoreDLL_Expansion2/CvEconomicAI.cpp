@@ -3695,7 +3695,7 @@ void CvEconomicAI::AssignExplorersToHuts()
 	aBestUnitList.reserve(m_apExplorers.size());
 #endif
 
-	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
+	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	for(uint uiGoodyPlots = 0; uiGoodyPlots < m_aiGoodyHutPlots.size(); uiGoodyPlots++)
 	{
 		if(m_aiGoodyHutPlots[uiGoodyPlots] == -1)
@@ -3734,7 +3734,7 @@ void CvEconomicAI::AssignExplorersToHuts()
 			if(iEstimateTurns < iClosestEstimateTurns)
 			{
 				// Now check path
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(bCanFindPath)
 				{
 					iClosestEstimateTurns = iEstimateTurns;
@@ -3757,9 +3757,9 @@ void CvEconomicAI::AssignExplorersToHuts()
 				CvUnit* pUnit = aBestUnitList.GetElement(i);
 #ifdef AUI_ASTAR_TURN_LIMITER
 				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
-					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
 #else
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 #endif
 				if(bCanFindPath)
 				{
@@ -3828,10 +3828,10 @@ void CvEconomicAI::AssignHutsToExplorers()
 			{
 				// Now check path
 #ifdef AUI_ASTAR_TURN_LIMITER
-				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
-					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
+					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
 #else
-				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 #endif
 				if(bCanFindPath)
 				{

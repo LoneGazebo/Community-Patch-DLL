@@ -549,6 +549,13 @@ function GetActiveQuestText(iMajor, iMinor)
 		iNumQuests = iNumQuests + 1;
 		sIconText = sIconText .. "[ICON_RESISTANCE]";
 	end
+
+	-- CBP
+	if (pMinor:GetCoupCooldown() > 0) then
+		iNumQuests = iNumQuests + 1;
+		sIconText = sIconText .. "[ICON_TEAM_2]";
+	end
+	-- END
 	
 	if (iNumQuests <= 0) then
 		sIconText = Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_NONE");
@@ -689,7 +696,16 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 		sToolTipText = sToolTipText .. "[ICON_BULLET]";	
 		sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL");
 	end
-	
+--CBP
+	if (pMinor:GetCoupCooldown() > 0) then
+		iNumQuests = iNumQuests + 1;
+		if (sToolTipText ~= "") then
+			sToolTipText = sToolTipText .. "[NEWLINE]";
+		end
+		sToolTipText = sToolTipText .. "[ICON_BULLET]";	
+		sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", pMinor:GetCoupCooldown());
+	end
+--END
 	if (iNumQuests <= 0) then
 		sToolTipText = Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_NONE_FORMAL");
 	end

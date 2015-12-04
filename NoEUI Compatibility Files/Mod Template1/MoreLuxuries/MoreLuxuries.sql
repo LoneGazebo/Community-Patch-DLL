@@ -5,11 +5,11 @@ WHERE Happiness = '4';
 -- Temple -- Amber
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest. Contains one slot for a Great Work of Art.'
+SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest.'
 WHERE Tag = 'TXT_KEY_BUILDING_TEMPLE_HELP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Faith for every 2 [ICON_CITIZEN] Citizens. Contains one slot for a Great Work of Art.'
+SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Faith for every 2 [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_BUILDING_BASILICA_HELP';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)

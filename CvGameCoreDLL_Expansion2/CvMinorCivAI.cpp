@@ -9640,6 +9640,14 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && GET_PLAYER(BARBARIAN_PLAYER).getTeam() == eConquerorTeam)
 	{
 		iNewInfluence /= 2;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes) iPlayerLoop;
+			if(ePlayer != NO_PLAYER && ePlayer != eLiberator && GET_PLAYER(ePlayer).isMajorCiv())
+			{
+				SetFriendshipWithMajor(ePlayer, 0);
+			}
+		}
 	}
 #endif
 	SetFriendshipWithMajor(eLiberator, iNewInfluence);

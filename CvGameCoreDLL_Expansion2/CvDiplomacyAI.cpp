@@ -7213,7 +7213,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				//If it has been a while since we captured a city, let's bring it down to calm.
-				if(eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10))
+				if(eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 15))
 				{
 					eWarState = WAR_STATE_CALM;
 				}
@@ -7773,22 +7773,27 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 			}
 		}
 	}
-	int iWarDuration = GetPlayerNumTurnsAtWar(ePlayer);
-	iWarDuration /= 4;
-	if(iAverageScore > 0)
-	{
-		iAverageScore -= iWarDuration;
-		if(iAverageScore < 0)
-		{
-			iAverageScore = 0;
-		}
-	}
-	else if(iAverageScore < 0)
-	{
-		iAverageScore += iWarDuration;
+	int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
+	int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
+	int iWarDuration = min(iWarDurationUs, iWarDurationThem);
+	iWarDuration /= 10;
+	if(iWarDuration > 0)
+	{	
 		if(iAverageScore > 0)
 		{
-			iAverageScore = 0;
+			iAverageScore -= iWarDuration;
+			if(iAverageScore < 0)
+			{
+				iAverageScore = 0;
+			}
+		}
+		else if(iAverageScore < 0)
+		{
+			iAverageScore += iWarDuration;
+			if(iAverageScore > 0)
+			{
+				iAverageScore = 0;
+			}
 		}
 	}
 	if(iAverageScore >= 100)
@@ -8045,24 +8050,27 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 						}
 #if defined(MOD_BALANCE_CORE)
 						// Let's consider peace if we've been fighting for a long time.
-						if( GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eLoopPlayer).getTeam()))
+						if(GetPlayerNumTurnsAtWar(eLoopPlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
-							bool bWillConsiderPeace = ((GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 10));
-							if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+							if( GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eLoopPlayer).getTeam()))
 							{
-								bWillConsiderPeace = true;
-							}
-							if(GetDiploBalance() > 7)
-							{
-								eWarGoal = WAR_GOAL_PEACE;
-							}
-							if(bWillConsiderPeace)
-							{
-								//If we aren't winning at this point, let's end the fight.
-								int iWarScore = GetWarScore(eLoopPlayer);	
-								if(iWarScore < 0)
+								bool bWillConsiderPeace = ((GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 10));
+								if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+								{
+									bWillConsiderPeace = true;
+								}
+								if(GetDiploBalance() > 7)
 								{
 									eWarGoal = WAR_GOAL_PEACE;
+								}
+								if(bWillConsiderPeace)
+								{
+									//If we aren't winning at this point, let's end the fight.
+									int iWarScore = GetWarScore(eLoopPlayer);	
+									if(iWarScore < 0)
+									{
+										eWarGoal = WAR_GOAL_PEACE;
+									}
 								}
 							}
 						}
@@ -18254,8 +18262,10 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, true, true, bUselessReferenceVariable, bCantMatchOffer); //Since it is renewal, don't change.
 				if(!bAbleToEqualize)
 				{
+					pDeal->m_bConsideringForRenewal = false;
+					pTargetDeal->m_bConsideringForRenewal = false;
 					pDeal->ClearItems();
-					ClearDealToRenew();
+					ClearDealToRenew();			
 					return;
 				}
 				else
@@ -34332,7 +34342,7 @@ FDataStream& operator>>(FDataStream& loadFrom, DeclarationLogData& writeTo)
 // AI HELPER ROUTINES
 
 #if defined(MOD_CONFIG_AI_IN_XML)
-int CvDiplomacyAIHelpers::GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital)
+int CvDiplomacyAIHelpers::GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity, PlayerTypes eWarmonger)
 #else
 int CvDiplomacyAIHelpers::GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor)
 #endif
@@ -34349,6 +34359,14 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMi
 	// if RemainingCities is 0, use iWarmongerWeight, otherwise
 	// (iWarmongerWeight / iNumCitiesRemaining) * (CapturedCityPop / (RemainingTotalPop/iNumCitiesRemaining))
 	int iWarmongerOffset = (iWarmongerWeight * iEstimatedCitiesOnMap) / (iNumCitiesRemaining * max(iActualCitiesOnMap, 1));
+	if(pCity != NULL && eWarmonger != NO_PLAYER)
+	{
+		int iNumTimesOwned(pCity->GetNumTimesOwned(eWarmonger));
+		if(iNumTimesOwned > 1)
+		{
+			iWarmongerOffset /= (iNumTimesOwned * 25);
+		}
+	}
 #else
 	int iWarmongerOffset = (1000 * iEstimatedCitiesOnMap) / (max(iActualCitiesOnMap, 1) * iNumCitiesRemaining);
 
@@ -34719,7 +34737,7 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, Playe
 #endif
 #if defined(MOD_API_EXTENSIONS)
 				CUSTOMLOG("WarmongerTimes100: Att=%i, Def=%i, 3rd=%i, Off=%i, Mod%%=%i, Agg%%=%i, App%%=%i, Total=%i", eConqueror, eConquered, eMajor, iWarmongerOffset, iWarmongerModifier, iWarmongerAggrievedModifier, iWarmongerApproachModifier, (iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000));
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000);
+				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, (iWarmongerOffset * iWarmongerModifier * iWarmongerAggrievedModifier * (100 + iWarmongerApproachModifier) / 10000));
 #else
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(eConqueror, iWarmongerOffset);
 #endif

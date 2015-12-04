@@ -8775,7 +8775,6 @@ void CvGame::updateMoves()
 
 	for(i = playersToProcess.begin(); i != playersToProcess.end(); ++i)
 	{
-		GC.getPathFinder().ForceReset();
 		CvPlayer& player = GET_PLAYER((PlayerTypes)*i);
 
 		int iReadyUnitsBeforeMoves = player.GetCountReadyUnits();

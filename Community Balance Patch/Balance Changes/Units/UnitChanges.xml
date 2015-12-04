@@ -157,6 +157,20 @@
 			<UnitType>UNIT_GUIDED_MISSILE</UnitType>
 			<PromotionType>PROMOTION_HEAVY_PAYLOAD</PromotionType>
 		</Row>
+		<!-- Paratroop and Marine-->
+		<Row>
+			<UnitType>UNIT_MARINE</UnitType>
+			<PromotionType>PROMOTION_KNOCKOUT_I</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_PARATROOPER</UnitType>
+			<PromotionType>PROMOTION_KNOCKOUT_II</PromotionType>
+		</Row>
+		<!-- Helicopter -->
+		<Row>
+			<UnitType>UNIT_HELICOPTER_GUNSHIP</UnitType>
+			<PromotionType>PROMOTION_ANTI_GUNPOWDER</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
 	<Unit_AITypes>
 		<Row>

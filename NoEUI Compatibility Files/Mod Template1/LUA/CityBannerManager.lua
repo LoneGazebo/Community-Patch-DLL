@@ -188,6 +188,11 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if (city:IsCapital() and not player:IsMinorCiv()) then
 			convertedKey = "[ICON_CAPITAL]" .. convertedKey;
 		end
+		--CBP
+		if(city:IsCapital() and player:IsMinorCiv() and player:IsMarried(iActivePlayer))then
+			convertedKey = "[ICON_RES_MARRIAGE]" .. convertedKey;
+		end
+		--END
 		
 		controls.CityName:SetText(convertedKey);
 		

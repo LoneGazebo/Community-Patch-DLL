@@ -93,6 +93,10 @@ UPDATE Buildings
 SET GreatWorkCount = '1'
 WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
+UPDATE Buildings
+SET GoldenAge = 'true'
+WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
 -- Move Bomb Shelter
 UPDATE Buildings
 SET PrereqTech = 'TECH_ADVANCED_BALLISTICS'
@@ -274,7 +278,7 @@ SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People 
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces [ICON_HAPPINESS_3] Boredom. A city must have a Colosseum before it can construct a Circus Maximus. Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. A city must have a Colosseum before it can construct a Circus Maximus. Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -286,11 +290,11 @@ SET Text = 'The School of Philosophy National Wonder produces +1 [ICON_RESEARCH]
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Ironworks National Wonder increases [ICON_PRODUCTION] Production in a city by 10 [ICON_PRODUCTION]. A city must have a Forge before it can construct an Ironworks. Requires a national population of at least 45 before it can be constructed.'
+SET Text = 'The Ironworks National Wonder increases [ICON_PRODUCTION] Production in a city by 10, and generates [ICON_RESEARCH] Science every time you construct a building. A city must have a Forge before it can construct an Ironworks. Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy by 2. The city must have a university before it can construct Oxford University. Requires a national population of at least 55 before it can be constructed.'
+SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy by 2. +50 [ICON_CULTURE] Culture every time you research a Technology. The city must have a university before it can construct Oxford University. Requires a national population of at least 55 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -302,7 +306,7 @@ SET Text = 'An important defensive National Wonder for a technology-driven civil
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'An important building for a civilization trying to spread their religion world-wide from an empire with few, populous cities. A city must have a Temple before it can construct the Grand Temple. Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'An important building for a civilization trying to spread their religion world-wide from an empire with few, populous cities. A Golden Age begins when constructed. A city must have a Temple before it can construct the Grand Temple. Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -320,7 +324,7 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Conta
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in the city.[NEWLINE][NEWLINE] Requires a national population of at least 30 before it can be constructed.'
+SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in the city.[NEWLINE][NEWLINE] Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -332,11 +336,11 @@ SET Text = 'Must have built a Library in the city.[NEWLINE][NEWLINE]+1 [ICON_RES
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Forge in the city.[NEWLINE][NEWLINE]Requires a national population of at least 45 before it can be constructed.'
+SET Text = '+50 [ICON_RESEARCH] Science when you construct a building in this City. Bonus scales with Era. Must have built a Forge in the city.[NEWLINE][NEWLINE]Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. A Great Scientist appears near the City. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed. [NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
+SET Text = 'A Great Scientist appears near the City. +50 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for Great Works of Writing. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed. [NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -348,7 +352,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and lev
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

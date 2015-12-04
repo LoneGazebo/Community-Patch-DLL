@@ -542,7 +542,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	bool bMustNaval = (IsMixedLandNavalOperation() || IsAllNavalOperation());
 	if(bMustNaval)
 	{
-		bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(pMusterPlot, pTargetPlot);
+		bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
 	}
 
 	int iDistance = 1000;
@@ -602,7 +602,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	bool bMustNaval = (IsMixedLandNavalOperation() || IsAllNavalOperation());
 	if(bMustNaval)
 	{
-		bool bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(pMusterPlot, pTargetPlot);
+		bool bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
 		CvPlot* pNavalMuster = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMusterPlot, NULL);
 		CvPlot* pNavalTarget = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetPlot, NULL);
 
@@ -621,8 +621,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			return false;
 		}
 
-		GC.GetInternationalTradeRouteWaterFinder().SetData(NULL,23,INT_MAX);
-		if (GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY(), true))
+		SPathFinderUserData data(m_eOwner,PT_GENERIC_ANY_AREA,m_eEnemy);
+		if (GC.GetStepFinder().GeneratePath(pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY(), data))
 		{
 			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
@@ -792,21 +792,14 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosit
 
 	// prepare the stepfinder
 	int iNumUnits = pArmy->GetNumSlotsFilled();
-	GC.getStepFinder().SetData(&m_eEnemy);
-	GC.getStepFinder().SetDestValidFunc(NULL);
-	GC.getStepFinder().SetValidFunc(iNumUnits>4 ? StepValidWideAnyArea : StepValidAnyArea);
+	SPathFinderUserData data(m_eOwner, iNumUnits>4 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, m_eEnemy);
 
 	// use the step path finder to compute distance
-	bool bFound = GC.getStepFinder().GeneratePath(pCurrentPosition->getX(), pCurrentPosition->getY(), pTarget->getX(), pTarget->getY(), m_eOwner, false);
-
-	// restore the stepfinder
-	GC.getStepFinder().SetValidFunc(StepValid);
-	GC.getStepFinder().SetDestValidFunc(StepDestValid);
-
+	bool bFound = GC.GetStepFinder().GeneratePath(pCurrentPosition->getX(), pCurrentPosition->getY(), pTarget->getX(), pTarget->getY(), data);
 	if (!bFound)
 		return NULL;
 	
-	SPath path = GC.getStepFinder().GetPath();
+	SPath path = GC.GetStepFinder().GetPath();
 	if (path.vPlots.empty())
 		return NULL;
 
@@ -826,18 +819,15 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrent
 
 	// prepare the stepfinder
 	int iNumUnits = pArmy->GetNumSlotsFilled();
-	GC.getStepFinder().SetData(&m_eEnemy);
-	GC.getStepFinder().SetDestValidFunc(NULL);
-	GC.getStepFinder().SetValidFunc(iNumUnits>4 ? StepValidWideAnyArea : StepValidAnyArea);
+	SPathFinderUserData data(m_eOwner, iNumUnits>4 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, m_eEnemy);
 
 	// use the step path finder to compute distance
-	int iDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pCurrentPosition, pTarget);
+	if (GC.GetStepFinder().DoesPathExist(pCurrentPosition, pTarget, data))
+	{
+		return GC.GetStepFinder().GetPathLength();
+	}
 
-	// restore the stepfinder
-	GC.getStepFinder().SetValidFunc(StepValid);
-	GC.getStepFinder().SetDestValidFunc(StepDestValid);
-
-	return iDistance;
+	return 0;
 }
 
 /// See if armies are ready to hand off units to the tactical AI (and do so if ready)
@@ -1090,31 +1080,32 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_GATHERING_FORCES:
 						{
-							if(bCivilian)
+							if(bCivilian && pCivilian)
 							{
-								if(pCivilian)
+								pCivilianPlot = pCivilian->plot();
+								//there may be multiple escorts ...
+								for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
 								{
-									pCivilianPlot = pCivilian->plot();
-									if(pCivilianPlot != NULL)
+									pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
+									if (pEscort && pCivilianPlot == pEscort->plot())
 									{
-										//there may be multiple escorts ...
-										for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
+										int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+										pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+										if(pCenterOfMass && GetMusterPlot() &&
+											plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+											pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
 										{
-											pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
-											if (pEscort && pCivilianPlot == pEscort->plot())
-											{
-												int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-												pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-												if(pCenterOfMass && GetMusterPlot() &&
-													plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-													pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
-												{
-													pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-													m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-												}
-											}
+											pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+											m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 										}
 									}
+								}
+
+								//apparently it can also happen that the civilian is all alone
+								if (pThisArmy->GetNumSlotsFilled()==1)
+								{
+									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 								}
 							}
 							else
@@ -1133,19 +1124,13 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_MOVING_TO_TARGET:
 						{
-							if(bCivilian)
+							if(bCivilian && pCivilian)
 							{
-								if(pCivilian)
+								pCivilianPlot = pCivilian->plot();
+								if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
 								{
-									pCivilianPlot = pCivilian->plot();
-									if(pCivilianPlot != NULL)
-									{
-										if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
-										{
-											pAIOp->ArmyInPosition(pThisArmy);
-											return true;
-										}
-									}
+									pAIOp->ArmyInPosition(pThisArmy);
+									return true;
 								}
 							}
 							else
@@ -2340,7 +2325,20 @@ CvPlot* CvAIOperation::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 		if(pStartCityPlot != NULL)
 		{
 			// Generate a step path from our start to the target
-			pMusterPt = GC.getStepFinder().GetLastOwnedPlot(GetOwner(), GetEnemy(), pStartCityPlot, pThisArmy->GetGoalPlot());
+			int iNumUnits = pThisArmy->GetNumSlotsFilled();
+			SPathFinderUserData data(m_eOwner, iNumUnits>4 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, m_eEnemy);
+
+			if ( GC.GetStepFinder().DoesPathExist( pStartCityPlot, pThisArmy->GetGoalPlot(), data ) )
+			{
+				SPath path = GC.GetStepFinder().GetPath();
+				//start with the second plot and walk until we leave or own territory
+				for (size_t i=2; i<path.vPlots.size(); i++)
+				{
+					CvPlot* pPlot = GC.getMap().plot( path.vPlots[i].first, path.vPlots[i].second );
+					if (pPlot->getOwner()!=m_eOwner)
+						pMusterPt = GC.getMap().plot( path.vPlots[i-2].first, path.vPlots[i-2].second );
+				}
+			}
 
 			// Should find a space we own
 			if(pMusterPt == NULL)
@@ -2399,7 +2397,7 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 		std::stable_sort(kSearchList.begin(), kSearchList.end());
 
 		int iBestDistance = MAX_INT;
-		CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();
+		CvIgnoreUnitsPathFinder& kPathFinder = GC.GetIgnoreUnitsPathFinder();
 		for (CvOperationSearchUnitList::iterator itr = kSearchList.begin(); itr != kSearchList.end(); ++itr)
 		{
 			CvUnit *pkLoopUnit = (*itr).GetUnit();
@@ -2869,10 +2867,10 @@ CvPlot* CvAIOperationEnemyTerritory::SelectInitialMusterPoint(CvArmyAI* pThisArm
 			CvAStarNode* pNode;
 
 			// Generate path
-			GC.getStepFinder().SetData(&m_eEnemy);
-			if(GC.getStepFinder().GeneratePath(pStartCityPlot->getX(), pStartCityPlot->getY(), pThisArmy->GetGoalPlot()->getX(), pThisArmy->GetGoalPlot()->getY(), m_eOwner, false))
+			SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+			if(GC.GetStepFinder().GeneratePath(pStartCityPlot->getX(), pStartCityPlot->getY(), pThisArmy->GetGoalPlot()->getX(), pThisArmy->GetGoalPlot()->getY(), data))
 			{
-				pNode = GC.getStepFinder().GetLastNode();
+				pNode = GC.GetStepFinder().GetLastNode();
 
 				// Starting at the end, loop until we find a plot from this owner
 				while(pNode != NULL)
@@ -3046,7 +3044,7 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 				SetDefaultArea(GetMusterPlot()->getArea());
 				// Reset our destination to be a few plots shy of the final target
 				CvPlot* pDeployPt;
-				pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), GetMusterPlot(), GetTargetPlot(), (GetDeployRange() / 2), true);
+				pDeployPt = GC.GetStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), GetMusterPlot(), GetTargetPlot(), (GetDeployRange() / 2), true);
 				if (pDeployPt)
 				{
 					pArmyAI->SetGoalPlot(pDeployPt);
@@ -3416,7 +3414,7 @@ bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 			// If we're traveling on a single continent, set our destination to be a few plots shy of the final target
 			if (pArmy->GetArea() == possibleBetterTarget->getArea())
 			{
-				CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), possibleBetterTarget, GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
+				CvPlot* pDeployPt = GC.GetStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), possibleBetterTarget, GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
 				if(pDeployPt != NULL)
 				{
 					pArmy->SetGoalPlot(pDeployPt);
@@ -3658,7 +3656,7 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 		{
 			if (pLoopUnit->GetOriginalOwner() == m_eOwner && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST))
 			{
-				iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pStartCity->plot());
+				iCurPlotDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pStartCity->plot());
 				if (iCurPlotDistance < iBestPlotDistance)
 				{
 					pBestPlot = pLoopUnit->plot();
@@ -3683,7 +3681,7 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 						// Make sure camp is in the same area as our start city
 						//if (pPlot->getArea() == pStartCity->getArea())
 						{
-							iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pPlot, pStartCity->plot());
+							iCurPlotDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pPlot, pStartCity->plot());
 
 							if (iCurPlotDistance < iBestPlotDistance)
 							{
@@ -3750,7 +3748,7 @@ bool CvAIOperationPillageEnemy::VerifyTarget(CvArmyAI* pArmy)
 #else
 			// Reset our destination to be a few plots shy of the final target
 			CvPlot* pDeployPt;
-			pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), pBetterTarget, GC.getAI_OPERATIONAL_PILLAGE_ENEMY_DEPLOY_RANGE(), false);
+			pDeployPt = GC.GetStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), pBetterTarget, GC.getAI_OPERATIONAL_PILLAGE_ENEMY_DEPLOY_RANGE(), false);
 			pArmy->SetGoalPlot(pDeployPt);
 #endif
 		}
@@ -4138,7 +4136,7 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 
 		//may be null!
 		CvUnit* pEscort = GET_PLAYER(m_eOwner).getUnit(pArmy->GetNextUnitID());
-		if(pEscort && !pEscort->GeneratePath(pBetterTarget, MOVE_UNITS_IGNORE_DANGER, false))
+		if(pEscort && !pEscort->GeneratePath(pBetterTarget, CvUnit::MOVEFLAG_IGNORE_DANGER, false))
 		{
 			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 			m_eAbortReason = AI_ABORT_NO_TARGET;
@@ -4254,9 +4252,10 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 						}
 
 						//todo: check if the city is in danger first?
-						bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
+						SPathFinderUserData data( pOurCivilian, 0, iBestTurns );
+						bool bCanFindPath = GC.GetPathFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), data);
 
-						int iTurns = bCanFindPath ? GC.getPathFinder().GetPathLength() : INT_MAX;
+						int iTurns = bCanFindPath ? GC.GetPathFinder().GetPathLength() : INT_MAX;
 						if(iTurns < iBestTurns)
 						{
 							iBestTurns = iTurns;
@@ -5863,10 +5862,10 @@ CvPlot* CvAIOperationNaval::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 				if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
 				{
 					// Generate path
-					GC.getStepFinder().SetData(&m_eEnemy);
-					if(GC.getStepFinder().GeneratePath(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pThisArmy->GetGoalPlot()->getX(), pThisArmy->GetGoalPlot()->getY(), m_eOwner, false))
+					SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+					if(GC.GetStepFinder().GeneratePath(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pThisArmy->GetGoalPlot()->getX(), pThisArmy->GetGoalPlot()->getY(), data))
 					{
-						pNode = GC.getStepFinder().GetLastNode();
+						pNode = GC.GetStepFinder().GetLastNode();
 
 						// Starting at the end, loop until we find a plot from this owner
 						while(pNode != NULL)
@@ -6144,7 +6143,7 @@ bool CvAIOperationNavalBombardment::ArmyInPosition(CvArmyAI* pArmy)
 			pArmy->SetGoalPlot(GetTargetPlot());
 			SetTargetPlot(GetTargetPlot());
 #else
-			CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), possibleBetterTarget, GetDeployRange(), false);
+			CvPlot* pDeployPt = GC.GetStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), possibleBetterTarget, GetDeployRange(), false);
 
 
 			if(pDeployPt != NULL)
@@ -6217,9 +6216,10 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
 						// Water path between muster point and target?
-						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+						SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+						if(GC.GetStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data))
 						{
-							iCurrentTurns = GC.getStepFinder().GetPathLength();
+							iCurrentTurns = GC.GetStepFinder().GetPathLength();
 							if(iCurrentTurns < iBestPlotDistance)
 							{
 								pBestTarget = pLoopUnit->plot();
@@ -6241,9 +6241,10 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 							if(pCoastal != NULL)
 							{
 								// Water path between muster point and target?
-								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+								SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+								if(GC.GetStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data))
 								{
-									iCurrentTurns = GC.getStepFinder().GetPathLength();
+									iCurrentTurns = GC.GetStepFinder().GetPathLength();
 									if(iCurrentTurns < iBestPlotDistance)
 									{
 										pBestTarget = pLoopUnit->plot();
@@ -9705,11 +9706,15 @@ bool CvAIOperationDestroyBarbarianCamp::VerifyTarget(CvArmyAI* pArmy)
 			// If we're traveling on a single continent, set our destination to be a few plots shy of the final target
 			if (pArmy->GetArea() == GetTargetPlot()->getArea())
 			{
-				CvPlot* pDeployPt = GC.getStepFinder().GetXPlotsFromEnd(GetOwner(), GetEnemy(), pArmy->Plot(), GetTargetPlot(), GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
-				if(pDeployPt != NULL)
+				SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+				if (GC.GetStepFinder().DoesPathExist( pArmy->Plot(), GetTargetPlot(), data ))
 				{
-					pArmy->SetGoalPlot(pDeployPt);
-					SetTargetPlot(GetTargetPlot());
+					CvPlot* pDeployPt = GC.GetStepFinder().GetXPlotsFromEnd(GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
+					if(pDeployPt != NULL)
+					{
+						pArmy->SetGoalPlot(pDeployPt);
+						SetTargetPlot(GetTargetPlot());
+					}
 				}
 			}
 			else
@@ -9757,7 +9762,7 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	else if ( pTargetPlot==NULL || 
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
 		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
-		!pCivilian->GeneratePath(pTargetPlot, MOVE_TERRITORY_NO_ENEMY, false) )
+		!pCivilian->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false) )
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -9928,7 +9933,7 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 }
 #if defined(MOD_BALANCE_CORE)
 /// Find the barbarian camp we want to eliminate
-CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
+CvPlot* OperationalAIHelpers::FindBestBarbarianBombardmentTarget(PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER)
 	{
@@ -9957,9 +9962,10 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
 						// Water path between muster point and target?
-						if(GC.getStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+						SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, BARBARIAN_PLAYER );
+						if(GC.GetStepFinder().GeneratePath(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data))
 						{
-							iCurrentTurns = GC.getStepFinder().GetPathLength();
+							iCurrentTurns = GC.GetStepFinder().GetPathLength();
 							if(iCurrentTurns < iBestPlotDistance)
 							{
 								pBestTarget = pLoopUnit->plot();
@@ -9981,9 +9987,10 @@ CvPlot* OperationalAIHelpers::FindBestBombardmentTarget(PlayerTypes ePlayer)
 							if(pCoastal != NULL)
 							{
 								// Water path between muster point and target?
-								if(GC.getStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY()))
+								SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, BARBARIAN_PLAYER );
+								if(GC.GetStepFinder().GeneratePath(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data))
 								{
-									iCurrentTurns = GC.getStepFinder().GetPathLength();
+									iCurrentTurns = GC.GetStepFinder().GetPathLength();
 									if(iCurrentTurns < iBestPlotDistance)
 									{
 										pBestTarget = pLoopUnit->plot();
@@ -10290,32 +10297,32 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 }
 
 
-bool OperationalAIHelpers::NeedOceanMoves(CvPlot* pMusterPlot, CvPlot* pTargetPlot)
+bool OperationalAIHelpers::NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot)
 {
-	CvAStarNode* pPathfinderNode;
-	// Water path between muster point and target?
-	if(GC.getStepFinder().GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()))
+	SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, NO_PLAYER );
+	data.iFlags = CvUnit::MOVEFLAG_NO_OCEAN;
+	if(GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 	{
-		pPathfinderNode = GC.getStepFinder().GetLastNode();
-		// Starting at the end, loop until we find a plot from this owner
-		while(pPathfinderNode != NULL)
+		//ok, so we can go there without ocean ... but is it much longer?
+		int iNoOceanLength = GC.GetStepFinder().GetPathLength();
+
+		//reset the flag
+		data.iFlags = 0;
+
+		//should if this doesn't work, something is broken ...
+		if (GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 		{
-			CvPlot* pCurrentPlot = NULL;
-			pCurrentPlot = GC.getMap().plotCheckInvalid(pPathfinderNode->m_iX, pPathfinderNode->m_iY);
-
-			// Check and see if this plot is ocean
-			if(pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater() && !pCurrentPlot->isLake())
-			{
-				return true;
-			}
-
-			pPathfinderNode = pPathfinderNode->m_pParent;
+			int iOceanLength = GC.GetStepFinder().GetPathLength();
+			return (iNoOceanLength > iOceanLength*2);
+		}
+		else
+		{
+			return true;
 		}
 	}
 	else
 	{
 		return true;
 	}
-	return false;
 }
 #endif

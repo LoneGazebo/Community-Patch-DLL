@@ -98,16 +98,6 @@ CvGlobals::CvGlobals() :
 	m_interfacePathFinder(NULL),
 	m_ignoreUnitsPathFinder(NULL),
 	m_stepFinder(NULL),
-	m_routeFinder(NULL),
-	m_waterRouteFinder(NULL),
-	m_areaFinder(NULL),
-	m_influenceFinder(NULL),
-	m_buildRouteFinder(NULL),
-	m_internationalTradeRouteLandFinder(NULL),
-	m_internationalTradeRouteWaterFinder(NULL),
-#if defined(MOD_CORE_PATHFINDER)
-	m_rebasePathFinder(NULL),
-#endif
 	m_pDLL(NULL),
 	m_pEngineUI(NULL),
 
@@ -1416,7 +1406,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(TRADE_ROUTE_BASE_PRODUCTION_VALUE, 300),
 	GD_INT_INIT(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100, 200),
 	GD_INT_INIT(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE, 50),
-	GD_INT_INIT(TRADE_ROUTE_RIVER_CITY_MODIFIER, 25),
+	GD_INT_INIT(TRADE_ROUTE_RIVER_CITY_MODIFIER, 15),
 	GD_INT_INIT(TRADE_ROUTE_BASE_PLUNDER_GOLD, 100),
 	GD_INT_INIT(TRADE_ROUTE_PLUNDER_TURNS_COUNTER, 30),
 	GD_INT_INIT(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA, 3),
@@ -2595,34 +2585,16 @@ void CvGlobals::init()
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
 	memcpy(m_aaiXYCityPlot, aaiXYCityPlot, sizeof(m_aaiXYCityPlot));
 
-	setPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	setInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	setIgnoreUnitsPathFinder(FNEW(CvIgnoreUnitsPathFinder, c_eCiv5GameplayDLL, 0));
-	setStepFinder(FNEW(CvStepPathFinder, c_eCiv5GameplayDLL, 0));
-	setRouteFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	SetWaterRouteFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	setAreaFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	setInfluenceFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	SetBuildRouteFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	SetInternationalTradeRouteLandFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-	SetInternationalTradeRouteWaterFinder(FNEW(CvAStar, c_eCiv5GameplayDLL, 0));
-#if defined(MOD_CORE_PATHFINDER)
-	SetRebasePathFinder(FNEW(CvIgnoreUnitsPathFinder, c_eCiv5GameplayDLL, 0));
-#endif
+	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
+	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
+	SetIgnoreUnitsPathFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
+	SetStepFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
 
 #if defined(MOD_BALANCE_CORE)
-	getPathFinder().SetName("generic pf");
-	getInterfacePathFinder().SetName("iface pf");
-	getIgnoreUnitsPathFinder().SetName("ignore units pf");
-	getStepFinder().SetName("stepfinder");
-	getRouteFinder().SetName("routefinder");
-	GetRebasePathfinder().SetName("rebasefinder");
-	GetWaterRouteFinder().SetName("water routefinder");
-	getAreaFinder().SetName("area finder");
-	getInfluenceFinder().SetName("influence finder");
-	GetBuildRouteFinder().SetName("build route finder");
-	GetInternationalTradeRouteLandFinder().SetName("tr land finder");
-	GetInternationalTradeRouteWaterFinder().SetName("tr water finder");
+	GetPathFinder().SetName("generic pf");
+	GetInterfacePathFinder().SetName("iface pf");
+	GetIgnoreUnitsPathFinder().SetName("ignore units pf");
+	GetStepFinder().SetName("stepfinder");
 #endif
 
 }
@@ -2676,32 +2648,12 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_interfacePathFinder);
 	SAFE_DELETE(m_ignoreUnitsPathFinder);
 	SAFE_DELETE(m_stepFinder);
-	SAFE_DELETE(m_routeFinder);
-	SAFE_DELETE(m_waterRouteFinder);
-	SAFE_DELETE(m_areaFinder);
-	SAFE_DELETE(m_influenceFinder);
-	SAFE_DELETE(m_buildRouteFinder);
-	SAFE_DELETE(m_internationalTradeRouteLandFinder);
-	SAFE_DELETE(m_internationalTradeRouteWaterFinder);
-#if defined(MOD_CORE_PATHFINDER)
-	SAFE_DELETE(m_rebasePathFinder);
-#endif
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
 	m_interfacePathFinder=NULL;
 	m_ignoreUnitsPathFinder=NULL;
 	m_stepFinder=NULL;
-	m_routeFinder=NULL;
-	m_waterRouteFinder=NULL;
-	m_areaFinder=NULL;
-	m_influenceFinder=NULL;
-	m_buildRouteFinder = NULL;
-	m_internationalTradeRouteLandFinder = NULL;
-	m_internationalTradeRouteWaterFinder = NULL;
-#if defined(MOD_CORE_PATHFINDER)
-	m_rebasePathFinder = NULL;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -2765,67 +2717,26 @@ CvRandom& CvGlobals::getASyncRand()
 	return *m_asyncRand;
 }
 
-CvTwoLayerPathFinder& CvGlobals::getPathFinder()
+CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
 {
 	return *m_pathFinder;
 }
 
-CvTwoLayerPathFinder& CvGlobals::getInterfacePathFinder()
+CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
 {
 	return *m_interfacePathFinder;
 }
 
-CvIgnoreUnitsPathFinder& CvGlobals::getIgnoreUnitsPathFinder()
+CvPathFinder& CvGlobals::GetIgnoreUnitsPathFinder()
 {
 	return *m_ignoreUnitsPathFinder;
 }
 
-CvStepPathFinder& CvGlobals::getStepFinder()
+CvPathFinder& CvGlobals::GetStepFinder()
 {
 	return *m_stepFinder;
 }
 
-CvAStar& CvGlobals::getRouteFinder()
-{
-	return *m_routeFinder;
-}
-
-CvAStar& CvGlobals::GetWaterRouteFinder()
-{
-	return *m_waterRouteFinder;
-}
-
-CvAStar& CvGlobals::getAreaFinder()
-{
-	return *m_areaFinder;
-}
-
-CvAStar& CvGlobals::getInfluenceFinder()
-{
-	return *m_influenceFinder;
-}
-
-CvAStar& CvGlobals::GetBuildRouteFinder()
-{
-	return *m_buildRouteFinder;
-}
-
-CvAStar& CvGlobals::GetInternationalTradeRouteLandFinder()
-{
-	return *m_internationalTradeRouteLandFinder;
-}
-
-CvAStar& CvGlobals::GetInternationalTradeRouteWaterFinder()
-{
-	return *m_internationalTradeRouteWaterFinder;
-}
-
-#if defined(MOD_CORE_PATHFINDER)
-CvIgnoreUnitsPathFinder& CvGlobals::GetRebasePathfinder()
-{
-	return *m_rebasePathFinder;
-}
-#endif
 
 ICvDLLDatabaseUtility1* CvGlobals::getDatabaseLoadUtility()
 {
@@ -7087,56 +6998,24 @@ void CvGlobals::SetGraphicsInitialized(bool bVal)
 {
 	m_bGraphicsInitialized = bVal;
 }
-void CvGlobals::setPathFinder(CvTwoLayerPathFinder* pVal)
+
+void CvGlobals::SetPathFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_pathFinder = pVal;
 }
-void CvGlobals::setInterfacePathFinder(CvTwoLayerPathFinder* pVal)
+void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_interfacePathFinder = pVal;
 }
-void CvGlobals::setIgnoreUnitsPathFinder(CvIgnoreUnitsPathFinder* pVal)
+void CvGlobals::SetIgnoreUnitsPathFinder(CvPathFinder* pVal)
 {
 	m_ignoreUnitsPathFinder = pVal;
 }
-void CvGlobals::setStepFinder(CvStepPathFinder* pVal)
+void CvGlobals::SetStepFinder(CvPathFinder* pVal)
 {
 	m_stepFinder = pVal;
 }
-void CvGlobals::setRouteFinder(CvAStar* pVal)
-{
-	m_routeFinder = pVal;
-}
-void CvGlobals::SetWaterRouteFinder(CvAStar* pVal)
-{
-	m_waterRouteFinder = pVal;
-}
-void CvGlobals::setAreaFinder(CvAStar* pVal)
-{
-	m_areaFinder = pVal;
-}
-void CvGlobals::setInfluenceFinder(CvAStar* pVal)
-{
-	m_influenceFinder = pVal;
-}
-void CvGlobals::SetBuildRouteFinder(CvAStar* pVal)
-{
-	m_buildRouteFinder = pVal;
-}
-void CvGlobals::SetInternationalTradeRouteLandFinder(CvAStar* pVal)
-{
-	m_internationalTradeRouteLandFinder = pVal;
-}
-void CvGlobals::SetInternationalTradeRouteWaterFinder(CvAStar* pVal)
-{
-	m_internationalTradeRouteWaterFinder = pVal;
-}
-#if defined(MOD_CORE_PATHFINDER)
-void CvGlobals::SetRebasePathFinder(CvIgnoreUnitsPathFinder* pVal)
-{
-	m_rebasePathFinder = pVal;
-}
-#endif
+
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)
 {
 	m_bOutOfSyncDebuggingEnabled = isEnabled;

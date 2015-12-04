@@ -190,6 +190,20 @@
 	SET ObsoleteTech = 'TECH_NANOTECHNOLOGY'
 	WHERE Type = 'UNIT_PARATROOPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Language_en_US
+	SET Text = 'Strong infantry Unit capable of paradropping up to 5 tiles from friendly territory. Paratrooper can also move and pillage after paradropping, but cannot enter combat until the following turn. Has a combat bonus versus Siege units.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_PARATROOPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Marine Bonus
+
+	UPDATE Language_en_US
+	SET Text = 'Atomic Era Unit especially useful for embarking and invading across the sea as well as taking out Gun (Melee) units.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_MARINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Marine is an alternative to Infantry. It costs a bit less than Infantry, and has lower base Combat Strength, but possesses promotions that enhance its Sight and attack strength when embarked at sea. Is also stronger versus Gun (Melee) units.'
+	WHERE Tag = 'TXT_KEY_UNIT_MARINE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Scout Obsolete at Astronomy
 
 	UPDATE Units
@@ -1583,7 +1597,7 @@
 	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'The Guerilla is unique to the Order Ideology. The Guerilla is cheaper and less innately strong than other units of its era, however it has a unique collection of promotions that make it quite powerful. It recieves a combat bonus versus wounded units and when flanking, and can move through all terrain and zones of control without incurring movement penalties. Lastly, it heals rapidly in friendly territory.'
+	SET Text = 'The Guerilla is unique to the Order Ideology. The Guerilla is cheaper and less innately strong than other units of its era, however it has a unique collection of promotions that make it quite powerful. It receives a combat bonus versus wounded units and when flanking, and can move through all terrain and zones of control without incurring movement penalties. Lastly, it heals rapidly in friendly territory.'
 	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

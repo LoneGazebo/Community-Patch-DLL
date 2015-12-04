@@ -1965,7 +1965,7 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital);
+	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital);

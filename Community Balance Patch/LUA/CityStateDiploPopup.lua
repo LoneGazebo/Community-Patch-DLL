@@ -209,7 +209,14 @@ function OnDisplay()
 	Controls.StatusIconBG:SetToolTipString(strStatusTT);
 	Controls.PositiveStatusMeter:SetToolTipString(strStatusTT);
 	Controls.NegativeStatusMeter:SetToolTipString(strStatusTT);
-	
+-- CBP
+	Controls.MarriedButton:SetHide(true);
+	if(pPlayer:IsMarried(iActivePlayer))then
+		Controls.MarriedButton:SetHide(false);
+		Controls.MarriedButton:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_SMALL"))
+		Controls.MarriedButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT"))
+	end
+-- END
 	-- Trait
 	local strTraitText = GetCityStateTraitText(iPlayer);
 	local strTraitTT = GetCityStateTraitToolTip(iPlayer);

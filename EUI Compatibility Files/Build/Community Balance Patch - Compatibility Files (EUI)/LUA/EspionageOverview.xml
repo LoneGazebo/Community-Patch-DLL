@@ -129,8 +129,8 @@
 						<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 						<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 						<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
-            <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
-       		</Box>
+						<Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+       				</Box>
 					<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
 				<Box Size="161,25" Color="0,0,0,0">
@@ -139,7 +139,14 @@
 					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
 					<Button Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" NoStateChange="1" ID="ViewCityIcon"/>
 <!-- CBP Entry -->
-		  <Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+						<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Box>
+					<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 <!-- END -->
 					<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
@@ -150,6 +157,9 @@
 					<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 					<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" Size="22,22"/>
+					<!-- CBP -->
+					<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+					<!-- END -->
 				</Box>
 				<Box Size="80,25" Color="0,0,0,0">
 					<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
@@ -183,6 +193,13 @@
 						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
 <!-- CBP Entry -->
 						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+							<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Box>
+						<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 <!-- END -->
 						<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					</Box>
@@ -193,6 +210,9 @@
 						<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 						<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 						<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" Size="22,22"/>
+						<!-- CBP -->
+						<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+						<!-- END -->
 					</Box>
 					<Box Size="80,25" Color="0,0,0,0">
 						<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>

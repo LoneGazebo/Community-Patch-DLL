@@ -70,7 +70,7 @@ void CvCitySiteEvaluator::Init()
 
 /// Is it valid for this player to found a city here?
 #if defined(MOD_BALANCE_CORE)
-bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
+bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit, bool bForce) const
 #else
 bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 #endif
@@ -106,7 +106,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 					return false;
 				}
 			}
-			else
+			else if(!bForce)
 			{
 				return false;
 			}
@@ -123,7 +123,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 					return false;
 				}
 			}
-			else
+			else if(!bForce)
 			{
 				return false;
 			}
@@ -251,7 +251,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 {
 	// Set all to 0
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
 	{
 		m_iFlavorMultiplier[iI] = 0;
 	}
@@ -326,7 +326,7 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 	}
 
 	// Make sure none are negative
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
 	{
 		if(m_iFlavorMultiplier[iI] < 0)
 		{
@@ -337,6 +337,13 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 	// Set tradable resources and strategic value to times 10 (so multiplying this by the number of map gives a number from 1 to 100)
 	m_iFlavorMultiplier[SITE_EVALUATION_RESOURCES] = 10;
 	m_iFlavorMultiplier[SITE_EVALUATION_STRATEGIC] = 10;
+
+	// Important: To make sure the resulting scores are comparable, we need to L1 normalize this vector (to 100)
+	float fSum = 0;
+	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
+		fSum += m_iFlavorMultiplier[i];
+	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
+		m_iFlavorMultiplier[i] = int(0.5f + m_iFlavorMultiplier[i]/fSum * 100);
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
@@ -395,7 +402,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
-	int iDefaultPlotValue = -100;
+	int iDefaultPlotValue = -200;
 
 	int iBorderlandRange = 6;
 	int iCapitalArea = NULL;
@@ -623,6 +630,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		SPlotWithScore& ref = workablePlots[idx];
 		iTotalPlotValue += ref.score;
 	}
+
+	if (iTotalPlotValue<0)
+		return 0;
 	
 	//civ-specific bonuses
 	if (pPlayer)

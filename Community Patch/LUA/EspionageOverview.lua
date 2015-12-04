@@ -1034,9 +1034,8 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 -- CBP EDIT
 		local pPlayer = Players[cityInfo.PlayerID];
 		local pCity = pPlayer:GetCityByID(cityInfo.CityID);
+		entry.CapitalCityIcon:SetHide(true);
 		if(pCity ~= nil) then
-			entry.CapitalCityIcon:SetHide(true);
-			entry.CapitalCityIcon:SetToolTipString(nil);
 			if(pCity:IsCapital())then
 				if (GameInfo.Civilizations[cityInfo.CivilizationType].Type ~= "CIVILIZATION_MINOR") then
 					entry.CapitalCityIcon:SetHide(false);	
@@ -1207,15 +1206,38 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		entry.CivilizationName:SetText(cityInfo.CivilizationName);
 		entry.CivilizationName:SetAlpha(1.0);
 -- CBP EDIT
-		local pPlayer = Players[cityInfo.PlayerID];
-		local pCity = pPlayer:GetCityByID(cityInfo.CityID);
-		if(pCity ~= nil) then
-			entry.CapitalCityIcon:SetHide(true);
-			entry.CapitalCityIcon:SetToolTipString(nil);
-			if(pCity:IsCapital())then
-				if (GameInfo.Civilizations[cityInfo.CivilizationType].Type ~= "CIVILIZATION_MINOR") then
-					entry.CapitalCityIcon:LocalizeAndSetToolTip("TXT_KEY_CAPITAL_CBP_SPY", cityInfo.Name, cityInfo.CivilizationNameKey);
-					entry.CapitalCityIcon:SetHide(false);	
+		entry.CapitalCityIcon:SetHide(true);
+		entry.AllyIcon:SetHide(true);
+		entry.AllyIconBG:SetHide(true);
+		entry.AllyIconShadow:SetHide(true);
+		entry.AllyIconHighlight:SetHide(true);
+		entry.AllyName:SetHide(true);
+		local strAllyToolTip = "";
+		if(cityInfo ~= nil) then
+			local pPlayer = Players[cityInfo.PlayerID];
+			if (pPlayer ~= nil) then
+				local pCity = pPlayer:GetCityByID(cityInfo.CityID);		
+				if(pCity ~= nil and pCity:IsCapital()) then
+					if (GameInfo.Civilizations[cityInfo.CivilizationType].Type ~= "CIVILIZATION_MINOR") then
+						entry.CapitalCityIcon:LocalizeAndSetToolTip("TXT_KEY_CAPITAL_CBP_SPY", cityInfo.Name, cityInfo.CivilizationNameKey);
+						entry.CapitalCityIcon:SetHide(false);
+					elseif(pPlayer:IsMinorCiv()) then
+						local iCityAlly = Players[pCity:GetOwner()]:GetAlly();
+						if(iCityAlly ~= -1) then
+							entry.AllyName:SetHide(false);
+							entry.AllyIcon:SetHide(false);
+							entry.AllyIconBG:SetHide(false);
+							entry.AllyIconShadow:SetHide(false);
+							entry.AllyIconHighlight:SetHide(false);
+							CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+							strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
+							entry.AllyName:SetToolTipString(strAllyToolTip);
+							entry.AllyIconHighlight:SetToolTipString(strAllyToolTip);
+							entry.AllyIconShadow:SetToolTipString(strAllyToolTip);
+							entry.AllyIconBG:SetToolTipString(strAllyToolTip);
+							entry.AllyIcon:SetToolTipString(strAllyToolTip);
+						end
+					end
 				end
 			end
 		end
@@ -1228,6 +1250,9 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		entry.PotentialMeterFront:SetHide(true); 
 		entry.RigElectionDisabled:SetHide(true);
 		entry.RigElectionEnabled:SetHide(true);
+		--CBP
+		entry.RigElectionCooldown:SetHide(true);
+		--END
 		entry.UnknownProgress:SetHide(true);	
 				
 		local bIsCityState = false;
@@ -1275,8 +1300,26 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			local strCityStateTT = Locale.Lookup("TXT_KEY_EO_CITY_STATE_POTENTIAL_TT");
 			strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
 			strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_CITY_STATE_ELECTION", Game.GetTurnsBetweenMinorCivElections(), Game.GetTurnsUntilMinorCivElection());
+			--CBP
+			if(cityInfo ~= nil) then
+				local pPlayerCS = Players[cityInfo.PlayerID];
+				if (pPlayerCS ~= -1 and pPlayerCS:IsMinorCiv()) then
+					local iCooldown = pPlayerCS:GetCoupCooldown();
+					if(iCooldown > 0) then
+						strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
+						strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA", iCooldown);
+						entry.RigElectionEnabled:SetHide(true);
+						entry.RigElectionDisabled:SetHide(true);
+						entry.RigElectionCooldown:SetHide(false);
+					end
+				end
+			end
+			--END
 			entry.RigElectionDisabled:SetToolTipString(strCityStateTT);
 			entry.RigElectionEnabled:SetToolTipString(strCityStateTT);
+			--CBP
+			entry.RigElectionCooldown:SetToolTipString(strCityStateTT);
+			--END
 		else
 			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 			if(cityInfo.BasePotential > 0) then
@@ -1323,6 +1366,12 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 -- CBP EDIT
 				entry.CapitalCityIcon:SetHide(true);
 				entry.CapitalCityIcon:SetToolTipString(nil);
+				entry.AllyIcon:SetHide(true);
+				entry.AllyIconBG:SetHide(true);
+				entry.AllyIconShadow:SetHide(true);
+				entry.AllyIconHighlight:SetHide(true);
+				entry.AllyName:SetHide(true);
+
 -- END		
 			else
 				entry.SpyInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
@@ -1330,6 +1379,11 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 -- CBP EDIT
 				entry.CapitalCityIcon:SetHide(true);
 				entry.CapitalCityIcon:SetToolTipString(nil);
+				entry.AllyIcon:SetHide(true);
+				entry.AllyIconBG:SetHide(true);
+				entry.AllyIconShadow:SetHide(true);
+				entry.AllyIconHighlight:SetHide(true);
+				entry.AllyName:SetHide(true);
 -- END
 			end
 			

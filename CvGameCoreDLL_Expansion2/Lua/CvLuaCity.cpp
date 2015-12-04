@@ -2293,9 +2293,24 @@ int CvLuaCity::lGetBuyPlotCost(lua_State* L)
 int CvLuaCity::lGetGarrisonedUnit(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* pPlot = pkCity->plot();
+	if(pPlot != NULL)
+	{
+		UnitHandle garrison = pPlot->getBestDefender(pkCity->getOwner());
+		if(garrison)
+		{
+			CvLuaUnit::Push(L, garrison.pointer());
+			return 1;
+		}
+	}
+	CvLuaUnit::Push(L, NULL);
+	return 1;
+#else
 	CvUnit* pkUnit = pkCity->GetGarrisonedUnit();
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
+#endif
 }
 
 //------------------------------------------------------------------------------

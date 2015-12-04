@@ -629,7 +629,11 @@ function InitMinorCivList()
     		-- Hide the quest icon if there are no quests OR the City State is at war with you.
     	    if( ( pOtherPlayer:GetMinorCivNumDisplayedQuestsForPlayer(g_iPlayer) == 0 and 
     				not pOtherPlayer:IsThreateningBarbariansEventActiveForPlayer(g_iPlayer) and
-    				not pOtherPlayer:IsProxyWarActiveForMajor(g_iPlayer))
+    				not pOtherPlayer:IsProxyWarActiveForMajor(g_iPlayer) and
+-- CBP
+					not (pOtherPlayer:GetCoupCooldown() > 0) and
+					not pOtherPlayer:IsMarried(g_iPlayer))
+-- END
     			or g_pTeam:IsAtWar(iOtherTeam)) then
     			controlTable.QuestIcon:SetHide( true );
     	    else
