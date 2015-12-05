@@ -289,10 +289,10 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 			return false;
 		}
 
-		CreateChildren(m_pBest); // needs to be done, even on the last node, to allow for re-use...
-
 		if(IsPathDest(m_pBest->m_iX, m_pBest->m_iY))
 			break;
+
+		CreateChildren(m_pBest);
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
@@ -394,17 +394,13 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
-	CvAStarNode* check;
 	int count = 6;
-	int x, y;
-	int i;
-
-	for(i = 0; i < count; i++)
+	for(int i = 0; i < count; i++)
 	{
-		check = node->m_apNeighbors[i];
+		CvAStarNode* check = node->m_apNeighbors[i];
 
-		//don't walk backwards!
- 		if(check && check!=node->m_pParent && udFunc(udValid, node, check, 0, m_sData))
+		//important things happening here
+ 		if(check && udFunc(udValid, node, check, 0, m_sData))
 		{
 			LinkChild(node, check);
 		}
@@ -415,14 +411,15 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		int iExtraChildren = udNumExtraChildrenFunc(node, this);
 		for(int i = 0; i < iExtraChildren; i++)
 		{
+			int x, y;
 			udGetExtraChildFunc(node, i, x, y, this);
 			PREFETCH_FASTAR_NODE(&(m_ppaaNodes[x][y]));
 
 			if(isValid(x, y))
 			{
-				check = &(m_ppaaNodes[x][y]);
+				CvAStarNode* check = &(m_ppaaNodes[x][y]);
 
-				if(udFunc(udValid, node, check, 0, m_sData))
+				if(check && udFunc(udValid, node, check, 0, m_sData))
 				{
 					LinkChild(node, check);
 				}
@@ -1308,7 +1305,6 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	// the bNewTurn check should really be done when validating the parent node, but at that point we don't know the movement cost yet (PathCost is called after PathValid)
 	if (bNewTurn || bNextNodeHostile || !bNextNodeVisibleToTeam)
 	{
-		// however, the checks only apply if the plot is visible
 		if (kFromNodeCacheData.bPlotVisibleToTeam)
 		{
 			// check stacking (if visible)
@@ -1318,13 +1314,10 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 				if(parent->m_iX != pUnit->getX() || parent->m_iY != pUnit->getY())
 					return FALSE;
 			}
+		}
 
-			// don't ever stop on a mountain (even if it's passable)
-			if(kFromNodeCacheData.bIsMountain)
-			{
-				return FALSE;
-			}
-
+		if (kFromNodeCacheData.bIsRevealedToTeam)
+		{
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 			if(!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || pCacheData->m_bCanAttack)
 #else
@@ -1333,6 +1326,12 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 			{
 				if (kFromNodeCacheData.bContainsOtherFriendlyTeamCity)
 					return FALSE;
+			}
+
+			// don't ever stop on a mountain (even if it's passable)
+			if(kFromNodeCacheData.bIsMountain)
+			{
+				return FALSE;
 			}
 		}
 	}
@@ -1758,6 +1757,9 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int, cons
 
 	CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	if (!pFromPlot || !pToPlot)
+		return FALSE;
 
 	if(plotDistance(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY()) > data.iTypeParameter)
 		return FALSE;

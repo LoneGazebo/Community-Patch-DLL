@@ -10679,7 +10679,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			}
 		}
 		AssignDeployingUnits(iRangedUnits - iRangedUnitsToPlace);
-		PerformChosenMoves();
+		PerformChosenMoves(1,pTargetPlot);
 
 		// Second loop for everyone else (including remaining ranged units)
 #if defined(MOD_CORE_TACTICAL_PLOTSCORE)
@@ -10728,7 +10728,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		}
 
 		AssignDeployingUnits(iMeleeUnits - iMeleeUnitsToPlace);
-		PerformChosenMoves();
+		PerformChosenMoves(1,pTargetPlot);
 	}
 
 	if(m_GeneralsToMove.size() > 0)

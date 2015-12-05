@@ -6267,7 +6267,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					}
 #endif
 #if defined(MOD_BALANCE_CORE)
-					int iWarScore = GetWarScore(eLoopPlayer);
+					int iWarScore = GetWarScore(eLoopPlayer,false,true);
 
 					//Negative Warscore? Offer more.
 					if(iWarScore < 0)
@@ -7466,7 +7466,7 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 
 /// What is the integer value of how well we think the war with ePlayer is going?
 #if defined(MOD_BALANCE_CORE)
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops)
+int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops, bool bDebug)
 #else
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 #endif
@@ -7730,6 +7730,13 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	case WAR_DAMAGE_LEVEL_CRIPPLED:
 		iTheirWarScore += /*70*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_CRIPPLED();
 		break;
+	}
+
+	if (bDebug && GC.getAILogging() )
+	{
+		CvString strMsg;
+		strMsg.Format("war score for %d against player %d is %d / %d\n", m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
+		OutputDebugString(strMsg.c_str());
 	}
 
 	int iAverageScore = 0;

@@ -2823,6 +2823,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		iMaxDistance /= 100;
 	}
 
+	//important. make sure the cache is up to date
+	GC.getGame().GetGameTrade()->UpdateTradePathCache(pFromCity->getOwner());
+
 	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
 	int iApparentDistance = INT_MAX;
 	SPath path;
