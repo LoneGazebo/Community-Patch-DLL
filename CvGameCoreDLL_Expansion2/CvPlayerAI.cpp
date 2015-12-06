@@ -1798,11 +1798,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 					bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 					if(bRightOwner && bIsRevealed)
 					{
-#ifdef AUI_ASTAR_TURN_LIMITER
-						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
-#else
-						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
-#endif // AUI_ASTAR_TURN_LIMITER
+						iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
 						if(iPathTurns < iBestTurnsToReach)
 						{
 							iBestTurnsToReach = iPathTurns;
@@ -1849,7 +1845,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, INT_MAX, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 
@@ -1887,7 +1883,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, INT_MAX, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 
@@ -2337,7 +2333,6 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
-#ifdef AUI_ASTAR_TURN_LIMITER
 			if(pLoopPlot->isWater() || pLoopPlot->isImpassable(getTeam()))
 			{
 				continue;
@@ -2357,25 +2352,11 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
 				continue;
 
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
-			if(iTurns < MAX_INT)
-			{
-				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-#else
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
+			iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
 			if(iTurns < MAX_INT)
 			{
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-				if(pLoopPlot->isWater())
-				{
-					continue;
-				}
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
-				{
-					continue;
-				}
-#endif
 				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
 				{
 					iBestNumTurns = iTurns;
@@ -2443,11 +2424,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 	}
 	if(pBestTarget != NULL)
 	{
-#ifdef AUI_ASTAR_TURN_LIMITER
-			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */, false, false, iBestNumTurns);
-#else
-			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
+		iTurns = pUnit->TurnsToReachTarget(pBestTarget, false, false, iBestNumTurns);
 	}
 	if(piTurns)
 		*piTurns = iBestNumTurns;
@@ -2494,7 +2471,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 				bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 				if(bRightOwner && bIsRevealed)
 				{
-					iPathTurns = TurnsToReachTarget(pMusician, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
+					iPathTurns = pMusician->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/);
 					if(iPathTurns < iBestTurnsToReach)
 					{
 						iBestTurnsToReach = iPathTurns;
@@ -2524,7 +2501,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 				bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
 				if(bRightOwner && bIsRevealed)
 				{
-					iPathTurns = TurnsToReachTarget(pMusician, pLoopPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
+					iPathTurns = pMusician->TurnsToReachTarget(pLoopPlot, !bOnlySafePaths/*bIgnoreUnits*/);
 					if(iPathTurns < iBestTurnsToReach)
 					{
 						iBestTurnsToReach = iPathTurns;
@@ -2825,8 +2802,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		}
 		else
 		{
-			int iTurns1 = TurnsToReachTarget(pGeneral, nr1.pPlot, true /*bReusePaths*/, true);
-			int iTurns2 = TurnsToReachTarget(pGeneral, nr2.pPlot, true /*bReusePaths*/, true);
+			int iTurns1 = pGeneral->TurnsToReachTarget(nr1.pPlot, true);
+			int iTurns2 = pGeneral->TurnsToReachTarget(nr2.pPlot, true);
 			if (iTurns2*nr1.score < iTurns1*nr2.score )
 			{
 				iResultScore = nr2.score;

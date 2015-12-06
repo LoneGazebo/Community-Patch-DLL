@@ -1154,8 +1154,8 @@ public:
 
 protected:
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
-	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths);
-	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit);
+	virtual CvPlot* FindBestTarget(CvUnit* pUnit);
 
 	UnitAITypes m_eCivilianType;
 };

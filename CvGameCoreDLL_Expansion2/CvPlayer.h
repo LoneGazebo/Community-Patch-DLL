@@ -2080,14 +2080,10 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;
 	void SetFoundValueOfCapital(int iValue);
 	bool HaveGoodSettlePlot(int iAreaID) const;
-#else
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
-#endif
 
 	// New Victory Stuff
 	int GetNumWonders() const;

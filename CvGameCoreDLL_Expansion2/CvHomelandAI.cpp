@@ -1712,7 +1712,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 					int iPathTurns;
 					CvPlot* pFoundPlot = aBestPlots.GetElement(i);
 					// CUSTOMLOG("  ... possible city plot at (%i, %i)", pFoundPlot->getX(), pFoundPlot->getY());
-					bool bCanFindPath = pUnit->GeneratePath(pFoundPlot, 0, true, &iPathTurns);
+					bool bCanFindPath = pUnit->GeneratePath(pFoundPlot, 0, INT_MAX, &iPathTurns);
 
 					if (bCanFindPath) {
 						// CUSTOMLOG("    ... is %i moves away", iPathTurns)
@@ -1818,11 +1818,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			if (m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer())>0)
 				continue;
 
-#ifdef AUI_ASTAR_TURN_LIMITER
-			int iMoves = TurnsToReachTarget(pUnit.pointer(), pTarget, iTargetMoves);
-#else
-			int iMoves = TurnsToReachTarget(pUnit.pointer(), pTarget);
-#endif // AUI_ASTAR_TURN_LIMITER
+			int iMoves = pUnit->TurnsToReachTarget(pTarget, false, false, iTargetMoves);
 			if (iMoves < iTargetMoves)
 			{
 				iTargetMoves = iMoves;
@@ -3367,10 +3363,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(iTotalScore > iBestPlotScore )
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-					if (!CanReachInXTurns(pUnit,pEvalPlot,1))
-					{
+					if (!pUnit->CanReachInXTurns(pEvalPlot,1))
 						continue;
-					}
 
 					pBestPlot = pEvalPlot;
 					iBestPlotScore = iTotalScore;
@@ -4274,7 +4268,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 				{
 					CvPlot* pPlot = aBestPlotList.GetElement(i);
 
-					if(CanReachInXTurns(pUnit, pPlot, 1))
+					if(pUnit->CanReachInXTurns( pPlot, 1))
 					{
 						pBestPlot = pPlot;
 						break;
@@ -4409,7 +4403,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 				return;
 			}
 
-			else if(it->GetMovesToTarget() < GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE() || TurnsToReachTarget(pUnit, pTarget) != MAX_INT)
+			else if(it->GetMovesToTarget() < GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE() || pUnit->TurnsToReachTarget(pTarget) != MAX_INT)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				pUnit->finishMoves();
@@ -4441,7 +4435,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvPlot* pTarget)
 				return;
 			}
 
-			else if(it->GetMovesToTarget() < GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE() || TurnsToReachTarget(pUnit, pTarget) != MAX_INT)
+			else if(it->GetMovesToTarget() < GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE() || pUnit->TurnsToReachTarget(pTarget) != MAX_INT)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				pUnit->finishMoves();
@@ -4521,7 +4515,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 						CvPlot *pBestTarget = NULL;
 						int iBestTurns = MAX_INT;
 						int iTurns;
-						iTurns = TurnsToReachTarget(pUnit, pTargetCity->plot());
+						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
 						if (iTurns < iBestTurns)
 						{
 							pBestTarget = pTargetCity->plot();
@@ -4531,7 +4525,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
 							if(pAdjacentPlot != NULL)
 							{
-								iTurns = TurnsToReachTarget(pUnit, pAdjacentPlot);
+								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
 								if (iTurns < iBestTurns)
 								{
 									pBestTarget = pAdjacentPlot;
@@ -4673,7 +4667,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 						CvPlot *pBestTarget = NULL;
 						int iBestTurns = MAX_INT;
 						int iTurns;
-						iTurns = TurnsToReachTarget(pUnit, pTargetCity->plot());
+						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
 						if (iTurns < iBestTurns)
 						{
 							pBestTarget = pTargetCity->plot();
@@ -4683,7 +4677,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
 							if(pAdjacentPlot != NULL)
 							{
-								iTurns = TurnsToReachTarget(pUnit, pAdjacentPlot);
+								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
 								if (iTurns < iBestTurns)
 								{
 									pBestTarget = pAdjacentPlot;
@@ -4823,7 +4817,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 						CvPlot *pBestTarget = NULL;
 						int iBestTurns = MAX_INT;
 						int iTurns;
-						iTurns = TurnsToReachTarget(pUnit, pTargetCity->plot());
+						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
 						if (iTurns < iBestTurns)
 						{
 							pBestTarget = pTargetCity->plot();
@@ -4833,7 +4827,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
 							if(pAdjacentPlot != NULL)
 							{
-								iTurns = TurnsToReachTarget(pUnit, pAdjacentPlot);
+								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
 								if (iTurns < iBestTurns)
 								{
 									pBestTarget = pAdjacentPlot;
@@ -5001,7 +4995,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 					{
 						// If engineer can move to city before half done
 						int iTurnsRemaining = pWonderCity->getProductionTurnsLeft();
-						iTurnsToTarget = TurnsToReachTarget(pUnit, pWonderCity->plot(), true /*bReusePaths*/, true);
+						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
 						if(iTurnsToTarget * 3 < iTurnsRemaining)
 						{
 							bForceWonderCity = false;
@@ -5052,7 +5046,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 					if(pWonderCity)
 					{
-						iTurnsToTarget = TurnsToReachTarget(pUnit, pWonderCity->plot(), false /*bReusePaths*/, true);
+						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
 
 						// Already at target?
 						if(iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
@@ -5474,7 +5468,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 
 					if(!bSkipCity)
 					{
-						int iTurns = TurnsToReachTarget(pUnit, pTarget);
+						int iTurns = pUnit->TurnsToReachTarget(pTarget);
 						if(iTurns < iBestTurns)
 						{
 							iBestTurns = iTurns;
@@ -5980,7 +5974,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 				if(!bSkipCity)
 				{
-					int iTurns = TurnsToReachTarget(pUnit, pTarget);
+					int iTurns = pUnit->TurnsToReachTarget(pTarget);
 					if(iTurns < iBestTurns)
 					{
 						iBestTurns = iTurns;
@@ -6101,7 +6095,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 						continue;
 					}
 
-					int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+					int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
 					int iWeight = pLoopCity->plot()->GetSizeLargestAdjacentWater();
 
 					// If this city is damaged, divide weight by the damage level
@@ -6259,7 +6253,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			{
 				continue;
 			}
-			int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
 
 			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
 			if (bNotAtFriendlyCity)
@@ -6299,7 +6293,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				continue;
 			}
 
-			int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
 
 			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
 			if (bNotAtFriendlyCity)
@@ -6649,7 +6643,7 @@ void CvHomelandAI::ExecuteSSPartAdds()
 				UnitProcessed(pUnit->GetID());
 			}
 
-			else if (TurnsToReachTarget(pUnit, pCapitalCity->plot()) == 0)
+			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot()) == 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
 				pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
@@ -7160,7 +7154,6 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool b
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
-#if defined(MOD_BALANCE_CORE)
 	WeightedPlotVector aBestPlotList;
 	TacticalAIHelpers::ReachablePlotSet reachablePlots;
 	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
@@ -7168,25 +7161,6 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 	{
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
-
-
-#else
-	int iSearchRange = pUnit->SearchRange(1);
-
-	// Collecting all the possibilities first.
-	WeightedPlotVector aBestPlotList;
-	aBestPlotList.reserve( ((iSearchRange * 2) + 1) * 2 );
-
-	for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
-	{
-		for(int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
-		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iDX, iDY, iSearchRange);
-			if(!pLoopPlot)
-			{
-				continue;
-			}
-#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7220,14 +7194,12 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			if(pCity && pCity->getTeam() == pUnit->getTeam())
 			{
 				iValue += pCity->getStrengthValue() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
-#if defined(MOD_BALANCE_CORE)
 				if(pCity->getDamage() <= 0)
 				{
 					//We should always hide in cities if we can.
 					iValue += 1;
 					iValue *= 1000;
 				}
-#endif
 			}
 			else if(!bIgnoreUnits)
 			{
@@ -7265,39 +7237,12 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 
 	// Now loop through the sorted score list and go to the best one we can reach in one turn.
 	CvPlot* pBestPlot = NULL;
-#if defined(MOD_BALANCE_CORE)
 	//we already know that the plot is in reach
 	if (aBestPlotList.size()>0)
 	{
 		aBestPlotList.SortItems(); //highest score will be first
 		pBestPlot=aBestPlotList.GetElement(0);
 	}
-#else
-	uint uiListSize;
-	if ((uiListSize = aBestPlotList.size()) > 0)
-	{
-		aBestPlotList.SortItems();	// highest score will be first.
-		for (uint i = 0; i < uiListSize; ++i )	
-		{
-			CvPlot* pPlot = aBestPlotList.GetElement(i);
-
-			int iPathTurns;
-			if(!pUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iPathTurns))
-			{
-				continue;
-			}
-
-			// if we can't get there this turn, forget it
-			if(iPathTurns > 1)
-			{
-				continue;
-			}
-
-			pBestPlot = pPlot;
-			break;
-		}
-	}
-#endif
 
 	if(pBestPlot != NULL)
 	{
@@ -7871,7 +7816,7 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 			{
 				if(!(pAdjacentPlot->isVisibleEnemyUnit(pUnit)))
 				{
-					if(pUnit->GeneratePath(pAdjacentPlot, 0, true))
+					if(pUnit->GeneratePath(pAdjacentPlot))
 					{
 						iValue = (1 + GC.getGame().getJonRandNum(10000, "AI Patrol"));
 
@@ -7958,11 +7903,7 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
 {
 	CvUnit* pBestUnit = NULL;
-#ifdef AUI_ASTAR_TURN_LIMITER
 	int iMinTurns = iMaxTurns;
-#else
-	int iMinTurns = MAX_INT;
-#endif
 	MoveUnitsArray::iterator it;
 
 	int iFailedPaths = 0;
@@ -7982,13 +7923,7 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			if (iDistance == MAX_INT)
 				continue;
 			
-#ifdef AUI_ASTAR_TURN_LIMITER
-			//LogHomelandMessage( CvString::format("GetClosestUnitByTurnsToTarget: target %d,%d; trying %d", pTarget->getX(), pTarget->getY(), pLoopUnit->GetID() ) );
-			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget, false, false, false, iMinTurns);
-#else
-			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget);
-#endif // AUI_ASTAR_TURN_LIMITER
-
+			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, false, false, iMinTurns);
 			it->SetMovesToTarget(iMoves);
 			// Did we make it at all?
 			if (iMoves != MAX_INT)
@@ -8163,16 +8098,12 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
-#ifdef AUI_ASTAR_TURN_LIMITER
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
 			{
 				continue;
 			}
-			int iTurns = TurnsToReachTarget(pUnit, pTarget, false, false, false, iBestTurns);
-#else
-			int iTurns = TurnsToReachTarget(pUnit, pTarget);
-#endif // AUI_ASTAR_TURN_LIMITER
 
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, false, false, iBestTurns);
 			if (iTurns < iBestTurns)
 			{
 				pBestTarget = pTarget;
@@ -8702,15 +8633,11 @@ CvPlot* CvHomelandAI::FindTestArchaeologistPlot(CvUnit *pUnit)
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
-#ifdef AUI_ASTAR_TURN_LIMITER
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
 			{
 				continue;
 			}
-			int iTurns = TurnsToReachTarget(pUnit, pTarget, false, false, false, iBestTurns);
-#else
-			int iTurns = TurnsToReachTarget(pUnit, pTarget);
-#endif // AUI_ASTAR_TURN_LIMITER
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, false, false, iBestTurns);
 
 			if (iTurns < iBestTurns)
 			{

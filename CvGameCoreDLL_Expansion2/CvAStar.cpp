@@ -455,7 +455,7 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
-		node->m_apChildren[node->m_iNumChildren++]=check;
+		node->m_apChildren.push_back(check);
 
 		if(iKnownCost < check->m_iKnownCost)
 		{
@@ -471,7 +471,7 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	}
 	else if(check->m_eCvAStarListType == CVASTARLIST_CLOSED)
 	{
-		node->m_apChildren[node->m_iNumChildren++]=check;
+		node->m_apChildren.push_back(check);
 
 		if(iKnownCost < check->m_iKnownCost)
 		{
@@ -504,7 +504,7 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 		AddToOpen(check);
 
-		node->m_apChildren[node->m_iNumChildren++]=check;
+		node->m_apChildren.push_back(check);
 	}
 }
 
@@ -702,7 +702,7 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 	CvAStarNode* kid;
 	CvAStarNode* parent;
 	int iKnownCost;
-	int iNumChildren;
+	size_t iNumChildren;
 	int i;
 
 	FAssert(m_pStackHead == NULL);
@@ -711,9 +711,7 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 
 	while(parent != NULL)
 	{
-		iNumChildren = parent->m_iNumChildren;
-
-		for(i = 0; i < iNumChildren; i++)
+		for(i = 0; i < parent->m_apChildren.size(); i++)
 		{
 			kid = parent->m_apChildren[i];
 
@@ -956,23 +954,29 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 
 		if(pUnit->IsDeclareWar() || finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
 		{
-			iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
 		}
 
 		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING)) 
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 		}
-		else
-		{
-			//check friendly stacking, that's not handled in canMoveOrAttackInto
-			if (pToPlot->getNumFriendlyUnitsOfType(pUnit) >= pToPlot->getUnitLimit())
-				return FALSE;
-		}
 
 		// all other rules are hidden here
-		if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-			return FALSE;
+		if (pUnit->isRanged())
+		{
+			//ranged units can only "attack" civilian by moving (i.e. capture them)
+			if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
+				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+			if (!pUnit->canMoveInto(*pToPlot, iMoveFlags))
+				return FALSE;
+		}
+		else
+		{
+			if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
+				return FALSE;
+		}
 	}
 
 	//checks which need a revealed plot (logically so we don't leak information)
@@ -1354,13 +1358,25 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
-			//check friendly stacking
+			//check friendly stacking - this is also checked in canMoveInto but this way it's maybe faster
 			if(bCheckStacking && kToNodeCacheData.bUnitLimitReached)
 				return FALSE;
 
 			//all other rules are hidden here
-			if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-				return FALSE;
+			if (pUnit->isRanged())
+			{
+				//ranged units can only "attack" civilian by moving (i.e. capture them)
+				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+				if (!pUnit->canMoveInto(*pToPlot, iMoveFlags))
+					return FALSE;
+			}
+			else
+			{
+				if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
+					return FALSE;
+			}
 		}
 		else
 		{
@@ -1373,7 +1389,7 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
-		// check impassable terrain
+		// check impassable terrain - in case this plot is visible we already checked in canMoveInto, but it should be fast
 		if(!kToNodeCacheData.bCanEnterTerrain)
 			return FALSE;
 
@@ -1566,11 +1582,12 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
+	if (!pFromPlot || !pToPlot)
+		return FALSE;
+
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getArea() != pToPlot->getArea())
-	{
 		return FALSE;
-	}
 
 	//if we have a given player, check their particular impassability (depends on techs etc)
 	if (ePlayer!=NO_PLAYER)
@@ -2853,114 +2870,6 @@ int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, c
 	return 0;
 }
 #endif
-
-//	--------------------------------------------------------------------------------
-/// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
-bool CanReachInXTurns(UnitHandle pUnit, const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, int* piTurns /* = NULL */)
-{
-	if (!pUnit || !pTarget)
-		return false;
-
-	int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, false, iTurns);
-	if (piTurns)
-		*piTurns = iTurnsCalculated;
-
-	return (iTurnsCalculated <= iTurns);
-}
-
-//	--------------------------------------------------------------------------------
-/// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
-int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool /*bReusePaths*/, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
-{
-	if(pTarget == NULL || !pUnit)
-		return INT_MAX;
-
-	//make sure that iTargetTurns is valid
-	iTargetTurns = max(1,iTargetTurns);
-
-	if (iTargetTurns!=INT_MAX)
-	{
-		//see how far we could move in optimal circumstances
-		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
-
-		//default range
-		int iMoves = pUnit->baseMoves() + pUnit->getExtraMoves();
-		int iRange = iMoves * iTargetTurns;
-
-		//catch stupid cases
-		if (iRange<=0)
-			return pTarget==pUnit->plot() ? INT_MAX : 0;
-
-		//but routes increase it
-		if (pUnit->getDomainType()==DOMAIN_LAND && !pUnit->flatMovementCost() )
-		{
-			CvTeam& kTeam = GET_TEAM(pUnit->getTeam());
-			RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
-			CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
-			if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
-			{
-				int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
-
-				if (pUnit->plot()->getRouteType()!=NO_ROUTE)
-					//standing directly on a route
-					iRange = iMoves * iTargetTurns * iMultiplier;
-				else
-					//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
-					iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier;
-			}
-		}
-
-		if (iDistance>iRange)
-			return INT_MAX;
-	}
-
-
-	int rtnValue = MAX_INT;
-	CvAStarNode* pNode = NULL;
-
-	if(pTarget == pUnit->plot())
-		return 0;
-
-	if(pUnit)
-	{
-		SPathFinderUserData data(pUnit.pointer(),CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
-
-		if(bIgnoreUnits)
-		{
-			data.ePathType	= PT_UNIT_IGNORE_OTHERS;
-
-			if (GC.GetIgnoreUnitsPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), data))
-			{
-				pNode = GC.GetIgnoreUnitsPathFinder().GetLastNode();
-			}
-		}
-		else
-		{
-			if(bIgnoreStacking)
-				data.iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-
-			CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
-			if (kPathFinder.GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), data))
-			{
-				pNode = GC.GetPathFinder().GetLastNode();
-			}
-		}
-
-		if(pNode)
-		{
-			rtnValue = pNode->m_iTurns;
-			if(rtnValue == 1)
-			{
-				if(pNode->m_iMoves > 0)
-				{
-					rtnValue = 0;
-				}
-			}
-		}
-	}
-
-	return rtnValue;
-}
 
 // A structure holding some unit values that are invariant during a path plan operation
 struct TradePathCacheData

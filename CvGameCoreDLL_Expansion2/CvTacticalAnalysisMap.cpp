@@ -574,7 +574,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								int iTurnsToReach;
 
 								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
+								iTurnsToReach = pUnit->TurnsToReachTarget(pPlot, true /*bIgnoreUnits*/);
 
 								if(iTurnsToReach <= 1)
 								{
@@ -1071,7 +1071,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 								iDistance = 0;
 							else
 							{
-								iDistance = TurnsToReachTarget(pLoopUnit, pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
+								iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
 								if (pLoopUnit->GetRange() > 1)
 									iDistance -= 1;
 							}
@@ -1156,7 +1156,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 											iDistance = 0;
 										else
 										{
-											iDistance = TurnsToReachTarget(pLoopUnit, pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
+											iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
 											if (pLoopUnit->GetRange() > 1)
 												iDistance -= 1;
 										}

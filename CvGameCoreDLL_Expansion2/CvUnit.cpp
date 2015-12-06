@@ -27459,7 +27459,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, int* piPathTurns) const
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns) const
 {
 	VALIDATE_OBJECT
 	// slewis - a bit of baffling logic
@@ -27473,7 +27473,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, in
 	bool bSuccess;
 
 	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
-	SPathFinderUserData data(this,iFlags);
+	SPathFinderUserData data(this,iFlags,iMaxTurns);
 
 	bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
@@ -27525,6 +27525,15 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, in
 			if(m_kLastPath.size() != 0)
 			{
 				*piPathTurns = m_kLastPath.front().m_iTurns;
+
+				//special: if we can reach the target in one turn with movement left, define this as zero turns
+				if(*piPathTurns == 1)
+				{
+					if(m_kLastPath.front().m_iMoves > 0)
+					{
+						*piPathTurns = 0;
+					}
+				}
 			}
 		}
 	}
@@ -29045,6 +29054,108 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
 }
 #endif
+
+
+//	--------------------------------------------------------------------------------
+/// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
+bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, int* piTurns /* = NULL */)
+{
+	if (!pTarget)
+		return false;
+
+	int iTurnsCalculated = TurnsToReachTarget(pTarget, bIgnoreUnits, false, iTurns);
+	if (piTurns)
+		*piTurns = iTurnsCalculated;
+
+	return (iTurnsCalculated <= iTurns);
+}
+
+//	--------------------------------------------------------------------------------
+/// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
+{
+	if(!pTarget)
+		return INT_MAX;
+
+	//make sure that iTargetTurns is valid
+	iTargetTurns = max(1,iTargetTurns);
+
+	if (iTargetTurns!=INT_MAX)
+	{
+		//see how far we could move in optimal circumstances
+		int	iDistance = plotDistance(getX(), getY(), pTarget->getX(), pTarget->getY());
+
+		//default range
+		int iMoves = baseMoves() + getExtraMoves();
+		int iRange = iMoves * iTargetTurns;
+
+		//catch stupid cases
+		if (iRange<=0)
+			return pTarget==plot() ? INT_MAX : 0;
+
+		//but routes increase it
+		if (getDomainType()==DOMAIN_LAND && !flatMovementCost() )
+		{
+			CvTeam& kTeam = GET_TEAM(getTeam());
+			RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
+			CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
+			if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
+			{
+				int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
+
+				if (plot()->getRouteType()!=NO_ROUTE)
+					//standing directly on a route
+					iRange = iMoves * iTargetTurns * iMultiplier;
+				else
+					//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
+					iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier;
+			}
+		}
+
+		if (iDistance>iRange)
+			return INT_MAX;
+	}
+
+
+	int rtnValue = MAX_INT;
+	if(pTarget == plot())
+		return 0;
+
+	if(bIgnoreUnits)
+	{
+		//this is a purely hypothetical path ... use a special pathfinder for that
+		SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
+		data.ePathType	= PT_UNIT_IGNORE_OTHERS;
+
+		if (GC.GetIgnoreUnitsPathFinder().GeneratePath(getX(), getY(), pTarget->getX(), pTarget->getY(), data))
+		{
+			CvAStarNode* pNode = GC.GetIgnoreUnitsPathFinder().GetLastNode();
+
+			rtnValue = pNode->m_iTurns;
+			if(rtnValue == 1)
+			{
+				if(pNode->m_iMoves > 0)
+				{
+					rtnValue = 0;
+				}
+			}
+		}
+	}
+	else
+	{
+		//normal handling: use the path cache of the unit, so we can possibly re-use the path later
+		//do not ignore danger
+		int iFlags = 0;
+		if(bIgnoreStacking)
+			iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+		if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
+			return INT_MAX;
+	}
+
+	return rtnValue;
+}
+
 
 //	--------------------------------------------------------------------------------
 DestructionNotification<UnitHandle>& CvUnit::getDestructionNotification()

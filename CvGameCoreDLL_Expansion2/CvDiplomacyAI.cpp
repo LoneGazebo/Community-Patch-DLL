@@ -7735,7 +7735,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	if (bDebug && GC.getAILogging() )
 	{
 		CvString strMsg;
-		strMsg.Format("war score for %d against player %d is %d / %d\n", m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
+		strMsg.Format("turn %d - war score for %d against player %d is %d / %d\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
 		OutputDebugString(strMsg.c_str());
 	}
 

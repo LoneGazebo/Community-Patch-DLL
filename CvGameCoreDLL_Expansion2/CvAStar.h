@@ -470,7 +470,5 @@ void TradePathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 
 //helper functions
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
-int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
-bool CanReachInXTurns(UnitHandle pUnit, const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 #endif	//CVASTAR_H

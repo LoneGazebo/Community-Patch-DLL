@@ -2398,7 +2398,7 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 		return;
 
 	// Check land connection in any case
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy, 28);
 
 	if(GC.GetStepFinder().DoesPathExist(target.m_pMusterCity->plot(), target.m_pTargetCity->plot(), data))
 	{
@@ -3177,7 +3177,7 @@ CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *
 			// Check for path if we have a unit, otherwise don't worry about it
 			if(pInitialUnit)
 			{
-				if (TurnsToReachTarget(pInitialUnit, pAdjacentPlot, false /*bReusePaths*/, true /*bIgnoreUnits*/, true /*bIgnoreStacking*/) < MAX_INT)
+				if (pInitialUnit->TurnsToReachTarget(pAdjacentPlot, true /*bIgnoreUnits*/, true /*bIgnoreStacking*/) < MAX_INT)
 				{
 					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
 					if (iDistance < iBestDistance)

@@ -913,7 +913,7 @@ private:
 	void IdentifyPriorityTargets();
 	void IdentifyPriorityBarbarianTargets();
 	void IdentifyPriorityTargetsByType();
-	void EliminateNearbyBlockadePoints();
+	void UpdateTargetScores();
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
 	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType);
 	CvTacticalTarget* GetNextZoneTarget();
@@ -1063,7 +1063,7 @@ private:
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
-	TacticalList m_NavalResourceBlockadePoints;
+
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	FStaticVector<CvTacticalTarget, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
 #else

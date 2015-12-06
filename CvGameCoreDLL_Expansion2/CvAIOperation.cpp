@@ -4136,7 +4136,7 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 
 		//may be null!
 		CvUnit* pEscort = GET_PLAYER(m_eOwner).getUnit(pArmy->GetNextUnitID());
-		if(pEscort && !pEscort->GeneratePath(pBetterTarget, CvUnit::MOVEFLAG_IGNORE_DANGER, false))
+		if(pEscort && !pEscort->GeneratePath(pBetterTarget, CvUnit::MOVEFLAG_IGNORE_DANGER))
 		{
 			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 			m_eAbortReason = AI_ABORT_NO_TARGET;
@@ -4185,6 +4185,7 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 CvAIOperationFoundCity::CvAIOperationFoundCity()
 {
 	m_eCivilianType = UNITAI_SETTLE;
+	m_bEscorted = true;
 }
 
 /// Destructor
@@ -4468,11 +4469,14 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
-				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, !m_bEscorted, m_iTargetArea, this, true);
+				bool bAltPlotSafe = false;
+				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_iTargetArea, bAltPlotSafe, this, true);
+
 				int iAltValue = pAltPlot ? pAltPlot->getFoundValue(m_eOwner) : 0;
 				int iDelta = pAltPlot ? ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY()) : 0;
-				//Must be much better to be worth it.
-				if( iAltValue < GetTargetPlot()->getFoundValue(m_eOwner)*1.2 )
+
+				//Must be much better to be worth it
+				if( iAltValue < GetTargetPlot()->getFoundValue(m_eOwner)*1.2f || (!bAltPlotSafe && !m_bEscorted))
 					iDelta = 0;
 
 				bool bDoFound = false;
@@ -4491,7 +4495,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 						LogOperationSpecialMessage(strMsg);
 					}
 
-					if (TurnsToReachTarget(pSettler,pAltPlot)==0)
+					if (pSettler->TurnsToReachTarget(pAltPlot)==0)
 					{
 						//we can both move and found this turn!
 						pSettler->PushMission(CvTypes::getMISSION_MOVE_TO(),pAltPlot->getX(),pAltPlot->getY());
@@ -4648,26 +4652,36 @@ CvPlot* CvAIOperationFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bo
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea, this);
-	if (pResult == NULL)
+	bool bIsSafe = false;
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, m_iTargetArea, bIsSafe, this);
+	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe, this);
 	}
-	return pResult;
+
+	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
+		return NULL;
+	else
+		return pResult;
 }
 
 #endif
 
 CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, m_iTargetArea);
-	if (pResult == NULL)
+	bool bIsSafe = false;
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, m_iTargetArea, bIsSafe);
+	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, -1);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe);
 	}
-	return pResult;
+
+	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
+		return NULL;
+	else
+		return pResult;
 }
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
@@ -4782,6 +4796,7 @@ bool CvAIOperationFoundCity::ShouldAbort()
 /// Constructor
 CvAIOperationQuickColonize::CvAIOperationQuickColonize()
 {
+	m_bEscorted = false;
 }
 
 /// Destructor
@@ -4806,8 +4821,8 @@ void CvAIOperationQuickColonize::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 
 	if(pOurCivilian != NULL && iID != -1)
 	{
-		// Find a destination (not worrying about safe paths)
-		pTargetSite = FindBestTarget(pOurCivilian, false);
+		// Find a destination (safe paths only)
+		pTargetSite = FindBestTarget(pOurCivilian, true);
 
 		if(pTargetSite != NULL)
 		{
@@ -6188,7 +6203,6 @@ bool CvAIOperationNavalBombardment::ArmyInPosition(CvArmyAI* pArmy)
 /// Find the barbarian camp we want to eliminate
 CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 {
-#if defined(MOD_BALANCE_CORE)
 	if(m_eOwner == NO_PLAYER)
 	{
 		return false;
@@ -6264,71 +6278,6 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 		}
 	}
 	return pBestTarget;
-#else
-	int iPlotLoop, iDirectionLoop;
-	CvPlot* pBestPlot = NULL;
-	CvPlot* pPlot;
-	CvPlot* pAdjacentPlot;
-	int iBestTurns = MAX_INT;
-	int iCurrentTurns;
-	CvUnit* pInitialUnit;
-
-	CvPlayer& owningPlayer = GET_PLAYER(m_eOwner);
-
-	if(GetFirstArmyID() == -1)
-	{
-		pInitialUnit = FindInitialUnit();
-	}
-	else
-	{
-		CvArmyAI* pThisArmy = owningPlayer.getArmyAI(m_viArmyIDs[0]);
-		int iUnitID = pThisArmy->GetFirstUnitID();
-		if(iUnitID != -1)
-		{
-			pInitialUnit = owningPlayer.getUnit(iUnitID);
-		}
-		else
-		{
-			pInitialUnit = FindInitialUnit();
-		}
-	}
-
-	if(pInitialUnit != NULL)
-	{
-		// Look at map for enemy units on the coast
-		for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-		{
-			pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-			{
-				if(pPlot->isCoastalLand())
-				{
-					// Enemy defender here? (for now let's not add cities; they fire back!)
-					CvUnit* pUnit = pPlot->getVisibleEnemyDefender(m_eOwner);
-					if(pUnit)
-					{
-						// Find an adjacent coastal water tile
-						for(iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-						{
-							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
-							if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->isShallowWater())
-							{
-								if(pInitialUnit->GeneratePath(pAdjacentPlot, 0, false, &iCurrentTurns))
-								{
-									if(iCurrentTurns < iBestTurns)
-									{
-										iBestTurns = iCurrentTurns;
-										pBestPlot = pAdjacentPlot;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return pBestPlot;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6664,11 +6613,7 @@ static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, in
 				if (iWeight > iFoundWeight)
 					break;		// Already found one of a lower weight
 			
-#ifdef AUI_ASTAR_TURN_LIMITER
-				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iFoundTurns);
-#else
-				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
-#endif // AUI_ASTAR_TURN_LIMITER
+				int iTurnsCalculated = pUnit->TurnsToReachTarget(pPlot, false, false, iFoundTurns);
 				if (iTurnsCalculated != MAX_INT)
 				{
 					if (iTurnsCalculated < iFoundTurns)
@@ -6683,7 +6628,7 @@ static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, in
 			}
 			else
 			{
-				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
+				int iTurnsCalculated = pUnit->TurnsToReachTarget(pPlot, false);
 				if (iTurnsCalculated != MAX_INT)
 				{
 					iFoundWeight = iWeight;
@@ -7910,7 +7855,7 @@ void CvAIOperationNavalColonization::Init(int iID, PlayerTypes eOwner, PlayerTyp
 	if(pOurCivilian != NULL && m_iID != -1)
 	{
 		// Find a destination (not worrying about safe paths)
-		CvPlot* pTargetSite = FindBestTarget(pOurCivilian, false);
+		CvPlot* pTargetSite = FindBestTarget(pOurCivilian);
 		CvCity* pMusterCity = NULL;
 		CvPlot* pMusterPlot = NULL;
 		if(pTargetSite != NULL)
@@ -8194,7 +8139,7 @@ bool CvAIOperationNavalColonization::ArmyInPosition(CvArmyAI* pArmy)
 			if(pSettler != NULL && pEscort != NULL && pSettler->plot() == pEscort->plot())
 			{
 				// let's see if the target still makes sense (this is modified from RetargetCivilian)
-				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, false);
+				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler);
 
 				// No targets at all!  Abort
 				if(pBetterTarget == NULL && GetTargetPlot() == NULL)
@@ -8216,7 +8161,7 @@ bool CvAIOperationNavalColonization::ArmyInPosition(CvArmyAI* pArmy)
 			else if(pSettler != NULL && pEscort != NULL && plotDistance(pSettler->getX(), pSettler->getY(), pEscort->getX(), pEscort->getY()) <= 2)
 			{
 				// let's see if the target still makes sense (this is modified from RetargetCivilian)
-				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, false);
+				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler);
 
 				// No targets at all!  Abort
 				if(pBetterTarget == NULL && GetTargetPlot() == NULL)
@@ -8358,29 +8303,31 @@ bool CvAIOperationNavalColonization::VerifyTarget(CvArmyAI* pArmy)
 
 
 /// Find the plot where we want to settle
-CvPlot* CvAIOperationNavalColonization::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationNavalColonization::FindBestTargetIncludingCurrent(CvUnit* pUnit)
 {
 	//todo: better options
 	//a) return a list of possible targets and find the ones that are currently reachable
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea, this);
+	bool bIsSafe = false; //dummy
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, m_iTargetArea, bIsSafe, this);
 	if (pResult == NULL)
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe, this);
 	}
 	return pResult;
 }
 
-CvPlot* CvAIOperationNavalColonization::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationNavalColonization::FindBestTarget(CvUnit* pUnit)
 {
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea);
+	bool bIsSafe = false; //dummy
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, m_iTargetArea, bIsSafe);
 	if (pResult == NULL)
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe);
 	}
 	return pResult;
 }
@@ -8389,7 +8336,7 @@ CvPlot* CvAIOperationNavalColonization::FindBestTarget(CvUnit* pUnit, bool bOnly
 bool CvAIOperationNavalColonization::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
 	// Find best city site (assuming we are escorted)
-	CvPlot* pBetterTarget = FindBestTarget(pCivilian, false);
+	CvPlot* pBetterTarget = FindBestTarget(pCivilian);
 
 	// No targets at all!  Abort
 	if(pBetterTarget == NULL)
@@ -8404,7 +8351,7 @@ bool CvAIOperationNavalColonization::RetargetCivilian(CvUnit* pCivilian, CvArmyA
 		std::vector<int> aiUnitsToRemove;
 		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
 		{
-			if (TurnsToReachTarget(pUnit, pBetterTarget) == MAX_INT)
+			if (pUnit->TurnsToReachTarget(pBetterTarget) == MAX_INT)
 			{
 				aiUnitsToRemove.push_back(pUnit->GetID());
 			}
@@ -9760,9 +9707,10 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 		m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
 	}
 	else if ( pTargetPlot==NULL || 
+		GET_PLAYER(m_eOwner).getPlotFoundValue(pTargetPlot->getX(),pTargetPlot->getY()) < 1 ||
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
 		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
-		!pCivilian->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false) )
+		!pCivilian->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) )
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{

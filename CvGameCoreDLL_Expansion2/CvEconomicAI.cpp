@@ -3426,8 +3426,6 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 }
 #endif
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-
 /// Go through the plots for the exploration automation to evaluate
 void CvEconomicAI::UpdatePlots()
 {
@@ -3505,361 +3503,6 @@ void CvEconomicAI::UpdatePlots()
 
 	m_bExplorationPlotsDirty = false;
 }
-
-#else
-
-	// build explorer list
-	CvUnit* pLoopUnit;
-	int iLoopUnit;
-	m_apExplorers.clear();
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-	{
-		// non-automated human-controlled units should not be considered
-		if(m_pPlayer->isHuman() && !pLoopUnit->IsAutomated())
-			continue;
-
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-			continue;
-
-		if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->GetMissionAIType() != MISSIONAI_EXPLORE)
-			continue;
-
-		if(pLoopUnit->getArmyID() != -1)
-			continue;
-
-		m_apExplorers.push_back(pLoopUnit);
-	}
-
-	m_bExplorationPlotsDirty = false;
-}
-
-/// Go through the plots for the exploration automation to evaluate
-void CvEconomicAI::UpdatePlots()
-{
-	// reset all plots
-	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
-	{
-		m_aiExplorationPlots[ui] = -1;
-		m_aiExplorationPlotRatings[ui] = -1;
-	}
-
-	for(uint ui = 0; ui < m_aiGoodyHutPlots.size(); ui++)
-	{
-		m_aiGoodyHutPlots[ui] = -1;
-		m_aiGoodyHutUnitAssignments[ui].Clear();
-	}
-
-	/*
-	// find the center of all the cities
-	int iTotalX = 0;
-	int iTotalY = 0;
-	int iCityCount = 0;
-	int iLoopCity = 0;
-	CvCity* pLoopCity = NULL;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-	{
-		iTotalX += pLoopCity->getX();
-		iTotalY += pLoopCity->getY();
-		iCityCount++;
-	}
-
-	int iCivCenterX = -1;
-	int iCivCenterY = -1;
-	if(iCityCount > 0)
-	{
-		iCivCenterX = iTotalX / iCityCount;
-		iCivCenterY = iTotalY / iCityCount;
-	}
-	*/
-
-	uint uiExplorationPlotIndex = 0;
-	uint uiGoodyHutPlotIndex = 0;
-	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
-
-	CvPlot* pPlot;
-	for(int i = 0; i < GC.getMap().numPlots(); i++)
-	{
-		pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(pPlot == NULL)
-		{
-			continue;
-		}
-
-		if(!pPlot->isRevealed(ePlayerTeam))
-		{
-			continue;
-		}
-
-		if(pPlot->isRevealedGoody(ePlayerTeam) && !pPlot->isVisibleEnemyUnit(m_pPlayer->GetID()))
-		{
-			if(m_aiGoodyHutPlots.size() <= uiGoodyHutPlotIndex)
-			{
-				m_aiGoodyHutPlots.push_back(-1);
-				m_aiGoodyHutUnitAssignments.push_back(GoodyHutUnitAssignment(-1, -1));
-			}
-			m_aiGoodyHutPlots[uiGoodyHutPlotIndex] = i;
-			m_aiGoodyHutUnitAssignments[uiGoodyHutPlotIndex].Clear();
-			++uiGoodyHutPlotIndex;
-		}
-		if(pPlot->HasBarbarianCamp())
-		{
-			if(pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
-			{
-				if(m_aiGoodyHutPlots.size() <= uiGoodyHutPlotIndex)
-				{
-					m_aiGoodyHutPlots.push_back(-1);
-					m_aiGoodyHutUnitAssignments.push_back(GoodyHutUnitAssignment(-1, -1));
-				}
-				m_aiGoodyHutPlots[uiGoodyHutPlotIndex] = i;
-				m_aiGoodyHutUnitAssignments[uiGoodyHutPlotIndex].Clear();
-				++uiGoodyHutPlotIndex;
-			}
-		}
-
-		DomainTypes eDomain = DOMAIN_LAND;
-		if(pPlot->isWater())
-		{
-			eDomain = DOMAIN_SEA;
-		}
-
-		int iScore = ScoreExplorePlot(pPlot, ePlayerTeam, 1, eDomain);
-		if(iScore <= 0)
-		{
-			continue;
-		}
-
-		// add an entry for this plot
-		if(m_aiExplorationPlots.size() <= uiExplorationPlotIndex)
-		{
-			m_aiExplorationPlots.push_back(-1);
-			m_aiExplorationPlotRatings.push_back(-1);
-		}
-
-		m_aiExplorationPlots[uiExplorationPlotIndex] = i;
-		m_aiExplorationPlotRatings[uiExplorationPlotIndex] = iScore;
-		uiExplorationPlotIndex++;
-	}
-
-
-	// assign explorers to goody huts
-
-	// build explorer list
-	CvUnit* pLoopUnit;
-	int iLoopUnit;
-	m_apExplorers.clear();
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-	{
-		// non-automated human-controlled units should not be considered
-		if(m_pPlayer->isHuman() && !pLoopUnit->IsAutomated())
-		{
-			continue;
-		}
-
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-		{
-			continue;
-		}
-
-		if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->GetMissionAIType() != MISSIONAI_EXPLORE)
-		{
-			continue;
-		}
-
-		if(pLoopUnit->getArmyID() != -1)
-		{
-			continue;
-		}
-
-		m_apExplorers.push_back(pLoopUnit);
-	}
-
-	if(m_apExplorers.size() >= m_aiGoodyHutPlots.size())
-	{
-		AssignExplorersToHuts();
-	}
-	else
-	{
-		AssignHutsToExplorers();
-	}
-
-	m_bExplorationPlotsDirty = false;
-}
-
-#define PATH_PLAN_LAST
-typedef CvWeightedVector<CvUnit*, 50, true> WeightedUnitVector;
-//	---------------------------------------------------------------------------
-void CvEconomicAI::AssignExplorersToHuts()
-{
-#if defined(PATH_PLAN_LAST)
-	WeightedUnitVector aBestUnitList;
-	aBestUnitList.reserve(m_apExplorers.size());
-#endif
-
-	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
-	for(uint uiGoodyPlots = 0; uiGoodyPlots < m_aiGoodyHutPlots.size(); uiGoodyPlots++)
-	{
-		if(m_aiGoodyHutPlots[uiGoodyPlots] == -1)
-		{
-			continue;
-		}
-
-		CvPlot* pGoodyPlot = GC.getMap().plotByIndex(m_aiGoodyHutPlots[uiGoodyPlots]);
-#if !defined(PATH_PLAN_LAST)
-		int iClosestEstimateTurns = MAX_INT;
-#endif
-		int iUnitID = NO_UNIT;
-		int iStepPlotID = -1;
-
-		aBestUnitList.clear();
-
-		for(uint uiExplorer = 0; uiExplorer < m_apExplorers.size(); uiExplorer++)
-		{
-			CvUnit* pUnit = m_apExplorers[uiExplorer];
-
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY());
-
-#if defined(PATH_PLAN_LAST)
-			if(pUnit->maxMoves() >= 1)
-			{
-				int iEstimateTurns = iDistance / (pUnit->maxMoves() / GC.getMOVE_DENOMINATOR());
-				aBestUnitList.push_back(pUnit, iEstimateTurns);
-			}
-#else
-			int iEstimateTurns = MAX_INT;
-			if(pUnit->maxMoves() >= 1)
-			{
-				iEstimateTurns = iDistance / (pUnit->maxMoves() / GC.getMOVE_DENOMINATOR());
-			}
-
-			if(iEstimateTurns < iClosestEstimateTurns)
-			{
-				// Now check path
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-				if(bCanFindPath)
-				{
-					iClosestEstimateTurns = iEstimateTurns;
-					iUnitID = pUnit->GetID();
-					CvPlot* pPlot = kPathFinder.GetPathEndTurnPlot();
-					if(pPlot)
-						iStepPlotID = pPlot->GetPlotIndex();
-				}
-			}
-#endif
-		}
-
-#if defined(PATH_PLAN_LAST)
-		uint uiListSize;
-		if ((uiListSize = aBestUnitList.size()) > 0)
-		{
-			aBestUnitList.SortItems();			// highest score will be first.
-			for (uint i = uiListSize; i--; )	// Go backward, we want the lowest score (distance)
-			{
-				CvUnit* pUnit = aBestUnitList.GetElement(i);
-#ifdef AUI_ASTAR_TURN_LIMITER
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
-					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
-#else
-				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-#endif
-				if(bCanFindPath)
-				{
-					iUnitID = pUnit->GetID();
-					// Since we've gone through the trouble of calculating a path, save where our turn will end so the Homeland AI doesn't need to re-do the path.
-					CvPlot* pPlot = kPathFinder.GetPathEndTurnPlot();
-					if(pPlot)
-						iStepPlotID = pPlot->GetPlotIndex();
-					break;
-				}
-			}
-		}
-#endif
-
-		if(iUnitID != NO_UNIT)
-		{
-			m_aiGoodyHutUnitAssignments[uiGoodyPlots] = GoodyHutUnitAssignment(iUnitID, iStepPlotID);
-
-			FFastVector<CvUnit*> tempExplorers = m_apExplorers;
-			m_apExplorers.clear();
-			for(uint uiExplorer = 0; uiExplorer < tempExplorers.size(); uiExplorer++)
-			{
-				if(tempExplorers[uiExplorer]->GetID() != iUnitID)
-				{
-					m_apExplorers.push_back(tempExplorers[uiExplorer]);
-				}
-			}
-		}
-	}
-}
-
-//	---------------------------------------------------------------------------
-void CvEconomicAI::AssignHutsToExplorers()
-{
-	FFastVector<unsigned int> aiHutIndices;
-
-	// Create temporary list of huts
-	for(uint uiGoodyPlots = 0; uiGoodyPlots < m_aiGoodyHutPlots.size(); uiGoodyPlots++)
-	{
-		aiHutIndices.push_back(uiGoodyPlots);
-	}
-
-	for(uint uiExplorer = 0; uiExplorer < m_apExplorers.size(); uiExplorer++)
-	{
-		CvUnit* pUnit = m_apExplorers[uiExplorer];
-		uint uiHutIndex = MAX_INT;
-		int iClosestEstimateTurns = MAX_INT;
-
-		for(uint uiGoody = 0; uiGoody < aiHutIndices.size(); uiGoody++)
-		{
-			if(m_aiGoodyHutPlots[aiHutIndices[uiGoody]] == -1)
-			{
-				continue;
-			}
-
-			CvPlot* pGoodyPlot = GC.getMap().plotByIndex(m_aiGoodyHutPlots[aiHutIndices[uiGoody]]);
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY());
-
-			int iEstimateTurns = MAX_INT;
-			if(pUnit->maxMoves() >= 1)
-			{
-				iEstimateTurns = iDistance / (pUnit->maxMoves() / GC.getMOVE_DENOMINATOR());
-			}
-
-			if(iEstimateTurns < iClosestEstimateTurns)
-			{
-				// Now check path
-#ifdef AUI_ASTAR_TURN_LIMITER
-				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
-					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
-#else
-				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-#endif
-				if(bCanFindPath)
-				{
-					iClosestEstimateTurns = iEstimateTurns;
-					uiHutIndex = aiHutIndices[uiGoody];
-				}
-			}
-		}
-
-		if(uiHutIndex != MAX_INT)
-		{
-			m_aiGoodyHutUnitAssignments[uiHutIndex] = GoodyHutUnitAssignment( pUnit->GetID(), -1);
-
-			FFastVector<unsigned int> tempHutIndices = aiHutIndices;
-			aiHutIndices.clear();
-			for(uint uiHut = 0; uiHut < tempHutIndices.size(); uiHut++)
-			{
-				if(tempHutIndices[uiHut] != uiHutIndex)
-				{
-					aiHutIndices.push_back(tempHutIndices[uiHut]);
-				}
-			}
-		}
-	}
-}
-
-#endif //MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
-
 
 CvUnit* CvEconomicAI::FindWorkerToScrap()
 {
@@ -4037,86 +3680,6 @@ int EconomicAIHelpers::GetWeightThresholdModifier(EconomicAIStrategyTypes eStrat
 	}
 
 	return iWeightThresholdModifier;
-}
-
-/// Do we have an island clear of hostile units to settle on?
-bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, const CvPlayer* pPlayer)
-{
-	if(iAreaID == -1)
-	{
-		return false;
-	}
-
-	// Can't be capitals area
-	const CvCity* pCapitalCity = pPlayer->getCapitalCity();
-	if(pCapitalCity != NULL)
-	{
-		if(iAreaID == pCapitalCity->getArea())
-		{
-			return false;
-		}
-	}
-
-	CvArea* pArea = GC.getMap().getArea(iAreaID);
-	int iBeginSearchX = pArea->getAreaBoundaries().m_iWestEdge;
-	int iBeginSearchY = pArea->getAreaBoundaries().m_iSouthEdge;
-	int iEndSearchX   = pArea->getAreaBoundaries().m_iEastEdge;
-	int iEndSearchY   = pArea->getAreaBoundaries().m_iNorthEdge;
-#if defined(MOD_BALANCE_CORE)
-	//We don't want to 'quick colonize' somewhere we have no settlement at all.
-	if(pArea->getCitiesPerPlayer(pPlayer->GetID()) <= 0)
-	{
-		return false;
-	}
-	int iBad = 0;
-#endif
-	for(int iPlotX = iBeginSearchX; iPlotX <= iEndSearchX; iPlotX++)
-	{
-		for(int iPlotY = iBeginSearchY; iPlotY <= iEndSearchY; iPlotY++)
-		{
-			CvPlot* pPlot = GC.getMap().plotCheckInvalid(iPlotX, iPlotY);
-			if(!pPlot)
-			{
-				continue;
-			}
-
-			if(pPlot->getArea() != iAreaID)
-			{
-				continue;
-			}
-#if defined(MOD_BALANCE_CORE)
-			//The AI is going to cheat here, okay? Don't blame me.
-			if(pPlot->getNumUnits() > 0)
-			{
-				IDInfo* pUnitNode = pPlot->headUnitNode();
-				while(pUnitNode != NULL)
-				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-					if(pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
-					{
-						iBad++;
-					}
-				}
-			}
-#else
-			if(pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
-			{
-				return false;
-			}
-#endif
-		}
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	//allow one enemy unit per 25 tiles
-	if(iBad*100 > (pArea->getNumTiles()*100)/25 )
-	{
-		return false;
-	}
-#endif
-	return true;
 }
 
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
@@ -4785,19 +4348,13 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 //   upgrade if that assumption is no longer true
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStrategy*/, CvPlayer* pPlayer)
 {
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
-#if !defined(MOD_BALANCE_CORE_SETTLER)
-	CvUnit* pFirstSettler = 0;
-	int iLooseSettler = 0;
-	//int iStrategyWeight = 0;
-	int iFirstSettlerArea = -1;
-	int iArea = -1;
-#endif
-	int iBestArea;
-	int iSecondBestArea;
-	int iNumAreas;
-#if defined(MOD_BALANCE_CORE_SETTLER)
+	int iUnitLoop = 0;
+	CvUnit* pLoopUnit = 0;
+	int iBestArea = -1;
+	int iSecondBestArea = -1;
+	int iNumAreas = 0;
+	bool bIsSafe = false;
+
 	// Never run this strategy for OCC, barbarians or minor civs
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
 	{
@@ -4812,19 +4369,17 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
+
+	//do not check this here, it can lead to a situation where we have e.g. 3 settler but don't found any cities
+	//we won't disband them because we have good plots to settle, and we are running "no more expand" because we have 3 settlers
+	/*
 	EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
 	{
 		return false;
 	}
+	*/
 
-#else
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
-	{
-		return false;
-	}
-
-#endif
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
 	{
@@ -4837,83 +4392,69 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				{
 					if(pLoopUnit->getArmyID() == -1)
 					{
-#if defined(MOD_BALANCE_CORE)
 						int iInitialSettlerArea = pLoopUnit->getArea();
 						int iFinalArea = -1;
 						bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-						bool bCanEmbarkDeepWater = GET_TEAM(pPlayer->getTeam()).canEmbarkAllWaterPassage() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
 						
 						// CASE 1: we can go offshore
 						if (bCanEmbark)
 						{				
-							//Going overseas? Good luck!
-							if(iInitialSettlerArea != -1)
+							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, bIsSafe);
+
+							if(bBestSettle == NULL)
 							{
-								bool bWantEscort = !IsAreaSafeForQuickColony(iBestArea, pPlayer);
-								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, !bWantEscort, iBestArea);
+								//second chance
+								bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
 
 								if(bBestSettle == NULL)
 								{
-									//second chance
-									bWantEscort = !IsAreaSafeForQuickColony(iSecondBestArea, pPlayer);
-									bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, !bWantEscort, iSecondBestArea);
-
-									if(bBestSettle == NULL)
+									if(GC.getLogging() && GC.getAILogging())
 									{
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("We have settlers, but no good areas to settle!");
-											pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-										}
-										return false;
+										CvString strLogString;
+										strLogString.Format("We have settlers, but no good areas to settle!");
+										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 									}
-									else
-									{
-										iFinalArea = iSecondBestArea;
-									}
+									return false;
 								}
 								else
 								{
-									iFinalArea = iBestArea;
+									iFinalArea = iSecondBestArea;
 								}
+							}
+							else
+							{
+								iFinalArea = iBestArea;
+							}
 
-								if(bBestSettle != NULL && iFinalArea != -1)
+							if(bBestSettle != NULL && iFinalArea != -1)
+							{
+								CvArea* pArea = GC.getMap().getArea(iFinalArea);
+								if(pArea != NULL)
 								{
-									CvArea* pArea = GC.getMap().getArea(iFinalArea);
-									if(pArea != NULL)
+									if(pArea->GetID() != iInitialSettlerArea)
 									{
-										if(pArea->GetID() != iInitialSettlerArea)
+										if(!bIsSafe)
 										{
-											bool bIsOccupied = false;					
-											if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
-											{
-												bIsOccupied = true;
-											}
-									
-											if(!bIsOccupied && bWantEscort && bCanEmbarkDeepWater)
-											{
-												pPlayer->addAIOperation(AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
-												return true;
-											}
-											else
-											{
-												pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
-												return true;
-											}
+											pPlayer->addAIOperation(AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
+											return true;
 										}
 										else
 										{
-											pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+											pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
 											return true;
 										}
+									}
+									else
+									{
+										pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+										return true;
 									}
 								}
 							}
 						}
 						else // we can't embark yet
 						{
-							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, false, iInitialSettlerArea);
+							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, bIsSafe);
 							if(bBestSettle == NULL)
 							{
 								if(GC.getLogging() && GC.getAILogging())
@@ -4926,7 +4467,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 							}
 							else
 							{
-								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
+								if (bIsSafe)
+									pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iInitialSettlerArea);
+								else
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
+
 								return true;
 							}
 						}
@@ -4937,74 +4482,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	}
 
 	return false;
-#else
-						iLooseSettler++;
-						iFirstSettlerArea = pLoopUnit->getArea();
-						pFirstSettler = pLoopUnit;
-						break;
-					}
-				}
-			}
-		}
-		// Don't run this strategy if have 0 cities, in that case we just want to drop down a city wherever we happen to be
-		if (iLooseSettler && pPlayer->getNumCities() >= 1)
-
-		{
-			iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if(iNumAreas == 0)
-			{
-				return false;
-			}
-			bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-			bool bWantEscort = false;
-			// CASE 1: we can go offshore
-			if (bCanEmbark)
-			{
-
-				int iRandArea = GC.getGame().getJonRandNum(6, "Randomly choose an area to settle");
-
-				if (iRandArea <= 1) // this is "pick best tile I know ignoring what area it is part of", in the early game this is usually the start landmass
-				{
-					iArea = -1;
-					CvPlot* pPlot = pPlayer->GetBestSettlePlot(pFirstSettler, bWantEscort, -1);
-					if (!pPlot)
-					{
-						bWantEscort = true;
-					}
-				}
-				else if (iRandArea == 2) // least likely
-				{
-					iArea = iSecondBestArea;
-					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
-				}
-				else // this is as likely as the other options combined
-				{
-					iArea = iBestArea;
-					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
-				}
-				iArea = iBestArea;
-				bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
-				if (bWantEscort)
-				{
-					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
-				}
-				else
-				{
-					pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
-				}
-
-				return true;
-			}
-			else // we can't embark yet
-			{
-				pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iBestArea);
-				return true;
-			}
-		}
-	}
-
-	return false;
-#endif
 }
 
 

@@ -510,7 +510,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pMusterPlot)
 			{
-				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, false, true, true);
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pMusterPlot, false, true, true);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -734,7 +734,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iTurnsToReachCheckpoint = TurnsToReachTarget(pThisUnit, pMusterPlot, true /*bReusePaths*/, true, true);
+		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, true, true);
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
 			SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);

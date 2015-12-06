@@ -402,7 +402,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
-	int iDefaultPlotValue = -200;
+	int iDefaultPlotValue = -100;
 
 	int iBorderlandRange = 6;
 	int iCapitalArea = NULL;
@@ -470,7 +470,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 							if (iExistingCityDistance<=2)
 								//even if it's not currently worked by the other city, it will eventually be!
-								continue;
+								iRingModifier = 0;
 							if (iExistingCityDistance==3)
 								//this plot will likely be contested between the two cities, reduce its value
 								iRingModifier /= 2;
@@ -532,7 +532,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 								bIsAlmostCoast = true;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-							if (pLoopPlot->IsNaturalWonder())
+							if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
 								iPlotValue *= 15;
 
 							// lower value a lot if we already own this tile

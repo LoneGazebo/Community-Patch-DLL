@@ -71,8 +71,6 @@
 	#define AIR_ACTION_INTERCEPT	2
 #endif
 
-/// Performance: Don't generate long paths when we know we don't want them
-#define AUI_ASTAR_TURN_LIMITER
 /// Enables the Binomial Random Number Generator
 #define AUI_BINOM_RNG
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched

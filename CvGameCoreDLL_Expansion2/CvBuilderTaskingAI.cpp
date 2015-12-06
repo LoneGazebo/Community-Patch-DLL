@@ -1018,7 +1018,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		if(iPlotDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
 #endif
 		{
-			if(TurnsToReachTarget(pUnit, pTarget) == MAX_INT)
+			if(pUnit->TurnsToReachTarget(pTarget) == MAX_INT)
 			{
 				// No path, need to pick a new directive
 				continue;
@@ -2448,7 +2448,7 @@ int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot)
 	}
 	else
 	{
-		int iResult = TurnsToReachTarget(pUnit, pPlot);
+		int iResult = pUnit->TurnsToReachTarget(pPlot);
 		if(iResult == MAX_INT)
 		{
 			return -1;

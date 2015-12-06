@@ -1404,7 +1404,8 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL) const;
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
+
 	void ResetPath();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
@@ -1536,6 +1537,9 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
+
+	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;

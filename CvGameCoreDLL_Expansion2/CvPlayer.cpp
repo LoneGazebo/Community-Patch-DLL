@@ -35665,8 +35665,8 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 {
 	CvArea* pLoopArea;
 	int iLoop;
-	int iBestScore = -1;
-	int iSecondBestScore = -1;
+	int iBestScore = 0;	//default score of each area is zero, so we have to be better
+	int iSecondBestScore = 0;
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	int iNumFound = 0;
@@ -35677,17 +35677,12 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 	// Find best two scores above minimum
 	for(pLoopArea = theMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = theMap.nextArea(&iLoop))
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(!pLoopArea->isWater() && pLoopArea->getNumRevealedTiles(getTeam()) >= min(4, pLoopArea->getNumTiles()) )
-#else
-		if(!pLoopArea->isWater())
-#endif
 		{
 			iScore = pLoopArea->getTotalFoundValue();
 
 			if(iScore >= iMinScore)
 			{
-#if defined(MOD_BALANCE_CORE)
 				//we have to watch for overflow ...
 				iScore = (iScore >> 2); 
 
@@ -35699,13 +35694,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
 						{
 							iScore *= 2;
-						}
-					}
-					else
-					{
-						if(!EconomicAIHelpers::IsAreaSafeForQuickColony(pLoopArea->GetID(), this))
-						{
-							iScore /= 2;
 						}
 					}
 				}
@@ -35723,13 +35711,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					}
 				}
 				iScore /= max(1, iPlayers);
-#else
-				if (!(GC.getMap().GetAIMapHint() & 4) && !(EconomicAIHelpers::IsAreaSafeForQuickColony(pLoopArea->GetID(), this)))
-
-				{
-					iScore /= 2;
-				}
-#endif
 
 				if(iScore > iBestScore)
 				{
@@ -35769,8 +35750,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
-#if defined(MOD_BALANCE_CORE_SETTLER)
-
 ostream& operator<<(ostream& os, const CvPlot* pPlot)
 {
 	if (pPlot)
@@ -35779,8 +35758,13 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
+	std::vector<SPlotWithScore> vSettlePlots;
+
+	//play it safe
+	bIsSafe = false;
+
 	//--------
 	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging; 
 	std::stringstream dump;
@@ -35869,7 +35853,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam) || pPlot->IsAdjacentToImprovement((ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
 		{
 			//--------------
 			if (bLogging) 
@@ -35909,25 +35893,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-3" << std::endl;
 			//--------------
 			continue;
-		}
-
-		if(bOnlySafePaths)
-		{
-			CvTwoLayerPathFinder& kPathfinder = GC.GetPathFinder();
-			//find our closest city, which should become our muster plot
-			CvCity* pClosestCity = GetClosestCity(pUnit->plot());
-			CvPlot* pMusterPlot = pClosestCity->plot();
-
-			//if the muster plot is more than 12 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,12);
-			if (! kPathfinder.GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), data) )
-			{
-				//--------------
-				if (bLogging) 
-				dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
-				//--------------
-				continue;
-			}
 		}
 
 		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
@@ -35985,11 +35950,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 
 		//factor in the distance
 		iValue = (iValue*iScale)/100;
-		if(iValue > iBestFoundValue)
-		{
-			iBestFoundValue = iValue;
-			pBestFoundPlot = pPlot;
-		}
+
+		if (iValue>0)
+			vSettlePlots.push_back( SPlotWithScore(pPlot,iValue) );
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
@@ -36003,124 +35966,87 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 		pLog->Close();
 	}
 #endif
-	return pBestFoundPlot;
-}
 
-#else
+	if (vSettlePlots.empty())
+		return 0;
 
-CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
-{
-	if(!pUnit)
-		return NULL;
+	//order by decreasing score
+	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
 
-	int iSettlerX = pUnit->getX();
-	int iSettlerY = pUnit->getY();
-	int iUnitArea = pUnit->getArea();
-	PlayerTypes eOwner = pUnit->getOwner();
-	TeamTypes eTeam = pUnit->getTeam();
+	//delete all but the best 20%
+	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
-	int iBestFoundValue = 0;
-	CvPlot* pBestFoundPlot = NULL;
-
-	int iEvalDistance = /*12*/ GC.getSETTLER_EVALUATION_DISTANCE();
-	int iDistanceDropoffMod = /*99*/ GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
-
-	iEvalDistance += (GC.getGame().getGameTurn() * 5) / 100;
-
-	// scale this based on world size
-	const int iDefaultNumTiles = 80*52;
-	int iDefaultEvalDistance = iEvalDistance;
-	iEvalDistance = (iEvalDistance * GC.getMap().numPlots()) / iDefaultNumTiles;
-	iEvalDistance = max(iDefaultEvalDistance,iEvalDistance);
-
-	if(bEscorted && GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map or at the very least an offshore expansion map
+	//AI cheating here ... check if a settler would likely be captured
+	std::vector<CvPlot*> vBadPlots;
+	for(int iI = 0; iI < iNumPlots; iI++)
 	{
-		iEvalDistance *= 3;
-		iEvalDistance /= 2;
-	}
-	// Stay close to home if don't have an escort (unless we were going offshore which doesn't use escorts anymore)
-	else if(!bEscorted)
-	{
-		iEvalDistance *= 2;
-		iEvalDistance /= 3;
-	}
+		CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
 
-	CvMap& kMap = GC.getMap();
-	int iNumPlots = kMap.numPlots();
-	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
-	{
-		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
-
-		if(!pPlot)
+		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
+			vBadPlots.push_back(pPlot);
 			continue;
 		}
 
-		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		if(pPlot->getNumUnits() > 0)
 		{
-			continue;
-		}
-
-		if(!pPlot->isRevealed(getTeam()))
-		{
-			continue;
-		}
-
-		if(!pUnit->canFound(pPlot))
-		{
-			continue;
-		}
-
-		if(iArea != -1 && pPlot->getArea() != iArea)
-		{
-			continue;
-		}
-
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
-		{
-			continue;
-		}
-
-		if (IsPlotTargetedForCity(pPlot))
-		{
-			continue;
-		}
-
-		// Do we have to check if this is a safe place to go?
-		if(bEscorted || (!pPlot->isVisibleEnemyUnit(eOwner)))
-		{
-			int iValue = pPlot->getFoundValue(eOwner);
-			if(iValue > 5000)
+			IDInfo* pUnitNode = pPlot->headUnitNode();
+			while(pUnitNode != NULL)
 			{
-				int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
-				int iDistanceDropoff = min(99,(iDistanceDropoffMod * iSettlerDistance) / iEvalDistance);
-				iDistanceDropoff = max(0,iDistanceDropoff);
-				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				if(pPlot->getArea() != iUnitArea)
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->isEnemy(getTeam()))
 				{
-					if(GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map (or an offshore map like terra)
-					{
-						iValue *= 3;
-						iValue /= 2;
-					}
-					else
-					{
-						iValue *= 2;
-						iValue /= 3;
-					}
-				}
-				if(iValue > iBestFoundValue)
-				{
-					iBestFoundValue = iValue;
-					pBestFoundPlot = pPlot;
+					vBadPlots.push_back(pPlot);
+					break;
 				}
 			}
 		}
 	}
+
+	for (size_t i=0; i<vSettlePlots.size(); i++)
+	{
+		//check if it's too close to an enemy
+		bool isNoGood = false;
+		for (size_t j=0; j<vBadPlots.size(); j++)
+		{
+			if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+			{
+				isNoGood = true;
+				break;
+			}
+		}
+
+		if (isNoGood)
+			continue;
+
+		//find our closest city, which should become our muster plot
+		CvCity* pClosestCity = GetClosestCity(pUnit->plot());
+		if (pClosestCity)
+		{
+			CvPlot* pMusterPlot = pClosestCity->plot();
+			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
+
+			//if the muster plot is more than 12 turns away it's unsafe by definition
+			SPathFinderUserData data(pUnit,0,12);
+			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
+				continue;
+		}
+
+		//hooray! we found one - now see how it compares to the overall best plot
+		if (vSettlePlots[i].score > 0.8f*vSettlePlots[0].score)
+			pBestFoundPlot = vSettlePlots[i].pPlot;
+		else
+			pBestFoundPlot = vSettlePlots[0].pPlot;
+
+		break;
+	}
+
+	//note: we don't have to check if the overall best plot is actually reachable (via embark/ocean embark) as otherwise the tile would not be revealed
 	return pBestFoundPlot;
 }
-#endif //MOD_BALANCE_CORE_SETTLER
-
 
 //	--------------------------------------------------------------------------------
 /// How many Wonders has this Player constructed?
@@ -36425,13 +36351,14 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 			}
 
 			int iReturnValue = INT_MAX;
-			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iReturnValue);
+			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, iShortestPath, &iReturnValue);
 
 			if(bResult)
 			{
 				if(iReturnValue < iShortestPath)
 				{
 					pResultPlot = pPlot;
+					iShortestPath = iReturnValue;
 				}
 
 				if(bStopAfterFindingFirst)
