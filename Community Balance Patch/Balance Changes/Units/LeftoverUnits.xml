@@ -188,7 +188,7 @@
 		<Row>
 			<Class>UNITCLASS_COMPANIONCAVALRY</Class>
 			<Type>UNIT_GREEK_COMPANIONCAVALRY</Type>
-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
 			<Combat>14</Combat>
 			<Cost>-1</Cost>
 			<Moves>5</Moves>

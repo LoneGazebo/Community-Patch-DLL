@@ -1808,8 +1808,9 @@ bool CvGameReligions::IsInSomeReligion(BeliefTypes eBelief) const
 				} else if (bAnyBelief) {
 					// In the religion of someone else, but I can have any belief, so I can have it as well
 					continue;
-				} else if (GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAnyBelief()) {
+				} else if (GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAnyBelief() && !GET_PLAYER(it->m_eFounder).GetPlayerTraits()->IsAlwaysReligion()) {
 					// In a religion of someone who can have any belief, so I can have it as well
+					// But not if we're guaranteed a religion.
 					continue;
 				}
 			}

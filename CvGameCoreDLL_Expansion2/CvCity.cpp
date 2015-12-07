@@ -248,6 +248,8 @@ CvCity::CvCity() :
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
+	, m_aiYieldFromConstruction("CvCity::m_aiYieldFromConstruction", m_syncArchive)
+	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiCorporationYieldChange("CvCity::m_aiCorporationYieldChange", m_syncArchive)
@@ -257,6 +259,7 @@ CvCity::CvCity() :
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
+	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iBlockBuildingDestruction("CvCity::m_iBlockBuildingDestruction", m_syncArchive)
@@ -430,6 +433,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if(strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(bInitialFounding)
+	{
+		SetNumTimesOwned(eOwner, 1);
+	}
+	else
+	{
+		ChangeNumTimesOwned(eOwner, 1);
 	}
 #endif
 
@@ -777,6 +790,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			const YieldTypes eYield = static_cast<YieldTypes>(iI);
 			int iYield = owningPlayer.GetPlayerTraits()->GetYieldFromSettle(eYield);
 			iYield += owningPlayer.getFounderYield(eYield);
+			iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYield /= 100;
 			if(owningPlayer.getNumCities() <= 1 && owningPlayer.GetPlayerTraits()->IsReconquista() && eYield == YIELD_FAITH)
 			{
 				iYield = 0;
@@ -1431,7 +1446,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
+	m_aiNumTimesOwned.resize(REALLY_MAX_PLAYERS);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iBlockBuildingDestruction = 0;
@@ -1448,6 +1465,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLandTourismBonus = 0;
 	m_iSeaTourismBonus = 0;
 	m_iAlwaysHeal = 0;
+	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -1486,6 +1504,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiChangeYieldFromVictory.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
+		m_aiYieldFromConstruction.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
@@ -1527,6 +1546,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 		m_abFranchised.setAt(iI, false);
 		m_abTraded.setAt(iI, false);
+		m_aiNumTimesOwned.setAt(iI, false);
 #endif
 	}
 
@@ -8990,6 +9010,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
 			}
 
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromConstruction(eYield) > 0))
+			{
+				ChangeYieldFromConstruction(eYield, pBuildingInfo->GetYieldFromConstruction(eYield) * iChange);
+			}
+
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
@@ -9257,9 +9282,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(GetCityBuildings()->IsFirstTimeBuilding(eBuilding) <= 0)
 		{
 			GetCityBuildings()->SetFirstTimeBuilding(eBuilding, 1);
-			if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
+			if((GetYieldFromConstruction(YIELD_CULTURE) + owningPlayer.getYieldFromConstruction(YIELD_CULTURE)) > 0)
 			{
-				int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra;
+				int iYield = (GetYieldFromConstruction(YIELD_CULTURE) + owningPlayer.getYieldFromConstruction(YIELD_CULTURE)) * iEra;
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				owningPlayer.changeJONSCulture(iYield);
@@ -9272,9 +9297,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 				}
 			}
-			if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
+			if((GetYieldFromConstruction(YIELD_GOLD) + owningPlayer.getYieldFromConstruction(YIELD_GOLD)) > 0)
 			{
-				int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD) * iEra;
+				int iYield = (GetYieldFromConstruction(YIELD_GOLD) + owningPlayer.getYieldFromConstruction(YIELD_GOLD)) * iEra;
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				owningPlayer.GetTreasury()->ChangeGold(iYield);
@@ -9286,9 +9311,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 				}
 			}
-			if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
+			if((GetYieldFromConstruction(YIELD_FAITH) + owningPlayer.getYieldFromConstruction(YIELD_FAITH)) > 0)
 			{
-				int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH) * iEra;
+				int iYield = (GetYieldFromConstruction(YIELD_FAITH) + owningPlayer.getYieldFromConstruction(YIELD_FAITH)) * iEra;
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				owningPlayer.ChangeFaith(iYield);
@@ -9300,9 +9325,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 				}
 			}
-			if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
+			if((GetYieldFromConstruction(YIELD_FOOD) + owningPlayer.getYieldFromConstruction(YIELD_FOOD)) > 0)
 			{
-				int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD) * iEra;
+				int iYield = (GetYieldFromConstruction(YIELD_FOOD) + owningPlayer.getYieldFromConstruction(YIELD_FOOD)) * iEra;
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				changeFood(iYield);
@@ -9314,9 +9339,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 				}
 			}
-			if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
+			if((GetYieldFromConstruction(YIELD_SCIENCE) + owningPlayer.getYieldFromConstruction(YIELD_SCIENCE)) > 0)
 			{
-				int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) * iEra;
+				int iYield = (GetYieldFromConstruction(YIELD_SCIENCE) + owningPlayer.getYieldFromConstruction(YIELD_SCIENCE)) * iEra;
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
@@ -10847,7 +10872,6 @@ CvArea* CvCity::waterArea() const
 	VALIDATE_OBJECT
 	return plot()->waterArea();
 }
-
 //	--------------------------------------------------------------------------------
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
@@ -12814,7 +12838,15 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 						for(int iDY = -iRange; iDY <= iRange; iDY++)
 						{
 							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-							if(!pLoopPlot)
+							if(pLoopPlot == NULL)
+							{
+								continue;
+							}
+							if(pLoopPlot->isImpassable(getTeam()))
+							{
+								continue;
+							}
+							if(pLoopPlot->isMountain() || pLoopPlot->IsNaturalWonder())
 							{
 								continue;
 							}
@@ -12823,13 +12855,19 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 								iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
 								if(iBaseYieldReligion > 0)
 								{
-									if(pReligion->m_Beliefs.RequiresNoImprovement() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									if(pReligion->m_Beliefs.RequiresNoImprovement())
 									{
-										iValidTilesTerrain++;
+										if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+										{
+											iValidTilesTerrain++;
+										}
 									}
-									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
+									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature())
 									{
-										iValidTilesTerrain++;
+										if(pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills())
+										{
+											iValidTilesTerrain++;
+										}
 									}
 									else
 									{
@@ -14306,6 +14344,17 @@ void CvCity::SetPuppet(bool bValue)
 	{
 		m_bPuppet = bValue;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(bValue && IsNoWarmongerYet())
+	{
+		PlayerTypes eFormerOwner = getPreviousOwner();
+		if(eFormerOwner != NO_PLAYER)
+		{
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital());
+			SetNoWarmonger(false);
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14390,6 +14439,15 @@ void CvCity::DoAnnex()
 	// Turn this off - used to display info for annex/puppet/raze popup
 	SetIgnoreCityForHappiness(false);
 #if defined(MOD_BALANCE_CORE)
+	if(IsNoWarmongerYet())
+	{
+		PlayerTypes eFormerOwner = getPreviousOwner();
+		if(eFormerOwner != NO_PLAYER)
+		{
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital());
+			SetNoWarmonger(false);
+		}
+	}
 	//Immediate Annex? Bonus for Courthouse
 	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !IsPuppet())
 	{
@@ -16100,7 +16158,36 @@ void CvCity::SetPlayersReligion(PlayerTypes eNewValue)
 	VALIDATE_OBJECT
 	m_ePlayersReligion = eNewValue;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvCity::SetNoWarmonger(bool bValue)
+{
+	VALIDATE_OBJECT
+	m_bNoWarmonger = bValue;
+}
+bool CvCity::IsNoWarmongerYet()
+{
+	VALIDATE_OBJECT
+	return m_bNoWarmonger;
+}
 
+void CvCity::SetNumTimesOwned(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	m_aiNumTimesOwned.setAt(ePlayer, iValue);
+}
+void CvCity::ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	SetNumTimesOwned(ePlayer, (GetNumTimesOwned(ePlayer) + iValue));
+}
+int CvCity::GetNumTimesOwned(PlayerTypes ePlayer)
+{
+	VALIDATE_OBJECT
+	return m_aiNumTimesOwned[ePlayer];
+}
+#endif
 //	--------------------------------------------------------------------------------
 TeamTypes CvCity::getTeam() const
 {
@@ -17098,11 +17185,33 @@ void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
 	if(iChange != 0)
 	{
 		m_aiYieldFromWLTKD.setAt(eIndex, m_aiYieldFromWLTKD[eIndex] + iChange);
-		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
+		CvAssert(GetYieldFromWLTKD(eIndex) >= 0);
 	}
 }
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromConstruction(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromConstruction[eIndex];
+}
 
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromConstruction(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
+	if(iChange != 0)
+	{
+		m_aiYieldFromConstruction.setAt(eIndex, m_aiYieldFromConstruction[eIndex] + iChange);
+		CvAssert(GetYieldFromConstruction(eIndex) >= 0);
+	}
+}
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetThemingYieldBonus(YieldTypes eIndex) const
@@ -22838,7 +22947,9 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromWLTKD, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromConstruction, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiThemingYieldBonus, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiNumTimesOwned, REALLY_MAX_PLAYERS, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnitPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iBuildingPurchaseCooldown, 0);
@@ -22854,6 +22965,7 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iLandTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iSeaTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAlwaysHeal, 0);
+	MOD_SERIALIZE_READ(68, kStream, m_bNoWarmonger, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(66, kStream, m_iBlockBuildingDestruction, 0);
@@ -23282,7 +23394,9 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromWLTKD);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromConstruction);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiThemingYieldBonus);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiNumTimesOwned);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnitPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iBuildingPurchaseCooldown);
@@ -23298,6 +23412,7 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iLandTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iSeaTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iAlwaysHeal);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoWarmonger);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iBlockBuildingDestruction);

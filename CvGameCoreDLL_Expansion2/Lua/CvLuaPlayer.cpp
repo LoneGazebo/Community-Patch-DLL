@@ -1163,6 +1163,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteProduction);
 	Method(GetInternationalTradeRouteFood);
 	Method(GetMinorCivGoldBonus);
+	Method(IsConnectedToPlayer);
+	Method(IsConnectionBonus);
 #endif
 	Method(GetPotentialTradeUnitNewHomeCity);
 	Method(GetPotentialAdmiralNewPort);
@@ -4943,7 +4945,38 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsConnectedToPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 
+	const bool bResult = pPlayerTrade->IsConnectedToPlayer(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}	
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsConnectionBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	bool bResult = false;
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		int iYieldQuantity = pkPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(eYield);
+		if (iYieldQuantity > 0)
+		{
+			bResult = true;
+			break;
+		}
+	}
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}	
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 {

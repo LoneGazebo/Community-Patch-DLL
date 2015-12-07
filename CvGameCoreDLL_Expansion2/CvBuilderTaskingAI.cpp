@@ -1129,8 +1129,15 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			}
 			else
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(!pkImprovementInfo->IsAdjacentCity())
+				{
+#endif
 				// this plot already has the appropriate improvement to use the resource
 				break;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 		else

@@ -957,6 +957,10 @@
 			<PrereqTech>TECH_SAILING</PrereqTech>
 		</Row>
 		<Row>
+			<TechType>TECH_OPTICS</TechType>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
+		</Row>
+		<Row>
 			<TechType>TECH_WRITING</TechType>
 			<PrereqTech>TECH_ARCHERY</PrereqTech>
 		</Row>
@@ -983,6 +987,10 @@
 		<Row>
 			<TechType>TECH_IRON_WORKING</TechType>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_IRON_WORKING</TechType>
+			<PrereqTech>TECH_MASONRY</PrereqTech>
 		</Row>
 	<!-- Ancient Era -->
 		<Row>

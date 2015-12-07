@@ -30,6 +30,9 @@
           <Image Anchor="C,C" Offset="0,0" Texture="CityStateMeterBase.dds" Size="161,7" Hidden="0" Color="White.160"/>
           <TextureBar ID="NegativeStatusMeter" Anchor="L,C" Size="81.7" Direction="Left" Texture="Assets/UI/Art/Notification/CityStateMeterBaseRed.dds" Hidden="0"/>
           <TextureBar ID="PositiveStatusMeter" Anchor="R,C" Size="81.7" Direction="Right" Texture="Assets/UI/Art/Notification/CityStateMeterBaseBlue.dds" Hidden="0"/>
+		<!-- CBP -->
+			<Label ID="MarriedButton" Anchor="C,C" Offset="0.15" Size="60.15" Hidden="0"/>
+		<!-- END -->
           <Image Anchor="C,C" Offset="0,0" Texture="Assets/UI/Art/Notification/CityStateMeterFrameQuartered.dds" Size="161.11" Hidden="0">
             <!-- Status -->
             <Label ID="StatusLabel" AnchorSide="I.O" Anchor="L,T" Offset="22,5" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_POP_CSTATE_STATUS">

@@ -2002,6 +2002,18 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 	if(pkImprovementInfo)
 	{
 		bResult = pkImprovementInfo->IsImprovementResourceTrade(kPlot->getResourceType(GC.getGame().getActiveTeam()));
+#if defined(MOD_BALANCE_CORE)
+		if(!bResult)
+		{
+			if(GET_TEAM(GC.getGame().getActiveTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(kPlot->getResourceType())->getTechCityTrade()))
+			{
+				if(pkImprovementInfo->IsCreatedByGreatPerson() || pkImprovementInfo->IsAdjacentCity())
+				{
+					bResult = true;
+				}
+			}
+		}
+#endif
 	}
 
 	lua_pushboolean(L, bResult);

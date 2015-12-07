@@ -1221,6 +1221,8 @@ protected:
 	static int lGetInternationalTradeRouteProduction(lua_State* L);
 	static int lGetInternationalTradeRouteFood(lua_State* L);
 	static int lGetMinorCivGoldBonus(lua_State* L);
+	static int lIsConnectedToPlayer(lua_State* L);
+	static int lIsConnectionBonus(lua_State* L);
 #endif
 	static int lGetPotentialTradeUnitNewHomeCity(lua_State* L);
 	static int lGetPotentialAdmiralNewPort(lua_State* L);

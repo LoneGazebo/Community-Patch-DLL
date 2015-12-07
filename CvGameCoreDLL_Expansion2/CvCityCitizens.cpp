@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -649,7 +649,13 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	// City Focus
 	CityAIFocusTypes eFocus = GetFocusType();
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
+#if defined(MOD_BALANCE_CORE)
+	{
+#endif
 		iFoodYieldValue *= 4;
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 #if defined(MOD_BALANCE_CORE)
 	{
@@ -756,11 +762,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 8), 1));
 	if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 	{
-		iFoodYieldValue *= iRemainder;
+		iFoodYieldValue *= max(1, iRemainder);
 	}
 	else
 	{
-		iFoodYieldValue *= (iRemainder / 4);
+		iFoodYieldValue *= max(1, (iRemainder / 4));
 	}
 #else
 	// We want to grow here

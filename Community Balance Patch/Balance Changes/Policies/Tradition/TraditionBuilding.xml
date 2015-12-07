@@ -173,7 +173,7 @@
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_PALACE_GARDEN</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>

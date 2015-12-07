@@ -281,6 +281,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
+	m_piYieldFromTech(NULL),
+	m_piYieldFromConstruction(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -373,6 +375,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
+	SAFE_DELETE_ARRAY(m_piYieldFromTech);
+	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -803,6 +807,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2393,7 +2399,30 @@ int* CvBuildingEntry::GetYieldFromGPExpendArray() const
 {
 	return m_piYieldFromGPExpend;
 }
-
+/// Free Yield from Tech unlocked
+int CvBuildingEntry::GetYieldFromTech(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromTech ? m_piYieldFromTech[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromTechArray() const
+{
+	return m_piYieldFromTech;
+}
+/// Does this Policy grant yields from constructing buildings?
+int CvBuildingEntry::GetYieldFromConstruction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromConstruction[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromConstructionArray() const
+{
+	return m_piYieldFromConstruction;
+}
 /// Array of yield changes
 int CvBuildingEntry::GetThemingYieldBonus(int i) const
 {

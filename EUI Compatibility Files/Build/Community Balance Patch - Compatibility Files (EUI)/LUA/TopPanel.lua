@@ -491,7 +491,7 @@ local function UpdateTopPanelNow()
 					Controls.HappyBar:SetPercent( happyProgress / happyNeeded )
 					Controls.HappyBarShadow:SetPercent( happyProgressNext / happyNeeded )
 					if excessHappiness > 0 then
-						turnsRemaining = math.ceil((happyNeeded - happyProgress) / excessHappiness)
+						turnsRemaining = math.ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
 					end
 					Controls.HappyBox:SetHide(false)
 				else
@@ -1631,7 +1631,20 @@ if civ5_mode then
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+			end
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			if (iGAPTrait > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+			end
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			if (iGAPCities > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+			end
+			-- END
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( Locale.ToUpper"TXT_KEY_UNIQUE_GOLDEN_AGE_ANNOUNCE" )
@@ -1646,25 +1659,11 @@ if civ5_mode then
 					.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
 				if excessHappiness > 0 then
 					tips:insert( L("TXT_KEY_MISSION_START_GOLDENAGE") .. ": [COLOR_YELLOW]"
-						.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math.ceil((happyNeeded - happyProgress) / excessHappiness) ) )
+						.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math.ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)) ) )
 						.. "[ENDCOLOR]"	.. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", excessHappiness) )
 				elseif excessHappiness < 0 then
 					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
 				end
-				-- CBP
-				local iGAPReligion = g_activePlayer:GetGAPFromReligion();
-				if (iGAPReligion > 0) then
-					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
-				end
-				local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-				if (iGAPTrait > 0) then
-					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
-				end
-				local iGAPCities = g_activePlayer:GetGAPFromCities();
-				if (iGAPCities > 0) then
-					tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
-				end
-				-- END
 			end
 
 			if g_isBasicHelp then

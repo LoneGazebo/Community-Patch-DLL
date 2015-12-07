@@ -2962,7 +2962,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			if(pUnit->getUnitCombatType() != getUnitCombatType())
 			{
 				bool bRanged = false;
-				if((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0))
+				if((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
 				{
 					bRanged = true;
 				}
@@ -10201,15 +10201,19 @@ bool CvUnit::found()
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
 	{
 		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
-	} else {
-#endif
+	} 
+	else 
+	{
+		kPlayer.found(getX(), getY(), NO_RELIGION, true);
+#else
 		kPlayer.found(getX(), getY());
+#endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	}
 #endif
 
 #if defined(MOD_AI_SECONDARY_SETTLERS)
-	if (IsCombatUnit()) {
+	if (IsCombatUnit() && plot()->getPlotCity() != NULL) {
 		CUSTOMLOG("  ... success!  They founded %s", plot()->getPlotCity()->getName().c_str());
 	}
 #endif	

@@ -2762,6 +2762,13 @@
 			<Modifier>150</Modifier>
 		</Row>
 	</UnitPromotions_UnitCombatMods>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_ANTI_AIR_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+			<Modifier>150</Modifier>
+		</Row>
+	</UnitPromotions_UnitCombatMods>
 	<UnitPromotions_Domains>
 		<Row>
 			<PromotionType>PROMOTION_TARGETING_1</PromotionType>

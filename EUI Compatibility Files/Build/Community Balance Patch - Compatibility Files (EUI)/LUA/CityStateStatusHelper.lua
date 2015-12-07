@@ -573,6 +573,13 @@ if gk_mode then
 		local sIconText = ""
 
 		if minorPlayer then
+			-- CBP
+			--Married
+			if bnw_mode and minorPlayer:IsMarried(majorPlayerID) then
+				sIconText = sIconText .. "[ICON_RES_MARRIAGE] "
+			end
+			-- END
+
 			for i, questID in pairs(ktQuestsDisplayOrder) do
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
@@ -589,6 +596,12 @@ if gk_mode then
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
 				sIconText = sIconText .. "[ICON_RESISTANCE]"
 			end
+
+			-- CBP
+			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
+				sIconText = sIconText .. "[ICON_TEAM_2]"
+			end
+			-- END
 
 		else
 			print("Lua error - invalid player index")
@@ -737,6 +750,12 @@ if gk_mode then
 		local minorPlayer = Players[minorPlayerID]
 		local tips = {}
 		if minorPlayer then
+			-- CBP
+			--Married
+			if minorPlayer:IsMarried(majorPlayerID) then
+				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT") )
+			end
+			-- END
 			for i, questID in pairs(ktQuestsDisplayOrder) do
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
@@ -759,6 +778,12 @@ if gk_mode then
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
 				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
 			end
+
+			-- CBP
+			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
+				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", minorPlayer:GetCoupCooldown()) )
+			end
+			-- END
 		else
 			print("Lua error - invalid player index")
 		end -- minorPlayer

@@ -267,12 +267,12 @@ public:
 	void ClearNoSettling();
 
 #if defined(MOD_BALANCE_CORE)
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
-	bool canFound(int iX, int iY) const;
+	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce = false) const;
+	bool canFound(int iX, int iY, bool bForce = false) const;
 #endif
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION);
+	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
 #else
 	void found(int iX, int iY);
 #endif
@@ -1629,20 +1629,28 @@ public:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetAdvancedActionGold() const;
 	void changeAdvancedActionGold(int iChange);
+	void setAdvancedActionGold(int iChange);
 	int GetAdvancedActionScience() const;
 	void changeAdvancedActionScience(int iChange);
+	void setAdvancedActionScience(int iChange);
 	int GetAdvancedActionUnrest() const;
 	void changeAdvancedActionUnrest(int iChange);
+	void setAdvancedActionUnrest(int iChange);
 	int GetAdvancedActionRebellion() const;
 	void changeAdvancedActionRebellion(int iChange);
+	void setAdvancedActionRebellion(int iChange);
 	int GetAdvancedActionGP() const;
 	void changeAdvancedActionGP(int iChange);
+	void setAdvancedActionGP(int iChange);
 	int GetAdvancedActionUnit() const;
 	void changeAdvancedActionUnit(int iChange);
+	void setAdvancedActionUnit(int iChange);
 	int GetAdvancedActionWonder() const;
 	void changeAdvancedActionWonder(int iChange);
+	void setAdvancedActionWonder(int iChange);
 	int GetAdvancedActionBuilding() const;
 	void changeAdvancedActionBuilding(int iChange);
+	void setAdvancedActionBuilding(int iChange);
 	bool IsCannotFailSpies() const;
 	int GetCannotFailSpies() const;
 	void changeCannotFailSpies(int iChange);

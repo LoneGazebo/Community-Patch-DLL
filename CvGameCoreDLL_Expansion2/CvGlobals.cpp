@@ -1406,7 +1406,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(TRADE_ROUTE_BASE_PRODUCTION_VALUE, 300),
 	GD_INT_INIT(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100, 200),
 	GD_INT_INIT(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE, 50),
-	GD_INT_INIT(TRADE_ROUTE_RIVER_CITY_MODIFIER, 25),
+	GD_INT_INIT(TRADE_ROUTE_RIVER_CITY_MODIFIER, 15),
 	GD_INT_INIT(TRADE_ROUTE_BASE_PLUNDER_GOLD, 100),
 	GD_INT_INIT(TRADE_ROUTE_PLUNDER_TURNS_COUNTER, 30),
 	GD_INT_INIT(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA, 3),
@@ -2282,13 +2282,16 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	/* Try to log the callstack */
-	FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
-	if (pLog)
+	if(MOD_BALANCE_CORE_DEBUGGING)
 	{
-		gStackWalker.SetLog(pLog);	
-		gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
-		pLog->Close();
+		/* Try to log the callstack */
+		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			gStackWalker.SetLog(pLog);	
+			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			pLog->Close();
+		}
 	}
 #endif
 

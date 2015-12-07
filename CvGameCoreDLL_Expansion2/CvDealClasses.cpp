@@ -796,8 +796,24 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Other player does not want peace with eToPlayer
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if(MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				//Only if players is NOT a vassal.
+				if(!GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eFromTeam) && !GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eToTeam))
+				{
+					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
+						return false;
+				}
+			}
+			else
+			{
+#endif
 			if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
 				return false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			}
+#endif
 		}
 	}
 	// Third Party War
@@ -809,6 +825,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		if(eThirdTeam == NO_TEAM)
+			return false;
+
+		if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!GET_TEAM(pFromPlayer->getTeam()).HasEmbassyAtTeam(pToPlayer->getTeam()) || !GET_TEAM(pToPlayer->getTeam()).HasEmbassyAtTeam(pFromPlayer->getTeam())))
 			return false;
 
 		// If eThirdTeam is an AI then they have to want peace with ToTeam
@@ -1046,7 +1065,10 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 				iNumInRenewDeal += it->m_iData2;
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(iNumInRenewDeal > 0)
+		{
+#endif
 		// remove any that are in this deal
 		for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 		{
@@ -1055,6 +1077,9 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 				iNumInExistingDeal += it->m_iData2;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	return iNumAvailable + iNumInRenewDeal - iNumInExistingDeal;
@@ -2522,7 +2547,15 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				{
 					CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
 					if(pCity != NULL)
+#if defined(MOD_BALANCE_CORE)
+					{
+						//I've traded for? I don't want to give away again.
+						pCity->SetTraded(eAcceptedToPlayer, true);
+#endif
 						GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, false, true);
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 				else if(it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY)
 				{
@@ -3076,6 +3109,10 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	{
 		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
 		{
+#if defined(MOD_BALANCE_CORE)
+			//Historical deals can't be considered for renewal.
+			it->m_bConsideringForRenewal = false;
+#endif
 			m_HistoricalDeals.push_back(*it);
 		}
 		else

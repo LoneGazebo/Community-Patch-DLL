@@ -8,12 +8,36 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>25</Yield>
 		</Row>
-	</Building_YieldChangesPerPop>
-	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_HERMITAGE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_YieldFromTech>
+		<Row>
+			<BuildingType>BUILDING_OXFORD_UNIVERSITY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldFromTech>
+	<Building_WLTKDYieldMod>
+		<Row>
+			<BuildingType>BUILDING_CIRCUS_MAXIMUS</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIRCUS_MAXIMUS</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_WLTKDYieldMod>
+	<Building_YieldFromConstruction>
+		<Row>
+			<BuildingType>BUILDING_IRONWORKS</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldFromConstruction>
 </GameData>

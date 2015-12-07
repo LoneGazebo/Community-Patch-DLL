@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -23,6 +23,7 @@
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 #include "CvDiplomacyAI.h"
+#include "CvMilitaryAI.h"
 #endif
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
 #include "CvGrandStrategyAI.h"
@@ -587,18 +588,31 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	int iTurnsPerCircuit = 1;
 	if (iRouteSpeed != 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
+		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - iEra) * 2) / iRouteSpeed;
+		if(iTurnsPerCircuit <= 1)
+		{
+			iTurnsPerCircuit = 1;
+		}
+#else
 		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - 1) * 2) / iRouteSpeed;
+#endif
 	}
 	
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	//TRs turn over more quickly the long the game goes on.
-	int iCurrentEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
-	if(iCurrentEra > 0)
+	int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
+	if(iEra <= 0)
 	{
-		iTargetTurns -= (iCurrentEra * 2);
+		iEra = 1;
 	}
+	iTargetTurns -= iEra;
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
@@ -2853,29 +2867,6 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iResult = 0;
 				int iBase = GC.getINTERNATIONAL_TRADE_BASE();
 				iResult = iBase;
-#if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-				{
-					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->GetAlly() == kTradeConnection.m_eOriginOwner)
-					{
-						int iAllyGold = (GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
-						if(iAllyGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
-						{
-							iAllyGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
-						}
-						iResult += iAllyGold;
-					}
-					else if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsFriends(kTradeConnection.m_eOriginOwner))
-					{
-						int iFriendGold = (GD_INT_GET(TRADE_ROUTE_CS_FRIEND_GOLD) * 100);
-						if(iFriendGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
-						{
-							iFriendGold *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
-						}
-						iResult += iFriendGold;
-					}
-				}
-#endif
 				return iResult;
 			}
 			else if (eYield == YIELD_SCIENCE)
@@ -3148,7 +3139,6 @@ int CvPlayerTrade::GetTradeConnectionYourBuildingValueTimes100(const TradeConnec
 
 	return iBonus;
 }
-
 #if defined(MOD_BALANCE_CORE)
 int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
@@ -3180,7 +3170,6 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 	return iResult;
 }
 #endif
-
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionTheirBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
@@ -3571,6 +3560,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(MOD_BALANCE_CORE)
 					// Cultural influence bump
 					int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eDestOwner);
+					//Minor Civ Bump
+					int iMinorCivGold = GetMinorCivGoldBonus(kTradeConnection, eYield, true);
 #endif
 
 					int iModifier = 100;
@@ -3593,6 +3584,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(MOD_BALANCE_CORE)
 					// Cultural influence bump
 					iValue += iInfluenceBoost;
+					iValue += iMinorCivGold;
 #endif
 					iModifier += iDomainModifier;
 					iModifier += iOriginRiverModifier;
@@ -3644,6 +3636,112 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				}
 #endif
 				break;
+#if defined(MOD_BALANCE_CORE)
+			case YIELD_PRODUCTION:
+				{
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
+					{
+						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
+						int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, false);
+						int iResourceBonus = GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
+						int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
+						int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iTheirBuildingBonus = GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eDestOwner);
+						int iModifier = 100;
+						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, YIELD_GOLD);
+						int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+
+						iValue = iBaseValue;
+						iValue += iOriginPerTurnBonus;
+						iValue += iDestPerTurnBonus;
+						iValue += iExclusiveBonus;
+						iValue += iYourBuildingBonus;
+						iValue += iTheirBuildingBonus;
+						iValue += iResourceBonus;
+						iValue += iPolicyBonus;
+						iValue += iTraitBonus;
+						iValue += iInfluenceBoost;
+
+						iModifier += iDomainModifier;
+						iModifier += iOriginRiverModifier;
+						iModifier += iCorporationModifier;
+						iModifier += iOpenBordersModifier;
+
+						iValue *= iModifier;
+						if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
+						{
+							iValue /= 150;
+						}
+						else if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsFriends(kTradeConnection.m_eOriginOwner))
+						{
+							iValue /= 200;
+						}
+						else
+						{
+							iValue /= 250;
+						}
+						iValue = max(100, iValue);
+					}
+				}
+				break;
+			case YIELD_FOOD:
+				{
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
+					{
+						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
+						int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, false);
+						int iResourceBonus = GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
+						int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
+						int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iTheirBuildingBonus = GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+
+						int iModifier = 100;
+						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, YIELD_GOLD);
+						int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+
+						iValue = iBaseValue;
+						iValue += iOriginPerTurnBonus;
+						iValue += iDestPerTurnBonus;
+						iValue += iExclusiveBonus;
+						iValue += iYourBuildingBonus;
+						iValue += iTheirBuildingBonus;
+						iValue += iResourceBonus;
+						iValue += iPolicyBonus;
+						iValue += iTraitBonus;
+						iModifier += iDomainModifier;
+						iModifier += iOriginRiverModifier;
+						iModifier += iCorporationModifier;
+						iModifier += iOpenBordersModifier;
+
+						iValue *= iModifier;
+						if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
+						{
+							iValue /= 200;
+						}
+						else if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsFriends(kTradeConnection.m_eOriginOwner))
+						{
+							iValue /= 300;
+						}
+						else
+						{
+							iValue /= 400;
+						}
+						iValue = max(100, iValue);
+					}
+				}
+				break;
+#endif
 			}
 		}
 	}
@@ -3738,11 +3836,42 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
 					iValue *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
 					iValue /= 100;
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+					CvCity* pOriginCity = NULL;
+					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+					if (pStartPlot)
+					{
+						pOriginCity = pStartPlot->getPlotCity();
+					}
+					CvCity* pEndCity = NULL;
+					CvPlot* pEndPlot = GC.getMap().plot(kTradeConnection.m_iDestX, kTradeConnection.m_iDestY);
+					if (pEndPlot)
+					{
+						pEndCity = pEndPlot->getPlotCity();
+					}
+					if(MOD_BALANCE_YIELD_SCALE_ERA && pOriginCity != NULL && pEndCity != NULL)
+					{
+						int iStartCityPop = pOriginCity->getPopulation();
+						int iEndCityPop = pEndCity->getPopulation();
+						if(iStartCityPop > iEndCityPop)
+						{
+							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
+							iValue += max((iDelta * 100), 100);
+						}
+					}
+#endif
 
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
+#if defined(MOD_BALANCE_CORE)
+					
+					if(pOriginCity != NULL && pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity())
+					{
+						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
+					}
+#endif
 					iValue *= iModifier;
 					iValue /= 100;
 				}
@@ -3762,11 +3891,40 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
 					iValue *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
 					iValue /= 100;
-
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+					CvCity* pOriginCity = NULL;
+					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+					if (pStartPlot)
+					{
+						pOriginCity = pStartPlot->getPlotCity();
+					}
+					CvCity* pEndCity = NULL;
+					CvPlot* pEndPlot = GC.getMap().plot(kTradeConnection.m_iDestX, kTradeConnection.m_iDestY);
+					if (pEndPlot)
+					{
+						pEndCity = pEndPlot->getPlotCity();
+					}
+					if(MOD_BALANCE_YIELD_SCALE_ERA && pOriginCity != NULL && pEndCity != NULL)
+					{
+						int iStartCityPop = pOriginCity->getPopulation();
+						int iEndCityPop = pEndCity->getPopulation();
+						if(iStartCityPop > iEndCityPop)
+						{
+							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
+							iValue += max((iDelta * 100), 100);
+						}
+					}
+#endif
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
+#if defined(MOD_BALANCE_CORE)
+					if(pOriginCity != NULL && pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity())
+					{
+						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
+					}
+#endif
 					iValue *= iModifier;
 					iValue /= 100;
 				}
@@ -5838,7 +5996,13 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #else
 	iScore = (iScore * 10) / iDangerSum;
 #endif
-	
+#if defined(MOD_BALANCE_CORE)
+	//Let's encourage TRs to feitorias.
+	if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
+	{
+		iScore *= 50;
+	}
+#endif
 	// if we have any tourism and the destination owner is not a minor civ
 #if defined(MOD_BALANCE_CORE)
 	if (bHaveTourism && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
@@ -5991,6 +6155,10 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 			}
 		}		
 	}
+	if(m_pPlayer->IsAtWar())
+	{
+		iScore /= max(4, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
+	}
 #endif
 	return iScore;
 }
@@ -6136,7 +6304,10 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
-	
+	if(m_pPlayer->IsAtWar())
+	{
+		iScore *= max(4, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
+	}
 	return (iScore - (iDistance + iDangerSum));
 #else
 	return iDistanceScore - iDangerSum;
@@ -6305,6 +6476,10 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 			}
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
+	}
+	if(m_pPlayer->IsAtWar())
+	{
+		iScore *= max(6, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
 	return (iScore - (iDistance + iDangerSum));
 #else
@@ -6475,6 +6650,10 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 			}
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
+	}
+	if(m_pPlayer->IsAtWar())
+	{
+		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
 	return (iScore - (iDistance + iDangerSum));
 #else

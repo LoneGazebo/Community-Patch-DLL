@@ -745,7 +745,14 @@ public:
 
 	PlayerTypes GetPlayersReligion() const;
 	void SetPlayersReligion(PlayerTypes eNewValue);
+#if defined(MOD_BALANCE_CORE)
+	void SetNoWarmonger(bool bValue);
+	bool IsNoWarmongerYet();
 
+	void ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue);
+	void SetNumTimesOwned(PlayerTypes ePlayer, int iValue);
+	int GetNumTimesOwned(PlayerTypes ePlayer);
+#endif
 	// Yield
 
 	int getSeaPlotYield(YieldTypes eIndex) const;
@@ -840,6 +847,9 @@ public:
 
 	int GetThemingYieldBonus(YieldTypes eIndex) const;
 	void ChangeThemingYieldBonus(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromConstruction(YieldTypes eIndex) const;
+	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -1423,7 +1433,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
+	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
@@ -1435,6 +1447,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
+	FAutoVariable<bool, CvCity> m_bNoWarmonger;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
