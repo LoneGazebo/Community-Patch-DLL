@@ -2175,6 +2175,10 @@ public:
 	bool GetEverTrainedBuilder(void);
 	// end Tutorial functions
 
+	bool CanCrossOcean() const;
+	bool CanCrossMountain() const;
+	bool CanCrossIce() const;
+
 	// International Trade
 	bool IsAllowedToTradeWith(PlayerTypes eOtherPlayer);
 	// end International Trade

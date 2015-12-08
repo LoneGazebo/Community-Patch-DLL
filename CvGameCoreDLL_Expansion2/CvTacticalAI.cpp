@@ -5136,7 +5136,6 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 /// Move a large army to its destination against an enemy target
 void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOperation)
 {
-#if defined(MOD_BALANCE_CORE)
 	CvUnit* pCivilian = NULL; 
 	CvUnit* pEscort = NULL;
 
@@ -5652,446 +5651,6 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 			}
 		}
 	}
-#else
-	CvUnit* pCivilian = NULL; 
-	CvUnit* pEscort = NULL;
-
-	CvUnit* pCivilian = 0, *pEscort = 0;
-
-	int iUnitID;
-
-	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
-	{
-		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
-	iUnitID = pThisArmy->GetFirstUnitID();
-	if(iUnitID != -1)
-	{
-		pCivilian = m_pPlayer->getUnit(iUnitID);
-
-		if(iUnitID != -1)
-		{
-			pEscort = m_pPlayer->getUnit(iUnitID);
-			if(pEscort->getDomainType() != DOMAIN_LAND)
-			{
-				pEscort = NULL;   // Second unit wasn't the escort
-			}
-		}
-	}
-
-	if(!pCivilian && pOperation->IsCivilianRequired())
-	{
-		return;
-	}
-		}
-		// Find a new place to meet up, look at all hexes adjacent to civilian
-		else
-		{
-			int iRange = 5;
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pConsiderPlot = plotXYWithRangeCheck(pOperation->GetMusterPlot()->getX(), pOperation->GetMusterPlot()->getY(), iX, iY, iRange);
-					if(pConsiderPlot != NULL)
-					{
-						// Has to be somewhere we can move and be empty of other units
-						if(pEscort->canEnterTerrain(*pConsiderPlot) && pEscort->canEnterTerritory(pConsiderPlot->getTeam()))
-						{
-							if(pConsiderPlot->getNumUnits() == 0)
-							{
-
-								if(pEscort->GeneratePath(pConsiderPlot) && pCivilian->GeneratePath(pConsiderPlot))
-								{
-									ExecuteMoveToPlotIgnoreDanger(pEscort, pConsiderPlot);
-									ExecuteMoveToPlotIgnoreDanger(pCivilian, pConsiderPlot);
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strTemp;
-										CvString strLogString;
-										strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
-										strLogString.Format("Moving escorting %s to open hex, Open hex X: %d, Open hex Y: %d, X: %d, Y: %d", strTemp.GetCString(), pConsiderPlot->getX(), pConsiderPlot->getY(), pEscort->getX(), pEscort->getY());
-										LogTacticalMessage(strLogString);
-										strTemp = GC.getUnitInfo(pCivilian->getUnitType())->GetDescription();
-										strLogString.Format("Moving %s to open hex, Open hex X: %d, Open hex Y: %d, X: %d, Y: %d", strTemp.GetCString(), pConsiderPlot->getX(), pConsiderPlot->getY(), pCivilian->getX(), pCivilian->getY());
-										LogTacticalMessage(strLogString);
-									}
-									return;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			// Didn't find an alternative, must abort operation
-			pOperation->RetargetCivilian(pCivilian, pThisArmy);
-			pCivilian->finishMoves();
-			pEscort->finishMoves();
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strTemp;
-				CvString strLogString;
-				strLogString.Format("Retargeting civilian escort operation. No empty tile adjacent to civilian to meet.");
-				LogTacticalMessage(strLogString);
-			}
-		}
-	}
-	m_OperationUnits.clear();
-	pThisArmy->UpdateCheckpointTurns();
-	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-	// RECRUITING
-	{
-		// If no estimate for when recruiting will end, let the rest of the AI use these units
-		if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-		{
-			return;
-		}
-		else
-		{
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					// See if we are just able to get to muster point in time.  If so, time for us to head over there
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						CvMultiUnitFormationInfo* pkUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if (pkUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pkUnitFormationInfo->getFormationSlotEntry(iI);
-
-							// Continue moving to target
-							if(pSlot->HasStartedOnOperation())
-							{
-								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-							}
-
-							else
-							{
-								// See if we are just able to get to muster point in time.  If so, time for us to head over there
-								int iTurns = pUnit->TurnsToReachTarget(pOperation->GetMusterPlot(), true, true);
-								if(iTurns + GC.getGame().getGameTurn() >= pThisArmy->GetTurnAtNextCheckpoint())
-								{
-									pSlot->SetStartedOnOperation(true);
-									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-								}
-							}
-						}
-					}
-				}
-			}
-			ExecuteNavalFormationMoves(pThisArmy, pOperation->GetMusterPlot());
-		}
-	}
-
-	// GATHERING FORCES
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetMusterPlot());
-	}
-
-	// MOVING TO TARGET with a civilian
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION && pOperation->IsCivilianRequired())
-	{
-		// Update army's current location
-		CvPlot* pThisTurnTarget;
-		pThisTurnTarget = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-		if(pThisTurnTarget != NULL)
-		{
-			pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
-		}
-
-		// Settler at the target?
-		if(!pCivilian->plot()->isWater() && pCivilian->plot() == pThisArmy->GetGoalPlot())
-		{
-			if(pCivilian->canFound(pCivilian->plot()))
-			{
-				pCivilian->PushMission(CvTypes::getMISSION_FOUND());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("City founded, At X=%d, At Y=%d", pCivilian->plot()->getX(), pCivilian->plot()->getY());
-					pOperation->LogOperationSpecialMessage(strMsg);
-				}
-				pOperation->SetToAbort(AI_ABORT_SUCCESS);
-			}
-		}
-
-		// Is our settler and his escort both one move from the destination?  If so, targeted moves to finish up
-		else if(pCivilian->TurnsToReachTarget(pOperation->GetTargetPlot()) <= 1 &&
-		        (!pEscort || TurnsToReachTarget(pEscort, pOperation->GetTargetPlot()) <= 1))
-		{
-			ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetTargetPlot(), true);
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strTemp;
-				CvString strLogString;
-				strTemp = GC.getUnitInfo(pCivilian->getUnitType())->GetDescription();
-				strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-				LogTacticalMessage(strLogString);
-			}
-
-			if(pEscort)
-			{
-				ExecuteMoveToPlotIgnoreDanger(pEscort, pCivilian->plot(), false);
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strTemp;
-					CvString strLogString;
-					strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
-					strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-					LogTacticalMessage(strLogString);
-				}
-			}
-
-			// Move naval escorts in close
-			for(int iI = 2; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot(), false /*bLand */);
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strTemp;
-							CvString strLogString;
-							strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-							strLogString.Format("Moving %s near target, Now at X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-				}
-			}
-		}
-
-		// Still further away, move as formation
-		else
-		{
-			int iBestDistance = MAX_INT;
-			CvPlot* pBestPlot = NULL;
-			// Request moves for all units
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						const CvFormationSlotEntry& thisSlotEntry = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex())->getFormationSlotEntry(iI);
-						MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-
-					}
-				}
-			}
-
-			// Plot one turn of movement for the first unit in the army we find out in the water
-			UnitHandle pUnitAtSea = pThisArmy->GetFirstUnitInDomain(DOMAIN_SEA);
-			if(!pUnitAtSea)
-			{
-				pOperation->RetargetCivilian(pCivilian, pThisArmy);
-				for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-				{
-					CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-					if(pSlot->GetUnitID() != NO_UNIT)
-					{
-						UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-						if(pUnit)
-						{
-							pUnit->finishMoves();
-						}
-					}
-				}
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Retargeting naval escort operation (no unit in water!), X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-					LogTacticalMessage(strLogString);
-				}
-			}
-			else
-			{
-				int iFlags;
-				if(pThisArmy->GetUnitsOfType((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_NAVAL_ESCORT]) > 0)
-				{
-					iFlags = CvUnit::MOVEFLAG_IGNORE_DANGER;
-				}
-				// Goal should be a water tile one hex shy of our target
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(pThisArmy->GetGoalX(), pThisArmy->GetGoalY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
-					{
-						if(pUnitAtSea->plot() == pAdjacentPlot)
-						{
-							pBestPlot = pAdjacentPlot;
-							break;
-						}
-						else
-						{
-							// Using step finder could get tripped up by ocean hexes (since they are in the area but not valid movement targets for coastal vessels.  Watch this!
-							int iDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_pPlayer->GetID(), pOperation->GetEnemy(), pUnitAtSea->plot(), pAdjacentPlot);
-							if(iDistance > 0 && iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								int iDistanceToMove = min(4, iDistance);
-								PlayerTypes eEnemy = pOperation->GetEnemy();
-								pBestPlot = GC.GetStepFinder().GetXPlotsFromEnd(m_pPlayer->GetID(), eEnemy, pUnitAtSea->plot(), pAdjacentPlot, (iDistance - iDistanceToMove), false);
-							}
-						}
-					}
-				}
-
-				if(pBestPlot == NULL)
-				{
-					pOperation->RetargetCivilian(pCivilian, pThisArmy);
-					for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-					{
-						CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-						if(pSlot->GetUnitID() != NO_UNIT)
-						{
-							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-							if(pUnit)
-							{
-								pUnit->finishMoves();
-							}
-						}
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting naval escort operation (path lost to target), X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
-				}
-				else
-				{
-					ExecuteNavalFormationMoves(pThisArmy, pBestPlot);
-				}
-			}
-		}
-	}
-	// MOVING TO TARGET as an army
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION && !pOperation->IsCivilianRequired())
-	{
-		int iBestDistance = MAX_INT;
-		int iDistance;
-		CvPlot *pBestPlot = NULL;
-		int iSlowestMovementRate = MAX_INT;
-		UnitHandle pClosestUnitAtSea;
-		pBestPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pThisArmy->GetGoalPlot(), pThisArmy);
-
-		// Error handling: couldn't find path to plot next to target
-		if (pBestPlot == NULL)
-		{
-			pOperation->RetargetCivilian(pCivilian, pThisArmy);
-			for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-				if (pSlot->GetUnitID() != NO_UNIT)
-				{
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if (pUnit) 
-					{
-						pUnit->finishMoves();
-					}
-				}
-			}
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Retargeting naval escort operation (path lost to target), X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-				LogTacticalMessage(strLogString);
-			}
-		}
-
-		else
-		{
-			// Request moves for all units, getting the slowest movement rate and the closest unit
-			iBestDistance = MAX_INT;
-			for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-				if (pSlot->GetUnitID() != NO_UNIT)
-				{
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if (pUnit && !pUnit->TurnProcessed())
-					{
-						CvMultiUnitFormationInfo* pMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if (pMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pMultiUnitFormationInfo->getFormationSlotEntry(iI);
-							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-
-							int iMoves = pUnit->getMoves() / GC.getMOVE_DENOMINATOR();
-							if (iMoves < iSlowestMovementRate)
-							{
-								iSlowestMovementRate = iMoves;
-							}
-
-							// At sea?
-							iDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_pPlayer->GetID(), pOperation->GetEnemy(), pUnit->plot(), pBestPlot);
-							if (iDistance > 0 && iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pClosestUnitAtSea = pUnit;
-							}
-						}
-					}
-				}
-			}	
-
-			// Error handling: no one at sea, retarget
-			if (!pClosestUnitAtSea)
-			{
-				pOperation->RetargetCivilian(pCivilian, pThisArmy);
-				for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-				{
-					CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-					if (pSlot->GetUnitID() != NO_UNIT)
-					{
-						UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-						if (pUnit) 
-						{
-							pUnit->finishMoves();
-						}
-					}
-				}
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Retargeting naval escort operation (no unit in water!), X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-					LogTacticalMessage(strLogString);
-				}
-			}
-			else
-			{
-				// If not close yet, find best plot for this turn's movement along path to ultimate best plot
-				if (iBestDistance > iSlowestMovementRate)
-				{
-					pBestPlot = GC.GetStepFinder().GetXPlotsFromEnd(m_pPlayer->GetID(), pOperation->GetEnemy(), pClosestUnitAtSea->plot(), pBestPlot, (iBestDistance - iSlowestMovementRate), true);					
-				}
-				if (pBestPlot)
-				{
-					pThisArmy->SetXY(pBestPlot->getX(), pBestPlot->getY());
-					ExecuteNavalFormationMoves(pThisArmy, pBestPlot);
-				}
-				else
-				{
-					CvAssertMsg (false, "Naval operation logic error.");
-				}
-			}
-		}
-	}
-#endif
 }
 
 #ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
@@ -7985,27 +7544,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(pTargetPlot->getX(), pTargetPlot->getY(), ((DirectionTypes)iDirectionLoop));
-		if (pAdjacentPlot)
+		if (pAdjacentPlot && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
 		{
-			if (pAdjacentPlot->isImpassable(m_pPlayer->getTeam()) || pAdjacentPlot->isMountain())
-				continue;
-
-			if (pAdjacentPlot->getOwner()!=NO_PLAYER)
-			{
-				TeamTypes ePlotTeam = GET_PLAYER(pAdjacentPlot->getOwner()).getTeam();
-				TeamTypes eMyTeam = m_pPlayer->getTeam();
-				if (ePlotTeam!=eMyTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eMyTeam) && !GET_TEAM(eMyTeam).isAtWar(ePlotTeam))
-					continue;
-			}
-
-			//can't move into a plot with a foreign unit
-			if(pAdjacentPlot->getNumDefenders(NO_PLAYER)>pAdjacentPlot->getNumDefenders(m_pPlayer->GetID()))
-				continue;
-			
-			//can't move into a plot with a foreign city
-			if(pAdjacentPlot->isCity() && pAdjacentPlot->getPlotCity()->getOwner()!=m_pPlayer->GetID())
-				continue;
-
 			if (pAdjacentPlot->isWater())
 				plotListWater.push_back(pAdjacentPlot);
 			else			
@@ -8829,7 +8369,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 									continue;
 
 								CvPlot* pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-								if(pLoopPlot != NULL && pLoopPlot->getNumUnits() <= 0 && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+								if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->canPlaceUnit(m_pPlayer->GetID()))
 								{
 									if(m_pPlayer->GetPlotDanger(*pLoopPlot) <= 0)
 									{
@@ -8886,7 +8426,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 									continue;
 
 								CvPlot* pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-								if(pLoopPlot != NULL && pLoopPlot->getNumUnits() <= 0 && pLoopPlot->isWater() && !pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+								if(pLoopPlot != NULL && pLoopPlot->isWater() && pLoopPlot->canPlaceUnit(m_pPlayer->GetID()))
 								{
 									if(m_pPlayer->GetPlotDanger(*pLoopPlot) <= 0)
 									{
@@ -14453,10 +13993,9 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 #endif
 
 /// Support function to pick best hex for a great general to move to
-#if defined(MOD_BALANCE_CORE_MILITARY)
 int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 {
-	if(pLoopPlot == NULL || pLoopPlot->isImpassable(m_pPlayer->getTeam()) || !pLoopPlot->isRevealed(m_pPlayer->getTeam()))
+	if(pLoopPlot == NULL || !pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) || !pLoopPlot->isRevealed(m_pPlayer->getTeam()))
 		return 0;
 
 	if(pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_LAND)
@@ -14513,195 +14052,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 
 	return iTotalScore;
 }
-#else
-int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI)
-{
-	// Returned value
-	int iScore = 0;
 
-	UnitHandle pBestDefender;
-	PlayerTypes ePlayer = m_pPlayer->GetID();
-
-	// Variables going into score
-	bool bFriendlyCity = false;
-	int iNearbyQueuedAttacks = 0;
-	int iDangerValue = 0;
-	int iDangerDivisor = 1;
-	int iDistToOperationCenter = MAX_INT;
-	int iFriendlyUnitBasePower = 0;
-	int iFriendlyUnitFinalPower = 0;
-	int iFriendlyCityStrength = 0;
-
-	// GATHER DATA
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(pTarget->isImpassable())
-	{
-		return 0;
-	}
-#endif
-
-	// Non-friendly city here?
-	if(pTarget->isCity() && pTarget->getOwner() != ePlayer)
-	{
-		return 0;
-	}
-
-	// Another player's unit here?
-	CvUnit* pUnit = pTarget->getUnitByIndex(0);
-	if(pUnit && pUnit->getOwner() != ePlayer)
-	{
-		return 0;
-	}
-
-	// Another civilian of mine that has finished its moves?
-#if !defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	else if (pUnit && pUnit->GetID() != pGeneral->GetID() && !pUnit->IsCanAttack() && pUnit->hasMoved())
-	{
-		return 0;
-	}
-#endif
-	// Danger value
-#ifdef AUI_DANGER_PLOTS_REMADE
-	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget, pGeneral.pointer());
-#else
-	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget);
-#endif
-	pBestDefender = pTarget->getBestDefender(m_pPlayer->GetID());
-
-	// Friendly city here?
-	if(pTarget->isCity())
-	{
-		bFriendlyCity = true;
-		CvCity* pCity = pTarget->getPlotCity();
-
-		iFriendlyCityStrength = pCity->getStrengthValue() * 100;
-		iFriendlyCityStrength *= (pCity->GetMaxHitPoints() - pCity->getDamage());
-		iFriendlyCityStrength /= pCity->GetMaxHitPoints();
-
-		if(iDangerValue > (iFriendlyCityStrength * 2))
-		{
-			iDangerDivisor = 5;
-		}
-		else if(iDangerValue > iFriendlyCityStrength)
-		{
-			iDangerDivisor = 3;
-		}
-		else if(iDangerValue > (iFriendlyCityStrength / 2))
-		{
-			iDangerDivisor = 2;
-		}
-	}
-
-	// Friendly unit here?
-	else if(pBestDefender && pBestDefender->GetID() != pGeneral->GetID())
-	{
-		iFriendlyUnitBasePower = pBestDefender->GetBaseCombatStrengthConsideringDamage() * 250;
-
-		if(iDangerValue > (iFriendlyUnitBasePower * 2))
-		{
-			iDangerDivisor = 5;
-		}
-		else if(iDangerValue > iFriendlyUnitBasePower)
-		{
-			iDangerDivisor = 3;
-		}
-		else if(iDangerValue > (iFriendlyUnitBasePower / 2))
-		{
-			iDangerDivisor = 2;
-		}
-
-		iFriendlyUnitFinalPower = iFriendlyUnitBasePower;
-
-		// Deemphasize if hasn't finished moves yet
-		if(IsInQueuedAttack(pBestDefender.pointer()) && !pBestDefender->isRanged())
-		{
-			// Melee unit: might take losses attacking, so reduce the desirability
-			iFriendlyUnitFinalPower /= 3;
-		}
-
-		else if(pBestDefender->getMoves() > 0)
-		{
-			// Could move anywhere, not a good place to go
-			iFriendlyUnitFinalPower /= 25;
-		}
-
-		// Emphasize member of this operation
-		if(pArmyAI && (pBestDefender->getArmyID() != -1) &&(pBestDefender->getArmyID() == pArmyAI->GetID()))
-		{
-			iFriendlyUnitFinalPower *= 5;
-		}
-	}
-
-	// No friendly city or unit
-	else
-	{	
-		iDangerDivisor = 1000;
-	}
-
-	// Distance to center of army (if still under operational AI)
-	if(pArmyAI)
-	{
-		CvPlot* pCOM = pArmyAI->GetCenterOfMass(NO_DOMAIN);
-		if(pCOM)
-		{
-			iDistToOperationCenter = plotDistance(pTarget->getX(), pTarget->getY(), pCOM->getX(), pCOM->getY());
-		}
-	}
-
-	// Near an attack we already have planned?
-	iNearbyQueuedAttacks = NearXQueuedAttacks(pTarget, 2);
-
-	// COMPUTE SCORE
-	//  Entering a city
-	if(bFriendlyCity)
-	{
-		iScore = iFriendlyCityStrength;
-
-		// If part of an army moving to target, don't hide in a city
-		if(pArmyAI)
-		{
-			iScore = 1000;
-		}
-	}
-	// Stacking with a unit
-	else if(iFriendlyUnitFinalPower > 0)
-	{
-		iScore = iFriendlyUnitFinalPower;
-	}
-	// Moving to an empty tile
-	else
-	{
-		iScore = 10;
-	}
-
-	if(iNearbyQueuedAttacks > 0)
-	{
-		iScore *= (5 * iNearbyQueuedAttacks);
-	}
-
-	if(iDistToOperationCenter < 20 && (iFriendlyUnitFinalPower > 0 || bFriendlyCity || iDangerValue == 0))
-	{
-		// Anywhere near center is really good
-		if(iDistToOperationCenter <= 3)
-		{
-			iScore += 5000000;
-		}
-
-		// Sliding scale further off
-		else
-		{
-			iScore += (250000 * (20 - iDistToOperationCenter));
-		}
-	}
-
-	if(iDangerValue > 0)
-	{
-		iScore /= iDangerDivisor;
-	}
-
-	return iScore;
-}
-#endif
 
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)
@@ -15318,7 +14669,7 @@ bool TacticalAIHelpers::CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTar
 				int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
 				if(iPlotDistance <= iRange)
 				{
-					if(pPlot->isImpassable(eTeam))
+					if(!pPlot->isValidEndTurnPlot(NO_PLAYER))
 					{
 						continue;
 					}
@@ -15692,9 +15043,9 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 		if (pAttacker->isRanged())
 		{
 			//can we attack directly
-			if (pAttacker->canRangeStrikeAt(pDefender->getX(),pDefender->getX()))
+			if (pAttacker->canRangeStrikeAt(pDefender->getX(),pDefender->getY()))
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getX());
+				pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getY());
 				return true;
 			}
 			
@@ -15707,16 +15058,16 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 				if (pAttacker->TurnsToReachTarget(*it,false,false,1)==0)
 				{
 					pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),(*it)->getX(),(*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-					pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getX());
+					pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getY());
 					return true;
 				}
 			}
 		}
 		else //melee
 		{
-			if (pAttacker->TurnsToReachTarget(pDefender->plot(),false,false,1)==0)
+			if (pAttacker->TurnsToReachTarget(pDefender->plot(),false,false,1)<=1)
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getX(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_ATTACK );
 				return true;
 			}
 		}

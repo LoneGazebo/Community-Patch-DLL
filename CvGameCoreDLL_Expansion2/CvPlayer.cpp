@@ -2355,22 +2355,16 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #if defined(MOD_BUGFIX_NAVAL_FREE_UNITS)
 						if (pkUnitInfo->GetDomainType() == DOMAIN_SEA) {
 							if (pLoopPlot != NULL && pLoopPlot->isWater()) {
-								if (!pLoopPlot->isImpassable(getTeam())) {
-									if (!(pLoopPlot->isUnit())) {
-										pBestPlot = pLoopPlot;
-										break;
-									}
+								if (pLoopPlot->canPlaceUnit(GetID())) {
+									pBestPlot = pLoopPlot;
+									break;
 								}
 							}
 						} else {
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(!pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isMountain())
-#else
-								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
-#endif
+								if(pLoopPlot->isValidEndTurnPlot(GetID()))
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -9118,11 +9112,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(!(pLoopPlot->isImpassable(getTeam())) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
-#else
-								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
-#endif
+								if(pLoopPlot->isValidEndTurnPlot(GetID()) && !pLoopPlot->isCity())
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -15258,11 +15248,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
-#else
-			if(pPlot->isImpassable() || pPlot->isMountain())
-#endif
+			if(!pPlot->isValidEndTurnPlot(GetID()))
 				continue;
 
 			// Can't be water
@@ -24927,11 +24913,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE)
-						if(!pPlot->isOwned() && !pPlot->isImpassable(getTeam()) && !pPlot->isMountain() && !pPlot->isWater())
-#else
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
-#endif
+						if(!pPlot->isOwned() && pPlot->isValidEndTurnPlot(GetID()) && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -30803,11 +30785,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
-#else
-				if(pPlot->isImpassable() || pPlot->isMountain())
-#endif
+				if(!pPlot->isValidEndTurnPlot(GetID()))
 				{
 					return -1;
 				}
@@ -31190,11 +31168,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot->isImpassable(getTeam()) || pPlot->isWater() || pPlot->isMountain())
-#else
-			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
-#endif
+			if(!pPlot->isValidEndTurnPlot(GetID()) || pPlot->isWater())
 			{
 				return -1;
 			}
@@ -36412,6 +36386,19 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	}
 #endif
 	return true;
+}
+
+bool CvPlayer::CanCrossOcean() const
+{
+	return GET_TEAM(getTeam()).canEmbarkAllWaterPassage() || GetPlayerTraits()->IsEmbarkedAllWater();
+}
+bool CvPlayer::CanCrossMountain() const
+{
+	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsAbleToCrossMountainsWithRoad();
+}
+bool CvPlayer::CanCrossIce() const
+{
+	return GetPlayerTraits()->IsAbleToCrossIce();
 }
 
 //////////////////////////////////////////////////////////////////////////

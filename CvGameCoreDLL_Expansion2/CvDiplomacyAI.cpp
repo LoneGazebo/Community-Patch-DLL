@@ -4070,7 +4070,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 		}
 		//Can't embark everywhere? Let's only target neighbors.
-		else if(!GET_TEAM(GetPlayer()->getTeam()).canEmbarkAllWaterPassage())
+		else if(!GetPlayer()->CanCrossOcean())
 		{
 			// Factor in distance - only nearby land wars before the Renaissance.
 			switch(GetPlayer()->GetProximityToPlayer(ePlayer))

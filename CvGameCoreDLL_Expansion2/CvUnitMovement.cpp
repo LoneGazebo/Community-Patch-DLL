@@ -536,6 +536,10 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 						{
 							continue;
 						}
+						if(loop_unit_domain_type == DOMAIN_LAND && pUnit->isEmbarked())
+						{
+							continue;
+						}
 
 						// Loop through plots adjacent to the enemy unit and see if it's the same as our unit's Destination Plot
 #if defined(MOD_BALANCE_CORE)

@@ -495,7 +495,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 				{
 					iModifiedHexspaceDistance += vVoronoiSeeds[iThisVoronoiSeedIndex].m_iWeakness;
 					iModifiedHexspaceDistance += random.get(3, "Ridge Gen 8");
-					DirectionTypes eRelativeDirection = estimateDirection(vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceX-iThisHexX,vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceY-iThisHexY);
+					DirectionTypes eRelativeDirection = estimateDirection(iThisHexX,iThisHexY,vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceX,vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceY);
 					if(eRelativeDirection == vVoronoiSeeds[iThisVoronoiSeedIndex].m_eBiasDirection)
 					{
 						iModifiedHexspaceDistance -= vVoronoiSeeds[iThisVoronoiSeedIndex].m_iDirectionalBiasStrength;

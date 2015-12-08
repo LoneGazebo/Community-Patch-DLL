@@ -5483,7 +5483,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		}
 
 		//Give this quest out once the player can cross oceans.
-		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbarkAllWaterPassage())
+		if(!GET_PLAYER(ePlayer).CanCrossOcean())
 		{
 			return false;
 		}
@@ -6832,7 +6832,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 						{
 							iWater++;
 						}
-						if(pPlot->isImpassable(BARBARIAN_TEAM))
+						if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 						{
 							iImpassable++;
 						}
@@ -7060,7 +7060,7 @@ void CvMinorCivAI::DoRebellion()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable(BARBARIAN_TEAM))
+			if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 				continue;
 
 			// Can't be water

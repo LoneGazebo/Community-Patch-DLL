@@ -927,7 +927,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 							{
 								if((eTeamAtWarWith == NO_TEAM) || atWar(thisPlayer.getTeam(), eTeamAtWarWith))
 								{
-									if((eDirection == NO_DIRECTION) || (estimateDirection(dxWrap(pLoopCity->getX() - iX), dyWrap(pLoopCity->getY() - iY)) == eDirection))
+									if((eDirection == NO_DIRECTION) || (estimateDirection(iX,iY,pLoopCity->getX(),pLoopCity->getY()) == eDirection))
 									{
 										if((pSkipCity == NULL) || (pLoopCity != pSkipCity))
 										{

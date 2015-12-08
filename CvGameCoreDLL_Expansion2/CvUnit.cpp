@@ -4273,9 +4273,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 #else
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 #if defined(MOD_BALANCE_CORE)
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountains2() && !IsHoveringUnit() && !canMoveAllTerrain())
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() && !IsHoveringUnit() && !canMoveAllTerrain())
 #else
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !IsHoveringUnit() && !canMoveAllTerrain())
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !IsHoveringUnit() && !canMoveAllTerrain())
 #endif
 #endif
 		{
@@ -17242,7 +17242,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 bool CvUnit::canCrossMountains() const
 {
 	VALIDATE_OBJECT
-	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains2() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
+	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------

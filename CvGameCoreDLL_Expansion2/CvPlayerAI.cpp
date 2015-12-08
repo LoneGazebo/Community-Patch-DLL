@@ -1783,7 +1783,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 				if(pAdjacentPlot != NULL)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(pAdjacentPlot->isImpassable(getTeam()))
+					if(!pAdjacentPlot->isValidEndTurnPlot(GetID()))
 					{
 						continue;
 					}
@@ -1917,7 +1917,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	//Return score if we can't embark and they aren't on our landmass.
 	if(pCity->getArea() != pUnit->plot()->getArea())
 	{
-		if(!GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+		if(!CanCrossOcean())
 		{
 			return iScore;
 		}
@@ -1969,7 +1969,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 	{
 		iDistance *= 2;
 	}
@@ -2290,7 +2290,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 	{
 		iDistance *= 2;
 	}
@@ -2333,7 +2333,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
-			if(pLoopPlot->isWater() || pLoopPlot->isImpassable(getTeam()))
+			if(pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(GetID()))
 			{
 				continue;
 			}
@@ -2395,14 +2395,16 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
-		if(pLoopPlot->isImpassable(getTeam()))
+		if(!pLoopPlot->isValidEndTurnPlot(GetID()))
 		{
 			continue;
 		}
+
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
 			continue;
 #endif
+
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
 		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
@@ -2515,7 +2517,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 	return pBestTargetPlot;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResultScore)
 {
 	iResultScore = 0;
@@ -2567,7 +2568,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable(getTeam()) )
+			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidEndTurnPlot(GetID()) )
 				continue;
 			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;
@@ -2829,151 +2830,4 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		}
 	}
 }
-#else
-CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultScore)
-{
-	CvAssertMsg(pGreatArtist, "pGreatArtist is null");
-	if(!pGreatArtist)
-	{
-		return NULL;
-	}
-
-	iResultScore = 0;
-
-	CvPlotsVector& m_aiPlots = GetPlots();
-
-	CvPlot* pBestPlot = NULL;
-	int iBestScore = 0;
-
-	// loop through plots and wipe out ones that are invalid
-	const uint nPlots = m_aiPlots.size();
-	for(uint ui = 0; ui < nPlots; ui++)
-	{
-		if(m_aiPlots[ui] == -1)
-		{
-			continue;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[ui]);
-
-		if(pPlot->isWater())
-		{
-			continue;
-		}
-
-		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
-		{
-			continue;
-		}
-
-		// don't build over luxury resources
-		ResourceTypes eResource = pPlot->getResourceType();
-		if(eResource != NO_RESOURCE)
-		{
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if(pkResource != NULL)
-			{
-				if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-				{
-					continue;
-				}
-			}
-		}
-
-		// if no improvement can be built on this plot, then don't consider it
-		FeatureTypes eFeature = pPlot->getFeatureType();
-		if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
-		{
-			continue;
-		}
-
-		// Improvement already here?
-		ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			if(pkImprovementInfo)
-			{
-				if (pkImprovementInfo->GetCultureBombRadius() > 0)
-				{
-					continue;
-				}
-			}
-		}
-
-		int iScore = 0;
-
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			// if there's no plot, bail
-			if(pAdjacentPlot == NULL)
-			{
-				continue;
-			}
-
-			// if the plot is ours or no one's, bail
-			if(pAdjacentPlot->getTeam() == NO_TEAM || pAdjacentPlot->getTeam() == getTeam())
-			{
-				continue;
-			}
-
-			// don't evaluate city plots since we don't get ownership of them with the bomb
-			if(pAdjacentPlot->getPlotCity())
-			{
-				continue;
-			}
-
-			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
-			if(GET_PLAYER(eOtherPlayer).isMinorCiv())
-			{
-				MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
-				// if we're friendly or protective, don't be a jerk. Bail out.
-				if(eMinorApproach != MINOR_CIV_APPROACH_CONQUEST && eMinorApproach != MINOR_CIV_APPROACH_IGNORE)
-				{
-					iScore = 0;
-					break;
-				}
-			}
-			else
-			{
-				MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, true);
-				DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
-
-				bool bTicked = eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE;
-				bool bTickedAboutLand = eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL && (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
-
-				// only bomb if we're hostile
-				if(!bTicked && !bTickedAboutLand)
-				{
-					iScore = 0;
-					break;
-				}
-			}
-
-			eResource = pAdjacentPlot->getResourceType();
-			if(eResource != NO_RESOURCE)
-			{
-				iScore += GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * 10;
-			}
-			else
-			{
-				for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-				{
-					iScore += pAdjacentPlot->getYield((YieldTypes)iYield);
-				}
-			}
-		}
-
-		if(iScore > iBestScore)
-		{
-			iBestScore = iScore;
-			pBestPlot = pPlot;
-		}
-	}
-
-	iResultScore = iBestScore;
-	return pBestPlot;
-}
-#endif
 

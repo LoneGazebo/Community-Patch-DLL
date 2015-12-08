@@ -1064,7 +1064,6 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 #endif
 
 //	---------------------------------------------------------------------------
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 //compute score for yet-to-be revealed plots
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
@@ -1102,7 +1101,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
 			if (eDomainType==DOMAIN_LAND && !bEmbarked)
 			{
-				if (pLoopPlot->isWater() || pLoopPlot->isImpassable(pPlayer->getTeam()) || pLoopPlot->isMountain())
+				if (pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
 					//we're not very interested in these "useless" plots
 					iResultValue += iSmallScore;
 				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
@@ -1114,7 +1113,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			}
 			else
 			{
-				if (!pLoopPlot->isWater() && !pLoopPlot->isImpassable(pPlayer->getTeam()) && !pLoopPlot->isMountain())
+				if (!pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
 					//we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
@@ -1128,144 +1127,6 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 
 	return iResultValue;
 }
-
-#else
-
-//	---------------------------------------------------------------------------
-int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType)
-{
-	int iResultValue = 0;
-	int iAdjacencyBonus = 1;
-	int iBadScore = 10;
-	int iGoodScore = 100;
-	int iReallyGoodScore = 200;
-	//int iGoodyHutScore = 100000;
-
-	int iPlotX = pPlot->getX();
-	int iPlotY = pPlot->getY();
-
-	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
-	CvPlot* pEvalPlot = NULL;
-	for(int iX = -iRange; iX <= iRange; iX++)
-	{
-		for(int iY = -iRange; iY <= iRange; iY++)
-		{
-			pEvalPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iX, iY, iRange);
-			if(!pEvalPlot)
-			{
-				continue;
-			}
-
-			if(pEvalPlot == pPlot)
-			{
-				continue;
-			}
-
-			if(pEvalPlot->isRevealed(eTeam))
-			{
-				continue;
-			}
-#if defined(MOD_BALANCE_CORE)
-			if(pEvalPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pEvalPlot->getUnitByIndex(0);
-				if(!pUnit->IsCivilianUnit())
-				{
-					continue;
-				}
-			}
-#endif
-
-			if(pEvalPlot->isAdjacentRevealed(eTeam))
-			{
-				if(plotDistance(iPlotX, iPlotY, pEvalPlot->getX(), pEvalPlot->getY()) > 1)
-				{
-					CvPlot* pAdjacentPlot;
-					bool bViewBlocked = true;
-					for(int i = 0; i < NUM_DIRECTION_TYPES; ++i)
-					{
-						pAdjacentPlot = plotDirection(pEvalPlot->getX(), pEvalPlot->getY(), ((DirectionTypes)i));
-						if(pAdjacentPlot != NULL)
-						{
-							if(pAdjacentPlot->isRevealed(eTeam))
-							{
-								int iDistance = plotDistance(iPlotX, iPlotY, pAdjacentPlot->getX(), pAdjacentPlot->getY());
-								if(iDistance > iRange)
-								{
-									continue;
-								}
-
-								// this cheats, because we can't be sure that between the target and the viewer
-								if(pPlot->canSeePlot(pEvalPlot, eTeam, iRange, NO_DIRECTION))
-								{
-									bViewBlocked = false;
-								}
-
-								if(!bViewBlocked)
-								{
-									break;
-								}
-							}
-						}
-					}
-
-					if(bViewBlocked)
-					{
-						continue;
-					}
-				}
-
-				// "cheating" to look to see what the next tile is.
-				// a human should be able to do this by looking at the transition from the tile to the next
-				switch(eDomainType)
-				{
-				case DOMAIN_SEA:
-				{
-					FeatureTypes eFeature = pEvalPlot->getFeatureType();
-					if(pEvalPlot->isWater() || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isImpassable()))
-					{
-						iResultValue += iBadScore;
-					}
-					else if(pEvalPlot->isMountain() || pEvalPlot->isHills() || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0))
-					{
-						iResultValue += iGoodScore;
-					}
-					else
-					{
-						iResultValue += iReallyGoodScore;
-					}
-				}
-				break;
-				case DOMAIN_LAND:
-					if(pEvalPlot->isMountain() || pEvalPlot->isWater())
-					{
-						iResultValue += iBadScore;
-					}
-					else if(pEvalPlot->isHills())
-					{
-						iResultValue += iReallyGoodScore;
-					}
-					else
-					{
-						iResultValue += iGoodScore;
-					}
-					break;
-				}
-			}
-			else
-			{
-				iResultValue += iGoodScore;
-			}
-
-			int iDistance = plotDistance(iPlotX, iPlotY, pEvalPlot->getX(), pEvalPlot->getY());
-			iResultValue += (iRange - iDistance) * iAdjacencyBonus;
-		}
-	}
-
-	return iResultValue;
-}
-
-#endif
 
 /// Request that the AI set aside this much money
 void CvEconomicAI::StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority)
@@ -1403,11 +1264,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()) || pPlot->isCity() || pPlot->isMountain())
-#else
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
-#endif
+		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
@@ -2558,7 +2415,6 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
 	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 3 )
 	{
@@ -2714,217 +2570,6 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
-#else
-
-	int iPlotLoop, iDirectionLoop;
-	CvPlot* pPlot;
-	CvPlot* pAdjacentPlot;
-	bool bIsLand;
-	bool bIsCoastalWater;
-
-	// Start at 1 so we don't get divide-by-0 errors
-	//   Land recon counters
-	int iNumLandPlotsRevealed = 1;
-	int iNumLandPlotsWithAdjacentFog = 1;
-
-	//   Naval recon counters
-	int iNumCoastalTilesRevealed = 1;
-	int iNumCoastalTilesWithAdjacentFog = 1;
-
-	bool bNeedToLookAtDeepWaterAlso = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage();
-
-	// Look at map size and gauge how much of it we know about
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
-		if(pPlot->isRevealed(m_pPlayer->getTeam()))
-		{
-			bIsLand = false;
-			bIsCoastalWater = false;
-
-			// Count Revealed Land Plots
-			if(!pPlot->isWater())
-			{
-				bIsLand = true;
-				iNumLandPlotsRevealed++;
-			}
-			else if(pPlot->isShallowWater() || bNeedToLookAtDeepWaterAlso)
-			{
-				bIsCoastalWater = true;
-				iNumCoastalTilesRevealed++;
-			}
-
-			// Check adjacent Plots for THEIR visibility
-			for(iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-			{
-				pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
-
-				if(pAdjacentPlot != NULL)
-				{
-					// Check to see if adjacent Tile is land or water...
-					if(pAdjacentPlot->isWater())
-					{
-						// This is a slight cheat (because the AI rules out water tiles) but helps prevents the AI from building too many Land explorers
-						if((bNeedToLookAtDeepWaterAlso || pAdjacentPlot->isShallowWater()) && !pAdjacentPlot->isRevealed(m_pPlayer->getTeam()))
-						{
-							iNumCoastalTilesWithAdjacentFog++;
-							break;
-						}
-					}
-					else
-					{
-						// This is a slight cheat (because the AI rules out water tiles) but helps prevents the AI from building too many Land explorers
-						if(!pAdjacentPlot->isRevealed(m_pPlayer->getTeam()))
-						{
-							iNumLandPlotsWithAdjacentFog++;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// RECON ON OUR HOME CONTINENT
-
-	// How many Units do we have exploring or being trained to do this job? The more Units we have the less we want this Strategy
-	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, false) + m_iExplorersDisbanded;
-	int iStrategyWeight = /*100*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT();
-	int iWeightThreshold = 110;  // So result is a number from 10 to 100
-	iWeightThreshold -= m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")) *
-	                    /*10*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_WEIGHT_PER_FLAVOR();
-
-	// Safety check even if personality flavor is higher than expected
-	if(iWeightThreshold > 100)
-	{
-		iWeightThreshold = 100;
-	}
-
-	iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
-	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
-	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
-
-	if(iStrategyWeight > iWeightThreshold)
-	{
-		m_eReconState = RECON_STATE_NEEDED;
-	}
-	else
-	{
-		if(iStrategyWeight > (iWeightThreshold / 4))
-		{
-			m_eReconState = RECON_STATE_NEUTRAL;
-		}
-		else
-		{
-			m_eReconState = RECON_STATE_ENOUGH;
-
-			// Return all/most warriors/spears to normal unit AI since have enough recon.  Keep at least 1 explorer through Turn 100.
-			bool bSkipFirst = GC.getGame().getGameTurn() < 100;
-			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-			{
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ATTACK))
-				{
-					if(bSkipFirst)
-					{
-						bSkipFirst = false;
-					}
-					else
-					{
-						pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK);
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Assigning exploring %s back to attack AI, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
-							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// NAVAL RECON ACROSS THE ENTIRE MAP
-
-	// No coastal cities?  Moot point...
-	CvCity* pLoopCity;
-	int iCityLoop;
-	bool bFoundCoastalCity = false;
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
-		if(pLoopCity->isCoastal())
-		{
-			bFoundCoastalCity = true;
-		}
-	}
-
-	if(!bFoundCoastalCity)
-	{
-		m_eNavalReconState = RECON_STATE_ENOUGH;
-	}
-
-	else
-	{
-		// How many Units do we have exploring or being trained to do this job? The more Units we have the less we want this Strategy
-		iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
-		iStrategyWeight = /*100*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT();
-		iWeightThreshold = 110;  // So result is a number from 10 to 100
-		iWeightThreshold -= m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")) *
-		                    /*10*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_WEIGHT_PER_FLAVOR();
-
-		// Safety check even if personality flavor is higher than expected
-		if(iWeightThreshold > 100)
-		{
-			iWeightThreshold = 100;
-		}
-		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
-		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
-		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
-
-		if(iStrategyWeight > iWeightThreshold/* || iNumExploringUnits == 0 && iNumCoastalTilesWithAdjacentFog > 50*/)
-		{
-			m_eNavalReconState = RECON_STATE_NEEDED;
-		}
-		else
-		{
-			if(iStrategyWeight > (iWeightThreshold / 4))
-			{
-				m_eNavalReconState = RECON_STATE_NEUTRAL;
-			}
-			else
-			{
-				m_eNavalReconState = RECON_STATE_ENOUGH;
-
-				// Return all/most boats to normal unit AI since have enough recon
-				bool bSkipFirst = (m_eNavalReconState == RECON_STATE_NEUTRAL);
-				for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-				{
-					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ATTACK_SEA))
-					{
-						if(bSkipFirst)
-						{
-							bSkipFirst = false;
-						}
-
-						else
-						{
-							pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_SEA);
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Assigning naval explorer back to attack sea AI to %s, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
-								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-#endif
 
 }
 
@@ -3091,7 +2736,7 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		{
 			continue;
 		}
-		if(!pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()))
+		if(!pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()))
 		{
 			continue;
 		}
@@ -3249,11 +2894,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pPlot->isWater() || pPlot->isImpassable(GetPlayer()->getTeam()) || pPlot->isCity() || pPlot->isMountain())
-#else
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
-#endif
+		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
@@ -3438,7 +3079,7 @@ void CvEconomicAI::UpdatePlots()
 	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
 #endif
 
-	bool bNeedToLookAtDeepWaterAlso = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage();
+	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
 
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
@@ -3708,7 +3349,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 {
 	if(pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_NEEDED)
 	{
-		if(GET_TEAM(pPlayer->getTeam()).canEmbarkAllWaterPassage())  // get a caravel out there NOW!
+		if(pPlayer->CanCrossOcean())  // get a caravel out there NOW!
 		{
 			CvUnit* pLoopUnit;
 			CvCity* pLoopCity;
@@ -5019,7 +4660,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 	{
 		return false;
 	}
-	if(!GET_TEAM(pPlayer->getTeam()).canEmbarkAllWaterPassage())
+	if(!pPlayer->CanCrossOcean())
 	{
 		return false;
 	}

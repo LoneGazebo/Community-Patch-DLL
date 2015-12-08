@@ -1231,9 +1231,9 @@ public:
 		return m_eCombatBonusImprovement;
 	};
 #if defined(MOD_BALANCE_CORE)
-	bool IsAbleToCrossMountains2() const;
+	bool IsAbleToCrossMountainsWithRoad() const;
 #endif
-	bool IsAbleToCrossMountains() const;
+	bool IsAbleToCrossMountainsWithGreatGeneral() const;
 
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;

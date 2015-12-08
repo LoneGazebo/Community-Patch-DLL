@@ -12838,15 +12838,8 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 						for(int iDY = -iRange; iDY <= iRange; iDY++)
 						{
 							pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-							if(pLoopPlot == NULL)
-							{
-								continue;
-							}
-							if(pLoopPlot->isImpassable(getTeam()))
-							{
-								continue;
-							}
-							if(pLoopPlot->isMountain() || pLoopPlot->IsNaturalWonder())
+
+							if(!pLoopPlot || !pLoopPlot->isValidMovePlot(getOwner()) || pLoopPlot->IsNaturalWonder())
 							{
 								continue;
 							}
@@ -14153,7 +14146,7 @@ bool CvCity::DoRazingTurn()
 					continue;
 
 				// Can't be impassable
-				if(pPlot->isImpassable(BARBARIAN_TEAM))
+				if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 					continue;
 
 				// Can't be water

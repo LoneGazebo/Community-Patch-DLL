@@ -474,6 +474,11 @@ public:
 		return m_iRiverCrossingCount > 0;
 	}
 
+	//can a generic unit end its turn here (disregarding promotions, combat/civilian etc)
+	bool isValidEndTurnPlot(PlayerTypes ePlayer) const;
+	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
+	bool isValidMovePlot(PlayerTypes ePlayer) const;
+
 #if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
 #endif
@@ -926,6 +931,9 @@ public:
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 #endif
+
+	bool canPlaceUnit(PlayerTypes ePlayer) const;
+	CvPlot* getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection=NO_DIRECTION) const;
 
 protected:
 	class PlotBoolField

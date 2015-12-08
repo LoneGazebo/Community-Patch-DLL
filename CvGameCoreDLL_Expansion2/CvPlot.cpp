@@ -2134,11 +2134,8 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(isImpassable(BARBARIAN_TEAM) || isMountain())
-#else
-	if(isImpassable() || isMountain())
-#endif
+
+	if(!isValidEndTurnPlot(BARBARIAN_PLAYER))
 	{
 		return false;
 	}
@@ -8295,23 +8292,10 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	ReligionTypes eMajority = NO_RELIGION;
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 
-#if defined(MOD_BALANCE_CORE)
 	if((YieldTypes)eYield > YIELD_FAITH)
 	{
 		return 0;
 	}
-#endif
-
-#if !defined(MOD_RELIGION_PLOT_YIELDS) && !defined(MOD_API_PLOT_YIELDS)
-	if(isImpassable() || isMountain())
-	{
-		// No Feature, or the Feature isn't a Natural Wonder (which are impassable but allowed to be worked)
-		if(getFeatureType() == NO_FEATURE || !GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
-		{
-			return 0;
-		}
-	}
-#endif
 
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 
@@ -8324,14 +8308,12 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-#if defined(MOD_RELIGION_PLOT_YIELDS) || defined(MOD_API_PLOT_YIELDS)
 	// Impassable terrain and mountains have no base yield
-	if(isImpassable(BARBARIAN_TEAM) || isMountain() || getTerrainType()==NO_TERRAIN )
+	if(!isValidEndTurnPlot(BARBARIAN_PLAYER) || getTerrainType()==NO_TERRAIN)
 	{
 		iYield = 0;
 	} 
 	else
-#endif
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
 
 #if defined(MOD_API_PLOT_YIELDS)
@@ -9216,11 +9198,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isWater())
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!isImpassable(BARBARIAN_TEAM) && !isMountain())
-#else
-			if(!isImpassable() && !isMountain())
-#endif
+			if(isValidEndTurnPlot(NO_PLAYER))
 			{
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
 
@@ -9260,11 +9238,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isRiver())
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!isImpassable(BARBARIAN_TEAM) && !isMountain())
-#else
-			if(!isImpassable() && !isMountain())
-#endif
+			if(isValidEndTurnPlot(NO_PLAYER))
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -9306,11 +9280,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pWorkingCity != NULL && !isImpassable(pWorkingCity->getTeam()) && !isMountain())
-#else
-			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
-#endif
+			if(pWorkingCity != NULL && isValidEndTurnPlot(pWorkingCity->getOwner()))
 			{
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
@@ -12271,11 +12241,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Water plots
 		if(isWater())
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!isImpassable(GET_PLAYER(ePlayer).getTeam()) && !isMountain())
-#else
-			if(!isImpassable() && !isMountain())
-#endif
+			if(isValidEndTurnPlot(ePlayer))
 			{
 				// Player sea plot yield
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
@@ -12313,11 +12279,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Worked river plot
 		if(isRiver())
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!isImpassable(GET_PLAYER(ePlayer).getTeam()) && !isMountain())
-#else
-			if(!isImpassable() && !isMountain())
-#endif
+			if(isValidEndTurnPlot(ePlayer))
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -12355,11 +12317,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pWorkingCity != NULL && !isImpassable(pWorkingCity->getTeam()) && !isMountain())
-#else
-			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
-#endif
+			if(pWorkingCity != NULL && isValidEndTurnPlot(pWorkingCity->getOwner()))
 			{
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
@@ -12903,14 +12861,17 @@ void CvPlot::updateImpassable()
 #endif
 				m_bIsImpassable = pkTerrainInfo->isImpassable();
 #if defined(MOD_BALANCE_CORE)
-				SetTeamImpassable(eTeam, m_bIsImpassable);
-
 				if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
 				{
-					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
+					if(eTeam != NO_TEAM)
 					{
-						SetTeamImpassable(eTeam, false);
+						if (GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
+							SetTeamImpassable(eTeam, false);
+						else
+							SetTeamImpassable(eTeam, m_bIsImpassable);
 					}
+					else
+						SetTeamImpassable(eTeam, m_bIsImpassable);
 				}
 			}
 #endif
@@ -12924,13 +12885,17 @@ void CvPlot::updateImpassable()
 #endif
 				m_bIsImpassable = pkFeatureInfo->isImpassable();
 #if defined(MOD_BALANCE_CORE)
-				SetTeamImpassable(eTeam, m_bIsImpassable);
 				if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
 				{
-					if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
+					if(eTeam != NO_TEAM)
 					{
-						SetTeamImpassable(eTeam, false);
+						if (GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
+							SetTeamImpassable(eTeam, false);
+						else
+							SetTeamImpassable(eTeam, m_bIsImpassable);
 					}
+					else
+						SetTeamImpassable(eTeam, m_bIsImpassable);
 				}
 			}
 #endif
@@ -12954,6 +12919,100 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 	return m_bIsImpassable;
 }
 #endif
+
+//--------------------------------------------------------------------
+// in updateImpassable we check terrain and features (per plot), combined with technologies (per team)
+// here we additionally look at traits (per player)
+bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
+{
+	if (ePlayer==NO_PLAYER)
+	{
+		return !m_bIsImpassable;
+	}
+	else
+	{
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+		if (IsTeamImpassable(kPlayer.getTeam()))
+		{
+			//check some special traits
+			if (isIce() && GET_PLAYER(ePlayer).CanCrossIce() )
+				return true;
+			if (isMountain() && GET_PLAYER(ePlayer).CanCrossMountain() )
+				return true;
+			if (getTerrainType()==GC.getDEEP_WATER_TERRAIN() && getFeatureType()==NO_FEATURE && GET_PLAYER(ePlayer).CanCrossOcean())
+				return true;
+
+			//nothing we can do
+			return false;
+		}
+		else
+			return true;
+	}
+}
+
+//--------------------------------------------------------------------
+//not all plot which are passable are valid for ending a turn!
+bool CvPlot::isValidEndTurnPlot(PlayerTypes ePlayer) const
+{
+	if (ePlayer==NO_PLAYER)
+		return !m_bIsImpassable && !isMountain() && !isIce();
+	else
+		return !IsTeamImpassable( GET_PLAYER(ePlayer).getTeam() ) && !isMountain() && !isIce();
+}
+
+//----------------------------------------------------------
+//conservative estimate whether we can put a combat unit here. does not check different domains etc
+bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
+{
+	if (!isValidEndTurnPlot(ePlayer))
+		return false;
+
+	if (getOwner()!=NO_PLAYER)
+	{
+		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
+		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();
+		if (ePlotTeam!=eTestTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTestTeam) && !GET_TEAM(eTestTeam).isAtWar(ePlotTeam))
+			return false;
+	}
+
+	//can't place into a plot with another combat unit (owner does not matter)
+	if(getNumDefenders(NO_PLAYER) >= getUnitLimit())
+		return false;
+			
+	//can't place into a plot with a foreign city
+	if(isCity() && getPlotCity()->getOwner()!=ePlayer)
+		return false;
+
+	return true;
+}
+
+CvPlot* CvPlot::getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection) const
+{
+	if (ePreferredDirection==NO_DIRECTION)
+	{
+		//don't be too predictable in unit placement
+		int iOffset = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"neighbor direction offset");
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+		{
+			DirectionTypes eDir = (DirectionTypes)((iDirectionLoop+iOffset)%NUM_DIRECTION_TYPES);
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
+			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
+				return pAdjacentPlot;
+		}
+	}
+	else
+	{
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+		{
+			DirectionTypes eDir = reorderedDirection(ePreferredDirection,iDirectionLoop);
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
+			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
+				return pAdjacentPlot;
+		}
+	}
+
+	return NULL;
+}
 
 #if defined(MOD_API_EXTENSIONS)
 bool CvPlot::IsCivilization(CivilizationTypes iCivilizationType) const

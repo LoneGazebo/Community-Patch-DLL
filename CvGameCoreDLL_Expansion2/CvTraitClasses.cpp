@@ -3516,7 +3516,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 			{
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
+					pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
 					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
@@ -3540,7 +3541,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 				{
 					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && 
+						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
 						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
@@ -3802,34 +3804,13 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 }
 #if defined(MOD_BALANCE_CORE)
 /// Is this civ currently able to cross mountains with combat units?
-bool CvPlayerTraits::IsAbleToCrossMountains2() const
+bool CvPlayerTraits::IsAbleToCrossMountainsWithRoad() const
 {
-	CvTeam& thisTeam = GET_TEAM(m_pPlayer->getTeam());
-	bool bValid = false;
-	CvTeamTechs* pTeamTechs = thisTeam.GetTeamTechs();
-
-	int iNumBuildInfos = GC.getNumBuildInfos();
-	for(int iI = 0; iI < iNumBuildInfos; iI++)
-	{
-		CvBuildInfo* thisBuildInfo = GC.getBuildInfo((BuildTypes)iI);
-		if(NULL != thisBuildInfo && thisBuildInfo->getRoute() == ROUTE_ROAD)
-		{
-			if(pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechPrereq())))
-			{
-				bValid = true;
-				break;
-			}
-		}
-	}
-	if(m_bMountainPass && bValid)
-	{
-		return true;
-	}
-	return false;
+	return m_bMountainPass;
 }
 #endif
 /// Is this civ currently able to cross mountains with combat units?
-bool CvPlayerTraits::IsAbleToCrossMountains() const
+bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated(false) > 0);

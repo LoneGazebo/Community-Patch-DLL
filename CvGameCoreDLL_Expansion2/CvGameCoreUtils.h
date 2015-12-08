@@ -81,11 +81,13 @@ inline int dyWrap(int iDY)
 	return wrapCoordDifference(iDY, kMap.getGridHeight(), kMap.isWrapY());
 }
 
+//convert odd-r offset coords to hex cube coords (only x, y is invariant)
 inline int xToHexspaceX(int iX, int iY)
 {
 	return iX - ((iY >= 0) ? (iY>>1) : ((iY - 1)/2));
 }
 
+//convert hex cube coords to odd-r offset coords (only x, y is invariant)
 inline int hexspaceXToX(int iHexspaceX, int iHexspaceY)
 {
 	return iHexspaceX + ((iHexspaceY >= 0) ? (iHexspaceY>>1) : ((iHexspaceY - 1)/2));
@@ -108,26 +110,6 @@ inline int hexDistance(int iDX, int iDY)
 	}
 }
 
-//
-//
-//// 4 | 4 | 3 | 3 | 3 | 4 | 4
-//// -------------------------
-//// 4 | 3 | 2 | 2 | 2 | 3 | 4
-//// -------------------------
-//// 3 | 2 | 1 | 1 | 1 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 1 | 0 | 1 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 1 | 1 | 1 | 2 | 3
-//// -------------------------
-//// 4 | 3 | 2 | 2 | 2 | 3 | 4
-//// -------------------------
-//// 4 | 4 | 3 | 3 | 3 | 4 | 4
-////
-//// Returns the distance between plots according to the pattern above...
-//
-//// not anymore - We are using hexes now!
-//
 inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 {
 	int iDX;
@@ -155,25 +137,7 @@ inline int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
 {
 	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
 }
-//
-//// 3 | 3 | 3 | 3 | 3 | 3 | 3
-//// -------------------------
-//// 3 | 2 | 2 | 2 | 2 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 1 | 1 | 1 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 1 | 0 | 1 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 1 | 1 | 1 | 2 | 3
-//// -------------------------
-//// 3 | 2 | 2 | 2 | 2 | 2 | 3
-//// -------------------------
-//// 3 | 3 | 3 | 3 | 3 | 3 | 3
-////
-//// Returns the distance between plots according to the pattern above...
-//
-//// not anymore - we are using hexes now
-//
+
 inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
 #if defined(MOD_BALANCE_CORE)
@@ -243,53 +207,39 @@ inline CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange
 
 	return plotXY(iX, iY, iDX, iDY);
 }
-//	----------------------------------------------------------------------------
-inline DirectionTypes directionXY(int iSourceX, int iSourceY, int iDestX, int iDestY)
+
+inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 {
-	int iSourceHexX = xToHexspaceX(iSourceX, iSourceY);
-	int iDestHexX = xToHexspaceX(iDestX, iDestY);
+	//normally we go clockwise so this time we go counterclockwise ...
+	int iOffset = 0;
+	switch (iIndex % 6)
+	{
+	case 0:
+		return initialDir;
+		break;
+	case 1:
+		iOffset = 6-1;
+		break;
+	case 2:
+		iOffset = +1;
+		break;
+	case 3:
+		iOffset = 6-2;
+		break;
+	case 4:
+		iOffset = +2;
+		break;
+	case 5:
+		iOffset = +3;
+		break;
+	}
 
-	int iWrappedXOffset = dxWrap(iDestHexX - iSourceHexX);
-	int iWrappedYOffset = dyWrap(iDestY - iSourceY);
-
-	if(iWrappedYOffset > 0)
-	{
-		if(iWrappedXOffset >= 0)
-		{
-			return DIRECTION_NORTHEAST;
-		}
-		else
-		{
-			return DIRECTION_NORTHWEST;
-		}
-	}
-	else if(iWrappedYOffset == 0)
-	{
-		if(iWrappedXOffset > 0)
-		{
-			return DIRECTION_EAST;
-		}
-		else if(iWrappedXOffset == 0)
-		{
-			return NO_DIRECTION;
-		}
-		else
-		{
-			return DIRECTION_WEST;
-		}
-	}
-	else// if (iWrappedYOffset < 0)
-	{
-		if(iWrappedXOffset > 0)
-		{
-			return DIRECTION_SOUTHEAST;
-		}
-		else
-		{
-			return DIRECTION_SOUTHWEST;
-		}
-	}
+	return (DirectionTypes)(( initialDir+iOffset ) % 6);
 }
+
+// -----------------------------------------------------------------------------
+DirectionTypes estimateDirection(int iSourceX, int iSourceY, int iDestX, int iDestY);
+
 //	----------------------------------------------------------------------------
 inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
@@ -302,7 +252,8 @@ inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot
 			return (DirectionTypes)iI;
 		}
 	}
-	return NO_DIRECTION;
+	//if the direct lookup fails, use the real method
+	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
 #else
 	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
 	                   pToPlot->getX(), pToPlot->getY());
@@ -361,10 +312,7 @@ inline DirectionTypes hexspaceSpikeDirection(const int iXOffset, const int iYOff
 }
 
 CvPlot* plotCity(int iX, int iY, int iIndex);
-
 int plotCityXY(const CvCity* pCity, const CvPlot* pPlot);
-
-DirectionTypes estimateDirection(int iDX, int iDY);
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);
 bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);
