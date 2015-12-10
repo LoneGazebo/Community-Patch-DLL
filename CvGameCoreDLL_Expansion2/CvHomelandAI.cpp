@@ -3034,7 +3034,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				int iAdjacentValue = 0;
 				CvPlot* pBestAdjacentPlot = NULL;
 				//Let's check for a river estuary - those are always good
-				if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
+				if(pUnit->plot()->isFreshWater_cached() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FOUND());
 					UnitProcessed(pUnit->GetID());
@@ -3352,7 +3352,6 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 #endif
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
-#if defined(AUI_DANGER_PLOTS_REMADE)
 				//careful with plots that are too dangerous
 				int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
 				int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
@@ -3360,7 +3359,6 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					continue;
 				if(iDanger > iAcceptableDanger/2)
 					iTotalScore /= 2;
-#endif
 
 				if(iTotalScore > iBestPlotScore )
 				{
@@ -3664,7 +3662,6 @@ typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot()
 {
-#if defined(MOD_BALANCE_CORE)
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
@@ -3672,152 +3669,6 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 		{
 			//so easy
 			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
-#else
-
-	int iDanger;
-
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		WeightedPlotVector aBestPlotList;
-		aBestPlotList.reserve(100);
-
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
-		{
-			CvPlot* pBestPlot = NULL;
-
-			int iRange = pUnit->getUnitInfo().GetMoves();
-
-			// For each plot within movement range of the fleeing unit
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pPlot = GC.getMap().plot(pUnit->getX() + iX, pUnit->getY() + iY);
-					if(pPlot == NULL)
-					{
-						continue;
-					}
-
-					if (plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) > iRange)
-					{
-						continue;
-					}
-
-					//   prefer being in a city with the lowest danger value
-					//   prefer being in a plot with no danger value
-					//   prefer being under a unit with the lowest danger value
-					//   prefer being in your own territory with the lowest danger value
-					//   prefer the lowest danger value
-#if defined(AUI_DANGER_PLOTS_REMADE)
-					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
-#else
-					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
-
-					bool bIsZeroDanger = (iDanger <= 0);
-					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
-					bool bIsInCover = (pPlot->getNumDefenders(m_pPlayer->GetID()) > 0) && !pUnit->IsCanDefend();
-					bool bIsInTerritory = (pPlot->getTeam() == m_pPlayer->getTeam());
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					bool bNeedEmbark = ((pUnit->getDomainType() == DOMAIN_LAND) && (!pUnit->plot()->isWater()) && (pPlot->isWater()));
-#endif
-					#define MAX_DANGER_VALUE	100000
-					#define PREFERENCE_LEVEL(x, y) (x * MAX_DANGER_VALUE) + ((MAX_DANGER_VALUE - 1) - y)
-
-					CvAssert(iDanger < MAX_DANGER_VALUE);
-
-					int iScore;
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					// Lower preference if water and uncovered.
-					if(MOD_AI_SMART_FLEE_FROM_DANGER && bNeedEmbark && !bIsInCover)
-					{
-						iScore = PREFERENCE_LEVEL(0, iDanger);
-					}
-					else
-#endif
-					if(bIsInCity)
-					{
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-						iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 6 : 5), iDanger);
-#else
-						iScore = PREFERENCE_LEVEL(5, iDanger);
-#endif
-					}
-					else if(bIsZeroDanger)
-					{
-						if (bIsInTerritory)
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-							iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 5 : 4), iDanger);
-#else
-							iScore = PREFERENCE_LEVEL(4, iDanger);
-#endif
-						else
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-							iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 4 : 3), iDanger);
-#else
-							iScore = PREFERENCE_LEVEL(3, iDanger);
-#endif
-					}
-					else if(bIsInCover)
-					{
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-						iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 3 : 2), iDanger);
-#else
-						iScore = PREFERENCE_LEVEL(2, iDanger);
-#endif
-					}
-					else if(bIsInTerritory)
-					{
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-						iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 2 : 1), iDanger);
-#else
-						iScore = PREFERENCE_LEVEL(1, iDanger);
-#endif
-					}
-					// if we have no good home, head to the lowest danger value
-					else 
-					{
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-						iScore = PREFERENCE_LEVEL((MOD_AI_SMART_FLEE_FROM_DANGER ? 1 : 0), iDanger);
-#else
-						iScore = PREFERENCE_LEVEL(0, iDanger);
-#endif
-					}
-					aBestPlotList.push_back(pPlot, iScore);
-				}
-			}
-
-			aBestPlotList.SortItems();
-
-			// Now loop through the sorted score list and go to the best one we can reach in one turn.
-			// #define EXECUTEMOVESTOSAFESTPLOT_FAILURE_LIMIT
-			#ifdef EXECUTEMOVESTOSAFESTPLOT_FAILURE_LIMIT
-			int iFailureLimit = 10;
-			#endif
-			uint uiListSize;
-			if ((uiListSize = aBestPlotList.size()) > 0)
-			{
-				aBestPlotList.SortItems();	// highest score will be first.
-				for (uint i = 0; i < uiListSize; ++i )	
-				{
-					CvPlot* pPlot = aBestPlotList.GetElement(i);
-
-					if(pUnit->CanReachInXTurns( pPlot, 1))
-					{
-						pBestPlot = pPlot;
-						break;
-					}
-					#ifdef EXECUTEMOVESTOSAFESTPLOT_FAILURE_LIMIT
-					else
-					{
-						if (iFailureLimit-- == 0)
-							break;
-					}
-					#endif
-				}
-			}
-#endif
 
 			if(pBestPlot != NULL)
 			{
@@ -6240,7 +6091,6 @@ void CvHomelandAI::ExecuteTreasureMoves()
 	}
 }
 
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 // Similar to interception moves on tacticalAI, grant some interceptions based on number of enemies
 void CvHomelandAI::ExecuteAircraftInterceptions()
 {
@@ -6298,7 +6148,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	if (m_CurrentMoveUnits.empty())
 		return;
 	
-	int iTargetRange = 8;
+	int iTargetRange = 6; //basic aircraft and guided missile range
 	int nAirUnitsInCarriers = 0;
 	int nAirUnitsInCities = 0;
 	int nSlotsInCarriers = 0;
@@ -6536,151 +6386,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	}
 }
 
-#else
-
-/// Moves an aircraft into an important city near the front to aid its defense (or offense)
-void CvHomelandAI::ExecuteAircraftMoves()
-{
-	MoveUnitsArray::iterator it;
-
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
-		{
-			continue;
-		}
-
-		CvPlot* pUnitPlot = pUnit->plot();
-		CvUnit* pTransportUnit = NULL;
-		CvPlot* pBestPlot = NULL;
-		int iMostDangerous = 0;
-
-		// first look for open carrier slots
-		int iLoopUnit = 0;
-		for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-		{
-			CvPlot* pLoopUnitPlot = pLoopUnit->plot();
-
-			if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
-			{
-				continue;
-			}
-
-			if(pBestPlot != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot, pLoopUnitPlot->getX(),pLoopUnitPlot->getY()))
-			{
-				continue;
-			}
-
-			if(!pUnit->canLoadUnit(*pLoopUnit, *pLoopUnitPlot))
-			{
-				continue;
-			}
-
-#if defined(AUI_DANGER_PLOTS_REMADE)
-			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot,pUnit.pointer());
-			if (pLoopUnit->getArmyID() != -1)
-				iPlotDanger *= 3;
-#else
-			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot);
-			if (pLoopUnit->getArmyID() != -1)
-			{
-				iPlotDanger += 5000;
-			}
-#endif
-			if(iPlotDanger >= iMostDangerous)
-			{
-				iMostDangerous = iPlotDanger;
-				pBestPlot = pLoopUnitPlot;
-				pTransportUnit = pLoopUnit;
-			}
-
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(pTransportUnit == NULL || pBestPlot == NULL)
-		{
-#endif
-		CvCity* pLoopCity;
-		int iLoopCity = 0;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-		{
-			CvPlot* pTarget = pLoopCity->plot();
-
-			if(pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 5))
-			{
-				continue;
-			}
-
-			if(pBestPlot != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot,pTarget->getX(),pTarget->getY()))
-			{
-				continue;
-			}
-
-			if (pLoopCity->IsRazing())
-			{
-				continue;
-			}
-
-#if defined(AUI_DANGER_PLOTS_REMADE)
-			int iPlotDanger = m_pPlayer->GetPlotDanger(*pTarget,pLoopCity);
-#else
-			int iPlotDanger = m_pPlayer->GetPlotDanger(*pTarget);
-#endif
-			if(iPlotDanger >= iMostDangerous)
-			{
-				iMostDangerous = iPlotDanger;
-				pBestPlot = pTarget;
-				pTransportUnit = NULL;
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-		if(pBestPlot && pBestPlot != pUnitPlot)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_REBASE(), pBestPlot->getX(), pBestPlot->getY());
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				CvString strTemp, strTemp2;
-				strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-				if (pTransportUnit)
-				{
-					strTemp2 = GC.getUnitInfo(pTransportUnit->getUnitType())->GetDescription();
-				}
-
-				if (pBestPlot->getPlotCity())
-				{
-					strLogString.Format("Rebasing %s to city garrison, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
-				}
-				else
-				{
-					strLogString.Format("Rebasing %s onto %s, X: %d, Y: %d", strTemp.GetCString(), strTemp2.GetCString(), pBestPlot->getX(), pBestPlot->getY());
-				}
-				LogHomelandMessage(strLogString);
-			}
-		}
-		else
-		{
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strTemp;
-				strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-				CvString strLogString;
-				strLogString.Format("No better place to move %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
-			}
-		}
-	}
-}
-#endif
-
 
 /// Fleeing to safety for civilian units
 #if defined(MOD_AI_SECONDARY_WORKERS)
@@ -6760,10 +6465,8 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				}
 			}
 
-#if defined(AUI_DANGER_PLOTS_REMADE)
 			if (m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)==INT_MAX)
 				continue;
-#endif
 
 			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
 			aBestPlotList.push_back(pLoopPlot, iValue);
@@ -7589,24 +7292,18 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 	CvPlot* pLoopPlot;
 
 	// Look at spaces adjacent to target
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		pLoopPlot = aPlotsToCheck[iI];
-#else
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iI));
-#endif
+
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) && pUnit->canEnterTerrain(*pLoopPlot))
 			{
-#ifdef AUI_DANGER_PLOTS_REMADE
 				if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)*2 > pUnit->GetCurrHitPoints())
 					continue;
-#endif
+
 				// Find a path to this space
 				if(pUnit->GeneratePath(pLoopPlot))
 				{

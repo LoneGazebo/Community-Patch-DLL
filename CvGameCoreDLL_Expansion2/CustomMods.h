@@ -63,12 +63,6 @@
 
 #define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	#define AIR_ACTION_ATTACK		0
-	#define AIR_ACTION_SWEEP		1
-	#define AIR_ACTION_INTERCEPT	2
-#endif
-
 /// Enables the Binomial Random Number Generator
 #define AUI_BINOM_RNG
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched

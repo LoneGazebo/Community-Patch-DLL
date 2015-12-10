@@ -136,8 +136,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	else if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
 	{
 		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost() * 3;
-		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 3;
+		iRouteCost = pRoadInfo->getMovementCost() * 2;
+		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 2;
 	}
 #endif
 	else

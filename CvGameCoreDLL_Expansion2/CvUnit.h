@@ -44,9 +44,7 @@ typedef FFastSmallFixedList< MissionQueueNode, 12, true, c_eCiv5GameplayDLL > Mi
 typedef FObjectHandle<CvUnit> UnitHandle;
 typedef FStaticVector<CvPlot*, 20, true, c_eCiv5GameplayDLL, 0> UnitMovementQueue;
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 typedef	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL> DangerPlotList;
-#endif
 
 struct CvUnitCaptureDefinition
 {
@@ -477,6 +475,7 @@ public:
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
 	DomainTypes getDomainType() const;
+	bool isNativeDomain(const CvPlot* pPlot) const;
 
 	int flavorValue(FlavorTypes eFlavor) const;
 

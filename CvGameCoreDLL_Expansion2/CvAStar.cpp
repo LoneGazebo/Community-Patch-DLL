@@ -35,6 +35,7 @@
 #define PATH_BUILD_ROUTE_BASE_VALUE								(1000)
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(10)
 #define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(0.5f)
+#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_MOVEMENT_WEIGHT*40)
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*90)
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_MOVEMENT_WEIGHT*210)	//don't make it even so we don't get ties
@@ -124,6 +125,7 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 	m_iYstart = -1;
 	m_iXdest = -1;
 	m_iYdest = -1;
+	m_iProcessedNodes = 0;
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
@@ -196,6 +198,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
+	m_iProcessedNodes = 0;
 
 	if (udInitializeFunc)
 		udInitializeFunc(m_sData, this);
@@ -277,45 +280,60 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	cvStopWatch timer("pathfinder");
+	timer.StartPerfTest();
+#endif
+
 	//here the magic happens
+	bool bSuccess = false;
 	while(1)
 	{
 		m_pBest = GetBest();
 		
 		if (m_pBest==NULL)
-		{
-			if (udUninitializeFunc)
-				udUninitializeFunc(m_sData, this);
-			return false;
-		}
+			break;
 
 		if(IsPathDest(m_pBest->m_iX, m_pBest->m_iY))
+		{
+			bSuccess = true;
 			break;
+		}
 
 		CreateChildren(m_pBest);
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
-	if (false)
+	timer.EndPerfTest();
+
+	if (m_iProcessedNodes>1000)
 	{
-		CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
-		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-		if (pLog && m_sData.iUnitID>0) 
+		//in some cases we have no destination plot, so exhaustion is not always a "fail"
+		OutputDebugString( CvString::format("Path type %d %s, touched %d nodes in %.2f seconds\n", m_sData.ePathType, bSuccess?"found":"not found", m_iProcessedNodes, timer.GetDeltaInSeconds() ).c_str() );
+
+		if (false) //bSuccess
 		{
-			CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
-
-			pLog->Msg( CvString::format("%s for %s (%d) from %d,%d to %d,%d for player %d\n", 
-				GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,GetCurrentPlayer() ).c_str() );
-
-			gStackWalker.SetLog(pLog);
-			gStackWalker.ShowCallstack();
-
-			CvAStarNode* pCurrent = m_pBest;
-			while (pCurrent!=NULL)
+			CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
+			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+			if (pLog) 
 			{
-				pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
-				pCurrent = pCurrent->m_pParent;
+				if (m_sData.iUnitID>0)
+				{
+					CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
+					pLog->Msg( CvString::format("%s for %s (%d) from %d,%d to %d,%d for player %d\n", 
+						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner() ).c_str() );
+				}
+
+				gStackWalker.SetLog(pLog);
+				gStackWalker.ShowCallstack();
+
+				CvAStarNode* pCurrent = m_pBest;
+				while (pCurrent!=NULL)
+				{
+					pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
+					pCurrent = pCurrent->m_pParent;
+				}
 			}
 		}
 	}
@@ -323,7 +341,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 
 	if (udUninitializeFunc)
 		udUninitializeFunc(m_sData, this);
-	return true;
+
+	return bSuccess;
 }
 
 //	--------------------------------------------------------------------------------
@@ -403,6 +422,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
  		if(check && udFunc(udValid, node, check, 0, m_sData))
 		{
 			LinkChild(node, check);
+			m_iProcessedNodes++;
 		}
 	}
 
@@ -1216,13 +1236,16 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
 				else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT;
+				else
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
 			}
 			else //civilian
 			{
 				//danger usually means capture (INT_MAX), unless embarked
-				//damage from features (fallout etc) is accepted
 				if (iPlotDanger > pUnit->GetCurrHitPoints())
 					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
+				else
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
 			}
 		}
 	}
@@ -1832,7 +1855,7 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 /// Route path finder - check validity of a coordinate
 int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
 {
-	if(parent == NULL)
+	if(parent == NULL || data.ePlayer==NO_PLAYER)
 		return TRUE;
 
 	PlayerTypes ePlayer = data.ePlayer;
@@ -1852,11 +1875,6 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
 		{
 			if(pNewPlot->isRiver())
-				ePlotRoute = ROUTE_ROAD;
-		}
-		if(kPlayer.GetPlayerTraits()->IsMountainPass())
-		{
-			if(pNewPlot->isMountain())
 				ePlotRoute = ROUTE_ROAD;
 		}
 		if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
@@ -2292,7 +2310,7 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		break;
 	case PT_UI_PATH_VISUALIZIATION:
-		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		break;
 	default:
 		//not implemented here

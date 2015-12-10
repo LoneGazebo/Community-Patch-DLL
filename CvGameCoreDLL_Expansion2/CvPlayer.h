@@ -2043,18 +2043,13 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK) const;
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK) const;
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
-#else
-	int GetPlotDanger(CvPlot& Plot) const;
-	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;
-#endif // AUI_DANGER_PLOTS_REMADE
 
 	CvCity* GetClosestCity(CvPlot& plot, int iSearchRadius);
 

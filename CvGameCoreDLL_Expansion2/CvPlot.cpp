@@ -1013,10 +1013,6 @@ bool CvPlot::isAdjacentToIce() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isCoastalLand(int iMinWaterSize) const
 {
-#if !defined(MOD_BALANCE_CORE)
-	CvPlot* pAdjacentPlot;
-	int iI;
-#endif
 	if(isWater())
 	{
 		return false;
@@ -1027,16 +1023,11 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 	{
 		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
 		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isWater())
@@ -1146,10 +1137,17 @@ bool CvPlot::isLake() const
 
 //	--------------------------------------------------------------------------------
 // XXX precalculate this???
-bool CvPlot::isFreshWater() const
+bool CvPlot::isFreshWater_cached() const
 {
 	return m_bIsFreshwater;
 }
+
+bool CvPlot::isFreshWater()
+{
+	updateFreshwater();
+	return m_bIsFreshwater;
+}
+
 
 void CvPlot::updateFreshwater()
 {
@@ -2167,7 +2165,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 		bValid = true;
 	}
 
-	const bool bIsFreshWater = isFreshWater();
+	const bool bIsFreshWater = isFreshWater_cached();
 
 	if(pkImprovementInfo->IsNoFreshWater() && bIsFreshWater)
 	{
@@ -8692,7 +8690,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	if(isFreshWater())
+	if(isFreshWater_cached())
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getFreshWaterYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getFreshWaterYieldChange(eYield));
 	}
@@ -8796,7 +8794,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	if(isFreshWater() || bOptimal)
+	if(isFreshWater_cached() || bOptimal)
 #else
 	if(bOptimal)
 #endif
@@ -8879,7 +8877,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		}
 	}
 
-	bool bIsFreshWater = isFreshWater();
+	bool bIsFreshWater = isFreshWater_cached();
 
 	if(bOptimal || ePlayer == NO_PLAYER)
 	{
@@ -12638,6 +12636,12 @@ std::string CvPlot::stackTraceRemark(const FAutoVariableBase& var) const
 //		bit 1 = true, the error was un-recoverable
 int CvPlot::Validate(CvMap& kParentMap)
 {
+	//first of all make sure that plot type and terrain match - some map scripts seem to be inconsistent here
+	if ( m_ePlotType==PLOT_MOUNTAIN && m_eTerrainType!=TERRAIN_MOUNTAIN )
+		m_eTerrainType = TERRAIN_MOUNTAIN;
+	if ( m_ePlotType!=PLOT_MOUNTAIN && m_eTerrainType==TERRAIN_MOUNTAIN )
+		m_ePlotType = PLOT_MOUNTAIN;
+
 	int iError = 0;
 	IDInfo* pUnitNode = headUnitNode();
 
@@ -12925,6 +12929,9 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 // here we additionally look at traits (per player)
 bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 {
+	if (isCity())
+		return true;
+
 	if (ePlayer==NO_PLAYER)
 	{
 		return !m_bIsImpassable;
@@ -12954,10 +12961,26 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 //not all plot which are passable are valid for ending a turn!
 bool CvPlot::isValidEndTurnPlot(PlayerTypes ePlayer) const
 {
+	if (isCity()) //ownership needs to be checked somewhere else (canEnterTerritory)
+		return true;
+
 	if (ePlayer==NO_PLAYER)
 		return !m_bIsImpassable && !isMountain() && !isIce();
 	else
-		return !IsTeamImpassable( GET_PLAYER(ePlayer).getTeam() ) && !isMountain() && !isIce();
+	{
+		if ( IsTeamImpassable( GET_PLAYER(ePlayer).getTeam() ))
+		{
+			//check some special traits
+			if (isIce() && GET_PLAYER(ePlayer).CanCrossIce() )
+				return true;
+			if (isMountain() && GET_PLAYER(ePlayer).CanCrossMountain() )
+				return true;
+
+			return false;
+		}
+		else
+			return true;
+	}
 }
 
 //----------------------------------------------------------

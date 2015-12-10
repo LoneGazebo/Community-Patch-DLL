@@ -35362,9 +35362,8 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
@@ -35403,20 +35402,6 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 	if (pAttacker)
 		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());
 }
-
-#else
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
-{
-	return m_pDangerPlots->GetDanger(pPlot);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot) const
-{
-	return m_pDangerPlots->IsUnderImmediateThreat(pPlot);
-}
-#endif // AUI_DANGER_PLOTS_REMADE
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)

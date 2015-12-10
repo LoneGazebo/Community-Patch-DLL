@@ -2142,25 +2142,7 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 /// Get the religion for which this player is eligible for founder benefits
 ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eReligion;
-
-#if !defined(AUI_DANGER_PLOTS_REMADE)
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(ePlayer);
-
-		int iValue = 0;
-		if (LuaSupport::CallAccumulator(pkScriptSystem, "GetFounderBenefitsReligion", args.get(), iValue))
-		{
-			eReligion = (ReligionTypes)iValue;
-			return eReligion;
-		}
-	}
-#endif
-
-	eReligion = GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eReligion = GetReligionCreatedByPlayer(ePlayer);
 
 	if(IsEligibleForFounderBenefits(eReligion, ePlayer))
 	{

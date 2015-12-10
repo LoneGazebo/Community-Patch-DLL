@@ -23617,7 +23617,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires Fresh Water
 	if(pkBuildingInfo->IsFreshWater())
 	{
-		if(!plot()->isFreshWater())
+		if(!plot()->isFreshWater_cached())
 			return false;
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -23626,7 +23626,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	{
 		if(pkBuildingInfo->IsNoWater())
 		{
-			if(plot()->isFreshWater())
+			if(plot()->isFreshWater_cached())
 			return false;
 		}
 		if(pkBuildingInfo->IsNoRiver())

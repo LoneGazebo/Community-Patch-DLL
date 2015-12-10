@@ -2827,11 +2827,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 			// Danger value of plot must be greater than 0
 			CvPlot* pPlot = pUnit->plot();
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
-#else
-			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -2895,13 +2891,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					// Also flee if danger is really high in current plot (but not if we're barbarian)
 					else if(!pUnit->isBarbarian())
 					{
-#ifdef AUI_DANGER_PLOTS_REMADE
 						if(iDangerLevel*1.5 > pUnit->GetCurrHitPoints())
-#else
-						int iAcceptableDanger;
-						iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 100;
-						if(iDangerLevel > iAcceptableDanger)
-#endif
 						{
 							bAddUnit = true;
 						}
@@ -8057,7 +8047,6 @@ void CvTacticalAI::ExecuteRepositionMoves()
 	}
 }
 
-#ifdef MOD_BALANCE_CORE
 /// Moves units to the hex with the lowest danger
 void CvTacticalAI::ExecuteMovesToSafestPlot()
 {
@@ -8068,264 +8057,6 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 		{
 			//so easy
 			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
-#else
-
-#define PATH_PLAN_LAST
-#if defined(PATH_PLAN_LAST)
-typedef CvWeightedVector<CvPlot*, 1, true> WeightedPlotVector;
-//	---------------------------------------------------------------------------
-//	Return the first reachable plot in the weighted plot list.
-//	It is assumed that the list has yet to be sorted and will do so.
-static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, int iTurns)
-{
-	uint uiListSize;
-	if ((uiListSize = aPlots.size()) > 0)
-	{
-		aPlots.SortItems();
-		for (uint i = uiListSize; i--; )		// Go backward, the CvWeightedVector sorts highest to lowest and we want the least dangerous location
-		{
-			CvPlot* pPlot = aPlots.GetElement(i);
-			if(pUnit->CanReachInXTurns( pPlot, iTurns))
-			{
-				return pPlot;
-			}
-		}
-	}
-	return NULL;
-}
-#endif
-
-/// Moves units to the hex with the lowest danger
-void CvTacticalAI::ExecuteMovesToSafestPlot()
-{
-	int iDanger;
-
-#if defined(PATH_PLAN_LAST)
-	// Maybe make these part of the class and just reuse?
-	WeightedPlotVector aCityList;
-	aCityList.reserve(10);
-	WeightedPlotVector aZeroDangerList;
-	aZeroDangerList.reserve(100);
-	WeightedPlotVector aCoverList;
-	aCoverList.reserve(100);
-	WeightedPlotVector aDangerList;
-	aDangerList.reserve(100);
-#endif
-
-	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
-	PlayerTypes ePlayerID = m_pPlayer->GetID();
-
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
-		{
-
-#if defined(PATH_PLAN_LAST)
-			aCityList.clear();
-			aZeroDangerList.clear();
-			aCoverList.clear();
-			aDangerList.clear();
-#endif
-			CvPlot* pBestPlot = NULL;
-			int iRange = pUnit->getUnitInfo().GetMoves();
-
-#if !defined(PATH_PLAN_LAST)
-			int iLowestDanger = MAX_INT;
-			bool bResultHasZeroDangerMove = false;
-			bool bResultInTerritory = false;
-			bool bResultInCity = false;
-			bool bResultInCover = false;
-#endif
-
-			DomainTypes eUnitDomain = pUnit->getDomainType();
-			bool bIsSeaUnit = eUnitDomain == DOMAIN_SEA;
-
-			CvMap& kMap = GC.getMap();
-			int iUnitX = pUnit->getX();
-			int iUnitY = pUnit->getY();
-			// For each plot within movement range of the fleeing unit
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pPlot = kMap.plot(iUnitX + iX, iUnitY + iY);
-					if(pPlot == NULL)
-					{
-						continue;
-					}
-
-					// Can't be a plot with another player's unit in it or another of our unit of same type
-					if(pPlot->getNumUnits() > 0)
-					{
-						IDInfo* pUnitNode = pPlot->headUnitNode();
-						if(pUnitNode)
-						{
-							CvUnit* pFirstUnit = ::getUnit(*pUnitNode);
-							if(pFirstUnit)
-							{
-								if(pFirstUnit->getOwner() != pUnit->getOwner())
-								{
-									continue;
-								}
-
-								else if(pUnit->AreUnitsOfSameType(*pFirstUnit))
-								{
-									continue;
-								}
-							}
-						}
-					}
-
-					// Also filter out sea units targeting land plots
-					if (bIsSeaUnit && !pPlot->isWater())
-					{
-						continue;
-					}
-
-#if !defined(PATH_PLAN_LAST)
-					if(!pUnit->CanReachInXTurns( pPlot, 1))
-					{
-						continue;
-					}
-#endif
-					//   prefer being in a city with the lowest danger value
-					//   prefer being in a plot with no danger value
-					//   prefer being under a unit with the lowest danger value
-					//   prefer being in your own territory with the lowest danger value
-					//   prefer the lowest danger value
-
-#ifdef AUI_DANGER_PLOTS_REMADE
-					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
-#else
-					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
-					bool bIsZeroDanger = (iDanger <= 0);
-					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
-					bool bIsInCover = (pPlot->getNumDefenders(ePlayerID) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
-					bool bIsInTerritory = (pPlot->getTeam() == ePlayerTeam);
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					bool bNeedEmbark = ((eUnitDomain == DOMAIN_LAND) && (!pUnit->plot()->isWater()) && (pPlot->isWater()));
-#endif
-
-#if defined(PATH_PLAN_LAST)
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					// Enormous danger on water plot, embarking as last option.
-					if(MOD_AI_SMART_FLEE_FROM_DANGER && bNeedEmbark && !bIsInCover)
-					{
-						int combatMod = pUnit->GetBaseCombatStrength() == 0 ? 100 : pUnit->GetBaseCombatStrength();
-						iDanger = min(combatMod * 900, 99999);
-						aDangerList.push_back(pPlot, iDanger);
-					}
-					else
-#endif
-					if(bIsInCity)
-					{
-						aCityList.push_back(pPlot, iDanger);
-					}
-					else
-					if(bIsZeroDanger)
-					{
-						aZeroDangerList.push_back(pPlot, (bIsInTerritory)?0:1);
-					}
-					else
-					if(bIsInCover)
-					{
-						aCoverList.push_back(pPlot, iDanger);
-					}
-					else
-					{
-						aDangerList.push_back(pPlot, iDanger);
-					}
-#endif
-
-#if !defined(PATH_PLAN_LAST)
-					bool bUpdateBestValue = false;
-
-					if(bIsInCity)
-					{
-						if(!bResultInCity || iDanger < iLowestDanger)
-						{
-							bUpdateBestValue = true;
-						}
-					}
-					else if(bIsZeroDanger)
-					{
-						if(!bResultInCity)
-						{
-							if(bResultHasZeroDangerMove)
-							{
-								if(bIsInTerritory && !bResultInTerritory)
-								{
-									bUpdateBestValue = true;
-								}
-							}
-							else
-							{
-								bUpdateBestValue = true;
-							}
-						}
-					}
-					else if(bIsInCover)
-					{
-						if(!bResultInCity && !bResultHasZeroDangerMove)
-						{
-							if(!bResultInCover || iDanger < iLowestDanger)
-							{
-								bUpdateBestValue = true;
-							}
-						}
-					}
-					else if(bIsInTerritory)
-					{
-						if(!bResultInCity && !bResultInCover && !bResultHasZeroDangerMove)
-						{
-							if(!bResultInTerritory || iDanger < iLowestDanger)
-							{
-								bUpdateBestValue = true;
-							}
-						}
-					}
-					// if we have no good home, head to the lowest danger value
-					else if(!bResultInCity && !bResultInCover && !bResultInTerritory && !bResultHasZeroDangerMove)
-					{
-						if(iDanger < iLowestDanger)
-						{
-							bUpdateBestValue = true;
-						}
-					}
-
-					if(bUpdateBestValue)
-					{
-						pBestPlot = pPlot;
-						iLowestDanger = iDanger;
-
-						bResultInTerritory = bIsInTerritory;
-						bResultInCity      = bIsInCity;
-						bResultInCover     = bIsInCover;
-						bResultHasZeroDangerMove = bIsZeroDanger;
-					}
-#endif
-				}
-			}
-
-#if defined(PATH_PLAN_LAST)
-			// Now that we've gathered up our lists of destinations, go through them in order and pick the first one we can reach.
-			// This minimizes accessing the pathfinder.
-			if ((pBestPlot = GetReachablePlot(pUnit, aCityList, 1)) == NULL)
-			{
-				if ((pBestPlot = GetReachablePlot(pUnit, aZeroDangerList, 1)) == NULL)
-				{
-					if ((pBestPlot = GetReachablePlot(pUnit, aCoverList, 1)) == NULL)
-					{
-						pBestPlot = GetReachablePlot(pUnit, aDangerList, 1);
-					}
-				}
-			}
-#endif
-
-#endif //MOD_BALANCE_CORE
-
 			if(pBestPlot != NULL)
 			{
 				// Move to the lowest danger value found
@@ -10420,7 +10151,7 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 #endif
 }
 
-#if defined(MOD_AI_SMART_RANGED_UNITS) && defined(AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS) && defined(AUI_DANGER_PLOTS_REMADE)
+#if defined(MOD_AI_SMART_RANGED_UNITS) && defined(AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS)
 
 // Get best plot of the array of possible plots, based on plot danger.
 CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget, int iAcceptableDanger)

@@ -128,7 +128,8 @@ public:
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
 
 	bool isLake() const;
-	bool isFreshWater() const;
+	bool isFreshWater_cached() const;
+	bool isFreshWater();
 	void updateFreshwater();
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
@@ -498,7 +499,7 @@ public:
 		int damage = 0;
 
 		if (MOD_API_PLOT_BASED_DAMAGE) {
-			const TerrainTypes eTerrain = isMountain() ? TERRAIN_MOUNTAIN : getTerrainType();
+			const TerrainTypes eTerrain = getTerrainType();
 			const FeatureTypes eFeature = getFeatureType();
 			
 			// Make an exception for the volcano

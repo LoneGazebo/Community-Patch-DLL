@@ -263,11 +263,12 @@ protected:
 	bool m_bWrapX;
 	bool m_bWrapY;
 
-	CvAStarNode* m_pOpen;            // The open list
-	CvAStarNode* m_pOpenTail;        // The open list tail pointer (to speed up inserts)
-	CvAStarNode* m_pClosed;          // The closed list
-	CvAStarNode* m_pBest;            // The best node
+	CvAStarNode* m_pOpen;           // The open list
+	CvAStarNode* m_pOpenTail;       // The open list tail pointer (to speed up inserts)
+	CvAStarNode* m_pClosed;         // The closed list
+	CvAStarNode* m_pBest;           // The best node
 	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
+	int m_iProcessedNodes;			// for statistics
 
 	CvAStarNode** m_ppaaNodes;
 	CvAStarNode** m_ppaaNeighbors;

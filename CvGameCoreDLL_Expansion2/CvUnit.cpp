@@ -4268,7 +4268,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 #endif
 	{
 #if defined(MOD_PATHFINDER_CROSS_MOUNTAINS)
-		bool bCanCross = IsHoveringUnit() || canMoveAllTerrain() || canCrossMountains(); // Player trait is included in the canCrossMountains() method
+		bool bCanCross = IsHoveringUnit() || canMoveAllTerrain() || canCrossMountains() || enterPlot.isCity(); // Player trait is included in the canCrossMountains() method
 		if (!bCanCross)
 #else
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -8103,16 +8103,7 @@ void CvUnit::DoAttrition()
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	if (MOD_API_PLOT_BASED_DAMAGE) {
 		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 25 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
-		{
-			iDamage = 25;
-		}
-		else if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 15 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
-		{
-			iDamage = 15;
-		}
-#endif
+
 		if (0 != iDamage) {
 			if (iDamage > 0) {
 				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
@@ -13954,6 +13945,31 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 	return ((UnitCombatTypes)(m_pUnitInfo->GetUnitPromotionType()));
 }
 #endif
+
+
+bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
+{
+	switch (getDomainType())
+	{
+	case DOMAIN_LAND:
+		return !pPlot->isWater();
+		break;
+	case DOMAIN_AIR:
+		return true;
+		break;
+	case DOMAIN_SEA:
+		return pPlot->isWater();
+		break;
+	case DOMAIN_HOVER:
+		return true;
+		break;
+	case DOMAIN_IMMOBILE:
+		return false;
+		break;
+	}
+
+	return true;
+}
 
 //	---------------------------------------------------------------------------
 DomainTypes CvUnit::getDomainType() const

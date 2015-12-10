@@ -148,7 +148,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		if(pTerrainInfo->isFoundFreshWater())
 		{
-			if(pPlot->isFreshWater())
+			if(pPlot->isFreshWater_cached())
 			{
 				bValid = true;
 			}
@@ -1324,7 +1324,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, i
 			{
 				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
 			}
-			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater_cached())
 			{
 				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
 			}
