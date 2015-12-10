@@ -12852,7 +12852,8 @@ void CvPlot::updateImpassable()
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
-	m_bIsImpassable = false;
+	//mountain is impassable by default
+	m_bIsImpassable = (getPlotType()==PLOT_MOUNTAIN);
 
 	if(eTerrain != NO_TERRAIN)
 	{
@@ -12929,7 +12930,7 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 // here we additionally look at traits (per player)
 bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 {
-	if (isCity())
+	if ( getRouteType()!=NO_ROUTE ) //this also included cities!
 		return true;
 
 	if (ePlayer==NO_PLAYER)
@@ -12961,7 +12962,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 //not all plot which are passable are valid for ending a turn!
 bool CvPlot::isValidEndTurnPlot(PlayerTypes ePlayer) const
 {
-	if (isCity()) //ownership needs to be checked somewhere else (canEnterTerritory)
+	if ( getRouteType()!=NO_ROUTE ) //this also includes cities! ownership needs to be checked somewhere else (canEnterTerritory)
 		return true;
 
 	if (ePlayer==NO_PLAYER)

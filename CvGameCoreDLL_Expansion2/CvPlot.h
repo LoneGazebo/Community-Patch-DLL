@@ -988,13 +988,14 @@ protected:
 
 	short m_iX;
 	short m_iY;
+	//save memory, enum is uint32 ...
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
 	char /*TerrainTypes*/ m_eTerrainType;
 
 	PlotBoolField m_bfRevealed;
 
-	FFastSmallFixedList<IDInfo, 8, true, c_eCiv5GameplayDLL > m_units;
+	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
 	IDInfo m_plotCity;
 	IDInfo m_workingCity;

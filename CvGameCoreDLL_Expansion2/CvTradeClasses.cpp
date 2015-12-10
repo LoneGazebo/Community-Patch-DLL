@@ -193,7 +193,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				// first check sea route
 				if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)
 				{
-					int iMaxCost = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+					int iMaxNormDist = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 
 					//is the old path still good?
 					bool bReusePath = false;
@@ -203,7 +203,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 						//if the destination is in reach and the path is still good, we can re-use it
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iCost<=iMaxCost && GC.GetStepFinder().VerifyPath(previousPath))
+						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
 						{
 							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
@@ -214,7 +214,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 					if (!bReusePath)
 					{
 						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
-						data.iMaxCost = iMaxCost;
+						data.iMaxNormalizedDistance = iMaxNormDist;
 						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
 							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
@@ -223,7 +223,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				//now for land routes
 				if (pOriginCity->plot()->getLandmass() == pDestCity->plot()->getLandmass())
 				{
-					int iMaxCost = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+					int iMaxNormDist = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 
 					//is the old path still good?
 					bool bReusePath = false;
@@ -233,7 +233,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 						//if the destination is in reach and the path is still good, we can re-use it
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iCost<=iMaxCost && GC.GetStepFinder().VerifyPath(previousPath))
+						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
 						{
 							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
@@ -244,7 +244,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 					if (!bReusePath)
 					{
 						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_LAND);
-						data.iMaxCost = iMaxCost;
+						data.iMaxNormalizedDistance = iMaxNormDist;
 						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
 							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
@@ -516,10 +516,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	{
 		if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)  A better check would be to see if they are adjacent to the same water body.
 		{
-			int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+			int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 
 			SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_WATER);
-			data.iMaxCost = iMaxCost;
+			data.iMaxNormalizedDistance = iMaxNormDist;
 
 			bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
 			if (!bSuccess)
@@ -532,10 +532,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 	else if (eDomain == DOMAIN_LAND)
 	{
-		int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+		int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 
 		SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_LAND);
-		data.iMaxCost = iMaxCost;
+		data.iMaxNormalizedDistance = iMaxNormDist;
 
 		bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
 		if (!bSuccess)
@@ -763,10 +763,10 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 	if (HaveTradePath(eDomain==DOMAIN_SEA,pOriginCity->GetID(),pDestCity->GetID(),pPath))
 	{
 		// check if beyond the origin player's trade range
-		int iMaxCost = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity) *	MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+		int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
-		int iMovementCost = pPath->iCost;
-		if (iMovementCost>0 && iMovementCost<=iMaxCost)
+		int iNormDist = pPath->iNormalizedDistance;
+		if (iNormDist>0 && iNormDist<=iMaxNormDist)
 			return true;
 	}
 

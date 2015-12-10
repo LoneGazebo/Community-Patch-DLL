@@ -50,7 +50,7 @@ enum PathType
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxCost(INT_MAX) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 
@@ -65,7 +65,7 @@ struct SPathFinderUserData
 	PlayerTypes ePlayer;			//optional
 	int			iUnitID;			//optional
 	int			iMaxTurns;
-	int			iMaxCost;
+	int			iMaxNormalizedDistance;
 };
 
 
@@ -75,7 +75,7 @@ struct SPathFinderUserData
 struct SPath
 {
 	std::vector<std::pair<int,int>> vPlots;
-	int iCost;
+	int iNormalizedDistance;
 	int iTurnGenerated;
 	SPathFinderUserData sConfig;
 };
@@ -118,10 +118,38 @@ public:
 		return m_pBest;
 	}
 
-	inline int GetPathLength() const
+	inline int GetPathTurns() const
 	{
 		if( udNotifyChild && GetLastNode() )
 			return GetLastNode()->m_iTurns;
+		else
+			return INT_MAX;
+	}
+
+	inline int GetPathLength() const
+	{
+		if (m_pBest)
+		{
+			int iLength = 0;
+			const CvAStarNode* pCurrent = m_pBest;
+			while (pCurrent)
+			{
+				iLength++;
+				pCurrent = pCurrent->m_pParent;
+			}
+			return iLength;
+		}
+		else
+			return INT_MAX;
+	}
+
+	inline int GetNormalizedLength() const
+	{
+		if (m_pBest)
+		{
+			int iCost = m_pBest->m_iKnownCost;
+			return iCost / m_iBasicPlotCost;
+		}
 		else
 			return INT_MAX;
 	}
@@ -268,7 +296,9 @@ protected:
 	CvAStarNode* m_pClosed;         // The closed list
 	CvAStarNode* m_pBest;           // The best node
 	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
+
 	int m_iProcessedNodes;			// for statistics
+	int m_iTestedNodes;
 
 	CvAStarNode** m_ppaaNodes;
 	CvAStarNode** m_ppaaNeighbors;
@@ -276,10 +306,10 @@ protected:
 	// Scratch buffer
 	char  m_ScratchBuffer[512];	// Will NOT be modified directly by CvAStar
 
-#if defined(MOD_BALANCE_CORE)
+	int m_iBasicPlotCost;		// for length normalization
+
 	//for debugging
 	CvString m_strName;
-#endif
 };
 
 // Copy the supplied node and its parent nodes into an array of simpler path nodes for caching purposes.

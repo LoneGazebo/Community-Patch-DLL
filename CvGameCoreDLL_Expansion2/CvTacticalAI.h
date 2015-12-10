@@ -140,6 +140,7 @@ public:
 	{
 		m_eMoveType = NO_TACTICAL_MOVE;
 		m_iPriority = 0;
+		m_name = 0;
 	}
 
 	bool operator<(const CvTacticalMove& move) const
@@ -147,6 +148,7 @@ public:
 		return (m_iPriority > move.m_iPriority);
 	}
 
+	const char* m_name;
 	TacticalAIMoveTypes m_eMoveType;
 	int m_iPriority;
 };

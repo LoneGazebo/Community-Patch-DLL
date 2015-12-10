@@ -2402,14 +2402,7 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 
 	if(GC.GetStepFinder().DoesPathExist(target.m_pMusterCity->plot(), target.m_pTargetCity->plot(), data))
 	{
-		CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
-		if(pNode != NULL)
-		{
-			int iEnemyPlots = GC.GetStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-			iLandPathLength = pNode->m_iTurns + iEnemyPlots*3;
-		}
-
-		target.m_iPathLength = iLandPathLength;
+		target.m_iPathLength = GC.GetStepFinder().GetNormalizedLength() + GC.GetStepFinder().CountPlotsOwnedByXInPath(eEnemy)*3;
 	}
 
 	// if we can embark, maybe there's another way

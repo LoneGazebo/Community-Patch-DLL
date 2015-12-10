@@ -825,32 +825,6 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 
 			if(bValid)
 			{
-				bool bFound = false;
-				bool bRequires = false;
-				for(int i = 0; i < GC.getNUM_UNIT_AND_TECH_PREREQS(); ++i)
-				{
-					TechTypes eTech = (TechTypes) kUnit.GetPrereqAndTechs(i);
-
-					if(NO_TECH != eTech)
-					{
-						bRequires = true;
-
-						if(GET_TEAM(BARBARIAN_TEAM).GetTeamTechs()->HasTech(eTech))
-						{
-							bFound = true;
-							break;
-						}
-					}
-				}
-
-				if(bRequires && !bFound)
-				{
-					bValid = false;
-				}
-			}
-
-			if(bValid)
-			{
 				iValue = (1 + kGame.getJonRandNum(1000, "Barb Unit Selection"));
 
 				if(kUnit.GetUnitAIType(eUnitAI))

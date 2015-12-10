@@ -1421,6 +1421,7 @@ void CvTacticalAI::EstablishTacticalPriorities()
 		{
 			move.m_eMoveType = eTacticalAIMove;
 			move.m_iPriority = pkTacticalMoveInfo->GetPriority();
+			move.m_name = pkTacticalMoveInfo->GetType();
 
 			if(move.m_iPriority >= 0)
 			{
@@ -1545,6 +1546,8 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 			CvTacticalMove move;
 			move.m_eMoveType = (TacticalAIMoveTypes)iI;
 			move.m_iPriority = iPriority;
+			move.m_name = barbarianMoveNames[iI];
+
 			m_MovePriorityList.push_back(move);
 		}
 	}
@@ -1673,9 +1676,7 @@ void CvTacticalAI::FindTacticalTargets()
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
 					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(20);
-#endif
+					newTarget.SetAuxIntData( m_pPlayer->isBarbarian() ? 5 : 30 );
 					m_AllTargets.push_back(newTarget);
 				}
 
@@ -2323,10 +2324,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 			break;
 
 		//debugging
-		if(MOD_BALANCE_CORE_MILITARY_LOGGING)
-		{
-			m_CurrentMoveUnits.setCurrentTacticalMove(move);
-		}
+		m_CurrentMoveUnits.setCurrentTacticalMove(move);
 #endif
 
 		AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Move: %d, Turn %03d, %s", (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
@@ -7900,11 +7898,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			// LAND MOVES
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, NULL, false, true);
-#else
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
-#endif
 				if(pBestPlot)
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, (pUnit->getDomainType()==DOMAIN_LAND)))
@@ -12002,7 +11996,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 
 	// Now looking for BEST score
 	iBestValue = 0;
-	int iMovementRange = pUnit->movesLeft() / GC.getMOVE_DENOMINATOR();
+	int iMovementRange = pUnit->baseMoves();
 	for(int iX = -iMovementRange; iX <= iMovementRange; iX++)
 	{
 		for(int iY = -iMovementRange; iY <= iMovementRange; iY++)
@@ -12023,21 +12017,16 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 				continue;
 			}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			//land units don't explore water
-			if (pUnit->getDomainType()==DOMAIN_LAND && pPlot->isWater())
+			if (!pUnit->isNativeDomain(pPlot))
 				continue;
 
 			//allow disembarking
 			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
-#else
-			if(pPlot->area() != pUnit->area())
-#endif
 			{
 				continue;
 			}
 
-			if(!pUnit->CanReachInXTurns( pPlot, 1))
+			if(!pUnit->CanReachInXTurns( pPlot, 2))
 			{
 				continue;
 			}
@@ -12049,6 +12038,11 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 #else
 			iValue = CvEconomicAI::ScoreExplorePlot(pPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
 #endif
+
+			//magic knowledge - gravitate towards cities
+			int iCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+			if (iCityDistance<10)
+				iValue += (10-iCityDistance);
 
 			// Add special value for popping up on hills or near enemy lands
 			if(pPlot->isAdjacentOwned())
@@ -12062,12 +12056,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 
 			// If still have no value, score equal to distance from my current plot
 			if(iValue == 0)
-			{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				if ( ( eDomain==DOMAIN_LAND && !pPlot->isWater() ) || ( eDomain==DOMAIN_SEA && pPlot->isWater() ) )
-#endif
 				iValue = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-			}
 
 			if(iValue > iBestValue)
 			{
@@ -12217,20 +12206,21 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 #endif
 {
 	CvPlot* pBestMovePlot = NULL;
-	int iBestValue;
-	int iValue;
+	int iBestValue = 0;
 	CvPlot* pPlot;
-
-	iBestValue = MAX_INT;
-	pBestMovePlot = NULL;
+	int iMaxTurns = iRange/2+3;
 
 	// Loop through all appropriate targets to find the closest
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
+	{
+		CvTacticalTarget target = m_AllTargets[iI];
 #else
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
-#endif
 	{
+		CvTacticalTarget target = m_ZoneTargets[iI];
+#endif
+
 		// Is the target of an appropriate type?
 		bool bTypeMatch = false;
 		if(eType == AI_TACTICAL_TARGET_NONE)
@@ -12238,8 +12228,8 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 #if defined(MOD_BALANCE_CORE)
 			if(bHighPriorityOnly)
 			{
-				if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || 
-					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || 
+					target.GetTargetType() == AI_TACTICAL_TARGET_CITY)
 				{
 					bTypeMatch = true;
 				}
@@ -12247,12 +12237,12 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			else
 			{
 #endif
-			if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-			        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP ||
-					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
+			if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP ||
+					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
 			{
 				bTypeMatch = true;
 			}
@@ -12261,9 +12251,9 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			}
 			if (bAllowDefensiveTargets)
 			{
-				if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
-						m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||
-						m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_DEFENSIVE_BASTION)
+				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
+					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||
+					target.GetTargetType() == AI_TACTICAL_TARGET_DEFENSIVE_BASTION)
 				{
 					bTypeMatch = true;
 				}
@@ -12271,7 +12261,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 #endif
 
 		}
-		else if(m_ZoneTargets[iI].GetTargetType() ==  eType)
+		else if(target.GetTargetType() ==  eType)
 		{
 			bTypeMatch = true;
 		}
@@ -12279,7 +12269,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 		// Is this unit near enough?
 		if(bTypeMatch)
 		{
-			pPlot = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
+			pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
 #if defined(MOD_BALANCE_CORE)
 			//Naval unit? Let's get a water plot.
 			if(!pPlot->isWater() && pUnit->getDomainType() == DOMAIN_SEA)
@@ -12296,7 +12286,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 				}
 			}
 #endif
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
+			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), target.GetTargetX(), target.GetTargetY());
 			if(iDistance == 0)
 			{
 				return pPlot;
@@ -12307,12 +12297,10 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 				{
 					if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
 					{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-						iValue = pUnit->TurnsToReachTarget(pPlot, true, true, iBestValue);
-#else
-						iValue = pUnit->TurnsToReachTarget(pPlot);
-#endif
-						if(iValue < iBestValue)
+						int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
+						int iValue = target.GetAuxIntData() / max(1,iTurns);
+
+						if( iValue > iBestValue)
 						{
 							pBestMovePlot = pPlot;
 							iBestValue = iValue;
@@ -12331,13 +12319,11 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					{
 						if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
 						{
-							iValue = pUnit->TurnsToReachTarget(pPlot, true, true, iBestValue);
+							int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
+							//Half because area switch
+							int iValue = target.GetAuxIntData() / max(1,iTurns) / 2;
 
-							//Double because area switch
-							if (iValue!=INT_MAX)
-								iValue *= 2;
-
-							if(iValue < iBestValue)
+							if( iValue > iBestValue)
 							{
 								pBestMovePlot = pPlot;
 								iBestValue = iValue;

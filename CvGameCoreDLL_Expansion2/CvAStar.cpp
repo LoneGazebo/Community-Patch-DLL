@@ -35,6 +35,7 @@
 #define PATH_BUILD_ROUTE_BASE_VALUE								(1000)
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(10)
 #define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(0.5f)
+#define PATH_TRADE_BASE_COST									(100)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_MOVEMENT_WEIGHT*40)
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*90)
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*210)	//one of these is worth 3.5 plots of detour
@@ -125,7 +126,6 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 	m_iYstart = -1;
 	m_iXdest = -1;
 	m_iYdest = -1;
-	m_iProcessedNodes = 0;
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
@@ -135,6 +135,10 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 	m_pClosed = NULL;
 	m_pBest = NULL;
 	m_pStackHead = NULL;
+
+	m_iTestedNodes = 0;
+	m_iProcessedNodes = 0;
+	m_iBasicPlotCost = 1;
 
 	m_ppaaNodes = reinterpret_cast<CvAStarNode**>(FMALLOCALIGNED(sizeof(CvAStarNode*)*m_iColumns, 64, c_eCiv5GameplayDLL, 0));
 	for(int iI = 0; iI < m_iColumns; iI++)
@@ -198,7 +202,9 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
+
 	m_iProcessedNodes = 0;
+	m_iTestedNodes = 0;
 
 	if (udInitializeFunc)
 		udInitializeFunc(m_sData, this);
@@ -310,7 +316,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if (m_iProcessedNodes>1000)
 	{
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Path type %d %s, touched %d nodes in %.2f seconds\n", m_sData.ePathType, bSuccess?"found":"not found", m_iProcessedNodes, timer.GetDeltaInSeconds() ).c_str() );
+		OutputDebugString( CvString::format("Path type %d %s, tested %d nodes, processed %d nodes in %.2f ms (path length %d)\n", 
+			m_sData.ePathType, bSuccess?"found":"not found", m_iTestedNodes, m_iProcessedNodes, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
 		if (false) //bSuccess
 		{
@@ -417,12 +424,12 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	for(int i = 0; i < count; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
+		m_iTestedNodes++;
 
 		//important things happening here
  		if(check && udFunc(udValid, node, check, 0, m_sData))
 		{
 			LinkChild(node, check);
-			m_iProcessedNodes++;
 		}
 	}
 
@@ -452,12 +459,12 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 /// Link in a child
 void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
-	// we would have to start a new turn to continue
+	//we would have to start a new turn to continue
 	if(node->m_iMoves == 0)
 		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
 			return;
 
-	// seems innocent, but is very important
+	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
 		return; //don't even link it up, it's a dead end
@@ -465,13 +472,17 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	//calculate the cumulative cost up to here
 	iKnownCost += node->m_iKnownCost;
 
-	if (iKnownCost > m_sData.iMaxCost)
-		return; // path is getting too expensive
+	//check termination because of total cost / normalized length
+	if (m_sData.iMaxNormalizedDistance!= INT_MAX && iKnownCost > m_sData.iMaxNormalizedDistance*m_iBasicPlotCost)
+		return;
 
 	//final check. there may have been a previous path here.
 	//in that case we want to keep the one with the lower total cost, which should correspond to the shorter one
 	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost )
 		return;
+
+	//some bookkeeping
+	m_iProcessedNodes++;
 
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
@@ -2302,15 +2313,19 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	{
 	case PT_UNIT_WITH_ZOC:
 		SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_MOVE_HIGHLIGHT:
 		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, UIPathValid, UIPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_ATTACK_HIGHLIGHT:
 		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PATH_VISUALIZIATION:
 		SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	default:
 		//not implemented here
@@ -2330,48 +2345,63 @@ bool CvPathFinder::Configure(PathType ePathType)
 	{
 	case PT_GENERIC_SAME_AREA:
 		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA:
 		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
 		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA_WIDE:
 		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_UNIT_IGNORE_OTHERS:
 		SetFunctionPointers(PathDest, IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_TRADE_WATER:
 		SetFunctionPointers(PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
 		SetFunctionPointers(PathDest, NULL, TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
 		SetFunctionPointers(PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BUILD_ROUTE_BASE_VALUE;
 		break;
 	case PT_AREA_CONNECTION:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_LANDMASS_CONNECTION:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, LandmassValid, NULL, JoinLandmass, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_INFLUENCE:
 		SetFunctionPointers(PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_LAND:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_WATER:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_MIXED:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	case PT_AIR_REBASE:
 		SetFunctionPointers(PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, NULL, NULL);
+		m_iBasicPlotCost = 1;
 		break;
 	default:
 		//not implemented here
@@ -2566,7 +2596,7 @@ CvPlot* CvPathFinder::GetPathEndTurnPlot() const
 SPath CvPathFinder::GetPath() const
 {
 	SPath ret;
-	ret.iCost = INT_MAX;
+	ret.iNormalizedDistance = INT_MAX;
 	ret.iTurnGenerated = GC.getGame().getGameTurn();
 	ret.sConfig = m_sData;
 
@@ -2576,7 +2606,7 @@ SPath CvPathFinder::GetPath() const
 		return ret;
 	}
 
-	ret.iCost = pNode->m_iKnownCost;
+	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost;
 
 	//walk backwards ...
 	while(pNode != NULL)
@@ -2610,7 +2640,7 @@ bool CvPathFinder::VerifyPath(const SPath& path)
 		if ( udFunc(udValid, &current, &next, 0, m_sData) )
 		{
 			iKnownCost += udFunc(udCost, &current, &next, 0, m_sData);
-			if (iKnownCost > path.iCost)
+			if (iKnownCost > path.iNormalizedDistance*m_iBasicPlotCost)
 				return false;
 		}
 		else
@@ -2734,7 +2764,6 @@ int UIAttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const
 	return 1;
 }
 
-#if defined(MOD_CORE_PATHFINDER)
 //	---------------------------------------------------------------------------
 int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
 {
@@ -2837,17 +2866,18 @@ int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, c
 
 	return 0;
 }
-#endif
 
 // A structure holding some unit values that are invariant during a path plan operation
 struct TradePathCacheData
 {
+	PlayerTypes m_ePlayer;
 	TeamTypes m_eTeam;
 	bool m_bCanCrossOcean:1;
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
 	bool m_bIsMoveFriendlyWoodsAsRoad:1;
 
+	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
 	inline bool CanCrossOcean() const { return m_bCanCrossOcean; }
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
@@ -2858,13 +2888,12 @@ struct TradePathCacheData
 //	--------------------------------------------------------------------------------
 void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 {
-	PlayerTypes ePlayer = data.ePlayer;
 	TradePathCacheData* pCacheData = reinterpret_cast<TradePathCacheData*>(finder->GetScratchBufferDirty());
 
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	TeamTypes eTeam = kPlayer.getTeam();
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 
-	pCacheData->m_eTeam = eTeam;
+	pCacheData->m_ePlayer = data.ePlayer;
+	pCacheData->m_eTeam = kPlayer.getTeam();
 	pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean();
 	pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
 
@@ -2891,7 +2920,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 //	--------------------------------------------------------------------------------
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY) * MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/3;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST/3;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2909,7 +2938,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 
-	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	int iCost = PATH_TRADE_BASE_COST;
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
@@ -2923,24 +2952,24 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 
 	//try to avoid these plots
 	if (pToPlot->isRoughGround())
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/2;
+		iCost += PATH_TRADE_BASE_COST/2;
 
 	//prefer oasis
 	if (eFeature == FEATURE_OASIS)
-		iCost -= MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
+		iCost -= PATH_TRADE_BASE_COST/4;
 	
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->GetTeam() != eToPlotTeam)
 	{
 		//try to stick to friendly territory
 		if (pToPlot->getOwner()==NO_PLAYER || !GET_TEAM(pCacheData->GetTeam()).IsAllowsOpenBordersToTeam(eToPlotTeam))
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/4;
+			iCost += PATH_TRADE_BASE_COST/4;
 	}
 
 	// avoid enemy lands
 	if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
 	{
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*10;
+		iCost += PATH_TRADE_BASE_COST*10;
 	}
 
 	FAssert(iCost != MAX_INT);
@@ -2950,11 +2979,12 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
+int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
 {
 	if(parent == NULL)
 		return TRUE;
 
+	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
@@ -2974,9 +3004,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 		return FALSE;
 	}
 
-	//traderoute may pass a plot whenever the owner may pass it
-	PlayerTypes eOwner = pToPlot->getOwner();
-	if(!pToPlot->isValidMovePlot(eOwner))
+	if(!pToPlot->isValidMovePlot( pCacheData->GetPlayer() ))
 	{
 		return FALSE;
 	}
@@ -2995,24 +3023,24 @@ int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SP
 	int iToPlotY = node->m_iY;
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
-	int iCost = MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST;
+	int iCost = PATH_TRADE_BASE_COST;
 
 	// prefer the coastline (not identical with coastal water)
 	if (pToPlot->isWater() && pToPlot->isAdjacentToLand_Cached())
-		iCost -= MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/3;
+		iCost -= PATH_TRADE_BASE_COST/3;
 
 	// avoid enemy lands
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
 	{
-		iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST*10;
+		iCost += PATH_TRADE_BASE_COST*10;
 	}
 
 	//try to stick to friendly territory
 	if (pCacheData->GetTeam() != eToPlotTeam)
 	{
 		if (pToPlot->getOwner()==NO_PLAYER || !GET_TEAM(pCacheData->GetTeam()).IsAllowsOpenBordersToTeam(eToPlotTeam))
-			iCost += MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST/8;
+			iCost += PATH_TRADE_BASE_COST/8;
 	}
 
 	return iCost;
@@ -3061,8 +3089,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 		}
 
 		//traderoute may pass a plot whenever the owner may pass it
-		PlayerTypes eOwner = pNewPlot->getOwner();
-		if(!pNewPlot->isValidMovePlot(eOwner))
+		if(!pNewPlot->isValidMovePlot( pCacheData->GetPlayer() ))
 		{
 			return FALSE;
 		}
@@ -3151,7 +3178,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	ePlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;
 	iUnitID = pUnit ? pUnit->GetID() : 0;
 	iTypeParameter = -1; //typical invalid enum
-	iMaxCost = INT_MAX;
+	iMaxNormalizedDistance = INT_MAX;
 }
 
 //	---------------------------------------------------------------------------
@@ -3164,5 +3191,5 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iUnitID = 0;
 	iTypeParameter = _iTypeParameter;
 	iMaxTurns = _iMaxTurns;
-	iMaxCost = INT_MAX;
+	iMaxNormalizedDistance = INT_MAX;
 }

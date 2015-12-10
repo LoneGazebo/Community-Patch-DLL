@@ -175,14 +175,6 @@
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION
 
-// make caravans stick to roads and rivers if possible
-#define MOD_CORE_TRADE_NATURAL_ROUTES
-#define MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST 100
-
-// use the RebasePathfinder to rebase air units in multiple hops
-// disable the TacticalMapPathfinder - it's 99% identical to the regular pathfinder
-#define MOD_CORE_PATHFINDER
-
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 

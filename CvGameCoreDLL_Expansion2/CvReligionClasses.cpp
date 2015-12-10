@@ -2814,11 +2814,11 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 	SPath path;
 	if ( GC.getGame().GetGameTrade()->HaveTradePath( false,pFromCity->GetID(),pToCity->GetID(),&path) )
 	{
-		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
 	if ( GC.getGame().GetGameTrade()->HaveTradePath( true,pFromCity->GetID(),pToCity->GetID(),&path) )
 	{
-		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
 
 	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
