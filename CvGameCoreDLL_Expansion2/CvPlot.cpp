@@ -1138,16 +1138,28 @@ bool CvPlot::isLake() const
 //	--------------------------------------------------------------------------------
 // XXX precalculate this???
 bool CvPlot::isFreshWater_cached() const
+<<<<<<< HEAD
 {
 	return m_bIsFreshwater;
 }
 
+bool CvPlot::isFreshWater()
+=======
+>>>>>>> origin/master
+{
+	updateFreshwater();
+	return m_bIsFreshwater;
+}
+
+<<<<<<< HEAD
+=======
 bool CvPlot::isFreshWater()
 {
 	updateFreshwater();
 	return m_bIsFreshwater;
 }
 
+>>>>>>> origin/master
 
 void CvPlot::updateFreshwater()
 {

@@ -36153,6 +36153,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	if (vSettlePlots.empty())
 		return 0;
+<<<<<<< HEAD
 
 	//order by decreasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
@@ -36161,6 +36162,16 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	//delete all but the best 20%
 	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
+=======
+
+	//order by decreasing score
+	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
+
+	//delete all but the best 20%
+	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
+
+>>>>>>> origin/master
 	//AI cheating here ... check if a settler would likely be captured
 	std::vector<CvPlot*> vBadPlots;
 	for(int iI = 0; iI < iNumPlots; iI++)
