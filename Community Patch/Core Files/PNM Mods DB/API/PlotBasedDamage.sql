@@ -1,7 +1,5 @@
 ALTER TABLE Terrains
   ADD TurnDamage INTEGER DEFAULT 0;
-UPDATE Terrains
-  SET TurnDamage=50 WHERE Type='TERRAIN_MOUNTAIN';
 
 ALTER TABLE UnitPromotions
   ADD IgnoreTerrainDamage INTEGER DEFAULT 0;

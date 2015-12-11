@@ -2142,25 +2142,7 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 /// Get the religion for which this player is eligible for founder benefits
 ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) const
 {
-	ReligionTypes eReligion;
-
-#if !defined(AUI_DANGER_PLOTS_REMADE)
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(ePlayer);
-
-		int iValue = 0;
-		if (LuaSupport::CallAccumulator(pkScriptSystem, "GetFounderBenefitsReligion", args.get(), iValue))
-		{
-			eReligion = (ReligionTypes)iValue;
-			return eReligion;
-		}
-	}
-#endif
-
-	eReligion = GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eReligion = GetReligionCreatedByPlayer(ePlayer);
 
 	if(IsEligibleForFounderBenefits(eReligion, ePlayer))
 	{
@@ -2824,16 +2806,19 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		iMaxDistance /= 100;
 	}
 
+	//important. make sure the cache is up to date
+	GC.getGame().GetGameTrade()->UpdateTradePathCache(pFromCity->getOwner());
+
 	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
 	int iApparentDistance = INT_MAX;
 	SPath path;
 	if ( GC.getGame().GetGameTrade()->HaveTradePath( false,pFromCity->GetID(),pToCity->GetID(),&path) )
 	{
-		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
 	if ( GC.getGame().GetGameTrade()->HaveTradePath( true,pFromCity->GetID(),pToCity->GetID(),&path) )
 	{
-		iApparentDistance = min(iApparentDistance, path.iCost / MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST );
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
 
 	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
@@ -6250,7 +6235,7 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
 		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
 		{
-			iTurns = TurnsToReachTarget(pUnit, pCity->plot(), true /* bReusePaths */);
+			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
 			if(iTurns < MAX_INT)
 			{
 				*piTurns = iTurns;
@@ -6280,11 +6265,7 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
-#ifdef AUI_ASTAR_TURN_LIMITER
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
-#else
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
+				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -6368,7 +6349,7 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
 		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
 		{
-			iTurns = TurnsToReachTarget(pUnit, pCity->plot(), true /* bReusePaths */);
+			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
 			if(iTurns < MAX_INT)
 			{
 				*piTurns = iTurns;
@@ -6398,11 +6379,7 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanRemoveHeresy(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
 			{
-#ifdef AUI_ASTAR_TURN_LIMITER
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
-#else
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
+				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -6599,7 +6576,7 @@ CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
 		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
 		{
-			iTurns = TurnsToReachTarget(pUnit, pCity->plot(), true /* bReusePaths */);
+			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
 			if(iTurns < MAX_INT)
 			{
 				*piTurns = iTurns;
@@ -6629,11 +6606,7 @@ CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0 )
 			{
-#ifdef AUI_ASTAR_TURN_LIMITER
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, false, false, iBestNumTurns);
-#else
-				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
+				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());

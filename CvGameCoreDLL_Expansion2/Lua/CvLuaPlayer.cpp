@@ -1102,7 +1102,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEspionageCityStatus);
 #if defined(MOD_BALANCE_CORE)
+	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
+	Method(GetCachedValueOfPeaceWithHuman);
 #endif
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
@@ -10316,7 +10318,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 		for (uint i = 0; i < uiListSize; ++i )	
 		{
 			CvPlot* pPlot = aBestPlots.GetElement(i);
-			bool bCanFindPath = pFoundingUnit->GeneratePath(pPlot, 0, true, &iPathTurns);
+			bool bCanFindPath = pFoundingUnit->GeneratePath(pPlot, 0, 12, &iPathTurns);
 			if(bCanFindPath)
 			{
 				aPlots[iReturnSize] = pPlot;
@@ -12478,6 +12480,37 @@ int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
+	int iValueImOffering, iValueTheyreOffering;
+	int iResult = 0;
+	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
+	if(iResult < 0)
+	{
+		iResult *= -1;
+	}
+	if(iResult == MAX_INT)
+	{
+		iResult = -1;
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	int iResult = pkThisPlayer->GetCachedValueOfPeaceWithHuman();
+	if(iResult < 0)
+	{
+		iResult *= -1;
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 {

@@ -551,6 +551,30 @@ function DoUIDealChangedByHuman()
 	end
 	
 	DoUpdateButtons();
+	--CBP
+	Controls.PeaceValue:SetHide(true);
+	Controls.PeaceMax:SetHide(true);
+	Controls.PeaceDeal:SetHide(true);
+	Controls.PeaceDealBorderFrame:SetHide(true);
+	if(g_pUsTeam:IsAtWar( g_iThemTeam )) then
+		if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
+			Controls.PeaceValue:SetHide(false);
+			Controls.PeaceMax:SetHide(false);
+			Controls.PeaceDeal:SetHide(false);
+			Controls.PeaceDealBorderFrame:SetHide(false);
+			local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
+			local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
+			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+			local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
+			local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
+			Controls.PeaceValue:SetText(Valuestr);
+			Controls.PeaceMax:SetText(Maxstr);
+			Controls.PeaceValue:SetToolTipString(ValuestrTT);
+			Controls.PeaceMax:SetToolTipString(MaxstrTT);
+		end
+	end
+	--END
 	
 end
 
@@ -627,6 +651,31 @@ function DoUpdateButtons()
 		Controls.WhatWillMakeThisWorkButton:SetHide(true);
 		Controls.WhatWillEndThisWarButton:SetHide(true);
  		Controls.WhatConcessionsButton:SetHide(true);
+
+		--CBP
+		Controls.PeaceValue:SetHide(true);
+		Controls.PeaceMax:SetHide(true);
+		Controls.PeaceDeal:SetHide(true);
+		Controls.PeaceDealBorderFrame:SetHide(true);
+		if(Teams[g_iUsTeam]:IsAtWar(g_iThemTeam)) then
+			if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
+				Controls.PeaceValue:SetHide(false);
+				Controls.PeaceMax:SetHide(false);
+				Controls.PeaceDeal:SetHide(false);
+				Controls.PeaceDealBorderFrame:SetHide(false);
+				local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
+				local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
+				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
+				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
+				Controls.PeaceValue:SetText(Valuestr);
+				Controls.PeaceMax:SetText(Maxstr);
+				Controls.PeaceValue:SetToolTipString(ValuestrTT);
+				Controls.PeaceMax:SetToolTipString(MaxstrTT);
+			end
+		end
+		--END
 
 		-- At War: show the "what will end this war button
 		if (g_iUsTeam >= 0 and g_iThemTeam >= 0 and Teams[g_iUsTeam]:IsAtWar(g_iThemTeam)) then
@@ -1505,28 +1554,6 @@ function ResetDisplay()
 		Controls.ThemPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
 		Controls.ThemPocketOtherPlayer:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
 		
-		-- CBP
-		Controls.UsTableMakePeaceStack:SetDisabled( true );
-		Controls.UsTableMakePeaceStack:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.UsTableMakePeaceStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
-		Controls.UsTableMakePeaceStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
-
-		Controls.ThemTableMakePeaceStack:SetDisabled( true );
-		Controls.ThemTableMakePeaceStack:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.ThemTableMakePeaceStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
-		Controls.ThemTableMakePeaceStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
-
-		-- CBP
-		Controls.UsTableDeclareWarStack:SetDisabled( true );
-		Controls.UsTableDeclareWarStack:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.UsTableDeclareWarStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
-		Controls.UsTableDeclareWarStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
-
-		Controls.ThemTableDeclareWarStack:SetDisabled( true );
-		Controls.ThemTableDeclareWarStack:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.ThemTableDeclareWarStack:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
-		Controls.ThemTableDeclareWarStack:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
-
 	else
 		Controls.UsPocketOtherPlayer:SetDisabled( false );
 		Controls.UsPocketOtherPlayer:GetTextControl():SetColorByName( "Beige_Black" );
@@ -1760,7 +1787,6 @@ function ResetDisplay()
 		Controls.ThemPocketOtherPlayer:SetHide(false);
 	end
 
-    
     ResizeStacks();
 end
 
@@ -2318,6 +2344,9 @@ function ChangeGoldAmount( string, control )
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
 		Controls.ThemTableGold:SetToolTipString( strTooltip );
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldAmount:RegisterCallback( ChangeGoldAmount );
 Controls.UsGoldAmount:SetVoid1( 1 );
@@ -2421,6 +2450,9 @@ function ChangeGoldPerTurnAmount( string, control )
 		Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
 		
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldPerTurnAmount:RegisterCallback( ChangeGoldPerTurnAmount );
 Controls.UsGoldPerTurnAmount:SetVoid1( 1 );
@@ -2644,7 +2676,7 @@ Controls.ThemTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgre
 -----------------------------------------------------------------------------------------------------------------------
 function PocketResourceHandler( isUs, resourceId )
 	
-	local iAmount = 5;
+	local iAmount = 3;
 
 	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
 		iAmount = 1;

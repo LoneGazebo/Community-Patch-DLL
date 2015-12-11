@@ -332,15 +332,19 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(getThresholdAdditions);
 	Method(GetUnhappinessFromCultureYield);
 	Method(GetUnhappinessFromCultureNeeded);
+	Method(GetUnhappinessFromCultureDeficit);
 	Method(GetUnhappinessFromCulture);
 	Method(GetUnhappinessFromScienceYield);
 	Method(GetUnhappinessFromScienceNeeded);
+	Method(GetUnhappinessFromScienceDeficit);
 	Method(GetUnhappinessFromScience);
 	Method(GetUnhappinessFromDefenseYield);
 	Method(GetUnhappinessFromDefenseNeeded);
+	Method(GetUnhappinessFromDefenseDeficit);
 	Method(GetUnhappinessFromDefense);
 	Method(GetUnhappinessFromGoldYield);
 	Method(GetUnhappinessFromGoldNeeded);
+	Method(GetUnhappinessFromGoldDeficit);
 	Method(GetUnhappinessFromGold);
 	Method(GetUnhappinessFromConnection);
 	Method(GetUnhappinessFromPillaged);
@@ -3119,6 +3123,25 @@ int CvLuaCity::lGetUnhappinessFromCultureNeeded(lua_State* L)
 	lua_pushinteger(L, pkCity->getUnhappinessFromCultureNeeded());
 	return 1;
 }
+//int GetUnhappinessFromCultureDeficit();
+int CvLuaCity::lGetUnhappinessFromCultureDeficit(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iPop = pkCity->getPopulation();
+	int iResult = 0;
+	int iYield = pkCity->getUnhappinessFromCultureYield() * iPop;
+	int iNeed = pkCity->getUnhappinessFromCultureNeeded() * iPop;
+	if(iNeed > iYield)
+	{
+		iResult = iNeed - iYield;
+	}
+	else
+	{
+		iResult = iYield - iNeed;
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //int getUnhappinessFromCulture();
 int CvLuaCity::lGetUnhappinessFromCulture(lua_State* L)
 {
@@ -3138,6 +3161,25 @@ int CvLuaCity::lGetUnhappinessFromScienceNeeded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromScienceNeeded());
+	return 1;
+}
+//int GetUnhappinessFromScienceDeficit();
+int CvLuaCity::lGetUnhappinessFromScienceDeficit(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iPop = pkCity->getPopulation();
+	int iResult = 0;
+	int iYield = pkCity->getUnhappinessFromScienceYield() * iPop;
+	int iNeed = pkCity->getUnhappinessFromScienceNeeded() * iPop;
+	if(iNeed > iYield)
+	{
+		iResult = iNeed - iYield;
+	}
+	else
+	{
+		iResult = iYield - iNeed;
+	}
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //int getUnhappinessFromScience();
@@ -3161,6 +3203,25 @@ int CvLuaCity::lGetUnhappinessFromDefenseNeeded(lua_State* L)
 	lua_pushinteger(L, pkCity->getUnhappinessFromDefenseNeeded());
 	return 1;
 }
+//int GetUnhappinessFromDefenseDeficit();
+int CvLuaCity::lGetUnhappinessFromDefenseDeficit(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iPop = pkCity->getPopulation();
+	int iResult = 0;
+	int iYield = pkCity->getUnhappinessFromDefenseYield() * iPop;
+	int iNeed = pkCity->getUnhappinessFromDefenseNeeded() * iPop;
+	if(iNeed > iYield)
+	{
+		iResult = iNeed - iYield;
+	}
+	else
+	{
+		iResult = iYield - iNeed;
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //int getUnhappinessFromDefense();
 int CvLuaCity::lGetUnhappinessFromDefense(lua_State* L)
 {
@@ -3180,6 +3241,25 @@ int CvLuaCity::lGetUnhappinessFromGoldNeeded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromGoldNeeded());
+	return 1;
+}
+//int GetUnhappinessFromGoldDeficit();
+int CvLuaCity::lGetUnhappinessFromGoldDeficit(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iPop = pkCity->getPopulation();
+	int iResult = 0;
+	int iYield = pkCity->getUnhappinessFromGoldYield() * iPop;
+	int iNeed = pkCity->getUnhappinessFromGoldNeeded() * iPop;
+	if(iNeed > iYield)
+	{
+		iResult = iNeed - iYield;
+	}
+	else
+	{
+		iResult = iYield - iNeed;
+	}
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //int getUnhappinessFromGold();

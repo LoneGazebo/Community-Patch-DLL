@@ -44,9 +44,7 @@ typedef FFastSmallFixedList< MissionQueueNode, 12, true, c_eCiv5GameplayDLL > Mi
 typedef FObjectHandle<CvUnit> UnitHandle;
 typedef FStaticVector<CvPlot*, 20, true, c_eCiv5GameplayDLL, 0> UnitMovementQueue;
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 typedef	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL> DangerPlotList;
-#endif
 
 struct CvUnitCaptureDefinition
 {
@@ -477,6 +475,7 @@ public:
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
 	DomainTypes getDomainType() const;
+	bool isNativeDomain(const CvPlot* pPlot) const;
 
 	int flavorValue(FlavorTypes eFlavor) const;
 
@@ -1404,7 +1403,8 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL) const;
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
+
 	void ResetPath();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
@@ -1536,6 +1536,9 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
+
+	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;

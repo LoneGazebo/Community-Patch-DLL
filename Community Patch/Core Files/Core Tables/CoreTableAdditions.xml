@@ -327,6 +327,13 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
+	<!-- TRAIT: Allows you to define a yield that is gained if your pantheon or religion is the majority in a city.-->
+	<Table name="Trait_YieldFromOwnPantheon">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
 	<!-- TRAIT: Allows you to define a yield that is gained every turn a trade unit moves.-->
 	<Table name="Trait_YieldFromRouteMovement">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -492,6 +499,13 @@
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 	</Table>
+	<!-- Improvement: allows an improvement to boost the base yield of an adjacent improvement -->
+	<Table name="Improvement_AdjacentImprovementYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Yields>
 		<Row>
 			<ID>8</ID>
@@ -542,4 +556,18 @@
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_YIELD_GREAT_GENERAL_POINTS">
+			<Text>Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS">
+			<Text>Great Admiral Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_POPULATION">
+			<Text>Population</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
+			<Text>Local Culture</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

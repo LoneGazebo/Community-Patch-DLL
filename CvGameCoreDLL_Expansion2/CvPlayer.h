@@ -1251,6 +1251,14 @@ public:
 	void DoGovernmentCooldown();
 	void DoReformCooldown();
 
+	int GetCurrency() const;
+	void SetCurrency(int iID);
+
+	bool HasCurrency();
+
+	void SetCurrencyName(const char* strKey);
+	CvString GetCurrencyName() const;
+
 	//DONE
 
 	bool CanUpgradeCSTerritory() const;
@@ -1320,6 +1328,9 @@ public:
 	void ChangeMonopolyModPercent(int iValue);
 	int GetMonopolyModPercent() const;
 	void SetMonopolyModPercent(int iValue);
+
+	int GetCachedValueOfPeaceWithHuman();
+	void SetCachedValueOfPeaceWithHuman(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2043,18 +2054,13 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK) const;
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK) const;
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
-#else
-	int GetPlotDanger(CvPlot& Plot) const;
-	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;
-#endif // AUI_DANGER_PLOTS_REMADE
 
 	CvCity* GetClosestCity(CvPlot& plot, int iSearchRadius);
 
@@ -2088,14 +2094,10 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;
 	void SetFoundValueOfCapital(int iValue);
 	bool HaveGoodSettlePlot(int iAreaID) const;
-#else
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
-#endif
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -2178,6 +2180,10 @@ public:
 	bool GetAnyUnitHasOrderToGoody(void);
 	bool GetEverTrainedBuilder(void);
 	// end Tutorial functions
+
+	bool CanCrossOcean() const;
+	bool CanCrossMountain() const;
+	bool CanCrossIce() const;
 
 	// International Trade
 	bool IsAllowedToTradeWith(PlayerTypes eOtherPlayer);
@@ -2690,6 +2696,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iJFDPietyRate;
 	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
+	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
+	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
@@ -2707,6 +2715,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSingleVotes;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
+	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

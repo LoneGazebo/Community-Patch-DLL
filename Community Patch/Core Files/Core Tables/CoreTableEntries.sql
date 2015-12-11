@@ -43,6 +43,9 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 
+-- CBP Difficulty Bonus
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonus' INTEGER DEFAULT 0;
+
 -- Grants additional starting happiness based on gamespeed.
 
 ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;

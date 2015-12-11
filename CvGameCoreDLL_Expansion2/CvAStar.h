@@ -24,12 +24,12 @@ class CvPlot;
 
 enum PathType
 {
+	PT_UNIT_WITH_ZOC,			//path for a particular unit with ZoC rules (stacking is handled via flag)
+	PT_UNIT_IGNORE_OTHERS,		//path for a unit, disregarding other units (no stacking and no ZoC)
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
 	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
 	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
-	PT_UNIT_WITH_ZOC,			//path for a particular unit with ZoC rules (stacking is handled via flag)
-	PT_UNIT_IGNORE_OTHERS,		//path for a unit, disregarding other units (no stacking and no ZoC)
 	PT_TRADE_WATER,				//water trade
 	PT_TRADE_LAND,				//land trade
 	PT_BUILD_ROUTE,				//prospective route
@@ -50,7 +50,7 @@ enum PathType
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxCost(INT_MAX) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 
@@ -65,7 +65,7 @@ struct SPathFinderUserData
 	PlayerTypes ePlayer;			//optional
 	int			iUnitID;			//optional
 	int			iMaxTurns;
-	int			iMaxCost;
+	int			iMaxNormalizedDistance;
 };
 
 
@@ -75,7 +75,7 @@ struct SPathFinderUserData
 struct SPath
 {
 	std::vector<std::pair<int,int>> vPlots;
-	int iCost;
+	int iNormalizedDistance;
 	int iTurnGenerated;
 	SPathFinderUserData sConfig;
 };
@@ -118,10 +118,38 @@ public:
 		return m_pBest;
 	}
 
-	inline int GetPathLength() const
+	inline int GetPathTurns() const
 	{
 		if( udNotifyChild && GetLastNode() )
 			return GetLastNode()->m_iTurns;
+		else
+			return INT_MAX;
+	}
+
+	inline int GetPathLength() const
+	{
+		if (m_pBest)
+		{
+			int iLength = 0;
+			const CvAStarNode* pCurrent = m_pBest;
+			while (pCurrent)
+			{
+				iLength++;
+				pCurrent = pCurrent->m_pParent;
+			}
+			return iLength;
+		}
+		else
+			return INT_MAX;
+	}
+
+	inline int GetNormalizedLength() const
+	{
+		if (m_pBest)
+		{
+			int iCost = m_pBest->m_iKnownCost;
+			return iCost / m_iBasicPlotCost;
+		}
 		else
 			return INT_MAX;
 	}
@@ -263,11 +291,14 @@ protected:
 	bool m_bWrapX;
 	bool m_bWrapY;
 
-	CvAStarNode* m_pOpen;            // The open list
-	CvAStarNode* m_pOpenTail;        // The open list tail pointer (to speed up inserts)
-	CvAStarNode* m_pClosed;          // The closed list
-	CvAStarNode* m_pBest;            // The best node
+	CvAStarNode* m_pOpen;           // The open list
+	CvAStarNode* m_pOpenTail;       // The open list tail pointer (to speed up inserts)
+	CvAStarNode* m_pClosed;         // The closed list
+	CvAStarNode* m_pBest;           // The best node
 	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
+
+	int m_iProcessedNodes;			// for statistics
+	int m_iTestedNodes;
 
 	CvAStarNode** m_ppaaNodes;
 	CvAStarNode** m_ppaaNeighbors;
@@ -275,10 +306,10 @@ protected:
 	// Scratch buffer
 	char  m_ScratchBuffer[512];	// Will NOT be modified directly by CvAStar
 
-#if defined(MOD_BALANCE_CORE)
+	int m_iBasicPlotCost;		// for length normalization
+
 	//for debugging
 	CvString m_strName;
-#endif
 };
 
 // Copy the supplied node and its parent nodes into an array of simpler path nodes for caching purposes.
@@ -470,7 +501,5 @@ void TradePathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 
 //helper functions
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
-int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
-bool CanReachInXTurns(UnitHandle pUnit, const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 #endif	//CVASTAR_H

@@ -903,6 +903,13 @@ void CvGame::DoGameStarted()
 
 	bool bTempClearable;
 
+	//consistency check for map
+	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		pLoopPlot->Validate( GC.getMap() );
+	}
+
 	FeatureTypes eFeature;
 	for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
@@ -12054,7 +12061,7 @@ int CalculateDigSiteWeight(int iIndex, FFastVector<CvArchaeologyData, true, c_eC
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iIndex);
 
 		// zero this value if this plot has a resource, water, ice, mountain, or natural wonder
-		if (pPlot->getResourceType() != NO_RESOURCE || pPlot->isWater() || pPlot->getFeatureType() == FEATURE_ICE || pPlot->isMountain() || pPlot->IsNaturalWonder())
+		if (pPlot->getResourceType() != NO_RESOURCE || pPlot->isWater() || !pPlot->isValidEndTurnPlot(NO_PLAYER) || pPlot->IsNaturalWonder())
 			iBaseWeight = 0;
 
 		// if this tile cannot be improved, zero it out
@@ -12366,11 +12373,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
 		const ResourceTypes eResource = pPlot->getResourceType();
 
-#if defined(MOD_BALANCE_CORE)
-		if (pPlot->isWater() || pPlot->isImpassable(BARBARIAN_TEAM))
-#else
-		if (pPlot->isWater() || pPlot->isImpassable())
-#endif
+		if (pPlot->isWater() || !pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 		{
 			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
 			historicalDigSites[i].m_eEra = NO_ERA;

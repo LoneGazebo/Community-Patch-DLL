@@ -178,7 +178,7 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<NeverCapture>true</NeverCapture>
-			<PortraitIndex>24</PortraitIndex>
+			<PortraitIndex>19</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_ClassesNeededInCity>

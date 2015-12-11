@@ -1018,7 +1018,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		if(iPlotDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
 #endif
 		{
-			if(TurnsToReachTarget(pUnit, pTarget) == MAX_INT)
+			if(pUnit->TurnsToReachTarget(pTarget,false,false,42) == MAX_INT)
 			{
 				// No path, need to pick a new directive
 				continue;
@@ -1537,7 +1537,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 
-					if(pLoopPlot != NULL && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(m_pPlayer->getTeam()) && pLoopPlot->isCity())
+					if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) && pLoopPlot->isCity())
 					{
 						if(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
@@ -2224,11 +2224,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
 	// if plot is impassable, bail!
-#if defined(MOD_BALANCE_CORE)
-	if(pPlot->isImpassable(m_pPlayer->getTeam()) || pPlot->isMountain())
-#else
-	if(pPlot->isImpassable() || pPlot->isMountain())
-#endif		
+	if(! pPlot->isValidEndTurnPlot(m_pPlayer->GetID()))
 	{
 		if(m_bLogging)
 		{
@@ -2455,7 +2451,7 @@ int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot)
 	}
 	else
 	{
-		int iResult = TurnsToReachTarget(pUnit, pPlot);
+		int iResult = pUnit->TurnsToReachTarget(pPlot);
 		if(iResult == MAX_INT)
 		{
 			return -1;

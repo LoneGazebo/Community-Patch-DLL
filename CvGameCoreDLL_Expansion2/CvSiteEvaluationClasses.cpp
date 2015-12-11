@@ -94,47 +94,19 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(pPlayer != NULL)
+
+	if(!pPlot->isValidEndTurnPlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
 	{
-		if(pPlot->isImpassable(pPlayer->getTeam()) || pPlot->isMountain())
+		if(pUnit && !pUnit->canEnterTerrain(*pPlot))
 		{
-			if(pUnit)
-			{
-				if(!pUnit->canEnterTerrain(*pPlot))
-				{
-					return false;
-				}
-			}
-			else if(!bForce)
-			{
-				return false;
-			}
+			return false;
+		}
+		else if(!bForce)
+		{
+			return false;
 		}
 	}
-	else
-	{
-		if(pPlot->isImpassable() || pPlot->isMountain())
-		{
-			if(pUnit)
-			{
-				if(!pUnit->canEnterTerrain(*pPlot))
-				{
-					return false;
-				}
-			}
-			else if(!bForce)
-			{
-				return false;
-			}
-		}
-	}
-#else
-	if(pPlot->isImpassable() || pPlot->isMountain())
-	{
-		return false;
-	}
-#endif
+
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
 		if(GC.getFeatureInfo(pPlot->getFeatureType())->isNoCity())
@@ -159,6 +131,12 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		{
 			bValid = true;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass() && pPlot->isMountain())
+		{
+			bValid = true;
+		}
+#endif
 	}
 
 	if(!bValid)
@@ -176,7 +154,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		if(pTerrainInfo->isFoundFreshWater())
 		{
-			if(pPlot->isFreshWater())
+			if(pPlot->isFreshWater_cached())
 			{
 				bValid = true;
 			}
@@ -402,7 +380,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
-	int iDefaultPlotValue = -200;
+	int iDefaultPlotValue = -100;
 
 	int iBorderlandRange = 6;
 	int iCapitalArea = NULL;
@@ -470,7 +448,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 							if (iExistingCityDistance<=2)
 								//even if it's not currently worked by the other city, it will eventually be!
-								continue;
+								iRingModifier = 0;
 							if (iExistingCityDistance==3)
 								//this plot will likely be contested between the two cities, reduce its value
 								iRingModifier /= 2;
@@ -532,7 +510,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 								bIsAlmostCoast = true;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-							if (pLoopPlot->IsNaturalWonder())
+							if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
 								iPlotValue *= 15;
 
 							// lower value a lot if we already own this tile
@@ -1004,11 +982,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
-#if defined(MOD_BALANCE_CORE)
-	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable(BARBARIAN_TEAM) && !pPlot->isMountain()) )
-#else
-	if(!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain())
-#endif
+	if( bAllPlots || (!pPlot->isWater() && pPlot->isValidEndTurnPlot(NO_PLAYER)) )
 	{
 		rtnValue += ComputeFoodValue(pPlot, NULL);
 		rtnValue += ComputeProductionValue(pPlot, NULL);
@@ -1339,47 +1313,24 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 }
 
 /// Value of plot for providing strategic value
-int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity)
+int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, int iPlotsFromCity)
 {
 	int rtnValue = 0;
 
 	CvAssert(pPlot);
 	if(!pPlot) return rtnValue;
 
-	// Possible chokepoint if impassable terrain and exactly 2 plots from city
-#if defined(MOD_BALANCE_CORE)
-	if(pPlayer != NULL)
-	{
-		if(iPlotsFromCity == 2 && (pPlot->isImpassable(pPlayer->getTeam()) || pPlot->isMountain()))
-		{
-			rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
-		}
-	}
-	else
-	{
-		if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))
-		{
-			rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
-		}
-	}
-#else
-	if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))
-	{
-		rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
-	}
-#endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	if (MOD_BALANCE_CORE_SETTLER) 
 	{
-
 		//Some features and terrain types are useful strategically. (Or really bad)
 		if(pPlot->getOwner() == NO_PLAYER)
 		{
-			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE) || (pPlot->getTerrainType() == TERRAIN_SNOW))
+			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE))
 			{
 				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
 			}
-			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater_cached())
 			{
 				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
 			}
@@ -1406,17 +1357,6 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pP
 			rtnValue += iWeight;
 		}
 	}
-
-	// Nearby City
-	if(pPlayer != NULL && pPlot->isCity())
-	{
-//		if (pPlot->getOwner() == pPlayer->getID())
-		{
-			rtnValue += /*-1000*/ GC.getALREADY_OWNED_STRATEGIC_VALUE();
-		}
-	}
-
-	// POSSIBLE FUTURE: Is there any way for us to know to grab land between us and another major civ?
 
 	rtnValue *= m_iFlavorMultiplier[SITE_EVALUATION_STRATEGIC];
 

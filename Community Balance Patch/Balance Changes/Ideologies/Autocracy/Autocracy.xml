@@ -1,39 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/18/2014 11:53:17 AM -->
 <GameData>
-  <!-- Futurism -->
-	<Policy_TourismOnUnitCreation>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_ADMIRAL</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_GENERAL</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_MERCHANT</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_ENGINEER</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_FUTURISM</PolicyType>
-			<UnitClassType>UNITCLASS_PROPHET</UnitClassType>
-			<Tourism>250</Tourism>
-		</Row>
-	</Policy_TourismOnUnitCreation>
 	<!-- Mobilization -->
 	<Policy_BuildingClassYieldChanges>
 		<Row>

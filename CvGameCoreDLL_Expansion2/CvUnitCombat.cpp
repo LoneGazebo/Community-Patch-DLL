@@ -2264,11 +2264,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 				if(pLoopCity == NULL)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable(BARBARIAN_TEAM)) && !(pLoopPlot->isMountain()))
-#else
-					if(!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()))
-#endif
+					if(!pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 					{
 						if(pLoopPlot->getFeatureType() != NO_FEATURE)
 						{

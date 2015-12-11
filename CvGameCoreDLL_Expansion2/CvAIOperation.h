@@ -826,9 +826,7 @@ public:
 		return true;
 	};
 
-	//virtual bool Move();
-
-	virtual bool ArmyInPosition(CvArmyAI* pArmy) = 0;
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
@@ -945,9 +943,7 @@ public:
 	}
 
 	virtual int GetDeployRange() const;
-
 	virtual bool ShouldAbort();
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget();
@@ -1076,9 +1072,6 @@ public:
 		return true;
 	};
 
-	//virtual bool Move();
-
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 protected:
 	int m_iTargetArea;
 };
@@ -1108,9 +1101,6 @@ public:
 	{
 		return MUFORMATION_NAVAL_INVASION;
 	}
-	virtual CvCity* GetOperationStartCity() const;
-
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget();
@@ -1154,8 +1144,8 @@ public:
 
 protected:
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
-	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths);
-	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit);
+	virtual CvPlot* FindBestTarget(CvUnit* pUnit);
 
 	UnitAITypes m_eCivilianType;
 };
@@ -1171,9 +1161,6 @@ public:
 	virtual ~CvAIOperationNavalSneakAttack();
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
-	virtual CvCity* GetOperationStartCity() const;
-
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 	virtual int GetOperationType() const
 	{
@@ -1187,10 +1174,10 @@ public:
 	{
 		return MUFORMATION_NAVAL_INVASION;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 private:
 	virtual bool ShouldAbort();
-#endif
+
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1204,9 +1191,6 @@ public:
 	virtual ~CvAIOperationNavalCityStateAttack();
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
-	virtual CvCity* GetOperationStartCity() const;
-
-	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 	virtual int GetOperationType() const
 	{

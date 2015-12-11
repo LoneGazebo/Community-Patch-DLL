@@ -6,12 +6,12 @@
 		<Row>
 			<BeliefType>BELIEF_CEREMONIAL_BURIAL</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>40</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CEREMONIAL_BURIAL</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>40</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromGPUse>
 	<Belief_YieldBonusGoldenAge>

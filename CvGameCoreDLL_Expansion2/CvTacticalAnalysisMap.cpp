@@ -574,7 +574,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								int iTurnsToReach;
 
 								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
+								iTurnsToReach = pUnit->TurnsToReachTarget(pPlot, true /*bIgnoreUnits*/);
 
 								if(iTurnsToReach <= 1)
 								{
@@ -725,11 +725,7 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 
 	cell.SetRevealed(pPlot->isRevealed(m_pPlayer->getTeam()));
 	cell.SetVisible(pPlot->isVisible(m_pPlayer->getTeam()));
-#if defined(MOD_BALANCE_CORE)
-	cell.SetImpassableTerrain(pPlot->isImpassable(m_pPlayer->getTeam()) || pPlot->isMountain());
-#else
-	cell.SetImpassableTerrain(pPlot->isImpassable() || pPlot->isMountain());
-#endif
+	cell.SetImpassableTerrain(!pPlot->isValidEndTurnPlot(m_pPlayer->GetID()));
 	cell.SetWater(pPlot->isWater());
 	cell.SetOcean(pPlot->isWater() && !pPlot->isShallowWater());
 
@@ -1071,7 +1067,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 								iDistance = 0;
 							else
 							{
-								iDistance = TurnsToReachTarget(pLoopUnit, pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
+								iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
 								if (pLoopUnit->GetRange() > 1)
 									iDistance -= 1;
 							}
@@ -1156,7 +1152,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 											iDistance = 0;
 										else
 										{
-											iDistance = TurnsToReachTarget(pLoopUnit, pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
+											iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
 											if (pLoopUnit->GetRange() > 1)
 												iDistance -= 1;
 										}

@@ -2842,6 +2842,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIAdvancedStartPercent(0),
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iDifficultyBonus(0),
+#endif
 	m_iNumGoodies(0),
 	m_piGoodies(NULL),
 	m_pbFreeTechs(NULL),
@@ -3161,6 +3164,13 @@ int CvHandicapInfo::getNumGoodies() const
 {
 	return m_iNumGoodies;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIDifficultyBonus() const
+{
+	return m_iDifficultyBonus;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getGoodies(int i) const
 {
@@ -3250,6 +3260,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIAdvancedStartPercent = kResults.GetInt("AIAdvancedStartPercent");
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
+#if defined(MOD_BALANCE_CORE)
+	m_iDifficultyBonus = kResults.GetInt("DifficultyBonus");
+#endif
 
 	//Arrays
 	const char* szHandicapType = GetType();

@@ -165,6 +165,12 @@ function UpdateDisplay()
 		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
 		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
 
+		local iCultureDeficit = pCity:GetUnhappinessFromCultureDeficit() / 100;
+		local iDefenseDeficit = pCity:GetUnhappinessFromDefenseDeficit() / 100;
+		local iGoldDeficit = pCity:GetUnhappinessFromGoldDeficit() / 100;
+		local iScienceDeficit = pCity:GetUnhappinessFromScienceDeficit() / 100;
+
+
 		strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
 		if(pCity:IsPuppet()) then
@@ -193,14 +199,14 @@ function UpdateDisplay()
 		end
 		-- Gold tooltip
 		if (iGoldUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded);
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
 		end
 		if ((iGoldYield - iGoldNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
 		end
 		-- Defense tooltip
 		if (iDefenseUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
 		end
 		if ((iDefenseYield - iDefenseNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
@@ -215,14 +221,14 @@ function UpdateDisplay()
 		end
 		-- Science tooltip
 		if (iScienceUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
 		end
 		if ((iScienceYield - iScienceNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
 		end
 		-- Culture tooltip
 		if (iCultureUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
 		end
 		if ((iCultureYield - iCultureNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));

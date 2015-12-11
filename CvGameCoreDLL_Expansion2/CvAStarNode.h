@@ -55,7 +55,7 @@ struct CvPathNodeCacheData
 {
 	bool bIsRevealedToTeam:1;
 	bool bPlotVisibleToTeam:1;
-	bool bIsMountain:1;
+	bool bIsEndTurnPlot:1;
 	bool bIsWater:1;
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 	bool bIsTerraFirma:1;
@@ -95,7 +95,6 @@ public:
 		m_iTotalCost = 0;
 		m_iKnownCost = 0;
 		m_iHeuristicCost = 0;
-		m_iNumChildren = 0;
 		m_iMoves = 0;
 		m_iTurns = 0;
 
@@ -107,8 +106,6 @@ public:
 		m_pNext = NULL;
 		m_pPrev = NULL;
 		m_pStack = NULL;
-
-		m_apNeighbors = NULL;
 	}
 
 	void clear()
@@ -116,7 +113,6 @@ public:
 		m_iTotalCost = 0;
 		m_iKnownCost = 0;
 		m_iHeuristicCost = 0;
-		m_iNumChildren = 0;
 		m_iMoves = 0;
 		m_iTurns = 0;
 
@@ -128,7 +124,7 @@ public:
 		m_pStack = NULL;
 		m_bOnStack = false;
 
-		memset(m_apChildren,0,sizeof(CvAStarNode*)*6);
+		m_apChildren.clear();
 		m_kCostCacheData.clear();
 	}
 
@@ -149,9 +145,8 @@ public:
 	CvAStarNode* m_pStack;					// For Push/Pop Stack
 	bool m_bOnStack;
 
-	//nodes we could reach from this node
-	CvAStarNode* m_apChildren[6];
-	short m_iNumChildren;
+	//nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
+	std::vector<CvAStarNode*> m_apChildren;
 
 	//for faster neighbor lookup (potential children) - always 6 - persistent
 	CvAStarNode** m_apNeighbors;

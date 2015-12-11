@@ -327,28 +327,6 @@
 			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
-	<Units>
-		<Update>
-			<Where Type="UNIT_BARBARIAN_WARRIOR" />
-			<Set ObsoleteTech="TECH_BRONZE_WORKING" />
-		</Update>
-		<Update>
-			<Where Type="UNIT_GALLEY" />
-			<Set ObsoleteTech="TECH_COMPASS" />
-		</Update>
-		<Update>
-			<Where Type="UNIT_BARBARIAN_ARCHER" />
-			<Set ObsoleteTech="TECH_ENGINEERING" />
-		</Update>
-		<Update>
-			<Where Type="UNIT_BARBARIAN_SPEARMAN" />
-			<Set ObsoleteTech="TECH_STEEL" />
-		</Update>
-		<Update>
-			<Where Type="UNIT_BARBARIAN_SWORDSMAN" />
-			<Set ObsoleteTech="TECH_STEEL" />
-		</Update>
-	</Units>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
 			<Text>Marsh Walkers</Text>

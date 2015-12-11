@@ -567,11 +567,7 @@ void CvBarbarians::DoCamps()
 				// Plot must be valid (not Water, nonvisible)
 				if(!pLoopPlot->isWater())
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(!pLoopPlot->isImpassable(BARBARIAN_TEAM) && !pLoopPlot->isMountain() && pLoopPlot->getArea()!=-1)
-#else
-					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
-#endif
+					if(pLoopPlot->isValidEndTurnPlot(BARBARIAN_PLAYER) && pLoopPlot->getArea()!=-1)
 					{
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
@@ -822,32 +818,6 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 			if(bValid)
 			{
 				if(!GET_PLAYER(BARBARIAN_PLAYER).canTrain(eLoopUnit))
-				{
-					bValid = false;
-				}
-			}
-
-			if(bValid)
-			{
-				bool bFound = false;
-				bool bRequires = false;
-				for(int i = 0; i < GC.getNUM_UNIT_AND_TECH_PREREQS(); ++i)
-				{
-					TechTypes eTech = (TechTypes) kUnit.GetPrereqAndTechs(i);
-
-					if(NO_TECH != eTech)
-					{
-						bRequires = true;
-
-						if(GET_TEAM(BARBARIAN_TEAM).GetTeamTechs()->HasTech(eTech))
-						{
-							bFound = true;
-							break;
-						}
-					}
-				}
-
-				if(bRequires && !bFound)
 				{
 					bValid = false;
 				}
@@ -1284,11 +1254,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			{
 				if(pLoopPlot->getNumUnits() == 0)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(!pLoopPlot->isImpassable(BARBARIAN_TEAM) && !pLoopPlot->isMountain())
-#else
-					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
-#endif
+					if(pLoopPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
 					{
 						if(!pLoopPlot->isCity())
 						{

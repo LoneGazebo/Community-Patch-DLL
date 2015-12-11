@@ -10,6 +10,13 @@
 			<Yield>2</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
+	<Improvement_YieldAdjacentSameType>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_YieldAdjacentSameType>
 	<!-- Make Keshik a Medieval Unit -->
 	<UnitPromotions>
 		<!--Arabia Promotion-->
@@ -131,22 +138,18 @@
 			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
-	<Improvement_YieldAdjacentSameType>
+	<Improvement_AdjacentImprovementYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<OtherImprovementType>IMPROVEMENT_FARM</OtherImprovementType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Improvement_YieldAdjacentSameType>
+	</Improvement_AdjacentImprovementYieldChanges>
 	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
-			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>

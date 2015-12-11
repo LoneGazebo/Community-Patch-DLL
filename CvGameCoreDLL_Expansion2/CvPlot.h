@@ -128,7 +128,8 @@ public:
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
 
 	bool isLake() const;
-	bool isFreshWater() const;
+	bool isFreshWater_cached() const;
+	bool isFreshWater();
 	void updateFreshwater();
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
@@ -474,6 +475,11 @@ public:
 		return m_iRiverCrossingCount > 0;
 	}
 
+	//can a generic unit end its turn here (disregarding promotions, combat/civilian etc)
+	bool isValidEndTurnPlot(PlayerTypes ePlayer) const;
+	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
+	bool isValidMovePlot(PlayerTypes ePlayer) const;
+
 #if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
 #endif
@@ -493,7 +499,7 @@ public:
 		int damage = 0;
 
 		if (MOD_API_PLOT_BASED_DAMAGE) {
-			const TerrainTypes eTerrain = isMountain() ? TERRAIN_MOUNTAIN : getTerrainType();
+			const TerrainTypes eTerrain = getTerrainType();
 			const FeatureTypes eFeature = getFeatureType();
 			
 			// Make an exception for the volcano
@@ -927,6 +933,9 @@ public:
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 #endif
 
+	bool canPlaceUnit(PlayerTypes ePlayer) const;
+	CvPlot* getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection=NO_DIRECTION) const;
+
 protected:
 	class PlotBoolField
 	{
@@ -979,13 +988,14 @@ protected:
 
 	short m_iX;
 	short m_iY;
+	//save memory, enum is uint32 ...
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
 	char /*TerrainTypes*/ m_eTerrainType;
 
 	PlotBoolField m_bfRevealed;
 
-	FFastSmallFixedList<IDInfo, 8, true, c_eCiv5GameplayDLL > m_units;
+	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
 	IDInfo m_plotCity;
 	IDInfo m_workingCity;

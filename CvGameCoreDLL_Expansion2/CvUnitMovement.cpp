@@ -136,8 +136,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	else if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
 	{
 		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost() * 3;
-		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 3;
+		iRouteCost = pRoadInfo->getMovementCost() * 2;
+		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 2;
 	}
 #endif
 	else
@@ -533,6 +533,10 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 						// Embarked?
 						if(unit_domain_type == DOMAIN_LAND && pLoopUnit->isEmbarked())
+						{
+							continue;
+						}
+						if(loop_unit_domain_type == DOMAIN_LAND && pUnit->isEmbarked())
 						{
 							continue;
 						}

@@ -4257,7 +4257,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool bMountain = enterPlot.isMountain();
-	if (bMountain && MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && enterPlot.getRouteType() != NO_ROUTE) {
+	if (bMountain && MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged() ) {
 		// Any land unit may travel over a mountain with a pass
 		bMountain = false;
 	}
@@ -4268,14 +4268,14 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 #endif
 	{
 #if defined(MOD_PATHFINDER_CROSS_MOUNTAINS)
-		bool bCanCross = IsHoveringUnit() || canMoveAllTerrain() || canCrossMountains(); // Player trait is included in the canCrossMountains() method
+		bool bCanCross = IsHoveringUnit() || canMoveAllTerrain() || canCrossMountains() || enterPlot.isCity(); // Player trait is included in the canCrossMountains() method
 		if (!bCanCross)
 #else
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 #if defined(MOD_BALANCE_CORE)
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountains2() && !IsHoveringUnit() && !canMoveAllTerrain())
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() && !IsHoveringUnit() && !canMoveAllTerrain())
 #else
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !IsHoveringUnit() && !canMoveAllTerrain())
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !IsHoveringUnit() && !canMoveAllTerrain())
 #endif
 #endif
 		{
@@ -4297,6 +4297,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		bool bCanCross = canCrossIce() || (kPlayer.GetPlayerTraits()->IsAbleToCrossIce());
 		if (bCanCross) {
 			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 #endif
@@ -8103,16 +8107,7 @@ void CvUnit::DoAttrition()
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	if (MOD_API_PLOT_BASED_DAMAGE) {
 		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 25 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
-		{
-			iDamage = 25;
-		}
-		else if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 15 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
-		{
-			iDamage = 15;
-		}
-#endif
+
 		if (0 != iDamage) {
 			if (iDamage > 0) {
 				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
@@ -13955,6 +13950,31 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 }
 #endif
 
+
+bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
+{
+	switch (getDomainType())
+	{
+	case DOMAIN_LAND:
+		return !pPlot->isWater();
+		break;
+	case DOMAIN_AIR:
+		return true;
+		break;
+	case DOMAIN_SEA:
+		return pPlot->isWater();
+		break;
+	case DOMAIN_HOVER:
+		return true;
+		break;
+	case DOMAIN_IMMOBILE:
+		return false;
+		break;
+	}
+
+	return true;
+}
+
 //	---------------------------------------------------------------------------
 DomainTypes CvUnit::getDomainType() const
 {
@@ -17242,7 +17262,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 bool CvUnit::canCrossMountains() const
 {
 	VALIDATE_OBJECT
-	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains2() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
+	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26450,7 +26470,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		}
 	}
 
-	if(bAdjacent)
+	if(bAdjacent || (getDomainType() == DOMAIN_AIR))
 	{
 		if(!isOutOfAttacks() && (!IsCityAttackOnly() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{
@@ -27463,7 +27483,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, int* piPathTurns) const
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns) const
 {
 	VALIDATE_OBJECT
 	// slewis - a bit of baffling logic
@@ -27477,7 +27497,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, in
 	bool bSuccess;
 
 	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
-	SPathFinderUserData data(this,iFlags);
+	SPathFinderUserData data(this,iFlags,iMaxTurns);
 
 	bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
@@ -27529,6 +27549,15 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, bool /*bReuse*/, in
 			if(m_kLastPath.size() != 0)
 			{
 				*piPathTurns = m_kLastPath.front().m_iTurns;
+
+				//special: if we can reach the target in one turn with movement left, define this as zero turns
+				if(*piPathTurns == 1)
+				{
+					if(m_kLastPath.front().m_iMoves > 0)
+					{
+						*piPathTurns = 0;
+					}
+				}
 			}
 		}
 	}
@@ -29049,6 +29078,108 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
 }
 #endif
+
+
+//	--------------------------------------------------------------------------------
+/// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
+bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, int* piTurns /* = NULL */)
+{
+	if (!pTarget)
+		return false;
+
+	int iTurnsCalculated = TurnsToReachTarget(pTarget, bIgnoreUnits, false, iTurns);
+	if (piTurns)
+		*piTurns = iTurnsCalculated;
+
+	return (iTurnsCalculated <= iTurns);
+}
+
+//	--------------------------------------------------------------------------------
+/// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
+{
+	if(!pTarget)
+		return INT_MAX;
+
+	//make sure that iTargetTurns is valid
+	iTargetTurns = max(1,iTargetTurns);
+
+	if (iTargetTurns!=INT_MAX)
+	{
+		//see how far we could move in optimal circumstances
+		int	iDistance = plotDistance(getX(), getY(), pTarget->getX(), pTarget->getY());
+
+		//default range
+		int iMoves = baseMoves() + getExtraMoves();
+		int iRange = iMoves * iTargetTurns;
+
+		//catch stupid cases
+		if (iRange<=0)
+			return pTarget==plot() ? INT_MAX : 0;
+
+		//but routes increase it
+		if (getDomainType()==DOMAIN_LAND && !flatMovementCost() )
+		{
+			CvTeam& kTeam = GET_TEAM(getTeam());
+			RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
+			CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
+			if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
+			{
+				int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
+
+				if (plot()->getRouteType()!=NO_ROUTE)
+					//standing directly on a route
+					iRange = iMoves * iTargetTurns * iMultiplier;
+				else
+					//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
+					iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier;
+			}
+		}
+
+		if (iDistance>iRange)
+			return INT_MAX;
+	}
+
+
+	int rtnValue = MAX_INT;
+	if(pTarget == plot())
+		return 0;
+
+	if(bIgnoreUnits)
+	{
+		//this is a purely hypothetical path ... use a special pathfinder for that
+		SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
+		data.ePathType	= PT_UNIT_IGNORE_OTHERS;
+
+		if (GC.GetIgnoreUnitsPathFinder().GeneratePath(getX(), getY(), pTarget->getX(), pTarget->getY(), data))
+		{
+			CvAStarNode* pNode = GC.GetIgnoreUnitsPathFinder().GetLastNode();
+
+			rtnValue = pNode->m_iTurns;
+			if(rtnValue == 1)
+			{
+				if(pNode->m_iMoves > 0)
+				{
+					rtnValue = 0;
+				}
+			}
+		}
+	}
+	else
+	{
+		//normal handling: use the path cache of the unit, so we can possibly re-use the path later
+		//do not ignore danger
+		int iFlags = 0;
+		if(bIgnoreStacking)
+			iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+		if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
+			return INT_MAX;
+	}
+
+	return rtnValue;
+}
+
 
 //	--------------------------------------------------------------------------------
 DestructionNotification<UnitHandle>& CvUnit::getDestructionNotification()

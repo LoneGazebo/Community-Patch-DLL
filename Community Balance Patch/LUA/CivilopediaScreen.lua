@@ -4798,6 +4798,85 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				Controls.MountainYieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				Controls.MountainYieldFrame:SetHide( false );
 			end
+			--CBP
+			numYields = 0;
+			yieldString = "";
+			improvementString = "";
+			fullstring = ""
+			for row in GameInfo.Improvement_AdjacentImprovementYieldChanges( condition ) do
+				numYields = numYields + 1;
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				local OtherImprovement = GameInfo.Improvements[row.OtherImprovementType];
+				if(OtherImprovement)then
+					if(fullstring ~= "") then
+						fullstring = fullstring .. "[NEWLINE]";
+					end
+					improvementString = Locale.ConvertTextKey(OtherImprovement.Description)..": ";
+					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
+				end
+			end
+			if numYields == 0 then
+				Controls.AdjacentYieldFrame:SetHide( true );
+			else
+				Controls.AdjacentYieldLabel:SetText( fullstring );
+				Controls.AdjacentYieldFrame:SetHide( false );
+			end
+
+			numYields = 0;
+			yieldString = "";
+			improvementString = "";
+			fullstring = ""
+			for row in GameInfo.Improvement_YieldAdjacentTwoSameType( condition ) do
+				numYields = numYields + 1;
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
+				if(OtherImprovement)then
+					if(fullstring ~= "") then
+						fullstring = fullstring .. "[NEWLINE]";
+					end
+					improvementString = Locale.ConvertTextKey(OtherImprovement.Description) .. ": ";
+					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
+				end
+			end
+			if numYields == 0 then
+				Controls.TwoAdjacentImprovYieldFrame:SetHide( true );
+			else
+				Controls.TwoAdjacentImprovYieldLabel:SetText( fullstring );
+				Controls.TwoAdjacentImprovYieldFrame:SetHide( false );
+			end
+
+			numYields = 0;
+			yieldString = "";
+			improvementString = "";
+			fullstring = ""
+			for row in GameInfo.Improvement_YieldAdjacentSameType( condition ) do
+				numYields = numYields + 1;
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
+				if(OtherImprovement)then
+					if(fullstring ~= "") then
+						fullstring = fullstring .. "[NEWLINE]";
+					end
+					improvementString = Locale.ConvertTextKey(OtherImprovement.Description) .. ": ";
+					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
+				end
+			end
+			if numYields == 0 then
+				Controls.AdjacentImprovYieldFrame:SetHide( true );
+			else
+				Controls.AdjacentImprovYieldLabel:SetText( fullstring );
+				Controls.AdjacentImprovYieldFrame:SetHide( false );
+			end
+			--END
 			
 			buttonAdded = 0;
 			if thisImprovement.CivilizationType then
@@ -7020,6 +7099,11 @@ function ClearArticle()
 	Controls.SubtitleID:SetHide( true );
 	Controls.YieldFrame:SetHide( true );
 	Controls.MountainYieldFrame:SetHide( true );
+	--CBP
+	Controls.AdjacentYieldFrame:SetHide( true );
+	Controls.AdjacentImprovYieldFrame:SetHide( true );
+	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );	
+	--END
 	Controls.MovementCostFrame:SetHide( true );
 	Controls.CombatModFrame:SetHide( true );
 	Controls.FeaturesFrame:SetHide( true );

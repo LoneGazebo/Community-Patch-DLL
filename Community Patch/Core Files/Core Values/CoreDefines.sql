@@ -1,4 +1,4 @@
-﻿-- Settler stuff
+-- Settler stuff
 
 INSERT INTO Defines (
 Name, Value)
@@ -332,29 +332,45 @@ SET NoMinorCivs = 'true'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '60'
+SET Flavor = '40'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '60'
+SET Flavor = '80'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '60'
+SET Flavor = '80'
 WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '40'
+SET Flavor = '15'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '50'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '40'
+SET Flavor = '25'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '20'
+SET Flavor = '-10'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '10'
 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
 
 UPDATE AIMilitaryStrategy_City_Flavors
-SET Flavor = '20'
+SET Flavor = '30'
 WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '20'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '-20'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';

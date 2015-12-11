@@ -239,7 +239,7 @@ public:
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
 #if defined(MOD_BALANCE_CORE)
-	int GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops = false);
+	int GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops = false, bool bDebug=false);
 #else
 	int GetWarScore(PlayerTypes ePlayer);
 #endif

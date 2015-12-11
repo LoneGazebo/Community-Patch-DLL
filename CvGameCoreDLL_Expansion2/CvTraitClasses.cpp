@@ -174,6 +174,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
@@ -739,6 +740,10 @@ int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
 	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
 }
+int CvTraitEntry::YieldFromOwnPantheon(int i) const
+{
+	return m_piYieldFromOwnPantheon ? m_piYieldFromOwnPantheon[i] : -1;
+}
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 {
@@ -1052,6 +1057,10 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
+{
+	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
+}
 int CvTraitEntry::GetTradeRouteStartYield(int i) const
 {
 	return m_piTradeRouteStartYield ? m_piTradeRouteStartYield[i] : -1;
@@ -1808,6 +1817,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
 	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteStartYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
@@ -2535,6 +2545,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
+				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
 				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
@@ -2953,6 +2964,7 @@ void CvPlayerTraits::Reset()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		m_iYieldFromOwnPantheon[iYield] = 0;
 		m_iTradeRouteStartYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
@@ -3516,7 +3528,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 			{
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
+					pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
 					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
@@ -3540,7 +3553,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 				{
 					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable(pCity->getTeam()) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && 
+						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
 						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
@@ -3802,34 +3816,13 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 }
 #if defined(MOD_BALANCE_CORE)
 /// Is this civ currently able to cross mountains with combat units?
-bool CvPlayerTraits::IsAbleToCrossMountains2() const
+bool CvPlayerTraits::IsAbleToCrossMountainsWithRoad() const
 {
-	CvTeam& thisTeam = GET_TEAM(m_pPlayer->getTeam());
-	bool bValid = false;
-	CvTeamTechs* pTeamTechs = thisTeam.GetTeamTechs();
-
-	int iNumBuildInfos = GC.getNumBuildInfos();
-	for(int iI = 0; iI < iNumBuildInfos; iI++)
-	{
-		CvBuildInfo* thisBuildInfo = GC.getBuildInfo((BuildTypes)iI);
-		if(NULL != thisBuildInfo && thisBuildInfo->getRoute() == ROUTE_ROAD)
-		{
-			if(pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechPrereq())))
-			{
-				bValid = true;
-				break;
-			}
-		}
-	}
-	if(m_bMountainPass && bValid)
-	{
-		return true;
-	}
-	return false;
+	return m_bMountainPass;
 }
 #endif
 /// Is this civ currently able to cross mountains with combat units?
-bool CvPlayerTraits::IsAbleToCrossMountains() const
+bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated(false) > 0);
@@ -4747,6 +4740,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<int> kYieldFromOwnPantheonWrapper(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
+	kStream >> kYieldFromOwnPantheonWrapper;
 	ArrayWrapper<int> kTradeRouteStartYieldWrapper(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
 	kStream >> kTradeRouteStartYieldWrapper;
 	ArrayWrapper<int> kYieldFromRouteMovementWrapper(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
@@ -5041,6 +5036,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);

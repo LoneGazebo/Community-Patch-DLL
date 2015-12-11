@@ -31,8 +31,6 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
-/// try to unify mountains and impassable terrain - only halfway implemented 
-//#define MOD_BALANCE_CORE_SANE_IMPASSABILITY
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
@@ -65,14 +63,6 @@
 
 #define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	#define AIR_ACTION_ATTACK		0
-	#define AIR_ACTION_SWEEP		1
-	#define AIR_ACTION_INTERCEPT	2
-#endif
-
-/// Performance: Don't generate long paths when we know we don't want them
-#define AUI_ASTAR_TURN_LIMITER
 /// Enables the Binomial Random Number Generator
 #define AUI_BINOM_RNG
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
@@ -184,14 +174,6 @@
 
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION
-
-// make caravans stick to roads and rivers if possible
-#define MOD_CORE_TRADE_NATURAL_ROUTES
-#define MOD_CORE_TRADE_NATURAL_ROUTES_TILE_BASE_COST 100
-
-// use the RebasePathfinder to rebase air units in multiple hops
-// disable the TacticalMapPathfinder - it's 99% identical to the regular pathfinder
-#define MOD_CORE_PATHFINDER
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
@@ -1149,6 +1131,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_ReformCooldownRateChanges     "ReformCooldownRateChanges",        "ii"
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
+#define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
 
 
 

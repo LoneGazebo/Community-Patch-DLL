@@ -577,7 +577,28 @@ function DoUIDealChangedByHuman()
 	end
 
 	DoUpdateButtons();
-
+	--CBP
+	Controls.PeaceValue:SetHide(true);
+	Controls.PeaceMax:SetHide(true);
+	Controls.PeaceDeal:SetHide(true);
+	if(g_pUsTeam:IsAtWar( g_iThemTeam )) then
+		if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
+			Controls.PeaceValue:SetHide(false);
+			Controls.PeaceMax:SetHide(false);
+			Controls.PeaceDeal:SetHide(false);
+			local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
+			local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
+			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+			local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
+			local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
+			Controls.PeaceValue:SetText(Valuestr);
+			Controls.PeaceMax:SetText(Maxstr);
+			Controls.PeaceValue:SetToolTipString(ValuestrTT);
+			Controls.PeaceMax:SetToolTipString(MaxstrTT);
+		end
+	end
+	--END
 end
 
 
@@ -706,7 +727,6 @@ function DoUpdateButtons()
 			Controls.ProposeButton:SetHide(false);
 		end
 	end
-
 end
 
 
@@ -2217,6 +2237,28 @@ function ResetDisplay()
 
 
 	ResizeStacks();
+	--CBP
+	Controls.PeaceValue:SetHide(true);
+	Controls.PeaceMax:SetHide(true);
+	Controls.PeaceDeal:SetHide(true);
+	if(g_pUsTeam:IsAtWar( g_iThemTeam )) then
+		if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
+			Controls.PeaceValue:SetHide(false);
+			Controls.PeaceMax:SetHide(false);
+			Controls.PeaceDeal:SetHide(false);
+			local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
+			local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
+			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+			local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
+			local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
+			Controls.PeaceValue:SetText(Valuestr);
+			Controls.PeaceMax:SetText(Maxstr);
+			Controls.PeaceValue:SetToolTipString(ValuestrTT);
+			Controls.PeaceMax:SetToolTipString(MaxstrTT);
+		end
+	end
+	--END
 end
 
 
@@ -2839,6 +2881,10 @@ function ChangeGoldAmount( string, control )
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
 		Controls.ThemTableGold:SetToolTipString( strTooltip );
 	end
+
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldAmount:RegisterCallback( ChangeGoldAmount );
 Controls.UsGoldAmount:SetVoid1( 1 );
@@ -2942,6 +2988,10 @@ function ChangeGoldPerTurnAmount( string, control )
 		Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
 
 	end
+
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 Controls.UsGoldPerTurnAmount:RegisterCallback( ChangeGoldPerTurnAmount );
 Controls.UsGoldPerTurnAmount:SetVoid1( 1 );
@@ -3299,6 +3349,10 @@ function ChangeResourceAmount( string, control )
 	else
 		g_Deal:ChangeResourceTrade( g_iThem, iResourceID, iNumResource, g_iDealDuration );
 	end
+
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 
 -----------------------------------------------------------------------------------------------------------------------

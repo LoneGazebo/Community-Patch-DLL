@@ -13,7 +13,7 @@
 	</Beliefs>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Earn [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLDEN_AGE] Golden Age Points from kills</Text>
+			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points from kills</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, Harbinger of Strife</Text>
@@ -22,18 +22,18 @@
 	<Belief_YieldFromKills>
 		<Row>
 			<BeliefType>BELIEF_MORRIGAN</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>75</Yield>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>70</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MORRIGAN</BeliefType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>75</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>70</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MORRIGAN</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>75</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromKills>
 	<Beliefs>
@@ -48,23 +48,23 @@
 	<Belief_YieldPerBorderGrowth>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EPONA</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +10 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand</Text>
+			<Text>Receive +20 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
@@ -83,20 +83,20 @@
 	<Belief_YieldPerGPT>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>6</Yield>
 		</Row>
 	</Belief_YieldPerGPT>
 	<Belief_YieldPerScience>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>6</Yield>
 		</Row>
 	</Belief_YieldPerScience>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_PEACE] Faith for every 5 [ICON_GOLD] Gold per turn, and +1 [ICON_CULTURE] Culture for every 5 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points for every 6 [ICON_GOLD] Gold per turn, and +1 [ICON_CULTURE] Culture for every 6 [ICON_RESEARCH] Science per turn</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
@@ -115,19 +115,19 @@
 		<Row>
 			<BeliefType>BELIEF_CERNUNNOS</BeliefType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
-			<YieldType>YIELD_FAITH</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CERNUNNOS</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Belief_FeatureYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_PEACE] Faith from Forests, +2 [ICON_CULTURE] Culture from Jungles</Text>
+			<Text>+1 [ICON_FOOD] Food from Forests, +1 [ICON_PRODUCTION] Production from Jungles</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
@@ -147,29 +147,29 @@
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldChangeAnySpecialist>
 	<Belief_YieldChangeWorldWonder>
 		<Row>
 			<BeliefType>BELIEF_LUGH</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Belief_YieldChangeWorldWonder>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+4 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +3 [ICON_PEACE] Faith from World Wonders</Text>
+			<Text>+5 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +1 [ICON_CULTURE] Faith from World Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
@@ -188,13 +188,8 @@
 	<Belief_YieldPerFollowingCity>
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_RHIANNON</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
@@ -204,12 +199,12 @@
 		<Row>
 			<BeliefType>BELIEF_RHIANNON</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_YieldPerFollowingCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
-			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points, +2 [ICON_PEACE] Faith, +3 [ICON_RESEARCH] Science, and +4 [ICON_GOLD] Gold in every City</Text>
+			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
 			<Text>Rhiannon, Goddess of Sovereignty</Text>
@@ -228,7 +223,7 @@
 	<Belief_CoastalCityYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_MANANNAN</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
@@ -244,7 +239,7 @@
 	</Belief_CoastalCityYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+2 [ICON_PEACE] Faith, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
+			<Text>+2 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>
@@ -270,13 +265,13 @@
 	<Belief_YieldPerBirth>
 		<Row>
 			<BeliefType>BELIEF_OGMA</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>6</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_OGMA">
-			<Text>+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in a City, and +6 [ICON_PEACE] Faith when a [ICON_CITIZEN] Citizen is born</Text>
+			<Text>+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in a City, and +6 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
 			<Text>Ogma, the Learned</Text>
@@ -291,19 +286,19 @@
 			<Pantheon>true</Pantheon>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 			<CityGrowthModifier>25</CityGrowthModifier>
-			<CityRangeStrikeModifier>25</CityRangeStrikeModifier>
+			<CityRangeStrikeModifier>100</CityRangeStrikeModifier>
 		</Row>
 	</Beliefs>
 	<Belief_YieldPerFollowingCity>
 		<Row>
 			<BeliefType>BELIEF_BRAN</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Belief_YieldPerFollowingCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+20% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +20% [ICON_FOOD] Growth, and +2 [ICON_PEACE] Faith in every City</Text>
+			<Text>+100% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +1 [ICON_CULTURE] Culture in every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>
@@ -321,7 +316,7 @@
 	<Belief_YieldPerXFollowers>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
-			<YieldType>YIELD_FAITH</YieldType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<PerXFollowers>3</PerXFollowers>
 		</Row>
 		<Row>
@@ -342,24 +337,19 @@
 	</Belief_YieldPerXFollowers>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 3 Followers</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Point, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 3 Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>
 		</Row>
 	</Language_en_US>
-	<Trait_GreatWorkYieldChanges>
+	<Trait_YieldFromOwnPantheon>
 		<Row>
 			<TraitType>TRAIT_FAITH_FROM_NATURE</TraitType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
-		<Row>
-			<TraitType>TRAIT_FAITH_FROM_NATURE</TraitType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Trait_GreatWorkYieldChanges>
+	</Trait_YieldFromOwnPantheon>
  <!-- Ceilidh Hall -->
 	<Building_YieldChanges>
 		<Row>
@@ -385,15 +375,24 @@
 	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
+	<Improvement_AdjacentImprovementYieldChanges>
+		<Row>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<OtherImprovementType>IMPROVEMENT_TRADING_POST</OtherImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<OtherImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</OtherImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_AdjacentImprovementYieldChanges>
 	<!-- William -->
 	<Trait_YieldFromImport>
 		<Row>

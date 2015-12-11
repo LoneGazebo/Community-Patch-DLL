@@ -319,7 +319,6 @@ FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 namespace EconomicAIHelpers
 {
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-bool IsAreaSafeForQuickColony(int iAreaID, const CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued
 bool IsTestStrategy_NeedRecon(CvPlayer* pPlayer);

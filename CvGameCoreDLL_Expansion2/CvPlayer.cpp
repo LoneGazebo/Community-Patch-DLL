@@ -353,6 +353,8 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount("CvPlayer::m_iMinorResourceBonusCount", m_syncArchive)
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
+	, m_strJFDCurrencyName("CvPlayer::m_strJFDCurrencyName", m_syncArchive)
+	, m_iJFDCurrency("CvPlayer::m_iJFDCurrency", m_syncArchive)
 	, m_strJFDLegislatureName("CvPlayer::m_strJFDLegislatureName", m_syncArchive)
 	, m_strJFDPoliticKey("CvPlayer::m_strJFDPoliticKey", m_syncArchive)
 	, m_iJFDPoliticLeader("CvPlayer::m_iJFDPoliticLeader", m_syncArchive)
@@ -383,6 +385,7 @@ CvPlayer::CvPlayer() :
 	, m_iSingleVotes("CvPlayer::m_iSingleVotes", m_syncArchive)
 	, m_iMonopolyModFlat("CvPlayer::m_iMonopolyModFlat", m_syncArchive)
 	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
+	, m_iCachedValueOfPeaceWithHuman("CvPlayer::m_iCachedValueOfPeaceWithHuman", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1349,11 +1352,13 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_strJFDCurrencyName = "";
+	m_iJFDCurrency = -1;
 	m_strJFDLegislatureName = "";
 	m_strJFDPoliticKey = "";
 	m_iJFDPoliticLeader = 0;
 	m_iJFDSovereignty = 0;
-	m_iJFDGovernment = 0;
+	m_iJFDGovernment = -1;
 	m_iJFDReformCooldown = 0;
 	m_iJFDGovernmentCooldown = 0;
 	m_iJFDGovernmentCooldownRate = 0;
@@ -1379,6 +1384,7 @@ void CvPlayer::uninit()
 	m_iSingleVotes = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
+	m_iCachedValueOfPeaceWithHuman = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -2355,22 +2361,16 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #if defined(MOD_BUGFIX_NAVAL_FREE_UNITS)
 						if (pkUnitInfo->GetDomainType() == DOMAIN_SEA) {
 							if (pLoopPlot != NULL && pLoopPlot->isWater()) {
-								if (!pLoopPlot->isImpassable(getTeam())) {
-									if (!(pLoopPlot->isUnit())) {
-										pBestPlot = pLoopPlot;
-										break;
-									}
+								if (pLoopPlot->canPlaceUnit(GetID())) {
+									pBestPlot = pLoopPlot;
+									break;
 								}
 							}
 						} else {
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(!pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isMountain())
-#else
-								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
-#endif
+								if(pLoopPlot->isValidEndTurnPlot(GetID()))
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -9118,11 +9118,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(!(pLoopPlot->isImpassable(getTeam())) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
-#else
-								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
-#endif
+								if(pLoopPlot->isValidEndTurnPlot(GetID()) && !pLoopPlot->isCity())
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -14362,7 +14358,7 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			if(iYieldPerGPT > 0)
 			{
 				int iNetGold = GetTreasury()->CalculateBaseNetGold();
-				if (iNetGold> 0)
+				if (iNetGold > 0)
 				{
 					iYieldPerTurn += (iNetGold / iYieldPerGPT);
 				}
@@ -15258,11 +15254,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
-#else
-			if(pPlot->isImpassable() || pPlot->isMountain())
-#endif
+			if(!pPlot->isValidEndTurnPlot(GetID()))
 				continue;
 
 			// Can't be water
@@ -18860,6 +18852,56 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
 				}
 #endif
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+				if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
+				{
+					int iEra = GetCurrentEra();
+					if(iEra <= 0)
+					{
+						iEra = 1;
+					}
+					int iHandicap = 1;
+					CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+					if(pHandicapInfo)
+					{
+						iHandicap = pHandicapInfo->getAIDifficultyBonus();
+						iHandicap *= iEra;
+						iHandicap /= max(1, getNumCities());
+					}
+					if(iHandicap > 0)
+					{
+						GetTreasury()->ChangeGold(iHandicap);
+						ChangeGoldenAgeProgressMeter(iHandicap);
+						changeJONSCulture(iHandicap / 3);
+				
+						int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
+
+						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							changeOverflowResearch(iBeakersBonus);
+						}
+						else
+						{
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GetID());
+						}
+						int iLoop;
+						for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							if(pLoopCity != NULL)
+							{
+								pLoopCity->changeFood(iHandicap / 5);
+							}
+						}
+						if((GC.getLogging() && GC.getAILogging()))
+						{
+							CvString strLogString;
+							strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+							GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+					}
+				}
+#endif
 			}
 			else
 			{
@@ -21887,7 +21929,7 @@ int CvPlayer::GetGovernment() const
 }
 bool CvPlayer::HasGovernment()
 {
-	if(GetGovernment() > 0)
+	if(GetGovernment() > -1)
 	{
 		return true;
 	}
@@ -22033,6 +22075,35 @@ void CvPlayer::DoReformCooldown()
 			SetReformCooldown(0);
 		}
 	}
+}
+void CvPlayer::SetCurrency(int iValue)
+{
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, m_iJFDCurrency);
+	if(m_iJFDCurrency != iValue)
+	{
+		m_iJFDCurrency = iValue;
+	}
+}
+int CvPlayer::GetCurrency() const
+{
+	return m_iJFDCurrency;
+}
+bool CvPlayer::HasCurrency()
+{
+	if(GetCurrency() > -1)
+	{
+		return true;
+	}
+	return false;
+}
+
+CvString CvPlayer::GetCurrencyName() const
+{
+	return m_strJFDCurrencyName;
+}
+void CvPlayer::SetCurrencyName(const char* strKey)
+{
+	m_strJFDCurrencyName = strKey;
 }
 	//JFD DONE
 
@@ -22563,6 +22634,18 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 int CvPlayer::GetMonopolyModPercent() const
 {
 	return m_iMonopolyModPercent;
+}
+
+/// What are we willing to give/receive for peace with the active human player?
+int CvPlayer::GetCachedValueOfPeaceWithHuman()
+{
+	return m_iCachedValueOfPeaceWithHuman;
+}
+
+/// Sets what are we willing to give/receive for peace with the active human player
+void CvPlayer::SetCachedValueOfPeaceWithHuman(int iValue)
+{
+	m_iCachedValueOfPeaceWithHuman = iValue;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -24927,11 +25010,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE)
-						if(!pPlot->isOwned() && !pPlot->isImpassable(getTeam()) && !pPlot->isMountain() && !pPlot->isWater())
-#else
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
-#endif
+						if(!pPlot->isOwned() && pPlot->isValidEndTurnPlot(GetID()) && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -26266,6 +26345,10 @@ void CvPlayer::DoDeficit()
 
 	// If the player has more units than cities, start disbanding things
 #if defined(MOD_BALANCE_CORE)
+	if(isMinorCiv())
+	{
+		return;
+	}
 	if(iNumMilitaryUnits > max(5, getNumCities()))
 #else
 	if(iNumMilitaryUnits > getNumCities())
@@ -30803,11 +30886,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(pPlot->isImpassable(getTeam()) || pPlot->isMountain())
-#else
-				if(pPlot->isImpassable() || pPlot->isMountain())
-#endif
+				if(!pPlot->isValidEndTurnPlot(GetID()))
 				{
 					return -1;
 				}
@@ -31190,11 +31269,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot->isImpassable(getTeam()) || pPlot->isWater() || pPlot->isMountain())
-#else
-			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
-#endif
+			if(!pPlot->isValidEndTurnPlot(GetID()) || pPlot->isWater())
 			{
 				return -1;
 			}
@@ -33353,6 +33428,8 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iAbleToAnnexCityStatesCount = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_iJFDCurrency;
+	kStream >> m_strJFDCurrencyName;
 	kStream >> m_strJFDLegislatureName;
 	kStream >> m_strJFDPoliticKey;
 	kStream >> m_iJFDPoliticLeader;
@@ -33383,6 +33460,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iSingleVotes;
 	kStream >> m_iMonopolyModFlat;
 	kStream >> m_iMonopolyModPercent;
+	kStream >> m_iCachedValueOfPeaceWithHuman;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_READ(53, kStream, m_iPovertyUnhappinessMod, 0);
@@ -34091,6 +34169,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iMinorResourceBonusCount;
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_iJFDCurrency;
+	kStream << m_strJFDCurrencyName;
 	kStream << m_strJFDLegislatureName;
 	kStream << m_strJFDPoliticKey;
 	kStream << m_iJFDPoliticLeader;
@@ -34121,6 +34201,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iSingleVotes;
 	kStream << m_iMonopolyModFlat;
 	kStream << m_iMonopolyModPercent;
+	kStream << m_iCachedValueOfPeaceWithHuman;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_WRITE(kStream, m_iPovertyUnhappinessMod);
@@ -35388,9 +35469,8 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
@@ -35429,20 +35509,6 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 	if (pAttacker)
 		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());
 }
-
-#else
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
-{
-	return m_pDangerPlots->GetDanger(pPlot);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot) const
-{
-	return m_pDangerPlots->IsUnderImmediateThreat(pPlot);
-}
-#endif // AUI_DANGER_PLOTS_REMADE
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
@@ -35783,8 +35849,8 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 {
 	CvArea* pLoopArea;
 	int iLoop;
-	int iBestScore = -1;
-	int iSecondBestScore = -1;
+	int iBestScore = 0;	//default score of each area is zero, so we have to be better
+	int iSecondBestScore = 0;
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	int iNumFound = 0;
@@ -35795,17 +35861,12 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 	// Find best two scores above minimum
 	for(pLoopArea = theMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = theMap.nextArea(&iLoop))
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(!pLoopArea->isWater() && pLoopArea->getNumRevealedTiles(getTeam()) >= min(4, pLoopArea->getNumTiles()) )
-#else
-		if(!pLoopArea->isWater())
-#endif
 		{
 			iScore = pLoopArea->getTotalFoundValue();
 
 			if(iScore >= iMinScore)
 			{
-#if defined(MOD_BALANCE_CORE)
 				//we have to watch for overflow ...
 				iScore = (iScore >> 2); 
 
@@ -35817,13 +35878,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
 						{
 							iScore *= 2;
-						}
-					}
-					else
-					{
-						if(!EconomicAIHelpers::IsAreaSafeForQuickColony(pLoopArea->GetID(), this))
-						{
-							iScore /= 2;
 						}
 					}
 				}
@@ -35841,13 +35895,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					}
 				}
 				iScore /= max(1, iPlayers);
-#else
-				if (!(GC.getMap().GetAIMapHint() & 4) && !(EconomicAIHelpers::IsAreaSafeForQuickColony(pLoopArea->GetID(), this)))
-
-				{
-					iScore /= 2;
-				}
-#endif
 
 				if(iScore > iBestScore)
 				{
@@ -35887,8 +35934,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
-#if defined(MOD_BALANCE_CORE_SETTLER)
-
 ostream& operator<<(ostream& os, const CvPlot* pPlot)
 {
 	if (pPlot)
@@ -35897,8 +35942,13 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
+	std::vector<SPlotWithScore> vSettlePlots;
+
+	//play it safe
+	bIsSafe = false;
+
 	//--------
 	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging; 
 	std::stringstream dump;
@@ -35987,7 +36037,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam) || pPlot->IsAdjacentToImprovement((ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
 		{
 			//--------------
 			if (bLogging) 
@@ -36027,25 +36077,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-3" << std::endl;
 			//--------------
 			continue;
-		}
-
-		if(bOnlySafePaths)
-		{
-			CvTwoLayerPathFinder& kPathfinder = GC.GetPathFinder();
-			//find our closest city, which should become our muster plot
-			CvCity* pClosestCity = GetClosestCity(pUnit->plot());
-			CvPlot* pMusterPlot = pClosestCity->plot();
-
-			//if the muster plot is more than 12 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,12);
-			if (! kPathfinder.GeneratePath(pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), data) )
-			{
-				//--------------
-				if (bLogging) 
-				dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
-				//--------------
-				continue;
-			}
 		}
 
 		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
@@ -36103,11 +36134,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 
 		//factor in the distance
 		iValue = (iValue*iScale)/100;
-		if(iValue > iBestFoundValue)
-		{
-			iBestFoundValue = iValue;
-			pBestFoundPlot = pPlot;
-		}
+
+		if (iValue>0)
+			vSettlePlots.push_back( SPlotWithScore(pPlot,iValue) );
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
@@ -36121,124 +36150,87 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 		pLog->Close();
 	}
 #endif
-	return pBestFoundPlot;
-}
 
-#else
+	if (vSettlePlots.empty())
+		return 0;
 
-CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
-{
-	if(!pUnit)
-		return NULL;
+	//order by decreasing score
+	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
 
-	int iSettlerX = pUnit->getX();
-	int iSettlerY = pUnit->getY();
-	int iUnitArea = pUnit->getArea();
-	PlayerTypes eOwner = pUnit->getOwner();
-	TeamTypes eTeam = pUnit->getTeam();
+	//delete all but the best 20%
+	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
-	int iBestFoundValue = 0;
-	CvPlot* pBestFoundPlot = NULL;
-
-	int iEvalDistance = /*12*/ GC.getSETTLER_EVALUATION_DISTANCE();
-	int iDistanceDropoffMod = /*99*/ GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
-
-	iEvalDistance += (GC.getGame().getGameTurn() * 5) / 100;
-
-	// scale this based on world size
-	const int iDefaultNumTiles = 80*52;
-	int iDefaultEvalDistance = iEvalDistance;
-	iEvalDistance = (iEvalDistance * GC.getMap().numPlots()) / iDefaultNumTiles;
-	iEvalDistance = max(iDefaultEvalDistance,iEvalDistance);
-
-	if(bEscorted && GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map or at the very least an offshore expansion map
+	//AI cheating here ... check if a settler would likely be captured
+	std::vector<CvPlot*> vBadPlots;
+	for(int iI = 0; iI < iNumPlots; iI++)
 	{
-		iEvalDistance *= 3;
-		iEvalDistance /= 2;
-	}
-	// Stay close to home if don't have an escort (unless we were going offshore which doesn't use escorts anymore)
-	else if(!bEscorted)
-	{
-		iEvalDistance *= 2;
-		iEvalDistance /= 3;
-	}
+		CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
 
-	CvMap& kMap = GC.getMap();
-	int iNumPlots = kMap.numPlots();
-	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
-	{
-		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
-
-		if(!pPlot)
+		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
+			vBadPlots.push_back(pPlot);
 			continue;
 		}
 
-		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		if(pPlot->getNumUnits() > 0)
 		{
-			continue;
-		}
-
-		if(!pPlot->isRevealed(getTeam()))
-		{
-			continue;
-		}
-
-		if(!pUnit->canFound(pPlot))
-		{
-			continue;
-		}
-
-		if(iArea != -1 && pPlot->getArea() != iArea)
-		{
-			continue;
-		}
-
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
-		{
-			continue;
-		}
-
-		if (IsPlotTargetedForCity(pPlot))
-		{
-			continue;
-		}
-
-		// Do we have to check if this is a safe place to go?
-		if(bEscorted || (!pPlot->isVisibleEnemyUnit(eOwner)))
-		{
-			int iValue = pPlot->getFoundValue(eOwner);
-			if(iValue > 5000)
+			IDInfo* pUnitNode = pPlot->headUnitNode();
+			while(pUnitNode != NULL)
 			{
-				int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
-				int iDistanceDropoff = min(99,(iDistanceDropoffMod * iSettlerDistance) / iEvalDistance);
-				iDistanceDropoff = max(0,iDistanceDropoff);
-				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				if(pPlot->getArea() != iUnitArea)
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->isEnemy(getTeam()))
 				{
-					if(GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map (or an offshore map like terra)
-					{
-						iValue *= 3;
-						iValue /= 2;
-					}
-					else
-					{
-						iValue *= 2;
-						iValue /= 3;
-					}
-				}
-				if(iValue > iBestFoundValue)
-				{
-					iBestFoundValue = iValue;
-					pBestFoundPlot = pPlot;
+					vBadPlots.push_back(pPlot);
+					break;
 				}
 			}
 		}
 	}
+
+	for (size_t i=0; i<vSettlePlots.size(); i++)
+	{
+		//check if it's too close to an enemy
+		bool isNoGood = false;
+		for (size_t j=0; j<vBadPlots.size(); j++)
+		{
+			if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+			{
+				isNoGood = true;
+				break;
+			}
+		}
+
+		if (isNoGood)
+			continue;
+
+		//find our closest city, which should become our muster plot
+		CvCity* pClosestCity = GetClosestCity(pUnit->plot());
+		if (pClosestCity)
+		{
+			CvPlot* pMusterPlot = pClosestCity->plot();
+			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
+
+			//if the muster plot is more than 12 turns away it's unsafe by definition
+			SPathFinderUserData data(pUnit,0,12);
+			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
+				continue;
+		}
+
+		//hooray! we found one - now see how it compares to the overall best plot
+		if (vSettlePlots[i].score > 0.8f*vSettlePlots[0].score)
+			pBestFoundPlot = vSettlePlots[i].pPlot;
+		else
+			pBestFoundPlot = vSettlePlots[0].pPlot;
+
+		break;
+	}
+
+	//note: we don't have to check if the overall best plot is actually reachable (via embark/ocean embark) as otherwise the tile would not be revealed
 	return pBestFoundPlot;
 }
-#endif //MOD_BALANCE_CORE_SETTLER
-
 
 //	--------------------------------------------------------------------------------
 /// How many Wonders has this Player constructed?
@@ -36488,6 +36480,19 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	return true;
 }
 
+bool CvPlayer::CanCrossOcean() const
+{
+	return GET_TEAM(getTeam()).canEmbarkAllWaterPassage() || GetPlayerTraits()->IsEmbarkedAllWater();
+}
+bool CvPlayer::CanCrossMountain() const
+{
+	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsAbleToCrossMountainsWithRoad();
+}
+bool CvPlayer::CanCrossIce() const
+{
+	return GetPlayerTraits()->IsAbleToCrossIce();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////
@@ -36543,13 +36548,14 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 			}
 
 			int iReturnValue = INT_MAX;
-			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, true, &iReturnValue);
+			bool bResult = pLoopUnit->GeneratePath(pPlot, CvUnit::MOVEFLAG_IGNORE_DANGER, iShortestPath, &iReturnValue);
 
 			if(bResult)
 			{
 				if(iReturnValue < iShortestPath)
 				{
 					pResultPlot = pPlot;
+					iShortestPath = iReturnValue;
 				}
 
 				if(bStopAfterFindingFirst)

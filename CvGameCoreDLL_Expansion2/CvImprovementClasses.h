@@ -184,6 +184,8 @@ public:
 	int* GetAdjacentSameTypeYieldArray();
 	int GetAdjacentTwoSameTypeYield(int i) const;
 	int* GetAdjacentTwoSameTypeYieldArray();
+	int GetAdjacentImprovementYieldChanges(int i, int j) const;
+	int* GetAdjacentImprovementYieldChangesArray(int i);
 #endif
 
 	int GetTechYieldChanges(int i, int j) const;
@@ -315,6 +317,7 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piAdjacentSameTypeYield;
 	int* m_piAdjacentTwoSameTypeYield;
+	int** m_ppiAdjacentImprovementYieldChanges;
 #endif
 
 	int** m_ppiTechYieldChanges;

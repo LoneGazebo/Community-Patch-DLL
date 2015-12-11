@@ -1783,7 +1783,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 				if(pAdjacentPlot != NULL)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(pAdjacentPlot->isImpassable(getTeam()))
+					if(!pAdjacentPlot->isValidEndTurnPlot(GetID()))
 					{
 						continue;
 					}
@@ -1798,11 +1798,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 					bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 					if(bRightOwner && bIsRevealed)
 					{
-#ifdef AUI_ASTAR_TURN_LIMITER
-						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
-#else
-						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
-#endif // AUI_ASTAR_TURN_LIMITER
+						iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
 						if(iPathTurns < iBestTurnsToReach)
 						{
 							iBestTurnsToReach = iPathTurns;
@@ -1849,7 +1845,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 
@@ -1887,7 +1883,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		int iPathTurns;
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true, &iPathTurns))
+		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23, &iPathTurns))
 			return it->pPlot->getPlotCity();
 	}
 
@@ -1921,7 +1917,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	//Return score if we can't embark and they aren't on our landmass.
 	if(pCity->getArea() != pUnit->plot()->getArea())
 	{
-		if(!GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+		if(!CanCrossOcean())
 		{
 			return iScore;
 		}
@@ -1973,7 +1969,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 	{
 		iDistance *= 2;
 	}
@@ -2294,7 +2290,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 	{
 		iDistance *= 2;
 	}
@@ -2337,8 +2333,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
-#ifdef AUI_ASTAR_TURN_LIMITER
-			if(pLoopPlot->isWater() || pLoopPlot->isImpassable(getTeam()))
+			if(pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(GetID()))
 			{
 				continue;
 			}
@@ -2357,25 +2352,11 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
 				continue;
 
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
-			if(iTurns < MAX_INT)
-			{
-				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-#else
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
+			iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
 			if(iTurns < MAX_INT)
 			{
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-				if(pLoopPlot->isWater())
-				{
-					continue;
-				}
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
-				{
-					continue;
-				}
-#endif
 				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
 				{
 					iBestNumTurns = iTurns;
@@ -2414,14 +2395,16 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
-		if(pLoopPlot->isImpassable(getTeam()))
+		if(!pLoopPlot->isValidEndTurnPlot(GetID()))
 		{
 			continue;
 		}
+
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
 			continue;
 #endif
+
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
 		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
@@ -2443,11 +2426,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 	}
 	if(pBestTarget != NULL)
 	{
-#ifdef AUI_ASTAR_TURN_LIMITER
-			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */, false, false, iBestNumTurns);
-#else
-			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
+		iTurns = pUnit->TurnsToReachTarget(pBestTarget, false, false, iBestNumTurns);
 	}
 	if(piTurns)
 		*piTurns = iBestNumTurns;
@@ -2494,7 +2473,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 				bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 				if(bRightOwner && bIsRevealed)
 				{
-					iPathTurns = TurnsToReachTarget(pMusician, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
+					iPathTurns = pMusician->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/);
 					if(iPathTurns < iBestTurnsToReach)
 					{
 						iBestTurnsToReach = iPathTurns;
@@ -2524,7 +2503,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 				bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
 				if(bRightOwner && bIsRevealed)
 				{
-					iPathTurns = TurnsToReachTarget(pMusician, pLoopPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
+					iPathTurns = pMusician->TurnsToReachTarget(pLoopPlot, !bOnlySafePaths/*bIgnoreUnits*/);
 					if(iPathTurns < iBestTurnsToReach)
 					{
 						iBestTurnsToReach = iPathTurns;
@@ -2538,7 +2517,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 	return pBestTargetPlot;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResultScore)
 {
 	iResultScore = 0;
@@ -2590,7 +2568,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable(getTeam()) )
+			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidEndTurnPlot(GetID()) )
 				continue;
 			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;
@@ -2825,8 +2803,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		}
 		else
 		{
-			int iTurns1 = TurnsToReachTarget(pGeneral, nr1.pPlot, true /*bReusePaths*/, true);
-			int iTurns2 = TurnsToReachTarget(pGeneral, nr2.pPlot, true /*bReusePaths*/, true);
+			int iTurns1 = pGeneral->TurnsToReachTarget(nr1.pPlot, true);
+			int iTurns2 = pGeneral->TurnsToReachTarget(nr2.pPlot, true);
 			if (iTurns2*nr1.score < iTurns1*nr2.score )
 			{
 				iResultScore = nr2.score;
@@ -2852,151 +2830,4 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		}
 	}
 }
-#else
-CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultScore)
-{
-	CvAssertMsg(pGreatArtist, "pGreatArtist is null");
-	if(!pGreatArtist)
-	{
-		return NULL;
-	}
-
-	iResultScore = 0;
-
-	CvPlotsVector& m_aiPlots = GetPlots();
-
-	CvPlot* pBestPlot = NULL;
-	int iBestScore = 0;
-
-	// loop through plots and wipe out ones that are invalid
-	const uint nPlots = m_aiPlots.size();
-	for(uint ui = 0; ui < nPlots; ui++)
-	{
-		if(m_aiPlots[ui] == -1)
-		{
-			continue;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[ui]);
-
-		if(pPlot->isWater())
-		{
-			continue;
-		}
-
-		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
-		{
-			continue;
-		}
-
-		// don't build over luxury resources
-		ResourceTypes eResource = pPlot->getResourceType();
-		if(eResource != NO_RESOURCE)
-		{
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if(pkResource != NULL)
-			{
-				if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-				{
-					continue;
-				}
-			}
-		}
-
-		// if no improvement can be built on this plot, then don't consider it
-		FeatureTypes eFeature = pPlot->getFeatureType();
-		if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
-		{
-			continue;
-		}
-
-		// Improvement already here?
-		ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			if(pkImprovementInfo)
-			{
-				if (pkImprovementInfo->GetCultureBombRadius() > 0)
-				{
-					continue;
-				}
-			}
-		}
-
-		int iScore = 0;
-
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			// if there's no plot, bail
-			if(pAdjacentPlot == NULL)
-			{
-				continue;
-			}
-
-			// if the plot is ours or no one's, bail
-			if(pAdjacentPlot->getTeam() == NO_TEAM || pAdjacentPlot->getTeam() == getTeam())
-			{
-				continue;
-			}
-
-			// don't evaluate city plots since we don't get ownership of them with the bomb
-			if(pAdjacentPlot->getPlotCity())
-			{
-				continue;
-			}
-
-			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
-			if(GET_PLAYER(eOtherPlayer).isMinorCiv())
-			{
-				MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
-				// if we're friendly or protective, don't be a jerk. Bail out.
-				if(eMinorApproach != MINOR_CIV_APPROACH_CONQUEST && eMinorApproach != MINOR_CIV_APPROACH_IGNORE)
-				{
-					iScore = 0;
-					break;
-				}
-			}
-			else
-			{
-				MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, true);
-				DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
-
-				bool bTicked = eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE;
-				bool bTickedAboutLand = eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL && (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
-
-				// only bomb if we're hostile
-				if(!bTicked && !bTickedAboutLand)
-				{
-					iScore = 0;
-					break;
-				}
-			}
-
-			eResource = pAdjacentPlot->getResourceType();
-			if(eResource != NO_RESOURCE)
-			{
-				iScore += GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * 10;
-			}
-			else
-			{
-				for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-				{
-					iScore += pAdjacentPlot->getYield((YieldTypes)iYield);
-				}
-			}
-		}
-
-		if(iScore > iBestScore)
-		{
-			iBestScore = iScore;
-			pBestPlot = pPlot;
-		}
-	}
-
-	iResultScore = iBestScore;
-	return pBestPlot;
-}
-#endif
 

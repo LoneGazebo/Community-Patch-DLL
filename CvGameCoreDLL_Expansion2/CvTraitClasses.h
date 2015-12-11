@@ -156,6 +156,7 @@ public:
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
+	int YieldFromOwnPantheon(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -229,6 +230,7 @@ public:
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromOwnPantheon(int i) const;
 	int GetTradeRouteStartYield(int i) const;
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
@@ -453,6 +455,7 @@ protected:
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromOwnPantheon;
 	int* m_piTradeRouteStartYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
@@ -1093,6 +1096,10 @@ public:
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromOwnPantheon(YieldTypes eYield) const
+	{
+		return m_iYieldFromOwnPantheon[(int)eYield];
+	};
 	int GetTradeRouteStartYield(YieldTypes eYield) const
 	{
 		return m_iTradeRouteStartYield[(int)eYield];
@@ -1231,9 +1238,9 @@ public:
 		return m_eCombatBonusImprovement;
 	};
 #if defined(MOD_BALANCE_CORE)
-	bool IsAbleToCrossMountains2() const;
+	bool IsAbleToCrossMountainsWithRoad() const;
 #endif
-	bool IsAbleToCrossMountains() const;
+	bool IsAbleToCrossMountainsWithGreatGeneral() const;
 
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;
@@ -1447,6 +1454,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];

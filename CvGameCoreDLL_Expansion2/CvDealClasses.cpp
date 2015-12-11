@@ -999,6 +999,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->GetTeamTechs()->HasTech((TechTypes) iData1))
 			return false;
 
+		// We are researching this tech
+		if(GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == ((TechTypes) iData1))
+			return false;
+
 		// They can't research this tech yet
 		if(!GET_PLAYER(eToPlayer).GetPlayerTechs()->CanResearch((TechTypes) iData1, false))
 			return false;

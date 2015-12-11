@@ -117,7 +117,7 @@
 		<Row>
 			<BuildingType>BUILDING_DUCAL_STABLE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 <!-- Brazilwood Camp -->

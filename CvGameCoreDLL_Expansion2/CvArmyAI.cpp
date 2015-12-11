@@ -510,7 +510,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pMusterPlot)
 			{
-				int iTurnsToReachCheckpoint = TurnsToReachTarget(pUnit, pMusterPlot, false, true, true);
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pMusterPlot, false, true, true);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -734,7 +734,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iTurnsToReachCheckpoint = TurnsToReachTarget(pThisUnit, pMusterPlot, true /*bReusePaths*/, true, true);
+		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, true, true);
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
 			SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);
@@ -918,6 +918,67 @@ bool CvArmyAI::DoDelayedDeath()
 
 	return false;
 }
+
+CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
+{
+	CvString strMsg;
+	UnitHandle pUnit = GetFirstUnit();
+	while(pUnit)
+	{
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval )
+			{
+				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
+				if(pOtherUnit || pAdjacentPlot->getOwner() == eEnemy)
+				{
+					// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						strMsg.Format("Ran into enemy during sneak attack on (x=%d y=%d). Time to fight!", GetGoalX(), GetGoalY());
+						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
+					}
+
+					return pAdjacentPlot;
+				}
+			}
+		}
+		pUnit = GetNextUnit();
+	}
+
+	return NULL;
+}
+
+CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance)
+{
+	//check if we're at the target
+	CvPlot *pTargetPlot = GetGoalPlot();
+	CvPlot *pCenterOfMass = GetCenterOfMass(DOMAIN_LAND);
+	if(pCenterOfMass && pTargetPlot && plotDistance(*pCenterOfMass,*pTargetPlot) <= iMaxDistance)
+		return pTargetPlot;
+
+	//check early termination if we ran into the enemy
+	CvPlot*	pEnemyPlot = DetectNearbyEnemy(eEnemy, bNavalOp);
+	if(pEnemyPlot != NULL)
+	{
+		CvCity* pCity = pEnemyPlot->getWorkingCity();
+		if(pCity != NULL)
+		{
+			if (bNavalOp && pCity->isCoastal() && pCity->waterArea()==pTargetPlot->area())
+				pEnemyPlot = pCity->plot();
+
+			if (!bNavalOp && pCity->area()==pTargetPlot->area())
+				pEnemyPlot = pCity->plot();
+		}
+
+		return pEnemyPlot;
+	}
+
+	return NULL;
+}
+
+
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)
 {
 	readFrom.Write(saveTo);

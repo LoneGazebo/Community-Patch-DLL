@@ -175,6 +175,9 @@ public:
 	void DoTurn();
 	bool DoDelayedDeath();
 
+	CvPlot* DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval);
+	CvPlot* CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance);
+
 protected:
 	int m_iID;
 	PlayerTypes m_eOwner;

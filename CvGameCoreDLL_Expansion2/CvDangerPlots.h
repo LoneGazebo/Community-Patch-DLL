@@ -12,8 +12,6 @@
 
 #include "CvDiplomacyAIEnums.h"
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-
 #include "CvDLLUtilDefines.h"
 // Stores all possible damage sources on a tile (terrain, improvements, cities, units)
 
@@ -64,7 +62,7 @@ struct CvDangerPlotContents
 
 	void clear()
 	{
-		m_iFlatPlotDamage = 0;
+		m_bFlatPlotDamage = false;
 		m_pCitadel = NULL;
 		m_apUnits.clear();
 		m_apCities.clear();
@@ -74,7 +72,7 @@ struct CvDangerPlotContents
 		m_lastResult = 0;
 	};
 
-	int GetDanger(const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 
@@ -84,10 +82,13 @@ struct CvDangerPlotContents
 	bool IsUnderImmediateThreat(PlayerTypes ePlayer);
 	int GetDamageFromFeatures(PlayerTypes ePlayer) const;
 
+	// just for internal use
+	int GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+
 	CvPlot* m_pPlot;
 	int m_iX;
 	int m_iY;
-	int m_iFlatPlotDamage;
+	bool m_bFlatPlotDamage;
 	//only one citadel can affect a unit at a time
 	CvPlot* m_pCitadel;
 	DangerUnitVector m_apUnits;
@@ -120,7 +121,6 @@ inline FDataStream & operator << (FDataStream & kStream, const CvDangerPlotConte
 	kStream << kStruct.m_iY;
 	return kStream;
 }
-#endif // AUI_DANGER_PLOTS_REMADE
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvDangerPlots
@@ -140,31 +140,16 @@ public:
 	void Reset();
 
 	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
-#ifdef AUI_DANGER_PLOTS_REMADE
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
+
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit);
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
+
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);
 	void AddKnownUnit(PlayerTypes eOwner, int iUnitID);
-#else
-	void AddDanger(int iPlotX, int iPlotY, int iValue, bool bWithinOneMove);
-	int GetDanger(const CvPlot& pPlot) const;
-	bool IsUnderImmediateThreat(const CvPlot& pPlot) const;
-
-	int GetCityDanger(CvCity* pCity);  // sums the plots around the city to determine it's danger value
-	int ModifyDangerByRelationship(PlayerTypes ePlayer, CvPlot* pPlot, int iDanger);
-#endif // AUI_DANGER_PLOTS_REMADE
-
-	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
-	bool ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility = false);
-	bool ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility = false);
-	bool ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility = false);
-
-	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot);
-	void AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot);
 
 	void SetDirty();
 	bool IsDirty() const
@@ -179,9 +164,13 @@ protected:
 
 	bool IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlot);
 
-#ifndef AUI_DANGER_PLOTS_REMADE
-	int GetDangerValueOfCitadel() const;
-#endif // AUI_DANGER_PLOTS_REMADE
+	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
+	bool ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility = false);
+	bool ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility = false);
+	bool ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility = false);
+
+	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot);
+	void AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot);
 
 	PlayerTypes m_ePlayer;
 	bool m_bArrayAllocated;
@@ -198,12 +187,8 @@ protected:
 	double m_fMinorBullyMod;
 	double m_fMinorConquestMod;
 
-#ifdef AUI_DANGER_PLOTS_REMADE
 	CvDangerPlotContents* m_DangerPlots;
 	UnitSet m_knownUnits;
-#else
-	FFastVector<uint, true, c_eCiv5GameplayDLL, 0> m_DangerPlots;
-#endif // AUI_DANGER_PLOTS_REMADE
 };
 
 #endif //CIV5_PROJECT_CLASSES_H

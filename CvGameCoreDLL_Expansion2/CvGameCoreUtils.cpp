@@ -129,16 +129,37 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 #endif
 }
 
-DirectionTypes estimateDirection(int iDX, int iDY)
+DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDestY)
 {
-	const int displacementSize = 6;
-	//														NE				E		SE					SW					W			NW
-	static double displacements[displacementSize][2] = { {0.5, 0.866025}, {1, 0}, {0.5, -0.866025}, {-0.5, -0.866025}, {-1, 0}, {-0.5, -0.866025}};
+	int iStartXHex = xToHexspaceX(iStartX,iStartY);
+	int iDestXHex = xToHexspaceX(iDestX,iDestY);
+
+	int iDX = dxWrap(iDestXHex - iStartXHex);
+	int iDY = dyWrap(iDestY - iStartY);
+
+	//undefined
+	if (iDX==0 && iDY==0)
+		return NO_DIRECTION;
+
+	//reconstruct the Z coordinate
+	int iStartZ = -iStartXHex-iStartY;
+	int iDestZ = -iDestXHex-iDestY;
+	int iDZ = iDestZ - iStartZ;
+
+	static double directions[6][3] = { 
+		{0, 1, -1}, //ne
+		{1, 0, -1}, //e
+		{1, -1, 0}, //se
+		{0, -1, 1}, //sw
+		{-1, 0, 1}, //w
+		{-1, 1, 0}, //nw
+	};
+
 	double maximum = 0;
 	int maximumIndex = -1;
-	for(int i=0; i<displacementSize; i++)
+	for(int i=0; i<6; i++)
 	{
-		double dotProduct = iDX * displacements[i][0] + iDY * displacements[i][1];
+		double dotProduct = iDX * directions[i][0] + iDY * directions[i][1] + iDZ * directions[i][2];
 		if(dotProduct > maximum)
 		{
 			maximum = dotProduct;
@@ -146,8 +167,9 @@ DirectionTypes estimateDirection(int iDX, int iDY)
 		}
 	}
 
-	return (DirectionTypes) maximumIndex;
+	return (DirectionTypes)maximumIndex;
 }
+
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 {

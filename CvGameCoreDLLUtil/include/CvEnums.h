@@ -3446,4 +3446,11 @@ enum GreatWorkSlotType
 	NO_GREAT_WORK_SLOT = -1,
 };
 
+enum AirActionType
+{
+	AIR_ACTION_ATTACK		= 0,
+	AIR_ACTION_SWEEP		= 1,
+	AIR_ACTION_INTERCEPT	= 2,
+};
+
 #endif //CVENUMS_H

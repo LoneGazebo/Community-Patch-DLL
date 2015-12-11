@@ -84,25 +84,25 @@
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_GreatPersonExpendedYield>
 	<Building_SpecialistYieldChanges>
