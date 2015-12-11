@@ -35,12 +35,17 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_THRONE_ROOM</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_COURT_CHAPEL</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LEGALISM</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_PALACE_COURT_CHAPEL</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_ASTROLOGER</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_THRONE_ROOM</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 	</Policy_FreeBuilding>
@@ -110,32 +115,71 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MONARCHY</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Policy_CapitalYieldChanges>
+	<!-- Finisher -->
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
 </GameData>

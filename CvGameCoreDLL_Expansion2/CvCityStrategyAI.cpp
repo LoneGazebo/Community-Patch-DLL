@@ -822,6 +822,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iTempWeight = 0;
+	bool bMinor = kPlayer.isMinorCiv();
 #endif
 
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
@@ -852,23 +853,26 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			}
 		}
 	}
-	PlayerTypes eLoopPlayer;
 	int iSneakies = 0;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	if(!bMinor)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			if(pDiploAI->IsWantsSneakAttack(eLoopPlayer))
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
-				iSneakies += 10;
+				if(pDiploAI->IsWantsSneakAttack(eLoopPlayer))
+				{
+					iSneakies += 10;
+				}
 			}
 		}
-	}
-	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
-	{
-		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5;
+		if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+		{
+			iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5;
+		}
 	}
 #endif
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
@@ -897,53 +901,56 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 	bool bForceSettler = false;
-	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-	EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-	AICityStrategyTypes eFeederCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
+	if(!bMinor)
+	{
+		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
+		EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+		AICityStrategyTypes eFeederCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
 
-	if (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-	{
-		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+		if (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
+		{
+			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+			{
+				bEnoughSettlers = false;
+				bForceSettler = true;
+			}
+		}
+		else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
+		{
+			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
+			{
+				bEnoughSettlers = false;
+				bForceSettler = true;
+			}
+		}
+		if(eFeederCity != NO_AICITYSTRATEGY)
+		{
+			if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
+			{
+				bEnoughSettlers = false;
+				bForceSettler = true;
+			}
+		}
+		int iBestArea;
+		int iSecondBestArea;
+		int iNumAreas;
+		iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		if(iNumAreas == 0)
+		{
+			bEnoughSettlers = true;
+			bForceSettler = false;
+		}
+		if(kPlayer.getNumCities() <= 1)
 		{
 			bEnoughSettlers = false;
 			bForceSettler = true;
 		}
-	}
-	else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
-	{
-		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
-		{
-			bEnoughSettlers = false;
-			bForceSettler = true;
-		}
-	}
-	if(eFeederCity != NO_AICITYSTRATEGY)
-	{
-		if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
-		{
-			bEnoughSettlers = false;
-			bForceSettler = true;
-		}
-	}
-	int iBestArea;
-	int iSecondBestArea;
-	int iNumAreas;
-	iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if(iNumAreas == 0)
-	{
-		bEnoughSettlers = true;
-		bForceSettler = false;
-	}
-	if(kPlayer.getNumCities() <= 1)
-	{
-		bEnoughSettlers = false;
-		bForceSettler = true;
-	}
 
-	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-	{
-		bEnoughSettlers = true;
-		bForceSettler = false;
+		if(kPlayer.isMinorCiv() || kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			bEnoughSettlers = true;
+			bForceSettler = false;
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -969,11 +976,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			iTempWeight *= 5;
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetCity()->getFreeExperience() > 0)
+		if(!bMinor && GetCity()->getFreeExperience() > 0)
 		{
 			iTempWeight += GetCity()->getFreeExperience() * 5;
 		}
-		if(kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() > 0)
+		if(!bMinor && kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() > 0)
 		{
 			iTempWeight *= kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
 		}
@@ -1048,7 +1055,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
 #endif // AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
 #if defined(MOD_BALANCE_CORE)
-		if(GetCity()->getFreeExperience() > 0)
+		if(!bMinor && GetCity()->getFreeExperience() > 0)
 		{
 			iTempWeight *= GetCity()->getFreeExperience() * 5;
 		}
@@ -1138,19 +1145,19 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
-				if(GetCity()->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+				if(!bMinor && GetCity()->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
 				{
 					iTempWeight *= GetCity()->getUnhappinessFromCulture();
 				}
-				if(GetCity()->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
+				if(!bMinor && GetCity()->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
 				{
 					iTempWeight *= GetCity()->getUnhappinessFromGold();
 				}
-				if(GetCity()->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+				if(!bMinor && GetCity()->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
 				{
 					iTempWeight *= GetCity()->getUnhappinessFromDefense();
 				}
-				if(GetCity()->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+				if(!bMinor && GetCity()->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
 				{
 					iTempWeight *= GetCity()->getUnhappinessFromScience();
 				}
@@ -1324,11 +1331,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					iTempWeight = 0;
 				}
-				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetCombat() > 0)
+				if(!bMinor && GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetCombat() > 0)
 				{
 					iTempWeight *= 2;
 				}
-				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA && pkUnitEntry->GetCombat() > 0)
+				if(!bMinor && GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA && pkUnitEntry->GetCombat() > 0)
 				{
 					iTempWeight *= 2;
 				}
@@ -1477,7 +1484,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
 			selection = m_Buildables.GetElement(iI);
-			if(bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			if(!bMinor && bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				UnitTypes eUnit = (UnitTypes)selection.m_iIndex;
 				if(eUnit != NO_UNIT)
@@ -1490,7 +1497,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 				}
 			}
-			if(bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			if(!bMinor && bNeedBoatsCritical && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				UnitTypes eUnit = (UnitTypes)selection.m_iIndex;
 				if(eUnit != NO_UNIT)
@@ -1503,17 +1510,17 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 				}
 			}
-			if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			if(!bMinor && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				iBest = iI;
 				break;
 			}
-			else if((iSneakies >= 10) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			else if(!bMinor && (iSneakies >= 10) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				iBest = iI;
 				break;
 			}
-			else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
+			else if(!bMinor && selection.m_eBuildableType == CITY_BUILDABLE_BUILDING && selection.m_iTurnsToConstruct < iRushIfMoreThanXTurns)
 			{
 				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);

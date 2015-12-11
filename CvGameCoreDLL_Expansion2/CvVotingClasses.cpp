@@ -1791,7 +1791,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					PolicyBranchTypes eTheirIdeology = GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 					if ((eOurIdeology != eTheirIdeology) && (eOurIdeology != NO_POLICY_BRANCH_TYPE) && (eTheirIdeology != NO_POLICY_BRANCH_TYPE))
 					{
-						GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eLoopPlayer);
+						GC.getGame().GetGameTrade()->ClearTradePlayerToPlayer(ePlayer, eLoopPlayer);
 					}
 				}
 			}
@@ -4071,6 +4071,19 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 						return iVotes;
 					}
 				}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				// They are our vassal, so yes, we have a diplomat already
+				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
+				{
+					int iRank = 2;
+					iVotes /= iRank;
+					if(iVotes <= 0)
+					{
+						iVotes = 1;
+					}
+					return iVotes;
+				}
+#endif
 			}
 		}
 	}

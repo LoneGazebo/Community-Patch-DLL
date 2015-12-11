@@ -31,6 +31,7 @@
 			<NoTechTradeModifier>50</NoTechTradeModifier>
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
+			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 			<BarbarianBonus>60</BarbarianBonus>
 			<AIBarbarianBonus>50</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
@@ -55,6 +56,7 @@
 			<AIPerEraModifier>0</AIPerEraModifier>
 			<AIAdvancedStartPercent>100</AIAdvancedStartPercent>
 			<AIFreeXP>0</AIFreeXP>
+			<DifficultyBonus>0</DifficultyBonus>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>0</PortraitIndex>
 		</Row>
@@ -87,6 +89,7 @@
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>40</BarbarianBonus>
+			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 			<AIBarbarianBonus>40</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
@@ -110,6 +113,7 @@
 			<AIPerEraModifier>-2</AIPerEraModifier>
 			<AIAdvancedStartPercent>135</AIAdvancedStartPercent>
 			<AIFreeXP>5</AIFreeXP>
+			<DifficultyBonus>10</DifficultyBonus>
 			<AIFreeXPPercent>10</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
@@ -144,6 +148,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>30</BarbarianBonus>
 			<AIBarbarianBonus>40</AIBarbarianBonus>
+			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>
@@ -166,6 +171,7 @@
 			<AIPerEraModifier>-4</AIPerEraModifier>
 			<AIAdvancedStartPercent>150</AIAdvancedStartPercent>
 			<AIFreeXP>10</AIFreeXP>
+			<DifficultyBonus>30</DifficultyBonus>
 			<AIFreeXPPercent>25</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
@@ -188,6 +194,7 @@
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 			<PolicyPercent>100</PolicyPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
@@ -219,9 +226,10 @@
 			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>95</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-5</AIPerEraModifier>
+			<AIPerEraModifier>-6</AIPerEraModifier>
 			<AIAdvancedStartPercent>170</AIAdvancedStartPercent>
 			<AIFreeXP>15</AIFreeXP>
+			<DifficultyBonus>50</DifficultyBonus>
 			<AIFreeXPPercent>33</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -245,6 +253,7 @@
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<ResearchPercent>100</ResearchPercent>
 			<PolicyPercent>100</PolicyPercent>
+			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
@@ -276,8 +285,9 @@
 			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-6</AIPerEraModifier>
+			<AIPerEraModifier>-7</AIPerEraModifier>
 			<AIAdvancedStartPercent>185</AIAdvancedStartPercent>
+			<DifficultyBonus>60</DifficultyBonus>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
@@ -301,6 +311,7 @@
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
 			<PolicyPercent>100</PolicyPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
@@ -334,9 +345,10 @@
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-7</AIPerEraModifier>
+			<AIPerEraModifier>-8</AIPerEraModifier>
 			<AIAdvancedStartPercent>200</AIAdvancedStartPercent>
-			<AIFreeXP>30</AIFreeXP>
+			<AIFreeXP>20</AIFreeXP>
+			<DifficultyBonus>70</DifficultyBonus>
 			<AIFreeXPPercent>66</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
@@ -357,6 +369,7 @@
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
+			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<ResearchPercent>100</ResearchPercent>
 			<PolicyPercent>100</PolicyPercent>
@@ -392,9 +405,10 @@
 			<AIUnitSupplyPercent>40</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-8</AIPerEraModifier>
+			<AIPerEraModifier>-9</AIPerEraModifier>
 			<AIAdvancedStartPercent>215</AIAdvancedStartPercent>
-			<AIFreeXP>35</AIFreeXP>
+			<AIFreeXP>25</AIFreeXP>
+			<DifficultyBonus>80</DifficultyBonus>
 			<AIFreeXPPercent>75</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
@@ -417,6 +431,7 @@
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
 			<PolicyPercent>100</PolicyPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
@@ -432,8 +447,7 @@
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
-			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>2</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
@@ -451,10 +465,11 @@
 			<AIUnitSupplyPercent>50</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>75</AIUnitUpgradePercent>
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
-			<AIPerEraModifier>-12</AIPerEraModifier>
+			<AIPerEraModifier>-10</AIPerEraModifier>
 			<AIAdvancedStartPercent>230</AIAdvancedStartPercent>
-			<AIFreeXP>50</AIFreeXP>
+			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
+			<DifficultyBonus>100</DifficultyBonus>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
@@ -504,6 +519,7 @@
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
 			<AIAdvancedStartPercent>100</AIAdvancedStartPercent>
+			<DifficultyBonus>0</DifficultyBonus>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 		</Row>
 	</HandicapInfos>

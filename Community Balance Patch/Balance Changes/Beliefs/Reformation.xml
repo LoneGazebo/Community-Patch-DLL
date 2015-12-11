@@ -153,217 +153,217 @@
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_PROPHET</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_PROPHET</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_PROPHET</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_PROPHET</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_GENERAL</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_GENERAL</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_GENERAL</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_GENERAL</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ADMIRAL</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ADMIRAL</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ADMIRAL</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ADMIRAL</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ARTIST</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ARTIST</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ARTIST</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_ARTIST</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MUSICIAN</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MUSICIAN</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MUSICIAN</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_MUSICIAN</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_WRITER</GreatPersonType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_WRITER</GreatPersonType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_WRITER</GreatPersonType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_TO_GLORY_OF_GOD</BeliefType>
 			<GreatPersonType>GREATPERSON_WRITER</GreatPersonType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_GreatPersonExpendedYield>
 	<Belief_YieldFromHost>

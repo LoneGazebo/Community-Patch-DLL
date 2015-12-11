@@ -2711,7 +2711,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
-		CvString msg = CvString::format( "%s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", m_pPlayer->getCivilizationShortDescriptionKey(),
+		CvString msg = CvString::format( "%s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", m_pPlayer->getCivilizationShortDescription(),
 			target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}

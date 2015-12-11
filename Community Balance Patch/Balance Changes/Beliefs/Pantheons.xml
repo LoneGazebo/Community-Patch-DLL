@@ -32,7 +32,12 @@
 		<Row>
 			<BeliefType>BELIEF_GOD_CRAFTSMEN</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GOD_CRAFTSMEN</BeliefType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldChangeAnySpecialist>
 	<Belief_BuildingClassYieldChanges>
@@ -46,7 +51,7 @@
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EARTH_MOTHER</BeliefType>
@@ -64,7 +69,13 @@
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_STONE_CIRCLES</BeliefType>
@@ -84,13 +95,19 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
+		<Row>
+			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_HERBALIST</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
 	</Belief_BuildingClassYieldChanges>
-	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 4 citizens = 1 culture here)-->
+	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 3 citizens = 1 culture here)-->
 	<Belief_YieldPerPop>
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_YieldPerPop>
 	<Belief_YieldPerGPT>
@@ -104,7 +121,7 @@
 		<Row>
 			<BeliefType>BELIEF_GOD_FESTIVALS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_FESTIVALS</BeliefType>
@@ -116,7 +133,7 @@
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>8</Yield>
+			<Yield>12</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
@@ -128,14 +145,14 @@
 		<Row>
 			<BeliefType>BELIEF_MESSENGER_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_YieldChangeTradeRoute>
 	<Belief_YieldChangeWorldWonder>
 		<Row>
 			<BeliefType>BELIEF_MONUMENT_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MONUMENT_GODS</BeliefType>
@@ -155,13 +172,7 @@
 			<BeliefType>BELIEF_TEARS_OF_GODS</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FORMAL_LITURGY</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
@@ -177,16 +188,28 @@
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WATERMILL</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_WATERMILL</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerBorderGrowth>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_SETTLEMENTS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>8</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Belief_FeatureYieldChanges>
@@ -223,6 +246,18 @@
 			<Yield>10</Yield>
 		</Row>
 	</Belief_YieldPerScience>
+	<Belief_CityYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_FORMAL_LITURGY</BeliefType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FORMAL_LITURGY</BeliefType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Belief_CityYieldChanges>
 	<Belief_TerrainYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_DESERT_FOLKLORE</BeliefType>
@@ -277,8 +312,8 @@
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>

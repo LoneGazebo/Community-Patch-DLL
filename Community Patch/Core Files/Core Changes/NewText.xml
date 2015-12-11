@@ -285,12 +285,32 @@
 			<Response>TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST%</Response>
 		</Row>
 	</Diplomacy_Responses>
-	<Language_en_US>
+	<Language_en_US>	
 		<!-- Promise Duration -->
 		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
 			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Turns. If you violate this Promise during this time, this player will feel betrayed!</Text>
 		</Row>
 		
+		<!-- Civilopedia Jazz-->
+		<Row Tag="TXT_KEY_PEDIA_IMPROVADJYIELD_LABEL">
+			<Text>Bonus to Adjacent:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL">
+			<Text>Adjacent Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TWOADJIMPROVYIELD_LABEL">
+			<Text>Two-Adjacencent Bonus:</Text>
+		</Row>
+		
+		<!-- Levy -->
+		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY">
+			<Text>Because you have entered a new Era, your Vassals have sent you {1_Num} Unit(s) as part of their tribute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY">
+			<Text>Vassal Tribute!</Text>
+		</Row>
+		
+
 		<!-- Score Text -->
 		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_ALLIES">
 			<Text>{1_Num} from City-State Alliances</Text>
@@ -354,6 +374,20 @@
 
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
 			<Text>A diplomatic situation prevents war.</Text>
+		</Row>
+		
+		<!-- Peace Out Details - Lua -->
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR">
+			<Text>Peace Deal Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAX_STR">
+			<Text>Max Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_TT">
+			<Text>Current trade value of items in Peace Deal for AI. If the value here is -1, that means the AI refuses to trade one or more of the items in the Peace Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAX_STR_TT">
+			<Text>Maximum trade value of items in Peace Deal with AI. If the value to the left of this exceeds this number, the AI will refuse the deal.</Text>
 		</Row>
 
 		<!-- No Supply -->

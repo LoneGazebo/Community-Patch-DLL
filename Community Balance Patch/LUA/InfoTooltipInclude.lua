@@ -1131,6 +1131,12 @@ function GetCityHappinessTooltip(pCity)
 		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded() / 100;
 		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
 		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
+		
+		local iCultureDeficit = pCity:GetUnhappinessFromCultureDeficit() / 100;
+		local iDefenseDeficit = pCity:GetUnhappinessFromDefenseDeficit() / 100;
+		local iGoldDeficit = pCity:GetUnhappinessFromGoldDeficit() / 100;
+		local iScienceDeficit = pCity:GetUnhappinessFromScienceDeficit() / 100;
+
 
 		local iTotalHappiness = pCity:GetLocalHappiness();
 
@@ -1160,14 +1166,14 @@ function GetCityHappinessTooltip(pCity)
 		end
 		-- Gold tooltip
 		if (iGoldUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded);
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
 		end
 		if ((iGoldYield - iGoldNeeded) >= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
 		end
 		-- Defense tooltip
 		if (iDefenseUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
 		end
 		if ((iDefenseYield - iDefenseNeeded) >= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
@@ -1182,14 +1188,14 @@ function GetCityHappinessTooltip(pCity)
 		end
 		-- Science tooltip
 		if (iScienceUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
 		end
 		if ((iScienceYield - iScienceNeeded) >= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
 		end
 		-- Culture tooltip
 		if (iCultureUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
 		end
 		if ((iCultureYield - iCultureNeeded) >= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));

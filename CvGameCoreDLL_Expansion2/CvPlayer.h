@@ -1251,6 +1251,14 @@ public:
 	void DoGovernmentCooldown();
 	void DoReformCooldown();
 
+	int GetCurrency() const;
+	void SetCurrency(int iID);
+
+	bool HasCurrency();
+
+	void SetCurrencyName(const char* strKey);
+	CvString GetCurrencyName() const;
+
 	//DONE
 
 	bool CanUpgradeCSTerritory() const;
@@ -1320,6 +1328,9 @@ public:
 	void ChangeMonopolyModPercent(int iValue);
 	int GetMonopolyModPercent() const;
 	void SetMonopolyModPercent(int iValue);
+
+	int GetCachedValueOfPeaceWithHuman();
+	void SetCachedValueOfPeaceWithHuman(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2685,6 +2696,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iJFDPietyRate;
 	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
+	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
+	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
@@ -2702,6 +2715,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSingleVotes;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
+	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

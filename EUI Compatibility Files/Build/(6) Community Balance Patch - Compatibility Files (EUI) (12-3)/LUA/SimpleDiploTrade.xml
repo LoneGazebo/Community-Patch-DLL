@@ -67,6 +67,12 @@
 	<!--Grid Size="514,415" Anchor="R,T" Offset="0,7" Padding="0,0" Style="GridGlass16" Hidden="0" ConsumeMouse="1" ID="BackingGrid" /-->
 	<Grid Size="534,454" Anchor="R,T" AutoSize="1" Padding="18,24" Offset="-6,-34" Style="Grid9DetailTwo140" Hidden="0" ConsumeMouse="1" ID="MainGrid">
 		<Stack Anchor="C,T" Offset="0,101" ID="MainStack" Padding="0">
+			<!-- CBP-->
+			<Box Anchor="C,T" Offset="0,-20" Size="300,18" Color="255,255,200,255">
+				<Label Anchor="L,C" Offset="5,0" Font="TwCenMT14" ID="PeaceValue"/>
+				<Label Anchor="R,C" Offset="5,0" Font="TwCenMT14" ID="PeaceMax"/>
+			</Box>
+			<!-- END-->
 			<Image Anchor="C,T" Offset="0.0" Texture="HorizontalTrim.dds" Size="500,5">
 				<Image Anchor="C,T" AnchorSide="i,o" Offset="0.-1" Texture="VerticalTrim.dds" Size="5,59"/>
 			</Image>

@@ -6473,6 +6473,10 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 	{
 #if defined(MOD_CONFIG_GAME_IN_XML)
 		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+		if(!bWillMakePeace)
+		{
+			return false;
+		}
 #else
 		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= 5;
 #endif
@@ -35012,16 +35016,16 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 			iChance += 0;
 			break;
 		case GLOBAL_STATE_BAD:
-			iChance += 10;
+			iChance += 15;
 			break;
 		case GLOBAL_STATE_AVERAGE:
-			iChance += 25;
+			iChance += 33;
 			break;
 		case GLOBAL_STATE_GOOD:
-			iChance += 35;
+			iChance += 50;
 			break;
 		case GLOBAL_STATE_VERY_GOOD:
-			iChance += 50;
+			iChance += 100;
 			break;
 	}
 
@@ -35037,10 +35041,10 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 			iChance += 0;
 			break;
 		case GLOBAL_STATE_GOOD:
-			iChance += 15;
+			iChance += 30;
 			break;
 		case GLOBAL_STATE_VERY_GOOD:
-			iChance += 30;
+			iChance += 60;
 			break;
 	}
 
@@ -35057,13 +35061,13 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 			iChance += 0;
 			break;
 		case WAR_PROJECTION_UNKNOWN:
-			iChance += 0;
+			iChance += 10;
 			break;
 		case WAR_PROJECTION_GOOD:
-			iChance += 25;
+			iChance += 30;
 			break;
 		case WAR_PROJECTION_VERY_GOOD:
-			iChance += 50;
+			iChance += 60;
 			break;
 	}
 
@@ -35072,22 +35076,22 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	switch(eOpinion)
 	{
 		case MAJOR_CIV_OPINION_ALLY:
-			iChance -= 50;
+			iChance -= 70;
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iChance -= 40;
+			iChance -= 50;
 			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
 			iChance -= 30;
 			break;
 		case MAJOR_CIV_OPINION_COMPETITOR:
-			iChance += 10;
-			break;
-		case MAJOR_CIV_OPINION_UNFORGIVABLE:
 			iChance += 20;
 			break;
+		case MAJOR_CIV_OPINION_UNFORGIVABLE:
+			iChance += 40;
+			break;
 		case MAJOR_CIV_OPINION_ENEMY:
-			iChance += 30;
+			iChance += 60;
 			break;
 	}
 
@@ -35097,13 +35101,13 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 		if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE &&
 			GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()) == PLAYER_PROXIMITY_NEIGHBORS)
 		{
-			iChance -= 50;
+			iChance -= 25;
 		}
 	}
 	// We're going for diplo or war, we need to be free!
 	if(IsGoingForDiploVictory() || IsGoingForWorldConquest())
 	{
-		iChance += 75;
+		iChance += 100;
 	}
 
 	// Additional chance based on VictoryCompetitiveness

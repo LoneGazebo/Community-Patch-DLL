@@ -3875,7 +3875,15 @@ void CvMinorCivAI::DoTurnStatus()
 #if defined(MOD_BALANCE_CORE)
 	if(GetNumThreateningBarbarians() > 0)
 	{
-		iWeight += GetNumThreateningBarbarians() * 5;
+		iWeight += GetNumThreateningBarbarians() * 10;
+	}
+	if(m_pPlayer->getNumMilitaryUnits() <= 6)
+	{
+		iWeight += 10;
+	}
+	if(m_pPlayer->getNumMilitaryUnits() <= 3)
+	{
+		iWeight += 20;
 	}
 #endif
 	// Do the final math
@@ -11960,7 +11968,25 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 	}
 #endif
-	
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(MOD_BALANCE_CORE_MINORS)
+	{
+		if(GC.getGame().getGameTurn() >  30)
+		{
+			int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+			if(iDuration > 0)
+			{
+				int iLimit = 30;
+				iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iLimit /= 100;
+				if(iDuration <= iLimit)
+				{
+					iBaseReluctanceScore *= 5;
+				}
+			}
+		}
+	}
+#endif	
 	if (sTooltipSink)
 	{
 		Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
@@ -11968,19 +11994,6 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
 		sFactors += strNegativeFactor.toUTF8();
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-		int iLimit = 30;
-		iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iLimit /= 100;
-		if(iDuration <= iLimit)
-		{
-			iBaseReluctanceScore *= 5;
-		}
-	}
-#endif
 	iScore += iBaseReluctanceScore;
 
 	// **************************

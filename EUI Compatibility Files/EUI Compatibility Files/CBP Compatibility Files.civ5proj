@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{d2a2dd30-0868-4951-8c17-87fa0a89aa33}</ProjectGuid>
-    <Name>(6) Community Balance Patch - Compatibility Files (EUI) (12-3)</Name>
+    <Name>(6) Community Balance Patch - Compatibility Files (EUI) (12-10)</Name>
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
@@ -209,6 +209,10 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CivilopediaScreen.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\CivilopediaScreen.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

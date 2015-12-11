@@ -874,6 +874,9 @@ public:
 	int getAIFreeXP() const;
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
+#if defined(MOD_BALANCE_CORE)
+	int getAIDifficultyBonus() const;
+#endif
 
 	// Arrays
 	int getGoodies(int i) const;
@@ -947,6 +950,9 @@ protected:
 	int m_iAIFreeXP;
 	int m_iAIFreeXPPercent;
 	int m_iNumGoodies;
+#if defined(MOD_BALANCE_CORE)
+	int m_iDifficultyBonus;
+#endif
 
 	CvString m_strHandicapName;
 

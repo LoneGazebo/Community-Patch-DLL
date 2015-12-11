@@ -19,7 +19,7 @@ SET CombatModifierEnemyCities = '0'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET GreatPersonExpendedFaith = '200'
+SET GreatPersonExpendedFaith = '100'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Heathen Conversion (Now Holy Warriors)

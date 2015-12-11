@@ -95,6 +95,7 @@ public:
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
 #if defined(MOD_BALANCE_CORE)
 	void ClearAllCityStateTradeRoutesSpecial(void); // called from world congress code
+	void ClearTradePlayerToPlayer(PlayerTypes ePlayer, PlayerTypes eToPlayer); // called from world congress code
 #endif
 	void CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2);
 

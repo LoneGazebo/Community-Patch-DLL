@@ -21,7 +21,7 @@
 				<Help>TXT_KEY_BUILDING_SLATER_MILL_HELP</Help>
 				<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 				<Quote>TXT_KEY_WONDER_SLATER_MILL_QUOTE</Quote>
-				<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+				<ArtDefineTag>COLESSEUM</ArtDefineTag>
 				<NukeImmune>true</NukeImmune>
 				<River>true</River>
 				<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
@@ -177,7 +177,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP</Help>
 			<Quote>TXT_KEY_WONDER_BLETCHLEY_PARK_QUOTE</Quote>
-			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -256,7 +256,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP</Help>
 			<Quote>TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE</Quote>
-			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -373,7 +373,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CERN_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_CERN_HELP</Help>
 			<Quote>TXT_KEY_WONDER_CERN_QUOTE</Quote>
-			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

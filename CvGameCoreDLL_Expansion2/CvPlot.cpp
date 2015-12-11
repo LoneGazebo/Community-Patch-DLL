@@ -1138,16 +1138,28 @@ bool CvPlot::isLake() const
 //	--------------------------------------------------------------------------------
 // XXX precalculate this???
 bool CvPlot::isFreshWater_cached() const
+<<<<<<< HEAD
 {
 	return m_bIsFreshwater;
 }
 
+bool CvPlot::isFreshWater()
+=======
+>>>>>>> origin/master
+{
+	updateFreshwater();
+	return m_bIsFreshwater;
+}
+
+<<<<<<< HEAD
+=======
 bool CvPlot::isFreshWater()
 {
 	updateFreshwater();
 	return m_bIsFreshwater;
 }
 
+>>>>>>> origin/master
 
 void CvPlot::updateFreshwater()
 {
@@ -7381,6 +7393,64 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 
 		updateYield();
+#if defined(MOD_BALANCE_CORE)
+		if(eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eNewValue);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+		if(eBuilder != NO_PLAYER && eOldImprovement != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eOldImprovement);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+#endif
 
 		// Update the amount of a Resource used up by this Improvement
 		if(isOwned() && eNewValue != NO_IMPROVEMENT)
@@ -8876,6 +8946,24 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(ePlayer != NO_PLAYER && eImprovement != NO_IMPROVEMENT && getOwner() == ePlayer)
+	{
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+			{
+				CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+				if(pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+				{
+					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0;
+				}
+			}
+		}
+	}
+#endif
 
 	bool bIsFreshWater = isFreshWater_cached();
 
@@ -13148,6 +13236,31 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
+	if(iDistance == 0 && this != NULL)
+	{
+		for(int iI = 0; iI < this->getNumUnits(); iI++)
+		{
+			pLoopUnit = this->getUnitByIndex(iI);
+			if(pLoopUnit != NULL)
+			{
+				if(pLoopUnit->getUnitType() == eOtherUnit)
+				{
+					if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+					{
+						return true;
+					}
+					else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+					{
+						return true;
+					}
+					else if(!bIsFriendly && !bIsEnemy)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
 	for (int i = -iDistance; i <= iDistance; ++i) 
 	{
 		for (int j = -iDistance; j <= iDistance; ++j) 
@@ -13188,6 +13301,31 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
+	if(iDistance == 0 && this != NULL)
+	{
+		for(int iI = 0; iI < this->getNumUnits(); iI++)
+		{
+			pLoopUnit = this->getUnitByIndex(iI);
+			if(pLoopUnit != NULL)
+			{
+				if(pLoopUnit->getUnitCombatType() == eUnitCombat)
+				{
+					if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+					{
+						return true;
+					}
+					else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+					{
+						return true;
+					}
+					else if(!bIsFriendly && !bIsEnemy)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
 	for (int i = -iDistance; i <= iDistance; ++i) 
 	{
 		for (int j = -iDistance; j <= iDistance; ++j) 
@@ -13228,6 +13366,31 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
+	if(iDistance == 0 && this != NULL)
+	{
+		for(int iI = 0; iI < this->getNumUnits(); iI++)
+		{
+			pLoopUnit = this->getUnitByIndex(iI);
+			if(pLoopUnit != NULL)
+			{
+				if(pLoopUnit->getUnitClassType() == eUnitClass)
+				{
+					if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+					{
+						return true;
+					}
+					else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+					{
+						return true;
+					}
+					else if(!bIsFriendly && !bIsEnemy)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
 	for (int i = -iDistance; i <= iDistance; ++i) 
 	{
 		for (int j = -iDistance; j <= iDistance; ++j) 
@@ -13268,6 +13431,39 @@ bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
+	if(iDistance == 0 && this != NULL)
+	{
+		for(int iI = 0; iI < this->getNumUnits(); iI++)
+		{
+			pLoopUnit = this->getUnitByIndex(iI);
+			if(pLoopUnit != NULL)
+			{
+				for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+				{
+					const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkPromotionInfo)
+					{
+						if(pLoopUnit->isHasPromotion(ePromotion) && ePromotion == eUnitPromotion)
+						{
+							if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+							{
+								return true;
+							}
+							else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+							{
+								return true;
+							}
+							else if(!bIsFriendly && !bIsEnemy)
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	for (int i = -iDistance; i <= iDistance; ++i) 
 	{
 		for (int j = -iDistance; j <= iDistance; ++j) 

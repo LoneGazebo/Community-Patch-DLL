@@ -651,46 +651,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && (owningPlayer.GetNumCitiesFounded() <= 1) && !owningPlayer.isHuman())
-		{
-			int iHandicap = 1;
-			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-			if(pHandicapInfo)
-			{
-				iHandicap = pHandicapInfo->getAIPerEraModifier();
-				if(iHandicap < 0)
-				{
-					iHandicap *= -1;
-				}
-				if(iHandicap == 0)
-				{
-					iHandicap = 1;
-				}
-			}
-
-			owningPlayer.GetTreasury()->ChangeGold((iHandicap + owningPlayer.GetCurrentEra()) * 10);
-			owningPlayer.ChangeGoldenAgeProgressMeter((iHandicap + owningPlayer.GetCurrentEra()) * 5);
-			owningPlayer.changeJONSCulture((iHandicap + owningPlayer.GetCurrentEra()) * 5);
-
-			int iBeakersBonus = iHandicap * 2;
-						
-			if(iBeakersBonus > 0)
-			{
-				TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
-				if(eCurrentTech == NO_TECH)
-				{
-					owningPlayer.changeOverflowResearch(iBeakersBonus);
-				}
-				else
-				{
-					GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, owningPlayer.GetID());
-				}
-			}
-			changeFood((iHandicap + owningPlayer.GetCurrentEra()) * 2);
-		}
-#endif
-
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE && isCapital())
 		{
@@ -774,6 +734,56 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
 		}
 	}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman())
+	{
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
+		int iHandicap = 1;
+		CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+		if(pHandicapInfo)
+		{
+			iHandicap = pHandicapInfo->getAIDifficultyBonus();
+			iHandicap *= iEra;
+			iHandicap /= max(1, owningPlayer.getNumCities());
+		}
+		if(iHandicap > 0)
+		{	
+			owningPlayer.GetTreasury()->ChangeGold(iHandicap);
+			owningPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
+			owningPlayer.changeJONSCulture(iHandicap / 3);
+				
+			int iBeakersBonus = owningPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
+			TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
+			if(eCurrentTech == NO_TECH)
+			{
+				owningPlayer.changeOverflowResearch(iBeakersBonus);
+			}
+			else
+			{
+				GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, owningPlayer.GetID());
+			}
+			int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = owningPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					pLoopCity->changeFood(iHandicap / 6);
+				}
+			}
+			if((GC.getLogging() && GC.getAILogging()))
+			{
+				CvString strLogString;
+				strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+				owningPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+		}
+	}
+#endif
 	// make sure that all the team members get the city connection update
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE && !owningPlayer.isMinorCiv() && bInitialFounding)
@@ -10302,6 +10312,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		{
 			int iGrowthTourism = 0;
+			int iTooltipTourism = 0;
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 			for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) 
 			{
@@ -10321,6 +10332,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 						if(iGrowthTourism != 0)
 						{
 							iTotalMod += iGrowthTourism;
+							iTooltipTourism += iGrowthTourism;
 						}
 
 					}
@@ -10328,7 +10340,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 			if(iGrowthTourism != 0)
 			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iTooltipTourism);
 			}
 		}
 #endif
@@ -12828,7 +12840,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield)
 					continue;
 				}
 				iValidTilesTerrain = 0;
-				int iRange = 2;
+				int iRange = 3;
 				CvPlot* pLoopPlot = NULL;
 
 				if(eTerrain != TERRAIN_MOUNTAIN)
@@ -13138,7 +13150,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield)
 					if(iBaseYield > 0)
 					{
 						iValidTiles = 0;
-						int iRange = 2;
+						int iRange = 3;
 						CvPlot* pLoopPlot = NULL;
 
 						for(int iDX = -iRange; iDX <= iRange; iDX++)
@@ -17384,6 +17396,17 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 		if(eFeature != NO_FEATURE)
 		{
 			iBaseYield += GetYieldPerXFeature(eFeature, eIndex);
+		}
+	}
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
+	{
+		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+		if(MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION && eReligionFounded >= RELIGION_PANTHEON)
+		{
+			if(GetCityReligions()->GetReligiousMajority() == eReligionFounded)
+			{
+				iBaseYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex);
+			}
 		}
 	}
 	// This will only return a value for food and production

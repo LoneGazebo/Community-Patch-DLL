@@ -178,6 +178,13 @@
 				<Image ID="ThemSymbolShadow" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
 			</Image>
 		</Grid>
+		<!-- CBP-->
+		<Grid Anchor="C,T" Style="WindowGrid" AnchorSide="O.O" Offset="0,10" Size="450,20" Color="0,0,0,255" ID="PeaceDeal">
+			<Grid Anchor="C,C" Offset="0,0" Size="454,24" Padding="0,0" Style="Grid9Frame27SquareBlack" Hidden="0" ID="PeaceDealBorderFrame"/>
+			<Label Anchor="L,C" Offset="5,0"  Font="TwCenMT18" ID="PeaceValue"/>
+			<Label Anchor="R,C" Offset="5,0"  Font="TwCenMT18" ID="PeaceMax"/>
+		</Grid>
+		<!-- END-->
 		<!--   UsTable       -->
 		<Grid Size="225,220" Anchor="R,T" Offset="14,4" Style="GridBlackIndent8">
 			<ScrollPanel Anchor="L,T" Offset="0,4" Size="200,220" Vertical="1" ID="UsTablePanel">

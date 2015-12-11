@@ -4298,6 +4298,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if (bCanCross) {
 			return true;
 		}
+		else
+		{
+			return false;
+		}
 	}
 #endif
 

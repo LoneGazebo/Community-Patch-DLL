@@ -353,6 +353,8 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount("CvPlayer::m_iMinorResourceBonusCount", m_syncArchive)
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
+	, m_strJFDCurrencyName("CvPlayer::m_strJFDCurrencyName", m_syncArchive)
+	, m_iJFDCurrency("CvPlayer::m_iJFDCurrency", m_syncArchive)
 	, m_strJFDLegislatureName("CvPlayer::m_strJFDLegislatureName", m_syncArchive)
 	, m_strJFDPoliticKey("CvPlayer::m_strJFDPoliticKey", m_syncArchive)
 	, m_iJFDPoliticLeader("CvPlayer::m_iJFDPoliticLeader", m_syncArchive)
@@ -383,6 +385,7 @@ CvPlayer::CvPlayer() :
 	, m_iSingleVotes("CvPlayer::m_iSingleVotes", m_syncArchive)
 	, m_iMonopolyModFlat("CvPlayer::m_iMonopolyModFlat", m_syncArchive)
 	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
+	, m_iCachedValueOfPeaceWithHuman("CvPlayer::m_iCachedValueOfPeaceWithHuman", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1349,11 +1352,13 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_strJFDCurrencyName = "";
+	m_iJFDCurrency = -1;
 	m_strJFDLegislatureName = "";
 	m_strJFDPoliticKey = "";
 	m_iJFDPoliticLeader = 0;
 	m_iJFDSovereignty = 0;
-	m_iJFDGovernment = 0;
+	m_iJFDGovernment = -1;
 	m_iJFDReformCooldown = 0;
 	m_iJFDGovernmentCooldown = 0;
 	m_iJFDGovernmentCooldownRate = 0;
@@ -1379,6 +1384,7 @@ void CvPlayer::uninit()
 	m_iSingleVotes = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
+	m_iCachedValueOfPeaceWithHuman = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -14352,7 +14358,7 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			if(iYieldPerGPT > 0)
 			{
 				int iNetGold = GetTreasury()->CalculateBaseNetGold();
-				if (iNetGold> 0)
+				if (iNetGold > 0)
 				{
 					iYieldPerTurn += (iNetGold / iYieldPerGPT);
 				}
@@ -18846,6 +18852,56 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
 				}
 #endif
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+				if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
+				{
+					int iEra = GetCurrentEra();
+					if(iEra <= 0)
+					{
+						iEra = 1;
+					}
+					int iHandicap = 1;
+					CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+					if(pHandicapInfo)
+					{
+						iHandicap = pHandicapInfo->getAIDifficultyBonus();
+						iHandicap *= iEra;
+						iHandicap /= max(1, getNumCities());
+					}
+					if(iHandicap > 0)
+					{
+						GetTreasury()->ChangeGold(iHandicap);
+						ChangeGoldenAgeProgressMeter(iHandicap);
+						changeJONSCulture(iHandicap / 3);
+				
+						int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
+
+						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							changeOverflowResearch(iBeakersBonus);
+						}
+						else
+						{
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GetID());
+						}
+						int iLoop;
+						for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							if(pLoopCity != NULL)
+							{
+								pLoopCity->changeFood(iHandicap / 5);
+							}
+						}
+						if((GC.getLogging() && GC.getAILogging()))
+						{
+							CvString strLogString;
+							strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+							GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+					}
+				}
+#endif
 			}
 			else
 			{
@@ -21873,7 +21929,7 @@ int CvPlayer::GetGovernment() const
 }
 bool CvPlayer::HasGovernment()
 {
-	if(GetGovernment() > 0)
+	if(GetGovernment() > -1)
 	{
 		return true;
 	}
@@ -22019,6 +22075,35 @@ void CvPlayer::DoReformCooldown()
 			SetReformCooldown(0);
 		}
 	}
+}
+void CvPlayer::SetCurrency(int iValue)
+{
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, m_iJFDCurrency);
+	if(m_iJFDCurrency != iValue)
+	{
+		m_iJFDCurrency = iValue;
+	}
+}
+int CvPlayer::GetCurrency() const
+{
+	return m_iJFDCurrency;
+}
+bool CvPlayer::HasCurrency()
+{
+	if(GetCurrency() > -1)
+	{
+		return true;
+	}
+	return false;
+}
+
+CvString CvPlayer::GetCurrencyName() const
+{
+	return m_strJFDCurrencyName;
+}
+void CvPlayer::SetCurrencyName(const char* strKey)
+{
+	m_strJFDCurrencyName = strKey;
 }
 	//JFD DONE
 
@@ -22549,6 +22634,18 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 int CvPlayer::GetMonopolyModPercent() const
 {
 	return m_iMonopolyModPercent;
+}
+
+/// What are we willing to give/receive for peace with the active human player?
+int CvPlayer::GetCachedValueOfPeaceWithHuman()
+{
+	return m_iCachedValueOfPeaceWithHuman;
+}
+
+/// Sets what are we willing to give/receive for peace with the active human player
+void CvPlayer::SetCachedValueOfPeaceWithHuman(int iValue)
+{
+	m_iCachedValueOfPeaceWithHuman = iValue;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -26248,6 +26345,10 @@ void CvPlayer::DoDeficit()
 
 	// If the player has more units than cities, start disbanding things
 #if defined(MOD_BALANCE_CORE)
+	if(isMinorCiv())
+	{
+		return;
+	}
 	if(iNumMilitaryUnits > max(5, getNumCities()))
 #else
 	if(iNumMilitaryUnits > getNumCities())
@@ -33327,6 +33428,8 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iAbleToAnnexCityStatesCount = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_iJFDCurrency;
+	kStream >> m_strJFDCurrencyName;
 	kStream >> m_strJFDLegislatureName;
 	kStream >> m_strJFDPoliticKey;
 	kStream >> m_iJFDPoliticLeader;
@@ -33357,6 +33460,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iSingleVotes;
 	kStream >> m_iMonopolyModFlat;
 	kStream >> m_iMonopolyModPercent;
+	kStream >> m_iCachedValueOfPeaceWithHuman;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_READ(53, kStream, m_iPovertyUnhappinessMod, 0);
@@ -34065,6 +34169,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iMinorResourceBonusCount;
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_iJFDCurrency;
+	kStream << m_strJFDCurrencyName;
 	kStream << m_strJFDLegislatureName;
 	kStream << m_strJFDPoliticKey;
 	kStream << m_iJFDPoliticLeader;
@@ -34095,6 +34201,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iSingleVotes;
 	kStream << m_iMonopolyModFlat;
 	kStream << m_iMonopolyModPercent;
+	kStream << m_iCachedValueOfPeaceWithHuman;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_WRITE(kStream, m_iPovertyUnhappinessMod);
@@ -36046,6 +36153,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	if (vSettlePlots.empty())
 		return 0;
+<<<<<<< HEAD
 
 	//order by decreasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
@@ -36054,6 +36162,16 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	//delete all but the best 20%
 	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
+=======
+
+	//order by decreasing score
+	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
+
+	//delete all but the best 20%
+	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
+
+>>>>>>> origin/master
 	//AI cheating here ... check if a settler would likely be captured
 	std::vector<CvPlot*> vBadPlots;
 	for(int iI = 0; iI < iNumPlots; iI++)

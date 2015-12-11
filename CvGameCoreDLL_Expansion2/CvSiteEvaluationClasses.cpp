@@ -131,6 +131,12 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		{
 			bValid = true;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass() && pPlot->isMountain())
+		{
+			bValid = true;
+		}
+#endif
 	}
 
 	if(!bValid)

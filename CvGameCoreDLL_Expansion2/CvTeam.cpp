@@ -6181,19 +6181,34 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														}
 													}
 												}
-
-												for (uint ui = 0; ui < aExtraUnits.size(); ui++)
-												{
-													CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[ui], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[ui]);
+												int iTotal = GetNumVassals() * 2;
+												int iSum = 0;
+												for (int iK = 0; iK < iTotal; iK++)
+												{											
+													int iUnit = GC.getGame().getJonRandNum(aExtraUnits.size(), "Random vassal levy");
+													CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[iUnit]);
 													bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 													if(bJumpSuccess)
 													{
 														pLoopCity->addProductionExperience(pNewUnit);
+														iSum++;
 													}
 													if (!bJumpSuccess)
 													{
 														pNewUnit->kill(false);
 														break;
+													}
+												}
+												if(iSum > 0)
+												{
+													CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+													if(pNotifications)
+													{
+														Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY");
+														strText << iSum;
+														Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY");
+														strSummary << iSum;
+														pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
 													}
 												}
 											}
@@ -8224,52 +8239,58 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			CvCity* pLoopCity;
 			int iLoop;
+			int iEra = GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
 			int iHandicap = 1;
 			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 			if(pHandicapInfo)
 			{
-				iHandicap = pHandicapInfo->getAIPerEraModifier();
-				if(iHandicap < 0)
-				{
-					iHandicap *= -1;
-				}
-				if(iHandicap == 0)
-				{
-					iHandicap = 1;
-				}
+				iHandicap = pHandicapInfo->getAIDifficultyBonus();
+				iHandicap *= iEra;
+				iHandicap /= max(1, getNumCities());
 			}
-
-			PlayerTypes ePlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if(iHandicap > 0)
 			{
-				ePlayer = (PlayerTypes) iPlayerLoop;
-				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+				PlayerTypes ePlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 				{
-					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 25);
-					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 25);
-					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 15);
+					ePlayer = (PlayerTypes) iPlayerLoop;
+					CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+					if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+					{
+						kPlayer.GetTreasury()->ChangeGold(iHandicap);
+						kPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
+						kPlayer.changeJONSCulture(iHandicap / 3);
 
-					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra() + 10));
+						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 						
-					if(iBeakersBonus > 0)
-					{
-						TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
+						if(iBeakersBonus > 0)
 						{
-							kPlayer.changeOverflowResearch(iBeakersBonus);
+							TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+							if(eCurrentTech == NO_TECH)
+							{
+								kPlayer.changeOverflowResearch(iBeakersBonus);
+							}
+							else
+							{
+								GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
+							}
 						}
-						else
+						for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 						{
-							GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
+							if(pLoopCity != NULL)
+							{
+								pLoopCity->changeFood(iHandicap / 5);
+							}
 						}
-					}
-					for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						if(pLoopCity != NULL)
+						if((GC.getLogging() && GC.getAILogging()))
 						{
-							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 20);
-							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 10);
+							CvString strLogString;
+							strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}
 				}
@@ -8986,19 +9007,19 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		return true;
 	}
 
-	// We have less than 50% of our original cities...
-	if(iCityPercent <= /*50*/GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD())
+	// We have more than 100% of our original cities...
+	if(iCityPercent > (/*50*/GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD() * 2))
 	{
 		bAbleToEndVassalage = true;
 	}
-	// We have less than 50% of our original population
-	else if(iPopPercent <= /*50*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD())
+	// We have more than 200% of our original population
+	else if(iPopPercent > (/*50*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD() * 4))
 	{
 		bAbleToEndVassalage = true;
 	}
-	// We have 50% or more of the Master's population AND cities
-	else if((getTotalPopulation() * 100 / GET_TEAM(eTeam).getTotalPopulation() >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD()) &&
-		getNumCities() * 100 / GET_TEAM(eTeam).getNumCities() >= GC.getVASSALAGE_VASSAL_CITY_THRESHOLD())
+	// We have 40% or more of the Master's population OR cities
+	else if((getTotalPopulation() * 100 / GET_TEAM(eTeam).getTotalPopulation() >= (GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD() / 3)) ||
+		getNumCities() * 100 / GET_TEAM(eTeam).getNumCities() >= (GC.getVASSALAGE_VASSAL_CITY_THRESHOLD()/ 4))
 	{
 		bAbleToEndVassalage = true;
 	}

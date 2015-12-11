@@ -1158,6 +1158,8 @@ protected:
 	static int lGetEspionageCityStatus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetRandomIntrigue(lua_State* L);
+	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
+	static int lGetTotalValueToMe(lua_State* L);
 #endif
 	static int lGetNumSpies(lua_State* L);
 	static int lGetNumUnassignedSpies(lua_State* L);

@@ -1125,6 +1125,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_ReformCooldownRateChanges     "ReformCooldownRateChanges",        "ii"
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
+#define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
 
 
 

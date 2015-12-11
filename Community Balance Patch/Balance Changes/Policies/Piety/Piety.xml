@@ -87,52 +87,36 @@
 		</Row>
 	</Policy_FreeUnitClasses>
 	<!-- Finisher -->
-	<Policy_ImprovementYieldChanges>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>4</Yield>
-		</Row>
-	</Policy_ImprovementYieldChanges>
-	<Policy_ImprovementYieldChanges>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>4</Yield>
-		</Row>
-	</Policy_ImprovementYieldChanges>
 	<Policy_ReligionYieldMod>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_ReligionYieldMod>
 	
