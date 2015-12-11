@@ -12930,7 +12930,7 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 // here we additionally look at traits (per player)
 bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 {
-	if ( getRouteType()!=NO_ROUTE ) //this also included cities!
+	if ( getRouteType()!=NO_ROUTE && !IsRoutePillaged() ) //this also included cities!
 		return true;
 
 	if (ePlayer==NO_PLAYER)
@@ -12962,7 +12962,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer) const
 //not all plot which are passable are valid for ending a turn!
 bool CvPlot::isValidEndTurnPlot(PlayerTypes ePlayer) const
 {
-	if ( getRouteType()!=NO_ROUTE ) //this also includes cities! ownership needs to be checked somewhere else (canEnterTerritory)
+	if ( getRouteType()!=NO_ROUTE && !IsRoutePillaged() ) //this also includes cities! ownership needs to be checked somewhere else (canEnterTerritory)
 		return true;
 
 	if (ePlayer==NO_PLAYER)

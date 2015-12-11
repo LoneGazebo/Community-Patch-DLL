@@ -5639,7 +5639,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			{
 				continue;
 			}
-			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
+			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot(),false,false,23);
 
 			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
 			if (bNotAtFriendlyCity)
@@ -6288,6 +6288,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					continue;
 
 				SPathFinderUserData data(pUnit, 0, 5);
+				data.ePathType = PT_AIR_REBASE;
 				if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
 				{
 					CvPlot* pFirstWaypoint = GC.GetStepFinder().GetPathFirstPlot();
@@ -6351,6 +6352,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 
 			SPathFinderUserData data(pUnit, 0, 5);
+			data.ePathType = PT_AIR_REBASE;
 			if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
 			{
 				CvPlot* pFirstWaypoint = GC.GetStepFinder().GetPathFirstPlot();

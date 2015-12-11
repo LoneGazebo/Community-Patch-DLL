@@ -24,12 +24,12 @@ class CvPlot;
 
 enum PathType
 {
+	PT_UNIT_WITH_ZOC,			//path for a particular unit with ZoC rules (stacking is handled via flag)
+	PT_UNIT_IGNORE_OTHERS,		//path for a unit, disregarding other units (no stacking and no ZoC)
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
 	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
 	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
-	PT_UNIT_WITH_ZOC,			//path for a particular unit with ZoC rules (stacking is handled via flag)
-	PT_UNIT_IGNORE_OTHERS,		//path for a unit, disregarding other units (no stacking and no ZoC)
 	PT_TRADE_WATER,				//water trade
 	PT_TRADE_LAND,				//land trade
 	PT_BUILD_ROUTE,				//prospective route

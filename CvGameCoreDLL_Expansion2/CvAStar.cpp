@@ -48,6 +48,8 @@
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
+unsigned int saiRuntimeHistogram[100] = {0};
+
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
@@ -312,12 +314,16 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	//debugging!
 	timer.EndPerfTest();
+	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
+	saiRuntimeHistogram[iBin]++;
 
-	if (m_iProcessedNodes>1000)
+	if ( timer.GetDeltaInSeconds()>0.01  )
 	{
+		int iNumPlots = GC.getMap().numPlots();
+
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Path type %d %s, tested %d nodes, processed %d nodes in %.2f ms (path length %d)\n", 
-			m_sData.ePathType, bSuccess?"found":"not found", m_iTestedNodes, m_iProcessedNodes, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
+		OutputDebugString( CvString::format("Path type %d %s, tested %d nodes, processed %d nodes (%d%% of map) in %.2f ms (path length %d)\n", 
+			m_sData.ePathType, bSuccess?"found":"not found", m_iTestedNodes, m_iProcessedNodes, (100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
 		if (false) //bSuccess
 		{
@@ -1065,7 +1071,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return (plotDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT*30); //a normal move is 60 times the base cost!
+	return (plotDistance(iFromX, iFromY, iToX, iToY)*PATH_MOVEMENT_WEIGHT*50); //a normal move is 60 times the base cost
 }
 
 //	--------------------------------------------------------------------------------
@@ -2400,7 +2406,7 @@ bool CvPathFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, NULL, NULL);
+		SetFunctionPointers(PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = 1;
 		break;
 	default:
@@ -2631,6 +2637,11 @@ bool CvPathFinder::VerifyPath(const SPath& path)
 		if (!Configure(path.sConfig.ePathType))
 			return false;
 
+	m_sData = path.sConfig;
+	if (udInitializeFunc)
+		udInitializeFunc(m_sData,this);
+
+	bool bResult = true;
 	int iKnownCost = 0;
 	for (size_t i=1; i<path.vPlots.size(); i++)
 	{
@@ -2641,13 +2652,22 @@ bool CvPathFinder::VerifyPath(const SPath& path)
 		{
 			iKnownCost += udFunc(udCost, &current, &next, 0, m_sData);
 			if (iKnownCost > path.iNormalizedDistance*m_iBasicPlotCost)
-				return false;
+			{
+				bResult = false;
+				break;
+			}
 		}
 		else
-			return false;
+		{
+			bResult = false;
+			break;
+		}
 	}
 
-	return true;
+	if (udUninitializeFunc)
+		udUninitializeFunc(m_sData,this);
+
+	return bResult;
 }
 
 
@@ -2660,7 +2680,8 @@ int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 		return TRUE;
 	}
 
-	if(node->m_iTurns > 2)
+	//failsafe - we're only interested in plots we reach this turn. node->m_iTurns is not set yet!
+	if(parent->m_iTurns > 1)
 	{
 		return FALSE;
 	}
@@ -2890,21 +2911,32 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 {
 	TradePathCacheData* pCacheData = reinterpret_cast<TradePathCacheData*>(finder->GetScratchBufferDirty());
 
-	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-
-	pCacheData->m_ePlayer = data.ePlayer;
-	pCacheData->m_eTeam = kPlayer.getTeam();
-	pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean();
-	pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
-
-	CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
-	if (pPlayerTraits)
+	if (data.ePlayer!=NO_PLAYER)
 	{
-		pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
-		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+		pCacheData->m_ePlayer = data.ePlayer;
+		pCacheData->m_eTeam = kPlayer.getTeam();
+		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean();
+		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
+
+		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
+		if (pPlayerTraits)
+		{
+			pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
+			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+		}
+		else
+		{
+			pCacheData->m_bIsRiverTradeRoad = false;
+			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+		}
 	}
 	else
 	{
+		pCacheData->m_ePlayer = NO_PLAYER;
+		pCacheData->m_eTeam = NO_TEAM;
+		pCacheData->m_bCanCrossOcean = false;
+		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
 	}
@@ -2920,7 +2952,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 //	--------------------------------------------------------------------------------
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST/3;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2959,21 +2991,16 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 		iCost -= PATH_TRADE_BASE_COST/4;
 	
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
-	if (pCacheData->GetTeam() != eToPlotTeam)
+	if (pCacheData->GetTeam()!=NO_TEAM && pCacheData->GetTeam()!=eToPlotTeam)
 	{
+		// avoid enemy lands
+		if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
+			iCost += PATH_TRADE_BASE_COST*10;
+
 		//try to stick to friendly territory
 		if (pToPlot->getOwner()==NO_PLAYER || !GET_TEAM(pCacheData->GetTeam()).IsAllowsOpenBordersToTeam(eToPlotTeam))
 			iCost += PATH_TRADE_BASE_COST/4;
 	}
-
-	// avoid enemy lands
-	if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
-	{
-		iCost += PATH_TRADE_BASE_COST*10;
-	}
-
-	FAssert(iCost != MAX_INT);
-	FAssert(iCost > 0);
 
 	return iCost;
 }
@@ -3029,18 +3056,16 @@ int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SP
 	if (pToPlot->isWater() && pToPlot->isAdjacentToLand_Cached())
 		iCost -= PATH_TRADE_BASE_COST/3;
 
-	// avoid enemy lands
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
-	if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
+	if (pCacheData->GetTeam()!=NO_TEAM && pCacheData->GetTeam()!=eToPlotTeam)
 	{
-		iCost += PATH_TRADE_BASE_COST*10;
-	}
+		// avoid enemy lands
+		if (eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
+			iCost += PATH_TRADE_BASE_COST*10;
 
-	//try to stick to friendly territory
-	if (pCacheData->GetTeam() != eToPlotTeam)
-	{
+		//try to stick to friendly territory
 		if (pToPlot->getOwner()==NO_PLAYER || !GET_TEAM(pCacheData->GetTeam()).IsAllowsOpenBordersToTeam(eToPlotTeam))
-			iCost += PATH_TRADE_BASE_COST/8;
+			iCost += PATH_TRADE_BASE_COST/4;
 	}
 
 	return iCost;

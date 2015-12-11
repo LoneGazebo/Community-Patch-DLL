@@ -4257,7 +4257,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool bMountain = enterPlot.isMountain();
-	if (bMountain && MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && enterPlot.getRouteType() != NO_ROUTE) {
+	if (bMountain && MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged() ) {
 		// Any land unit may travel over a mountain with a pass
 		bMountain = false;
 	}
@@ -26466,7 +26466,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		}
 	}
 
-	if(bAdjacent)
+	if(bAdjacent || (getDomainType() == DOMAIN_AIR))
 	{
 		if(!isOutOfAttacks() && (!IsCityAttackOnly() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{

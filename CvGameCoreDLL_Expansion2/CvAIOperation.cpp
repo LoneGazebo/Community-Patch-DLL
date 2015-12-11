@@ -827,7 +827,7 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrent
 		return GC.GetStepFinder().GetPathLength();
 	}
 
-	return 0;
+	return -1;
 }
 
 /// See if armies are ready to hand off units to the tactical AI (and do so if ready)
@@ -1483,17 +1483,16 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 				int iDistanceMusterToTarget = GetStepDistanceBetweenPlots( pArmy, GetMusterPlot(), pArmy->GetGoalPlot() );
 				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pArmy, pCenterOfMass, pArmy->GetGoalPlot() );
 
-				if(iDistanceMusterToTarget <= 0)
+				if(iDistanceMusterToTarget < 0 || iDistanceCurrentToTarget < 0)
 				{
+					//we should abort the operation?
 					return 0;
 				}
-	
 				// If within 2 of the final goal, consider ourselves there
 				else if (iDistanceCurrentToTarget <= 2)
 				{
 					return 100;
 				}
-
 				else
 				{
 					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / iDistanceMusterToTarget);
