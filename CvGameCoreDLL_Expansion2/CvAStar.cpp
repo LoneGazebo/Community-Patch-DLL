@@ -317,7 +317,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.01  )
+	if ( timer.GetDeltaInSeconds()>0.05  )
 	{
 		int iNumPlots = GC.getMap().numPlots();
 
@@ -874,7 +874,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
 	//danger is relevant for AI controlled units, if we didn't explicitly disable it
-	pCacheData->m_bDoDanger = pCacheData->m_bAIControl && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER);
+	pCacheData->m_bDoDanger = pCacheData->m_bAIControl && (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER) || finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK));
 }
 
 //	--------------------------------------------------------------------------------
@@ -1433,10 +1433,13 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 
 		if(pCacheData->getDomainType() == DOMAIN_LAND)
 		{
+			//don't embark if forbidden
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && kFromNodeCacheData.bIsTerraFirma)
-			{
 				return FALSE;
-			}
+
+			//don't move to dangerous water plots (unless the current plot is dangerous too)
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsWater && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
+				return FALSE;
 
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 			if( kFromNodeCacheData.bIsTerraFirma && !kToNodeCacheData.bIsTerraFirma && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))

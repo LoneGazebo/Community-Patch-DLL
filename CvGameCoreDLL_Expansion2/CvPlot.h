@@ -1111,10 +1111,6 @@ protected:
 
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
-#if !defined(MOD_BALANCE_CORE)
-	void updateImpassable();
-#endif
-
 
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;

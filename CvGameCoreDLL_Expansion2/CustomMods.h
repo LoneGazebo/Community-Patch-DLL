@@ -178,9 +178,6 @@
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 
-// swap out all tactical plot scoring functions
-#define MOD_CORE_TACTICAL_PLOTSCORE
-
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)
@@ -490,10 +487,9 @@
 #define MOD_AI_SECONDARY_SETTLERS                   gCustomMods.isAI_SECONDARY_SETTLERS()
 
 // Features from the "Smart AI mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=521955 (v50)
- #define MOD_AI_SMART                                gCustomMods.isAI_SMART()
+#define MOD_AI_SMART                                gCustomMods.isAI_SMART()
+
 #if defined(MOD_AI_SMART)
-// Omit obsolete/no value items as part of a deal if asked to balance things out (v50)
-#define MOD_AI_SMART_DEALS                          (MOD_AI_SMART && gCustomMods.isAI_SMART_DEALS())
 // Use Great people more effectively, plant some improvements early, and later use GP powers (v50)
 #define MOD_AI_SMART_GREAT_PEOPLE                   (MOD_AI_SMART && gCustomMods.isAI_SMART_GREAT_PEOPLE())
 // Delay grand strategy bias until the Renaissance (v50)
@@ -514,8 +510,6 @@
 #define MOD_AI_SMART_RANGED_UNITS                   (MOD_AI_SMART && gCustomMods.isAI_SMART_RANGED_UNITS())
 // AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby (v50)
 #define MOD_AI_SMART_AIR_TACTICS                    (MOD_AI_SMART && gCustomMods.isAI_SMART_AIR_TACTICS())
-// Improves the AI's melee tactics (v51)
-#define MOD_AI_SMART_MELEE_TACTICS                  (MOD_AI_SMART && gCustomMods.isAI_SMART_MELEE_TACTICS())
 #endif
 
 // Events sent when terraforming occurs (v33)

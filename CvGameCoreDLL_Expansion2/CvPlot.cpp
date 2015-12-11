@@ -11555,6 +11555,9 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_abIsImpassable[i];
 #endif
 	}
+	
+	//just to be safe - m_abIsImpassable is also saved/restored
+	updateImpassable();
 
 	for (uint i = 0; i<PlotBoolField::eCount; ++i)
 	{
@@ -12843,17 +12846,18 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 #endif
 
 //	---------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvPlot::updateImpassable(TeamTypes eTeam)
-#else
-void CvPlot::updateImpassable()
-#endif
 {
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
 	//mountain is impassable by default
 	m_bIsImpassable = (getPlotType()==PLOT_MOUNTAIN);
+	if (eTeam != NO_TEAM)
+		SetTeamImpassable(eTeam, m_bIsImpassable);
+	else
+		for (size_t i=0; i<MAX_TEAMS; i++)
+			SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
 
 	if(eTerrain != NO_TERRAIN)
 	{
@@ -12861,69 +12865,76 @@ void CvPlot::updateImpassable()
 		{
 			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 			if(pkTerrainInfo)
-#if defined(MOD_BALANCE_CORE)
 			{
-#endif
 				m_bIsImpassable = pkTerrainInfo->isImpassable();
-#if defined(MOD_BALANCE_CORE)
-				if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
+				if (eTeam != NO_TEAM)
 				{
-					if(eTeam != NO_TEAM)
+					SetTeamImpassable(eTeam, m_bIsImpassable);
+
+					if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
 					{
 						if (GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
 							SetTeamImpassable(eTeam, false);
-						else
-							SetTeamImpassable(eTeam, m_bIsImpassable);
 					}
-					else
-						SetTeamImpassable(eTeam, m_bIsImpassable);
 				}
+				else
+				{
+					for (size_t i=0; i<MAX_TEAMS; i++)
+					{
+						SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
+
+						if(m_bIsImpassable && (TechTypes)pkTerrainInfo->GetPrereqPassable() != NO_TECH)
+						{
+							if (GET_TEAM((TeamTypes)i).GetTeamTechs()->HasTech((TechTypes)pkTerrainInfo->GetPrereqPassable()))
+								SetTeamImpassable((TeamTypes)i, false);
+						}
+					}
+				}	
 			}
-#endif
 		}
 		else
 		{
 			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
 			if(pkFeatureInfo)
-#if defined(MOD_BALANCE_CORE)
 			{
-#endif
 				m_bIsImpassable = pkFeatureInfo->isImpassable();
-#if defined(MOD_BALANCE_CORE)
-				if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
+				if (eTeam != NO_TEAM)
 				{
-					if(eTeam != NO_TEAM)
+					SetTeamImpassable(eTeam, m_bIsImpassable);
+
+					if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
 					{
 						if (GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
 							SetTeamImpassable(eTeam, false);
-						else
-							SetTeamImpassable(eTeam, m_bIsImpassable);
 					}
-					else
-						SetTeamImpassable(eTeam, m_bIsImpassable);
 				}
+				else
+				{
+					for (size_t i=0; i<MAX_TEAMS; i++)
+					{
+						SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
+
+						if(m_bIsImpassable && (TechTypes)pkFeatureInfo->GetPrereqPassable() != NO_TECH)
+						{
+							if (GET_TEAM((TeamTypes)i).GetTeamTechs()->HasTech((TechTypes)pkFeatureInfo->GetPrereqPassable()))
+								SetTeamImpassable((TeamTypes)i, false);
+						}
+					}
+				}	
 			}
-#endif
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 bool CvPlot::isImpassable(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be greater than or equal to 0");
-	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
-
 	if(eTeam != NO_TEAM)
 	{
 		return IsTeamImpassable(eTeam);
 	}
-	else if(eTeam == BARBARIAN_TEAM && !isMountain() && !isIce())
-	{
-		return true;
-	}
+
 	return m_bIsImpassable;
 }
-#endif
 
 //--------------------------------------------------------------------
 // in updateImpassable we check terrain and features (per plot), combined with technologies (per team)

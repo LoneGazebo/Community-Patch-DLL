@@ -110,15 +110,15 @@ public:
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // to check movement as if the unit was unembarked
 	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // check to see if the unit can move into the tile in an embarked or unembarked state
 		//these values are used internally only
-		MOVEFLAG_IGNORE_DANGER					= 0x0100,
-		MOVEFLAG_NO_EMBARK						= 0x0200,
+		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
+		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
 		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400,
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800,
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000,
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
+		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
 		//reserved
-		MOVEFLAG_UNUSED_1						= 0x4000,
-		MOVEFLAG_UNUSED_2						= 0x8000,
+		MOVEFLAG_UNUSED_1						= 0x8000,
 	};
 
 	DestructionNotification<UnitHandle>& getDestructionNotification();
