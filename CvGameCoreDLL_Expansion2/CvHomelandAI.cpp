@@ -859,7 +859,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?
-			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) && !pLoopPlot->isCity())
+			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && !pLoopPlot->isCity())
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -2790,7 +2790,7 @@ void CvHomelandAI::PlotAirliftMoves()
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
 				CvPlot *pLoopPlot = plotDirection((*it)->getX(), (*it)->getY(), ((DirectionTypes)iI));
-				if (pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) && pLoopPlot->getOwner() == m_pPlayer->GetID())
+				if (pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && pLoopPlot->getOwner() == m_pPlayer->GetID())
 				{
 					UnitHandle pBestDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
 					if (pBestDefender)
@@ -6430,11 +6430,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-			if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
-#else
-			if(!pUnit->PlotValid(pLoopPlot))
-#endif
+			if(!pLoopPlot->isValidMovePlot(pUnit->getOwner()))
 			{
 				continue;
 			}
@@ -7078,7 +7074,7 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 
 		if(pAdjacentPlot != NULL)
 		{
-			if(pUnit->PlotValid(pAdjacentPlot))
+			if(pAdjacentPlot->isValidMovePlot(pUnit->getOwner()))
 			{
 				if(!(pAdjacentPlot->isVisibleEnemyUnit(pUnit)))
 				{
@@ -7266,7 +7262,7 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 			}
 
 			// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
-			if(!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			if(!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION ))
 			{
 				it->SetMovesToTarget(MAX_INT);
 				continue;
@@ -7292,7 +7288,7 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 			}
 
 			// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
-			if(!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			if(!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION ))
 			{
 				it->SetMovesToTarget(MAX_INT);
 				continue;
@@ -7737,7 +7733,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 		return false;
 	}
 
-	if(!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+	if(!pUnit->canMoveInto(*pPlot))
 	{
 		return false;
 	}
@@ -7976,7 +7972,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && 
 			plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() <= 2))
 		{
-			if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION ))
 			{
 				// And if it is a city, make sure we are friends with them, else we will automatically attack
 				if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))

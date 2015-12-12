@@ -1101,7 +1101,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
 			if (eDomainType==DOMAIN_LAND && !bEmbarked)
 			{
-				if (pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
+				if (pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(pPlayer->GetID()))
 					//we're not very interested in these "useless" plots
 					iResultValue += iSmallScore;
 				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
@@ -1113,7 +1113,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			}
 			else
 			{
-				if (!pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
+				if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
 					//we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
@@ -1264,7 +1264,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()) || pPlot->isCity())
+		if(pPlot->isWater() || !pPlot->isValidMovePlot(GetPlayer()->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
@@ -2736,7 +2736,7 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		{
 			continue;
 		}
-		if(!pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()))
+		if(!pPlot->isWater() || !pPlot->isValidMovePlot(GetPlayer()->GetID()))
 		{
 			continue;
 		}
@@ -2894,7 +2894,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(m_pPlayer->GetID()) || pPlot->isCity())
+		if(pPlot->isWater() || !pPlot->isValidMovePlot(m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}

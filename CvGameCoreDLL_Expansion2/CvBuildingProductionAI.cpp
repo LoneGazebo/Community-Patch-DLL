@@ -131,6 +131,9 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
+	if (iWeight==0)
+		return;
+
 	CvBuildingXMLEntries* pkBuildings = m_pCityBuildings->GetBuildings();
 
 	// Loop through all buildings

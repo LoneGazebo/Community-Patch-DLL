@@ -73,6 +73,9 @@ void CvProjectProductionAI::Write(FDataStream& kStream) const
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
+	if (iWeight==0)
+		return;
+
 	int iProject;
 	CvProjectEntry* entry(NULL);
 

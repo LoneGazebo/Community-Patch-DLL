@@ -725,7 +725,7 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 
 	cell.SetRevealed(pPlot->isRevealed(m_pPlayer->getTeam()));
 	cell.SetVisible(pPlot->isVisible(m_pPlayer->getTeam()));
-	cell.SetImpassableTerrain(!pPlot->isValidEndTurnPlot(m_pPlayer->GetID()));
+	cell.SetImpassableTerrain(!pPlot->isValidMovePlot(m_pPlayer->GetID()));
 	cell.SetWater(pPlot->isWater());
 	cell.SetOcean(pPlot->isWater() && !pPlot->isShallowWater());
 

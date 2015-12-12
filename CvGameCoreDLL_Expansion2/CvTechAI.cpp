@@ -100,6 +100,9 @@ void CvTechAI::Write(FDataStream& kStream) const
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagationPercent)
 {
+	if (iWeight==0)
+		return;
+
 	int* paiTempWeights;
 
 	// Create a temporary array of weights

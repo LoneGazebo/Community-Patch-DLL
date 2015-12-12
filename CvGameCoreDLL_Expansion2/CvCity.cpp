@@ -3380,7 +3380,7 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 			{
 				if(eImprovement != NO_IMPROVEMENT)
 				{
-					if((pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged()) || (bPotential && pLoopPlot->canHaveImprovement(eImprovement, getTeam())))
+					if((pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged()) || (bPotential && pLoopPlot->canHaveImprovement(eImprovement, getOwner())))
 					{
 						++iCount;
 					}
@@ -14158,7 +14158,7 @@ bool CvCity::DoRazingTurn()
 					continue;
 
 				// Can't be impassable
-				if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+				if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 					continue;
 
 				// Can't be water
@@ -20026,7 +20026,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		eYield = (YieldTypes) iI;
 
-		iYield = pPlot->calculateNatureYield(eYield, getTeam());
+		iYield = pPlot->calculateNatureYield(eYield, getOwner());
 #if defined(MOD_BALANCE_CORE)
 		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
 		if(eTerrainBoost != NO_TERRAIN)

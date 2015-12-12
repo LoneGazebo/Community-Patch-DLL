@@ -83,6 +83,9 @@ void CvProcessProductionAI::Write(FDataStream& kStream) const
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
+	if (iWeight==0)
+		return;
+
 	int iProcess;
 	CvProcessInfo* entry(NULL);
 

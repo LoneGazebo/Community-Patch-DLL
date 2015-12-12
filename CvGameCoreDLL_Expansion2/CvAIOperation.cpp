@@ -1783,7 +1783,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 			if (pCenterOfMass && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
-				if (!pCenterOfMass->isValidEndTurnPlot(kPlayer.GetID()))
+				if (!pCenterOfMass->isValidMovePlot(kPlayer.GetID()))
 				{
 					UnitHandle pFirstUnit = pArmy->GetFirstUnit();
 					if (pFirstUnit)
@@ -7323,7 +7323,7 @@ bool CvAIOperationNavalColonization::VerifyTarget(CvArmyAI* pArmy)
 	}
 	else if ( pTargetPlot==NULL || 
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
-		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) )
+		!pCivilian->canMoveInto(*pTargetPlot) )
 		//don't check the whole path here - it is very expensive and usually not a problem
 	{
 		if(GC.getLogging() && GC.getAILogging())
@@ -8313,7 +8313,7 @@ bool CvAIOperationFoundCity::VerifyTarget(CvArmyAI* pArmy)
 	else if ( pTargetPlot==NULL || 
 		GET_PLAYER(m_eOwner).getPlotFoundValue(pTargetPlot->getX(),pTargetPlot->getY()) < 1 ||
 		!pCivilian->canFound(pTargetPlot,false,true) || //don't check happiness!
-		!pCivilian->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || 
+		!pCivilian->canMoveInto(*pTargetPlot) || 
 		!pCivilian->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) )
 	{
 		if(GC.getLogging() && GC.getAILogging())

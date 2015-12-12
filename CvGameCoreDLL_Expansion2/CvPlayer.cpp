@@ -714,8 +714,10 @@ void CvPlayer::init(PlayerTypes eID)
 	// only allocate notifications for civs that players can play as
 	if(eID < MAX_MAJOR_CIVS)
 	{
-		m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
-		m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
+		if (!m_pNotifications)
+			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+		if (!m_pDiplomacyRequests)
+			m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
 	}
 
 	//--------------------------------
@@ -2370,7 +2372,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-								if(pLoopPlot->isValidEndTurnPlot(GetID()))
+								if(pLoopPlot->isValidMovePlot(GetID()))
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -9118,7 +9120,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-								if(pLoopPlot->isValidEndTurnPlot(GetID()) && !pLoopPlot->isCity())
+								if(pLoopPlot->isValidMovePlot(GetID()) && !pLoopPlot->isCity())
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -15254,7 +15256,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-			if(!pPlot->isValidEndTurnPlot(GetID()))
+			if(!pPlot->isValidMovePlot(GetID()))
 				continue;
 
 			// Can't be water
@@ -25010,7 +25012,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-						if(!pPlot->isOwned() && pPlot->isValidEndTurnPlot(GetID()) && !pPlot->isWater())
+						if(!pPlot->isOwned() && pPlot->isValidMovePlot(GetID()) && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -30886,7 +30888,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-				if(!pPlot->isValidEndTurnPlot(GetID()))
+				if(!pPlot->isValidMovePlot(GetID()))
 				{
 					return -1;
 				}
@@ -31269,7 +31271,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-			if(!pPlot->isValidEndTurnPlot(GetID()) || pPlot->isWater())
+			if(!pPlot->isValidMovePlot(GetID()) || pPlot->isWater())
 			{
 				return -1;
 			}
@@ -31354,7 +31356,7 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 		if(bAdd)
 		{
 			// Valid Plot
-			if(!pPlot->canHaveImprovement(eImprovement, getTeam(), false))
+			if(!pPlot->canHaveImprovement(eImprovement, GetID(), false))
 			{
 				return -1;
 			}
@@ -33774,7 +33776,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> bReadNotifications;
 	if(bReadNotifications)
 	{
-		m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+		if (!m_pNotifications)
+			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
 		m_pNotifications->Init(GetID());
 		m_pNotifications->Read(kStream);
 	}
@@ -36061,7 +36064,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			}
 		}
 
-		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
+		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
 		{
 			//--------------
 			if (bLogging) 
@@ -36153,7 +36156,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	if (vSettlePlots.empty())
 		return 0;
-<<<<<<< HEAD
 
 	//order by decreasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
@@ -36162,16 +36164,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	//delete all but the best 20%
 	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
-=======
-
-	//order by decreasing score
-	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	//delete all but the best 20%
-	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
-
->>>>>>> origin/master
 	//AI cheating here ... check if a settler would likely be captured
 	std::vector<CvPlot*> vBadPlots;
 	for(int iI = 0; iI < iNumPlots; iI++)

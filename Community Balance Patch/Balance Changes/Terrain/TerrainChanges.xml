@@ -20,15 +20,6 @@
 			<Where TerrainType="TERRAIN_COAST" YieldType="YIELD_FOOD" />
 			<Set Yield="2" />
 		</Update>
-		<!-- Mountain yield. Will be accessible only if the plot is passable (Inca) -->
-		<Update>
-			<Where TerrainType="TERRAIN_MOUNTAIN" YieldType="YIELD_FOOD" />
-			<Set Yield="1" />
-		</Update>
-		<Update>
-			<Where TerrainType="TERRAIN_MOUNTAIN" YieldType="YIELD_PRODUCTION" />
-			<Set Yield="1" />
-		</Update>
 	</Terrain_Yields>
 	<Defines>
 		<Update>

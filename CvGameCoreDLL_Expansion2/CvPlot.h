@@ -116,6 +116,7 @@ public:
 	bool isAdjacent(const CvPlot* pPlot) const;
 	bool isAdjacentToLand() const;
 	bool isAdjacentToLand_Cached() const { return m_bIsAdjacentToLand; }
+	bool isDeepWater() const;
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
@@ -155,7 +156,7 @@ public:
 #else
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false) const;
 #endif
-	bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam = NO_TEAM, bool bOnlyTestVisible = false) const;
+	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
@@ -475,10 +476,8 @@ public:
 		return m_iRiverCrossingCount > 0;
 	}
 
-	//can a generic unit end its turn here (disregarding promotions, combat/civilian etc)
-	bool isValidEndTurnPlot(PlayerTypes ePlayer) const;
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
-	bool isValidMovePlot(PlayerTypes ePlayer) const;
+	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
 #if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
@@ -673,9 +672,9 @@ public:
 
 	short* getYield();
 	int getYield(YieldTypes eIndex) const;
-	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false) const;
-	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;
-	int calculateTotalBestNatureYield(TeamTypes eTeam) const;
+	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
+	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
+	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
 	bool hasYield() const;

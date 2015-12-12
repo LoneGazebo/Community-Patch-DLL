@@ -1783,7 +1783,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 				if(pAdjacentPlot != NULL)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(!pAdjacentPlot->isValidEndTurnPlot(GetID()))
+					if(!pAdjacentPlot->isValidMovePlot(GetID()))
 					{
 						continue;
 					}
@@ -2333,7 +2333,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
-			if(pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(GetID()))
+			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID()))
 			{
 				continue;
 			}
@@ -2395,7 +2395,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
-		if(!pLoopPlot->isValidEndTurnPlot(GetID()))
+		if(!pLoopPlot->isValidMovePlot(GetID()))
 		{
 			continue;
 		}
@@ -2568,7 +2568,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidEndTurnPlot(GetID()) )
+			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()) )
 				continue;
 			if(!pAdjacentPlot->canBuild(eCitadel, GetID()))
 				continue;

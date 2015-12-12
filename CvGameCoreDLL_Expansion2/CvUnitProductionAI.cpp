@@ -139,6 +139,9 @@ void CvUnitProductionAI::Write(FDataStream& kStream) const
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvUnitProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
+	if (iWeight==0)
+		return;
+
 	// Loop through all units
 	for(int iUnit = 0; iUnit < m_pUnits->GetNumUnits(); iUnit++)
 	{

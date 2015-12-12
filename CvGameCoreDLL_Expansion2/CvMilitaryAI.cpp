@@ -2934,7 +2934,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			bool bTough = false;
 
 			//cannot go here
-			if(!pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) || pLoopPlot->isCity())
+			if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) || pLoopPlot->isCity())
 				bBlocked = true;
 
 			//should not go here
@@ -2942,9 +2942,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bHarmful = true;
 
 			//makes us slow
-			if(	pLoopPlot->isHills()		|| 
-				pLoopPlot->IsRoughFeature()	||
-				pLoopPlot->isRiver() )
+			if(	pLoopPlot->isRoughGround() )
 				bTough = true;
 
 			//other continent?

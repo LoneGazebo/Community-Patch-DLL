@@ -5153,7 +5153,7 @@ void CvGame::initScoreCalculation()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
 		if(!pPlot->isWater() || pPlot->isAdjacentToLand())
 		{
-			iMaxFood += pPlot->calculateBestNatureYield(YIELD_FOOD, NO_TEAM);
+			iMaxFood += pPlot->calculateBestNatureYield(YIELD_FOOD, NO_PLAYER);
 		}
 	}
 	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1, GC.getFOOD_CONSUMPTION_PER_POPULATION()));
@@ -9806,8 +9806,8 @@ void CvGame::debugSyncChecksum()
 		return;
 
 	pLog->Msg( "----global-----\n" );
-	pLog->Msg( CvString::format("MapRandSeed: %lld\n",getMapRand().getSeed()).c_str() );
-	pLog->Msg( CvString::format("GameRandSeed: %lld\n",getJonRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("MapRandSeed: %I64u\n",getMapRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("GameRandSeed: %I64u\n",getJonRand().getSeed()).c_str() );
 	pLog->Msg( CvString::format("NCities: %d\n",getNumCities()).c_str() );
 	pLog->Msg( CvString::format("TotalPop: %d\n",getTotalPopulation()).c_str() );
 	pLog->Msg( CvString::format("OwnedPlots: %d\n",GC.getMap().getOwnedPlots()).c_str() );
@@ -12061,7 +12061,7 @@ int CalculateDigSiteWeight(int iIndex, FFastVector<CvArchaeologyData, true, c_eC
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iIndex);
 
 		// zero this value if this plot has a resource, water, ice, mountain, or natural wonder
-		if (pPlot->getResourceType() != NO_RESOURCE || pPlot->isWater() || !pPlot->isValidEndTurnPlot(NO_PLAYER) || pPlot->IsNaturalWonder())
+		if (pPlot->getResourceType() != NO_RESOURCE || pPlot->isWater() || !pPlot->isValidMovePlot(NO_PLAYER) || pPlot->IsNaturalWonder())
 			iBaseWeight = 0;
 
 		// if this tile cannot be improved, zero it out
@@ -12373,7 +12373,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
 		const ResourceTypes eResource = pPlot->getResourceType();
 
-		if (pPlot->isWater() || !pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 		{
 			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
 			historicalDigSites[i].m_eEra = NO_ERA;

@@ -174,6 +174,9 @@ void CvWonderProductionAI::FlavorUpdate()
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvWonderProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
+	if (iWeight==0)
+		return;
+
 	// Loop through all buildings (even though we're only go to do anything on wonders)
 	for(int iBldg = 0; iBldg < m_pBuildings->GetNumBuildings(); iBldg++)
 	{

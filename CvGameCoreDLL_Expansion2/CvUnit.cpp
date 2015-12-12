@@ -4220,328 +4220,105 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-	bool bFeatureTest = false;
-	bool bTerrainTest = false;
-	if(enterPlot.isImpassable(getTeam()) && !enterPlot.isMountain())
-#else
-	if(enterPlot.isImpassable())
-#endif
-	{
-		if(!(m_iCanMoveImpassableCount > 0) && !canMoveAllTerrain())
-		{
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-			if (enterPlot.isIce() && canCrossIce()) 
-			{
-				return true;
-			}
-#endif
-#if defined(MOD_BALANCE_CORE)
-			else 
-			{
-				if(enterPlot.getFeatureType() != NO_FEATURE)
-				{
-					bFeatureTest = true;
-				}
-				if(enterPlot.getTerrainType() != NO_TERRAIN)
-				{
-					bTerrainTest = true;
-				}
-
-			}
-#else
-				return false;
-#endif
-		}
-	}
-
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
-	bool bMountain = enterPlot.isMountain();
-	if (bMountain && MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged() ) {
-		// Any land unit may travel over a mountain with a pass
-		bMountain = false;
-	}
-
-	if(bMountain)
-#else
-	if(enterPlot.isMountain())
-#endif
-	{
-#if defined(MOD_PATHFINDER_CROSS_MOUNTAINS)
-		bool bCanCross = IsHoveringUnit() || canMoveAllTerrain() || canCrossMountains() || enterPlot.isCity(); // Player trait is included in the canCrossMountains() method
-		if (!bCanCross)
-#else
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_BALANCE_CORE)
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() && !IsHoveringUnit() && !canMoveAllTerrain())
-#else
-		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() && !IsHoveringUnit() && !canMoveAllTerrain())
-#endif
-#endif
-		{
-			return false;
-		}
-	}
-	
-#if defined(MOD_PATHFINDER_CROSS_OCEANS)
-	if (enterPlot.isWater() && !enterPlot.isShallowWater()) {
-		if (canCrossOceans()) {
-			return true;
-		}
-	}
-#endif
-
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	if (enterPlot.isIce()) {
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		bool bCanCross = canCrossIce() || (kPlayer.GetPlayerTraits()->IsAbleToCrossIce());
-		if (bCanCross) {
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-#endif
-
 	DomainTypes eDomain = getDomainType();
 
-	// Immobile Unit?
+	// Part 1 : Domain specifics ---------------------------------------------------
 
-	if(eDomain == DOMAIN_IMMOBILE || m_bImmobile)
-	{
+	// Air can go anywhere
+	if (eDomain==DOMAIN_AIR)
+		return true;
+
+	// Immobile can go nowhere
+	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
 		return false;
-	}
 
-	bool bAllowsWalkWater = enterPlot.IsAllowsWalkWater();
-	if (enterPlot.isWater() && (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK) && !bAllowsWalkWater)
-	{
-		return false;
-	}
+	// Sea units - we can exclude non-water plots right away
+	if (eDomain==DOMAIN_SEA)
+		if (!enterPlot.isWater() && !enterPlot.isFriendlyCityOrPassableImprovement(*this, true))
+			return false;
 
-	TeamTypes eTeam = getTeam();
-
-	if(canEnterTerritory(enterPlot.getTeam(), false /*bIgnoreRightOfPassage*/, enterPlot.getPlotCity() != NULL, iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
-	{
-		if(enterPlot.getFeatureType() != NO_FEATURE && enterPlot.getRouteType() == NO_ROUTE)  // assume that all units can use roads and rails
+	// Land units may need to embark - can we do it? are we allowed to?
+	if (eDomain==DOMAIN_LAND)
+		if (IsHoveringUnit())
 		{
-#if defined(MOD_BALANCE_CORE)
-			bool bImpassable = false;
-			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(enterPlot.getFeatureType());
-			if(bFeatureTest)
-			{
-				if(pkFeatureInfo && pkFeatureInfo->isImpassable())
-				{
-					bImpassable = true;
-				}
-			}
-			else if(isFeatureImpassable(enterPlot.getFeatureType()))
-			{
-				bImpassable = true;
-			}
-			if(bImpassable)
-#else
-			if(isFeatureImpassable(enterPlot.getFeatureType()))
-#endif
-			{
-				bool bCanPass = false;
-
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-				// We checked for passable ice much higher up
-#endif
-				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-				if(m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
-				{
-					return true;
-				}
-				if(!bCanPass)
-				{
-					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
-					{
-						if(!canLoad(enterPlot))
-						{
-							return false;
-						}
-					}
-				}
-			}
+			//hovercraft embark in deep water
+			if(enterPlot.isWater() && enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
+				return false;
 		}
 		else
 		{
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
-		if (!(MOD_GLOBAL_ALPINE_PASSES && getDomainType() == DOMAIN_LAND && (enterPlot.getRouteType() != NO_ROUTE))) 
-		{
-#endif
-#if defined(MOD_BALANCE_CORE)
-			bool bImpassable = false;
-			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(enterPlot.getTerrainType());
-			if(bTerrainTest)
-			{
-				if(pkTerrainInfo && pkTerrainInfo->isImpassable())
-				{
-					bImpassable = true;
-				}
-			}
-			else if(isTerrainImpassable(enterPlot.getTerrainType()))
-			{
-				bImpassable = true;
-			}
-			if(bImpassable)
-#else
-			if(isTerrainImpassable(enterPlot.getTerrainType()))
-#endif
-			{
-				bool bCanPass = false;
-
-				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-				bCanPass = m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType());
-				if(!bCanPass)
-				{
-					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
-					{
-						if(!canLoad(enterPlot))
-						{
-							return false;
-						}
-					}
-				}
-			}
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
-		}
-#endif
-		}
-	}
-
-	switch(eDomain)
-	{
-	case DOMAIN_SEA:
-		if(!enterPlot.isWater() && !canMoveAllTerrain())
-		{
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-			bool bCanEnter = (enterPlot.isFriendlyCityOrPassableImprovement(*this, true) && (MOD_GLOBAL_PASSABLE_FORTS_ANY || enterPlot.isCoastalLand() || plot()->isLake()));
-			if(!bCanEnter && !enterPlot.isEnemyCity(*this))
-			{
+			//normal land unit, embark for all water
+			if(enterPlot.isWater() && !enterPlot.IsAllowsWalkWater() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
 				return false;
-			}
-#else
-			if(!enterPlot.isFriendlyCity(*this, true) && !enterPlot.isEnemyCity(*this))
-			{
-				return false;
-			}
-#endif
 		}
-		break;
 
-	case DOMAIN_AIR:
-		// Air units can move anywhere
-		break;
+	// Part 2 : easy decisions ---------------------------------------------------
 
-	case DOMAIN_LAND:
+	// Most plots are easy in fact
+	if(!enterPlot.isImpassable(getTeam()))
+		return true;
+
+	// Some special units also have it easy
+	if(canMoveImpassable() || canMoveAllTerrain())
+		return true;
+
+	// Part 3 : player traits and unit traits ---------------------------------------------------
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
+	if (enterPlot.isMountain())
 	{
-		if (bAllowsWalkWater)
-		{
-			return true;
-		}
-
-		if(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)
-		{
-			// if this is water and this unit can embark
-			if(enterPlot.isWater() && !canMoveAllTerrain())
-			{
-				if(CanEverEmbark())
-				{
-					// Can't enter deep water until you have the appropriate Tech
-					if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && !GET_TEAM(eTeam).canEmbarkAllWaterPassage() && !IsEmbarkAllWater())
-					{
-						return false;
-					}
-				}
-				// Does the unit hover above coast?
-				else if(IsHoveringUnit())
-				{
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-					// Ice trumps ocean!
-					if (enterPlot.getFeatureType() == FEATURE_ICE) {
-						return true;
-					} else {
-#endif
-						if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN())
-						{
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-							return IsEmbarkDeepWater();
-#else
-							return false;
-#endif
-						}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-					}
-#endif
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-		else
-		{
-			// slewis - not my best piece of logic, but yeah
-			bool bEmbarked = (isEmbarked() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_EMBARKED)) && !(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_UNEMBARKED);
-
-			if(bEmbarked)
-			{
-				if(!enterPlot.isWater())
-				{
-					return false;
-				}
-				// Can't enter deep water until you have the appropriate Tech
-				if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && !GET_TEAM(eTeam).canEmbarkAllWaterPassage() && !IsEmbarkAllWater())
-				{
-					return false;
-				}
-			}
-			else // !bEmbarked
-			{
-				if(enterPlot.isWater() && !canMoveAllTerrain() && !enterPlot.isCity())
-				{
-					// Does the unit hover above coast?
-					if(IsHoveringUnit())
-					{
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-						// Ice trumps ocean!
-						if (enterPlot.getFeatureType() == FEATURE_ICE) {
-							return true;
-						} else {
-#endif
-							if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN())
-							{
-								return false;
-							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-						}
-#endif
-					}
-					else if(!isHuman() || (plot() && plot()->isWater()) || !canLoad(enterPlot))
-					{
-						return false;
-					}
-				}
-			}
-		}
-	}
-	break;
-
-	case DOMAIN_IMMOBILE:
-		return false;
-		break;
-
-	default:
-		CvAssert(false);
-		break;
+		bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
+		return bCanCross;
 	}
 
-	return true;
+	// Check coastal water
+	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getSHALLOW_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	{
+		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean();
+		return bCanCross;
+	}
+
+	// Check high seas
+	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	{
+		bool bCanCross = canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean();
+		return bCanCross;
+	}
+
+	// Check ice with specialty: is passable of owned
+	if (enterPlot.isIce()) 
+	{
+		bool bCanCross = canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam());
+		return bCanCross;
+	}
+
+	// Part 4 : promotions - expensive test, do this last ---------------------------------------------------
+
+	if(enterPlot.getFeatureType() != NO_FEATURE)  
+	{
+		// assume that all units can use roads and rails
+		if(isFeatureImpassable(enterPlot.getFeatureType()) && enterPlot.getRouteType() == NO_ROUTE)
+		{
+			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
+			if(m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
+				return true;
+		}
+	}
+	else if(enterPlot.getTerrainType() != NO_TERRAIN)
+	{
+		// assume that all units can use roads and rails
+		if(isTerrainImpassable(enterPlot.getTerrainType()) && enterPlot.getRouteType() == NO_ROUTE)
+		{
+			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
+			if (m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
+				return true;
+		}
+	}
+
+	//ok, seems we ran out of jokers. no pasaran!
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4635,7 +4412,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 
 		if(plot.isActiveVisible(false))
 		{
-			if(canMoveInto(plot, MOVEFLAG_ATTACK | MOVEFLAG_DECLARE_WAR | MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			if(canMoveInto(plot, MOVEFLAG_ATTACK | MOVEFLAG_DECLARE_WAR))
 			{
 				pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
@@ -5216,7 +4993,7 @@ void CvUnit::fightInterceptor(const CvPlot& pPlot)
 void CvUnit::move(CvPlot& targetPlot, bool bShow)
 {
 	VALIDATE_OBJECT
-	CvAssert(canMoveOrAttackInto(targetPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE) || isOutOfAttacks());
+	CvAssert(canMoveOrAttackInto(targetPlot) || isOutOfAttacks());
 
 	CvPlot* pOldPlot = plot();
 	CvAssertMsg(pOldPlot, "pOldPlot needs to have a value");
@@ -6992,7 +6769,7 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_EMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
+	return targetPlot.isWater() && !targetPlot.IsAllowsWalkWater() && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -7041,7 +6818,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
+	return (!targetPlot.isWater() || targetPlot.IsAllowsWalkWater()) && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -7088,7 +6865,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot, bool bIsDestination /* =
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
+	return (!targetPlot.isWater() || targetPlot.IsAllowsWalkWater()) && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -17262,7 +17039,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 bool CvUnit::canCrossMountains() const
 {
 	VALIDATE_OBJECT
-	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountainsWithRoad() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
+	return (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -24862,7 +24639,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+									if(here && pLoopUnit->canEnterTerrain(*here))
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
@@ -25500,62 +25277,6 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 	return true;
 }
-
-#ifdef AUI_UNIT_DO_AITYPE_FLIP
-bool CvUnit::DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert, bool bForceOff)
-{
-	if (bRevert)
-	{
-		if (AI_getUnitAIType() != eUnitAIType && getUnitInfo().GetUnitAIType(eUnitAIType))
-		{
-			AI_setUnitAIType(eUnitAIType);
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Assigning new unit AI (%d) to %s, X: %d, Y: %d", (int)eUnitAIType, getName().GetCString(), getX(), getY());
-				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
-			return true;
-		}
-	}
-	else
-	{
-		if (AI_getUnitAIType() == eUnitAIType)
-		{
-			if (getUnitInfo().GetDefaultUnitAIType() != eUnitAIType)
-			{
-				AI_setUnitAIType(getUnitInfo().GetDefaultUnitAIType());
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Reverting to default unit AI for %s, X: %d, Y: %d", getName().GetCString(), getX(), getY());
-					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-				return true;
-			}
-			else if (bForceOff)
-			{
-				for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-				{
-					if (getUnitInfo().GetUnitAIType((UnitAITypes)iI) && eUnitAIType != (UnitAITypes)iI)
-					{
-						AI_setUnitAIType((UnitAITypes)iI);
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Assigning new unit AI (%d) to %s, X: %d, Y: %d", iI, getName().GetCString(), getX(), getY());
-							GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-						return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif // AUI_UNIT_DO_AITYPE_FLIP
 
 //	--------------------------------------------------------------------------------
 /// Can this Unit air sweep to eliminate interceptors?
@@ -26556,12 +26277,12 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 		// if it's a combat and the attacking unit can capture things or the city is an enemy city.
 		if(bCombat && (!(isNoCapture()) || !(pPlot->isEnemyCity(*this))))
 		{
-			bCanMoveIntoPlot = canMoveOrAttackInto(*pPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
+			bCanMoveIntoPlot = canMoveOrAttackInto(*pPlot);
 		}
 		else	VALIDATE_OBJECT
 
 		{
-			bCanMoveIntoPlot = canMoveInto(*pPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
+			bCanMoveIntoPlot = canMoveInto(*pPlot);
 		}
 	}
 	VALIDATE_OBJECT
@@ -26716,7 +26437,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			bRejectMove = true;
 		}
 
-		if(kNode.m_iTurns == 1 && !canMoveInto(*pDestPlot, MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))  // if we should end our turn there this turn, but can't move into that tile
+		if(kNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  // if we should end our turn there this turn, but can't move into that tile
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -26724,7 +26445,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
 			// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
 			const UnitHandle pDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-			if(!pDefender && !pDestPlot->isEnemyCity(*this) && canMoveInto(*pDestPlot, MOVEFLAG_ATTACK | MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
+			if(!pDefender && !pDestPlot->isEnemyCity(*this) && canMoveInto(*pDestPlot, MOVEFLAG_ATTACK))
 			{
 				// Turn on ability to move into enemy units in this case so we can capture civilians
 				iFlags |= MOVEFLAG_IGNORE_STACKING;
@@ -27665,115 +27386,6 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 	CvAssert(false);
 
 	return NULL;
-}
-
-//	--------------------------------------------------------------------------------
-#if !defined(MOD_BALANCE_CORE)
-// deprecated, don't use this
-int CvUnit::SearchRange(int iRange) const
-{
-	VALIDATE_OBJECT
-	if(iRange == 0)
-	{
-		return 0;
-	}
-
-	if(flatMovementCost() || (getDomainType() == DOMAIN_SEA))
-	{
-		return (iRange * baseMoves());
-	}
-	else
-	{
-		return ((iRange + 1) * (baseMoves() + 1));
-	}
-}
-#endif
-
-//	--------------------------------------------------------------------------------
-#if defined(MOD_AI_SECONDARY_WORKERS)
-bool CvUnit::PlotValid(CvPlot* pPlot, int iMoveFlags) const
-#else
-bool CvUnit::PlotValid(CvPlot* pPlot) const
-#endif
-{
-	VALIDATE_OBJECT
-	if(isNoRevealMap() && willRevealByMove(*pPlot))
-	{
-		return false;
-	}
-
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	if(!canEnterTerrain(*pPlot, iMoveFlags))
-#else
-	if(!canEnterTerrain(*pPlot))
-#endif
-	{
-		return false;
-	}
-
-	switch(getDomainType())
-	{
-	case DOMAIN_SEA:
-		if(pPlot->isWater() || canMoveAllTerrain())
-		{
-			return true;
-		}
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-		else
-		{
-			bool bCanEnter = pPlot->isFriendlyCityOrPassableImprovement(*this, true) && (MOD_GLOBAL_PASSABLE_FORTS_ANY || pPlot->isCoastalLand() || plot()->isLake());
-			if(bCanEnter)
-			{
-				return true;
-			}
-		}
-#else
-		else if(pPlot->isFriendlyCity(*this, true) && pPlot->isCoastalLand())
-		{
-			return true;
-		}
-#endif
-		break;
-
-	case DOMAIN_AIR:
-		CvAssert(false);
-		break;
-
-	case DOMAIN_LAND:
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-#if defined(MOD_AI_SECONDARY_WORKERS)
-		if((pPlot->getArea() == getArea() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)) || canMoveAllTerrain() || IsHoveringUnit() || pPlot->IsAllowsWalkWater())
-#else
-		if(pPlot->getArea() == getArea() || canMoveAllTerrain() || IsHoveringUnit() || pPlot->IsAllowsWalkWater())
-#endif
-#else
-#if defined(MOD_AI_SECONDARY_WORKERS)
-		if((pPlot->getArea() == getArea() || (bMoveFlags&MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)) || canMoveAllTerrain() || pPlot->IsAllowsWalkWater())
-#else
-		if(pPlot->getArea() == getArea() || canMoveAllTerrain() || pPlot->IsAllowsWalkWater())
-#endif
-#endif
-		{
-			return true;
-		}
-		
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-		if (canCrossIce() && pPlot->isIce()) {
-			return true;
-		}
-#endif
-		break;
-
-	case DOMAIN_IMMOBILE:
-		CvAssert(false);
-		break;
-
-	default:
-		CvAssert(false);
-		break;
-	}
-
-	return false;
 }
 
 // PRIVATE METHODS

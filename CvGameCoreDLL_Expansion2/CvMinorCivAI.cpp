@@ -6840,7 +6840,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 						{
 							iWater++;
 						}
-						if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+						if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 						{
 							iImpassable++;
 						}
@@ -7068,7 +7068,7 @@ void CvMinorCivAI::DoRebellion()
 				continue;
 
 			// Can't be impassable
-			if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+			if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 
 			// Can't be water

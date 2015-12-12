@@ -667,6 +667,7 @@ int CvLuaPlot::lCanHaveResource(lua_State* L)
 //bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential);
 int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 {
+	//this is a hack, Lua uses a TeamType and we use it as a PlayerType
 	return BasicLuaMethod(L, &CvPlot::canHaveImprovement);
 }
 //------------------------------------------------------------------------------

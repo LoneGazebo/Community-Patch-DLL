@@ -1895,9 +1895,10 @@ void CvCitySpecializationAI::LogSpecializationWeights()
 			pLog->Msg(strOutBuf);
 		}
 
+		const char* aNames[] = { "MILITARY_TRAINING", "EMERGENCY_UNITS", "MILITARY_NAVAL", "WONDER", "SPACESHIP" };
 		for(int iI = 0; iI < NUM_PRODUCTION_SPECIALIZATION_SUBTYPES; iI++)
 		{
-			strYieldString.Format("Production Specialization: %d", iI);
+			strYieldString.Format("Production Specialization: %s", aNames[iI]);
 			strWeightString.Format("%d", m_ProductionSubtypeWeights.GetWeight(iI));
 			strOutBuf = strBaseString + strYieldString + ", " + strWeightString;
 			pLog->Msg(strOutBuf);
@@ -1926,7 +1927,7 @@ void CvCitySpecializationAI::LogSpecializationAssignment(CvCity* pCity, CitySpec
 		strBaseString += strPlayerName + ", ";
 
 		strCityName = pCity->getName();
-		strSpecialization.Format("New Specialization Type: %d", (int)eType);
+		strSpecialization.Format("New Specialization Type: %d (%s)", eType, eType!=NO_CITY_SPECIALIZATION ? GC.getCitySpecializationInfo(eType)->GetType() : "none");
 
 		strOutBuf = strBaseString + strCityName + ", " + strSpecialization;
 		if(bWonderCity)
@@ -2017,7 +2018,7 @@ void CvCitySpecializationAI::LogNextSpecialization(CitySpecializationTypes eType
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += strPlayerName + ", ";
 
-		strTypeString.Format("Next Specialization: %d", (int)eType);
+		strTypeString.Format("Next Specialization: %d (%s)", eType, eType!=NO_CITY_SPECIALIZATION ? GC.getCitySpecializationInfo(eType)->GetType() : "none");
 
 		strOutBuf = strBaseString + strTypeString;
 		pLog->Msg(strOutBuf);

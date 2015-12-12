@@ -202,7 +202,7 @@ private:
 	int ComputeRowFertility(int iAreaID, int xMin, int xMax, int yMin, int yMax);
 	bool AddCivToRegion(int iPlayerIndex, CvStartRegion region, bool bRelaxFoodReq);
 	bool TooCloseToAnotherCiv(CvPlot* pPlot);
-	bool MeetsFoodRequirement(CvPlot* pPlot, TeamTypes eTeam, int iFoodRequirement);
+	bool MeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement);
 	int StartingPlotRange() const;
 
 	// Logging

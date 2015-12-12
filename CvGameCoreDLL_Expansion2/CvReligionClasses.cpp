@@ -7959,7 +7959,7 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 				if(pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson() && pkImprovementInfo->IsImprovementResourceTrade(eResource))
 				{				
 #endif
-				if(pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->getTeam()))
+				if(pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID()))
 				{
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 					iRtnValue += (pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI));
