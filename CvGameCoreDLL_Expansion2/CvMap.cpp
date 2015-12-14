@@ -1892,7 +1892,8 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(!pRandPlot->isAdjacentToLand())
 			{
-				pRandPlot->setPlotType(PLOT_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_LAND);
+				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
 				pRandPlot->setFeatureType(featureVolcano);
 				iNumNaturalWondersToAdd--;
 				featureVolcano = NO_FEATURE;	// Prevent this one from being placed again
@@ -1907,7 +1908,8 @@ void CvMap::DoPlaceNaturalWonders()
 			{
 				if(pRandPlot->area()->getNumTiles() == 2)
 				{
-					pRandPlot->setPlotType(PLOT_MOUNTAIN);
+					pRandPlot->setPlotType(PLOT_OCEAN);
+					pRandPlot->setTerrainType(TERRAIN_COAST);
 					pRandPlot->setFeatureType(featureReef);
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
@@ -1916,7 +1918,8 @@ void CvMap::DoPlaceNaturalWonders()
 						{
 							if(!(pAdjacentPlot->isWater()))
 							{
-								pAdjacentPlot->setPlotType(PLOT_MOUNTAIN);
+								pAdjacentPlot->setPlotType(PLOT_OCEAN);
+								pAdjacentPlot->setTerrainType(TERRAIN_COAST);
 								pAdjacentPlot->setFeatureType(featureReef);
 								break;
 							}
@@ -1955,11 +1958,12 @@ void CvMap::DoPlaceNaturalWonders()
 						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
 						if(pAdjacentPlot != NULL)
 						{
-							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
+							pAdjacentPlot->setPlotType(PLOT_LAND);
+							pAdjacentPlot->setTerrainType(TERRAIN_HILL);
 						}
 					}
-					pRandPlot->setPlotType(PLOT_MOUNTAIN);
+					pRandPlot->setPlotType(PLOT_LAND);
+					pRandPlot->setTerrainType(TERRAIN_PLAINS);
 					pRandPlot->setFeatureType(featureLake);
 					iNumNaturalWondersToAdd--;
 					featureLake = NO_FEATURE;	// Prevent this one from being placed again
@@ -1981,16 +1985,18 @@ void CvMap::DoPlaceNaturalWonders()
 					{
 						if(iI & 1)
 						{
-							pAdjacentPlot->setPlotType(PLOT_MOUNTAIN);
+							pAdjacentPlot->setPlotType(PLOT_LAND);
+							pAdjacentPlot->setTerrainType(TERRAIN_MOUNTAIN);
 						}
 						else
 						{
-							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
+							pAdjacentPlot->setPlotType(PLOT_LAND);
+							pAdjacentPlot->setTerrainType(TERRAIN_HILL);
 						}
 					}
 				}
-				pRandPlot->setPlotType(PLOT_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_LAND);
+				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
 				pRandPlot->setFeatureType(featureEverest);
 				iNumNaturalWondersToAdd--;
 				featureEverest = NO_FEATURE;	// Prevent this one from being placed again
@@ -2009,7 +2015,8 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureCrater != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_LAND);
+				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
 				pRandPlot->setFeatureType(featureCrater);
 				iNumNaturalWondersToAdd--;
 				featureCrater = NO_FEATURE;	// Prevent this one from being placed again
@@ -2020,7 +2027,8 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureFuji != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_LAND);
+				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
 				pRandPlot->setFeatureType(featureFuji);
 				iNumNaturalWondersToAdd--;
 				featureFuji = NO_FEATURE;	// Prevent this one from being placed again
@@ -2031,7 +2039,8 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureMesa != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_LAND);
+				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
 				pRandPlot->setFeatureType(featureMesa);
 				iNumNaturalWondersToAdd--;
 				featureMesa = NO_FEATURE;	// Prevent this one from being placed again
@@ -2050,9 +2059,6 @@ void CvMap::DefaultContinentStamper()
 	int iNumLargeContinents = 0;
 	int iLargeContinentsID[iNumContinentTypes] = {-1,-1,-1,-1};
 	int iLargeContinentsSize[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsArtStyle[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsX[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsY[iNumContinentTypes] = {0,0,0,0};
 
 	recalculateLandmasses();
 
@@ -2085,6 +2091,7 @@ void CvMap::DefaultContinentStamper()
 	}
 
 	// for each of these large continents give them unique art style (randomly)
+	int iLargeContinentsArtStyle[iNumContinentTypes] = {0,1,2,3};
 	shuffleArray(iLargeContinentsArtStyle, 4, GC.getGame().getMapRand());
 	for(int i=0; i < iNumContinentTypes; i++)
 	{
@@ -2097,6 +2104,8 @@ void CvMap::DefaultContinentStamper()
 			iNumLargeContinents++;
 	}
 
+	int iLargeContinentsX[iNumContinentTypes] = {0,0,0,0};
+	int iLargeContinentsY[iNumContinentTypes] = {0,0,0,0};
 	for(int i=0; i < iNumLargeContinents; i++)
 	{
 		CvLandmass* pLandmass = getLandmass(iLargeContinentsID[i]);

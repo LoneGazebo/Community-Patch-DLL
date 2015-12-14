@@ -117,8 +117,7 @@ public:
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
-		//reserved
-		MOVEFLAG_UNUSED_1						= 0x8000,
+		MOVEFLAG_APPROXIMATE_TARGET				= 0x8000, //don't need to reach the target exactly, a neighboring tile is good enough
 	};
 
 	DestructionNotification<UnitHandle>& getDestructionNotification();

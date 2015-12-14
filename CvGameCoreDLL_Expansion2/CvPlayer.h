@@ -1970,7 +1970,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
-	bool IsPlotTargetedForExplorer(const CvPlot* pPlot) const;
+	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -2062,7 +2062,7 @@ public:
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
 
-	CvCity* GetClosestCity(CvPlot& plot, int iSearchRadius);
+	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
 
 	int GetNumPuppetCities() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
@@ -2355,7 +2355,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetClosestCityMapDirty();
 	int GetCityDistance( const CvPlot* pPlot ) const;
-	CvCity* GetClosestCity( const CvPlot* pPlot ) const;
+	CvCity* GetClosestCity( const CvPlot* pPlot) const;
 #endif
 
 protected:

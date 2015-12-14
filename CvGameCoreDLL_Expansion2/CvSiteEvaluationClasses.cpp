@@ -228,14 +228,15 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 		m_iFlavorMultiplier[iI] = 0;
 	}
 
-	m_iFlavorMultiplier[SITE_EVALUATION_HAPPINESS] = 0;
-
 	// Find out if player has a desired next city specialization
-	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
 	CvCitySpecializationXMLEntry* pkCitySpecializationEntry = NULL;
+
+	//disable this, it leads to strange results
+	/*
+	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
 	if(eNextSpecialization != NO_CITY_SPECIALIZATION)
 		pkCitySpecializationEntry = GC.getCitySpecializationInfo(eNextSpecialization);
-
+	*/
 
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{

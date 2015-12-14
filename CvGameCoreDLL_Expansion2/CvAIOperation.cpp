@@ -8713,7 +8713,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	//check if the unit is engaged with the enemy ...
 	CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnit->plot()->GetPlotIndex() );
 	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
-	if (pZone && pZone->GetClosestCity()!=NULL && pZone->GetDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+	if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 		return false;
 
 	//don't take explorers

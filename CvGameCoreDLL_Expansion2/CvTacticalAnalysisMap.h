@@ -459,8 +459,8 @@ public:
 	{
 		m_eOwner = eOwner;
 	};
-	CvCity* GetClosestCity() const;
-	void SetClosestCity(CvCity* pCity);
+	CvCity* GetZoneCity() const;
+	void SetZoneCity(CvCity* pCity);
 	int GetRangeClosestEnemyUnit() const;
 	void SetRangeClosestEnemyUnit(int iRange);
 	inline int GetAreaID() const

@@ -25,6 +25,7 @@
 #include "CvPlot.h"
 #include "CvInfos.h"
 #include "CvPlotManager.h"
+#include "CvGameCoreUtils.h"
 
 // a simplified version of CvArea for use primarily with the continent generation system
 // one huge difference is that impassible terrain doesn't split a landmass like it would a CvArea
@@ -249,7 +250,12 @@ public:
 	{
 		return m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2);
 	}
-
+	CvPlot** getNeighborsShuffled(const CvPlot* pPlot)
+	{
+		memcpy(m_apShuffledNeighbors, m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2), 6*sizeof(CvPlot*));
+		shuffleArray(m_apShuffledNeighbors,6,GC.getGame().getJonRand());
+		return m_apShuffledNeighbors;
+	}
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
 	{
 		return m_pPlotNeighbors[ plotNum(iX,iY)*(NUM_DIRECTION_TYPES+2)+(int)eDir ];
@@ -338,7 +344,8 @@ protected:
 
 	CvPlot* m_pMapPlots;
 #if defined(MOD_BALANCE_CORE)
-	CvPlot** m_pPlotNeighbors;
+	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
+	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
 #endif
 
 	short* m_pYields;

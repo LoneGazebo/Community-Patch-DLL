@@ -6182,11 +6182,6 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 		return NULL;
 	}
 
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	AI_PERF_FORMAT("AI-perf-tact.csv", ("ChooseMissionaryTargetCity: %s %d, Turn %03d, %s", pUnit->getName().c_str(), pUnit->GetID(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#pragma warning ( pop )
-
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -6218,78 +6213,44 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 {
 	CvCity* pCity = ChooseMissionaryTargetCity(pUnit);
-	int iBestNumTurns = MAX_INT;
-	int iTurns;
 	int iBestDistance = MAX_INT;
-	int iDistance;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
-	{
 		return NULL;
-	}
 
-	// Our city with no civilian units?  If so go right in there
-	if(pCity->getOwner() == m_pPlayer->GetID())
+	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
 	{
-		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
-		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
+		// Find adjacent plot
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
-			if(iTurns < MAX_INT)
+			CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL && pLoopPlot->isValidMovePlot(pUnit->getOwner()) )
 			{
-				*piTurns = iTurns;
-				return pCity->plot();
-			}
-		}
-	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	AI_PERF_FORMAT("AI-perf-tact.csv", ("ChooseMissionaryTargetPlot: %s %d; %s, Turn %03d, %s", pUnit->getName().c_str(), pUnit->GetID(), pCity->getName().c_str(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#pragma warning ( pop )
-
-	// Find adjacent plot with no units (that aren't our own)
-	CvPlot* pLoopPlot;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-
-		if(pLoopPlot != NULL)
-		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-
-			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
-			{
-				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
-				if(iTurns < MAX_INT)
+				CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+				if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
 				{
-					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+					continue;
+				}
 
-					// Consider it to be twice as far if a water plot (those are dangerous!)
-					if(pLoopPlot->isWater())
-					{
-						iDistance *= 2;
-					}
+				if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
+				{
+					int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-					if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
+					if(iDistance < iBestDistance)
 					{
-						iBestNumTurns = iTurns;
 						iBestDistance = iDistance;
 						pBestTarget = pLoopPlot;
 					}
 				}
 			}
 		}
+
+		return pBestTarget;
 	}
 
-	if(piTurns)
-		*piTurns = iBestNumTurns;
-	return pBestTarget;
+	return NULL;
 }
 
 /// Find the city where an inquisitor should next remove heresy
@@ -6303,11 +6264,6 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 	{
 		return NULL;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	AI_PERF_FORMAT("AI-perf-tact.csv", ("ChooseInquisitorTargetCity: %s %d, Turn %03d, %s", pUnit->getName().c_str(), pUnit->GetID(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#pragma warning ( pop )
 
 	// Loop through each of my cities
 	int iLoop;
@@ -6325,6 +6281,19 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 		}
 	}
 
+	//nobody to burn at the stake? find a city to garrison him in
+	if (pBestCity==NULL)
+	{
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			if(pLoopCity && pLoopCity->plot()->getNumFriendlyUnitsOfType(pUnit.pointer())==0)
+			{
+				pBestCity = pLoopCity;
+				break;
+			}
+		}
+	}
+
 	return pBestCity;
 }
 
@@ -6332,78 +6301,44 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 {
 	CvCity* pCity = ChooseInquisitorTargetCity(pUnit);
-	int iBestNumTurns = MAX_INT;
-	int iTurns;
 	int iBestDistance = MAX_INT;
-	int iDistance;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
-	{
 		return NULL;
-	}
 
-	// Our city with no civilian units?  If so go right in there
-	if(pCity->getOwner() == m_pPlayer->GetID())
+	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
 	{
-		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
-		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
+		// Find adjacent plot
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
-			if(iTurns < MAX_INT)
+			CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL && pLoopPlot->isValidMovePlot(pUnit->getOwner()))
 			{
-				*piTurns = iTurns;
-				return pCity->plot();
-			}
-		}
-	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	AI_PERF_FORMAT("AI-perf-tact.csv", ("ChooseInquisitorTargetPlot: %s %d; %s, Turn %03d, %s", pUnit->getName().c_str(), pUnit->GetID(), pCity->getName().c_str(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#pragma warning ( pop )
-
-	// Find adjacent plot with no units (that aren't our own)
-	CvPlot* pLoopPlot;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-
-		if(pLoopPlot != NULL)
-		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-
-			if(pUnit->CanRemoveHeresy(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
-			{
-				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
-				if(iTurns < MAX_INT)
+				CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+				if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
 				{
-					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+					continue;
+				}
 
-					// Consider it to be twice as far if a water plot (those are dangerous!)
-					if(pLoopPlot->isWater())
-					{
-						iDistance *= 2;
-					}
+				if(pUnit->CanRemoveHeresy(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
+				{
+					int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-					if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
+					if(iDistance < iBestDistance)
 					{
-						iBestNumTurns = iTurns;
 						iBestDistance = iDistance;
 						pBestTarget = pLoopPlot;
 					}
 				}
 			}
 		}
+
+		return pBestTarget;
 	}
 
-	if(piTurns)
-		*piTurns = iBestNumTurns;
-	return pBestTarget;
+	return NULL;
 }
 
 /// If we were going to use a prophet to convert a city, which one would it be?
@@ -6559,78 +6494,44 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 {
 	CvCity* pCity = ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/);
-	int iBestNumTurns = MAX_INT;
-	int iTurns;
 	int iBestDistance = MAX_INT;
-	int iDistance;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
-	{
 		return NULL;
-	}
 
-	// Our city with no civilian units?  If so go right in there
-	if(pCity->getOwner() == m_pPlayer->GetID())
+	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
 	{
-		CvUnit* pFirstUnit = pCity->plot()->getUnitByIndex(0);
-		if(!pFirstUnit || pFirstUnit->IsCombatUnit())
+		// Find adjacent plot
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			iTurns = pUnit->TurnsToReachTarget(pCity->plot(), true /* bReusePaths */);
-			if(iTurns < MAX_INT)
+			CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL && pLoopPlot->isValidMovePlot(pUnit->getOwner()))
 			{
-				*piTurns = iTurns;
-				return pCity->plot();
-			}
-		}
-	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	AI_PERF_FORMAT("AI-perf-tact.csv", ("ChooseProphetTargetPlot: %s %d; %s, Turn %03d, %s", pUnit->getName().c_str(), pUnit->GetID(), pCity->getName().c_str(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#pragma warning ( pop )
-
-	// Find adjacent plot with no units (that aren't our own)
-	CvPlot* pLoopPlot;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-
-		if(pLoopPlot != NULL)
-		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-
-			if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0 )
-			{
-				iTurns = pUnit->TurnsToReachTarget(pLoopPlot, false, false, iBestNumTurns);
-				if(iTurns < MAX_INT)
+				CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+				if(pFirstUnit && pFirstUnit->getOwner() != m_pPlayer->GetID())
 				{
-					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+					continue;
+				}
 
-					// Consider it to be twice as far if a water plot (those are dangerous!)
-					if(pLoopPlot->isWater())
-					{
-						iDistance *= 2;
-					}
+				if(pUnit->CanSpreadReligion(pLoopPlot) && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())==0)
+				{
+					int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-					if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
+					if(iDistance < iBestDistance)
 					{
-						iBestNumTurns = iTurns;
 						iBestDistance = iDistance;
 						pBestTarget = pLoopPlot;
 					}
 				}
 			}
 		}
+
+		return pBestTarget;
 	}
 
-	if(piTurns)
-		*piTurns = iBestNumTurns;
-	return pBestTarget;
+	return NULL;
 }
 
 /// What religion should this AI civ be spreading?
@@ -7801,28 +7702,27 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
 			// Also skip if closest city of ours is not within 3
-			CvCity* pClosestCity = m_pPlayer->GetClosestCity(*pPlot, 3);
-			if(pClosestCity)
+			if (m_pPlayer->GetCityDistance(pPlot)>3)
+				continue;
+
+			// Score it
+			int iScoreAtPlot = ScoreBeliefAtPlot(pEntry, pPlot);
+
+			// Apply multiplier based on whether or not being worked, within culture borders, or not
+			if(pPlot->isBeingWorked())
 			{
-				// Score it
-				int iScoreAtPlot = ScoreBeliefAtPlot(pEntry, pPlot);
-
-				// Apply multiplier based on whether or not being worked, within culture borders, or not
-				if(pPlot->isBeingWorked())
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER();
-				}
-				else if(ePlotOwner != NO_PLAYER)
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER();
-				}
-				else
-				{
-					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER();
-				}
-
-				iRtnValue += iScoreAtPlot;
+				iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER();
 			}
+			else if(ePlotOwner != NO_PLAYER)
+			{
+				iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER();
+			}
+			else
+			{
+				iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER();
+			}
+
+			iRtnValue += iScoreAtPlot;
 		}
 	}
 

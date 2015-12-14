@@ -2377,6 +2377,9 @@ void CvEconomicAI::DoReconState()
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
 
+	m_eReconState = RECON_STATE_NEUTRAL;
+	m_eNavalReconState = RECON_STATE_NEUTRAL;
+
 	if(GetPlayer()->isMinorCiv())
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
@@ -2423,7 +2426,6 @@ void CvEconomicAI::DoReconState()
 		{
 			m_eReconState = RECON_STATE_NEEDED;
 			m_eNavalReconState = RECON_STATE_NEEDED;
-			return;
 		}
 	}
 
@@ -2438,7 +2440,7 @@ void CvEconomicAI::DoReconState()
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	//there is a slight hysteresis here to avoid unit AI flipping back and forth
-	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
+	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)
 	{
 		m_eReconState = RECON_STATE_NEEDED;
 
@@ -2518,7 +2520,7 @@ void CvEconomicAI::DoReconState()
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
 
 		//there is a slight hysteresis here to avoid unit AI flipping back and forth
-		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
+		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)
 		{
 			m_eNavalReconState = RECON_STATE_NEEDED;
 
@@ -3087,7 +3089,8 @@ void CvEconomicAI::UpdatePlots()
 		if(pPlot == NULL)
 			continue;
 
-		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+		//allow AI to see the next tile, a human can guess as well
+		if(!pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
 			continue;
 
 		if(pPlot->isWater())
@@ -3107,8 +3110,13 @@ void CvEconomicAI::UpdatePlots()
 
 				if(iScore <= 0)
 					continue;
+
 				// add an entry for this plot
 				m_vPlotsToExploreSea.push_back( SPlotWithScore(pPlot, iScore) );
+
+				// close coast is also interesting for embarked scouting
+				if (pPlot->isShallowWater() && m_pPlayer->GetCityDistance(pPlot)<15 )
+					m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 			}
 		}
 		else
@@ -3126,6 +3134,7 @@ void CvEconomicAI::UpdatePlots()
 
 			if(iScore <= 0)
 				continue;
+
 			// add an entry for this plot
 			m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 		}

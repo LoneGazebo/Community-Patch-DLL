@@ -941,9 +941,8 @@ int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-	const bool bCheckImprovement = lua_toboolean(L, 3);
 
-	const bool bResult = pkPlot->isFriendlyCityOrPassableImprovement(*pkUnit, bCheckImprovement);
+	const bool bResult = pkPlot->isCityOrPassableImprovement(pkUnit->getOwner(),true);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

@@ -1065,9 +1065,15 @@ bool CvWorldBuilderMapLoader::InitMap()
 		if(ePlotHeight != CvWorldBuilderMap::PlotMapData::FLAT_TERRAIN)
 		{
 			if(ePlotHeight == CvWorldBuilderMap::PlotMapData::HILLS)
-				pkPlot->setPlotType(PLOT_HILLS);
+			{
+				pkPlot->setPlotType(PLOT_LAND);
+				pkPlot->setTerrainType(TERRAIN_HILL);
+			}
 			else
-				pkPlot->setPlotType(PLOT_MOUNTAIN);
+			{
+				pkPlot->setPlotType(PLOT_LAND);
+				pkPlot->setTerrainType(TERRAIN_MOUNTAIN);
+			}
 		}
 
 		if(kPlotData.GetResourceType() != CvWorldBuilderMap::PlotMapData::InvalidResource)
@@ -1338,14 +1344,12 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 
 		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
 
-		PlotTypes ePlotType = pkPlot->getPlotType();
-		if(ePlotType == PLOT_HILLS)
+		if( pkPlot->isHills() )
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::HILLS);
-		else if(ePlotType == PLOT_MOUNTAIN)
+		else if( pkPlot->isMountain() )
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::MOUNTAINS);
 		else
-			kPlotData.SetPlotHeight(CvWorldBuilderMap::
-			                        PlotMapData::FLAT_TERRAIN);
+			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::FLAT_TERRAIN);
 
 		ResourceTypes eResourceType = pkPlot->getResourceType();
 		if(eResourceType == NO_RESOURCE)

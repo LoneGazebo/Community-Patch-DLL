@@ -20449,7 +20449,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
 
-	CvCity* pMajorCity = GetClosestCity(*pMinorPlot, MAX_INT);
+	CvCity* pMajorCity = GetClosestCity(pMinorPlot);
 
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
@@ -30067,7 +30067,7 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
+bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
 {
 	if (!pPlot)
 		return false;
@@ -30076,6 +30076,9 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
 	int iLoop = 0;
 	for(const CvUnit* pUnit = firstUnit(&iLoop); pUnit; pUnit = nextUnit(&iLoop))
 	{
+		if (pUnit==pIgnoreUnit)
+			continue;
+
 		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_EXPLORE) )
 		{
 			CvPlot* pMissionPlot = pUnit->GetMissionAIPlot();
@@ -35515,16 +35518,35 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
-CvCity* CvPlayer::GetClosestCity(CvPlot& plot, int iSearchRadius)
+CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea )
 {
+	if (!pPlot)
+		return NULL;
+
 	CvCity* pClosestCity = NULL;
-	CvCity* pLoopCity;
 	int iBestDistance = INT_MAX;
 
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		int iDistance = plotDistance(plot.getX(), plot.getY(), pLoopCity->getX(), pLoopCity->getY());
+		//need to check area
+		if (bSameArea)
+		{
+			if (pPlot->isWater())
+			{
+				if (!pLoopCity->isCoastal())
+					continue;
+				if (pPlot->area()!=pLoopCity->waterArea())
+					continue;
+			}
+			else
+			{
+				if (pPlot->getArea()!=pLoopCity->getArea())
+					continue;
+			}
+		}
+
+		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 		if(iDistance < iBestDistance && iDistance <= iSearchRadius)
 		{
 			pClosestCity = pLoopCity;
@@ -35981,8 +36003,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		iBestFoundValue -= (iTurnsWaiting * 200);
 	}
 
-	CvPlot* pBestFoundPlot = NULL;
-
 	//prefer settling close in the beginning
 	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
 
@@ -36157,12 +36177,15 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	if (vSettlePlots.empty())
 		return 0;
 
-	//order by decreasing score
+	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	//delete all but the best
+	SPlotWithScore ref = vSettlePlots.back();
+	ref.score = int(ref.score * 0.8f);
+	std::vector<SPlotWithScore>::iterator cutoff = std::upper_bound( vSettlePlots.begin(), vSettlePlots.end(), ref );
+	//reverse so best comes first
+	vSettlePlots.erase( vSettlePlots.begin(), cutoff );
 	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	//delete all but the best 20%
-	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
 
 	//AI cheating here ... check if a settler would likely be captured
 	std::vector<CvPlot*> vBadPlots;
@@ -36193,45 +36216,64 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		}
 	}
 
+	//by default we return the best plot whether it's safe or not
+	//however, if we find a safe plot which is only marginally worse, return that one
+	CvPlot* pBestFoundPlot = NULL;
+	bool pBestPlotSafe = false;
+
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
-		//check if it's too close to an enemy
-		bool isNoGood = false;
-		for (size_t j=0; j<vBadPlots.size(); j++)
+		bool isDangerous = false;
+
+		//if it's too far from our existing cities, it's dangerous
+		int iDistance = GetCityDistance(pUnit->plot());
+		if (iDistance>12)
+			isDangerous = true;
+		else
 		{
-			if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+			//check if it's too close to an enemy
+			for (size_t j=0; j<vBadPlots.size(); j++)
 			{
-				isNoGood = true;
-				break;
+				if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+				{
+					isDangerous = true;
+					break;
+				}
 			}
 		}
 
-		if (isNoGood)
-			continue;
-
-		//find our closest city, which should become our muster plot
-		CvCity* pClosestCity = GetClosestCity(pUnit->plot());
-		if (pClosestCity)
+		//could be close but take many turns to get there ...
+		if (!isDangerous)
 		{
-			CvPlot* pMusterPlot = pClosestCity->plot();
+			CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
-			//if the muster plot is more than 12 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,12);
+			//if the muster plot is more than 10 turns away it's unsafe by definition
+			SPathFinderUserData data(pUnit,0,10);
 			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
-				continue;
+				isDangerous = true;
 		}
 
-		//hooray! we found one - now see how it compares to the overall best plot
-		if (vSettlePlots[i].score > 0.8f*vSettlePlots[0].score)
+		if (pBestFoundPlot==NULL)
+		{
+			//first iteration
 			pBestFoundPlot = vSettlePlots[i].pPlot;
+			pBestPlotSafe = !isDangerous;
+		}
 		else
-			pBestFoundPlot = vSettlePlots[0].pPlot;
-
-		break;
+		{
+			//later iteration
+			if (!isDangerous)
+			{
+				//hooray! we found an alternative
+				pBestFoundPlot = vSettlePlots[i].pPlot;
+				pBestPlotSafe = true;
+				break;
+			}
+		}
 	}
 
-	//note: we don't have to check if the overall best plot is actually reachable (via embark/ocean embark) as otherwise the tile would not be revealed
+	bIsSafe = pBestPlotSafe;
 	return pBestFoundPlot;
 }
 

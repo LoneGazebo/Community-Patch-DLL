@@ -4234,7 +4234,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Sea units - we can exclude non-water plots right away
 	if (eDomain==DOMAIN_SEA)
-		if (!enterPlot.isWater() && !enterPlot.isFriendlyCityOrPassableImprovement(*this, true))
+		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), false))
 			return false;
 
 	// Land units may need to embark - can we do it? are we allowed to?
@@ -4242,7 +4242,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if (IsHoveringUnit())
 		{
 			//hovercraft embark in deep water
-			if(enterPlot.isWater() && enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
+			if(enterPlot.isDeepWater() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
 				return false;
 		}
 		else
@@ -5212,20 +5212,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 						if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
 						{
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-#if defined(MOD_BUGFIX_NAVAL_NEAREST_WATER)
-							bool bCanEnter = getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCityOrPassableImprovement(*this, true) && (MOD_GLOBAL_PASSABLE_FORTS_ANY || pLoopPlot->isCoastalLand())) || (pLoopPlot->isWater() && !pLoopPlot->isLake());
-#else
-							bool bCanEnter = getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCityOrPassableImprovement(*this, true) && (MOD_GLOBAL_PASSABLE_FORTS_ANY || pLoopPlot->isCoastalLand())) || pLoopPlot->isWater());
-#endif
-							if(bCanEnter)
-#else
-#if defined(MOD_BUGFIX_NAVAL_NEAREST_WATER)
 							if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || (pLoopPlot->isWater() && !pLoopPlot->isLake()))
-#else
-							if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || pLoopPlot->isWater())
-#endif
-#endif
 							{
 								if(pLoopPlot->isRevealed(getTeam()))
 								{
@@ -5235,18 +5222,6 @@ bool CvUnit::jumpToNearestValidPlot()
 									{
 										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
 									}
-
-#if defined(MOD_BUGFIX_NAVAL_NEAREST_WATER)
-									if (!MOD_BUGFIX_NAVAL_NEAREST_WATER) {
-										// This is crazy!  Why would we always want to send naval units to the nearest city and not the nearest water plot???
-#endif
-										if(pLoopPlot->area() != area())
-										{
-											iValue *= 3;
-										}
-#if defined(MOD_BUGFIX_NAVAL_NEAREST_WATER)
-									}
-#endif
 
 									if(iValue < iBestValue)
 									{

@@ -277,9 +277,8 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-	bool isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool bCheckImprovement) const;
-#endif
+	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const;
+	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -434,7 +433,7 @@ public:
 	};
 	bool isHills()          const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_HILLS;
+		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isIce()            const
@@ -464,12 +463,13 @@ public:
 #endif
 	bool isOpenGround()     const
 	{
-		if((PlotTypes)m_ePlotType == PLOT_HILLS || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN || m_bRoughFeature) return false;
+		if( isHills() || isMountain() || m_bRoughFeature) 
+			return false;
 		return true;
 	}
 	bool isMountain()       const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
+		return (TerrainTypes)m_eTerrainType == TERRAIN_MOUNTAIN || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
 	};
 	bool isRiver()          const
 	{
@@ -489,9 +489,9 @@ public:
 	}
 	FeatureTypes getFeatureType() const
 	{
-		char f = m_eFeatureType;
-		return (FeatureTypes)f;
+		return (FeatureTypes)m_eFeatureType.get();
 	}
+
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
 	{
@@ -874,10 +874,10 @@ public:
 	bool IsFeatureRiver() const;
 	bool HasImprovement(ImprovementTypes iImprovementType) const;
 	bool HasPlotType(PlotTypes iPlotType) const;
-	LUAAPIINLINE(IsPlotMountain, HasPlotType, PLOT_MOUNTAIN)
-	LUAAPIINLINE(IsPlotMountains, HasPlotType, PLOT_MOUNTAIN)
-	LUAAPIINLINE(IsPlotHill, HasPlotType, PLOT_HILLS)
-	LUAAPIINLINE(IsPlotHills, HasPlotType, PLOT_HILLS)
+	LUAAPIINLINE(IsPlotMountain, HasTerrain, TERRAIN_MOUNTAIN)
+	LUAAPIINLINE(IsPlotMountains, HasTerrain, TERRAIN_MOUNTAIN)
+	LUAAPIINLINE(IsPlotHill, HasTerrain, TERRAIN_HILL)
+	LUAAPIINLINE(IsPlotHills, HasTerrain, TERRAIN_HILL)
 	LUAAPIINLINE(IsPlotLand, HasPlotType, PLOT_LAND)
 	LUAAPIINLINE(IsPlotOcean, HasPlotType, PLOT_OCEAN)
 	bool HasResource(ResourceTypes iResourceType) const;
@@ -922,6 +922,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	CvUnit* GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) const;
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
 
@@ -1128,6 +1129,10 @@ struct SPlotWithScore
     bool operator<(const SPlotWithScore& other) const
     {
         return score < other.score;
+    }
+    bool operator<(const int ref) const
+    {
+        return score < ref;
     }
 
 	CvPlot* pPlot;

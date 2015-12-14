@@ -113,7 +113,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 }
 
 /// Retrieve city controlling this zone
-CvCity* CvTacticalDominanceZone::GetClosestCity() const
+CvCity* CvTacticalDominanceZone::GetZoneCity() const
 {
 	if(m_eOwner != NO_PLAYER)
 	{
@@ -124,7 +124,7 @@ CvCity* CvTacticalDominanceZone::GetClosestCity() const
 }
 
 /// Set city controlling this zone
-void CvTacticalDominanceZone::SetClosestCity(CvCity* pCity)
+void CvTacticalDominanceZone::SetZoneCity(CvCity* pCity)
 {
 	if(pCity != NULL)
 	{
@@ -858,7 +858,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 	{
 		m_TempZone.SetTerritoryType(TACTICAL_TERRITORY_NEUTRAL);
 	}
-	m_TempZone.SetClosestCity(NULL);
+	m_TempZone.SetZoneCity(NULL);
 	if(m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_ENEMY ||
 	        m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL ||
 	        m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
@@ -879,7 +879,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 
 		if(pBestCity != NULL)
 		{
-			m_TempZone.SetClosestCity(pBestCity);
+			m_TempZone.SetZoneCity(pBestCity);
 		}
 	}
 
@@ -1020,7 +1020,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 		if(pZone->GetTerritoryType() != TACTICAL_TERRITORY_NO_OWNER)
 		{
-			pClosestCity = pZone->GetClosestCity();
+			pClosestCity = pZone->GetZoneCity();
 			if(pClosestCity)
 			{
 				// Start with strength of the city itself
@@ -1285,11 +1285,11 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		}
 		else
 		{
-			pClosestCity = pZone->GetClosestCity();
+			pClosestCity = pZone->GetZoneCity();
 
 			if(pClosestCity)
 			{
-				iBaseValue += (1 + (int)sqrt((float)pZone->GetClosestCity()->getPopulation()));
+				iBaseValue += (1 + (int)sqrt((float)pClosestCity->getPopulation()));
 
 				if(pClosestCity->isCapital() && !pClosestCity->GetPlayer()->isMinorCiv())
 				{
@@ -1301,7 +1301,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 					iBaseValue *= 20;
 				}
 
-				else if (pZone->GetClosestCity()->isVisible(m_pPlayer->getTeam(), false))
+				else if (pClosestCity->isVisible(m_pPlayer->getTeam(), false))
 				{
 					iBaseValue *= 4;
 
@@ -1450,10 +1450,10 @@ void CvTacticalAnalysisMap::LogZones()
 			{
 				szLogMsg += ", Temporary Zone";
 			}
-			else if(pZone->GetClosestCity())
+			else if(pZone->GetZoneCity())
 			{
-				szLogMsg += ", " + pZone->GetClosestCity()->getName();
-				if (m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pZone->GetClosestCity()))
+				szLogMsg += ", " + pZone->GetZoneCity()->getName();
+				if (m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pZone->GetZoneCity()))
 				{
 					szLogMsg += " (Temp)";
 				}
@@ -1495,7 +1495,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::FindExistingZone(CvPlot* pPlot)
 		if(pZone->GetTerritoryType() == m_TempZone.GetTerritoryType() &&
 		        pZone->GetOwner() == m_TempZone.GetOwner() &&
 		        pZone->GetAreaID() == m_TempZone.GetAreaID() &&
-		        pZone->GetClosestCity() == m_TempZone.GetClosestCity())
+		        pZone->GetZoneCity() == m_TempZone.GetZoneCity())
 		{
 			return pZone;
 		}
@@ -1519,7 +1519,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(CvCity* pCity, boo
 	for(int iI = 0; iI < GetNumZones(); iI++)
 	{
 		pZone = GetZone(iI);
-		if(pZone->GetClosestCity() == pCity && pZone->IsWater() == bWater)
+		if(pZone->GetZoneCity() == pCity && pZone->IsWater() == bWater)
 		{
 			return pZone;
 		}
@@ -1649,7 +1649,7 @@ void CvTacticalAnalysisMap::Dump()
 
 				int iZoneFriendlyStrength = pZone ? pZone->GetFriendlyRangedStrength() + pZone->GetFriendlyStrength() : -1;
 				int iZoneEnemyStrength = pZone ? pZone->GetEnemyRangedStrength() + pZone->GetEnemyStrength() : -1;
-				CvCity* pCity = pZone ? pZone->GetClosestCity() : NULL;
+				CvCity* pCity = pZone ? pZone->GetZoneCity() : NULL;
 
 				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s\n", 
 					GC.getMap().plotByIndex(i)->getX(), GC.getMap().plotByIndex(i)->getY(),

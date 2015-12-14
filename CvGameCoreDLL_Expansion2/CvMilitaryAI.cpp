@@ -3141,6 +3141,9 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 #endif
 CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy) const
 {
+	if (!pTarget)
+		return NULL;
+
 	CvPlot *pCoastalPlot = NULL;
 	UnitHandle pInitialUnit;
 	int iBestDistance = MAX_INT;
@@ -3152,32 +3155,26 @@ CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *
 	}
 
 	// Find a coastal water tile adjacent to enemy city
-	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+	if (pInitialUnit && pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 	{
-		CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
-		if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 		{
-			// Check for path if we have a unit, otherwise don't worry about it
-			if(pInitialUnit)
+			CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
+			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
 			{
-				if (pInitialUnit->TurnsToReachTarget(pAdjacentPlot, true /*bIgnoreUnits*/, true /*bIgnoreStacking*/) < MAX_INT)
+				int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
+				if (iDistance < iBestDistance)
 				{
-					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
-					if (iDistance < iBestDistance)
-					{
-						iBestDistance = iDistance;
-						pCoastalPlot = pAdjacentPlot;
-					}
+					iBestDistance = iDistance;
+					pCoastalPlot = pAdjacentPlot;
 				}
 			}
-			else
-			{
-				return pAdjacentPlot;
-			}
 		}
+
+		return pCoastalPlot;
 	}
 
-	return pCoastalPlot;
+	return NULL;
 }
 
 // PROVIDE MILITARY DATA TO OTHER SUBSYSTEMS

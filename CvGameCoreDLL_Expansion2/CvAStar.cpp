@@ -48,7 +48,23 @@
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
+//for debugging
 unsigned int saiRuntimeHistogram[100] = {0};
+
+struct SLogNode
+{
+	enum eType
+	{
+		BEST = 0,
+		VALID = 1,
+		INVALID = 2
+	};
+	SLogNode( eType _type, int _round, int _x, int _y ) : type(_type), x(_x), y(_y), round(_round) {}
+	int x, y, round;
+	eType type; 
+};
+
+std::vector<SLogNode> svPathLog;
 
 //	--------------------------------------------------------------------------------
 /// Constructor
@@ -83,7 +99,7 @@ CvAStar::CvAStar()
 #endif
 
 	//this matches the default setting for SPathFinderUserData
-	SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+	SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 }
 
 //	--------------------------------------------------------------------------------
@@ -140,6 +156,8 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 
 	m_iTestedNodes = 0;
 	m_iProcessedNodes = 0;
+	m_iRounds = 0;
+
 	m_iBasicPlotCost = 1;
 
 	m_ppaaNodes = reinterpret_cast<CvAStarNode**>(FMALLOCALIGNED(sizeof(CvAStarNode*)*m_iColumns, 64, c_eCiv5GameplayDLL, 0));
@@ -207,6 +225,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 
 	m_iProcessedNodes = 0;
 	m_iTestedNodes = 0;
+	m_iRounds = 0;
+	svPathLog.clear();
 
 	if (udInitializeFunc)
 		udInitializeFunc(m_sData, this);
@@ -297,6 +317,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	bool bSuccess = false;
 	while(1)
 	{
+		m_iRounds++;
 		m_pBest = GetBest();
 		
 		if (m_pBest==NULL)
@@ -322,31 +343,27 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		int iNumPlots = GC.getMap().numPlots();
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Path type %d %s, tested %d nodes, processed %d nodes (%d%% of map) in %.2f ms (path length %d)\n", 
-			m_sData.ePathType, bSuccess?"found":"not found", m_iTestedNodes, m_iProcessedNodes, (100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
+		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms (path length %d)\n", 
+			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, (100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
-		if (false) //bSuccess
+		if (MOD_BALANCE_CORE_DEBUGGING)
 		{
-			CvString fname = CvString::format( "PathfindingTurn%03d.txt", GC.getGame().getGameTurn() );
+			CvString fname = CvString::format( "PathfindingRun%06d.txt", m_iCurrentGenerationID );
 			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
 			if (pLog) 
 			{
 				if (m_sData.iUnitID>0)
 				{
 					CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
-					pLog->Msg( CvString::format("%s for %s (%d) from %d,%d to %d,%d for player %d\n", 
+					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d\n", 
 						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner() ).c_str() );
 				}
 
-				gStackWalker.SetLog(pLog);
-				gStackWalker.ShowCallstack();
+				//gStackWalker.SetLog(pLog);
+				//gStackWalker.ShowCallstack();
 
-				CvAStarNode* pCurrent = m_pBest;
-				while (pCurrent!=NULL)
-				{
-					pLog->Msg( CvString::format("%d,%d cost %d,%d\n", pCurrent->m_iX,pCurrent->m_iY,pCurrent->m_iKnownCost,pCurrent->m_iHeuristicCost ).c_str() );
-					pCurrent = pCurrent->m_pParent;
-				}
+				for (size_t i=0; i<svPathLog.size(); i++)
+					pLog->Msg( CvString::format("%d,%d,%d,%d\n", svPathLog[i].round,svPathLog[i].type,svPathLog[i].x,svPathLog[i].y ).c_str() );
 			}
 		}
 	}
@@ -426,17 +443,34 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_BALANCE_CORE_DEBUGGING)
+		svPathLog.push_back( SLogNode( SLogNode::BEST, m_iRounds, node->m_iX, node->m_iY ) );
+#endif
+
 	int count = 6;
 	for(int i = 0; i < count; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
-		m_iTestedNodes++;
-
+		bool bGood = false;
+		if (!check)
+			continue;
+	
 		//important things happening here
- 		if(check && udFunc(udValid, node, check, 0, m_sData))
+		m_iTestedNodes++;
+ 		if(udFunc(udValid, node, check, 0, m_sData))
 		{
-			LinkChild(node, check);
+			if (LinkChild(node, check))
+			{
+				m_iProcessedNodes++;
+				bGood = true;
+			}
 		}
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+		if (MOD_BALANCE_CORE_DEBUGGING)
+			svPathLog.push_back( SLogNode( bGood ? SLogNode::VALID : SLogNode::INVALID, m_iRounds, check->m_iX, check->m_iY ) );
+#endif
 	}
 
 	if(udNumExtraChildrenFunc && udGetExtraChildFunc)
@@ -463,32 +497,31 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Link in a child
-void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
+bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
 	//we would have to start a new turn to continue
 	if(node->m_iMoves == 0)
 		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
-			return;
+			return false;
 
 	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
-	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
-		return; //don't even link it up, it's a dead end
+
+	//don't even link it up, it's a dead end or an invalid cost function
+	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT || iKnownCost < 0)
+		return false; 
 
 	//calculate the cumulative cost up to here
 	iKnownCost += node->m_iKnownCost;
 
 	//check termination because of total cost / normalized length
 	if (m_sData.iMaxNormalizedDistance!= INT_MAX && iKnownCost > m_sData.iMaxNormalizedDistance*m_iBasicPlotCost)
-		return;
+		return false;
 
 	//final check. there may have been a previous path here.
 	//in that case we want to keep the one with the lower total cost, which should correspond to the shorter one
 	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost )
-		return;
-
-	//some bookkeeping
-	m_iProcessedNodes++;
+		return false;
 
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
@@ -543,6 +576,8 @@ void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 		node->m_apChildren.push_back(check);
 	}
+	
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -941,18 +976,13 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 }
 
 //	--------------------------------------------------------------------------------
-int PathDest(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
+int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
-	if(iToX == finder->GetDestX() && iToY == finder->GetDestY())
-	{
-		return true;
-	}
+	if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET) )
+		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 2;
 	else
-	{
-		return false;
-	}
+		return iToX==finder->GetDestX() && iToY==finder->GetDestY();
 }
-
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - is this end point for the path valid?
@@ -990,7 +1020,7 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
 		}
 
-		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING)) 
+		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 		}
@@ -1411,6 +1441,10 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 			//normal "along the way" plot
 			if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
 				return FALSE;
+
+			//civilians shouldn't let themselves be captured
+			if(kToNodeCacheData.iPlotDanger==INT_MAX && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
+				return FALSE;
 		}
 	}
 
@@ -1754,7 +1788,7 @@ int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPath
 	iCost += pTerrain ? pTerrain->getInfluenceCost() : 0;
 	iCost += pFeature ? pFeature->getInfluenceCost() : 0;
 
-	return iCost;
+	return max(1,iCost);
 }
 
 
@@ -2217,7 +2251,7 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 
 	//this is our default path type
 	m_sData.ePathType = PT_UNIT_WITH_ZOC;
-	SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+	SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 
 #if defined(MOD_BALANCE_CORE)
 	//for debugging
@@ -2297,19 +2331,19 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	switch(ePathType)
 	{
 	case PT_UNIT_WITH_ZOC:
-		SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_MOVE_HIGHLIGHT:
-		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, UIPathValid, UIPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_ATTACK_HIGHLIGHT:
-		SetFunctionPointers(PathDest, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PATH_VISUALIZIATION:
-		SetFunctionPointers(PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	default:
@@ -2329,63 +2363,63 @@ bool CvPathFinder::Configure(PathType ePathType)
 	switch(ePathType)
 	{
 	case PT_GENERIC_SAME_AREA:
-		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA:
-		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
-		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA_WIDE:
-		SetFunctionPointers(PathDest, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_UNIT_IGNORE_OTHERS:
-		SetFunctionPointers(PathDest, IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_TRADE_WATER:
-		SetFunctionPointers(PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(PathDest, NULL, TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
-		SetFunctionPointers(PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BUILD_ROUTE_BASE_VALUE;
 		break;
 	case PT_AREA_CONNECTION:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_LANDMASS_CONNECTION:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, LandmassValid, NULL, JoinLandmass, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, NULL, JoinLandmass, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_INFLUENCE:
-		SetFunctionPointers(PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 2;
 		break;
 	case PT_CITY_ROUTE_LAND:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_WATER:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_MIXED:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(PathDest, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = 1;
 		break;
 	default:
@@ -3066,18 +3100,11 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 		return TRUE;
 
 	//check passable improvements
-	ImprovementTypes eImprovement = pNewPlot->getImprovementType();
-	CvImprovementEntry* pkImprovementInfo = (eImprovement != NO_IMPROVEMENT) ? GC.getImprovementInfo(eImprovement) : NULL;
-	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
-	if(pNewPlot->isCity() || bIsPassableImprovement)
+	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),true))
 	{
-
 		//not allowed to build chains of passable improvements
 		CvPlot* pParentPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-		ImprovementTypes eImprovement = pParentPlot->getImprovementType();
-		CvImprovementEntry* pkImprovementInfo = (eImprovement != NO_IMPROVEMENT) ? GC.getImprovementInfo(eImprovement) : NULL;
-		bool bParentIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
-		if(pParentPlot->isCity() || bParentIsPassableImprovement)
+		if(pParentPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),true))
 			return FALSE;
 
 		return TRUE;

@@ -1204,8 +1204,8 @@ enum PlotTypes
 {
 	NO_PLOT = -1,
 
-	PLOT_MOUNTAIN,
-	PLOT_HILLS,
+	PLOT_MOUNTAIN,	//deprecated, use terrain type instead
+	PLOT_HILLS,		//deprecated, use terrain type instead
 	PLOT_LAND,
 	PLOT_OCEAN,
 

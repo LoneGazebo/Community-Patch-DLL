@@ -286,8 +286,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	//PlotTypes
 	EnumStart(L, "PlotTypes");
 	RegisterEnum(NO_PLOT);
-	RegisterEnum(PLOT_MOUNTAIN);
-	RegisterEnum(PLOT_HILLS);
+	RegisterEnum(PLOT_MOUNTAIN); //deprecated
+	RegisterEnum(PLOT_HILLS);	//deprecated
 	RegisterEnum(PLOT_LAND);
 	RegisterEnum(PLOT_OCEAN);
 	RegisterEnum(NUM_PLOT_TYPES);

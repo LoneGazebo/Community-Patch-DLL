@@ -233,7 +233,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			continue;
 
 		//don't send multiple explorers to the same target
-		if (m_pPlayer->IsPlotTargetedForExplorer(vExplorePlots[ui].pPlot))
+		if (m_pPlayer->IsPlotTargetedForExplorer(vExplorePlots[ui].pPlot, pUnit))
 			continue;
 
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
@@ -3469,7 +3469,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				bool bFoundWayHome = false;
 				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					if(pUnit->GeneratePath(pLoopCity->plot()))
+					if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING))
 					{
 						bFoundWayHome = true;
 						break;
@@ -3483,13 +3483,19 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 				else
 				{
-					CvString strLogString;
-					strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
+					//don't disband in the beginning of the game ...  
+					if (GC.getGame().getGameTurn()<50)
+						pUnit->PushMission( CvTypes::getMISSION_SKIP() );
+					else
+					{
+						CvString strLogString;
+						strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
 
-					UnitProcessed(pUnit->GetID());
-					pUnit->kill(true);
-					m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
+						UnitProcessed(pUnit->GetID());
+						pUnit->kill(true);
+						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
+					}
 				}
 
 				pUnit->finishMoves();
@@ -3896,31 +3902,32 @@ void CvHomelandAI::ExecuteWriterMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						CvPlot *pBestTarget = NULL;
-						int iBestTurns = MAX_INT;
-						int iTurns;
-						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
-						if (iTurns < iBestTurns)
+						int iBestDistance = INT_MAX;
+						int iTurns = INT_MAX;
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
 						{
-							pBestTarget = pTargetCity->plot();
-						}
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL)
-							{
-								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
-								if (iTurns < iBestTurns)
+							if (iTurns==0)
+								pBestTarget = pTargetCity->plot();
+							else
+								for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 								{
-									pBestTarget = pAdjacentPlot;
-									iBestTurns = iTurns;
+									CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
+									if(pAdjacentPlot != NULL && pAdjacentPlot->isValidMovePlot(pUnit->getOwner()) )
+									{
+										int iDistance = plotDistance(pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
+										if (iDistance < iBestDistance)
+										{
+											pBestTarget = pAdjacentPlot;
+											iBestDistance = iDistance;
+										}
+									}
 								}
-							}
 						}
 
 						if (pBestTarget)
 						{
 							// In less than one turn?
-							if (iBestTurns == 0)
+							if (iTurns == 0)
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());
@@ -4048,31 +4055,32 @@ void CvHomelandAI::ExecuteArtistMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						CvPlot *pBestTarget = NULL;
-						int iBestTurns = MAX_INT;
-						int iTurns;
-						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
-						if (iTurns < iBestTurns)
+						int iBestDistance = INT_MAX;
+						int iTurns = INT_MAX;
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
 						{
-							pBestTarget = pTargetCity->plot();
-						}
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL)
-							{
-								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
-								if (iTurns < iBestTurns)
+							if (iTurns==0)
+								pBestTarget = pTargetCity->plot();
+							else
+								for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 								{
-									pBestTarget = pAdjacentPlot;
-									iBestTurns = iTurns;
+									CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
+									if(pAdjacentPlot != NULL && pAdjacentPlot->isValidMovePlot(pUnit->getOwner()) )
+									{
+										int iDistance = plotDistance(pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
+										if (iDistance < iBestDistance)
+										{
+											pBestTarget = pAdjacentPlot;
+											iBestDistance = iDistance;
+										}
+									}
 								}
-							}
 						}
 
 						if (pBestTarget)
 						{
 							// In less than one turn?
-							if (iBestTurns == 0)
+							if (iTurns == 0)
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());
@@ -4198,31 +4206,32 @@ void CvHomelandAI::ExecuteMusicianMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						CvPlot *pBestTarget = NULL;
-						int iBestTurns = MAX_INT;
-						int iTurns;
-						iTurns = pUnit->TurnsToReachTarget(pTargetCity->plot());
-						if (iTurns < iBestTurns)
+						int iBestDistance = INT_MAX;
+						int iTurns = INT_MAX;
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
 						{
-							pBestTarget = pTargetCity->plot();
-						}
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL)
-							{
-								iTurns = pUnit->TurnsToReachTarget(pAdjacentPlot);
-								if (iTurns < iBestTurns)
+							if (iTurns==0)
+								pBestTarget = pTargetCity->plot();
+							else
+								for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 								{
-									pBestTarget = pAdjacentPlot;
-									iBestTurns = iTurns;
+									CvPlot* pAdjacentPlot = plotDirection(pTargetCity->getX(), pTargetCity->getY(), ((DirectionTypes)iI));
+									if(pAdjacentPlot != NULL && pAdjacentPlot->isValidMovePlot(pUnit->getOwner()) )
+									{
+										int iDistance = plotDistance(pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
+										if (iDistance < iBestDistance)
+										{
+											pBestTarget = pAdjacentPlot;
+											iBestDistance = iDistance;
+										}
+									}
 								}
-							}
 						}
 
 						if (pBestTarget)
 						{
 							// In less than one turn?
-							if (iBestTurns == 0)
+							if (iTurns == 0)
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());

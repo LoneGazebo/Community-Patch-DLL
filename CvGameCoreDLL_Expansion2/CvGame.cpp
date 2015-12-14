@@ -8084,6 +8084,8 @@ void CvGame::doTurn()
 	{// In multi-player with simultaneous turns, we activate all of the AI players
 	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
 	 // the AI players are processed.
+		for(iI = 0; iI < MAX_PLAYERS; iI++)
+			aiShuffle[iI] = iI;
 		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
 
 		for(iI = 0; iI < MAX_PLAYERS; iI++)

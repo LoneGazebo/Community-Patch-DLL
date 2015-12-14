@@ -3966,31 +3966,37 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 	return false;
 }
 
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-bool CvPlot::isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool) const
+bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const
+{
+	return isCityOrPassableImprovement(ePlayer, true);
+}
+
+bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const
 {
 	ImprovementTypes eImprovement = getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
-	bool bIsCityOrPassable = getPlotCity() || bIsPassable;
+	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsCityOrPassable = isCity() || bIsPassableImprovement;
 
-	if (!bIsCityOrPassable) {
-		// Not a city or a fort
+	// Not a city or a fort
+	if (!bIsCityOrPassable)
 		return false;
-	}
 
-	if (IsFriendlyTerritory(kUnit.getOwner())) {
-		// In friendly lands (ours, an allied CS or a major with open borders)
+	// that's it!
+	if (!bMustBeFriendly)
 		return true;
-	}
 
-	if (getTeam() == NO_TEAM) {
+	// In friendly lands (ours, an allied CS or a major with open borders)
+	if (IsFriendlyTerritory(ePlayer))
+		return true;
+
+	if ( getTeam() == NO_TEAM)
+	{
 		// In no-mans land ...
-		TeamTypes eTeam = kUnit.getTeam();
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
-		if (getNumUnits() == 0) {
+		if (getNumUnits() == 0)
 			return true;
-		}
 
 		// ... make sure there are only friendly units here
 		const IDInfo* pUnitNode = headUnitNode();
@@ -4010,7 +4016,6 @@ bool CvPlot::isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool) cons
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Is this a plot that's friendly to our team? (owned by us or someone we have Open Borders with)
@@ -4716,7 +4721,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	}
 
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
-	return (unit.getDomainType() == DOMAIN_SEA) ? isFriendlyCityOrPassableImprovement(unit, true) : isCity();
+	return (unit.getDomainType() == DOMAIN_SEA) ? isCityOrPassableImprovement(unit.getOwner(), true) : isCity();
 #else
 	return isCity();
 #endif
@@ -4733,7 +4738,7 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 	{
 	case DOMAIN_SEA:
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
-		bCanEnter = (isWater() || unit.canMoveAllTerrain() || (isFriendlyCityOrPassableImprovement(unit, true) && MOD_GLOBAL_PASSABLE_FORTS));
+		bCanEnter = (isWater() || unit.canMoveAllTerrain() || (isCityOrPassableImprovement(unit.getOwner(), true) && MOD_GLOBAL_PASSABLE_FORTS));
 		if(bCanEnter)
 		{
 			return true;
@@ -5408,8 +5413,7 @@ FlowDirectionTypes CvPlot::getRiverSWFlowDirection() const
 CvPlot* CvPlot::getInlandCorner() const
 {
 	CvPlot* pRiverPlot = NULL; // will be a plot through whose SE corner we want the river to run
-	int aiShuffle[4];
-
+	int aiShuffle[4] = {0,1,2,3};
 	shuffleArray(aiShuffle, 4, GC.getGame().getMapRand());
 
 	for(int iI = 0; iI < 4; ++iI)
@@ -12723,11 +12727,28 @@ std::string CvPlot::stackTraceRemark(const FAutoVariableBase& var) const
 //		bit 1 = true, the error was un-recoverable
 int CvPlot::Validate(CvMap& kParentMap)
 {
-	//first of all make sure that plot type and terrain match - some map scripts seem to be inconsistent here
-	if ( m_ePlotType==PLOT_MOUNTAIN && m_eTerrainType!=TERRAIN_MOUNTAIN )
+	//--------------------------------------
+	//make sure that the deprecated plot types for mountain and hill are no longer used - map scripts don't know about this
+	if ( m_ePlotType==PLOT_MOUNTAIN )
+	{
+		m_ePlotType = PLOT_LAND;
 		m_eTerrainType = TERRAIN_MOUNTAIN;
-	if ( m_ePlotType!=PLOT_MOUNTAIN && m_eTerrainType==TERRAIN_MOUNTAIN )
-		m_ePlotType = PLOT_MOUNTAIN;
+	}
+	if ( m_ePlotType!=PLOT_LAND && m_eTerrainType==TERRAIN_MOUNTAIN )
+	{
+		m_ePlotType = PLOT_LAND;
+	}
+	if ( m_ePlotType==PLOT_HILLS )
+	{
+		m_ePlotType = PLOT_LAND;
+		m_eTerrainType = TERRAIN_HILL;
+	}
+	if ( m_ePlotType!=PLOT_LAND && m_eTerrainType==TERRAIN_HILL )
+	{
+		m_ePlotType = PLOT_LAND;
+	}
+	updateImpassable();
+	//--------------------------------------
 
 	int iError = 0;
 	IDInfo* pUnitNode = headUnitNode();
@@ -12935,8 +12956,8 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
-	//mountain is impassable by default
-	m_bIsImpassable = (getPlotType()==PLOT_MOUNTAIN);
+	//only land is is passable by default
+	m_bIsImpassable = (getPlotType()!=PLOT_LAND);
 	if (eTeam != NO_TEAM)
 		SetTeamImpassable(eTeam, m_bIsImpassable);
 	else
@@ -13802,6 +13823,54 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 	return false;
 }
 
+CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot *pLoopPlot = aPlotsToCheck[iCount];
+		if(pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				if(pLoopUnit)
+				{
+					// Must be a combat Unit
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					{
+						TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be at war with us
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
+						{
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
+							{
+								return pLoopUnit;
+							}
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit())
+							{
+								// Need to count adjacent hovering units as enemies regardless
+								return pLoopUnit;
+							}
+#endif
+						}
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
 	int iNumEnemiesAdjacent = 0;
@@ -13846,7 +13915,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain)
+							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
 							{
 								iNumEnemiesAdjacent++;
 							}
