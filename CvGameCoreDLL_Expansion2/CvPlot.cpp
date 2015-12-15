@@ -12727,6 +12727,15 @@ std::string CvPlot::stackTraceRemark(const FAutoVariableBase& var) const
 //		bit 1 = true, the error was un-recoverable
 int CvPlot::Validate(CvMap& kParentMap)
 {
+	//------------------------------
+	// force mountain terrain on mountain plots for correct impassability & yields - map scripts are sloppy here
+	if (m_ePlotType == PLOT_MOUNTAIN && m_eTerrainType != TERRAIN_MOUNTAIN)
+	{
+		m_eTerrainType = TERRAIN_MOUNTAIN;
+		updateImpassable();
+	}
+	//------------------------------
+
 	int iError = 0;
 	IDInfo* pUnitNode = headUnitNode();
 
