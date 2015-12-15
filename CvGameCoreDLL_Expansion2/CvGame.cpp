@@ -903,13 +903,6 @@ void CvGame::DoGameStarted()
 
 	bool bTempClearable;
 
-	//consistency check for map
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		pLoopPlot->Validate( GC.getMap() );
-	}
-
 	FeatureTypes eFeature;
 	for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{

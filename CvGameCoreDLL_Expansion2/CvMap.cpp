@@ -230,8 +230,10 @@ CvMap::CvMap()
 	m_pMapPlots = NULL;
 #if defined(MOD_BALANCE_CORE)
 	m_pPlotNeighbors = NULL;
+	memset(m_apShuffledNeighbors,0,sizeof(CvPlot*)*6);
 #endif
 
+	//memory slabs to be shared between all the plots
 	m_pYields = NULL;
 	m_pPlayerCityRadiusCount = NULL;
 	m_pVisibilityCount = NULL;
@@ -1892,8 +1894,7 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(!pRandPlot->isAdjacentToLand())
 			{
-				pRandPlot->setPlotType(PLOT_LAND);
-				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureVolcano);
 				iNumNaturalWondersToAdd--;
 				featureVolcano = NO_FEATURE;	// Prevent this one from being placed again
@@ -1908,8 +1909,7 @@ void CvMap::DoPlaceNaturalWonders()
 			{
 				if(pRandPlot->area()->getNumTiles() == 2)
 				{
-					pRandPlot->setPlotType(PLOT_OCEAN);
-					pRandPlot->setTerrainType(TERRAIN_COAST);
+					pRandPlot->setPlotType(PLOT_MOUNTAIN);
 					pRandPlot->setFeatureType(featureReef);
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
@@ -1918,8 +1918,7 @@ void CvMap::DoPlaceNaturalWonders()
 						{
 							if(!(pAdjacentPlot->isWater()))
 							{
-								pAdjacentPlot->setPlotType(PLOT_OCEAN);
-								pAdjacentPlot->setTerrainType(TERRAIN_COAST);
+								pAdjacentPlot->setPlotType(PLOT_MOUNTAIN);
 								pAdjacentPlot->setFeatureType(featureReef);
 								break;
 							}
@@ -1958,12 +1957,11 @@ void CvMap::DoPlaceNaturalWonders()
 						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
 						if(pAdjacentPlot != NULL)
 						{
-							pAdjacentPlot->setPlotType(PLOT_LAND);
-							pAdjacentPlot->setTerrainType(TERRAIN_HILL);
+							pAdjacentPlot->setPlotType(PLOT_HILLS);
+							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
 						}
 					}
-					pRandPlot->setPlotType(PLOT_LAND);
-					pRandPlot->setTerrainType(TERRAIN_PLAINS);
+					pRandPlot->setPlotType(PLOT_MOUNTAIN);
 					pRandPlot->setFeatureType(featureLake);
 					iNumNaturalWondersToAdd--;
 					featureLake = NO_FEATURE;	// Prevent this one from being placed again
@@ -1985,18 +1983,16 @@ void CvMap::DoPlaceNaturalWonders()
 					{
 						if(iI & 1)
 						{
-							pAdjacentPlot->setPlotType(PLOT_LAND);
-							pAdjacentPlot->setTerrainType(TERRAIN_MOUNTAIN);
+							pAdjacentPlot->setPlotType(PLOT_MOUNTAIN);
 						}
 						else
 						{
-							pAdjacentPlot->setPlotType(PLOT_LAND);
-							pAdjacentPlot->setTerrainType(TERRAIN_HILL);
+							pAdjacentPlot->setPlotType(PLOT_HILLS);
+							pAdjacentPlot->setTerrainType((TerrainTypes)(GC.getLAND_TERRAIN()));
 						}
 					}
 				}
-				pRandPlot->setPlotType(PLOT_LAND);
-				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureEverest);
 				iNumNaturalWondersToAdd--;
 				featureEverest = NO_FEATURE;	// Prevent this one from being placed again
@@ -2015,8 +2011,7 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureCrater != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_LAND);
-				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureCrater);
 				iNumNaturalWondersToAdd--;
 				featureCrater = NO_FEATURE;	// Prevent this one from being placed again
@@ -2027,8 +2022,7 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureFuji != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_LAND);
-				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureFuji);
 				iNumNaturalWondersToAdd--;
 				featureFuji = NO_FEATURE;	// Prevent this one from being placed again
@@ -2039,8 +2033,7 @@ void CvMap::DoPlaceNaturalWonders()
 		{
 			if(featureMesa != NO_FEATURE)
 			{
-				pRandPlot->setPlotType(PLOT_LAND);
-				pRandPlot->setTerrainType(TERRAIN_MOUNTAIN);
+				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureMesa);
 				iNumNaturalWondersToAdd--;
 				featureMesa = NO_FEATURE;	// Prevent this one from being placed again

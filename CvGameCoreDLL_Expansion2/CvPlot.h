@@ -539,26 +539,15 @@ public:
 		return damage;
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
-#else
-	bool isImpassable()     const
-	{
-		return m_bIsImpassable;
-	}
-#endif
+
 	bool IsAllowsWalkWater() const;
 
 	bool isRoughGround() const
 	{
-		if(isHills())
-		{
+		if(isHills() || isMountain())
 			return true;
-		}
-		if(isMountain())
-		{
-			return true;
-		}
 
 		return m_bRoughFeature;
 	}
@@ -874,10 +863,10 @@ public:
 	bool IsFeatureRiver() const;
 	bool HasImprovement(ImprovementTypes iImprovementType) const;
 	bool HasPlotType(PlotTypes iPlotType) const;
-	LUAAPIINLINE(IsPlotMountain, HasTerrain, TERRAIN_MOUNTAIN)
-	LUAAPIINLINE(IsPlotMountains, HasTerrain, TERRAIN_MOUNTAIN)
-	LUAAPIINLINE(IsPlotHill, HasTerrain, TERRAIN_HILL)
-	LUAAPIINLINE(IsPlotHills, HasTerrain, TERRAIN_HILL)
+	LUAAPIINLINE(IsPlotMountain, HasPlotType, PLOT_MOUNTAIN)
+	LUAAPIINLINE(IsPlotMountains, HasPlotType, PLOT_MOUNTAIN)
+	LUAAPIINLINE(IsPlotHill, HasPlotType, PLOT_HILLS)
+	LUAAPIINLINE(IsPlotHills, HasPlotType, PLOT_HILLS)
 	LUAAPIINLINE(IsPlotLand, HasPlotType, PLOT_LAND)
 	LUAAPIINLINE(IsPlotOcean, HasPlotType, PLOT_OCEAN)
 	bool HasResource(ResourceTypes iResourceType) const;

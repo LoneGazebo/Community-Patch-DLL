@@ -6359,7 +6359,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 					{
 						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-						if(pLoopPlot != NULL)
+						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
 						{
 							if(pLoopPlot->area()->isWater())
 							{
@@ -6382,7 +6382,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 					{
 						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-						if(pLoopPlot != NULL)
+						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
 						{
 							if(!(pLoopPlot->area()->isWater()))
 							{
@@ -12727,29 +12727,6 @@ std::string CvPlot::stackTraceRemark(const FAutoVariableBase& var) const
 //		bit 1 = true, the error was un-recoverable
 int CvPlot::Validate(CvMap& kParentMap)
 {
-	//--------------------------------------
-	//make sure that the deprecated plot types for mountain and hill are no longer used - map scripts don't know about this
-	if ( m_ePlotType==PLOT_MOUNTAIN )
-	{
-		m_ePlotType = PLOT_LAND;
-		m_eTerrainType = TERRAIN_MOUNTAIN;
-	}
-	if ( m_ePlotType!=PLOT_LAND && m_eTerrainType==TERRAIN_MOUNTAIN )
-	{
-		m_ePlotType = PLOT_LAND;
-	}
-	if ( m_ePlotType==PLOT_HILLS )
-	{
-		m_ePlotType = PLOT_LAND;
-		m_eTerrainType = TERRAIN_HILL;
-	}
-	if ( m_ePlotType!=PLOT_LAND && m_eTerrainType==TERRAIN_HILL )
-	{
-		m_ePlotType = PLOT_LAND;
-	}
-	updateImpassable();
-	//--------------------------------------
-
 	int iError = 0;
 	IDInfo* pUnitNode = headUnitNode();
 
@@ -12957,7 +12934,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const FeatureTypes eFeature = getFeatureType();
 
 	//only land is is passable by default
-	m_bIsImpassable = (getPlotType()!=PLOT_LAND);
+	m_bIsImpassable = isMountain();
 	if (eTeam != NO_TEAM)
 		SetTeamImpassable(eTeam, m_bIsImpassable);
 	else
