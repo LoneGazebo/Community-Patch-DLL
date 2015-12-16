@@ -8354,13 +8354,15 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	// Impassable terrain has no base yield
+	// impassable terrain has no base yield
 	if(!isValidMovePlot(ePlayer) || getTerrainType()==NO_TERRAIN)
 	{
 		iYield = 0;
 	} 
 	else
+	{
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
+	}
 
 #if defined(MOD_API_PLOT_YIELDS)
 	if (MOD_API_PLOT_YIELDS) {
@@ -8833,7 +8835,11 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 						iYield += pImprovement->GetAdjacentCityYieldChange(eYield);
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(pAdjacentPlot->isMountain())
+#else
 				else if(pAdjacentPlot->isMountain())
+#endif
 				{
 					iYield += pImprovement->GetAdjacentMountainYieldChange(eYield);
 				}
@@ -9092,12 +9098,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		return 0;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if((YieldTypes)eYield > YIELD_FAITH)
-	{
-		return 0;
-	}
-#endif
 	bCity = false;
 
 	if(bDisplay)
@@ -9408,6 +9408,14 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				iYield += 1;
 			}
+			if(eYield == YIELD_PRODUCTION && isMountain() && !isFreshWater())
+			{
+				iYield += 2;
+			}
+			else if(eYield == YIELD_PRODUCTION && isMountain() && isFreshWater())
+			{
+				iYield += 2;
+			}
 		}
 #endif
 		// Capital Mod
@@ -9506,8 +9514,14 @@ void CvPlot::updateYield()
 				if(isBeingWorked())
 				{
 					pWorkingCity->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), (getYield((YieldTypes)iI) - iOldYield));
+#if defined(MOD_BALANCE_CORE)
+					if((((YieldTypes)iI == YIELD_CULTURE) || ((YieldTypes)iI == YIELD_TOURISM)) && (iOldYield != iNewYield))
+					{
+						pWorkingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+						pWorkingCity->GetCityCulture()->CalculateBaseTourism();
+					}
+#endif
 				}
-
 				// JON: New City Citizens AI shoulud update here 08/17/09
 			}
 			bChange = true;
@@ -11727,6 +11741,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_eOwner;
 	kStream << m_ePlotType;
 	kStream << m_eTerrainType;
+
 	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType.get());
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ResourceTypes)m_eResourceType);
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementType);
@@ -13036,10 +13051,14 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 				return false;
 		}
 
-		//now check territory also - ignore minor/major distinction here for simplicity
-		if ( bCheckTerritory && getTeam()!=NO_TEAM && getTeam()!=eTeam )
+		//now check territory also - majors only (minors are always open)
+		if ( bCheckTerritory && getTeam()!=NO_TEAM && getTeam()!=eTeam && !GET_TEAM(getTeam()).isMinorCiv())
+		{
 			if (!GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(getTeam()) && !GET_TEAM(eTeam).isAtWar(getTeam()))
+			{
 				return false;
+			}
+		}
 
 		//seems we're good
 		return true;

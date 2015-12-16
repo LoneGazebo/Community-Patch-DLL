@@ -1458,6 +1458,19 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			iScore += 1;
 			iScore *= 5;
 		}
+		//Holy Sites should be built near Holy Cities.
+		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+		if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
+		{
+			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+			if(eReligion != NO_RELIGION)
+			{
+				if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
+				{
+					iScore *= 10;
+				}
+			}
+		}
 		//If our plot obsoletes, let's half them, so that the potential replacement is stronger.
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{

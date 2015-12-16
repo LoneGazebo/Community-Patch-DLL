@@ -1318,6 +1318,14 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetPoliticPercent);
 	Method(SetPoliticPercent);
+
+	Method(GetCurrency);
+	Method(SetCurrency);
+	
+	Method(HasCurrency);
+
+	Method(SetCurrencyName);
+	Method(GetCurrencyName);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -13660,6 +13668,44 @@ int CvLuaPlayer::lSetPoliticPercent(lua_State* L)
 	const int iValue = lua_tointeger(L, 3);
 
 	pkPlayer->SetPoliticPercent(iID, iValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetCurrencyName(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetCurrencyName());
+	return 1;
+}
+int CvLuaPlayer::lSetCurrencyName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const char* strKey = lua_tostring(L, 2);
+
+	pkPlayer->SetCurrencyName(strKey);
+	return 1;
+}
+
+int CvLuaPlayer::lGetCurrency(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetCurrency();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetCurrency(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iID = lua_tointeger(L, 2);
+
+	pkPlayer->SetCurrency(iID);
+	return 1;
+}
+int CvLuaPlayer::lHasCurrency(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->HasCurrency();
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 #endif

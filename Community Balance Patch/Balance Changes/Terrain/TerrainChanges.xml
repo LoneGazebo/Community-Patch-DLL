@@ -230,6 +230,16 @@
 			<Set Yield="2" />
 		</Update>
 		<Row>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
@@ -253,11 +263,6 @@
 			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>3</Yield>
-		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
@@ -509,21 +514,21 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<TechType>TECH_THEOLOGY</TechType>
+			<TechType>TECH_ACOUSTICS</TechType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<TechType>TECH_ARCHAEOLOGY</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<TechType>TECH_ARCHAEOLOGY</TechType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<TechType>TECH_FLIGHT</TechType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>

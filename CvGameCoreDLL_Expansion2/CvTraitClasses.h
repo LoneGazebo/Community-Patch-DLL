@@ -273,6 +273,7 @@ public:
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -497,6 +498,7 @@ protected:
 	std::multimap<int, int> m_FreePromotionUnitCombats;
 #if defined(MOD_BALANCE_CORE)
 	std::multimap<int, int> m_FreePromotionUnitClass;
+	std::multimap<int, int> m_BuildsUnitClasses;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1199,6 +1201,7 @@ public:
 	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
 #endif
 
 	// Public functions to make trait-based game state changes

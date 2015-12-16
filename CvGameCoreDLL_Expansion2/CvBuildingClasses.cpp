@@ -326,6 +326,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiFeatureYieldChange(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_ppaiImprovementYieldChange(NULL),
+	m_ppaiImprovementYieldChangeGlobal(NULL),
 #endif
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
@@ -423,6 +424,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 #if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
@@ -933,6 +935,28 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int yield = pResults->GetInt(2);
 
 			m_ppaiImprovementYieldChange[ImprovementID][YieldID] = yield;
+		}
+	}
+	//ImprovementYieldChangesGlobal
+	{
+		kUtility.Initialize2DArray(m_ppaiImprovementYieldChangeGlobal, "Improvements", "Yields");
+
+		std::string strKey("Building_ImprovementYieldChangesGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, Yield from Building_ImprovementYieldChangesGlobal inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while(pResults->Step())
+		{
+			const int ImprovementID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiImprovementYieldChangeGlobal[ImprovementID][YieldID] = yield;
 		}
 	}
 	//TerrainYieldChanges
@@ -2892,6 +2916,24 @@ int* CvBuildingEntry::GetImprovementYieldChangeArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChange[i];
 }
+/// Change to Improvement yield by type
+int CvBuildingEntry::GetImprovementYieldChangeGlobal(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiImprovementYieldChangeGlobal ? m_ppaiImprovementYieldChangeGlobal[i][j] : -1;
+}
+
+/// Array of changes to Improvement yield
+int* CvBuildingEntry::GetImprovementYieldChangeGlobalArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiImprovementYieldChangeGlobal[i];
+}
+
 #endif
 
 /// Change to specialist yield by type

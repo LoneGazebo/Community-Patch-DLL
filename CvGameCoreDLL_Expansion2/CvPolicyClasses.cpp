@@ -287,6 +287,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldChangeTradeRoute(NULL),
 	m_piYieldChangesNaturalWonder(NULL),
 	m_piYieldChangeWorldWonder(NULL),
+	m_piYieldFromMinorDemand(NULL),
 #endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -357,6 +358,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangeTradeRoute);
 	SAFE_DELETE_ARRAY(m_piYieldChangesNaturalWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
+	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -966,6 +968,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeTradeRoute, "Policy_YieldChangeTradeRoute", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldChangesNaturalWonder, "Policy_YieldChangesNaturalWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
 #endif
 
 	//ImprovementCultureChanges
@@ -2741,6 +2744,18 @@ int CvPolicyEntry::GetYieldChangeWorldWonder(int i) const
 int* CvPolicyEntry::GetYieldChangeWorldWonderArray() const
 {
 	return m_piYieldChangeWorldWonder;
+}
+
+int CvPolicyEntry::GetYieldFromMinorDemand(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromMinorDemand ? m_piYieldFromMinorDemand[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromMinorDemandArray() const
+{
+	return m_piYieldFromMinorDemand;
 }
 #endif
 

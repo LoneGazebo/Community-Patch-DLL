@@ -162,11 +162,15 @@ public:
 	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue);
 	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer,  bool bUseEvenValue, bool bWar = false);
+	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer,  bool bUseEvenValue, bool bWar = false);
 
 	// Does AI want to make offer for X?
 	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+#if defined(MOD_BALANCE_CORE)
+	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+#endif
 
 	// Will adding item to deal even it out?
 	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue);

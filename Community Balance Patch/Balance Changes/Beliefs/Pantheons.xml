@@ -42,10 +42,34 @@
 	</Belief_YieldChangeAnySpecialist>
 	<Belief_BuildingClassYieldChanges>
 		<Row>
+			<BeliefType>BELIEF_TEARS_OF_GODS</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
@@ -60,23 +84,29 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<BeliefType>BELIEF_GOD_WAR</BeliefType>
+			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
-			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>3</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>1</YieldChange>
-		</Row>
+		</Row>	
 		<Row>
 			<BeliefType>BELIEF_STONE_CIRCLES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_STONE_WORKS</BuildingClassType>
@@ -167,44 +197,6 @@
 			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldChangeNaturalWonder>
-	<Belief_BuildingClassYieldChanges>
-		<Row>
-			<BeliefType>BELIEF_TEARS_OF_GODS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>3</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>3</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_WATERMILL</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>3</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_WATERMILL</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
-		</Row>
-	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerBorderGrowth>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_SETTLEMENTS</BeliefType>
@@ -312,8 +304,8 @@
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>

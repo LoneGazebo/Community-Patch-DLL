@@ -3174,7 +3174,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			// Best unit that can be built now is given value of 100
 			int iValue = getUnitInfo().GetPower();
 #if defined(MOD_BALANCE_CORE)
-			if(IsCivilianUnit())
+			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
 				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 			}
@@ -7137,23 +7137,25 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
-	// Loop through all resources
-	ResourceTypes eResource;
-	int iNumResourceInfos = GC.getNumResourceInfos();
-	for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+#if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-		if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+		// Loop through all resources
+		ResourceTypes eResource;
+		int iNumResourceInfos = GC.getNumResourceInfos();
+		for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
-			int iAvailable = kPlayer.getNumResourceAvailable(eResource);
-			if(iAvailable < 0)
+			eResource = (ResourceTypes) iResourceLoop;
+
+			if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
 			{
-				return false;
+				int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+				if(iAvailable < 0)
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -7519,6 +7521,29 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if(!isBarbarian())
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+			// Loop through all resources
+			ResourceTypes eResource;
+			int iNumResourceInfos = GC.getNumResourceInfos();
+			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+			{
+				eResource = (ResourceTypes) iResourceLoop;
+
+				if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+				{
+					int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+					if(iAvailable < 0)
+					{
+						return;
+					}
+				}
+			}
+		}
+#endif
 		changeDamage( -healRate(plot()) );
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
@@ -11299,6 +11324,15 @@ bool CvUnit::trade()
 				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
+					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if(pNotifications)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER");
+						strText <<  getNameKey() << iFriendship << GET_PLAYER(eMinor).getNameKey() << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY");
+						strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
+						pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
+					}
 				}
 			}
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -12333,8 +12367,11 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	VALIDATE_OBJECT
 	CvAssertMsg(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
 
-
+#if defined(MOD_BALANCE_CORE)
+	if(!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && !m_pUnitInfo->GetBuilds(eBuild))
+#else
 	if(!(m_pUnitInfo->GetBuilds(eBuild)))
+#endif
 	{
 		return false;
 	}
@@ -13843,6 +13880,30 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	}
 
 	iRate = m_pUnitInfo->GetWorkRate();
+
+#if defined(MOD_BALANCE_CORE)
+	bool bCanWork = false;
+	if(iRate <= 0)
+	{
+		for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+		{
+			const BuildTypes eBuild = static_cast<BuildTypes>(iI);
+			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+			if(pkBuildInfo)
+			{
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()))
+				{
+					bCanWork = true;
+					break;
+				}
+			}
+		}
+	}
+	if(bCanWork)
+	{
+		iRate = 100;
+	}
+#endif
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 

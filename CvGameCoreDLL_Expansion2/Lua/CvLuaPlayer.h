@@ -450,6 +450,14 @@ protected:
 
 	LUAAPIEXTN(GetPoliticPercent, int);
 	LUAAPIEXTN(SetPoliticPercent, int);
+
+	LUAAPIEXTN(GetCurrency, int);
+	LUAAPIEXTN(SetCurrency, int);
+	
+	LUAAPIEXTN(HasCurrency, int);
+
+	LUAAPIEXTN(SetCurrencyName, int);
+	LUAAPIEXTN(GetCurrencyName, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

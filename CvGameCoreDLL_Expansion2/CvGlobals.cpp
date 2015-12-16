@@ -2249,6 +2249,7 @@ CvGlobals::CvGlobals() :
 
 CvGlobals::~CvGlobals()
 {
+	uninit();
 }
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
@@ -2606,6 +2607,8 @@ void CvGlobals::uninit()
 {
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();
+
+	deleteInfoArrays();
 
 	SAFE_DELETE(m_pEconomicAIStrategies);
 	SAFE_DELETE(m_pCitySpecializations);

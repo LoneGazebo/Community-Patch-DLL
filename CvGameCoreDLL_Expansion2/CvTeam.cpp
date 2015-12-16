@@ -8933,6 +8933,40 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue)
 
 //	-----------------------------------------------------------------------------------------------
 // Can we end our vassalage with eTeam?
+bool CvTeam::canEndAllVassal() const
+{
+	TeamTypes eLoopTeam;
+	
+	int iMinTurns;
+	bool bValid = true;
+	// Go through every major.
+	for(int iTeamLoop=0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	{
+		eLoopTeam = (TeamTypes) iTeamLoop;
+
+		// Ignore minors.
+		if(!GET_TEAM(eLoopTeam).isMinorCiv())
+		{
+			// Is eLoopTeam the vassal of us?
+			if(GET_TEAM(eLoopTeam).IsVassal(GetID()))
+			{
+				if(GET_TEAM(eLoopTeam).isAlive())
+				{
+					// Too soon to end our vassalage with ePlayer
+					iMinTurns = GET_TEAM(eLoopTeam).IsVoluntaryVassal(GetID()) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+
+					if(GetNumTurnsIsVassal() < iMinTurns)
+					{
+						bValid = false;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return bValid;
+}
 bool CvTeam::canEndVassal(TeamTypes eTeam) const
 {
 	if(eTeam == NO_TEAM) return false;

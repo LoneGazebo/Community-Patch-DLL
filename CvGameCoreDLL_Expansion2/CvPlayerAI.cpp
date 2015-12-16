@@ -1799,7 +1799,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 {
-	std::vector<SPlotWithScore> vTargets;
+	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
 
 	// Loop through each city state
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -1815,21 +1815,30 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 				if(pLoopCity)
 				{
 					int iScore = ScoreCityForDiplomat(pLoopCity, pUnit);
-					vTargets.push_back( SPlotWithScore(pLoopCity->plot(),iScore) );
+					if(iScore > 0)
+					{
+						vTargets.push_back( pLoopCity,iScore);
+					}
 				}
 			}
 		}
 	}
 
 	//highest score first ..
-	std::stable_sort(vTargets.begin(),vTargets.end());
-	std::reverse(vTargets.begin(),vTargets.end());
-
-	//check if we can actually go there only if the city is promising
-	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
+	if(vTargets.size() > 0)
 	{
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
-			return it->pPlot->getPlotCity();
+		vTargets.SortItems();
+
+		//check if we can actually go there only if the city is promising
+		for (int i = 0; i < vTargets.size(); ++i )
+		{
+			CvCity* pCity = vTargets.GetElement(i);
+			if(pCity != NULL)
+			{
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+					return pCity;
+			}
+		}
 	}
 
 	return NULL;
@@ -1837,15 +1846,15 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 
 CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 {
-	std::vector<SPlotWithScore> vTargets;
+	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
 
 	// Loop through each city state
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && kPlayer.isMinorCiv())
+		if(kPlayer.isAlive() && kPlayer.isMinorCiv() && !GET_TEAM(kPlayer.getTeam()).isAtWar(getTeam()))
 		{
-		//Loop through each city
+			//Loop through each city
 			int iLoop;
 			CvCity* pLoopCity;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -1853,21 +1862,30 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 				if(pLoopCity)
 				{
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
-					vTargets.push_back( SPlotWithScore(pLoopCity->plot(),iScore) );
+					if(iScore > 0)
+					{
+						vTargets.push_back( pLoopCity,iScore);
+					}
 				}
 			}
 		}
 	}
 
 	//highest score first ..
-	std::stable_sort(vTargets.begin(),vTargets.end());
-	std::reverse(vTargets.begin(),vTargets.end());
-
-	//check if we can actually go there only if the city is promising
-	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
+	if(vTargets.size() > 0)
 	{
-		if (pUnit->GeneratePath(it->pPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
-			return it->pPlot->getPlotCity();
+		vTargets.SortItems();
+
+		//check if we can actually go there only if the city is promising
+		for (int i = 0; i < vTargets.size(); ++i )
+		{
+			CvCity* pCity = vTargets.GetElement(i);
+			if(pCity != NULL)
+			{
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+					return pCity;
+			}
+		}
 	}
 
 	return NULL;
@@ -2314,7 +2332,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				{
 					continue;
 				}
-				if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID()))
+				if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), false) || pLoopPlot->isMountain() || pLoopPlot->isIce())
 				{
 					continue;
 				}
@@ -2372,7 +2390,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		{
 			continue;
 		}
-		if(!pLoopPlot->isValidMovePlot(GetID()))
+		if(!pLoopPlot->isValidMovePlot(GetID(), false))
 		{
 			continue;
 		}

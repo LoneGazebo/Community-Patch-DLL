@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1131,42 +1131,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				continue;
 #endif
 
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-				if(GetCity()->IsBuildingInvestment(eBuildingClass))
-				{
-					iTempWeight *= 1000;
-				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
-				{
-					iTempWeight *= 100;
-				}
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
-			{
-				if(!bMinor && GetCity()->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromCulture();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromGold();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromDefense();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromScience();
-				}
-			}
-#endif
 
+#if defined(MOD_BALANCE_CORE)
+			iTempWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(m_pCity, eLoopBuilding, iTempWeight);
+			if(iTempWeight <= 0)
+				continue;
+#else
 			// Don't build the UN if you aren't going for the diplo victory
 			if(pkBuildingInfo->IsDiplomaticVoting())
 			{
@@ -1211,7 +1181,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					iTempWeight = 0;
 				}
 			}
-
+#endif
 			// If the City is a puppet, it avoids Wonders (because the human can't change it if he wants to build it somewhere else!)
 			if(GetCity()->IsPuppet())
 			{
@@ -1227,26 +1197,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				}
 				// it also avoids military training buildings - since it can't build units
 #if defined(MOD_BALANCE_CORE)
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-				if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && bIsVenice)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-					if(GetCity()->IsBuildingInvestment(eBuildingClass))
-					{
-						iTempWeight *= 10;
-					}
-					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
-					{
-						iTempWeight *= 100;
-					}
-				}
-#endif
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && bIsVenice)
 				{
 					iTempWeight *= 10;
 				}
 				else if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
-
 #else
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND))
 #endif

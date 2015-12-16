@@ -15,7 +15,10 @@ local newLine = civ5_mode and "[NEWLINE]" or "/n"
 -- the friendship status of a player with a city-state
 ------------------------------------------------------
 
-include( "IconSupport" ); local IconHookup = IconHookup
+include( "EUI_utilities" )
+local IconHookup = EUI.IconHookup
+GetGreatPersonQuestIconText = EUI.GreatPeopleIcon
+
 --[[
 local GetCityStateStatusRow = GetCityStateStatusRow
 local GetCityStateStatusType = GetCityStateStatusType
@@ -571,28 +574,6 @@ else
 	end
 end
 
-local kUnitIcons = {
-	UNIT_ENGINEER = "[ICON_GREAT_ENGINEER]",
-	UNIT_GREAT_GENERAL = "[ICON_GREAT_GENERAL]",
-	UNIT_SCIENTIST = "[ICON_GREAT_SCIENTIST]",
-	UNIT_MERCHANT = "[ICON_GREAT_MERCHANT]",
-	UNIT_ARTIST = "[ICON_GREAT_ARTIST]",
-	UNIT_MUSICIAN = "[ICON_GREAT_MUSICIAN]",
-	UNIT_WRITER = "[ICON_GREAT_WRITER]",
-	UNIT_GREAT_ADMIRAL = "[ICON_GREAT_ADMIRAL]",
-	UNIT_PROPHET = "[ICON_PROPHET]"}
-
-for unit in GameInfo.Units() do
-	local icon = unit.Type and kUnitIcons[unit.Type]
-	if icon then
-		kUnitIcons[unit.ID] = icon
-	end
-end
-
-function GetGreatPersonQuestIconText(unitID)
-	return bnw_mode and kUnitIcons[unitID] or "[ICON_GREAT_PEOPLE]"
-end
-
 local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 	if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE then
 		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL" )
@@ -676,12 +657,12 @@ if gk_mode then
 
 			-- Threatening Barbarians event
 			if minorPlayer:IsThreateningBarbariansEventActiveForPlayer(majorPlayerID) then
-				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL") )
+				table.insert( tips,"[ICON_RAZING]" .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL") )
 			end
 
 			-- Proxy War event
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
-				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
+				table.insert( tips,"[ICON_RESISTANCE]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
 			end
 		else
 			print("Lua error - invalid player index")

@@ -93,7 +93,7 @@
 			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64"/>
 		</Box>
 		<TextButton ID="GoldenAgeString" String="[ICON_GOLDEN_AGE]" Anchor="L,T" ColorLayer0="255,255,255,255" ToolTipType="TooltipTypeTopPanel" >
-			<AlphaAnim ID="GoldenAgeAnim" Hidden="1" Anchor="C,C" Offset="0,2" Size="80,80" Texture="NotificationGoldenAge.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="0" AlphaEnd="1" />
+			<AlphaAnim ID="GoldenAgeAnim" Hidden="1" Anchor="C,C" Offset="0,1" Size="48,48" Texture="TopPanelGoldenAge.dds" Sampler="Linear" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="0" AlphaEnd="1" />
 		</TextButton>
 		<Container Size="10,1" />
 

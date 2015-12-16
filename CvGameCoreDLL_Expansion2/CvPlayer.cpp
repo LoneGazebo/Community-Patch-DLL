@@ -576,6 +576,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldChangeTradeRoute(NULL)
 	, m_piYieldChangesNaturalWonder(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
+	, m_piYieldFromMinorDemand(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppaaiBuildingClassYieldChange", m_syncArchive)
 #endif
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
@@ -1897,6 +1898,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piYieldChangeWorldWonder.clear();
 		m_piYieldChangeWorldWonder.resize(NUM_YIELD_TYPES, 0);
+
+		m_piYieldFromMinorDemand.clear();
+		m_piYieldFromMinorDemand.resize(NUM_YIELD_TYPES, 0);
 
 		m_ppiBuildingClassYieldChange.clear();
 		m_ppiBuildingClassYieldChange.resize(GC.getNumBuildingClassInfos());
@@ -3859,7 +3863,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							{
 								// here would be a good place to put additional checks (for example, influence)
 #if defined(MOD_BALANCE_CORE)
-								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 #else
 								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 #endif
@@ -11622,6 +11626,24 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	int iBuildingCount;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE)
+		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+		{
+			YieldTypes eYield = (YieldTypes) iJ;
+			for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
+			{
+				ImprovementTypes eImprovement = (ImprovementTypes)iK;
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					int iYieldChange = pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield);
+					if(iYieldChange > 0)
+					{
+						pLoopCity->ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
+					}
+				}
+			}
+		}
+#endif
 		// Building modifiers
 		BuildingClassTypes eBuildingClass;
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -13721,6 +13743,10 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 			CvCity* pCity = getCapitalCity();
 #endif
 			iValue = (iValue * iCombatStrength) / 100;
+#if defined(MOD_BALANCE_CORE)
+			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue /= 100;
+#endif
 			if(iValue > 0)
 			{
 				switch(eYield)
@@ -16900,10 +16926,15 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(MOD_BALANCE_CORE_POLICIES && GetGarrisonsOccupiedUnhapppinessMod() != 0)
 			{
-				if(pLoopCity->GetGarrisonedUnit() != NULL)
+				CvPlot* pPlot = pLoopCity->plot();
+				if(pPlot)
 				{
-					iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
-					iUnhappinessFromThisCity /= 100;
+					UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
+					if(garrison)
+					{
+						iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
+						iUnhappinessFromThisCity /= 100;
+					}
 				}
 			}
 #endif
@@ -20086,75 +20117,108 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	}
 	if(getYieldGPExpend(YIELD_GOLD) > 0)
 	{
-		GetTreasury()->ChangeGold(getYieldGPExpend(YIELD_GOLD) * iEra);
+		int iYield = getYieldGPExpend(YIELD_GOLD);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		GetTreasury()->ChangeGold(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", getYieldGPExpend(YIELD_GOLD) * iEra);
+			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_FAITH) > 0)
 	{
-		ChangeFaith(getYieldGPExpend(YIELD_FAITH) * iEra);
+		int iYield = getYieldGPExpend(YIELD_FAITH);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		ChangeFaith(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", getYieldGPExpend(YIELD_FAITH) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_CULTURE) > 0)
 	{
-		changeJONSCulture(getYieldGPExpend(YIELD_CULTURE) * iEra);
+		int iYield = getYieldGPExpend(YIELD_CULTURE);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
+		changeJONSCulture(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", getYieldGPExpend(YIELD_CULTURE) * iEra);
+			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) > 0)
 	{
-		ChangeGoldenAgeProgressMeter(getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) * iEra);
+		int iYield = getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
+		ChangeGoldenAgeProgressMeter(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_SCIENCE) > 0)
 	{
+		int iYield = getYieldGPExpend(YIELD_SCIENCE);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(getYieldGPExpend(YIELD_SCIENCE) * iEra);
+			changeOverflowResearch(iYield);
 		}
 		else
 		{
-			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (getYieldGPExpend(YIELD_SCIENCE) * iEra), GetID());
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, GetID());
 		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", getYieldGPExpend(YIELD_SCIENCE) * iEra);
+			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_TOURISM) > 0)
 	{
-		GetCulture()->AddTourismAllKnownCivs(getYieldGPExpend(YIELD_TOURISM) * iEra);
+		int iYield = getYieldGPExpend(YIELD_TOURISM);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		GetCulture()->AddTourismAllKnownCivs(iEra);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", getYieldGPExpend(YIELD_TOURISM) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iEra);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
@@ -22080,7 +22144,14 @@ void CvPlayer::DoReformCooldown()
 }
 void CvPlayer::SetCurrency(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, m_iJFDCurrency);
+	if(!HasCurrency())
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, -1);
+	}
+	else
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, GetCurrency());
+	}
 	if(m_iJFDCurrency != iValue)
 	{
 		m_iJFDCurrency = iValue;
@@ -29023,6 +29094,23 @@ void CvPlayer::ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange)
 	}
 }
 
+int CvPlayer::GetYieldFromMinorDemand(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromMinorDemand[eYield];
+}
+
+void CvPlayer::ChangeYieldFromMinorDemand(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_piYieldFromMinorDemand[eYield] += iChange;
+	}
+}
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -32096,6 +32184,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldChangeWorldWonder(iI) * iChange;
 		if(iMod != 0)
 			ChangeYieldChangeWorldWonder(eYield, iMod);
+
+		iMod = pPolicy->GetYieldFromMinorDemand(iI) * iChange;
+		if(iMod != 0)
+			ChangeYieldFromMinorDemand(eYield, iMod);
 #endif
 	}
 
@@ -32326,10 +32418,21 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = pLoopCity->plot();
+		if(pPlot)
+		{
+			UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
+			if(garrison)
+#else
 		if(pLoopCity->GetGarrisonedUnit() != NULL)
+#endif
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -33819,6 +33922,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldChangeTradeRoute;
 	kStream >> m_piYieldChangesNaturalWonder;
 	kStream >> m_piYieldChangeWorldWonder;
+	kStream >> m_piYieldFromMinorDemand;
 	kStream >> m_ppiBuildingClassYieldChange;
 #endif
 	kStream >> m_ppaaiImprovementYieldChange;
@@ -34483,6 +34587,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldChangeTradeRoute;
 	kStream << m_piYieldChangesNaturalWonder;
 	kStream << m_piYieldChangeWorldWonder;
+	kStream << m_piYieldFromMinorDemand;
 	kStream << m_ppiBuildingClassYieldChange;
 #endif
 	kStream << m_ppaaiImprovementYieldChange;

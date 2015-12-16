@@ -226,6 +226,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsVassal);
 	Method(CanBecomeVassal);
 	Method(canEndVassal);
+	Method(canEndAllVassal);
 	Method(IsVassalageTradingAllowed);
 	Method(GetNumTurnsIsVassal);
 	Method(GetNumTurnsSinceVassalEnded);
@@ -1383,6 +1384,11 @@ int CvLuaTeam::lCanBecomeVassal(lua_State* L)
 int CvLuaTeam::lcanEndVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canEndVassal);
+}
+// bool canEndVassal(TeamTypes eIndex) const;
+int CvLuaTeam::lcanEndAllVassal(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::canEndAllVassal);
 }
 //------------------------------------------------------------------------------
 // bool IsVassalageTradingAllowed() const;

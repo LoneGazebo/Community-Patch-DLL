@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
-    <Name>(2) Community Balance Patch (12-10)</Name>
+    <Name>(2) Community Balance Patch (12-15)</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
@@ -911,6 +911,16 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Minors/GoodyHuts.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Art/Improvements/Inca/CBP_Improvements.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Remapper.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -954,6 +964,12 @@
         <Description>OverlayAntiquities_MiniMapOverlayHook</Description>
         <FileName>Modular Elements/ArchaeologistUIMods/OverlayAntiquities_MiniMapOverlayHook.lua</FileName>
       </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>CBP_IncaFunctions.lua</Name>
+        <Description>CBP_IncaFunctions</Description>
+        <FileName>Art/Improvements/Inca/CBP_IncaFunctions.lua</FileName>
+      </Content>
     </ModContent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
@@ -972,6 +988,7 @@
     <Folder Include="Art\Improvements\Encampment" />
     <Folder Include="Art\Improvements\Kuna" />
     <Folder Include="Art\Icons" />
+    <Folder Include="Art\Improvements\Inca" />
     <Folder Include="Art\Splash" />
     <Folder Include="Art\Units" />
     <Folder Include="Art\Units\Icons\" />
@@ -1130,6 +1147,22 @@
     <Content Include="Art\Improvements\GlobalSpiceIslandsArt.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Inca\CBP_Improvements.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Inca\CBP_IncaFunctions.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Inca\MachuPicchu.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Inca\MachuPicchu.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Improvements\Kuna\kuna_diff.dds">
       <SubType>Lua</SubType>
@@ -1848,6 +1881,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\CommunityPatchDLLChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Remapper.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

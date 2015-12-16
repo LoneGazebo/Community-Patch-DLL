@@ -227,4 +227,191 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Do all building sanity stuff here.
+int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingTypes eBuilding, int iValue)
+{
+	if(pCity == NULL)
+		return 0;
 
+	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+		return iValue;
+
+	if(eBuilding == NO_BUILDING)
+		return 0;
+	
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	//Let's not send uniques through this - they're generally good enough to spam.
+	if((BuildingTypes)GET_PLAYER(pCity->getOwner()).getCivilizationInfo().isCivilizationBuildingOverridden(eBuilding))
+	{
+		iValue *= 2;
+		return iValue;
+	}
+
+	//Skip if null
+	if(pkBuildingInfo == NULL)
+		return 0;
+
+	CvPlayerTrade* pTrade = GET_PLAYER(pCity->getOwner()).GetTrade();
+
+	////////////
+	///GEOGRAPHY
+	////////////
+	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+	if(pArea == NULL)
+		return 0;
+
+
+	//Caravan stuff
+
+	//No Land trade connections?
+	if(pkBuildingInfo->GetLandTourismEnd() > 0 || pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
+	{
+		int iLandTrade = pTrade->GetNumPotentialConnections(pCity, DOMAIN_LAND, false);
+		if(iLandTrade == 0)
+		{
+			return 0;
+		}
+		else
+		{
+			//Higher value the higher the number of routes.
+			iValue *= 100;
+			iValue /= (110 - iLandTrade);
+		}
+	}
+
+	//No Sea Trade Connections?
+	if(pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
+	{
+		int iSeaTrade = pTrade->GetNumPotentialConnections(pCity, DOMAIN_SEA, false);
+		if(iSeaTrade == 0)
+		{
+			return 0;
+		}
+		else
+		{
+			//Higher value the higher the number of routes.
+			iValue *= 100;
+			iValue /= min(1, (110 - iSeaTrade));
+		}
+	}
+	if(pkBuildingInfo->IsAddsFreshWater() && pCity->plot()->isFreshWater())
+	{
+		iValue /= 2;
+	}
+
+	if(pkBuildingInfo->IsExtraLuxuries())
+	{
+		int iResource = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if(pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				if(pCity->GetNumResourceLocal(eResource) > 0)
+				{
+					iResource++;
+				}
+			}
+		}
+		iResource *= 5;
+		if(iResource <= 0)
+		{
+			return 0;
+		}
+		else
+		{
+			iValue *= 100;
+			iValue /= min(1, (120 - iResource));
+		}
+	}
+
+	
+	/////////
+	////Happiness (CBP)
+	////////
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(pCity->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= pCity->getUnhappinessFromCulture();
+		}
+		if(pCity->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= pCity->getUnhappinessFromGold();
+		}
+		if(pCity->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= pCity->getUnhappinessFromDefense();
+		}
+		if(pCity->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= pCity->getUnhappinessFromScience();
+		}
+		if(pCity->getUnhappinessFromMinority() > 0 && ((pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= pCity->getUnhappinessFromMinority();
+		}
+	}
+
+	////////
+	////Specific Concepts
+	///////
+
+	if(pkBuildingInfo->GetLandmarksTourismPercent() > 0)
+	{
+		int iFromWonders = pCity->GetCityCulture()->GetCultureFromWonders();
+		int iFromNaturalWonders = pCity->GetCityCulture()->GetCultureFromNaturalWonders();
+		int iFromImprovements = pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
+
+		int iTest = (iFromWonders + iFromNaturalWonders + iFromImprovements);
+		if(iTest <= 0)
+		{
+			return 0;
+		}
+		if(iTest > 100)
+		{
+			iTest = 100;
+		}
+		if(iTest <= 100)
+		{
+			//Higher value the higher the number of routes.
+			iValue *= 100;
+			iValue /= min(1, (100 - iTest));
+		}
+
+	}
+	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
+	{
+		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks();
+		iWorks *= GC.getBASE_TOURISM_PER_GREAT_WORK();
+
+		//Higher value the higher the number of works.
+		iValue *= 100;
+		iValue /= min(1, (100 - iWorks));
+	}
+
+	//Faith Bonus for Faith Civs
+	if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0)
+	{
+		if(GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief() || GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsReconquista() || GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() || GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->GetFaithFromKills() > 0 || GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsFaithFromUnimprovedForest())
+		{
+			iValue *= 25;
+		}
+	}
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	{
+		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+		if(pCity->IsBuildingInvestment(eBuildingClass))
+		{
+			iValue *= 100;
+		}
+	}
+#endif
+
+	return iValue;
+}
+#endif

@@ -232,6 +232,7 @@ protected:
 	LUAAPIEXTN(IsVassal, bool, iteam);
 	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);
 	LUAAPIEXTN(canEndVassal, bool, iTeam);
+	LUAAPIEXTN(canEndAllVassal, bool, iTeam);
 	LUAAPIEXTN(IsVassalageTradingAllowed, bool);
 	LUAAPIEXTN(GetNumTurnsIsVassal, int, iTeam);
 	LUAAPIEXTN(GetNumTurnsSinceVassalEnded, int, iTeam);

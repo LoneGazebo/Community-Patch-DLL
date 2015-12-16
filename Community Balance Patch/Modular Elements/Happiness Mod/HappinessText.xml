@@ -172,6 +172,20 @@
 			<Text>[ICON_RELIGION] Religious Need Modifier in all Cities: {1_num}%</Text>
 		</Row>
 		
+		<!-- LUA Threshold Mods for Buildings -->
+		<Row Tag="TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD">
+			<Text>[ICON_BULLET] New Need: {1_num} [ICON_GOLD] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_GOLD] per [ICON_CITIZEN]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD">
+			<Text>[ICON_BULLET] New Need: {1_num} [ICON_RESEARCH] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_RESEARCH] per [ICON_CITIZEN]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD">
+			<Text>[ICON_BULLET] New Need: {1_num} [ICON_STRENGTH] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_STRENGTH] per [ICON_CITIZEN]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD">
+			<Text>[ICON_BULLET] New Need: {1_num} [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_CULTURE] per [ICON_CITIZEN]</Text>
+		</Row>
+
 		<!-- More LUA! -->
 		<Row Tag="TXT_KEY_NET_HAPPINESS_TEXT">
 			<Text>[COLOR_CYAN]{1_num}[ENDCOLOR]</Text>
@@ -183,7 +197,7 @@
 			<Text>[NEWLINE](Only includes local [ICON_HAPPINESS_1] Happiness provided by buildings, policies and beliefs specific to this City.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION">
-			<Text>[NEWLINE](These 'Needs' are global averages of yields based on the number of [ICON_CITIZEN] Citizen in the City, as well as temporary situations, such as starvation or a blockades.)</Text>
+			<Text>[NEWLINE](These 'Needs' are global averages of yields based on the number of [ICON_CITIZEN] Citizens in the City, as well as temporary situations, such as starvation or blockades. Global averages increase as the game progresses, and yields per citizen decrease as a city grows. The bigger the divide between your city's yields and the global average, the higher your city's unhappiness!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS">
 			<Text>Local [ICON_HAPPINESS_1] Happiness: [COLOR_POSITIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
@@ -218,7 +232,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
-			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the size of the City, Technologies researched, Policies chosen, Buildings constructed or Civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted.)</Text>
+			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the size of the City, Technologies researched, Policies chosen, Buildings constructed and/or Civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted. Positive modifiers raise the global average for this city, whereas negative modifiers reduce it.)</Text>
 		</Row>
 
 	</Language_en_US>

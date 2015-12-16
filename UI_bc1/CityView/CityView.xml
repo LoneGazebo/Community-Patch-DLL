@@ -1,5 +1,6 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
 <Context Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha">
+	<Container ID="Scrap" Hidden="true"/>
 	<Container ID="PlotButtonContainer" Size="Full,Full" />
 	<Image Anchor="L,C" Texture="1920_LeftSide.DDS" StretchMode="UniformToFill" Sampler="Linear" Size="100.Full"/>
 	<Image Anchor="R,C" Texture="1920_RightSide.DDS" StretchMode="UniformToFill" Sampler="Linear" Size="100.Full"/>
@@ -17,7 +18,7 @@
 				<Button ID="PopulationBox" Offset="0,32" Anchor="L,T" Size="210,110">
 					<Image Anchor="L,T" Texture="CitizenFrame128.dds" Size="128.128" >
 						<Image Anchor="C,C" TextureOffset="256.128" Texture="CitizenIcons512.dds" Size="128.128"/>
-						<TextureBar Anchor="C,C" Size="88.88" Texture="CitizenMeter88.dds" Direction="Up" ID="PeopleMeter" />
+						<TextureBar ID="PeopleMeter" Anchor="C,C" Size="88.88" Texture="CitizenMeter88.dds" Direction="Up" />
 						<Label ID="CityPopulationLabel" Anchor="R,T" AnchorSide="O.I" Offset="-6,16" Font="TwCenMT24">
 							<Label ID="CityPopulationLabelSuffix" Anchor="R,C" AnchorSide="O.I" Offset="3,0" String="" Font="TwCenMT22"/>
 						</Label>
@@ -74,7 +75,7 @@
 				</Box>
 				<Image Anchor="L,C" Offset="0,15" Size="80,80" Texture="NotificationTileFrame.dds">
 					<Image Anchor="C,C" Offset="0,-1" Size="46,52" Color="White.64" Texture="MeterBarCultureBorder.dds"/>
-					<TextureBar Anchor="C,C" Offset="0,-1" Size="46.52" Texture="MeterBarCultureBorder.dds" Direction="Up" ID="CultureMeter" />
+					<TextureBar ID="CultureMeter" Anchor="C,C" Offset="0,-1" Size="46.52" Texture="MeterBarCultureBorder.dds" Direction="Up" />
 				</Image>
 			</Button>
 		</Stack>
@@ -85,7 +86,7 @@
 		<Button ID="ProductionPortraitButton" Void1="0" Anchor="L,B" Offset="-6,-11" Size="256.256" Texture="ProductionPanelBack.dds" NoStateChange="1" ToolTip="TXT_KEY_CITYVIEW_PROD_METER_TT">
 			<Meter ID="PQmeter" Anchor="L,B" Size="256,256" Texture="ProductionPanelMeter.dds" HasShadow="1" />
 			<Image Anchor="L,B" Size="256.256" Texture="ProductionPanelFrame.dds" />
-			<Image Anchor="L,B" Size="256.256" Texture="UnitPortraitsAncientMedieval.dds" ID="PQportrait" />
+			<Image ID="PQportrait" Anchor="L,B" Size="256.256" Texture="UnitPortraitsAncientMedieval.dds" />
 		</Button>
 	</Image>
 
@@ -200,13 +201,9 @@
 
 	<!-- Buttons -->
 	<!-- Return to map button -->
-	<GridButton ID="ReturnToMapButton" Anchor="C,B" Size="280,36" Offset="0,84" Style="BaseButton" ToolTip="TXT_KEY_CITYVIEW_RETURN_TT" >
-		<Label Anchor="C,C" String="{TXT_KEY_RETURN:upper}"/>
-	</GridButton>
+	<GridButton ID="ReturnToMapButton" Anchor="C,B" Size="280,36" Offset="0,84" Style="BaseButton" String="{TXT_KEY_RETURN:upper}" ToolTip="TXT_KEY_CITYVIEW_RETURN_TT" />
 	<!-- City task button -->
-	<GridButton ID="CityTaskButton" Anchor="C,B" Size="180,45" Offset="0,140" Style="BaseButton" Hidden="1">
-		<Label ID="CityTaskLabel" Anchor="C,C" Offset="0,-2" String="TXT_KEY_POPUP_ANNEX_CITY" Font="TwCenMT24" FontStyle="SoftShadow"/>
-	</GridButton>
+	<GridButton ID="CityTaskButton" Anchor="C,B" Size="280,45" Offset="0,140" Style="BaseButton" Hidden="1" String="TXT_KEY_POPUP_ANNEX_CITY" Font="TwCenMT24" FontStyle="SoftShadow"/>
 	<!-- /Buttons -->
 
 	<!-- Right Side Panel -->
@@ -253,58 +250,58 @@
 				<Button ID="GPHeader" Anchor="L,B" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT"/>
 				</Button>
-				<Stack Anchor="L,T" StackGrowth="B" ID="GPStack"/>
+				<Stack ID="GPStack" Anchor="L,T" StackGrowth="B"/>
 				<!-- Unemployment-->
-				<Button Anchor="L,B" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="SlackerHeader">
+				<Button ID="SlackerHeader" Anchor="L,B" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT"/>
 				</Button>
 				<Button ID="BoxOSlackers" Void1="-1" Void2="-1" NoStateChange="1" Anchor="L,C" Color="White.0" Size="254,2" ToolTip="TXT_KEY_CITYVIEW_UNEMPLOYED_TOOLTIP">
-					<Stack Anchor="R,T" StackGrowth="Left" WrapGrowth="Down" WrapWidth="260" ID="SlackerStack" />
+					<Stack ID="SlackerStack" Anchor="R,T" StackGrowth="Left" WrapGrowth="Down" WrapWidth="260" />
 					<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 				</Button>
 				<!-- Special Buildings -->
-				<Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="SpecialBuildingsHeader">
+				<Button ID="SpecialBuildingsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_SPECIAL_TEXT" />
 				</Button>
-				<Stack Anchor="L,T" StackGrowth="B" ID="SpecialBuildingsStack">
-					<Box Anchor="L,C" Color="White.0" Size="254,32" ID="SpecialistControlBox">
+				<Stack ID="SpecialBuildingsStack" Anchor="L,T" StackGrowth="B">
+					<Box ID="SpecialistControlBox" Anchor="L,C" Color="White.0" Size="254,32">
 						<Label Anchor="R,T" Offset="64,8"/>
-						<CheckBox Style="SquareCheck" Anchor="L,B" ID="NoAutoSpecialistCheckbox" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
+						<CheckBox ID="NoAutoSpecialistCheckbox" Style="SquareCheck" Anchor="L,B" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
 							<Label Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16"/>
 						</CheckBox>
 						<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 					</Box>
 				</Stack>
 				<!-- Great Work Buildings -->
-				<Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="GreatWorkHeader">
+				<Button ID="GreatWorkHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_GREAT_WORK_BUILDINGS_TEXT" />
 				</Button>
-				<Stack Anchor="L,T" StackGrowth="B" ID="GreatWorkStack"/>
+				<Stack ID="GreatWorkStack" Anchor="L,T" StackGrowth="B"/>
 				<!-- Wonders -->
-				<Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="WondersHeader">
+				<Button ID="WondersHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_WONDERS_TEXT" />
 				</Button>
-				<Stack Anchor="L,T" StackGrowth="B" ID="WondersStack">
-					<Box Anchor="L,C" Color="White.0" Size="254,32" ID="SpecialistControlBox2">
+				<Stack ID="WondersStack" Anchor="L,T" StackGrowth="B">
+					<Box ID="SpecialistControlBox2" Anchor="L,C" Color="White.0" Size="254,32">
 						<Label Anchor="R,T" Offset="64,8"/>
-						<CheckBox Style="SquareCheck" Anchor="L,B" ID="NoAutoSpecialistCheckbox2" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
+						<CheckBox ID="NoAutoSpecialistCheckbox2" Style="SquareCheck" Anchor="L,B" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
 							<Label Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16"/>
 						</CheckBox>
 						<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 					</Box>
 				</Stack>
 				<!-- Other Buildings -->
-				<Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="BuildingsHeader">
+				<Button ID="BuildingsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT" />
 				</Button>
-				<Stack Anchor="L,T" StackGrowth="B" ID="BuildingsStack"/>
+				<Stack ID="BuildingsStack" Anchor="L,T" StackGrowth="B"/>
 			</Stack>
 		</ScrollPanel>
 	</Grid>
 	<!-- /Right Side Panel -->
 
 	<!-- Sell Building Confirmation Popup -->
-	<Box ConsumeMouse="1" Color="Black.100" Size="Full.Full" ID="SellBuildingConfirm" Hidden="1" >
+	<Box ID="SellBuildingConfirm" ConsumeMouse="1" Color="Black.100" Size="Full.Full" Hidden="1" >
 		<Grid Size="500,410" Anchor="C,C" Padding="0,20" Style="Grid9DetailFive140" >
 			<!-- Side treatments -->
 			<Box Style="MenuLeftSideTreatment"/>
@@ -315,32 +312,26 @@
 				</Image>
 			</Image>
 			<Label ID="SellBuildingPopupText" Anchor="C,T" Offset="0,74" WrapWidth="440" String="T" Font="TwCenMT22"/>
-			<Stack Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom" ID="ButtonStack">
-				<!-- Yes Button -->
-				<GridButton Style="BaseButton" ID="YesButton" Size="400,42" Anchor="C,T" >
-					<Label Anchor="C,C" String="TXT_KEY_YES_BUTTON" Font="TwCenMT24"/>
-				</GridButton>
-				<!-- No Button -->
-				<GridButton Style="BaseButton" ID="NoButton" Size="400,42" Anchor="C,T" >
-				<Label Anchor="C,C" String="TXT_KEY_NO_BUTTON" Font="TwCenMT24"/>
-				</GridButton>
+			<Stack ID="ButtonStack" Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom">
+				<GridButton ID="YesButton" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_YES_BUTTON" Font="TwCenMT24"/>
+				<GridButton ID="NoButton" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_NO_BUTTON" Font="TwCenMT24"/>
 			</Stack>
 		</Grid>
 	</Box>
 
 	<!-- Instances -->
 	<Instance Name="SelectionInstance">
-		<Button Anchor="L,T" Size="270,32" ToolTipType="EUI_CityViewLeftTooltip" ID="Button" >
+		<Button ID="Button" Anchor="L,T" Size="270,32" ToolTipType="EUI_CityViewLeftTooltip" >
 			<ShowOnMouseOver>
 				<AlphaAnim Anchor="R,T" Size="260,32" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					<Grid Anchor="L,C" Offset="0,1" Size="260,37" Style="Grid9FrameTurnsHL"/>
 				</AlphaAnim>
 			</ShowOnMouseOver>
-			<Box Color="0,0,0,153" Size="270,31" Anchor="L,B" ID="DisabledProduction" Hidden="1"/>
-			<Image Anchor="L,C" Offset="-4,0" Texture="WonderAtlas360.dds" Size="45,45" ID="Portrait" />
-			<Label Anchor="L,C" Offset="42,-8" Font="TwCenMT18" ID="Name"/>
-			<Label Anchor="L,C" Offset="42,8" Font="TwCenMT14" ID="Turns"/>
-			<Box Color="0,0,0,153" Size="270,31" Anchor="L,B" ID="Disabled" Hidden="1"/>
+			<Box ID="DisabledProduction" Color="0,0,0,153" Size="270,31" Anchor="L,B" Hidden="1"/>
+			<Image ID="Portrait" Anchor="L,C" Offset="-4,0" Texture="WonderAtlas360.dds" Size="45,45" />
+			<Label ID="Name" Anchor="L,C" Offset="42,-8" Font="TwCenMT18"/>
+			<Label ID="Turns" Anchor="L,C" Offset="42,8" Font="TwCenMT14"/>
+			<Box ID="Disabled" Color="0,0,0,153" Size="270,31" Anchor="L,B" Hidden="1"/>
 			<Stack Anchor="R,B" StackGrowth="L" >
 				<Image ID="ScienceRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_SCIENCE" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolScience.dds" Hidden="1">
 					<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskScience.dds"/>
@@ -362,67 +353,64 @@
 					<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
 					<AlphaAnim Anchor="C,C" Offset="-3,-6" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
 				</Image>
-				<GridButton ID="GoldButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" >
-					<Label ID="GoldCost" Anchor="C,C" Font="TwCenMT16"/>
-				</GridButton>
-				<GridButton ID="FaithButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" >
-					<Label ID="FaithCost" Anchor="C,C" Font="TwCenMT16"/>
-				</GridButton>
+				<GridButton ID="GoldButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" Font="TwCenMT16"/>
+				<GridButton ID="FaithButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" Font="TwCenMT16"/>
 			</Stack>
 			<Image Anchor="L,B" Offset="0,-1" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 		</Button>
 	</Instance>
 
 	<Instance Name="ProductionInstance">
-		<GridButton Anchor="L,T" Style="ListItem" Size="270,38" ToolTipType="EUI_CityViewLeftTooltip" ID="PQbox" >
+		<GridButton ID="PQbox" Anchor="L,T" Style="ListItem" Size="270,38" ToolTipType="EUI_CityViewLeftTooltip" >
 			<Stack Anchor="L,C" Offset="40,-1" Padding="4" StackGrowth="Right" >
-				<Label Anchor="L,C" Font="TwCenMT24" ID="PQrank" />
-				<Image Anchor="L,C" Texture="UnitPortraitsAncientMedieval360.dds" Size="45.45" ID="PQportrait"/>
+				<Label ID="PQrank" Anchor="L,C" Font="TwCenMT24" />
+				<Image ID="PQportrait" Anchor="L,C" Texture="UnitPortraitsAncientMedieval360.dds" Size="45.45"/>
 				<Stack Anchor="L,C" Padding="6" StackGrowth="Bottom" >
-					<Label Font="TwCenMT16" ID="PQname"/>
-					<Label Font="TwCenMT16" ID="PQturns"/>
+					<Label ID="PQname" Font="TwCenMT16"/>
+					<Label ID="PQturns" Font="TwCenMT16"/>
 				</Stack>
 			</Stack>
-			<Box Anchor="L,T" Size="270,38" Color="27.0.64.128" ID="PQdisabled" />
-			<Button Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" ID="PQremove" />
+			<Box ID="PQdisabled" Anchor="L,T" Size="270,38" Color="27.0.64.128" />
+			<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
 			<Image Anchor="L,B" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 		</GridButton>
 	</Instance>
 
 	<Instance Name="BuildingInstance">
-		<Button Size="254,64" ToolTipType="EUI_CityViewRightTooltip" ID="Button" >
-			<ShowOnMouseOver>
-				<Box Size="254,64" Color="Gold.40" Anchor="C,T" ID="ButtonHighlight" />
-			</ShowOnMouseOver>
-			<Label Anchor="R,T" Offset="64,8" Font="TwCenMT18" TruncateWidth="185" ID="Name"/>
-			<Image Anchor="R,T" Size="64,64" Offset="0,-1" Texture="64x64FrameButtons.dds">
-				<Image Anchor="C,C" Size="64,64" ID="Portrait" />
+		<Button ID="Button" Size="254,64" ToolTipType="EUI_CityViewRightTooltip" >
+			<Image Anchor="R,T" Size="64,64" Texture="64x64FrameButtons.dds">
+				<Image ID="Portrait" Anchor="C,C" Size="64,64" />
 			</Image>
-			<Stack Anchor="R,B" Offset="64,8" StackGrowth="Left" WrapGrowth="Down" WrapWidth="200" ID="SlotStack" />
+			<Stack ID="Stack" Anchor="R,T" Offset="0,8" StackGrowth="Down" Padding="8" >
+				<Label ID="Name" Anchor="R,T" Offset="64,0" Font="TwCenMT18" TruncateWidth="190"/>
+				<Stack ID="SlotStack" Anchor="R,T" StackGrowth="Left" WrapGrowth="Down" WrapWidth="254">
+					<Container Size="64.1"/>
+					<TextButton ID="TextButton" Anchor="R,C"/>
+				</Stack>
+				<Label ID="Label" Anchor="R,B" WrapWidth="254"/>
+			</Stack>
+			<GridButton ID="SellButton" Anchor="L,T" Size="70,22" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_CLICK_TO_SELL" />
 			<Box Anchor="C,B" Color="27.53.64.255" Size="254,2"/>
 		</Button>
 	</Instance>
 
-	<Instance Name="SlotInstance">
+	<Instance Name="Slot">
 		<Button ID="Button" Size="32,32" ToolTipType="EUI_CityViewRightTooltip"/>
 	</Instance>
-	<Instance Name="SlotInstance2">
+	<Instance Name="Work">
 		<Button ID="Button" Size="32,32"/>
-	</Instance>
-	<Instance Name="LabelInstance">
-		<TextButton ID="Text" ConsumeMouse="1" Anchor="R,C"/>
 	</Instance>
 
 	<!-- Great Person Meter Instances -->
 	<Instance Name="GPInstance">
-		<Button NoStateChange="1" Anchor="L,T" Color="255.255.255.0" Size="254,70" ID="GPBox">
+		<Button ID="GPBox" NoStateChange="1" Anchor="L,T" Color="255.255.255.0" Size="254,70">
 			<Image Anchor="C,C" Size="214,29" Offset="-20,4" Texture="MeterBarGreatPersonBack.dds">
-				<TextureBar Anchor="L,C" Size="214.29" Texture="MeterBarGreatPersonGold.dds" Direction="Right" ID="GPMeter" />
+				<TextureBar ID="GPMeter" Anchor="L,C" Size="214.29" Texture="MeterBarGreatPersonGold.dds" Direction="Right" />
 				<Image Anchor="L,C" Size="214,29" Texture="MeterBarFrame.dds"/>
-				<Label Anchor="L,T" Offset="12,-15" String="TXT_KEY_CITYVIEW_GP_PROGRGRESS" Font="TwCenMT16" ID="GreatPersonLabel" />
+				<Label ID="GreatPersonLabel" Anchor="L,T" Offset="12,-15" String="TXT_KEY_CITYVIEW_GP_PROGRGRESS" Font="TwCenMT16" />
 			</Image>
 			<Image Anchor="R,C" Size="64,64" Offset="0,-2" Texture="64x64FrameButtons.dds">
-				<Image Anchor="C,C" Size="64,64" ID="GPImage"/>
+				<Image ID="GPImage" Anchor="C,C" Size="64,64"/>
 			</Image>
 			<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 		</Button>
@@ -446,26 +434,26 @@
 	<Instance Name="PlotButtonInstance">
 		<WorldAnchor ID="PlotButtonAnchor">
 			<Button Size="45,45" Anchor="C,C" Texture="45x45FrameButton.dds"/>
-			<Button NoStateChange="1" Anchor="C,C" Size="45,45" Texture="CitizenIcons180.dds" ID="PlotButtonImage"/>
+			<Button ID="PlotButtonImage" NoStateChange="1" Anchor="C,C" Size="45,45" Texture="CitizenIcons180.dds"/>
 		</WorldAnchor>
 	</Instance>
 	<!-- /Instances -->
 
 	<!-- Tooltips -->
 	<ToolTipType Name="EUI_CityViewRightTooltip" >
-		<Grid Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" ID="Box" NoClip="1" >
-			<Image Anchor="L,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256" ID="PortraitFrame">
-				<Image Anchor="C,C" Size="256,256" ID="Portrait"/>
+		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1" >
+			<Image ID="PortraitFrame" Anchor="L,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256">
+				<Image ID="Portrait" Anchor="C,C" Size="256,256"/>
 			</Image>
-			<Label Offset="12,12" ID="Text" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
+			<Label ID="Text" Offset="12,12" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
 		</Grid>
 	</ToolTipType>
 	<ToolTipType Name="EUI_CityViewLeftTooltip" >
-		<Grid Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" ID="Box" NoClip="1" >
-			<Image Anchor="R,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256" ID="PortraitFrame">
-				<Image Anchor="C,C" Size="256,256" ID="Portrait"/>
+		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1" >
+			<Image ID="PortraitFrame" Anchor="R,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256">
+				<Image ID="Portrait" Anchor="C,C" Size="256,256"/>
 			</Image>
-			<Label Offset="12,12" ID="Text" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
+			<Label ID="Text" Offset="12,12" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
 		</Grid>
 	</ToolTipType>
 </Context>

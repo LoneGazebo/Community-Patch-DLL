@@ -105,6 +105,7 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsPocketTradeAgreement" Hidden="1"/>
 							<!-- Putmalk -->
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"  ID="UsPocketVassalage" />
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"  ID="UsPocketRevokeVassalage" />
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="UsPocketDoF"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_CITIES" ID="UsPocketCities"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="[ICON_MINUS] TXT_KEY_DIPLO_OTHER_PLAYERS" ID="UsPocketOtherPlayer"/>
@@ -155,6 +156,7 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemPocketTradeAgreement" Hidden="1"/>
 							<!-- Putmalk -->
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE" ID="ThemPocketVassalage"/>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE" ID="ThemPocketRevokeVassalage"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="ThemPocketDoF"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_CITIES" ID="ThemPocketCities"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OTHER_PLAYERS" ID="ThemPocketOtherPlayer"/>
@@ -216,6 +218,7 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
 							<!-- Putmalk -->
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="UsTableVassalage" />
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage" />
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="UsTableDoF"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableDeclareWarStack">
@@ -280,6 +283,7 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="ThemTableDoF"/>
 							<!-- Putmalk -->
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="ThemTableVassalage" Hidden="1"/>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="ThemTableRevokeVassalage" Hidden="1"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCitiesStack"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableDeclareWarStack">
 								<Box Color="255,255,255,0" Size="194,18">

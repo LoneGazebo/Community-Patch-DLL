@@ -50,7 +50,9 @@ public:
 
 	// Logging
 	void LogPossibleBuilds();
-
+#if defined(MOD_BALANCE_CORE)
+	int CheckBuildingBuildSanity(CvCity* pCity, BuildingTypes eBuilding, int iValue);
+#endif
 private:
 
 	// Private data

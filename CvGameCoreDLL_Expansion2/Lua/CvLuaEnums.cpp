@@ -774,6 +774,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	RegisterEnum(TRADE_ITEM_TECHS);
 	RegisterEnum(TRADE_ITEM_VASSALAGE);
+	RegisterEnum(TRADE_ITEM_VASSALAGE_REVOKE);
 #endif
 	RegisterEnum(NUM_TRADEABLE_ITEMS);
 	EnumEnd(L);

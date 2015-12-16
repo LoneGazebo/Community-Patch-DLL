@@ -944,8 +944,7 @@ void CvBarbarians::DoUnits()
 					iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
 #endif
 					iCityStrength /= 100;
-					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 10);
-					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 15);
 #ifdef AUI_BINOM_RNG
 					iBarbStrength +=GC.getGame().getJonRandNumBinom(iBarbStrength, "Barbarian Random Strength Bump");
 #else
@@ -957,8 +956,8 @@ void CvBarbarians::DoUnits()
 
 						if(iTheft > 0)
 						{
-							pCity->changeDamage((iTheft / 4));
-							pUnit->changeDamage((iTheft / 4));
+							pCity->changeDamage((iTheft / 8));
+							pUnit->changeDamage((iTheft / 8));
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else

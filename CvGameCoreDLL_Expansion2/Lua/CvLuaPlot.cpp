@@ -102,9 +102,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(HasBarbarianCamp);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	Method(HasDig);
-#if !defined(MOD_API_LUA_EXTENSIONS)
-	Method(GetPlayerThatBuiltImprovement);
-#endif
 #endif
 	Method(IsVisible);
 	Method(IsActiveVisible);
@@ -810,13 +807,6 @@ int CvLuaPlot::lHasDig(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::HasDig);
 }
-#if !defined(MOD_API_LUA_EXTENSIONS)
-//------------------------------------------------------------------------------
-int CvLuaPlot::lGetPlayerThatBuiltImprovement(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlot::GetPlayerThatBuiltImprovement);
-}
-#endif
 #endif
 
 //------------------------------------------------------------------------------

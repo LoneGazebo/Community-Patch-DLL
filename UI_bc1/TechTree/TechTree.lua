@@ -385,12 +385,12 @@ local function RefreshDisplayNow()
 
 	-- update the era panels
 	local highestEra = 0
-	for thisEra = 0, #g_eraBlocks, 1 do
+	for thisEra = 0, #g_eraBlocks do
 		if g_eraColumns[thisEra] and g_eraColumns[thisEra].researched then
 			highestEra = thisEra
 		end
 	end
-	for thisEra = 0, #g_eraBlocks, 1 do
+	for thisEra = 0, #g_eraBlocks do
 		local thisEraBlockInstance = g_eraBlocks[thisEra]
 		thisEraBlockInstance.OldBar:SetHide( thisEra >= highestEra )
 		thisEraBlockInstance.CurrentBlock:SetHide( thisEra ~= highestEra )

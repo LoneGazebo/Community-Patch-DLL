@@ -551,30 +551,6 @@ function DoUIDealChangedByHuman()
 	end
 	
 	DoUpdateButtons();
-	--CBP
-	Controls.PeaceValue:SetHide(true);
-	Controls.PeaceMax:SetHide(true);
-	Controls.PeaceDeal:SetHide(true);
-	Controls.PeaceDealBorderFrame:SetHide(true);
-	if(g_pUsTeam:IsAtWar( g_iThemTeam )) then
-		if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
-			Controls.PeaceValue:SetHide(false);
-			Controls.PeaceMax:SetHide(false);
-			Controls.PeaceDeal:SetHide(false);
-			Controls.PeaceDealBorderFrame:SetHide(false);
-			local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
-			local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
-			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
-			local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
-			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
-			local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
-			Controls.PeaceValue:SetText(Valuestr);
-			Controls.PeaceMax:SetText(Maxstr);
-			Controls.PeaceValue:SetToolTipString(ValuestrTT);
-			Controls.PeaceMax:SetToolTipString(MaxstrTT);
-		end
-	end
-	--END
 	
 end
 
@@ -667,6 +643,9 @@ function DoUpdateButtons()
 				local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
 				local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+				if(iCurrent == -1) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
 				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
 				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");

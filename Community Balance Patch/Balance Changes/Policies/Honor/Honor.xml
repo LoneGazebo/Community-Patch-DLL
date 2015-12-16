@@ -391,7 +391,7 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>60</Yield>
+			<Yield>80</Yield>
 		</Row>
 	</Policy_YieldFromKills>
 	<Policy_FreePromotions>
@@ -416,6 +416,13 @@
 			<Yield>25</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
+	<Policy_YieldFromMinorDemand>
+		<Row>
+			<PolicyType>POLICY_DISCIPLINE</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Policy_YieldFromMinorDemand>
 	<Policy_PrereqPolicies>
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
