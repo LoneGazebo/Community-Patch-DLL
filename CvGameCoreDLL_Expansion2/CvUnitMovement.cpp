@@ -274,17 +274,16 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		{
 			//trait?
 			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-			{
-				bCanMoveFreely = true;
-			}
+				return false;
+
 			//If city, and player has disembark to city at no cost...
 			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) )
 			{
 				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
-				{
-					bCanMoveFreely = true;
-				}
+					return false;
 			}
+
+			return true;
 		}
 
 		//embarkation?
@@ -294,18 +293,11 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) )
 			{
 				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
-				{
-					bCanMoveFreely = true;
-				}
+					return false;
 			}
-		}
 
-		if(bCanMoveFreely)
-		{
-			return false;
+			return true;
 		}
-
-		return true;
 	}
 
 	return false;
