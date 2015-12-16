@@ -7,14 +7,14 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Fertility Rites (Now Goddess of Fertility)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_FOOD] Food and +2 [ICON_PEACE] Faith from Shrines, and 15% faster [ICON_FOOD] Growth Rate'
+SET Text = '+1 [ICON_FOOD] Food and +2 [ICON_PEACE] Faith from Shrines and Wells, and 15% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Goddess of Fertility'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
--- God of Craftsmen
+-- God of Craftsmen (Now God of Wealth)
 UPDATE Language_en_US
 SET Text = '+1 [ICON_PEACE] Faith for every +10 [ICON_GOLD] Gold per turn, and +2 [ICON_PRODUCTION] Production and [ICON_PEACE] Faith in Cities with a Specialist'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_CRAFTSMEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
@@ -31,7 +31,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 2 featureless Plains tiles near a City, +1 [ICON_CULTURE] Culture from Pastures'
+SET Text = '+1 [ICON_CULTURE] Culture for every 3 featureless Plains tiles near a City, +2 [ICON_PEACE] Faith from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -72,7 +72,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- God of War
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science from Barracks, and gain [ICON_PEACE] Faith if you win a battle'
+SET Text = '+15 HP healed per turn in friendly territory, and gain [ICON_PEACE] Faith if you win a battle'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Waters (Now Goddess of Purity)
@@ -139,17 +139,8 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH_SHORT' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Goddess of Protection
 UPDATE Language_en_US
-SET Text = '+40% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength. +3 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Walls'
+SET Text = '+40% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Walls and Barracks'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
-
--- Faith Healers (Now Goddess of Healing)
-UPDATE Language_en_US
-SET Text = '+15 HP healed per turn in friendly territory. +2 [ICON_PEACE] Faith and +1 Gold from Wells, +3 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Watermills.'
-WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Goddess of Healing'
-WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods (Now Goddess of Beauty)
 UPDATE Language_en_US

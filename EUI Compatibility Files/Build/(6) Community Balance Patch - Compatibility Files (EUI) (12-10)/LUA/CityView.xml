@@ -151,6 +151,7 @@
 					<Stack ID="OtherButtonStack" Anchor="L,T" Size="256,32" StackGrowth="B" />
 				</Stack>
 			</ScrollPanel>
+			<GridButton ID="GoldButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" Font="TwCenMT16"/>
 		</Stack>
 		<!-- Queue Slider Control -->
 		<Slider ID="QueueSlider" ConsumeMouseWheel="0" Anchor="L,B" Offset="56,43" Vertical="1" Texture="Blank.dds" Length="200" Size="230,1" >
@@ -378,6 +379,7 @@
 					<Label ID="PQname" Font="TwCenMT16"/>
 					<Label ID="PQturns" Font="TwCenMT16"/>
 				</Stack>
+				<GridButton ID="GoldButton" Anchor="R,B" Size="70,22" Style="SmallButton" ToolTipType="EUI_CityViewLeftTooltip" Font="TwCenMT16"/>
 			</Stack>
 			<Box ID="PQdisabled" Anchor="L,T" Size="270,38" Color="27.0.64.128" />
 			<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
@@ -387,15 +389,18 @@
 
 	<Instance Name="BuildingInstance">
 		<Button ID="Button" Size="254,64" ToolTipType="EUI_CityViewRightTooltip" >
-			<GridButton ID="SellButton" Anchor="L,T" Size="70,22" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_CLICK_TO_SELL" />
-			<Label ID="Name" Anchor="R,T" Offset="64,8" Font="TwCenMT18" TruncateWidth="185"/>
-			<Image Anchor="R,T" Size="64,64" Offset="0,-1" Texture="64x64FrameButtons.dds">
+			<Image Anchor="R,T" Size="64,64" Texture="64x64FrameButtons.dds">
 				<Image ID="Portrait" Anchor="C,C" Size="64,64" />
 			</Image>
-			<Stack ID="SlotStack" Anchor="R,T" Offset="64,26" StackGrowth="Left" WrapGrowth="Down" WrapWidth="200" >
-				<TextButton ID="TextButton" Anchor="R,C"/>
-				<Label ID="Label" Anchor="R,C"/>
+			<Stack ID="Stack" Anchor="R,T" Offset="0,8" StackGrowth="Down" Padding="8" >
+				<Label ID="Name" Anchor="R,T" Offset="64,0" Font="TwCenMT18" TruncateWidth="190"/>
+				<Stack ID="SlotStack" Anchor="R,T" StackGrowth="Left" WrapGrowth="Down" WrapWidth="254">
+					<Container Size="64.1"/>
+					<TextButton ID="TextButton" Anchor="R,C"/>
+				</Stack>
+				<Label ID="Label" Anchor="R,B" WrapWidth="254"/>
 			</Stack>
+			<GridButton ID="SellButton" Anchor="L,T" Size="70,22" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_CLICK_TO_SELL" />
 			<Box Anchor="C,B" Color="27.53.64.255" Size="254,2"/>
 		</Button>
 	</Instance>

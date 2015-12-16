@@ -2440,6 +2440,12 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoContactMajorCivs();
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID());	//Proposed deals with AI players are purely transitional.
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		DoMakePeaceWithVassals();
+	}
+#endif
 
 	// Update Counters
 	DoCounters();
@@ -4735,6 +4741,14 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		{
 			viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 10;
 		}
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(GetPlayer()->GetYieldFromMinorDemand(eYield) > 0)
+			{
+				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 1;
+			}
+		}
 	}
 #endif
 
@@ -6142,7 +6156,34 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 // ************************************
 
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+/// Do we want to make peace with anyone Minors we're at war with?
+void CvDiplomacyAI::DoMakePeaceWithVassals()
+{
+	PlayerTypes eLoopPlayer;
 
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer))
+		{
+			if(IsAtWar(eLoopPlayer) && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassalOfSomeone())
+			{
+				TeamTypes eMaster = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster();
+				if(eMaster != NO_TEAM && !GET_TEAM(GetTeam()).isAtWar(eMaster))
+				{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
+#else
+					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam());
+#endif
+				}
+			}
+		}
+	}
+}
+#endif
 /// Do we want to make peace with anyone Minors we're at war with?
 void CvDiplomacyAI::DoMakePeaceWithMinors()
 {
@@ -6278,8 +6319,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					else
 					{
 						iWillingToAcceptScore += iWarScore;
-					}
-					
+					}			
 #else
 					{
 //					if (IsWantsPeaceWithPlayer(eLoopPlayer))
@@ -6498,6 +6538,10 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		}
 		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3);
 		if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+		{
+			bWillMakePeace = true;
+		}
+		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
 		{
 			bWillMakePeace = true;
 		}
@@ -7539,54 +7583,6 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		iWarScore *= 2;
 	}
 
-	// How is the war going?
-	if(!bIgnoreLoops)
-	{
-		switch(GetWarProjection(ePlayer))
-		{
-		case WAR_PROJECTION_DESTRUCTION:
-			iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-			break;
-		case WAR_PROJECTION_DEFEAT:
-			iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-			break;
-		case WAR_PROJECTION_STALEMATE:
-			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case WAR_PROJECTION_UNKNOWN:
-			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case WAR_PROJECTION_GOOD:
-			iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-			break;
-		case WAR_PROJECTION_VERY_GOOD:
-			iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-			break;
-		default:
-			break;
-		}
-	}
-	switch(GetWarState(ePlayer))
-	{
-	case WAR_STATE_CALM:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_STATE_NEARLY_WON:
-		iWarScore +=  /*30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MAJOR();
-		break;
-	case WAR_STATE_OFFENSIVE:
-		iWarScore += /*10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MINOR();
-		break;
-	case WAR_STATE_STALEMATE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_STATE_DEFENSIVE:
-		iWarScore += /*-10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MINOR();
-		break;
-	case WAR_STATE_NEARLY_DEFEATED:
-		iWarScore += /*-30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MAJOR();
-		break;
-	}
 	//War damage inflicted on them
 	switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(GetPlayer()->GetID()))
 	{
@@ -7668,54 +7664,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	{
 		iTheirWarScore *= 2;
 	}
-	// How is the war going?
-	if(!bIgnoreLoops)
-	{
-		switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarProjection(GetPlayer()->GetID()))
-		{
-		case WAR_PROJECTION_DESTRUCTION:
-			iTheirWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-			break;
-		case WAR_PROJECTION_DEFEAT:
-			iTheirWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-			break;
-		case WAR_PROJECTION_STALEMATE:
-			iTheirWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case WAR_PROJECTION_UNKNOWN:
-			iTheirWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case WAR_PROJECTION_GOOD:
-			iTheirWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-			break;
-		case WAR_PROJECTION_VERY_GOOD:
-			iTheirWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-			break;
-		default:
-			break;
-		}
-	}
-	switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(GetPlayer()->GetID()))
-	{
-	case WAR_STATE_CALM:
-		iTheirWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_STATE_NEARLY_WON:
-		iTheirWarScore +=  /*30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MAJOR();
-		break;
-	case WAR_STATE_OFFENSIVE:
-		iTheirWarScore += /*10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MINOR();
-		break;
-	case WAR_STATE_STALEMATE:
-		iTheirWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_STATE_DEFENSIVE:
-		iTheirWarScore += /*-10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MINOR();
-		break;
-	case WAR_STATE_NEARLY_DEFEATED:
-		iTheirWarScore += /*-30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MAJOR();
-		break;
-	}
+
 	//War damage inflicted on us
 	switch(GetWarDamageLevel(ePlayer))
 	{
@@ -7748,46 +7697,15 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	{
 		return 0;
 	}
-	if(iWarScore > 0)
+	iAverageScore = ((iWarScore + iTheirWarScore) / 2);
+	if(iTheirWarScore > iWarScore)
 	{
-		if(iWarScore > iTheirWarScore)
-		{
-			if(iTheirWarScore > 0)
-			{
-				iAverageScore = iWarScore - iTheirWarScore;
-			}
-			else
-			{
-				iAverageScore = iWarScore + (iTheirWarScore * -1);
-			}
-		}
-		else
-		{
-			iAverageScore = iWarScore - iTheirWarScore;
-		}
-	}
-	else
-	{
-		if(iWarScore > iTheirWarScore)
-		{
-			iAverageScore = iWarScore + iTheirWarScore;
-		}
-		else
-		{
-			if(iTheirWarScore > 0)
-			{
-				iAverageScore = iWarScore + (iTheirWarScore * -1);
-			}
-			else
-			{
-				iAverageScore = iWarScore + iTheirWarScore;
-			}
-		}
+		iAverageScore *= -1;
 	}
 	int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
 	int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
 	int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-	iWarDuration /= 10;
+	iWarDuration /= 8;
 	if(iWarDuration > 0)
 	{	
 		if(iAverageScore > 0)
@@ -9885,7 +9803,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				iNumCivs++;
 			}
 		}
-		iLoyalty = ((iLoyalty * iNumCivs) / 40);
+		iLoyalty = ((iLoyalty * iNumCivs) / 50);
 		if(iLoyalty <= 0)
 		{
 			iLoyalty = 1;
@@ -15309,6 +15227,24 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_TEAM(GetPlayer()->getTeam()).DoEndVassal(GET_PLAYER(ePlayer).getTeam(), bPeaceful, false);
 		}
 	}
+	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_REVOKE_VASSALAGE_THIRD_PARTY)
+	{
+		// Active human
+		if(bShouldShowLeaderScene)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_REVOKE_VASSAL_THIRD_OFFER);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_POSITIVE);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
 	// AI offers ePlayer to be his vassal
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_BECOME_MY_VASSAL)
 	{
@@ -15626,6 +15562,8 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
 				DoMapsOffer(ePlayer,eStatement,pDeal);
 				DoTechOffer(ePlayer,eStatement,pDeal);
+				DoRevokeVassalageStatement(ePlayer, eStatement, pDeal);
+				DoMakeVassalageStatement(ePlayer, eStatement, pDeal);
 			}
 #endif
 		}
@@ -18940,6 +18878,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 
 		// Have to have been at war for at least a little while
 #if defined(MOD_BALANCE_CORE)
+		int iPeace = GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
 		int iOperationID;
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
 		if(!bHasOperationUnderway)
@@ -18950,7 +18889,11 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		if((GetPlayerNumTurnsAtWar(ePlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS)) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3)))
+		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
+		{
+			bHasOperationUnderway = false;
+		}	
+		if((GetPlayerNumTurnsAtWar(ePlayer) >= iPeace) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || (bHasOperationUnderway && (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3))))
 #else
 		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
 #endif
@@ -21502,6 +21445,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	// AI master greets his human vassal
 	case DIPLO_MESSAGE_GREETING_VASSALAGE_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_GREETING_VASSALAGE_MASTER");
+		break;
+
+	// AI master greets his human vassal
+	case DIPLO_MESSAGE_REVOKE_VASSAL_THIRD_OFFER:
+		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_TRADE_REVOKE");
 		break;
 
 	// AI asks human to revoke his vassalage
@@ -34165,6 +34113,9 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 		case DIPLO_STATEMENT_REVOKE_VASSALAGE:
 			strTemp.Format("***** REVOKING VASSALAGE *****");
 			break;
+		case DIPLO_STATEMENT_REVOKE_VASSALAGE_THIRD_PARTY:
+			strTemp.Format("***** REVOKING VASSALAGE VIA TRADE *****");
+			break;
 #endif
 		default:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
@@ -34790,7 +34741,35 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 		}
 	}
 }
+/// Possible Contact Statement
+void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	// note: we check to see if it's possible in IsMakeOfferForVassalage()
+
+	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	{
+		// Can we make an offer for vassalage?
+		if(GetPlayer()->GetDealAI()->IsMakeOfferForRevokeVassalage(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		{
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REVOKE_VASSALAGE_THIRD_PARTY;
+			int iTurnsBetweenStatement = 50;
+
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
+			{
+				// Send the statement
+				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
+					eStatement = eTempStatement;
+			}
+		}
+		else
+		{
+			pDeal->ClearItems();
+		}
+	}
+}
 /// Possible Contact Statement
 ///	Do we want to (voluntarily) capitulate to ePlayer?
 bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)

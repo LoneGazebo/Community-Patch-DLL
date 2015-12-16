@@ -1336,6 +1336,28 @@ bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int uni
 
 	return false;
 }
+/// Accessor:: Does the civ grant units the ability to build something?
+bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) const
+{
+	std::multimap<int, int>::const_iterator it = m_BuildsUnitClasses.find(buildID);
+	if(it != m_BuildsUnitClasses.end())
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::multimap<int, int>::const_iterator lastElement = m_BuildsUnitClasses.upper_bound(buildID);
+
+		// for each element in the sequence [itr, lastElement)
+		for(; it != lastElement; ++it)
+		{
+			if(it->second == unitClassID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 #endif
 
 /// Has this trait become obsolete?
@@ -1738,6 +1760,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_FreePromotionUnitClass).swap(m_FreePromotionUnitClass);
+	}
+	//Populate m_BuildsUnitClasses
+	{
+		std::string sqlKey = "BuildsUnitClasses";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Builds.ID, UnitClasses.ID from Trait_BuildsUnitClasses, Builds, UnitClasses where TraitType = ? and BuildType = Builds.Type and UnitClassType = UnitClasses.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int buildID = pResults->GetInt(0);
+			const int unitClassInfoID = pResults->GetInt(1);
+
+			m_BuildsUnitClasses.insert(std::pair<int, int>(buildID, unitClassInfoID));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::multimap<int,int>(m_BuildsUnitClasses).swap(m_BuildsUnitClasses);
 	}
 #endif
 
@@ -3414,6 +3461,28 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 
 	return false;
 }
+/// Do all new units of a certain class get a specific promotion?
+bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
+{
+	CvAssertMsg((buildID >= 0), "buildID is less than zero");
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(HasTrait(eTrait))
+			{
+				if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
 #endif
 
 /// Does each city get a free building?
@@ -3529,7 +3598,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			{
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-					pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
 					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
@@ -3553,7 +3622,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 #endif
 				{
 					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidEndTurnPlot(pCity->getOwner()) && 
+					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
 						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)

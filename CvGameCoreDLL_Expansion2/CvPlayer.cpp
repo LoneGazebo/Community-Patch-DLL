@@ -576,6 +576,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldChangeTradeRoute(NULL)
 	, m_piYieldChangesNaturalWonder(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
+	, m_piYieldFromMinorDemand(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppaaiBuildingClassYieldChange", m_syncArchive)
 #endif
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
@@ -714,8 +715,10 @@ void CvPlayer::init(PlayerTypes eID)
 	// only allocate notifications for civs that players can play as
 	if(eID < MAX_MAJOR_CIVS)
 	{
-		m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
-		m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
+		if (!m_pNotifications)
+			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+		if (!m_pDiplomacyRequests)
+			m_pDiplomacyRequests = FNEW(CvDiplomacyRequests, c_eCiv5GameplayDLL, 0);
 	}
 
 	//--------------------------------
@@ -1896,6 +1899,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_piYieldChangeWorldWonder.clear();
 		m_piYieldChangeWorldWonder.resize(NUM_YIELD_TYPES, 0);
 
+		m_piYieldFromMinorDemand.clear();
+		m_piYieldFromMinorDemand.resize(NUM_YIELD_TYPES, 0);
+
 		m_ppiBuildingClassYieldChange.clear();
 		m_ppiBuildingClassYieldChange.resize(GC.getNumBuildingClassInfos());
 		for(unsigned int i = 0; i < m_ppiBuildingClassYieldChange.size(); ++i)
@@ -2370,7 +2376,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-								if(pLoopPlot->isValidEndTurnPlot(GetID()))
+								if(pLoopPlot->isValidMovePlot(GetID()))
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -3857,7 +3863,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							{
 								// here would be a good place to put additional checks (for example, influence)
 #if defined(MOD_BALANCE_CORE)
-								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 #else
 								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 #endif
@@ -9118,7 +9124,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-								if(pLoopPlot->isValidEndTurnPlot(GetID()) && !pLoopPlot->isCity())
+								if(pLoopPlot->isValidMovePlot(GetID()) && !pLoopPlot->isCity())
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -11620,6 +11626,24 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	int iBuildingCount;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE)
+		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+		{
+			YieldTypes eYield = (YieldTypes) iJ;
+			for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
+			{
+				ImprovementTypes eImprovement = (ImprovementTypes)iK;
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					int iYieldChange = pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield);
+					if(iYieldChange > 0)
+					{
+						pLoopCity->ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
+					}
+				}
+			}
+		}
+#endif
 		// Building modifiers
 		BuildingClassTypes eBuildingClass;
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -13719,6 +13743,10 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 			CvCity* pCity = getCapitalCity();
 #endif
 			iValue = (iValue * iCombatStrength) / 100;
+#if defined(MOD_BALANCE_CORE)
+			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue /= 100;
+#endif
 			if(iValue > 0)
 			{
 				switch(eYield)
@@ -15254,7 +15282,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-			if(!pPlot->isValidEndTurnPlot(GetID()))
+			if(!pPlot->isValidMovePlot(GetID()))
 				continue;
 
 			// Can't be water
@@ -16898,10 +16926,15 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(MOD_BALANCE_CORE_POLICIES && GetGarrisonsOccupiedUnhapppinessMod() != 0)
 			{
-				if(pLoopCity->GetGarrisonedUnit() != NULL)
+				CvPlot* pPlot = pLoopCity->plot();
+				if(pPlot)
 				{
-					iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
-					iUnhappinessFromThisCity /= 100;
+					UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
+					if(garrison)
+					{
+						iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
+						iUnhappinessFromThisCity /= 100;
+					}
 				}
 			}
 #endif
@@ -20084,75 +20117,108 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	}
 	if(getYieldGPExpend(YIELD_GOLD) > 0)
 	{
-		GetTreasury()->ChangeGold(getYieldGPExpend(YIELD_GOLD) * iEra);
+		int iYield = getYieldGPExpend(YIELD_GOLD);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		GetTreasury()->ChangeGold(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", getYieldGPExpend(YIELD_GOLD) * iEra);
+			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_FAITH) > 0)
 	{
-		ChangeFaith(getYieldGPExpend(YIELD_FAITH) * iEra);
+		int iYield = getYieldGPExpend(YIELD_FAITH);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		ChangeFaith(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", getYieldGPExpend(YIELD_FAITH) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_CULTURE) > 0)
 	{
-		changeJONSCulture(getYieldGPExpend(YIELD_CULTURE) * iEra);
+		int iYield = getYieldGPExpend(YIELD_CULTURE);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
+		changeJONSCulture(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", getYieldGPExpend(YIELD_CULTURE) * iEra);
+			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) > 0)
 	{
-		ChangeGoldenAgeProgressMeter(getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) * iEra);
+		int iYield = getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
+		ChangeGoldenAgeProgressMeter(iYield);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", getYieldGPExpend(YIELD_GOLDEN_AGE_POINTS) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_SCIENCE) > 0)
 	{
+		int iYield = getYieldGPExpend(YIELD_SCIENCE);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(getYieldGPExpend(YIELD_SCIENCE) * iEra);
+			changeOverflowResearch(iYield);
 		}
 		else
 		{
-			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (getYieldGPExpend(YIELD_SCIENCE) * iEra), GetID());
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, GetID());
 		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", getYieldGPExpend(YIELD_SCIENCE) * iEra);
+			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
 	if(getYieldGPExpend(YIELD_TOURISM) > 0)
 	{
-		GetCulture()->AddTourismAllKnownCivs(getYieldGPExpend(YIELD_TOURISM) * iEra);
+		int iYield = getYieldGPExpend(YIELD_TOURISM);
+		iYield *= iEra;
+							
+		iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYield /= 100;
+		GetCulture()->AddTourismAllKnownCivs(iEra);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", getYieldGPExpend(YIELD_TOURISM) * iEra);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iEra);
 			DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
 		}
 	}
@@ -20447,7 +20513,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
 
-	CvCity* pMajorCity = GetClosestCity(*pMinorPlot, MAX_INT);
+	CvCity* pMajorCity = GetClosestCity(pMinorPlot);
 
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
@@ -22078,7 +22144,14 @@ void CvPlayer::DoReformCooldown()
 }
 void CvPlayer::SetCurrency(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, m_iJFDCurrency);
+	if(!HasCurrency())
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, -1);
+	}
+	else
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, GetCurrency());
+	}
 	if(m_iJFDCurrency != iValue)
 	{
 		m_iJFDCurrency = iValue;
@@ -25010,7 +25083,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-						if(!pPlot->isOwned() && pPlot->isValidEndTurnPlot(GetID()) && !pPlot->isWater())
+						if(!pPlot->isOwned() && pPlot->isValidMovePlot(GetID()) && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -29021,6 +29094,23 @@ void CvPlayer::ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange)
 	}
 }
 
+int CvPlayer::GetYieldFromMinorDemand(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromMinorDemand[eYield];
+}
+
+void CvPlayer::ChangeYieldFromMinorDemand(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_piYieldFromMinorDemand[eYield] += iChange;
+	}
+}
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -30065,7 +30155,7 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
+bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
 {
 	if (!pPlot)
 		return false;
@@ -30074,6 +30164,9 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot) const
 	int iLoop = 0;
 	for(const CvUnit* pUnit = firstUnit(&iLoop); pUnit; pUnit = nextUnit(&iLoop))
 	{
+		if (pUnit==pIgnoreUnit)
+			continue;
+
 		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_EXPLORE) )
 		{
 			CvPlot* pMissionPlot = pUnit->GetMissionAIPlot();
@@ -30886,7 +30979,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-				if(!pPlot->isValidEndTurnPlot(GetID()))
+				if(!pPlot->isValidMovePlot(GetID()))
 				{
 					return -1;
 				}
@@ -31269,7 +31362,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-			if(!pPlot->isValidEndTurnPlot(GetID()) || pPlot->isWater())
+			if(!pPlot->isValidMovePlot(GetID()) || pPlot->isWater())
 			{
 				return -1;
 			}
@@ -31354,7 +31447,7 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 		if(bAdd)
 		{
 			// Valid Plot
-			if(!pPlot->canHaveImprovement(eImprovement, getTeam(), false))
+			if(!pPlot->canHaveImprovement(eImprovement, GetID(), false))
 			{
 				return -1;
 			}
@@ -32091,6 +32184,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldChangeWorldWonder(iI) * iChange;
 		if(iMod != 0)
 			ChangeYieldChangeWorldWonder(eYield, iMod);
+
+		iMod = pPolicy->GetYieldFromMinorDemand(iI) * iChange;
+		if(iMod != 0)
+			ChangeYieldFromMinorDemand(eYield, iMod);
 #endif
 	}
 
@@ -32321,10 +32418,21 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = pLoopCity->plot();
+		if(pPlot)
+		{
+			UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
+			if(garrison)
+#else
 		if(pLoopCity->GetGarrisonedUnit() != NULL)
+#endif
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -33774,7 +33882,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> bReadNotifications;
 	if(bReadNotifications)
 	{
-		m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+		if (!m_pNotifications)
+			m_pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
 		m_pNotifications->Init(GetID());
 		m_pNotifications->Read(kStream);
 	}
@@ -33813,6 +33922,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldChangeTradeRoute;
 	kStream >> m_piYieldChangesNaturalWonder;
 	kStream >> m_piYieldChangeWorldWonder;
+	kStream >> m_piYieldFromMinorDemand;
 	kStream >> m_ppiBuildingClassYieldChange;
 #endif
 	kStream >> m_ppaaiImprovementYieldChange;
@@ -34477,6 +34587,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldChangeTradeRoute;
 	kStream << m_piYieldChangesNaturalWonder;
 	kStream << m_piYieldChangeWorldWonder;
+	kStream << m_piYieldFromMinorDemand;
 	kStream << m_ppiBuildingClassYieldChange;
 #endif
 	kStream << m_ppaaiImprovementYieldChange;
@@ -35512,16 +35623,35 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
-CvCity* CvPlayer::GetClosestCity(CvPlot& plot, int iSearchRadius)
+CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea )
 {
+	if (!pPlot)
+		return NULL;
+
 	CvCity* pClosestCity = NULL;
-	CvCity* pLoopCity;
 	int iBestDistance = INT_MAX;
 
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		int iDistance = plotDistance(plot.getX(), plot.getY(), pLoopCity->getX(), pLoopCity->getY());
+		//need to check area
+		if (bSameArea)
+		{
+			if (pPlot->isWater())
+			{
+				if (!pLoopCity->isCoastal())
+					continue;
+				if (pPlot->area()!=pLoopCity->waterArea())
+					continue;
+			}
+			else
+			{
+				if (pPlot->getArea()!=pLoopCity->getArea())
+					continue;
+			}
+		}
+
+		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 		if(iDistance < iBestDistance && iDistance <= iSearchRadius)
 		{
 			pClosestCity = pLoopCity;
@@ -35978,8 +36108,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		iBestFoundValue -= (iTurnsWaiting * 200);
 	}
 
-	CvPlot* pBestFoundPlot = NULL;
-
 	//prefer settling close in the beginning
 	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
 
@@ -36061,7 +36189,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			}
 		}
 
-		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE)))
+		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
 		{
 			//--------------
 			if (bLogging) 
@@ -36153,25 +36281,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	if (vSettlePlots.empty())
 		return 0;
-<<<<<<< HEAD
 
-	//order by decreasing score
+	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	//delete all but the best
+	SPlotWithScore ref = vSettlePlots.back();
+	ref.score = int(ref.score * 0.8f);
+	std::vector<SPlotWithScore>::iterator cutoff = std::upper_bound( vSettlePlots.begin(), vSettlePlots.end(), ref );
+	//reverse so best comes first
+	vSettlePlots.erase( vSettlePlots.begin(), cutoff );
 	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
 
-	//delete all but the best 20%
-	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
-
-=======
-
-	//order by decreasing score
-	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	//delete all but the best 20%
-	vSettlePlots.erase( vSettlePlots.begin()+vSettlePlots.size()/5+1, vSettlePlots.end() );
-
->>>>>>> origin/master
 	//AI cheating here ... check if a settler would likely be captured
 	std::vector<CvPlot*> vBadPlots;
 	for(int iI = 0; iI < iNumPlots; iI++)
@@ -36201,45 +36321,64 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		}
 	}
 
+	//by default we return the best plot whether it's safe or not
+	//however, if we find a safe plot which is only marginally worse, return that one
+	CvPlot* pBestFoundPlot = NULL;
+	bool pBestPlotSafe = false;
+
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
-		//check if it's too close to an enemy
-		bool isNoGood = false;
-		for (size_t j=0; j<vBadPlots.size(); j++)
+		bool isDangerous = false;
+
+		//if it's too far from our existing cities, it's dangerous
+		int iDistance = GetCityDistance(pUnit->plot());
+		if (iDistance>12)
+			isDangerous = true;
+		else
 		{
-			if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+			//check if it's too close to an enemy
+			for (size_t j=0; j<vBadPlots.size(); j++)
 			{
-				isNoGood = true;
-				break;
+				if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+				{
+					isDangerous = true;
+					break;
+				}
 			}
 		}
 
-		if (isNoGood)
-			continue;
-
-		//find our closest city, which should become our muster plot
-		CvCity* pClosestCity = GetClosestCity(pUnit->plot());
-		if (pClosestCity)
+		//could be close but take many turns to get there ...
+		if (!isDangerous)
 		{
-			CvPlot* pMusterPlot = pClosestCity->plot();
+			CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
-			//if the muster plot is more than 12 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,12);
+			//if the muster plot is more than 10 turns away it's unsafe by definition
+			SPathFinderUserData data(pUnit,0,10);
 			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
-				continue;
+				isDangerous = true;
 		}
 
-		//hooray! we found one - now see how it compares to the overall best plot
-		if (vSettlePlots[i].score > 0.8f*vSettlePlots[0].score)
+		if (pBestFoundPlot==NULL)
+		{
+			//first iteration
 			pBestFoundPlot = vSettlePlots[i].pPlot;
+			pBestPlotSafe = !isDangerous;
+		}
 		else
-			pBestFoundPlot = vSettlePlots[0].pPlot;
-
-		break;
+		{
+			//later iteration
+			if (!isDangerous)
+			{
+				//hooray! we found an alternative
+				pBestFoundPlot = vSettlePlots[i].pPlot;
+				pBestPlotSafe = true;
+				break;
+			}
+		}
 	}
 
-	//note: we don't have to check if the overall best plot is actually reachable (via embark/ocean embark) as otherwise the tile would not be revealed
+	bIsSafe = pBestPlotSafe;
 	return pBestFoundPlot;
 }
 

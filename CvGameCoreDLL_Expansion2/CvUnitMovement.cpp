@@ -47,8 +47,7 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
 
 		// Hill cost, except for when a City is present here, then it just counts as flat land
-		PlotTypes ePlotType = pToPlot->getPlotType();
-		if( (ePlotType==PLOT_HILLS || ePlotType==PLOT_MOUNTAIN) && !pToPlot->isCity())
+		if(pToPlot->isHills() || pToPlot->isMountain() && !pToPlot->isCity())
 		{
 			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
 		}

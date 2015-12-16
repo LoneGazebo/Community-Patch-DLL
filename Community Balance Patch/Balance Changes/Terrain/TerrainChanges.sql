@@ -35,10 +35,6 @@ UPDATE Terrains
 SET Movement = '2'
 WHERE Type = 'TERRAIN_SNOW' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
-UPDATE Terrains
-SET Movement = '3', Defense = '25', SeeFrom = '2', Impassable = '1'
-WHERE Type = 'TERRAIN_MOUNTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
-
 -- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds

@@ -63,17 +63,17 @@
 	WHERE Name = 'RELIGION_MIN_FAITH_FIRST_PROPHET';
 
 	UPDATE Defines
-	SET Value = '400'
+	SET Value = '300'
 	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_PROPHET';
 
 -- Great People more expensive - delta will increase faster as well.
 
 	UPDATE Defines
-	SET Value = '1500'
+	SET Value = '1000'
 	WHERE Name = 'RELIGION_MIN_FAITH_FIRST_GREAT_PERSON';
 
 	UPDATE Defines
-	SET Value = '1000'
+	SET Value = '1200'
 	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON';
 
 -- Rebase distance increased

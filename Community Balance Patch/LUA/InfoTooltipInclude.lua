@@ -221,6 +221,43 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuildingGlobal));
 	end
 
+	if (not OptionsManager.IsNoBasicHelp()) then	
+		if (pCity ~= nil) then
+			local iPovertyTotal = iGetPovertyHappinessChangeBuilding + iGetPovertyHappinessChangeBuildingGlobal;
+			if(iPovertyTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+				local iOldThreshold = pCity:GetUnhappinessFromGoldNeeded() / 100;
+				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+				end
+			end		
+			local iDefenseTotal = iGetDefenseHappinessChangeBuilding + iGetDefenseHappinessChangeBuildingGlobal;
+			if(iDefenseTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+				local iOldThreshold = pCity:GetUnhappinessFromDefenseNeeded() / 100;
+				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+				end
+			end
+			local iIlliteracyTotal = iGetIlliteracyHappinessChangeBuilding + iGetIlliteracyHappinessChangeBuildingGlobal;
+			if(iIlliteracyTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+				local iOldThreshold = pCity:GetUnhappinessFromScienceNeeded() / 100;
+				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+				end
+			end
+			local iCultureTotal = iGetUnculturedHappinessChangeBuilding + iGetUnculturedHappinessChangeBuildingGlobal;
+			if(iCultureTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+				local iOldThreshold = pCity:GetUnhappinessFromCultureNeeded() / 100;
+				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+				end
+			end		
+		end
+	end
+
 -- END
 	
 	-- Culture
@@ -1393,6 +1430,17 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		end
 	end
 -- END
+-- CBP
+	-- WLTKD MOD
+	local iYieldFromWLTKD = pCity:GetModFromWLTKD(iYieldType);
+	strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_WLTKD", iYieldType, strIconString);
+	strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+
+	-- Golden Age MOD
+	local iYieldFromGA = pCity:GetModFromGoldenAge(iYieldType);
+	strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_GOLDEN_AGE", iYieldType, strIconString);
+	strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+-- END CBP
 
 	local strExtraBaseString = "";
 

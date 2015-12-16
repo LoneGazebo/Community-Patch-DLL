@@ -185,7 +185,9 @@ public:
 	/////////////////////////////////////////////////////////
 
 	void DoMakePeaceWithMinors();
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	void DoMakePeaceWithVassals();
+#endif
 	void DoUpdatePeaceTreatyWillingness();
 
 	bool IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer);
@@ -946,6 +948,7 @@ public:
 	bool IsHumanEndVassalageAcceptable(PlayerTypes eHuman);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	int GetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer) const;
 	void SetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer, int iValue);

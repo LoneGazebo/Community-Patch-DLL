@@ -272,6 +272,7 @@ CvResolutionEffects::CvResolutionEffects(void)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	iVassalMaintenanceGoldPercent = 0;
+	bEndAllCurrentVassals = false;
 #endif
 }
 
@@ -321,6 +322,7 @@ CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		iVassalMaintenanceGoldPercent		= pInfo->GetVassalMaintenanceGoldPercent();
+		bEndAllCurrentVassals				= pInfo->IsEndAllCurrentVassals();
 #endif
 	}
 }
@@ -586,6 +588,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_READ(36, loadFrom, writeTo.iVassalMaintenanceGoldPercent, 0);
+	MOD_SERIALIZE_READ(36, loadFrom, writeTo.bEndAllCurrentVassals, 0);
 #endif
 	
 	return loadFrom;
@@ -640,6 +643,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iLandmarkCulture;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iVassalMaintenanceGoldPercent);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.bEndAllCurrentVassals);
 #endif
 
 	return saveTo;
@@ -1582,7 +1586,24 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		}
 	}
 #endif
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GetEffects()->bEndAllCurrentVassals)
+	{
+		TeamTypes eTeam = pPlayer->getTeam();
+		if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0)
+		{
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eTeam))
+				{
+					GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).DoEndVassal(eTeam, true, true);
+				}
+			}
+		}
+	}
+#endif
 	// == Ongoing Effects ==
 	if (GetEffects()->iGoldPerTurn != 0)
 	{
@@ -3521,6 +3542,45 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 			{
 				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
+				(*sTooltipSink) += "[ENDCOLOR]";
+			}
+			return false;
+		}
+	}
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && (pInfo->GetVassalMaintenanceGoldPercent() != 0 || pInfo->IsEndAllCurrentVassals()))
+	{
+		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+		{
+			if (sTooltipSink != NULL)
+			{
+				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
+				(*sTooltipSink) += "[ENDCOLOR]";
+			}
+			return false;
+		}
+		bool bValid = false;
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetNumVassals() > 0)
+				{
+					bValid = true;
+					break;
+				}
+			}
+		}
+		if(!bValid)
+		{
+			if (sTooltipSink != NULL)
+			{
+				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS").toUTF8();
 				(*sTooltipSink) += "[ENDCOLOR]";
 			}
 			return false;
@@ -11565,6 +11625,166 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 	}
+	//End Vassalage
+	if (MOD_DIPLOMACY_CIV4_FEATURES && pProposal->GetEffects()->bEndAllCurrentVassals)
+	{
+		//How does this affect us?
+		TeamTypes eTeam = GetPlayer()->getTeam();
+		if(eTeam != NO_TEAM)
+		{
+			bool bValid = false;
+			if(GET_TEAM(eTeam).GetNumVassals() > 0)
+			{
+				//We have vassals? Eek!
+				iScore = (-1000 * GET_TEAM(eTeam).GetNumVassals());
+				bValid = true;
+			}
+			else
+			{
+				//No vassals? Let's see how we feel about other vassals out there...
+				TeamTypes eLoopTeam;
+				for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
+				{
+					eLoopTeam = (TeamTypes) iTeamLoop;
+
+					if (GET_TEAM(eTeam).isAlive())
+					{
+						if(eLoopTeam != NO_TEAM && eLoopTeam != eTeam && GET_TEAM(eLoopTeam).GetNumVassals() > 0)
+						{
+							PlayerTypes eLoopPlayer;
+							for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+							{
+								eLoopPlayer = (PlayerTypes) iPlayerLoop;
+								if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+								{
+									//The Master
+									MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
+									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+
+									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
+									{
+										switch(eOpinion)
+										{
+											case MAJOR_CIV_OPINION_ALLY:
+												iScore += -50;
+												break;
+											case MAJOR_CIV_OPINION_FRIEND:
+												iScore += -25;
+												break;
+											case MAJOR_CIV_OPINION_FAVORABLE:
+												iScore += -10;
+												break;
+											case MAJOR_CIV_OPINION_NEUTRAL:
+												iScore += 0;
+												break;
+											case MAJOR_CIV_OPINION_COMPETITOR:
+												iScore += 10;
+												break;
+											case MAJOR_CIV_OPINION_ENEMY:
+												iScore += 25;
+												break;
+											case MAJOR_CIV_OPINION_UNFORGIVABLE:
+												iScore += 50;
+												break;
+										}
+										switch(eApproach)
+										{
+											case MAJOR_CIV_APPROACH_AFRAID:
+												iScore += -25;
+												break;
+											case MAJOR_CIV_APPROACH_FRIENDLY:
+												iScore += -50;
+												break;
+											case MAJOR_CIV_APPROACH_NEUTRAL:
+												iScore += -10;
+												break;
+											case MAJOR_CIV_APPROACH_GUARDED:
+												iScore += 10;
+												break;
+											case MAJOR_CIV_APPROACH_DECEPTIVE:
+												iScore += 20;
+												break;
+											case MAJOR_CIV_APPROACH_HOSTILE:
+												iScore += 40;
+												break;
+											case MAJOR_CIV_APPROACH_WAR:
+												iScore += 60;
+												break;
+										}
+									}
+									//And the Vassals
+									if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eLoopTeam))
+									{
+										bValid = true;
+										switch(eOpinion)
+										{
+											case MAJOR_CIV_OPINION_ALLY:
+												iScore += 50;
+												break;
+											case MAJOR_CIV_OPINION_FRIEND:
+												iScore += 25;
+												break;
+											case MAJOR_CIV_OPINION_FAVORABLE:
+												iScore += 10;
+												break;
+											case MAJOR_CIV_OPINION_NEUTRAL:
+												iScore += 0;
+												break;
+											case MAJOR_CIV_OPINION_COMPETITOR:
+												iScore += -10;
+												break;
+											case MAJOR_CIV_OPINION_ENEMY:
+												iScore += -25;
+												break;
+											case MAJOR_CIV_OPINION_UNFORGIVABLE:
+												iScore += -50;
+												break;
+										}
+										switch(eApproach)
+										{
+											case MAJOR_CIV_APPROACH_AFRAID:
+												iScore += -50;
+												break;
+											case MAJOR_CIV_APPROACH_FRIENDLY:
+												iScore += 25;
+												break;
+											case MAJOR_CIV_APPROACH_NEUTRAL:
+												iScore += 0;
+												break;
+											case MAJOR_CIV_APPROACH_GUARDED:
+												iScore += -10;
+												break;
+											case MAJOR_CIV_APPROACH_DECEPTIVE:
+												iScore += -20;
+												break;
+											case MAJOR_CIV_APPROACH_HOSTILE:
+												iScore += -40;
+												break;
+											case MAJOR_CIV_APPROACH_WAR:
+												iScore += 60;
+												break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			//Not valid because there aren't any vassals? Zero this all out.
+			if(!bValid)
+			{
+				iScore = 0;
+			}
+			else
+			{
+				if(bSeekingDiploVictory)
+				{
+					iScore *= 2;
+				}
+			}
+		}
+	}
 #endif
 	// Scholars in Residence
 	if (pProposal->GetEffects()->iMemberDiscoveredTechMod != 0)
@@ -13868,6 +14088,7 @@ CvResolutionEntry::CvResolutionEntry(void)
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iVassalMaintenanceGoldPercent		= 0;
+	m_bEndAllCurrentVassals				= false;
 #endif
 }
 
@@ -13929,6 +14150,7 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_iVassalMaintenanceGoldPercent		= kResults.GetInt("VassalMaintenanceGoldPercent");
+		m_bEndAllCurrentVassals				= kResults.GetInt("EndAllCurrentVassals");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -14147,6 +14369,10 @@ int CvResolutionEntry::GetTourismMod() const
 int CvResolutionEntry::GetVassalMaintenanceGoldPercent() const
 {
 	return m_iVassalMaintenanceGoldPercent;
+}
+bool CvResolutionEntry::IsEndAllCurrentVassals() const
+{
+	return m_bEndAllCurrentVassals;
 }
 #endif
 

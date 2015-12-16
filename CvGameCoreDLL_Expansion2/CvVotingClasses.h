@@ -149,6 +149,7 @@ struct CvResolutionEffects
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int iVassalMaintenanceGoldPercent;
+	bool bEndAllCurrentVassals;
 #endif
 };
 
@@ -1307,6 +1308,7 @@ public:
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalMaintenanceGoldPercent() const;
+	bool IsEndAllCurrentVassals() const;
 #endif
 
 protected:
@@ -1357,6 +1359,7 @@ protected:
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iVassalMaintenanceGoldPercent;
+	bool m_bEndAllCurrentVassals;
 #endif
 
 private:

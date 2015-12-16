@@ -419,20 +419,63 @@
 			<AIPriority>5</AIPriority>
 		</Row>
 	</Building_ThemingBonuses>
-	<!--
-	<Building_YieldModifiers>
+	<Building_ImprovementYieldChangesGlobal>
+		<Row>
+			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RELIQUARY</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>5</Yield>
+		</Row>
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SACRED_GARDEN</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HOLY_COUNCIL</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>15</Yield>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>5</Yield>
 		</Row>
-	</Building_YieldModifiers>
-	-->
+		<Row>
+			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GRAND_OSSUARY</BuildingType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_ImprovementYieldChangesGlobal>
+	
 	<Building_YieldFromDeath>
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>

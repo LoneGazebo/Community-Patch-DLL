@@ -380,6 +380,9 @@
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR">
 			<Text>Peace Deal Value: {1_Num}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE">
+			<Text>Peace Deal Value: Impossible!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAX_STR">
 			<Text>Max Value: {1_Num}.</Text>
 		</Row>

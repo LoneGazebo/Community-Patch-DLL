@@ -80,23 +80,23 @@
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
 	</Beliefs>
-	<Belief_YieldPerGPT>
+	<Belief_YieldPerScience>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>6</Yield>
+			<Yield>12</Yield>
 		</Row>
-	</Belief_YieldPerGPT>
-	<Belief_YieldPerScience>
+	</Belief_YieldPerScience>
+	<Belief_YieldPerGPT>
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>6</Yield>
 		</Row>
-	</Belief_YieldPerScience>
+	</Belief_YieldPerGPT>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points for every 6 [ICON_GOLD] Gold per turn, and +1 [ICON_CULTURE] Culture for every 6 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 6 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 12 [ICON_RESEARCH] Science per turn</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
@@ -169,7 +169,7 @@
 	</Belief_YieldChangeWorldWonder>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+5 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +1 [ICON_CULTURE] Faith from World Wonders</Text>
+			<Text>+5 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +1 [ICON_CULTURE] Culture from World Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
@@ -316,11 +316,6 @@
 	<Belief_YieldPerXFollowers>
 		<Row>
 			<BeliefType>BELIEF_DAGDA</BeliefType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<PerXFollowers>3</PerXFollowers>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_DAGDA</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<PerXFollowers>3</PerXFollowers>
 		</Row>
@@ -337,7 +332,7 @@
 	</Belief_YieldPerXFollowers>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Point, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 3 Followers</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 3 Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>
@@ -376,6 +371,11 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
@@ -394,6 +394,12 @@
 		</Row>
 	</Improvement_AdjacentImprovementYieldChanges>
 	<!-- William -->
+	<Civilization_Start_Along_River>
+		<Row>
+			<CivilizationType>CIVILIZATION_NETHERLANDS</CivilizationType>
+			<StartAlongRiver>true</StartAlongRiver>
+		</Row>
+	</Civilization_Start_Along_River>
 	<Trait_YieldFromImport>
 		<Row>
 			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
@@ -485,4 +491,5 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_GoldenAgeYieldMod>
+
 </GameData>

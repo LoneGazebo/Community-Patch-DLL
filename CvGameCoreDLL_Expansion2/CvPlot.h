@@ -116,6 +116,7 @@ public:
 	bool isAdjacent(const CvPlot* pPlot) const;
 	bool isAdjacentToLand() const;
 	bool isAdjacentToLand_Cached() const { return m_bIsAdjacentToLand; }
+	bool isDeepWater() const;
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
@@ -155,7 +156,7 @@ public:
 #else
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false) const;
 #endif
-	bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam = NO_TEAM, bool bOnlyTestVisible = false) const;
+	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
@@ -276,9 +277,8 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-	bool isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool bCheckImprovement) const;
-#endif
+	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const;
+	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -433,7 +433,7 @@ public:
 	};
 	bool isHills()          const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_HILLS;
+		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isIce()            const
@@ -463,22 +463,21 @@ public:
 #endif
 	bool isOpenGround()     const
 	{
-		if((PlotTypes)m_ePlotType == PLOT_HILLS || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN || m_bRoughFeature) return false;
+		if( isHills() || isMountain() || m_bRoughFeature) 
+			return false;
 		return true;
 	}
 	bool isMountain()       const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
+		return (TerrainTypes)m_eTerrainType == TERRAIN_MOUNTAIN || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
 	};
 	bool isRiver()          const
 	{
 		return m_iRiverCrossingCount > 0;
 	}
 
-	//can a generic unit end its turn here (disregarding promotions, combat/civilian etc)
-	bool isValidEndTurnPlot(PlayerTypes ePlayer) const;
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
-	bool isValidMovePlot(PlayerTypes ePlayer) const;
+	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
 #if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
@@ -490,9 +489,9 @@ public:
 	}
 	FeatureTypes getFeatureType() const
 	{
-		char f = m_eFeatureType;
-		return (FeatureTypes)f;
+		return (FeatureTypes)m_eFeatureType.get();
 	}
+
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
 	{
@@ -540,26 +539,15 @@ public:
 		return damage;
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
-#else
-	bool isImpassable()     const
-	{
-		return m_bIsImpassable;
-	}
-#endif
+
 	bool IsAllowsWalkWater() const;
 
 	bool isRoughGround() const
 	{
-		if(isHills())
-		{
+		if(isHills() || isMountain())
 			return true;
-		}
-		if(isMountain())
-		{
-			return true;
-		}
 
 		return m_bRoughFeature;
 	}
@@ -673,9 +661,9 @@ public:
 
 	short* getYield();
 	int getYield(YieldTypes eIndex) const;
-	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false) const;
-	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;
-	int calculateTotalBestNatureYield(TeamTypes eTeam) const;
+	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
+	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
+	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
 	bool hasYield() const;
@@ -923,6 +911,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	CvUnit* GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) const;
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
 
@@ -1111,10 +1100,6 @@ protected:
 
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
-#if !defined(MOD_BALANCE_CORE)
-	void updateImpassable();
-#endif
-
 
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
@@ -1133,6 +1118,10 @@ struct SPlotWithScore
     bool operator<(const SPlotWithScore& other) const
     {
         return score < other.score;
+    }
+    bool operator<(const int ref) const
+    {
+        return score < ref;
     }
 
 	CvPlot* pPlot;

@@ -128,12 +128,21 @@
 			<Text>Voyage of your {1_UnitType} completed!</Text>
 		</Row>
 
+		<!-- CSD -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT">
-			<Text>Your {1_UnitType} increased your Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced the Influence of all Major Civilizations known to the City-State by the same amount!</Text>
+			<Text>Your {1_UnitType} increased your [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced the Influence of all Major Civilizations known to the City-State by the same amount!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY">
 			<Text>Mission of your {1_UnitType} completed!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER">
+			<Text>A {1_UnitType} increased {4_OwnerAdj} [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced your [ICON_INFLUENCE] Influence in the City-State by the same amount!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY">
+			<Text>Foreign {1_UnitType} mission completed!</Text>
+		</Row>
+		
 <!-- Maya Prophet Lock -->
 		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
 			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion[ENDCOLOR]</Text>
@@ -545,6 +554,32 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S">
 			<Text>Friendly partisans near {1_Name}!</Text>
+		</Row>
+
+		<!-- LUA Text -->
+		<Row Tag="TXT_KEY_PRODUCTION_GOLDEN_AGE">
+			<Text>[NEWLINE] [ICON_BULLET]Modifier from [ICON_GOLDEN_AGE] Golden Age: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BELIEF">
+			<Text>[NEWLINE] [ICON_BULLET]Belief Modifier from 'We Love the King Day:' {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_GOLDEN_AGE">
+			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_WLTKD">
+			<Text>+{1_Num}% [ICON_CULTURE] from 'We Love the King Day'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_GOLDEN_AGE">
+			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_WLTKD">
+			<Text>+{1_Num}% [ICON_PEACE] from 'We Love the King Day'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_WLTKD">
+			<Text>+{1_Num}% {2_IconString} from 'We Love the King Day'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_GOLDEN_AGE">
+			<Text>+{1_Num}% {2_IconString} from [ICON_GOLDEN_AGE] Golden Age</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -21,6 +21,7 @@ local EUI = EUI
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
+local GreatPeopleIcon = EUI.GreatPeopleIcon
 
 --print( "Root contexts:", LookUpControl( "/FrontEnd" ) or "nil", LookUpControl( "/InGame" ) or "nil", LookUpControl( "/LeaderHeadRoot" ) or "nil")
 -------------------------------
@@ -37,7 +38,7 @@ local select = select
 --local string = string
 --local table = table
 local tonumber = tonumber
---local tostring = tostring
+local tostring = tostring
 --local type = type
 --local unpack = unpack
 
@@ -113,7 +114,7 @@ local OptionsManager = OptionsManager
 local Locale = Locale
 local _L = Locale.ConvertTextKey
 local function L( text, ...)
-	return _L( text or "<???>", ... )
+	return _L( tostring(text), ... )
 end
 --getmetatable("").__index.L = L
 
@@ -158,7 +159,7 @@ local function GetYieldStringSpecial( tag, format, ... )
 	local tip = ""
 	for row in ... do
 		if (row[tag] or 0) ~=0 then
-			tip = S( format, tip, row[tag], YieldIcons[ row.YieldType ] or "???" )
+			tip = S( format, tip, row[tag], tostring(YieldIcons[ row.YieldType ]) )
 		end
 	end
 	return tip
@@ -340,6 +341,24 @@ GameInfo.GameSpeeds[PreGame.GetGameSpeed()].UnitHurryPercent
 	BaseCultureTurnsToCount = L"TXT_KEY_MISSION_GIVE_POLICIES" .. " (%i " .. L"TXT_KEY_TURNS"..")",	-- Writer
 }
 --]]
+-- How much does it cost to upgrade a Unit to a shiny new eUnit?
+local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgradeProductionCost )
+	local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
+		+ math.max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
+	-- Upgrades for later units are more expensive
+	local tech = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
+	if tech then
+		upgradePrice = math.floor( upgradePrice * ( GameInfo.Eras[ tech.Era ].ID * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
+	end
+	-- Discount
+	-- upgradePrice = upgradePrice - math.floor( upgradePrice * unit:UpgradeDiscount() / 100)
+	-- Mod (Policies, etc.)
+	-- upgradePrice = math.floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
+	-- Apply exponent
+	upgradePrice = math.floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
+	-- Make the number not be funky
+	return math.floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
+end
 
 local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 	local unit = GameInfo.Units[ unitID ]
@@ -483,12 +502,12 @@ local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 	if Game then
 		for resource in GameInfo.Resources() do
 			local numResource = Game.GetNumResourceRequiredForUnit( unitID, resource.ID )
-			tips:insertIf( resource and numResource ~= 0 and S( "%s: %+i%s", L(resource.Description), -numResource, resource.IconString or "???" ) )
+			tips:insertIf( resource and numResource ~= 0 and S( "%s: %+i%s", L(resource.Description), -numResource, tostring(resource.IconString) ) )
 		end
 	else
 		for row in GameInfo.Unit_ResourceQuantityRequirements( thisUnitType ) do
 			local resource = GameInfo.Resources[ row.ResourceType ]
-			tips:insertIf( resource and (row.Cost or 0)~=0 and S( "%s: %+i%s", L(resource.Description), -row.Cost, resource.IconString or "???" ) )
+			tips:insertIf( resource and (row.Cost or 0)~=0 and S( "%s: %+i%s", L(resource.Description), -row.Cost, tostring(resource.IconString) ) )
 		end
 	end
 
@@ -562,7 +581,7 @@ local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 		-- Affinity Level Requirements
 		for affinityPrereq in GameInfo.Unit_AffinityPrereqs( thisUnitType ) do
 			local affinityInfo = (tonumber( affinityPrereq.Level) or 0 ) > 0 and GameInfo.Affinity_Types[ affinityPrereq.AffinityType ]
-			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, affinityInfo.IconString or "???", affinityInfo.Description ) )
+			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, tostring(affinityInfo.IconString), tostring(affinityInfo.Description) ) )
 		end
 	end
 
@@ -591,9 +610,9 @@ local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 		SetKey( unitClassUpgrades, unitUpgrade and unitUpgrade.Class )
 	end
 	local unitUpgrades = table()
-	for unitUpgrade in pairs( unitClassUpgrades ) do
-		unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade )
-		unitUpgrades:insertIf( unitUpgrade and UnitColor( L(unitUpgrade.Description) ) )
+	for unitToUpgrade in pairs( unitClassUpgrades ) do
+		unitToUpgrade = GetCivUnit( activeCivilizationType, unitToUpgrade )
+		unitUpgrades:insertIf( unitToUpgrade and UnitColor( L(unitToUpgrade.Description) ) .. " ("..unitUpgradePrice( unitToUpgrade, unit, activePlayer and activePlayer:GetUnitProductionNeeded( unitToUpgrade.ID ), productionCost )..g_currencyIcon..")" )
 	end
 	tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_GOLD_UPGRADE_UNITS_HEADING3_TITLE" .. ": " .. unitUpgrades:concat(", ") )
 
@@ -607,23 +626,7 @@ local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 		unitUpgrade = unitUpgrade and GameInfo.Units[ unitUpgrade ]
 		if activeCivilizationType and unitUpgrade then
 			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade.Class )
-			-- How much does it cost to upgrade this Unit to a shiny new eUnit?
-			local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
-				+ math.max( 0, activePlayer:GetUnitProductionNeeded( unitUpgrade.ID ) - productionCost ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
-			-- Upgrades for later units are more expensive
-			item = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
-			if item then
-				upgradePrice = math.floor( upgradePrice * ( GameInfoTypes[ item.Era ] * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
-			end
-			-- Discount
-			-- upgradePrice = upgradePrice - math.floor( upgradePrice * unit:UpgradeDiscount() / 100)
-			-- Mod (Policies, etc.)
-			-- upgradePrice = math.floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
-			-- Apply exponent
-			upgradePrice = math.floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
-			-- Make the number not be funky
-			upgradePrice = math.floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
-			tips:insert( L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. UnitColor( L(unitUpgrade.Description) ) .. " ("..upgradePrice..g_currencyIcon..")" )
+			tips:insert( L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost, activePlayer:GetUnitProductionNeeded( unitUpgrade.ID ) )..g_currencyIcon..")" )
 		end
 	else
 		local unitClassUpgrades = {}
@@ -633,7 +636,7 @@ local function getHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 		local unitUpgrades = table()
 		for unitUpgrade in pairs( unitClassUpgrades ) do
 			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade )
-			unitUpgrades:insertIf( unitUpgrade and UnitColor( L(unitUpgrade.Description) ) )
+			unitUpgrades:insertIf( unitUpgrade and UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost )..g_currencyIcon..")" )
 		end
 		tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. unitUpgrades:concat(", ") )
 	end
@@ -704,7 +707,7 @@ local buildingData = {
 	UnitUpgradeCostMod = "",
 	Experience = "",
 	GlobalExperience = "",
-	FoodKept = "%+i%%[ICON_FOOD] " .. L"TXT_KEY_TRAIT_POPULATION_GROWTH_NEW",-- granary effect
+	FoodKept = "%+i%%[ICON_FOOD] " .. L"TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT",-- granary effect
 	AirModifier = "",
 	NukeModifier = "",
 	NukeExplosionRand = "",
@@ -780,9 +783,9 @@ local g_gameAvailableBeliefs = Game and { Game.GetAvailablePantheonBeliefs, Game
 local function GetSpecialistSlotsTooltip( specialistType, numSlots )
 	local tip = ""
 	for row in GameInfo.SpecialistYields{ SpecialistType = specialistType } do
-		tip = S( "%s %+i%s", tip, row.Yield, YieldIcons[ row.YieldType ] or "???" )
+		tip = S( "%s %+i%s", tip, row.Yield, tostring(YieldIcons[ row.YieldType ]) )
 	end
-	return S( "%i %s%s", numSlots, L( (GameInfo.Specialists[ specialistType ] or {}).Description or "???" ), tip )
+	return S( "%i %s%s", numSlots, L( (GameInfo.Specialists[ specialistType ] or {}).Description ), tip )
 end
 
 local function getSpecialistYields( city, specialist )
@@ -811,11 +814,11 @@ local function getSpecialistYields( city, specialist )
 		end
 	else
 		for row in GameInfo.SpecialistYields{ SpecialistType = specialist.Type or -1 } do
-			tip = S( "%s %+i%s", tip, row.Yield, YieldIcons[ row.YieldType ] or "???" )
+			tip = S( "%s %+i%s", tip, row.Yield, tostring(YieldIcons[ row.YieldType ]) )
 		end
 	end
 	if civ5_mode and (specialist.GreatPeopleRateChange or 0) > 0 then
-		tip = S( "%s %+i[ICON_GREAT_PEOPLE]", tip, specialist.GreatPeopleRateChange )
+		tip = S( "%s %+i%s", tip, specialist.GreatPeopleRateChange, GreatPeopleIcon( specialist.Type ) )
 	end
 	return tip
 end
@@ -992,6 +995,8 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				if yield.Type == "YIELD_CULTURE" then
 					yieldChange = yieldChange + city:GetBuildingClassCultureChange(buildingClassID )
 				end
+				
+				yieldChange = yieldChange + city:GetLocalBuildingClassYield(buildingClassID, yieldID)
 					
 				yieldChange = yieldChange + city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
 				
@@ -1023,20 +1028,19 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			yieldPerPop = yieldPerPop + (row.Yield or 0)
 		end
 		if yieldChange ~=0 then
-			tip = S("%s %+i%s", tip, yieldChange, yield.IconString or "???" )
+			tip = S("%s %+i%s", tip, yieldChange, tostring(yield.IconString) )
 		end
 		if yieldModifier ~=0 then
-			tip = S("%s %+i%%%s", tip, yieldModifier, yield.IconString or "???" )
+			tip = S("%s %+i%%%s", tip, yieldModifier, tostring(yield.IconString) )
 		end
 		if yieldPerPop ~= 0 then
-			tip = S("%s %+i%%[ICON_CITIZEN]%s", tip, yieldPerPop, yield.IconString or "???" )
+			tip = S("%s %+i%%[ICON_CITIZEN]%s", tip, yieldPerPop, tostring(yield.IconString) )
 		end
 		if tips and tip~="" then
 			tips:insert( YieldNames[ yieldID ] .. ":" .. tip )
 			tip = ""
 		end
 	end
-
 	-- Culture leftovers
 	if cultureChange ~=0 then
 		tip = S("%s %+i[ICON_CULTURE]", tip, cultureChange )
@@ -1107,12 +1111,12 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	if Game then
 		for resource in GameInfo.Resources() do
 			local numResource = Game.GetNumResourceRequiredForBuilding( buildingID, resource.ID )
-			tips:insertIf( numResource ~= 0 and S( "%s: %+i%s", L(resource.Description), -numResource, resource.IconString or "???" ) )
+			tips:insertIf( numResource ~= 0 and S( "%s: %+i%s", L(resource.Description), -numResource, tostring(resource.IconString) ) )
 		end
 	else
 		for row in GameInfo.Building_ResourceQuantityRequirements( thisBuildingType ) do
 			local resource = GameInfo.Resources[ row.ResourceType ]
-			tips:insertIf( resource and (row.Cost or 0)~=0 and S( "%s: %+i%s", L(resource.Description), -row.Cost, resource.IconString or "???" ) )
+			tips:insertIf( resource and (row.Cost or 0)~=0 and S( "%s: %+i%s", L(resource.Description), -row.Cost, tostring(resource.IconString) ) )
 		end
 	end
 
@@ -1158,6 +1162,42 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		if (iGetMinorityHappinessChangeBuildingGlobal ~= 0) then
 			tips:insert( L( "TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuildingGlobal))
 		end
+		if (not OptionsManager.IsNoBasicHelp()) then	
+			if(city) then
+				local iPovertyTotal = iGetPovertyHappinessChangeBuilding + iGetPovertyHappinessChangeBuildingGlobal;
+				if(iPovertyTotal ~= 0) then
+					iNewThreshold = city:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+					local iOldThreshold = city:GetUnhappinessFromGoldNeeded() / 100;
+					if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+						tips:insert( L( "TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+					end
+				end		
+				local iDefenseTotal = iGetDefenseHappinessChangeBuilding + iGetDefenseHappinessChangeBuildingGlobal;
+				if(iDefenseTotal ~= 0) then
+					iNewThreshold = city:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+					local iOldThreshold = city:GetUnhappinessFromDefenseNeeded() / 100;
+					if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+						tips:insert( L( "TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+					end
+				end
+				local iIlliteracyTotal = iGetIlliteracyHappinessChangeBuilding + iGetIlliteracyHappinessChangeBuildingGlobal;
+				if(iIlliteracyTotal ~= 0) then
+					iNewThreshold = city:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+					local iOldThreshold = city:GetUnhappinessFromScienceNeeded() / 100;
+					if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+						tips:insert( L( "TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+					end
+				end
+				local iCultureTotal = iGetUnculturedHappinessChangeBuilding + iGetUnculturedHappinessChangeBuildingGlobal;
+				if(iCultureTotal ~= 0) then
+					iNewThreshold = city:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
+					local iOldThreshold = city:GetUnhappinessFromCultureNeeded() / 100;
+					if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+						tips:insert( L( "TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+					end
+				end		
+			end
+		end
 	end
 -- END
 
@@ -1165,16 +1205,16 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local specialistType = building.SpecialistType
 	local specialist = specialistType and GameInfo.Specialists[ specialistType ]
 	if specialist then
-		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i[ICON_GREAT_PEOPLE]", L( specialist.GreatPeopleTitle or "???" ), building.GreatPeopleRateChange) )
+		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i%s", L( specialist.GreatPeopleTitle ), building.GreatPeopleRateChange, GreatPeopleIcon( specialistType ) ) )
 		if (building.SpecialistCount or 0) ~= 0 then
 			if civ5_mode then
 				local numSpecialistsInBuilding = UI.GetHeadSelectedCity() and city:GetNumSpecialistsInBuilding( buildingID ) or building.SpecialistCount
 				if numSpecialistsInBuilding ~= building.SpecialistCount then
 					numSpecialistsInBuilding = numSpecialistsInBuilding.."/"..building.SpecialistCount
 				end
-				tips:insert( L( "TXT_KEY_CITYVIEW_BUILDING_SPECIALIST_YIELD", numSpecialistsInBuilding, specialist.Description or "???", getSpecialistYields( city, specialist ) ) )
+				tips:insert( L( "TXT_KEY_CITYVIEW_BUILDING_SPECIALIST_YIELD", numSpecialistsInBuilding, tostring(specialist.Description), getSpecialistYields( city, specialist ) ) )
 			else
-				tips:insert( S( "%i[ICON_CITIZEN]%s /%s", building.SpecialistCount, L( specialist.Description or "???" ), getSpecialistYields( city, specialist ) ) )
+				tips:insert( S( "%i[ICON_CITIZEN]%s /%s", building.SpecialistCount, L( specialist.Description ), getSpecialistYields( city, specialist ) ) )
 			end
 		end
 	end
@@ -1244,14 +1284,14 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		-- Resources
 		for row in GameInfo.Building_ResourceQuantity( thisBuildingType ) do
 			local resource = GameInfo.Resources[ row.ResourceType ]
-			tips:insertIf( resource and (row.Quantity or 0)~=0 and S("%s: %+i%s", L(resource.Description), row.Quantity, resource.IconString or "???" ) )
+			tips:insertIf( resource and (row.Quantity or 0)~=0 and S("%s: %+i%s", L(resource.Description), row.Quantity, tostring(resource.IconString) ) )
 		
 		end
 -- CBP
 		for row in GameInfo.Building_CorporationResourceQuantity( thisBuildingType ) do
 			local resource = GameInfo.Resources[ row.ResourceType ]
 			local amount = city:GetCorporationResourceQuantity(resource)
-			tips:insertIf( resource and (amount)~=0 and S("%s: %+i%s", L(resource.Description), tonumber(amount), resource.IconString or "???" ) )
+			tips:insertIf( resource and (amount)~=0 and S("%s: %+i%s", L(resource.Description), tonumber(amount), tostring(resource.IconString) ) )
 		end
 -- END
 	end
@@ -1273,7 +1313,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			end
 		end
 -- TODO GameInfo.Building_ResourceYieldModifiers( thisBuildingType ), ResourceType, YieldType, Yield
-		tips:insertIf( #tip > 0 and (resource.IconString or "???") .. " " .. L(resource.Description) .. ":" .. tip )
+		tips:insertIf( #tip > 0 and tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tip )
 	end
 
 	-- Feature Yields enhanced by Building
@@ -1390,7 +1430,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	-- Yields enhanced by Policy
 	for row in GameInfo.Policy_BuildingClassYieldChanges( thisBuildingClassType ) do
 		if row.PolicyType and (row.YieldChange or 0)~=0 then
-			items[row.PolicyType] = S( "%s %+i%s", items[row.PolicyType] or "", row.YieldChange, YieldIcons[row.YieldType] or "???" )
+			items[row.PolicyType] = S( "%s %+i%s", items[row.PolicyType] or "", row.YieldChange, tostring(YieldIcons[row.YieldType]) )
 		end
 	end
 	for row in GameInfo.Policy_BuildingClassCultureChanges( thisBuildingClassType ) do
@@ -1401,7 +1441,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	-- Yield modifiers enhanced by Policy
 	for row in GameInfo.Policy_BuildingClassYieldModifiers( thisBuildingClassType ) do
 		if row.PolicyType and (row.YieldMod or 0)~=0 then
-			items[row.PolicyType] = S( "%s %+i%%%s", items[row.PolicyType] or "", row.YieldMod, YieldIcons[row.YieldType] or "???" )
+			items[row.PolicyType] = S( "%s %+i%%%s", items[row.PolicyType] or "", row.YieldMod, tostring(YieldIcons[row.YieldType]) )
 		end
 	end
 	if civ5_mode then
@@ -1432,13 +1472,13 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			items = {}
 			for row in GameInfo.Belief_BuildingClassYieldChanges( thisBuildingClassType ) do
 				if row.BeliefType and (row.YieldChange or 0)~=0 then
-					items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.YieldChange, YieldIcons[row.YieldType] or "???" )
+					items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.YieldChange, tostring(YieldIcons[row.YieldType]) )
 				end
 			end
 			if isWorldWonder then
 				for row in GameInfo.Belief_YieldChangeWorldWonder() do
 					if row.BeliefType and (row.Yield or 0)~=0 then
-						items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.Yield, YieldIcons[row.YieldType] or "???" )
+						items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.Yield, tostring(YieldIcons[row.YieldType]) )
 					end
 				end
 			end
@@ -1576,7 +1616,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		-- Affinity Level Requirement
 		for affinityPrereq in GameInfo.Building_AffinityPrereqs( thisBuildingType ) do
 			local affinityInfo = (tonumber( affinityPrereq.Level) or 0 ) > 0 and GameInfo.Affinity_Types[ affinityPrereq.AffinityType ]
-			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, affinityInfo.IconString or "???", affinityInfo.Description ) )
+			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, tostring(affinityInfo.IconString), tostring(affinityInfo.Description) ) )
 		end
 	end
 
@@ -1637,14 +1677,14 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local resources = table()
 	for row in GameInfo.Building_LocalResourceAnds( thisBuildingType ) do
 		local resource = GameInfo.Resources[ row.ResourceType ]
-		resources:insertIf( resource and resource.IconString ) -- .. L(resource.Description) )
+		resources:insertIf( resource and tostring(resource.IconString) ) -- .. L(resource.Description) )
 	end
 	if #resources > 0 then
 		resources = table( resources:concat(", ") )
 	end
 	for row in GameInfo.Building_LocalResourceOrs( thisBuildingType ) do
 		local resource = GameInfo.Resources[ row.ResourceType ]
-		resources:insertIf( resource and resource.IconString ) -- .. L(resource.Description) )
+		resources:insertIf( resource and tostring(resource.IconString) ) -- .. L(resource.Description) )
 	end
 	if civ5gk_mode then
 		local txt = resources[1] or ""
@@ -1742,25 +1782,25 @@ local function getHelpTextForImprovement( improvementID )
 	items = table()
 	for row in GameInfo.Improvement_ResourceTypes( thisImprovementType ) do
 		item = GameInfo.Resources[ row.ResourceType ]
-		items:insertIf( item and item.IconString )
+		items:insertIf( item and tostring(item.IconString) )
 	end
 	tips:insertIf( #items > 0  and L"TXT_KEY_PEDIA_IMPROVES_RESRC_LABEL" .. " " .. items:concat( ", " ) )
 
 	-- Yields
 	items = table()
 	for row in GameInfo.Improvement_Yields( thisImprovementType ) do
-		SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S("%s %+i%s", items[ row.YieldType ] or "", row.Yield, YieldIcons[ row.YieldType ] or "???" ) )
+		SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S("%s %+i%s", items[ row.YieldType ] or "", row.Yield, tostring(YieldIcons[ row.YieldType ]) ) )
 	end
 	for row in GameInfo.Improvement_FreshWaterYields( thisImprovementType ) do
-		SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S( "%s %s %+i%s", items[ row.YieldType ] or "", L"TXT_KEY_ABLTY_FRESH_WATER_STRING", row.Yield, YieldIcons[ row.YieldType ] or "???" ) )
+		SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S( "%s %s %+i%s", items[ row.YieldType ] or "", L"TXT_KEY_ABLTY_FRESH_WATER_STRING", row.Yield, tostring(YieldIcons[ row.YieldType ]) ) )
 	end
 	if bnw_mode then
 		for row in GameInfo.Improvement_YieldPerEra( thisImprovementType ) do
-			SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S( "%s %+i%s/%s", items[ row.YieldType ] or "", row.Yield, YieldIcons[ row.YieldType ] or "???", L"TXT_KEY_AD_SETUP_GAME_ERA" ) )
+			SetKey( items, (row.Yield or 0)~=0 and row.YieldType, S( "%s %+i%s/%s", items[ row.YieldType ] or "", row.Yield, tostring(YieldIcons[ row.YieldType ]), L"TXT_KEY_AD_SETUP_GAME_ERA" ) )
 		end
 	end
 	for yieldType, tip in pairs( items ) do
-		tips:insert( (YieldNames[ yieldType ] or "???" ) .. ":" ..  tip )
+		tips:insert( tostring(YieldNames[ yieldType ]) .. ":" ..  tip )
 	end
 
 	-- Culture
@@ -1858,7 +1898,7 @@ local function getHelpTextForImprovement( improvementID )
 	for resource in GameInfo.Resources() do
 		thisImprovementAndResourceTypes.ResourceType = resource.Type or -1
 		tip = GetYieldString( GameInfo.Improvement_ResourceType_Yields( thisImprovementAndResourceTypes ) )
-		tips:insertIf( #tip > 0 and (resource.IconString or "???") .. " " .. L(resource.Description) .. ":" .. tip )
+		tips:insertIf( #tip > 0 and tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tip )
 	end
 
 	tips:insert( "----------------" )
@@ -1919,7 +1959,7 @@ local function getHelpTextForProject( projectID )
 		-- Affinity Level Requirement
 		for affinityPrereq in GameInfo.Project_AffinityPrereqs{ ProjectType = project.Type } do
 			local affinityInfo = (tonumber( affinityPrereq.Level) or 0 ) > 0 and GameInfo.Affinity_Types[ affinityPrereq.AffinityType ]
-			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, affinityInfo.IconString or "???", affinityInfo.Description ) )
+			tips:insertIf( affinityInfo and L( "TXT_KEY_AFFINITY_LEVEL_REQUIRED", affinityInfo.ColorType, affinityPrereq.Level, tostring(affinityInfo.IconString), tostring(affinityInfo.Description) ) )
 		end
 	end
 
@@ -1943,9 +1983,9 @@ local function getHelpTextForProcess( processID )
 		percent = yield and tonumber( row.Yield ) or 0
 		if percent == 0 then
 		elseif civBE_mode then
-			tips:insertLocalized( "TXT_KEY_PROCESS_GENERIC_HELP", percent, yield.IconString or "???", yield.Description )
+			tips:insertLocalized( "TXT_KEY_PROCESS_GENERIC_HELP", percent, tostring(yield.IconString), tostring(yield.Description) )
 		else
-			tips:insert( S( "%s = %i%%([ICON_PRODUCTION])", yield.IconString or "???", percent ) )
+			tips:insert( S( "%s = %i%%([ICON_PRODUCTION])", tostring(yield.IconString), percent ) )
 		end
 	end
 	-- League Project text
@@ -1976,7 +2016,7 @@ function GetHelpTextForPlayerPerk( perkID )
 		local building = GameInfo.BuildingClasses[ playerPerkBuildingYieldEffect.BuildingClassType ]
 		local yield = building and GameInfo.Yields[ playerPerkBuildingYieldEffect.YieldType ]
 		if yield then
-			tips:insertLocalized( "TXT_KEY_PLAYERPERK_ALL_BUILDING_YIELD_EFFECT", playerPerkBuildingYieldEffect.FlatYield, yield.IconString or "???", yield.Description, building.Description )
+			tips:insertLocalized( "TXT_KEY_PLAYERPERK_ALL_BUILDING_YIELD_EFFECT", playerPerkBuildingYieldEffect.FlatYield, tostring(yield.IconString), tostring(yield.Description), building.Description )
 		end
 	end
 
@@ -1991,7 +2031,7 @@ end
 -- Helper function to build yield tooltip string
 local function getYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconString, strModifiersString )
 
-	yieldIconString = yieldIconString or YieldIcons[yieldID] or "???"
+	yieldIconString = tostring(yieldIconString or YieldIcons[yieldID])
 	local strYieldBreakdown = ""
 	local tips = table()
 
@@ -2028,27 +2068,31 @@ local function getYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	-- Base Yield From City Connections
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CONNECTION", city:GetYieldChangeTradeRoute( yieldID ), yieldIconString)
 
-	-- Gold from Great Works
-	if(yieldID == YieldTypes.YIELD_GOLD) then
+	-- Yield from Great Works
+	if(yieldID ~= YieldTypes.YIELD_CULTURE) then
 		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP", city:GetBaseYieldRateFromGreatWorks( yieldID ), yieldIconString)
 	end
 
 -- CBP
-	if(yieldID == YieldTypes.YIELD_SCIENCE) then
-		-- WLTKD MOD
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_GOLDEN_AGE", city:GetModFromWLTKD(yieldID))
+	-- WLTKD MOD
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_WLTKD", city:GetModFromWLTKD(yieldID), yieldIconString)
 
-		-- Golden Age MOD
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID))
-	end
+	-- Golden Age MOD
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
 -- END CBP
+-- Base Yield from League Art (CSD)
+	local iYieldFromLeague = city:GetBaseYieldRateFromLeague(YieldTypes.YIELD_SCIENCE);
+	if (iYieldFromLeague ~= 0) then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, yieldIconString)
+	end
+-- END
 
 	if civBE_mode then
 		-- Yield from Production Processes
 		local yieldFromProcesses = city:GetYieldRateFromProductionProcesses( yieldID )
 		if yieldFromProcesses ~= 0 then
 			local processInfo = GameInfo.Processes[ city:GetProductionProcess() ]
-			strModifiersString = strModifiersString .. "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_SHORT_YIELD_FROM_SPECIFIC_OBJECT", yieldFromProcesses, yieldIconString, processInfo and processInfo.Description or "???" )
+			strModifiersString = strModifiersString .. "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_SHORT_YIELD_FROM_SPECIFIC_OBJECT", yieldFromProcesses, yieldIconString, tostring(processInfo and processInfo.Description) )
 		end
 		-- Base Yield from Loadout (colonists)
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_LOADOUT", city:GetYieldPerTurnFromLoadout( yieldID ), yieldIconString )
@@ -2379,10 +2423,11 @@ local function getCultureTooltip( city )
 		
 -- CBP
 		-- WLTKD MOD
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
 
 		-- Golden Age MOD
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
+		
 -- END
 
 -- CBP -- Resource Monopoly
@@ -2470,6 +2515,10 @@ local function getFaithTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
 				
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
+	
+		-- Yield from Great Works
+		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))
+
 -- END CBP
 -- CBP -- Resource Monopoly
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
@@ -2548,6 +2597,12 @@ local function getCityHappinessTooltip(city)
 	local iGoldNeeded = city:GetUnhappinessFromGoldNeeded() / 100;
 	local iScienceYield = city:GetUnhappinessFromScienceYield() / 100;
 	local iScienceNeeded = city:GetUnhappinessFromScienceNeeded() / 100;
+	
+	local iCultureDeficit = city:GetUnhappinessFromCultureDeficit() / 100;
+	local iDefenseDeficit = city:GetUnhappinessFromDefenseDeficit() / 100;
+	local iGoldDeficit = city:GetUnhappinessFromGoldDeficit() / 100;
+	local iScienceDeficit = city:GetUnhappinessFromScienceDeficit() / 100;
+
 
 	local iTotalHappiness = city:GetLocalHappiness();
 
@@ -2577,14 +2632,14 @@ local function getCityHappinessTooltip(city)
 	end
 	-- Gold tooltip
 	if (iGoldUnhappiness > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded);
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
 	end
 	if ((iGoldYield - iGoldNeeded) >= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
 	end
 	-- Defense tooltip
 	if (iDefenseUnhappiness > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
 	end
 	if ((iDefenseYield - iDefenseNeeded) >= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
@@ -2599,14 +2654,14 @@ local function getCityHappinessTooltip(city)
 	end
 	-- Science tooltip
 	if (iScienceUnhappiness > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
 	end
 	if ((iScienceYield - iScienceNeeded) >= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
 	end
 	-- Culture tooltip
 	if (iCultureUnhappiness > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
 	end
 	if ((iCultureYield - iCultureNeeded) >= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
@@ -2687,6 +2742,8 @@ local function inParentheses( duration )
 		return ""
 	end
 end
+
+local g_relationshipDuration = gk_mode and GameInfo.GameSpeeds[ PreGame.GetGameSpeed() ].RelationshipDuration or 50
 
 local function getMoodInfo( playerID )
 
@@ -2829,12 +2886,11 @@ local function getMoodInfo( playerID )
 	local treaties = table()
 	local currentTurn = Game.GetGameTurn() -1
 	local isUs = playerID == activePlayerID
-	local relationshipDuration = gk_mode and GameInfo.GameSpeeds[ PreGame.GetGameSpeed() ].RelationshipDuration or 50
 
 	local function getDealTurnsRemaining( itemID )
 		local turnsRemaining
 		if bnw_mode and itemID == TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP then -- DoF special kinky case
-			turnsRemaining = relationshipDuration - activePlayer:GetDoFCounter( playerID )
+			turnsRemaining = g_relationshipDuration - activePlayer:GetDoFCounter( playerID )
 		elseif itemID then
 			local finalTurn = dealsFinalTurn[ itemID ]
 			if finalTurn then
@@ -2858,6 +2914,7 @@ local function getMoodInfo( playerID )
 			end
 			if itemID then
 				if isUs or toPlayerID == playerID or fromPlayerID == playerID then
+--					finalTurn = finalTurn - currentTurn
 					local isFromUs = fromPlayerID == activePlayerID
 					local dealItem = dealItems[ finalTurn ]
 					if not dealItem then
@@ -2879,7 +2936,7 @@ local function getMoodInfo( playerID )
 		until false
 	end
 	EUI.PopScratchDeal()
-	finalTurns:sort( )
+	finalTurns:sort()
 	for i = 1, #finalTurns do
 		local finalTurn = finalTurns[i]
 		local dealItem = dealItems[ finalTurn ] or {}
@@ -2888,7 +2945,7 @@ local function getMoodInfo( playerID )
 		deal:insertIf( quantity and quantity ~= 0 and S( "%+g%s", quantity, g_currencyIcon ) )
 		for resource in GameInfo.Resources() do
 			local quantity = dealItem[ resource.ID ]
-			deal:insertIf( quantity and quantity ~= 0 and S( "%+g%s", quantity, resource.IconString or "???" ) )
+			deal:insertIf( (quantity or 0) ~= 0 and S( "%+g%s", quantity, tostring(resource.IconString) ) )
 		end
 		deals:insertIf( #deal > 0 and deal:concat() .. "("..( finalTurn - currentTurn )..")" )
 	end
@@ -2923,15 +2980,15 @@ local function getMoodInfo( playerID )
 			local i = activePlayer:GetNumResourceAvailable( resource.ID, false )
 			if i > 0 then
 				if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
-					luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. (resource.IconString or "???") )
+					luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. tostring(resource.IconString) )
 				elseif resource.ResourceClassType ~= "RESOURCECLASS_BONUS" then
-					strategic:insert( " " .. i .. (resource.IconString or "???") )
+					strategic:insert( " " .. i .. tostring(resource.IconString) )
 				end
 			end
 		end
 		tips:append( luxuries:concat() .. strategic:concat() )
 
-	elseif teamID ~= activeTeamID then
+	else  --if teamID ~= activeTeamID then
 
 		local visibleApproachID = activePlayer:GetApproachTowardsUsGuess(playerID)
 
@@ -2946,7 +3003,7 @@ local function getMoodInfo( playerID )
 			local strategic = table()
 			for resource in GameInfo.Resources() do
 				if g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 ) then	-- 1 here is 1 quantity of the Resource, which is the minimum possible
-					local resource = "  " .. player:GetNumResourceAvailable( resource.ID, false ) .. (resource.IconString or "???")
+					local resource = "  " .. player:GetNumResourceAvailable( resource.ID, false ) .. tostring(resource.IconString)
 					if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
 						luxuries:insert( resource )
 					else
@@ -2962,9 +3019,9 @@ local function getMoodInfo( playerID )
 			for resource in GameInfo.Resources() do
 				if g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 ) then	-- 1 here is 1 quantity of the Resource, which is the minimum possible
 					if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
-						luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. (resource.IconString or "???") )
+						luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. tostring(resource.IconString) )
 					else
-						strategic:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, false ) .. (resource.IconString or "???") )
+						strategic:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, false ) .. tostring(resource.IconString) )
 					end
 				end
 			end
@@ -2973,6 +3030,10 @@ local function getMoodInfo( playerID )
 			end
 
 			-- Treaties
+			local peaceTurnExpire = dealsFinalTurn[ TradeableItems.TRADE_ITEM_PEACE_TREATY ]
+			if peaceTurnExpire and peaceTurnExpire > currentTurn then
+				treaties:insert( "[ICON_PEACE]" .. L( "TXT_KEY_DIPLO_PEACE_TREATY", peaceTurnExpire - currentTurn ) )
+			end
 			if gk_mode then
 
 				-- Embassy to them
@@ -3078,6 +3139,69 @@ local function getMoodInfo( playerID )
 
 		if player.GetOpinionTable then
 			opinions = player:GetOpinionTable( activePlayerID )
+		else
+
+			-- Good things
+			opinions:insertLocalizedIf( activePlayer:IsDoF(playerID) and "TXT_KEY_DIPLO_DOF" )
+			opinions:insertLocalizedIf( activePlayer:IsPlayerDoFwithAnyFriend(playerID) and "TXT_KEY_DIPLO_MUTUAL_DOF" ) -- Human has a mutual friend with the AI
+			opinions:insertLocalizedIf( activePlayer:IsPlayerDenouncedEnemy(playerID) and "TXT_KEY_DIPLO_MUTUAL_ENEMY" ) -- Human has denounced an enemy of the AI
+			opinions:insertLocalizedIf( player:GetNumCiviliansReturnedToMe(activePlayerID) > 0 and "TXT_KEY_DIPLO_CIVILIANS_RETURNED" )
+
+			-- Neutral things
+			opinions:insertLocalizedIf( visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID and "TXT_KEY_DIPLO_AFRAID" )
+
+			-- Bad things
+			opinions:insertLocalizedIf( player:IsFriendDeclaredWarOnUs(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR" ) -- Human was a friend and declared war on us
+			opinions:insertLocalizedIf( player:IsFriendDenouncedUs(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED" ) -- Human was a friend and denounced us
+			opinions:insertLocalizedIf( activePlayer:GetWeDeclaredWarOnFriendCount() > 0 and "TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS" ) -- Human declared war on friends
+			opinions:insertLocalizedIf( activePlayer:GetWeDenouncedFriendCount() > 0 and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS" ) -- Human has denounced his friends
+			opinions:insertLocalizedIf( activePlayer:GetNumFriendsDenouncedBy() > 0 and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS" ) -- Human has been denounced by friends
+			opinions:insertLocalizedIf( activePlayer:IsDenouncedPlayer(playerID) and "TXT_KEY_DIPLO_DENOUNCED_BY_US" )
+			opinions:insertLocalizedIf( player:IsDenouncedPlayer(activePlayerID) and "TXT_KEY_DIPLO_DENOUNCED_BY_THEM" )
+			opinions:insertLocalizedIf( player:IsPlayerDoFwithAnyEnemy(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_DOF_WITH_ENEMY" )
+			opinions:insertLocalizedIf( player:IsPlayerDenouncedFriend(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIEND" )
+			opinions:insertLocalizedIf( player:IsPlayerNoSettleRequestEverAsked(activePlayerID) and "TXT_KEY_DIPLO_NO_SETTLE_ASKED" )
+			opinions:insertLocalizedIf( player:IsDemandEverMade(activePlayerID) and "TXT_KEY_DIPLO_TRADE_DEMAND" )
+			opinions:insertLocalizedIf( player:GetNumTimesCultureBombed(activePlayerID) > 0 and "TXT_KEY_DIPLO_CULTURE_BOMB" )
+			opinions:insertLocalizedIf( player:IsPlayerBrokenMilitaryPromise(activePlayerID) and "TXT_KEY_DIPLO_MILITARY_PROMISE" )
+			opinions:insertLocalizedIf( player:IsPlayerIgnoredMilitaryPromise(activePlayerID) and "TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED" )
+			opinions:insertLocalizedIf( player:IsPlayerBrokenExpansionPromise(activePlayerID) and "TXT_KEY_DIPLO_EXPANSION_PROMISE" )
+			opinions:insertLocalizedIf( player:IsPlayerIgnoredExpansionPromise(activePlayerID) and "TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED" )
+			opinions:insertLocalizedIf( player:IsPlayerBrokenBorderPromise(activePlayerID) and "TXT_KEY_DIPLO_BORDER_PROMISE" )
+			opinions:insertLocalizedIf( player:IsPlayerIgnoredBorderPromise(activePlayerID) and "TXT_KEY_DIPLO_BORDER_PROMISE_IGNORED" )
+			opinions:insertLocalizedIf( player:IsPlayerBrokenCityStatePromise(activePlayerID) and "TXT_KEY_DIPLO_CITY_STATE_PROMISE" )
+			opinions:insertLocalizedIf( player:IsPlayerIgnoredCityStatePromise(activePlayerID) and "TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED" )
+			opinions:insertLocalizedIf( player:IsPlayerBrokenCoopWarPromise(activePlayerID) and "TXT_KEY_DIPLO_COOP_WAR_PROMISE" )
+			opinions:insertLocalizedIf( player:IsPlayerRecklessExpander(activePlayerID) and "TXT_KEY_DIPLO_RECKLESS_EXPANDER" )
+			opinions:insertLocalizedIf( player:GetNumRequestsRefused(activePlayerID) > 0 and "TXT_KEY_DIPLO_REFUSED_REQUESTS" )
+			opinions:insertLocalizedIf( player:GetRecentTradeValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_TRADE_PARTNER" )
+			opinions:insertLocalizedIf( player:GetCommonFoeValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_COMMON_FOE" )
+			opinions:insertLocalizedIf( player:GetRecentAssistValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_ASSISTANCE_TO_THEM" )
+			opinions:insertLocalizedIf( player:IsLiberatedCapital(activePlayerID) and "TXT_KEY_DIPLO_LIBERATED_CAPITAL" )
+			opinions:insertLocalizedIf( player:IsLiberatedCity(activePlayerID) and "TXT_KEY_DIPLO_LIBERATED_CITY" )
+			opinions:insertLocalizedIf( player:IsGaveAssistanceTo(activePlayerID) and "TXT_KEY_DIPLO_ASSISTANCE_FROM_THEM" )
+			opinions:insertLocalizedIf( player:IsHasPaidTributeTo(activePlayerID) and "TXT_KEY_DIPLO_PAID_TRIBUTE" )
+			opinions:insertLocalizedIf( player:IsNukedBy(activePlayerID) and "TXT_KEY_DIPLO_NUKED" )
+			opinions:insertLocalizedIf( player:IsCapitalCapturedBy(activePlayerID) and "TXT_KEY_DIPLO_CAPTURED_CAPITAL" )
+			-- Protected Minors
+			if player:GetOtherPlayerNumProtectedMinorsKilled(activePlayerID) > 0 then
+				opinions:insert( L"TXT_KEY_DIPLO_PROTECTED_MINORS_KILLED" )
+			-- Only worry about protected minors ATTACKED if they haven't KILLED any
+			elseif player:GetOtherPlayerNumProtectedMinorsAttacked(activePlayerID) > 0 then
+				opinions:insert( L"TXT_KEY_DIPLO_PROTECTED_MINORS_ATTACKED" )
+			end
+
+			--local actualApproachID = player:GetMajorCivApproach(activePlayerID)
+
+			-- Bad things we don't want visible if someone is friendly (acting or truthfully)
+			if visibleApproachID ~= MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				-- and actualApproachID ~= MajorCivApproachTypes.MAJOR_CIV_APPROACH_DECEPTIVE then
+				opinions:insertLocalizedIf( player:GetLandDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_LAND_DISPUTE" )
+				--opinions:insertLocalizedIf( player:GetVictoryDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_VICTORY_DISPUTE" )
+				opinions:insertLocalizedIf( player:GetWonderDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_WONDER_DISPUTE" )
+				opinions:insertLocalizedIf( player:GetMinorCivDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_MINOR_CIV_DISPUTE" )
+				opinions:insertLocalizedIf( player:GetWarmongerThreat(activePlayerID) > ThreatTypes.THREAT_NONE and "TXT_KEY_DIPLO_WARMONGER_THREAT" )
+			end
 		end
 
 		--  No specific events - let's see what string we should use
@@ -3118,14 +3242,12 @@ local function getMoodInfo( playerID )
 	local backstabs = table()
 	local denouncedBy = table()
 	local wars = table()
-	local relationshipDuration = gk_mode and GameInfo.GameSpeeds[ PreGame.GetGameSpeed() ].RelationshipDuration or 50
 
 	-- Relationships with others
 	for otherPlayerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
 		local otherPlayer = Players[otherPlayerID]
 		if otherPlayer
 			and otherPlayerID ~= playerID
-			and otherPlayerID ~= activePlayerID
 			and otherPlayer:IsAlive()
 			and activeTeam:IsHasMet(otherPlayer:GetTeam())
 		then
@@ -3149,18 +3271,18 @@ local function getMoodInfo( playerID )
 			else
 				-- Friendships
 				if player:IsDoF(otherPlayerID) then
-					friends:insert( otherPlayerName .. inParentheses( bnw_mode and ( relationshipDuration - player:GetDoFCounter( otherPlayerID ) ) ) )
+					friends:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - player:GetDoFCounter( otherPlayerID ) ) ) )
 				end
 				-- Backstab
 				if otherPlayer:IsFriendDenouncedUs(playerID) or otherPlayer:IsFriendDeclaredWarOnUs(playerID) then
 					backstabs:insert( otherPlayerName )
 				-- Denouncement
 				elseif player:IsDenouncedPlayer(otherPlayerID) then
-					denouncements:insert( otherPlayerName .. inParentheses( bnw_mode and ( relationshipDuration - player:GetDenouncedPlayerCounter( otherPlayerID ) ) ) )
+					denouncements:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - player:GetDenouncedPlayerCounter( otherPlayerID ) ) ) )
 				end
 				-- Denounced by 3rd party
 				if otherPlayer:IsDenouncedPlayer(playerID) then
-					denouncedBy:insert( otherPlayerName .. inParentheses( bnw_mode and ( relationshipDuration - otherPlayer:GetDenouncedPlayerCounter( playerID ) ) ) )
+					denouncedBy:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - otherPlayer:GetDenouncedPlayerCounter( playerID ) ) ) )
 				end
 			end
 		end
@@ -3196,7 +3318,7 @@ local function getReligionTooltip(city)
 				local numFollowers = city:GetNumFollowers(religionID)
 				local religion = GameInfo.Religions[religionID]
 				local religionName = L( Game.GetReligionName(religionID) )
-				local religionIcon = religion.IconString or "???"
+				local religionIcon = tostring(religion.IconString)
 
 				if pressureLevel > 0 or numFollowers > 0 then
 
@@ -3891,7 +4013,7 @@ if civBE_mode then
 								firstEntry = false;
 							end
 							s = s .. "[ICON_BULLET]";
-							s = s .. L(textKey, yieldNumber, yieldInfo.IconString or "???", yieldInfo.Description);
+							s = s .. L( textKey, yieldNumber, tostring(yieldInfo.IconString), tostring(yieldInfo.Description) );
 						end
 					end
 				end
@@ -3916,7 +4038,7 @@ if civBE_mode then
 							firstEntry = false;
 						end
 						s = s .. "[ICON_BULLET]";
-						s = s .. L(textKey, yieldNumber, yieldInfo.IconString or "???", yieldInfo.Description, resourceClassInfo.Description);
+						s = s .. L( textKey, yieldNumber, tostring(yieldInfo.IconString), tostring(yieldInfo.Description), tostring(resourceClassInfo.Description) );
 					end
 				end
 			end
@@ -3940,7 +4062,7 @@ if civBE_mode then
 							firstEntry = false;
 						end
 						s = s .. "[ICON_BULLET]";
-						s = s .. L(textKey, yieldNumber, yieldInfo.IconString or "???", yieldInfo.Description, improvementInfo.Description);
+						s = s .. L(textKey, yieldNumber, tostring(yieldInfo.IconString), tostring(yieldInfo.Description), tostring(improvementInfo.Description) );
 					end
 				end
 			end
@@ -3984,7 +4106,7 @@ if civBE_mode then
 			local currentLevel = -1;
 			if player then
 				-- Current level
-				s = s .. L("TXT_KEY_AFFINITY_STATUS_DETAIL", affinityInfo.IconString or "???", affinityInfo.ColorType, affinityInfo.Description, player:GetAffinityLevel(affinityInfo.ID));
+				s = s .. L("TXT_KEY_AFFINITY_STATUS_DETAIL", tostring(affinityInfo.IconString), affinityInfo.ColorType, affinityInfo.Description, player:GetAffinityLevel(affinityInfo.ID));
 				s = s .. "[NEWLINE][NEWLINE]";
 				currentLevel = player:GetAffinityLevel(affinityID);
 			end
@@ -3994,7 +4116,7 @@ if civBE_mode then
 			for levelInfo in GameInfo.Affinity_Levels() do
 				local levelText = GetHelpTextForAffinityLevel(affinityID, levelInfo.ID);
 				if (levelText ~= "") then
-					levelText = (affinityInfo.IconString or "???") .. "[" .. affinityInfo.ColorType .. "]" .. levelInfo.ID .. "[ENDCOLOR] : " .. levelText;
+					levelText = tostring(affinityInfo.IconString) .. "[" .. affinityInfo.ColorType .. "]" .. levelInfo.ID .. "[ENDCOLOR] : " .. levelText;
 
 					if (levelInfo.ID <= currentLevel) then
 						levelText = "[" .. affinityInfo.ColorType .. "]" .. levelText .. "[ENDCOLOR]";

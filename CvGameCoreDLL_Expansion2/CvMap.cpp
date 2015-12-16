@@ -230,8 +230,10 @@ CvMap::CvMap()
 	m_pMapPlots = NULL;
 #if defined(MOD_BALANCE_CORE)
 	m_pPlotNeighbors = NULL;
+	memset(m_apShuffledNeighbors,0,sizeof(CvPlot*)*6);
 #endif
 
+	//memory slabs to be shared between all the plots
 	m_pYields = NULL;
 	m_pPlayerCityRadiusCount = NULL;
 	m_pVisibilityCount = NULL;
@@ -2050,9 +2052,6 @@ void CvMap::DefaultContinentStamper()
 	int iNumLargeContinents = 0;
 	int iLargeContinentsID[iNumContinentTypes] = {-1,-1,-1,-1};
 	int iLargeContinentsSize[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsArtStyle[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsX[iNumContinentTypes] = {0,0,0,0};
-	int iLargeContinentsY[iNumContinentTypes] = {0,0,0,0};
 
 	recalculateLandmasses();
 
@@ -2085,6 +2084,7 @@ void CvMap::DefaultContinentStamper()
 	}
 
 	// for each of these large continents give them unique art style (randomly)
+	int iLargeContinentsArtStyle[iNumContinentTypes] = {0,1,2,3};
 	shuffleArray(iLargeContinentsArtStyle, 4, GC.getGame().getMapRand());
 	for(int i=0; i < iNumContinentTypes; i++)
 	{
@@ -2097,6 +2097,8 @@ void CvMap::DefaultContinentStamper()
 			iNumLargeContinents++;
 	}
 
+	int iLargeContinentsX[iNumContinentTypes] = {0,0,0,0};
+	int iLargeContinentsY[iNumContinentTypes] = {0,0,0,0};
 	for(int i=0; i < iNumLargeContinents; i++)
 	{
 		CvLandmass* pLandmass = getLandmass(iLargeContinentsID[i]);

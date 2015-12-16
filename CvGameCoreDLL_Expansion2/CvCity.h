@@ -636,23 +636,23 @@ public:
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int getHappinessDelta() const;
-	int getThresholdSubtractions(YieldTypes eYield) const;
+	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
 	int getThresholdAdditions() const;
 	int getUnhappyCitizenCount() const;
 	void setUnhappyCitizenCount(int iNewValue);
 	void changeUnhappyCitizenCount(int iChange) const;
 
 	int getUnhappinessFromCultureYield() const;
-	int getUnhappinessFromCultureNeeded() const;
+	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
 	int getUnhappinessFromCulture() const;
 	int getUnhappinessFromScienceYield() const;
-	int getUnhappinessFromScienceNeeded() const;
+	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
 	int getUnhappinessFromScience() const;
 	int getUnhappinessFromDefenseYield() const;
-	int getUnhappinessFromDefenseNeeded() const;
+	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
 	int getUnhappinessFromDefense() const;
 	int getUnhappinessFromGoldYield() const;
-	int getUnhappinessFromGoldNeeded() const;
+	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
 	int getUnhappinessFromGold() const;
 	int getUnhappinessFromConnection() const;
 	int getUnhappinessFromPillaged() const;

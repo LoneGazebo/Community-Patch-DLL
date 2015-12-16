@@ -47,6 +47,7 @@ local RadiusHexArea = EUI.RadiusHexArea
 local InstanceStackManager = EUI.InstanceStackManager
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
+local GreatPeopleIcon = EUI.GreatPeopleIcon
 
 -------------------------------
 -- minor lua optimizations
@@ -137,7 +138,6 @@ local Mouse = Mouse
 --local MouseOverStrategicViewResource = MouseOverStrategicViewResource
 local Locale = Locale
 local L = Locale.ConvertTextKey
-local S = string.format
 --getmetatable("").__index.L = L
 if civBE_mode then
 	function InStrategicView()
@@ -233,11 +233,6 @@ local g_advisorControls = {
 [AdvisorTypes.ADVISOR_SCIENCE] = "ScienceRecommendation",
 [AdvisorTypes.ADVISOR_FOREIGN] = "ForeignRecommendation",
 }
-
-local function UpdateCityCitizens( cityID )
-	Network.SendUpdateCityCitizens( cityID )
-	return Network.SendUpdateCityCitizens( cityID ) --DLL bug: must be sent twice to have desired effect
-end
 
 local function SetupCallbacks( controls, toolTips, tootTipType, callBacks )
 	local control
@@ -362,27 +357,28 @@ local function CancelBuildingSale()
 	return Controls.YesButton:SetVoids( -1, -1 )
 end
 
-local function GotoNextCity()
-	CancelBuildingSale()
-	g_isButtonPopupChooseProduction = false
-	Controls.RightScrollPanel:SetScrollValue(0)
-	return Game.DoControl( GameInfoTypes.CONTROL_NEXTCITY )
-end
-
-local function GotoPrevCity()
-	CancelBuildingSale()
-	g_isButtonPopupChooseProduction = false
-	Controls.RightScrollPanel:SetScrollValue(0)
-	return Game.DoControl( GameInfoTypes.CONTROL_PREVCITY )
-end
-
-local function ExitCityScreen()
+local function ExitCityButNotScreen()
 	-- clear any rogue leftover tooltip
 	g_leftTipControls.Box:SetHide( true )
 	g_rightTipControls.Box:SetHide( true )
 	g_toolTipHandler = nil
-	CancelBuildingSale()
 	g_isButtonPopupChooseProduction = false
+	Controls.RightScrollPanel:SetScrollValue(0)
+	return CancelBuildingSale()
+end
+
+local function GotoNextCity()
+	ExitCityButNotScreen()
+	return Game.DoControl( GameInfoTypes.CONTROL_NEXTCITY )
+end
+
+local function GotoPrevCity()
+	ExitCityButNotScreen()
+	return Game.DoControl( GameInfoTypes.CONTROL_PREVCITY )
+end
+
+local function ExitCityScreen()
+	ExitCityButNotScreen()
 	return Events.SerialEventExitCityScreen()
 end
 
@@ -476,7 +472,7 @@ local function GetSpecialistYields( city, specialist )
 		end
 	end
 	if civ5_mode and (specialist.GreatPeopleRateChange or 0) > 0 then
-		yieldTips:insert( specialist.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]" )
+		yieldTips:insert( specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
 	end
 	return yieldTips:concat(" ")
 end
@@ -857,7 +853,8 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			-- Happiness
 			local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
 						+ cityOwner:GetExtraBuildingHappinessFromPolicies( buildingID )
-			tips:insertIf( happinessChange ~=0 and S( "%i[ICON_HAPPINESS_1]", happinessChange ) )
+						+ (cityOwner:IsHalfSpecialistUnhappiness() and GameDefines.UNHAPPINESS_PER_POPULATION * numSpecialistsInBuilding * ((city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() or 0)+100) * (cityOwner:GetUnhappinessMod() + 100) * (cityOwner:GetTraitPopUnhappinessMod() + 100) / 2e6 or 0) -- missing getHandicapInfo().getPopulationUnhappinessMod()
+			tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
 
 		else -- civBE_mode
 			cityCultureRate = city:GetBaseCulturePerTurn()
@@ -872,7 +869,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				hitPointChange = hitPointChange + Game.GetPlayerPerkBuildingClassCityHPChange( perkID, buildingClassID )
 				maintenanceCost = maintenanceCost + Game.GetPlayerPerkBuildingClassEnergyMaintenanceChange( perkID, buildingClassID )
 			end
-			tips:insertIf( healthChange ~=0 and S("%i[ICON_HEALTH_1]", healthChange ) )
+			tips:insertIf( healthChange ~=0 and healthChange .. "[ICON_HEALTH_1]" )
 --			tips:insertLocalizedIfNonZero( "TXT_KEY_STAT_POSITIVE_YIELD_MOD", "[ICON_HEALTH_1]", healthModifier )
 		end
 		local buildingYieldRate, buildingYieldPerPop, buildingYieldModifier, cityYieldRate, cityYieldRateModifier, isProducing
@@ -913,7 +910,12 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				buildingCultureRate = 0
 				buildingCultureModifier = 0
 			elseif yieldID == YieldTypes.YIELD_FOOD then
-				buildingYieldModifier = buildingYieldModifier + (building.FoodKept or 0)
+				local foodPerPop = GameDefines.FOOD_CONSUMPTION_PER_POPULATION
+				local foodConsumed = city:FoodConsumption()
+				buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
+				buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0)
+				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed 
+				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
 				isProducing = true
 			end
 			-- Population yield
@@ -924,14 +926,24 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			buildingYieldRate = buildingYieldRate + buildingYieldPerPop * population / 100
 
 			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			tips:insertIf( isProducing and buildingYieldRate ~= 0 and S("%i%s", buildingYieldRate / 100, tostring(YieldIcons[ yieldID ]) ) )
+			tips:insertIf( isProducing and buildingYieldRate ~= 0 and buildingYieldRate / 100 .. tostring(YieldIcons[ yieldID ]) )
 		end
 
 		-- Culture leftovers
-		buildingCultureRate = buildingCultureRate * cityCultureRateModifier + ( cityCultureRate - buildingCultureRate ) * buildingCultureModifier
-		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and S("%i[ICON_CULTURE]", buildingCultureRate / 100) )
+		buildingCultureRate = buildingCultureRate * (100+cityCultureRateModifier) + ( cityCultureRate - buildingCultureRate ) * buildingCultureModifier
+		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and buildingCultureRate / 100 .. "[ICON_CULTURE]" )
 
 -- TODO TOURISM
+		if civ5bnw_mode then
+			local tourism = ( ( (building.FaithCost or 0) > 0
+					and building.UnlockedByBelief
+					and building.Cost == -1
+					and city and city:GetFaithBuildingTourism()
+					) or 0 )
+--			local enhancedYieldTechID = GameInfoTypes[ building.EnhancedYieldTech ]
+			tourism = tourism + (tonumber(building.TechEnhancedTourism) or 0)
+			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
+		end
 
 		if civ5_mode and building.IsReligious then
 			buildingName = L( "TXT_KEY_RELIGIOUS_BUILDING", buildingName, Players[city:GetOwner()]:GetStateReligionKey() )
@@ -939,18 +951,23 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		if city:GetNumFreeBuilding( buildingID ) > 0 then
 			buildingName = buildingName .. " (" .. L"TXT_KEY_FREE" .. ")"
 		else
-			tips:insertIf( maintenanceCost ~=0 and S("%i%s", -maintenanceCost, g_currencyIcon ) )
+			tips:insertIf( maintenanceCost ~=0 and -maintenanceCost .. g_currencyIcon )
 		end
 		controls.Name:SetText( buildingName )
 
-		tips:insertIf( defenseChange ~=0 and S("%i[ICON_STRENGTH]", defenseChange / 100 ) )
+		tips:insertIf( defenseChange ~=0 and defenseChange / 100 .. "[ICON_STRENGTH]" )
 		tips:insertLocalizedIfNonZero( "TXT_KEY_PEDIA_DEFENSE_HITPOINTS", hitPointChange )
 
+		controls.Label:ChangeParent( controls.Stack )
 		controls.Label:SetText( tips:concat(" ") )
-		controls.Label:ChangeParent( slotStack )
 		slotStack:CalculateSize()
-		slotStack:ReprocessAnchoring()
-		buildingButton:SetSizeY( math.max(64, slotStack:GetSizeY() + 32) )
+		if slotStack:GetSizeX() + controls.Label:GetSizeX() < 254 then
+			controls.Label:ChangeParent( slotStack )
+		end
+		controls.Stack:CalculateSize()
+--		slotStack:ReprocessAnchoring()
+--		controls.Stack:ReprocessAnchoring()
+		buildingButton:SetSizeY( math.max(64, controls.Stack:GetSizeY() + 16) )
 	end
 	return buildingIM.Commit()
 end
@@ -977,7 +994,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 				if cityIsCanPurchase( city, true, true, -1, itemID, -1, yieldID ) then
 					Game.CityPurchaseBuilding( city, itemID, yieldID )
-					UpdateCityCitizens( cityID )
+					Network.SendUpdateCityCitizens( cityID )
 					isPurchase = true
 				end
 			elseif orderID == OrderTypes.ORDER_CREATE then
@@ -1050,7 +1067,16 @@ local g_SelectionListCallBacks = {
 					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_BANNER )
 					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
 					if g_isButtonPopupChooseProduction then
-						ExitCityScreen()
+						-- is there another city without production order ?
+						for cityID in pairs( g_finishedItems ) do
+							local cityX = g_activePlayer:GetCityByID( cityID )
+							if cityX and cityX ~= city and cityX:GetOrderQueueLength() < 1 then
+								UI.SelectCity( cityX )
+								return UI.LookAtSelectionPlot()
+							end
+						end
+						-- all cities are producing...
+						return ExitCityScreen()
 					end
 				end
 			end
@@ -1144,7 +1170,7 @@ local function RemoveQueueItem( queuedItemNumber )
 		if city:GetOwner() == g_activePlayerID and queueLength > queuedItemNumber then
 			Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_POP_ORDER, queuedItemNumber )
 			if queueLength < 2 then
-				local strTooltip = L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetNameKey() )
+				local strTooltip = L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetName() )
 				g_activePlayer:AddNotification( NotificationTypes.NOTIFICATION_PRODUCTION, strTooltip, strTooltip, city:GetX(), city:GetY(), -1, -1 )
 			end
 		end
@@ -1254,6 +1280,20 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 			else
 				instance.PQturns:LocalizeAndSetText( "TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS" )
 			end
+			--CBP
+			if(orderID == OrderTypes.ORDER_CONSTRUCT)then
+				local cash = g_activePlayer:GetGold();
+				goldCost = cityIsCanPurchase( city, false, false, nil, itemID, nil, g_yieldCurrency )
+				instance.GoldButton:SetHide( true )
+				if goldCost then
+					local iCost = cityGetGoldCost( city, itemID );
+					instance.GoldButton:SetDisabled( not canBuyWithGold )
+					instance.GoldButton:SetAlpha( canBuyWithGold and 1 or 0.5 )
+					instance.GoldButton:SetVoids( orderID, itemID )
+					instance.GoldButton:SetText( (cash>=goldCost and goldCost or "[COLOR_WARNING_TEXT]"..(iCost-cash).."[ENDCOLOR]") .. g_currencyIcon )
+				end
+			end
+			--END
 		else
 			instance.PQname:LocalizeAndSetText( "TXT_KEY_PRODUCTION_NO_PRODUCTION" )
 		end
@@ -1361,7 +1401,7 @@ local function PlotButtonClicked( plotIndex )
 		-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
 		Network.SendDoTask( city:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, plotIndex, -1, false )
 		if outside then
-			return UpdateCityCitizens( city:GetID() )
+			return Network.SendUpdateCityCitizens( city:GetID() )
 		end
 	end
 end
@@ -1374,7 +1414,7 @@ local function BuyPlotAnchorButtonClicked( plotIndex )
 			local plotX = plot:GetX()
 			local plotY = plot:GetY()
 			Network.SendCityBuyPlot(city:GetID(), plotX, plotY)
-			UpdateCityCitizens( city:GetID() )
+			Network.SendUpdateCityCitizens( city:GetID() )
 			UI.UpdateCityScreen()
 			Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
 		end
@@ -1665,7 +1705,7 @@ local function UpdateCityViewNow()
 			Controls.OccupiedIcon:SetHide(true)
 		end
 
-		local cityName = Locale.ToUpper( city:GetNameKey() )
+		local cityName = Locale.ToUpper( city:GetName() )
 
 		if city:IsRazing() then
 			cityName = cityName .. " (" .. L"TXT_KEY_BURNING" .. ")"
@@ -1887,7 +1927,7 @@ local function UpdateCityViewNow()
 			for specialist in GameInfo.Specialists() do
 
 				local gpuClass = specialist.GreatPeopleUnitClass	-- nil / UNITCLASS_ARTIST / UNITCLASS_SCIENTIST / UNITCLASS_MERCHANT / UNITCLASS_ENGINEER ...
-				local unitClass = gpuClass and GameInfo.UnitClasses[ gpuClass ]
+				local unitClass = GameInfo.UnitClasses[ gpuClass or -1 ]
 				if unitClass then
 					local gpThreshold = city:GetSpecialistUpgradeThreshold(unitClass.ID)
 					local gpProgress = city:GetSpecialistGreatPersonProgressTimes100(specialist.ID) / 100
@@ -2001,16 +2041,17 @@ local function UpdateCityViewNow()
 						local percent = gpProgress / gpThreshold
 						instance.GPMeter:SetPercent( percent )
 						local labelText = L(unitClass.Description)
+						local icon = GreatPeopleIcon(gpuClass)
 						local tips = table( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]"
-									.. " " .. gpProgress .. "[ICON_GREAT_PEOPLE] / " .. gpThreshold .. "[ICON_GREAT_PEOPLE]" )
+									.. " " .. gpProgress .. icon .." / " .. gpThreshold .. icon )
 	--					tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]" )
 						if gpChange > 0 then
 							local gpTurns = math.ceil( (gpThreshold - gpProgress) / gpChange )
 							tips:insert( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gpTurns ) ) .. "[ENDCOLOR]  "
-										 .. gpChange .. "[ICON_GREAT_PEOPLE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
+										 .. gpChange .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
 							labelText = labelText .. ": " .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", gpTurns ) )
 						end
-						instance.GreatPersonLabel:SetText( labelText )
+						instance.GreatPersonLabel:SetText( icon .. labelText )
 						if gk_mode then
 							if gpChangePlayerMod ~= 0 then
 								tips:insert( L( "TXT_KEY_PLAYER_GP_MOD", gpChangePlayerMod ) )
@@ -2032,7 +2073,7 @@ local function UpdateCityViewNow()
 								end
 							end
 						elseif gpChangeMod ~= 0 then
-							tips:insert( "[ICON_BULLET] "..("%+i"):format( gpChangeMod ).."[ICON_GREAT_PEOPLE]" )
+							tips:insert( "[ICON_BULLET] "..gpChangeMod..icon )
 						end
 						instance.GPBox:SetToolTipString( tips:concat("[NEWLINE]") )
 						instance.GPBox:SetVoid1( unitClass.ID )
@@ -2412,7 +2453,7 @@ local FocusButtonBehavior = {
 			local city = UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAIFocus( city:GetID(), focus )
-				return UpdateCityCitizens( city:GetID() )
+				return Network.SendUpdateCityCitizens( city:GetID() )
 			end
 		end
 	end,
@@ -2433,7 +2474,7 @@ local g_callBacks = {
 			local city = isActivePlayerAllowed() and UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAvoidGrowth( city:GetID(), not city:IsForcedAvoidGrowth() )
-				return UpdateCityCitizens( city:GetID() )
+				return Network.SendUpdateCityCitizens( city:GetID() )
 			end
 		end,
 	},
@@ -2455,7 +2496,7 @@ local g_callBacks = {
 			Controls.SellBuildingConfirm:SetHide( true )
 			if isActivePlayerAllowed() and cityID and buildingID and buildingID > 0 then
 				Network.SendSellBuilding( cityID, buildingID )
-				UpdateCityCitizens( cityID )
+				Network.SendUpdateCityCitizens( cityID )
 			end
 			return Controls.YesButton:SetVoids( -1, -1 )
 		end,
@@ -2548,7 +2589,7 @@ function()
 
 --	local city = UI.GetHeadSelectedCity()
 --	if city then
---		UpdateCityCitizens( city:GetID() )
+--		Network.SendUpdateCityCitizens( city:GetID() )
 --	end
 
 	LuaEvents.TryQueueTutorial("CITY_SCREEN", true)
@@ -2632,23 +2673,22 @@ end)
 
 Events.SerialEventGameMessagePopup.Add(
 function( popupInfo )
-	if popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION then
-		return
-	end
-	Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION, 0)
-	Events.SerialEventGameMessagePopupShown( popupInfo )
+	if popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION then
+		Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION, 0)
+		Events.SerialEventGameMessagePopupShown( popupInfo )
 
-	local cityID = popupInfo.Data1		-- city id
-	local orderID = popupInfo.Data2		-- finished order id
-	local itemID = popupInfo.Data3		-- finished item id
-	local city = cityID and g_activePlayer:GetCityByID( cityID )
+		local cityID = popupInfo.Data1		-- city id
+		local orderID = popupInfo.Data2		-- finished order id
+		local itemID = popupInfo.Data3		-- finished item id
+		local city = cityID and g_activePlayer:GetCityByID( cityID )
 
-	if city and not UI.IsCityScreenUp() then
-		if orderID >= 0 and itemID >= 0 then
-			g_finishedItems[ cityID ] = { orderID, itemID }
+		if city and not UI.IsCityScreenUp() then
+			if orderID >= 0 and itemID >= 0 then
+				g_finishedItems[ cityID ] = { orderID, itemID }
+			end
+			g_isButtonPopupChooseProduction = g_isAutoClose
+			return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
 		end
-		g_isButtonPopupChooseProduction = g_isAutoClose
-		return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
 	end
 end)
 
@@ -2657,7 +2697,7 @@ function( notificationID, notificationType, toolTip, strSummary, data1, data2, p
 	if notificationType == NotificationTypes.NOTIFICATION_PRODUCTION and playerID == g_activePlayerID and data1 >= 0 and data2 >=0 then
 		-- Hack to find city
 		for city in g_activePlayer:Cities() do
-			if strSummary == L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetNameKey() ) then
+			if strSummary == L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetName() ) then
 				g_finishedItems[ city:GetID() ] = { data1, data2 }
 			end
 		end

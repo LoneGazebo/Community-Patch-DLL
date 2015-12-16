@@ -462,6 +462,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
+
+	int GetImprovementYieldChangeGlobal(int i, int j) const;
+	int* GetImprovementYieldChangeGlobalArray(int i) const;
 #endif
 	int GetSpecialistYieldChange(int i, int j) const;
 	int* GetSpecialistYieldChangeArray(int i) const;
@@ -816,6 +819,7 @@ private:
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppaiImprovementYieldChange;
+	int** m_ppaiImprovementYieldChangeGlobal;
 #endif
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;

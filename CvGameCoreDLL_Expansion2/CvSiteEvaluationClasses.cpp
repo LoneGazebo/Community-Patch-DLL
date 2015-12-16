@@ -95,7 +95,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		}
 	}
 
-	if(!pPlot->isValidEndTurnPlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
 	{
 		if(pUnit && !pUnit->canEnterTerrain(*pPlot))
 		{
@@ -127,16 +127,14 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if(!bValid)
 	{
-		if(pTerrainInfo->isFound())
-		{
-			bValid = true;
-		}
 #if defined(MOD_BALANCE_CORE)
-		else if(pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass() && pPlot->isMountain())
+		if(pTerrainInfo->isFound() || pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+#else
+		if(pTerrainInfo->isFound())
+#endif
 		{
 			bValid = true;
 		}
-#endif
 	}
 
 	if(!bValid)
@@ -234,14 +232,15 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 		m_iFlavorMultiplier[iI] = 0;
 	}
 
-	m_iFlavorMultiplier[SITE_EVALUATION_HAPPINESS] = 0;
-
 	// Find out if player has a desired next city specialization
-	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
 	CvCitySpecializationXMLEntry* pkCitySpecializationEntry = NULL;
+
+	//disable this, it leads to strange results
+	/*
+	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
 	if(eNextSpecialization != NO_CITY_SPECIALIZATION)
 		pkCitySpecializationEntry = GC.getCitySpecializationInfo(eNextSpecialization);
-
+	*/
 
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
@@ -349,16 +348,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iCivModifier = 0; //civ-specific modifiers
 	int iStratModifier = 0; //strategic modifiers
 
-	//per plot
-	int iFoodValue = 0;
-	int iHappinessValue = 0;
-	int iProductionValue = 0;
-	int iGoldValue = 0;
-	int iScienceValue = 0;
-	int iFaithValue = 0;
-	int iResourceValue = 0;
-	int iStrategicValue = 0;
-
 	int iCelticForestCount = 0;
 	int iIroquoisForestCount = 0;
 	int iBrazilJungleCount = 0;
@@ -436,162 +425,154 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 				if (iDistance <= iRange)
 				{
-					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == ePlayer))
+					int iRingModifier = m_iRingModifier[iDistance];
+
+					//not only our cities, also other player's cities!
+					int iExistingCityDistance = GC.getGame().GetClosestCityDistance(pLoopPlot);
+
+					//count the tile only if the city will be able to work it
+					if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<=2 ) 
+						iRingModifier = 0;
+
+					if (iExistingCityDistance==3)
+						//this plot will likely be contested between the two cities, reduce its value
+						iRingModifier /= 2;
+
+					int iPlotValue = iDefaultPlotValue;
+					if (iRingModifier>0)
 					{
-						//count the tile only if it's not being worked by another city or too close to it (so it will be worked sooner or later)
-						if ( pLoopPlot->getWorkingCity()==NULL )
+						int iFoodValue = 0;
+						int iHappinessValue = 0;
+						int iProductionValue = 0;
+						int iGoldValue = 0;
+						int iScienceValue = 0;
+						int iFaithValue = 0;
+						int iResourceValue = 0;
+						int iStrategicValue = 0;
+
+						if (eYield == NO_YIELD || eYield == YIELD_FOOD)
+							iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
+
+						if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
+							iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
+
+						if (eYield == NO_YIELD || eYield == YIELD_GOLD)
+							iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
+
+						if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
+							iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
+
+						if (eYield == NO_YIELD || eYield == YIELD_FAITH)
+							iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
+
+						if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
 						{
-							int iRingModifier = m_iRingModifier[iDistance];
+							iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
+							iResourceValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
+							if (iDistance)
+								iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();  // the ring is included in the computation
+						}
 
-							//not only our cities, also other player's cities!
-							int iExistingCityDistance = GC.getGame().GetClosestCityDistance(pLoopPlot);
+						iTotalFoodValue += iFoodValue;
+						iTotalHappinessValue += iHappinessValue;
+						iTotalProductionValue += iProductionValue;
+						iTotalGoldValue += iGoldValue;
+						iTotalScienceValue += iScienceValue;
+						iTotalFaithValue += iFaithValue;
+						iTotalResourceValue += iResourceValue;
+						iTotalStrategicValue += iStrategicValue;
 
-							if (iExistingCityDistance<=2)
-								//even if it's not currently worked by the other city, it will eventually be!
-								iRingModifier = 0;
-							if (iExistingCityDistance==3)
-								//this plot will likely be contested between the two cities, reduce its value
-								iRingModifier /= 2;
+						iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
+					}
 
-							iFoodValue = 0;
-							iProductionValue = 0;
-							iGoldValue = 0;
-							iScienceValue = 0;
-							iFaithValue = 0;
-							iHappinessValue = 0;
-							iResourceValue = 0;
-							iStrategicValue = 0;
+					// for the central plot
+					if (iDistance==0)
+						vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
 
-							if (eYield == NO_YIELD || eYield == YIELD_FOOD)
+					if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+						bIsAlmostCoast = true;
+
+					// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
+					if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
+						iPlotValue *= 15;
+
+					// lower value a lot if we already own this tile
+					if (iPlotValue > 0 && pLoopPlot->getOwner() == ePlayer && ePlayer != NO_PLAYER)
+						iPlotValue /= 2;
+
+					// add this plot into the total
+					workablePlots.push_back( SPlotWithScore(pLoopPlot,iPlotValue) );
+
+					// some civ-specific checks
+					FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
+					ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
+					ResourceTypes ePlotResource = pLoopPlot->getResourceType();
+
+					if (ePlotFeature == FEATURE_FOREST)
+					{
+						if (iDistance <= 5)
+						{
+							++iIroquoisForestCount;
+							if (iDistance == 1)
+								if (ePlotImprovement == NO_IMPROVEMENT)
+									++iCelticForestCount;
+						}
+					}
+					else if (ePlotFeature == FEATURE_JUNGLE)
+					{
+						if (iDistance <= iRange)
+							++iBrazilJungleCount;
+					}
+					else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
+					{
+						if (iDistance <= iRange)
+							++iWetlandsCount;
+					}
+
+					if (pLoopPlot->IsNaturalWonder())
+					{
+						if (iDistance <= iRange)
+							++iNaturalWonderCount;
+					}
+
+					if (pLoopPlot->isLake())
+					{
+						if (iDistance <= iRange)
+							++iLakeCount;
+					}
+					if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
+					{
+						ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+						if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							if (iDistance <= iRange)
 							{
-								iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
+								++iLuxuryCount;
 							}
-							if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
+						}
+					}
+
+					if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
+					{
+						if (iDistance <= iRange)
+						{
+							if (ePlotResource == NO_RESOURCE)
 							{
-								iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
+								++iDesertCount;
 							}
-							if (eYield == NO_YIELD || eYield == YIELD_GOLD)
+						}
+					}
+
+					if (bIsInca)
+					{
+						if (pLoopPlot->isHills() && iDistance <= iRange)
+						{
+							iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
+							if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
 							{
-								iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
-							}
-							if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
-							{
-								iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
-							}
-							if (eYield == NO_YIELD || eYield == YIELD_FAITH)
-							{
-								iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
-							}
-
-							if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
-							{
-								iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
-								iResourceValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
-								if (iDistance)
-									iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();  // the ring is included in the computation
-							}
-
-							iTotalFoodValue += iFoodValue;
-							iTotalHappinessValue += iHappinessValue;
-							iTotalProductionValue += iProductionValue;
-							iTotalGoldValue += iGoldValue;
-							iTotalScienceValue += iScienceValue;
-							iTotalFaithValue += iFaithValue;
-							iTotalResourceValue += iResourceValue;
-							iTotalStrategicValue += iStrategicValue;
-
-							int iPlotValue = iDefaultPlotValue + iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
-
-							// for the central plot
-							if (iDistance==0)
-								vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
-
-							if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-								bIsAlmostCoast = true;
-
-							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-							if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
-								iPlotValue *= 15;
-
-							// lower value a lot if we already own this tile
-							if (iPlotValue > 0 && pLoopPlot->getOwner() == ePlayer && ePlayer != NO_PLAYER)
-								iPlotValue /= 2;
-
-							// add this plot into the total
-							workablePlots.push_back( SPlotWithScore(pLoopPlot,iPlotValue) );
-
-							// some civ-specific checks
-							FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
-							ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
-							ResourceTypes ePlotResource = pLoopPlot->getResourceType();
-
-							if (ePlotFeature == FEATURE_FOREST)
-							{
-								if (iDistance <= 5)
-								{
-									++iIroquoisForestCount;
-									if (iDistance == 1)
-										if (ePlotImprovement == NO_IMPROVEMENT)
-											++iCelticForestCount;
-								}
-							}
-							else if (ePlotFeature == FEATURE_JUNGLE)
-							{
-								if (iDistance <= iRange)
-									++iBrazilJungleCount;
-							}
-							else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
-							{
-								if (iDistance <= iRange)
-									++iWetlandsCount;
-							}
-
-							if (pLoopPlot->IsNaturalWonder())
-							{
-								if (iDistance <= iRange)
-									++iNaturalWonderCount;
-							}
-
-							if (pLoopPlot->isLake())
-							{
-								if (iDistance <= iRange)
-									++iLakeCount;
-							}
-							if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
-							{
-								ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
-								if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-								{
-									if (iDistance <= iRange)
-									{
-										++iLuxuryCount;
-									}
-								}
-							}
-
-							if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
-							{
-								if (iDistance <= iRange)
-								{
-									if (ePlotResource == NO_RESOURCE)
-									{
-										++iDesertCount;
-									}
-								}
-							}
-
-							if (bIsInca)
-							{
-								if (pLoopPlot->isHills() && iDistance <= iRange)
-								{
-									iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
-									if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
-									{
-										//give the bonus if it's hills, with additional if bordered by mountains
-										iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
-										vQualifiersPositive.push_back("(C) incan hills");
-									}
-								}
+								//give the bonus if it's hills, with additional if bordered by mountains
+								iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
+								vQualifiersPositive.push_back("(C) incan hills");
 							}
 						}
 					}
@@ -982,7 +963,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
-	if( bAllPlots || (!pPlot->isWater() && pPlot->isValidEndTurnPlot(NO_PLAYER)) )
+	if( bAllPlots || (!pPlot->isWater() && pPlot->isValidMovePlot(NO_PLAYER)) )
 	{
 		rtnValue += ComputeFoodValue(pPlot, NULL);
 		rtnValue += ComputeProductionValue(pPlot, NULL);
@@ -1014,11 +995,11 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM);
+		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, NO_PLAYER);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->getTeam());
+		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->GetID());
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -1097,11 +1078,11 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM);
+		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, NO_PLAYER);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->getTeam());
+		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->GetID());
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -1141,11 +1122,11 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, NO_TEAM);
+		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, NO_PLAYER);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, pPlayer->getTeam());
+		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, pPlayer->GetID());
 	}
 
 	// From resource
@@ -1182,11 +1163,11 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, NO_TEAM);
+		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, NO_PLAYER);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer->getTeam());
+		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer->GetID());
 	}
 
 	// From resource
@@ -1223,11 +1204,11 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlaye
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, NO_TEAM);
+		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, NO_PLAYER);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, pPlayer->getTeam());
+		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, pPlayer->GetID());
 	}
 
 	// From resource

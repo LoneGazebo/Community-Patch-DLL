@@ -1101,7 +1101,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
 			if (eDomainType==DOMAIN_LAND && !bEmbarked)
 			{
-				if (pLoopPlot->isWater() || !pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
+				if (pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(pPlayer->GetID()))
 					//we're not very interested in these "useless" plots
 					iResultValue += iSmallScore;
 				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
@@ -1113,7 +1113,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			}
 			else
 			{
-				if (!pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(pPlayer->GetID()))
+				if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
 					//we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
@@ -1264,7 +1264,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()) || pPlot->isCity())
+		if(pPlot->isWater() || !pPlot->isValidMovePlot(GetPlayer()->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
@@ -2377,6 +2377,9 @@ void CvEconomicAI::DoReconState()
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
 
+	m_eReconState = RECON_STATE_NEUTRAL;
+	m_eNavalReconState = RECON_STATE_NEUTRAL;
+
 	if(GetPlayer()->isMinorCiv())
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
@@ -2423,7 +2426,6 @@ void CvEconomicAI::DoReconState()
 		{
 			m_eReconState = RECON_STATE_NEEDED;
 			m_eNavalReconState = RECON_STATE_NEEDED;
-			return;
 		}
 	}
 
@@ -2438,7 +2440,7 @@ void CvEconomicAI::DoReconState()
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	//there is a slight hysteresis here to avoid unit AI flipping back and forth
-	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
+	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)
 	{
 		m_eReconState = RECON_STATE_NEEDED;
 
@@ -2518,7 +2520,7 @@ void CvEconomicAI::DoReconState()
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
 
 		//there is a slight hysteresis here to avoid unit AI flipping back and forth
-		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
+		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)
 		{
 			m_eNavalReconState = RECON_STATE_NEEDED;
 
@@ -2736,7 +2738,7 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		{
 			continue;
 		}
-		if(!pPlot->isWater() || !pPlot->isValidEndTurnPlot(GetPlayer()->GetID()))
+		if(!pPlot->isWater() || !pPlot->isValidMovePlot(GetPlayer()->GetID()))
 		{
 			continue;
 		}
@@ -2894,7 +2896,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-		if(pPlot->isWater() || !pPlot->isValidEndTurnPlot(m_pPlayer->GetID()) || pPlot->isCity())
+		if(pPlot->isWater() || !pPlot->isValidMovePlot(m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
@@ -3087,7 +3089,8 @@ void CvEconomicAI::UpdatePlots()
 		if(pPlot == NULL)
 			continue;
 
-		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+		//allow AI to see the next tile, a human can guess as well
+		if(!pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
 			continue;
 
 		if(pPlot->isWater())
@@ -3107,8 +3110,13 @@ void CvEconomicAI::UpdatePlots()
 
 				if(iScore <= 0)
 					continue;
+
 				// add an entry for this plot
 				m_vPlotsToExploreSea.push_back( SPlotWithScore(pPlot, iScore) );
+
+				// close coast is also interesting for embarked scouting
+				if (pPlot->isShallowWater() && m_pPlayer->GetCityDistance(pPlot)<15 )
+					m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 			}
 		}
 		else
@@ -3126,6 +3134,7 @@ void CvEconomicAI::UpdatePlots()
 
 			if(iScore <= 0)
 				continue;
+
 			// add an entry for this plot
 			m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 		}

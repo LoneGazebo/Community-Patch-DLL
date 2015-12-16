@@ -286,8 +286,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	//PlotTypes
 	EnumStart(L, "PlotTypes");
 	RegisterEnum(NO_PLOT);
-	RegisterEnum(PLOT_MOUNTAIN);
-	RegisterEnum(PLOT_HILLS);
+	RegisterEnum(PLOT_MOUNTAIN); //deprecated
+	RegisterEnum(PLOT_HILLS);	//deprecated
 	RegisterEnum(PLOT_LAND);
 	RegisterEnum(PLOT_OCEAN);
 	RegisterEnum(NUM_PLOT_TYPES);
@@ -774,6 +774,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	RegisterEnum(TRADE_ITEM_TECHS);
 	RegisterEnum(TRADE_ITEM_VASSALAGE);
+	RegisterEnum(TRADE_ITEM_VASSALAGE_REVOKE);
 #endif
 	RegisterEnum(NUM_TRADEABLE_ITEMS);
 	EnumEnd(L);

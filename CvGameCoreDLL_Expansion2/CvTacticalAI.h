@@ -364,7 +364,7 @@ public:
 	{
 		m_iDominanceZoneID = iZone;
 	};
-	bool IsTargetStillAlive(PlayerTypes m_eAttackingPlayer);
+	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 
 	// AuxData is used for a pointer to the actual target object (CvUnit, CvCity, etc.)
@@ -962,16 +962,12 @@ private:
 #endif
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
-#if defined(MOD_BALANCE_CORE_MILITARY)
+
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
-#else
-	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bSafeForRanged, bool bMustBeRangedUnit);
-	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits);
-#endif
+
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 public:
 	int SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy);
@@ -980,18 +976,12 @@ private:
 	CvUnit* GetProbableInterceptor(CvPlot* pTarget) const;
 #endif
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
-	int ComputeTotalExpectedBombardDamage(UnitHandle pTarget);
+	int ComputeTotalExpectedCityBombardDamage(UnitHandle pTarget);
 	bool IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand = true, int iMaxTurns = INT_MAX);
-	bool MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand = true, int iMaxTurns = INT_MAX);
 	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
-#else
-	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand=true);
-	bool MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand = true);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool &bMoveWasSafe);
-#endif
+
 	CvPlot* FindBestBarbarianLandMove(UnitHandle pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(UnitHandle pUnit);
 	CvPlot* FindBestBarbarianSeaMove(UnitHandle pUnit);
@@ -1012,27 +1002,18 @@ private:
 	// Blocking position functions
 	bool AssignFlankingUnits(int iNumUnitsRequiredToFlank);
 	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
-	void PerformChosenMoves(int iFallbackMoveRange = 1, CvPlot* pFinalTarget=NULL);
+	void PerformChosenMoves(CvPlot* pFinalTarget=NULL);
 	void MoveGreatGeneral(CvArmyAI* pArmyAI = NULL);
 	bool HaveDuplicateUnit();
 	void RemoveChosenUnits(int iStartIndex = 0);
 	int NumUniqueUnitsLeft();
 	bool IsInChosenMoves(CvPlot* pPlot);
 	bool ChooseRemainingAssignments(int iNumUnitsDesired, int iNumUnitsAcceptable);
+
 	int ScoreAssignments(bool bCanLeaveOpenings);
-#if defined(MOD_CORE_TACTICAL_PLOTSCORE)
 	int ScoreCloseOnPlots(CvPlot* pTarget);
 	int ScoreHedgehogPlots(CvPlot* pTarget);
-#else
-	int ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly);
-	int ScoreHedgehogPlots(CvPlot* pTarget);
-#endif
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget);
-#else
-	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, CvArmyAI* pArmyAI);
-#endif
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -1109,10 +1090,11 @@ private:
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
-#if defined(MOD_BALANCE_CORE)
 namespace TacticalAIHelpers
 {
-	bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
+	bool SortBlockingUnitByDistanceAscending(const CvBlockingUnit& obj1, const CvBlockingUnit& obj2);
+	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
+	
 	typedef std::set<std::pair<int,int>> ReachablePlotSet; //don't store pointers in a set, the ordering is unpredictable
 
 	int GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
@@ -1131,12 +1113,5 @@ namespace TacticalAIHelpers
 }
 
 extern const char* barbarianMoveNames[];
-
-#else
-namespace TacticalAIHelpers
-{
-bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
-}
-#endif
 
 #endif //CIV5_TACTICAL_AI_H

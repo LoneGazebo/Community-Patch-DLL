@@ -26,6 +26,102 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+int dxWrap(int iDX)
+{
+	const CvMap& kMap = GC.getMap();
+	return wrapCoordDifference(iDX, kMap.getGridWidth(), kMap.isWrapX());
+}
+
+int dyWrap(int iDY)
+{
+	const CvMap& kMap = GC.getMap();
+	return wrapCoordDifference(iDY, kMap.getGridHeight(), kMap.isWrapY());
+}
+
+CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
+{
+	// convert the start coord to hex-space coordinates
+	int iStartHexX = xToHexspaceX(iX, iY);
+
+	int iPlotHexX = iStartHexX + iDX;
+	int iPlotY = iY + iDY; // Y is the same in both coordinate systems
+
+	// convert from hex-space coordinates to the storage array
+	iPlotHexX = hexspaceXToX(iPlotHexX, iPlotY);
+
+	return GC.getMap().plot(iPlotHexX , iPlotY);
+}
+
+CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
+{
+	int hexRange;
+
+	// I'm assuming iDX and iDY are in hex-space
+	if((iDX >= 0) == (iDY >= 0))  // the signs match
+	{
+		int iAbsDX = iDX >= 0 ? iDX : -iDX;
+		int iAbsDY = iDY >= 0 ? iDY : -iDY;
+		hexRange = iAbsDX + iAbsDY;
+	}
+	else
+	{
+		int iAbsDX = iDX >= 0 ? iDX : -iDX;
+		int iAbsDY = iDY >= 0 ? iDY : -iDY;
+		hexRange = iAbsDX >= iAbsDY ? iAbsDX : iAbsDY;
+	}
+
+	if(hexRange > iRange)
+	{
+		return NULL;
+	}
+
+	return plotXY(iX, iY, iDX, iDY);
+}
+
+CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
+{
+#if defined(MOD_BALANCE_CORE)
+	return GC.getMap().getNeighborUnchecked(iX,iY,eDirection);
+#else
+	if(eDirection == NO_DIRECTION)
+	{
+		return GC.getMap().plot(iX, iY);
+	}
+	else
+	{
+		// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
+		iX = xToHexspaceX(iX , iY);
+		iX += GC.getPlotDirectionX()[eDirection];
+		iY += GC.getPlotDirectionY()[eDirection];
+
+		// convert from hex-space coordinates to the storage array
+		iX = hexspaceXToX(iX, iY);
+
+		return GC.getMap().plot(iX, iY);
+	}
+#endif
+}
+
+DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
+{
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		if (aPlotsToCheck[iI]==pToPlot)
+		{
+			return (DirectionTypes)iI;
+		}
+	}
+	//if the direct lookup fails, use the real method
+	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
+#else
+	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
+	                   pToPlot->getX(), pToPlot->getY());
+#endif
+}
+
+
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
 CvPlot* plotCity(int iX, int iY, int iIndex)
 {
@@ -900,28 +996,6 @@ bool isPickableName(const char* szName)
 	}
 
 	return true;
-}
-
-void shuffleArray(int* piShuffle, int iNum, CvRandom& rand)
-{
-	int iI, iJ;
-
-	for(iI = 0; iI < iNum; iI++)
-	{
-		piShuffle[iI] = iI;
-	}
-
-	for(iI = 0; iI < iNum; iI++)
-	{
-		iJ = (rand.get(iNum - iI, NULL) + iI);
-
-		if(iI != iJ)
-		{
-			int iTemp = piShuffle[iI];
-			piShuffle[iI] = piShuffle[iJ];
-			piShuffle[iJ] = iTemp;
-		}
-	}
 }
 
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)

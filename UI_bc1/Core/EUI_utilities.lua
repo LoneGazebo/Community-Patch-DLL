@@ -2,6 +2,9 @@
 if not EUI then
 EUI = {}
 local civ5_mode = InStrategicView ~= nil
+local civBE_mode = not civ5_mode
+local bnw_mode = civBE_mode or ContentManager.IsActive("6DA07636-4123-4018-B643-6575B4EC336B", ContentType.GAMEPLAY)
+local gk_mode = bnw_mode or ContentManager.IsActive("0E3751A1-F840-4e1b-9706-519BF484E59D", ContentType.GAMEPLAY)
 
 local math = math
 --local os = os
@@ -17,6 +20,7 @@ local tonumber = tonumber
 --local tostring = tostring
 local type = type
 --local unpack = unpack or table.unpack
+local setmetatable = setmetatable
 
 local UI = UI
 --local UIManager = UIManager
@@ -93,8 +97,6 @@ local table_insert = table.insert
 --getmetatable("").__index.L = L
 
 if Game and PreGame then
-	local gk_mode = Game.GetReligionName ~= nil
-	local bnw_mode = Game.GetActiveLeague ~= nil
 
 	local g_savedDealStack = {}
 	local g_deal = UI.GetScratchDeal()
@@ -181,6 +183,12 @@ if Game and PreGame then
 					g_deal:AddDeclarationOfFriendship( fromPlayerID )
 				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_VOTE_COMMITMENT then
 					g_deal:AddVoteCommitment( fromPlayerID, item[4], item[5], item[6], item[7] )
+				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_VASSALAGE then
+					g_deal:AddVassalageTrade( fromPlayerID )
+				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE then
+					g_deal:AddRevokeVassalageTrade( fromPlayerID )
+				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_TECHS then
+					g_deal:AddTechTrade( fromPlayerID, item[4] )
 				end
 			else -- civ be
 				if id == TradeableItems.TRADE_ITEM_ENERGY then
@@ -556,6 +564,34 @@ local function cleartable( t )
 	end
 end
 
+local GreatPeopleIcons = {
+	SPECIALIST_CITIZEN = "[ICON_CITIZEN]",
+	SPECIALIST_WRITER = "[ICON_GREAT_WRITER]",
+	SPECIALIST_ARTIST = "[ICON_GREAT_ARTIST]",
+	SPECIALIST_MUSICIAN = "[ICON_GREAT_MUSICIAN]",
+	SPECIALIST_SCIENTIST = "[ICON_GREAT_SCIENTIST]",
+	SPECIALIST_MERCHANT = "[ICON_GREAT_MERCHANT]",
+	SPECIALIST_ENGINEER = "[ICON_GREAT_ENGINEER]",
+	SPECIALIST_GREAT_GENERAL = "[ICON_GREAT_GENERAL]",
+	SPECIALIST_GREAT_ADMIRAL = "[ICON_GREAT_ADMIRAL]",
+	SPECIALIST_PROPHET = "[ICON_PROPHET]",
+	UNITCLASS_WRITER = "[ICON_GREAT_WRITER]",
+	UNITCLASS_ARTIST = "[ICON_GREAT_ARTIST]",
+	UNITCLASS_MUSICIAN = "[ICON_GREAT_MUSICIAN]",
+	UNITCLASS_SCIENTIST = "[ICON_GREAT_SCIENTIST]",
+	UNITCLASS_MERCHANT = "[ICON_GREAT_MERCHANT]",
+	UNITCLASS_ENGINEER = "[ICON_GREAT_ENGINEER]",
+	UNITCLASS_GREAT_GENERAL = "[ICON_GREAT_GENERAL]",
+	UNITCLASS_GREAT_ADMIRAL = "[ICON_GREAT_ADMIRAL]",
+	UNITCLASS_PROPHET = "[ICON_PROPHET]",
+	UNITCLASS_GREAT_DIPLOMAT = "[ICON_DIPLOMAT]",
+}
+
+function EUI.GreatPeopleIcon(k)
+	return bnw_mode and GreatPeopleIcons[k] or "[ICON_GREAT_PEOPLE]"
+end
+EUI.GreatPeopleIcons = GreatPeopleIcons
+
 function EUI.ResetCache()
 	setmetatable( IconTextureAtlases, { __index = AtlasMT } )
 	cleartable( IconTextureAtlases )
@@ -570,6 +606,10 @@ function EUI.ResetCache()
 	end
 	EUI.YieldIcons.YIELD_CULTURE = EUI.YieldIcons.YIELD_CULTURE or "[ICON_CULTURE]"
 	EUI.YieldNames.YIELD_CULTURE = EUI.YieldNames.YIELD_CULTURE or L"TXT_KEY_TRADE_CULTURE"
+	for unit in GameInfo.Units() do
+		GreatPeopleIcons[unit.ID] = GreatPeopleIcons[unit.Class]
+		GreatPeopleIcons[unit.Type] = GreatPeopleIcons[unit.Class]
+	end
 
 	if PreGame then
 		for playerID = 0, GameDefines.MAX_CIV_PLAYERS do -- including barbs/aliens !
@@ -582,12 +622,22 @@ function EUI.ResetCache()
 			local secondaryColor = colorSet and GameInfo.Colors[ colorSet.SecondaryColor or -1 ]
 			if thisCivType == GameInfo.Civilizations.CIVILIZATION_MINOR.ID then
 				primaryColor, secondaryColor = secondaryColor, primaryColor
+				defaultColorSet = false
 			end
 			PlayerCivs[ playerID ] = thisCiv
 			IsCustomColor[ playerID ] = colorSet ~= defaultColorSet
 			PrimaryColors[ playerID ] = primaryColor and Color( primaryColor.Red, primaryColor.Green, primaryColor.Blue, primaryColor.Alpha ) or Color( 1, 1, 1, 1 )
 			BackgroundColors[ playerID ] = secondaryColor and Color( secondaryColor.Red, secondaryColor.Green, secondaryColor.Blue, secondaryColor.Alpha ) or Color( 0, 0, 0, 1 )
 		end
+--[[
+local function zunpack( t )
+	local tt = {}
+	for k, v in pairs( t or {} ) do table_insert( tt, tostring(k)..":="..tostring(v) ) end
+	table.sort( tt )
+	return table.concat( tt, "	" )
+end
+for k, v in pairs( PlayerCivs ) do print( k, IsCustomColor[ k ], zunpack(v), zunpack(PrimaryColors[ k ]), zunpack(BackgroundColors[ k ]) ) end
+--]]
 	end
 end
 EUI.ResetCache()

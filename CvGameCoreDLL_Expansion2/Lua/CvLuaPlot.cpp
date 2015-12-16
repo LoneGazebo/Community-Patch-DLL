@@ -102,9 +102,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(HasBarbarianCamp);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	Method(HasDig);
-#if !defined(MOD_API_LUA_EXTENSIONS)
-	Method(GetPlayerThatBuiltImprovement);
-#endif
 #endif
 	Method(IsVisible);
 	Method(IsActiveVisible);
@@ -667,6 +664,7 @@ int CvLuaPlot::lCanHaveResource(lua_State* L)
 //bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential);
 int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 {
+	//this is a hack, Lua uses a TeamType and we use it as a PlayerType
 	return BasicLuaMethod(L, &CvPlot::canHaveImprovement);
 }
 //------------------------------------------------------------------------------
@@ -812,13 +810,6 @@ int CvLuaPlot::lHasDig(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::HasDig);
 }
-#if !defined(MOD_API_LUA_EXTENSIONS)
-//------------------------------------------------------------------------------
-int CvLuaPlot::lGetPlayerThatBuiltImprovement(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlot::GetPlayerThatBuiltImprovement);
-}
-#endif
 #endif
 
 //------------------------------------------------------------------------------
@@ -940,9 +931,11 @@ int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-	const bool bCheckImprovement = lua_toboolean(L, 3);
+	
+	//unused, only for backward compatibility
+	const bool bCheckImprovement = lua_toboolean(L, 3); bCheckImprovement;
 
-	const bool bResult = pkPlot->isFriendlyCityOrPassableImprovement(*pkUnit, bCheckImprovement);
+	const bool bResult = pkPlot->isCityOrPassableImprovement(pkUnit->getOwner(), true);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

@@ -169,9 +169,6 @@ local g_cityHexHighlight, g_toolTipControl, g_toolTipPlotIndex
 local g_dirtyCityBanners = {}
 local g_missingCityBanners = {}
 
-local defaultErrorTextureSheet = "CityBannerProductionImage.dds"
-local nullOffset = Vector2( 0, 0 )
-
 local g_CovertOpsBannerContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsBannerContainer" )
 local g_CovertOpsIntelReportContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsIntelReportContainer" )
 
@@ -892,12 +889,6 @@ local function OnBannerMouseExit()
 	end
 end
 
-local function OnMouseEnter( plotIndex, _, control )
-	g_toolTipControl = control
-	g_toolTipPlotIndex = plotIndex
-	return RefreshCityBanner( plotIndex )
-end
-
 local function OnToolTip( control )
 	local controlID = control:GetID()
 	for plotIndex, cityBanner in pairs( g_cityBanners ) do
@@ -909,8 +900,19 @@ local function OnToolTip( control )
 	end
 end
 
+local function OnMouseEnter( plotIndex, _, control )
+	g_toolTipControl = control
+	g_toolTipPlotIndex = plotIndex
+	return RefreshCityBanner( plotIndex )
+end
+
 local function OnBannerMouseEnter( ... )
-	g_cityHexHighlight = ...
+	local plot = Map.GetPlotByIndex( (...) )
+	local city = plot and plot:GetPlotCity()
+	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
+		Network.SendUpdateCityCitizens( city:GetID() )
+	end
+	g_cityHexHighlight = (...)
 	return OnMouseEnter( ... )
 end
 -------------------------------------------------
@@ -978,7 +980,10 @@ local function RefreshCityBannersNow()
 		local plot = Map.GetPlotByIndex( plotIndex )
 		local city = plot and plot:GetPlotCity()
 		if city then
+			local cityOwnerID = city:GetOwner()
+			local cityOwner = Players[ cityOwnerID ]
 			local isActiveType = city:GetTeam() == g_activeTeamID
+			local isActivePlayerCity = cityOwnerID == g_activePlayerID
 
 			-- Incompatible banner type ? Destroy !
 			if cityBanner and isActiveType ~= cityBanner[1] then
@@ -1049,11 +1054,6 @@ local function RefreshCityBannersNow()
 			-- Create City Banner
 			---------------------
 
-			local cityOwnerID = city:GetOwner()
-			local cityOwner = Players[ cityOwnerID ]
-
-
-			local isActivePlayerCity = cityOwnerID == g_activePlayerID
 
 			-- Refresh the damage bar
 			RefreshCityDamage( city, cityBanner, city:GetDamage() )
@@ -1364,6 +1364,51 @@ local function RefreshCityBannersNow()
 			cityBanner.IconsStack:CalculateSize()
 			cityBanner.IconsStack:ReprocessAnchoring()
 
+			if g_cityHexHighlight == plotIndex then
+
+				if isActiveType or g_activePlayer:IsObserver() then
+
+					local normalView = not (civ5_mode and InStrategicView())
+					-- Show plots that will be acquired by culture
+					local purchasablePlots = {city:GetBuyablePlotList()}
+					for i = 1, #purchasablePlots do
+						local hexPos = ToHexFromGrid{ x= purchasablePlots[i]:GetX(), y= purchasablePlots[i]:GetY() }
+						Events.SerialEventHexHighlight( hexPos , true, g_colorCulture, "Culture" )
+					end
+
+					-- Show city plots
+
+					for i = 0, city:GetNumCityPlots()-1 do
+						local plot = city:GetCityIndexPlot( i )
+						-- worked city plots
+						if plot then
+							local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+							if city:IsWorkingPlot( plot ) then
+								Events.SerialEventHexHighlight( hexPos , true, nil, "WorkedFill" )
+								Events.SerialEventHexHighlight( hexPos , true, nil, "WorkedOutline" )
+							end
+							if normalView then
+								Events.SerialEventHexHighlight( hexPos , true, nil, "CityLimits" )
+							end
+						end
+					end
+					for plot in CityPlots( city ) do
+						-- city plots that are owned but not worked
+						if not city:IsWorkingPlot( plot ) then
+							local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+							Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
+							Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+						end
+					end
+				else
+					for plot in CityPlots( city ) do
+						local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+						Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
+						Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+					end
+				end
+				Events.RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, city:GetX(), city:GetY() )
+			end
 		-- No city on this plot ? Destroy !
 		else
 			DestroyCityBanner( plotIndex, cityBanner )
@@ -1373,63 +1418,6 @@ local function RefreshCityBannersNow()
 	------------------------------
 	g_dirtyCityBanners = {}
 
-	if g_cityHexHighlight then
-		local plot = Map.GetPlotByIndex( g_cityHexHighlight )
-		local city = plot and plot:GetPlotCity()
-		if city then
-
-			local cityOwnerID = city:GetOwner()
-
-			if city:GetTeam() == g_activeTeamID or g_activePlayer:IsObserver() then
-
-				if cityOwnerID == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
-					Network.SendUpdateCityCitizens( city:GetID() )
-					Network.SendUpdateCityCitizens( city:GetID() ) --DLL bug: must be sent twice to have desired effect
-				end
-
-				local normalView = not (civ5_mode and InStrategicView())
-				-- Show plots that will be acquired by culture
-				local purchasablePlots = {city:GetBuyablePlotList()}
-				for i = 1, #purchasablePlots do
-					local hexPos = ToHexFromGrid{ x= purchasablePlots[i]:GetX(), y= purchasablePlots[i]:GetY() }
-					Events.SerialEventHexHighlight( hexPos , true, g_colorCulture, "Culture" )
-				end
-
-				-- Show city plots
-
-				for i = 0, city:GetNumCityPlots()-1 do
-					local plot = city:GetCityIndexPlot( i )
-					-- worked city plots
-					if plot then
-						local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
-						if city:IsWorkingPlot( plot ) then
-							Events.SerialEventHexHighlight( hexPos , true, nil, "WorkedFill" )
-							Events.SerialEventHexHighlight( hexPos , true, nil, "WorkedOutline" )
-						end
-						if normalView then
-							Events.SerialEventHexHighlight( hexPos , true, nil, "CityLimits" )
-						end
-					end
-				end
-				for plot in CityPlots( city ) do
-					-- city plots that are owned but not worked
-					if not city:IsWorkingPlot( plot ) then
-						local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
-						Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
-						Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
-					end
-				end
-			else
-				for plot in CityPlots( city ) do
-					local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
-					Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
-					Events.SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
-				end
-			end
-			Events.RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, city:GetX(), city:GetY() )
-		end
-		g_cityHexHighlight = false
-	end
 	if g_toolTipControl then
 		local controlID = g_toolTipControl:GetID()
 		local toolTipHandler = g_toolTipHandler[ controlID ]

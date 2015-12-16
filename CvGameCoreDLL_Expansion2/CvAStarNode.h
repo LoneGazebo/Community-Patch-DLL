@@ -55,7 +55,6 @@ struct CvPathNodeCacheData
 {
 	bool bIsRevealedToTeam:1;
 	bool bPlotVisibleToTeam:1;
-	bool bIsEndTurnPlot:1;
 	bool bIsWater:1;
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 	bool bIsTerraFirma:1;

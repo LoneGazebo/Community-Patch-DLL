@@ -146,6 +146,13 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_AdjacentImprovementYieldChanges>
+	<Improvement_YieldAdjacentSameType>
+		<Row>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_YieldAdjacentSameType>
 	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>

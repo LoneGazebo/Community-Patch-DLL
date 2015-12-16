@@ -463,6 +463,7 @@ void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFir
 	bool canBecomeVassal(TeamTypes eTeam) const;
 	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
 	bool canEndVassal(TeamTypes eTeam) const;
+	bool canEndAllVassal() const;
 	void DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification);
 
 	void DoUpdateVassalWarPeaceRelationships();

@@ -112,6 +112,9 @@ void CvPolicyAI::Write(FDataStream& kStream)
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagationPercent)
 {
+	if (iWeight==0)
+		return;
+
 	int iPolicy;
 	CvPolicyEntry* entry;
 	int* paiTempWeights;

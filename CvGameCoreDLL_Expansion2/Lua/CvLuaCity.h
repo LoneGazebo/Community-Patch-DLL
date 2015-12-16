@@ -325,6 +325,7 @@ protected:
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
 	LUAAPIEXTN(getThresholdSubtractions, int);
 	LUAAPIEXTN(getThresholdAdditions, int);

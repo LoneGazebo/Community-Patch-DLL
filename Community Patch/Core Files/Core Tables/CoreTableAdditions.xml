@@ -380,6 +380,13 @@
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
 	</Table>
 
+	<!-- TRAIT: Allows you to add a build to specific unit classes. NOTE: if work rate is not set for unit, build rate defaults to 100 -->
+	<Table name="Trait_BuildsUnitClasses">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="BuildType" type="text" reference="Builds(Type)"/>
+	</Table>
+
 	<!-- TRAIT: Allows you to define a yield that is gained every time you buy a tile -->
 	<Table name="Trait_YieldFromTilePurchase">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -468,8 +475,15 @@
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 	</Table>
 	
-	<!--BUILDINGS: Allows a building to improve the working quality of an improvement-->
+	<!--BUILDINGS: Allows a building to improve the working quality of an improvement around the city where it is built-->
 	<Table name="Building_ImprovementYieldChanges">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!--BUILDINGS: Allows a building to improve the working quality of an improvement for all cities-->
+	<Table name="Building_ImprovementYieldChangesGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>

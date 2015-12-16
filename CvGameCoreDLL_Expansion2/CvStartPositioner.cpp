@@ -625,7 +625,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 	int iMinorFoodReq = GC.getMINOR_CIV_FOOD_REQUIREMENT();
 	int iMajorFoodReq = GC.getMAJOR_CIV_FOOD_REQUIREMENT();
 	bool bIsMinorCiv = GET_PLAYER((PlayerTypes)iPlayerIndex).isMinorCiv();
-	TeamTypes eTeam = GET_PLAYER((PlayerTypes)iPlayerIndex).getTeam();
+	PlayerTypes ePlayer = (PlayerTypes)iPlayerIndex;
 	int iPercentOfBest = GC.getMIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST();
 
 	MinorCivTypes eMinorCivType = NO_MINORCIV;
@@ -654,9 +654,9 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 			if(pLoopPlot && pLoopPlot->getArea() == region.m_iAreaID)
 			{
 				// Check food requirement
-				if((bRelaxFoodReq && MeetsFoodRequirement(pLoopPlot, eTeam, iMinorFoodReq))
-				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, eTeam, iMinorFoodReq))
-				        || MeetsFoodRequirement(pLoopPlot, eTeam, iMajorFoodReq))
+				if((bRelaxFoodReq && MeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
+				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
+				        || MeetsFoodRequirement(pLoopPlot, ePlayer, iMajorFoodReq))
 				{
 #if defined(MOD_BALANCE_CORE_SETTLER)
 					// Plot found values are now calculated for each player to account for flavoring
@@ -763,7 +763,7 @@ bool CvStartPositioner::TooCloseToAnotherCiv(CvPlot* pPlot)
 }
 
 /// Does it have a good food plot?
-bool CvStartPositioner::MeetsFoodRequirement(CvPlot* pPlot, TeamTypes eTeam, int iFoodRequirement)
+bool CvStartPositioner::MeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement)
 {
 	CvPlot* pLoopPlot(NULL);
 	bool bFoundFoodPlot = false;
@@ -781,7 +781,7 @@ bool CvStartPositioner::MeetsFoodRequirement(CvPlot* pPlot, TeamTypes eTeam, int
 		}
 		else
 		{
-			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false) >= iFoodRequirement)
+			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, ePlayer, false) >= iFoodRequirement)
 			{
 				bFoundFoodPlot = true;
 				break;

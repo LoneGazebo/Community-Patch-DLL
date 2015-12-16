@@ -327,6 +327,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeCityWorkingChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(GetTheoreticalUnhappinessDecrease);
 	Method(getHappinessDelta);
 	Method(getThresholdSubtractions);
 	Method(getThresholdAdditions);
@@ -3085,6 +3086,52 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+int CvLuaCity::lGetTheoreticalUnhappinessDecrease(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iThreshold = 0;
+	if(eBuilding != NO_BUILDING)
+	{
+		if(pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				int iResult = (pkBuildingInfo->GetPovertyHappinessChangeBuilding() + pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal());
+				if(iResult != 0)
+				{				
+					iThreshold = pkCity->getUnhappinessFromGoldNeeded(iResult);
+					lua_pushinteger(L, iThreshold);
+					return 1;
+				}
+				iResult = (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() + pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal());
+				if(iResult != 0)
+				{
+					iThreshold = pkCity->getUnhappinessFromScienceNeeded(iResult);
+					lua_pushinteger(L, iThreshold);
+					return 1;
+				}
+				iResult = (pkBuildingInfo->GetDefenseHappinessChangeBuilding() + pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal());
+				if(iResult != 0)
+				{
+					iThreshold = pkCity->getUnhappinessFromDefenseNeeded(iResult);
+					lua_pushinteger(L, iThreshold);
+					return 1;
+				}
+				iResult = (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() + pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal());
+				if(iResult != 0)
+				{
+					iThreshold = pkCity->getUnhappinessFromCultureNeeded(iResult);
+					lua_pushinteger(L, iThreshold);
+					return 1;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iThreshold);
+	return 1;
+}
 //int getHappinessDelta();
 int CvLuaCity::lgetHappinessDelta(lua_State* L)
 {
@@ -4845,6 +4892,7 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
 		}
 	}
+	iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;
@@ -4869,6 +4917,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 			}
 		}
 	}
+	iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;

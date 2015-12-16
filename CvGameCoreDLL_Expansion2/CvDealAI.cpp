@@ -134,27 +134,27 @@ int CvDealAI::GetDealPercentLeewayWithHuman() const
 	switch (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
-			return 15;
+			return 5;
 			
 		case MAJOR_CIV_OPINION_FRIEND:
-			return 12;
+			return 5;
 			
 		case MAJOR_CIV_OPINION_FAVORABLE:
-			return 10;
+			return 5;
 			
 		case MAJOR_CIV_OPINION_NEUTRAL:
-			return 10;
+			return 5;
 			
 		case MAJOR_CIV_OPINION_COMPETITOR:
-			return 8;
+			return 3;
 			
 		case MAJOR_CIV_OPINION_ENEMY:
-			return 4;
+			return 3;
 			
 		case MAJOR_CIV_OPINION_UNFORGIVABLE:
-			return 2;		
+			return 1;		
 		default:
-			return 15;
+			return 10;
 		}
 #else
 	return 10;
@@ -756,7 +756,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	{
 #if defined(MOD_BALANCE_CORE)
 		int iMaxPeace = GetCachedValueOfPeaceWithHuman();
-		iTotalValueToMe *= -1;
+		if(iTotalValueToMe < 0)
+		{
+			iTotalValueToMe *= -1;
+		}
 		if (iTotalValueToMe <= iMaxPeace)
 #else
 		if (iTotalValueToMe >= GetCachedValueOfPeaceWithHuman())
@@ -1234,6 +1237,8 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		iItemValue = GetTechValue(/*TechType*/ (TechTypes) iData1, bFromMe, eOtherPlayer);
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
 		iItemValue = GetVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue);
+	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE_REVOKE)
+		iItemValue = GetRevokeVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue);
 #endif
 
 	CvAssertMsg(iItemValue >= 0, "DEAL_AI: Trade Item value is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -1460,7 +1465,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 += 99;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((iValueTimes100 > iGPTorValue) && bNumGPTFromValue)
+	if((iValueTimes100 > (iGPTorValue * 100)) && bNumGPTFromValue)
 	{
 		iValueTimes100 = iGPTorValue;
 	}
@@ -6169,7 +6174,26 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
 
-	int iWarScore = pWinningPlayer->GetDiplomacyAI()->GetWarScore(eLosingPlayer);
+	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool bVassalageOK = ((iWarScore <= -95) && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() <= 0);
+	bool bBecomeMyVassal = false;
+	bool bEndVassalage = false;
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
+	{
+		bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
+	}
+	if(MOD_DIPLOMACY_CIV4_FEATURES && iWarScore <= -95 && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() > 0)
+	{
+		bEndVassalage = true;
+	}
+	if(iWarScore < 0)
+	{
+		iWarScore *= -1;
+	}
+#endif
 	int iPercentGoldToGive = iWarScore;
 	int iPercentGPTToGive = (iWarScore / 2);
 	bool bGiveUpCities = (iWarScore > 60);
@@ -6179,19 +6203,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	int iGiveUpLuxResources = iWarScore;
 	int iGiveUpStratResources = (iWarScore / 3);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bVassalageOK = (iWarScore > 95);
-	bool bBecomeMyVassal = false;
-#endif
+
 	pDeal->AddPeaceTreaty(eWinningPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	pDeal->AddPeaceTreaty(eLosingPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
-	{
-		bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
-	}
-#endif
+
 	CvCity* pLoopCity;
 	int iCityLoop;
 	// If the player only has one city then we can't get any more from him
@@ -6232,6 +6248,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 			iCurrentCityValue += (iCityDistanceFromWinnersCapital * 10);
 
+			//Give value boost to damaged cities (as they're probably the target city).
+			iCurrentCityValue += (pLoopCity->getDamage() * 10);
+
 			// Get total city value of the loser
 			iTotalCityValue += iCurrentCityValue;
 
@@ -6246,7 +6265,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 		// Determine the value of Cities to be given up
 		int iCityValueToSurrender = iTotalCityValue * iPercentCitiesGiveUp / 100;
-
+		bool bSecondPass = false;
 		// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
 		for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
 		{
@@ -6258,8 +6277,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				continue;
 
 			// City is worth less than what is left to be added to the deal, so add it
-			if(iCurrentCityValue < iCityValueToSurrender && iCurrentCityValue > 0)
+			if((!bSecondPass || (iCurrentCityValue < iCityValueToSurrender)) && iCurrentCityValue > 0)
 			{
+				bSecondPass = true;
 				if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 				{
 					pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
@@ -6459,6 +6479,13 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE))
 		{
 			pDeal->AddVassalageTrade(eLosingPlayer);
+		}
+	}
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bEndVassalage)
+	{
+		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE_REVOKE))
+		{
+			pDeal->AddRevokeVassalageTrade(eLosingPlayer);
 		}
 	}
 #endif
@@ -7824,7 +7851,11 @@ void CvDealAI::DoTradeScreenOpened()
 				int iValueImOffering, iValueTheyreOffering;
 #if defined(MOD_BALANCE_CORE)
 				int iValue = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
-				SetCachedValueOfPeaceWithHuman(-iValue);
+				if(iValue < 0)
+				{
+					iValue *= 1;
+				}
+				SetCachedValueOfPeaceWithHuman(iValue);
 				m_pPlayer->SetCachedValueOfPeaceWithHuman(iValue);
 #else			
 				GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
@@ -8092,6 +8123,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 					case TRADE_ITEM_THIRD_PARTY_EMBARGO:
 					case TRADE_ITEM_VOTE_COMMITMENT:
 					case TRADE_ITEM_VASSALAGE:
+					case TRADE_ITEM_VASSALAGE_REVOKE:
 					default:
 					{
 						eResponse = DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
@@ -8476,9 +8508,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra + 1)), (double) /*0.7*/ GC.getTECH_COST_ERA_EXPONENT() ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
 
-	//And reduce it.
-	iItemValue /= 2;
-
 	// Apply the Modifier
 	iItemValue *= (100 + iTechMod);
 	iItemValue /= 100;
@@ -8607,19 +8636,12 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 			return INT_MAX;
 		}
 
-		// Initial Vassalage deal value at 500
-		iItemValue = 500;
+		// Initial Vassalage deal value at 1000
+		iItemValue = 1000;
 
 		if(bWar)
 		{
-			if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID()) > GetPlayer()->GetDiplomacyAI()->GetWarScore(eOtherPlayer))
-			{
-				iItemValue -= GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID());
-			}
-			else
-			{
-				iItemValue -= GetPlayer()->GetDiplomacyAI()->GetWarScore(eOtherPlayer);
-			}
+			return iItemValue;
 		}
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
@@ -8708,6 +8730,216 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 	if(bUseEvenValue)
 	{
 		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
+
+		if (iReverseValue == INT_MAX)
+			//no deal, can't agree on a value
+			iItemValue = INT_MAX;
+		else
+			iItemValue = (iItemValue + iReverseValue)/2;
+	}
+
+	return iItemValue;
+}
+//How much is ending our vassalage worth to us?
+int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bWar)
+{
+	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	int iItemValue = 0;
+
+	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
+	//Can't ask if we're they're vassal, or vice-versa.
+	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return MAX_INT;
+	}
+	else if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam()))
+	{
+		return MAX_INT;
+	}
+	//They're asking me to revoke my vassals? Quoi?
+	if(bFromMe)						
+	{
+		// Initial End Vassalage deal value at 1000
+		iItemValue = 1000;
+
+		//War? Refuse if we're not losing badly.
+		if(bWar)
+		{
+			if(m_pDiploAI->GetWarScore(eOtherPlayer) >= -95)
+			{
+				return MAX_INT;
+			}
+		}
+
+		// Increase deal value based on number of vassals we have
+		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+			// Ignore minors.
+			if(eLoopTeam != NO_TEAM && !GET_TEAM(eLoopTeam).isMinorCiv())
+			{
+				// Is eLoopTeam our vassal?
+				if(GET_TEAM(eLoopTeam).IsVassal(GetPlayer()->getTeam()))
+				{
+					if(GET_TEAM(eLoopTeam).isAlive())
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+						{
+							PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
+
+							if(eVassalPlayer != NO_PLAYER && GET_PLAYER(eVassalPlayer).getTeam() != eLoopTeam && eLoopTeam != GetPlayer()->getTeam())
+								continue;
+
+							iItemValue += (GET_PLAYER(eVassalPlayer).GetMilitaryMight() + GET_PLAYER(eVassalPlayer).GetEconomicMight());
+						}
+					}
+				}
+			}
+		}
+
+		//Diplo and Conquest victories
+		if(GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
+		{
+			iItemValue *= 2;
+		}
+		if(GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iItemValue *= 2;
+		}
+
+		// What's the power of the asking party? They need to be real strong to push us out of this.
+		switch(m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		{
+			case STRENGTH_IMMENSE:
+				iItemValue *= 80;
+				break;
+			case STRENGTH_POWERFUL:
+				iItemValue *= 100;
+				break;
+			case STRENGTH_STRONG:
+				iItemValue *= 200;
+				break;
+			case STRENGTH_AVERAGE:
+				iItemValue *= 400;
+				break;
+			case STRENGTH_POOR:
+				return MAX_INT;
+				break;
+			case STRENGTH_WEAK:
+				return MAX_INT;
+				break;
+			case STRENGTH_PATHETIC:
+				return MAX_INT;
+				break;
+			default:
+				return MAX_INT;
+				break;
+		}
+		iItemValue /= 100;
+
+		switch(m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+		{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				return MAX_INT;
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+				return MAX_INT;
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				iItemValue *= 60;
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+				iItemValue *= 80;
+				break;
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				return MAX_INT;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iItemValue *= 100;
+				break;
+		}
+		iItemValue /= 100;
+
+		switch(m_pDiploAI->GetMajorCivOpinion(eOtherPlayer))
+		{
+			case MAJOR_CIV_OPINION_ALLY:
+				iItemValue *= 70;
+				break;
+			case MAJOR_CIV_OPINION_FRIEND:
+				iItemValue *= 85;
+				break;
+			case MAJOR_CIV_OPINION_FAVORABLE:
+				iItemValue *= 95;
+				break;
+			case MAJOR_CIV_OPINION_NEUTRAL:
+			case MAJOR_CIV_OPINION_COMPETITOR:
+			case MAJOR_CIV_OPINION_ENEMY:
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				return MAX_INT;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iItemValue *= 100;
+				break;
+		}
+		iItemValue /= 100;
+	}
+	//I'm offering to revoke their vassals? This better be worth it.
+	else
+	{
+		bool bWorthIt = false;
+		iItemValue = 1000;
+		// Increase deal value based on number of vassals we have
+		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+			// Ignore minors.
+			if(!GET_TEAM(eLoopTeam).isMinorCiv())
+			{
+				// Is eLoopTeam the vassal of them?
+				if(GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+				{
+					if(GET_TEAM(eLoopTeam).isAlive())
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+						{
+							PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
+
+							if(eVassalPlayer != NO_PLAYER && GET_PLAYER(eVassalPlayer).getTeam() != eLoopTeam)
+								continue;
+
+							iItemValue += (GET_PLAYER(eVassalPlayer).GetMilitaryMight() + GET_PLAYER(eVassalPlayer).GetEconomicMight());
+
+							//Are we friends with a vassal? If so, we care about this. Otherwise, meh.
+							switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eVassalPlayer))
+							{
+								case MAJOR_CIV_OPINION_ALLY:
+									iItemValue *= 2;
+									bWorthIt = true;
+									break;
+								case MAJOR_CIV_OPINION_FRIEND:
+									bWorthIt = true;
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(!bWorthIt)
+		{
+			return MAX_INT;
+		}
+	}
+
+	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
+	if(bUseEvenValue)
+	{
+		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetRevokeVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 
 		if (iReverseValue == INT_MAX)
 			//no deal, can't agree on a value
@@ -8878,6 +9110,11 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	{
 		return false;
 	}
+
+	if(!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
+	{
+		return false;
+	}
 	
 	// Seed the deal with the item we want
 	pDeal->AddVassalageTrade(eOtherPlayer);
@@ -8896,6 +9133,73 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	return bDealAcceptable;
 }
+bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	CvAssert(eOtherPlayer >= 0);
+	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
+
+	//If the other player has no vassals...
+	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals() <= 0)
+	{
+		return false;
+	}
+
+	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE_REVOKE))
+	{
+		return false;
+	}
+
+	bool bWorthIt = false;
+	bool bValid = true;
+	for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+		// Ignore minors.
+		if(!GET_TEAM(eLoopTeam).isMinorCiv())
+		{
+			// Is eLoopTeam the vassal of them?
+			if(GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+			{
+				if(GET_TEAM(eLoopTeam).isAlive())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					{
+						PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
+
+						if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eVassalPlayer) >= MAJOR_CIV_OPINION_FRIEND)
+						{
+							bWorthIt = true;
+						}
+						if(!GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->IsEndVassalageAcceptable(eOtherPlayer))
+						{
+							bValid = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	bool bDealAcceptable = false;
+	if(bWorthIt && bValid)
+	{
+		// Seed the deal with the item we want
+		pDeal->AddRevokeVassalageTrade(eOtherPlayer);
+		// AI evaluation
+		if(!GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			bDealAcceptable = DoEqualizeDealWithAI(pDeal, eOtherPlayer);	// Change the deal as necessary to make it work
+		}
+		else
+		{
+			CvAssertMsg(false, "Don't ask a human to become a vassal!");
+		}
+	}
+
+	return bDealAcceptable;
+}
+
 
 /// See if adding Maps to their side of the deal helps even out pDeal
 void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue)

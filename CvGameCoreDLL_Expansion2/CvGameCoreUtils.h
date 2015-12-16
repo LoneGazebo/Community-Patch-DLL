@@ -11,7 +11,6 @@
 
 #include "CvStructs.h"
 #include "CvGlobals.h"
-#include "CvMap.h"
 #include <CvLocalization.h>
 
 #undef min
@@ -69,17 +68,8 @@ inline int wrapCoordDifference(int iDiff, uint uiRange, bool bWrap)
 	return iDiff;
 }
 
-inline int dxWrap(int iDX)
-{
-	const CvMap& kMap = GC.getMap();
-	return wrapCoordDifference(iDX, kMap.getGridWidth(), kMap.isWrapX());
-}
-
-inline int dyWrap(int iDY)
-{
-	const CvMap& kMap = GC.getMap();
-	return wrapCoordDifference(iDY, kMap.getGridHeight(), kMap.isWrapY());
-}
+int dxWrap(int iDX);
+int dyWrap(int iDY);
 
 //convert odd-r offset coords to hex cube coords (only x, y is invariant)
 inline int xToHexspaceX(int iX, int iY)
@@ -138,75 +128,9 @@ inline int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
 	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
 }
 
-inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
-{
-#if defined(MOD_BALANCE_CORE)
-	return GC.getMap().getNeighborUnchecked(iX,iY,eDirection);
-#else
-	if(eDirection == NO_DIRECTION)
-	{
-		return GC.getMap().plot(iX, iY);
-	}
-	else
-	{
-		// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-		iX = xToHexspaceX(iX , iY);
-		iX += GC.getPlotDirectionX()[eDirection];
-		iY += GC.getPlotDirectionY()[eDirection];
-
-		// convert from hex-space coordinates to the storage array
-		iX = hexspaceXToX(iX, iY);
-
-		return GC.getMap().plot(iX, iY);
-	}
-#endif
-}
-
-inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
-{
-	// convert the start coord to hex-space coordinates
-	int iStartHexX = xToHexspaceX(iX, iY);
-
-	int iPlotHexX = iStartHexX + iDX;
-	int iPlotY = iY + iDY; // Y is the same in both coordinate systems
-
-	// convert from hex-space coordinates to the storage array
-	iPlotHexX = hexspaceXToX(iPlotHexX, iPlotY);
-
-	return GC.getMap().plot(iPlotHexX , iPlotY);
-}
-
-inline CvPlot* PlotFromHex(CvMap& kMap, int iHexX, int iHexY)
-{
-	// NOTE: Y is the same in both hex space and grid space.
-	return kMap.plot( hexspaceXToX(iHexX, iHexY), iHexY );	
-}
-
-inline CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
-{
-	int hexRange;
-
-	// I'm assuming iDX and iDY are in hex-space
-	if((iDX >= 0) == (iDY >= 0))  // the signs match
-	{
-		int iAbsDX = iDX >= 0 ? iDX : -iDX;
-		int iAbsDY = iDY >= 0 ? iDY : -iDY;
-		hexRange = iAbsDX + iAbsDY;
-	}
-	else
-	{
-		int iAbsDX = iDX >= 0 ? iDX : -iDX;
-		int iAbsDY = iDY >= 0 ? iDY : -iDY;
-		hexRange = iAbsDX >= iAbsDY ? iAbsDX : iAbsDY;
-	}
-
-	if(hexRange > iRange)
-	{
-		return NULL;
-	}
-
-	return plotXY(iX, iY, iDX, iDY);
-}
+CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection);
+CvPlot* plotXY(int iX, int iY, int iDX, int iDY);
+CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange);
 
 inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 {
@@ -241,24 +165,7 @@ inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 DirectionTypes estimateDirection(int iSourceX, int iSourceY, int iDestX, int iDestY);
 
 //	----------------------------------------------------------------------------
-inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
-{
-#if defined(MOD_BALANCE_CORE)
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
-	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
-	{
-		if (aPlotsToCheck[iI]==pToPlot)
-		{
-			return (DirectionTypes)iI;
-		}
-	}
-	//if the direct lookup fails, use the real method
-	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
-#else
-	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
-	                   pToPlot->getX(), pToPlot->getY());
-#endif
-}
+DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot);
 
 /// Find the nearest "spike" direction that we are clockwise of
 /// this assumes that the offsets are in hexspace
@@ -396,7 +303,21 @@ int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack);
 
 bool isPickableName(const char* szName);
 
-void shuffleArray(int* piShuffle, int iNum, CvRandom& rand);
+template <class T>
+void shuffleArray(T* pShuffle, size_t iNum, CvRandom& rand)
+{
+	for(size_t iI = 0; iI < iNum; iI++)
+	{
+		size_t iJ = (rand.get(iNum - iI, NULL) + iI);
+
+		if(iI != iJ)
+		{
+			T iTemp = pShuffle[iI];
+			pShuffle[iI] = pShuffle[iJ];
+			pShuffle[iJ] = iTemp;
+		}
+	}
+}
 
 int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);

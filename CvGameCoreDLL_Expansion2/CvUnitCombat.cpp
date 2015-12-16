@@ -2264,7 +2264,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 				if(pLoopCity == NULL)
 				{
-					if(!pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+					if(!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot( pLoopPlot->getOwner() ))
 					{
 						if(pLoopPlot->getFeatureType() != NO_FEATURE)
 						{
@@ -3031,7 +3031,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	CvString strBuffer;
 
 	//VALIDATE_OBJECT
-	CvAssert(kAttacker.canMoveInto(targetPlot, CvUnit::MOVEFLAG_ATTACK | CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE));
+	CvAssert(kAttacker.canMoveInto(targetPlot, CvUnit::MOVEFLAG_ATTACK ));
 	CvAssert(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;

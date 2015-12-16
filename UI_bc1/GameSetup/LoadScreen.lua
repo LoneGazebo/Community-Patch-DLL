@@ -24,7 +24,7 @@ function( isHide, isInit )
 			g_isLoadComplete = false;
 
 			Controls.AlphaAnim:SetToBeginning();
-			Controls.SlideAnim:SetToBeginning();
+--			Controls.SlideAnim:SetToBeginning();
 			Controls.ActivateButton:SetHide(true);
 
 			-- Force some settings off when loading a HotSeat game.
@@ -65,8 +65,14 @@ function( isHide, isInit )
 
 				-- Sets Dawn of Man Image
 				Controls.Image:SetTexture(civ.DawnOfManImage);
-				--print("civID: " .. g_civID);
-				Controls.SlideAnim:ReprocessAnchoring();
+				local x, y = UIManager:GetScreenSizeVal()
+				local a = math.min(x,y/0.75)
+				local b = math.max( 500, x-a )
+				Controls.Details:SetSizeX( b )
+				Controls.BonusDescription:SetWrapWidth( b-40 )
+				Controls.Quote:SetWrapWidth( b-40 )
+				Controls.Image:Resize( a, math.min(y,0.75*x) )
+				Controls.Details:ReprocessAnchoring();
 			else
 				g_civID = -1;
 				PreGame.SetCivilization( 0, -1 );
@@ -129,7 +135,7 @@ function()
 		Controls.ActivateButtonText:LocalizeAndSetText( UI:IsLoadedGame() and "TXT_KEY_BEGIN_GAME_BUTTON_CONTINUE" or "TXT_KEY_BEGIN_GAME_BUTTON" );
 		Controls.ActivateButton:SetHide(false);
 		Controls.AlphaAnim:Play();
-		Controls.SlideAnim:Play();
+--		Controls.SlideAnim:Play();
 		UIManager:SetUICursor( 0 );
 	end
 end );

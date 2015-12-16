@@ -1106,10 +1106,21 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
 	// Garrisoned?
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot2 = plot();
+		if(pPlot2)
+		{
+			UnitHandle garrison = pPlot2->getBestDefender(getOwner());
+			if(garrison)
+#else
 	if (GetGarrisonedUnit())
+#endif
 	{
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 	}
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
@@ -3380,7 +3391,7 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 			{
 				if(eImprovement != NO_IMPROVEMENT)
 				{
-					if((pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged()) || (bPotential && pLoopPlot->canHaveImprovement(eImprovement, getTeam())))
+					if((pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged()) || (bPotential && pLoopPlot->canHaveImprovement(eImprovement, getOwner())))
 					{
 						++iCount;
 					}
@@ -6871,7 +6882,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	{
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress /= 2;
+		iTechProgress /= 3;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -9129,7 +9140,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 			{
-				ChangeImprovementExtraYield(((ImprovementTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetImprovementYieldChange(iJ, eYield) * iChange));
+				ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					int iYieldChange = pBuildingInfo->GetImprovementYieldChange(eImprovement, eYield);
+					if(iYieldChange > 0)
+					{
+						ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
+					}
+				}		
 			}
 #endif
 
@@ -14158,7 +14177,7 @@ bool CvCity::DoRazingTurn()
 					continue;
 
 				// Can't be impassable
-				if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+				if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 					continue;
 
 				// Can't be water
@@ -14531,14 +14550,22 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = plot();
+		if(pPlot)
+		{
+			UnitHandle garrison = pPlot->getBestDefender(getOwner());
+			if(garrison)
+			{
+				iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
+			}
+		}
+#else
 		if(GetGarrisonedUnit() != NULL)
 		{
-#if defined(MOD_BALANCE_CORE)
-			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
-#else
 			iLocalHappiness++;
-#endif
 		}
+#endif
 	}
 
 	// Follower beliefs
@@ -14756,7 +14783,7 @@ int CvCity::getThresholdAdditions() const
 	return iModifier;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getThresholdSubtractions(YieldTypes eYield) const
+int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 {
 	int iModifier = 0;
 	if(IsPuppet())
@@ -14788,6 +14815,10 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetUnculturedUnhappiness();
 		}
+		if(iMod != 0)
+		{
+			iModifier += iMod;
+		}
 		int iLoop = 0;
 		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 		{
@@ -14812,6 +14843,10 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
 		{
 			iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessMod();
+		}
+		if(iMod != 0)
+		{
+			iModifier += iMod;
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
 		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() != 0)
@@ -14864,6 +14899,10 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetIlliteracyUnhappiness();
 		}
+		if(iMod != 0)
+		{
+			iModifier += iMod;
+		}
 		int iLoop = 0;
 		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 		{
@@ -14901,6 +14940,10 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		if(GetDefenseUnhappiness() != 0)
 		{
 			iModifier += GetDefenseUnhappiness();
+		}
+		if(iMod != 0)
+		{
+			iModifier += iMod;
 		}
 		int iLoop = 0;
 		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -14957,12 +15000,12 @@ int CvCity::getUnhappinessFromCultureYield() const
 	return iCityCulture;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCultureNeeded() const
+int CvCity::getUnhappinessFromCultureNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
 	int iModifier = getThresholdAdditions();
-	iModifier += getThresholdSubtractions(YIELD_CULTURE);
+	iModifier += getThresholdSubtractions(YIELD_CULTURE, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -15032,12 +15075,12 @@ int CvCity::getUnhappinessFromScienceYield() const
 	return iCityResearch;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScienceNeeded() const
+int CvCity::getUnhappinessFromScienceNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
 	int iModifier = getThresholdAdditions();
-	iModifier += getThresholdSubtractions(YIELD_SCIENCE);
+	iModifier += getThresholdSubtractions(YIELD_SCIENCE, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -15106,12 +15149,12 @@ int CvCity::getUnhappinessFromDefenseYield() const
 	return iDefenseYield;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefenseNeeded() const
+int CvCity::getUnhappinessFromDefenseNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
 
 	int iModifier = getThresholdAdditions();
-	iModifier += getThresholdSubtractions(YIELD_PRODUCTION);
+	iModifier += getThresholdSubtractions(YIELD_PRODUCTION, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -15182,12 +15225,12 @@ int CvCity::getUnhappinessFromGoldYield() const
 	return iGold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGoldNeeded() const
+int CvCity::getUnhappinessFromGoldNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
 	int iModifier = getThresholdAdditions();
-	iModifier += getThresholdSubtractions(YIELD_GOLD);
+	iModifier += getThresholdSubtractions(YIELD_GOLD, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -18792,9 +18835,18 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
+#if defined(MOD_BALANCE_CORE)
+	int iStrengthFromUnits = 0;
+	CvPlot* pPlot = plot();
+	if(pPlot)
+	{
+		UnitHandle pGarrisonedUnit = pPlot->getBestDefender(getOwner());
+		if(pGarrisonedUnit)
+#else
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	int iStrengthFromUnits = 0;
 	if(pGarrisonedUnit)
+#endif
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
@@ -18808,8 +18860,11 @@ void CvCity::updateStrengthValue()
 				{
 					iStrengthFromUnits *= 2;
 					break;
-	}
+				}
 			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
 		}
 #endif
 	}
@@ -18890,6 +18945,12 @@ void CvCity::updateStrengthValue()
 	{
 		m_iStrengthValue += /*3*/ GC.getCITY_STRENGTH_HILL_CHANGE();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(plot()->isMountain())
+	{
+		m_iStrengthValue += (/*3*/ GC.getCITY_STRENGTH_HILL_CHANGE() * 2);
+	}
+#endif
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -18909,13 +18970,22 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 		iValue /= 100;
-
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = plot();
+		if(pPlot)
+		{
+			UnitHandle garrison = pPlot->getBestDefender(getOwner());
+			if(garrison)
+#else
 		if(GetGarrisonedUnit())
+#endif
 		{
 			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
 			iValue /= 100;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		// Religion city strike mod
 		int iReligionCityStrikeMod = 0;
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -20026,7 +20096,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		eYield = (YieldTypes) iI;
 
-		iYield = pPlot->calculateNatureYield(eYield, getTeam());
+		iYield = pPlot->calculateNatureYield(eYield, getOwner());
 #if defined(MOD_BALANCE_CORE)
 		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
 		if(eTerrainBoost != NO_TERRAIN)

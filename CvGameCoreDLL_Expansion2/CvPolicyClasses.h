@@ -308,6 +308,8 @@ public:
 	int* GetYieldChangesNaturalWonderArray() const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int* GetYieldChangeWorldWonderArray() const;
+	int GetYieldFromMinorDemand(int i) const;
+	int* GetYieldFromMinorDemandArray() const;
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
@@ -620,6 +622,7 @@ private:
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangesNaturalWonder;
 	int* m_piYieldChangeWorldWonder;
+	int* m_piYieldFromMinorDemand;
 #endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;

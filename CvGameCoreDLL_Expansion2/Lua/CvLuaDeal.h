@@ -247,6 +247,10 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::AddVassalageTrade);
 	};
+	static int lAddRevokeVassalageTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::AddRevokeVassalageTrade);
+	};
 	static int lRemoveTechTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveTechTrade);

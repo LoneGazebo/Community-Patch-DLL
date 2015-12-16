@@ -190,27 +190,4 @@
 			<BuildingClassType>BUILDINGCLASS_GRAND_OSSUARY</BuildingClassType>
 		</Row>
 	</Belief_BuildingClassFaithPurchase>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_PRODUCTION_GOLDEN_AGE">
-			<Text>[NEWLINE] [ICON_BULLET]Modifier from [ICON_GOLDEN_AGE] Golden Age: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BELIEF">
-			<Text>[NEWLINE] [ICON_BULLET]Belief Modifier from 'We Love the King Day:' {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_GOLDEN_AGE">
-			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_WLTKD">
-			<Text>+{1_Num}% [ICON_CULTURE] from 'We Love the King Day'</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_GOLDEN_AGE">
-			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_WLTKD">
-			<Text>+{1_Num}% [ICON_PEACE] from 'We Love the King Day'</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SCIENCE_GOLDEN_AGE">
-			<Text>+{1_Num}% [ICON_RESEARCH] from 'We Love the King Day'</Text>
-		</Row>
-	</Language_en_US>
 </GameData>

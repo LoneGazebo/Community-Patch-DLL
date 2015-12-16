@@ -1401,7 +1401,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 								continue;
 
 							// Can't be impassable
-							if(!pPlot->isValidEndTurnPlot(BARBARIAN_PLAYER))
+							if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
 								continue;
 
 							// Can't be water

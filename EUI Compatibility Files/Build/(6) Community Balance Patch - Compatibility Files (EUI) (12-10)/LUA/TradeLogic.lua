@@ -577,30 +577,7 @@ function DoUIDealChangedByHuman()
 	end
 
 	DoUpdateButtons();
-	--CBP
-	Controls.PeaceValue:SetHide(true);
-	Controls.PeaceMax:SetHide(true);
-	Controls.PeaceDeal:SetHide(true);
-	Controls.PeaceDealBorderFrame:SetHide(true);
-	if(g_pUsTeam:IsAtWar( g_iThemTeam )) then
-		if(g_Deal:GetSurrenderingPlayer() == g_iThem) then
-			Controls.PeaceValue:SetHide(false);
-			Controls.PeaceMax:SetHide(false);
-			Controls.PeaceDeal:SetHide(false);
-			Controls.PeaceDealBorderFrame:SetHide(false);
-			local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
-			local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
-			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
-			local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
-			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
-			local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
-			Controls.PeaceValue:SetText(Valuestr);
-			Controls.PeaceMax:SetText(Maxstr);
-			Controls.PeaceValue:SetToolTipString(ValuestrTT);
-			Controls.PeaceMax:SetToolTipString(MaxstrTT);
-		end
-	end
-	--END
+	
 end
 
 
@@ -692,6 +669,9 @@ function DoUpdateButtons()
 				local iMax = g_pThem:GetCachedValueOfPeaceWithHuman();
 				local iCurrent = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
+				if(iCurrent == -1) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
 				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
 				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
@@ -1019,6 +999,8 @@ function ResetDisplay()
 	Controls.ThemPocketDefensivePact:SetHide( false );
 	Controls.UsPocketVassalage:SetHide( false );		-- Putmalk
 	Controls.ThemPocketVassalage:SetHide( false );		-- Putmalk
+	Controls.UsPocketRevokeVassalage:SetHide( false );		-- Putmalk
+	Controls.ThemPocketRevokeVassalage:SetHide( false );		-- Putmalk
 	Controls.UsPocketTradeMap:SetHide( false );			-- Putmalk
 	Controls.ThemPocketTradeMap:SetHide( false );		-- Putmalk
 	Controls.UsPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
@@ -2060,6 +2042,101 @@ function ResetDisplay()
 		Controls.UsPocketVassalage:SetHide(true);
 		Controls.ThemPocketVassalage:SetHide(true);
 	end
+
+	---------------------------------------------------------------------------------- 
+	-- pocket Revoke Vassalage
+	---------------------------------------------------------------------------------- 
+	-- If Vassalage isn't even enabled, let's ignore it.
+	if(not Game.IsOption("GAMEOPTION_NO_VASSALAGE")) then
+
+		local strBaseTooltip;
+		local strName;
+		
+		strName = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE_REVOKE");
+		strBaseTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE_REVOKE_TT");
+
+		Controls.UsPocketRevokeVassalage:SetText(strName);
+		Controls.ThemPocketRevokeVassalage:SetText(strName);
+		Controls.UsTableRevokeVassalage:SetText(strName);
+		Controls.ThemTableRevokeVassalage:SetText(strName);
+
+		-- Us
+		
+		local bRevokeVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iDealDuration);
+		local bUsCan, bTheyCan;
+
+		strOurTooltip = strBaseTooltip;
+		
+		if (not bRevokeVassalageAllowed) then
+			Controls.UsPocketRevokeVassalage:SetDisabled(true);
+			Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Gray_Black");
+		
+			bTheyCan = g_pThemTeam:canEndAllVassal();
+			--print("bTheyCan = " .. tostring(bTheyCan));
+
+			-- They haven't reached the Medieval Era yet
+			if (not g_pThemTeam:IsVassalageTradingAllowed()) then
+				--print("Don't have vassal tech.");
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+			end
+
+			-- Vassals are disabled
+			if (not bTheyCan) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_UNABLE_THEY" ) .. "[ENDCOLOR]";
+			end
+
+		else
+			Controls.UsPocketRevokeVassalage:SetDisabled(false);
+			Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+		end
+		
+		Controls.UsPocketRevokeVassalage:SetToolTipString(strOurTooltip);
+
+		-- Them
+
+		bRevokeVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iDealDuration);
+
+		strTooltip = strBaseTooltip;
+
+		local strTheirTooltip = strTooltip;
+
+		if (not bRevokeVassalageAllowed) then
+			Controls.ThemPocketRevokeVassalage:SetDisabled(true);
+			Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Gray_Black");
+
+			bUsCan = g_pUsTeam:canEndAllVassal();
+			
+
+			-- We haven't reached the Medieval Era yet
+			if (not g_pUsTeam:IsVassalageTradingAllowed()) then
+				--print("Don't have vassal tech.");
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
+			end
+
+			-- Vassals are disabled
+			if (not bUsCan) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_UNABLE_WE" ) .. "[ENDCOLOR]";
+			end
+		else
+			Controls.ThemPocketRevokeVassalage:SetDisabled(false);
+			Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+		end
+
+		-- Called down here because even if it's technically acceptable they might not want to give it up...greedy bastard!
+		-- Update: No longer get an error if they don't want to capitulate...instead, they just refuse to trade it
+		--[[
+		if (not g_pThem:IsVassalageAcceptable(g_pUs) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
+			Controls.ThemPocketVassalage:SetDisabled(true);
+			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
+			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSAL_THEY_DONT_WANT_TT" ) .. "[ENDCOLOR]";
+		end
+		--]]
+
+		Controls.ThemPocketRevokeVassalage:SetToolTipString(strTheirTooltip);
+	else
+		Controls.UsPocketRevokeVassalage:SetHide(true);
+		Controls.ThemPocketRevokeVassalage:SetHide(true);
+	end
 	---------------------------------------------------------------------------------- 
     -- pocket technology for us
     ----------------------------------------------------------------------------------
@@ -2214,8 +2291,10 @@ function ResetDisplay()
 		---[[ Putmalk
 		Controls.UsPocketTradeMap:SetHide(true);
 		Controls.UsPocketVassalage:SetHide(true);
+		Controls.UsPocketRevokeVassalage:SetHide(true);
 		Controls.ThemPocketTradeMap:SetHide(true);
 		Controls.ThemPocketVassalage:SetHide(true);
+		Controls.ThemPocketRevokeVassalage:SetHide(true);
 		--]]
 	else
 		--print("Teams DO NOT match!");
@@ -2235,8 +2314,10 @@ function ResetDisplay()
 		Controls.UsPocketResearchAgreement:SetHide(not g_bAllowResearchAgreements);
 		Controls.ThemPocketResearchAgreement:SetHide(not g_bAllowResearchAgreements);
 		Controls.UsPocketVassalage:SetHide(false);
+		Controls.UsPocketRevokeVassalage:SetHide(false);
 		Controls.UsPocketTradeMap:SetHide(false);
 		Controls.ThemPocketVassalage:SetHide(false);
+		Controls.ThemPocketRevokeVassalage:SetHide(false);
 		Controls.ThemPocketTradeMap:SetHide(false);
 		--]]
 	end
@@ -2289,6 +2370,8 @@ function DoClearTable()
 	---[[ Putmalk
 	Controls.UsTableTradeMap:SetHide( true );
 	Controls.ThemTableTradeMap:SetHide( true );
+	Controls.UsTableRevokeVassalage:SetHide( true );
+	Controls.ThemTableRevokeVassalage:SetHide( true );
 	Controls.UsTableVassalage:SetHide( true );
 	Controls.ThemTableVassalage:SetHide( true );
 	Controls.UsTableTechnologyStack:SetHide( true );
@@ -2689,6 +2772,17 @@ function DisplayDeal()
 			else
 				Controls.ThemPocketVassalage:SetHide( true );
 				Controls.ThemTableVassalage:SetHide( false );
+			end
+		elseif( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE == itemType ) then
+			print("Found Revoke Vassalage");
+			-- Human can't capitulate...
+			if( bFromUs ) then
+				Controls.UsPocketRevokeVassalage:SetHide( true );
+			 	Controls.UsTableRevokeVassalage:SetHide( false );
+				--print("Why the hell are we trying to add Vassalage to the Player side of the trade table? Something has gone horribly wrong!");
+			else
+				Controls.ThemPocketRevokeVassalage:SetHide( true );
+				Controls.ThemTableRevokeVassalage:SetHide( false );
 			end
 		elseif( TradeableItems.TRADE_ITEM_TECHS == itemType ) then
 			if ( bFromUs ) then
@@ -3414,6 +3508,46 @@ Controls.UsTableVassalage:RegisterCallback( Mouse.eLClick, TableVassalageHandler
 Controls.UsTableVassalage:SetVoid1( 1 );
 Controls.ThemTableVassalage:RegisterCallback( Mouse.eLClick, TableVassalageHandler );
 Controls.ThemTableVassalage:SetVoid1( 0 );
+
+-----------------------------------------------------------------------------------------------------------------------
+-- Revoke Vassalage Handlers
+-----------------------------------------------------------------------------------------------------------------------
+function PocketRevokeVassalageHandler( isUs )
+	print("PocketRevokeVassalageHandler");
+	if(isUs == 1) then
+		g_Deal:AddRevokeVassalageTrade(g_iUs);
+		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iThem );
+		--print("Calling PocketVassalageHandler with isUs = 1. WHY YOU DO THIS GAME.");
+	else
+		g_Deal:AddRevokeVassalageTrade(g_iThem);
+		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iUs );
+	end
+	DisplayDeal();
+	DoUIDealChangedByHuman();
+end
+Controls.UsPocketRevokeVassalage:RegisterCallback( Mouse.eLClick, PocketRevokeVassalageHandler );
+Controls.UsPocketRevokeVassalage:SetVoid1( 1 );
+Controls.ThemPocketRevokeVassalage:RegisterCallback( Mouse.eLClick, PocketRevokeVassalageHandler );
+Controls.ThemPocketRevokeVassalage:SetVoid1( 0 );
+
+function TableRevokeVassalageHandler( isUs )
+	print("TableRevokeVassalageHandler");
+	if(isUs == 1) then
+		print("remove: us " .. g_iUs );
+		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iUs );
+	else
+		print("remove: them " .. g_iThem );
+		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iThem );
+	end
+	
+	DoClearTable();
+	DisplayDeal();
+	DoUIDealChangedByHuman();
+end
+Controls.UsTableRevokeVassalage:RegisterCallback( Mouse.eLClick, TableRevokeVassalageHandler );
+Controls.UsTableRevokeVassalage:SetVoid1( 1 );
+Controls.ThemTableRevokeVassalage:RegisterCallback( Mouse.eLClick, TableRevokeVassalageHandler );
+Controls.ThemTableRevokeVassalage:SetVoid1( 0 );
 
 -----------------------------------------------------------------------------------------------------------------------
 -- Handle the techs

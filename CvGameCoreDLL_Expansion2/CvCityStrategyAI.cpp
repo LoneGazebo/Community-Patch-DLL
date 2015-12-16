@@ -397,6 +397,7 @@ void CvCityStrategyAI::FlavorUpdate()
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
 		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);// m_piLatestFlavorValues[iFlavor];
+		const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str(); pcFlavorName; //for debugging
 
 		m_pBuildingProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
 		m_pUnitProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
@@ -1124,46 +1125,17 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eLoopBuilding, 0);
 
 			iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
+
 #if defined(MOD_BALANCE_CORE)
-			if(iTempWeight > 0)
-			{
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-				if(GetCity()->IsBuildingInvestment(eBuildingClass))
-				{
-					iTempWeight *= 1000;
-				}
-				if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
-				{
-					iTempWeight *= 100;
-				}
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
-			{
-				if(!bMinor && GetCity()->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromCulture();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromGold();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromDefense();
-				}
-				if(!bMinor && GetCity()->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
-				{
-					iTempWeight *= GetCity()->getUnhappinessFromScience();
-				}
-			}
+			if(iTempWeight < 1)
+				continue;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+			iTempWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(m_pCity, eLoopBuilding, iTempWeight);
+			if(iTempWeight <= 0)
+				continue;
+#else
 			// Don't build the UN if you aren't going for the diplo victory
 			if(pkBuildingInfo->IsDiplomaticVoting())
 			{
@@ -1208,7 +1180,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					iTempWeight = 0;
 				}
 			}
-
+#endif
 			// If the City is a puppet, it avoids Wonders (because the human can't change it if he wants to build it somewhere else!)
 			if(GetCity()->IsPuppet())
 			{
@@ -1224,26 +1196,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				}
 				// it also avoids military training buildings - since it can't build units
 #if defined(MOD_BALANCE_CORE)
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-				if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && bIsVenice)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-					if(GetCity()->IsBuildingInvestment(eBuildingClass))
-					{
-						iTempWeight *= 10;
-					}
-					if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0 && (GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() ||  GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief()))
-					{
-						iTempWeight *= 100;
-					}
-				}
-#endif
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && bIsVenice)
 				{
 					iTempWeight *= 10;
 				}
 				else if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
-
 #else
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND))
 #endif
@@ -1265,11 +1222,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 				}
 			}
+			// Save it for later
 			if(iTempWeight > 0)
 				m_Buildables.push_back(buildable, iTempWeight);
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 	}
 
@@ -1289,10 +1244,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
 
 				iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+
 #if defined(MOD_BALANCE_CORE)
-				if(iTempWeight > 0)
-				{
+				if(iTempWeight < 1)
+					continue;
 #endif
+
 				CvUnitEntry* pkUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 				if(pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 				{
@@ -1342,46 +1299,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				if(iTempWeight > 0)
 				{
 #endif
-#if defined(MOD_BALANCE_CORE)
 				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false, NULL) )
 					m_Buildables.push_back(buildable, iTempWeight);
 				}
-#else
-				// sanity check for building ships on small inland seas (not lakes)
-				if (pkUnitEntry)
-				{
-					DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
-					if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) // if needed allow workboats...
-					{
-						CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
-						if (pBiggestNearbyBodyOfWater)
-						{
-							int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-							int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
-
-#if defined(MOD_CONFIG_AI_IN_XML)
-							int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
-							if (iNumUnitsofMine * iFactor > iWaterTiles)
-#else
-							if (iNumUnitsofMine * 5 > iWaterTiles)
-#endif
-							{
-								iTempWeight = 0;
-							}
-						}
-						else // this should never happen, but...
-						{
-							iTempWeight = 0;
-						}
-					}
-				}
-
-				if(iTempWeight > 0)
-					m_Buildables.push_back(buildable, iTempWeight);
-#endif
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
 			}
 		}
 
@@ -3016,58 +2936,30 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", " + cityName + ", ";
 
+		CvBaseInfo* pEntry = NULL;
 		switch(buildable.m_eBuildableType)
 		{
 		case CITY_BUILDABLE_BUILDING:
-		{
-			CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
-			if(pEntry != NULL)
-			{
-				strDesc = pEntry->GetDescription();
-			}
-		}
-		break;
+			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+			break;
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
-		{
-			CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
-			if(pEntry != NULL)
-			{
-				strDesc = pEntry->GetDescription();
-
-			}
-		}
-		break;
+			pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+			break;
 		case CITY_BUILDABLE_PROJECT:
-		{
-			CvProjectEntry* pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
-			if(pEntry != NULL)
-			{
-				strDesc = pEntry->GetDescription();
-
-			}
-		}
-		break;
+			pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+			break;
 		case CITY_BUILDABLE_PROCESS:
-		{
-			CvProcessInfo* pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
-			if (pEntry != NULL)
-			{
-				strDesc = pEntry->GetDescription();
-			}
-		}
-		break;
+			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			break;
 		}
 
-		if(bRush)
-		{
-			strTemp.Format("SEED: %lld, CHOSEN: %s, Rush if possible, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
-		}
-		else
-		{
-			strTemp.Format("SEED: %lld, CHOSEN: %s, Do not rush, TURNS: %d", GC.getGame().getJonRand().getSeed(), strDesc.c_str(), buildable.m_iTurnsToConstruct);
-		}
+		if (pEntry != NULL)
+			strDesc = pEntry->GetDescription();
+
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
+			strDesc.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

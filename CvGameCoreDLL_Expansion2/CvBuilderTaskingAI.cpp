@@ -300,7 +300,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 		return 0;
 	}
 
-	return pPlot->calculateNatureYield(eYield, NO_TEAM);;
+	return pPlot->calculateNatureYield(eYield, NO_PLAYER);
 }
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute)
@@ -1458,6 +1458,19 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			iScore += 1;
 			iScore *= 5;
 		}
+		//Holy Sites should be built near Holy Cities.
+		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+		if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
+		{
+			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+			if(eReligion != NO_RELIGION)
+			{
+				if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
+				{
+					iScore *= 10;
+				}
+			}
+		}
 		//If our plot obsoletes, let's half them, so that the potential replacement is stronger.
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
@@ -1537,7 +1550,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 
-					if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidEndTurnPlot(m_pPlayer->GetID()) && pLoopPlot->isCity())
+					if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && pLoopPlot->isCity())
 					{
 						if(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
@@ -1996,8 +2009,8 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
 		// calculate natural yields
-		int iPreviousYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->getTeam());
-		int iNewYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->getTeam(), true /*bIgnoreFeature*/);
+		int iPreviousYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID());
+		int iNewYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), true /*bIgnoreFeature*/);
 		int iDeltaYield = iNewYield - iPreviousYield;
 
 		if(iDeltaYield == 0)
@@ -2224,7 +2237,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
 	// if plot is impassable, bail!
-	if(! pPlot->isValidEndTurnPlot(m_pPlayer->GetID()))
+	if(! pPlot->isValidMovePlot(m_pPlayer->GetID()))
 	{
 		if(m_bLogging)
 		{
@@ -2688,7 +2701,7 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 	{
 		// calculate natural yields
 		aiNaturalYieldTypes[ui] = 0;
-		aiNaturalYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->getTeam());
+		aiNaturalYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID());
 
 		// calculate improvement yields
 		aiImprovedYieldTypes[ui] = 0;
@@ -2699,7 +2712,7 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 			bIgnoreFeature = true;
 		}
 
-		aiImprovedYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->getTeam(), bIgnoreFeature);
+		aiImprovedYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), bIgnoreFeature);
 		if(pkPlotRouteInfo)
 		{
 			aiImprovedYieldTypes[ui] += pkPlotRouteInfo->getYieldChange(ui);

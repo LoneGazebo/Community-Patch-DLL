@@ -316,7 +316,7 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 	{
 		if(pAttackingUnit->getCivilizationType() == m_eCarthageType &&
 			pAttackingUnit->getUnitType() == m_eAfricanForestElephantType &&
-			pAttackingUnit->plot()->getPlotType() == PLOT_MOUNTAIN &&
+			pAttackingUnit->plot()->isMountain() &&
 			pDefendingUnit->getCivilizationType() == m_eRomeType)
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_29);

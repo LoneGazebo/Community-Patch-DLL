@@ -247,7 +247,7 @@ protected:
 	CvAStarNode*	GetBest();
 
 	void CreateChildren(CvAStarNode* node);
-	void LinkChild(CvAStarNode* node, CvAStarNode* check);
+	bool LinkChild(CvAStarNode* node, CvAStarNode* check);
 	void UpdateOpenNode(CvAStarNode* node);
 	void UpdateParents(CvAStarNode* node);
 
@@ -299,6 +299,7 @@ protected:
 
 	int m_iProcessedNodes;			// for statistics
 	int m_iTestedNodes;
+	int m_iRounds;
 
 	CvAStarNode** m_ppaaNodes;
 	CvAStarNode** m_ppaaNeighbors;
@@ -441,12 +442,13 @@ private:
 
 
 // C-style non-member functions (used by path finder)
-int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
-int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
+
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
-int PathDest(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
+int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int PathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
