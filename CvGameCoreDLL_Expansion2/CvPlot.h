@@ -435,32 +435,10 @@ public:
 	{
 		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isIce()            const
 	{
 		return getFeatureType() == FEATURE_ICE;
 	};
-#endif
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool isTerraFirma(const CvUnit* pUnit)     const
-	{
-		bool bTerraFirma = !isWater();
-		
-		if (pUnit->getDomainType() == DOMAIN_LAND) {
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-			bTerraFirma = bTerraFirma || (pUnit->canCrossIce() && isIce());
-#endif
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
-#endif
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && (isShallowWater() || getFeatureType() == FEATURE_ICE));
-#endif
-		}
-		
-		return bTerraFirma;
-	};
-#endif
 	bool isOpenGround()     const
 	{
 		if( isHills() || isMountain() || m_bRoughFeature) 
@@ -541,8 +519,8 @@ public:
 #endif
 
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
-
 	bool IsAllowsWalkWater() const;
+	bool needsEmbarkation() const;
 
 	bool isRoughGround() const
 	{

@@ -1822,7 +1822,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 	}
 
 	//highest score first ..
-	std::sort(vTargets.begin(),vTargets.end());
+	std::stable_sort(vTargets.begin(),vTargets.end());
+	std::reverse(vTargets.begin(),vTargets.end());
 
 	//check if we can actually go there only if the city is promising
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)
@@ -1859,7 +1860,8 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 	}
 
 	//highest score first ..
-	std::sort(vTargets.begin(),vTargets.end());
+	std::stable_sort(vTargets.begin(),vTargets.end());
+	std::reverse(vTargets.begin(),vTargets.end());
 
 	//check if we can actually go there only if the city is promising
 	for (std::vector<SPlotWithScore>::iterator it = vTargets.begin(); it!=vTargets.end(); ++it)

@@ -1333,7 +1333,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 #endif
 {
 	// CUSTOMLOG("Move Works for slot type %i", ((int) eType));
-	std::sort (buildings.begin(), buildings.end(), SortThemingBonus);
+	std::stable_sort (buildings.begin(), buildings.end(), SortThemingBonus);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	//	The order is

@@ -278,8 +278,8 @@ public:
 	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
 #endif
 
-	bool canEmbark(const CvPlot* pPlot) const;
-	bool canDisembark(const CvPlot* pPlot) const;
+	bool canEmbarkAtPlot(const CvPlot* pPlot) const;
+	bool canDisembarkAtPlot(const CvPlot* pPlot) const;
 	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
 	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
 	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;

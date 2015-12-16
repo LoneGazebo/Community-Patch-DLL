@@ -25925,7 +25925,7 @@ void CvCity::UpdateClosestFriendlyNeighbors()
 		CvCity* city;
 		int score;
 		SCityWithScore(CvCity* ptr, int i) : city(ptr), score(i) {}
-		bool operator<(const SCityWithScore& rhs) { return score<rhs.score; }
+		bool operator<(const SCityWithScore& rhs) const { return score<rhs.score; }
 	};
 
 	std::vector<SCityWithScore> allNeighbors;
@@ -25942,7 +25942,7 @@ void CvCity::UpdateClosestFriendlyNeighbors()
 		allNeighbors.push_back( SCityWithScore(pCity,iDistance) );
 	}
 
-	std::sort(allNeighbors.begin(), allNeighbors.end());
+	std::stable_sort(allNeighbors.begin(), allNeighbors.end());
 
 	m_vClosestNeighbors.clear();
 	for (size_t i=0; i<min<size_t>(6,allNeighbors.size()); i++)

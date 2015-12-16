@@ -1082,7 +1082,7 @@ int CvLuaUnit::lCanEmbark(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkUnit->canEmbark(pkPlot);
+	const bool bResult = pkUnit->canEmbarkAtPlot(pkPlot);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1093,7 +1093,7 @@ int CvLuaUnit::lCanDisembark(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkUnit->canDisembark(pkPlot);
+	const bool bResult = pkUnit->canDisembarkAtPlot(pkPlot);
 
 	lua_pushboolean(L, bResult);
 	return 1;

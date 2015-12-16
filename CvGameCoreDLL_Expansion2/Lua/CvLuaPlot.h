@@ -219,9 +219,6 @@ protected:
 	static int lGetPlotType(lua_State* L);
 	static int lIsFlatlands(lua_State* L);
 	static int lIsHills(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PATHFINDER_TERRAFIRMA)
-	LUAAPIEXTN(IsTerraFirma, bool, pUnit);
-#endif
 	static int lIsOpenGround(lua_State* L);
 	static int lIsRoughGround(lua_State* L);
 	static int lIsMountain(lua_State* L);

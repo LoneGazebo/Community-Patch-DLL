@@ -191,7 +191,6 @@ void CvHomelandAI::Update()
 	}
 }
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
 {
 	if (!pUnit)
@@ -299,86 +298,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 	return pBestPlot;
 }
-
-#else
-
-typedef std::pair<int, CvPlot*> DistancePlotEntry;
-typedef FFastVector<DistancePlotEntry> DistanceSortedPlotArray;
-//	----------------------------------------------------------------------------
-//	Sort function for the distances
-static bool SortUnitDistance(const DistancePlotEntry& kEntry1, const DistancePlotEntry& kEntry2)
-{
-	return kEntry1.first < kEntry2.first;
-}
-
-bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
-{
-	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-	FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
-	FFastVector<int>& aiExplorationPlotRatings = pEconomicAI->GetExplorationPlotRatings();
-
-	if (aiExplorationPlots.size() > 0)
-	{
-		int iUnitX = pUnit->getX();
-		int iUnitY = pUnit->getY();
-
-		// Filter the list with some quick checks, then add the rest to a list that we can sort by distance
-		DistanceSortedPlotArray aDistanceList;
-		aDistanceList.reserve( aiExplorationPlots.size() );
-
-		for(uint ui = 0; ui < aiExplorationPlots.size(); ui++)
-		{
-			int iPlot = aiExplorationPlots[ui];
-			if(iPlot < 0)
-			{
-				continue;
-			}
-
-			CvPlot* pEvalPlot = GC.getMap().plotByIndex(iPlot);
-			if(!pEvalPlot)
-			{
-				continue;
-			}
-
-			if(aiExplorationPlotRatings[ui] == 0)
-			{
-				continue;
-			}
-
-			int iDistX = abs( pEvalPlot->getX() - iUnitX );
-			int iDistY = abs( pEvalPlot->getY() - iUnitY );
-
-			aDistanceList.push_back(std::pair<int, CvPlot*>((iDistX*iDistX)+(iDistY*iDistY), pEvalPlot));
-		}
-
-		if (aDistanceList.size())
-		{
-			std::sort(aDistanceList.begin(), aDistanceList.end(), SortUnitDistance);
-
-			for (DistanceSortedPlotArray::const_iterator itr = aDistanceList.begin(); itr != aDistanceList.end(); ++itr)
-			{
-				CvPlot* pEvalPlot = (*itr).second;
-
-				if(!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
-				{
-					continue;
-				}
-
-				// hitting the path finder, may not be the best idea. . .
-				bool bCanFindPath = GC.GetPathFinder().GenerateUnitPath(pUnit, iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-				if(!bCanFindPath)
-				{
-					continue;
-				}
-
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-#endif
 
 
 // PRIVATE METHODS
@@ -6268,6 +6187,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	//todo: sort also by plot distance? right now there are many targets with the same score
 
 	//for now we simply try to move units to the most desirable base
+	//lowest score first for now
 	std::stable_sort(vPotentialBases.begin(),vPotentialBases.end());
 
 	for (size_t i=0; i<vHealingUnits.size(); ++i)

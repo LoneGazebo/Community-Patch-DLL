@@ -937,11 +937,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 
 	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
-	kToNodeCacheData.bIsWater = (pPlot->isWater() && !pPlot->IsAllowsWalkWater());
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	kToNodeCacheData.bIsTerraFirma = pPlot->isTerraFirma(pUnit) && !pPlot->IsAllowsWalkWater();
-#endif
-
+	kToNodeCacheData.bIsWater = pPlot->needsEmbarkation(); //not all water plots count as water ...
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot);
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,false,pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
 
@@ -1055,7 +1051,7 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 				return FALSE;
 		}
 
-		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && pToPlot->isWater() && !pToPlot->IsAllowsWalkWater())
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && pToPlot->needsEmbarkation())
 			return FALSE;
 
 		if(pUnit->IsCombatUnit())
@@ -1080,7 +1076,6 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 
 	return TRUE;
 }
-
 
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder)
 {
@@ -1123,12 +1118,8 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	DomainTypes eUnitDomain = pCacheData->getDomainType();
 	CvAssertMsg(eUnitDomain != DOMAIN_AIR, "pUnit->getDomainType() is not expected to be equal with DOMAIN_AIR");
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool bToPlotIsWater = !pToPlot->isTerraFirma(pUnit) && !pToPlot->IsAllowsWalkWater();
-	bool bFromPlotIsWater = !pFromPlot->isTerraFirma(pUnit) && !pFromPlot->IsAllowsWalkWater();
-#else
-	bool bToPlotIsWater = pToPlot->isWater() && !pToPlot->IsAllowsWalkWater();
-#endif
+	bool bToPlotIsWater = pToPlot->needsEmbarkation();	//also for sea units
+	bool bFromPlotIsWater = pFromPlot->needsEmbarkation();	//also for sea units
 
 	//if we would have to start a new turn
 	if (iStartMoves==0)
@@ -1460,28 +1451,26 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 
 		if(pCacheData->getDomainType() == DOMAIN_LAND)
 		{
-			//don't embark if forbidden
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && kFromNodeCacheData.bIsTerraFirma)
+			//don't embark if forbidden - but move along if already on water plot
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && !kFromNodeCacheData.bIsWater)
 				return FALSE;
 
 			//don't move to dangerous water plots (unless the current plot is dangerous too)
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsWater && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
 				return FALSE;
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-			if( kFromNodeCacheData.bIsTerraFirma && !kToNodeCacheData.bIsTerraFirma && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#else
+			//embark required and possible?
 			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
-#endif
 			{
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-				if(!pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#else
-				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && !pToPlot->IsAllowsWalkWater())
-#endif
-				{
+				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
 					return FALSE;
-				}
+			}
+
+			//disembark required and possible?
+			if(kFromNodeCacheData.bIsWater && !kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true))
+			{
+				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
+					return FALSE;
 			}
 		}
 
@@ -2716,29 +2705,6 @@ int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 	{
 		if (!pUnit->canMoveInto(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
 			return FALSE;
-	}
-
-	if(pUnit->getDomainType() == DOMAIN_LAND)
-	{
-		int iGroupAreaID = pUnit->getArea();
-		if(pToPlot->getArea() != iGroupAreaID)
-		{
-			if(!(pToPlot->isAdjacentToArea(iGroupAreaID)))
-			{
-				// antonjs: Added for Smoky Skies scenario. Allows move range to show correctly for airships,
-				// which move over land and sea plots equally (canMoveAllTerrain)
-				if (!pUnit->canMoveAllTerrain())
-				{
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-					if (!(pUnit->IsHoveringUnit() && (pToPlot->isShallowWater() || pToPlot->getFeatureType() == FEATURE_ICE))) {
-						return FALSE;
-					}
-#else
-					return FALSE;
-#endif
-				}
-			}
-		}
 	}
 
 	if(!pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_ATTACK))

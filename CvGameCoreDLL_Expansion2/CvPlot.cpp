@@ -3227,6 +3227,12 @@ bool CvPlot::IsAllowsWalkWater() const
 	}
 	return false;
 }
+
+bool CvPlot::needsEmbarkation() const
+{
+	return isWater() && !isIce() && !IsAllowsWalkWater();
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlot::getExtraMovePathCost() const
 {
@@ -4709,61 +4715,33 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		return true;
 	}
 	
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-	if (unit.getDomainType() == DOMAIN_LAND && isIce() && unit.canCrossIce()) {
-		return true;
-	}
-#endif
-
-	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
-	{
-		return true;
-	}
-
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	return (unit.getDomainType() == DOMAIN_SEA) ? isCityOrPassableImprovement(unit.getOwner(), true) : isCity();
-#else
-	return isCity();
-#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 {
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-	bool bCanEnter = false;
-#endif
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-		bCanEnter = (isWater() || unit.canMoveAllTerrain() || (isCityOrPassableImprovement(unit.getOwner(), true) && MOD_GLOBAL_PASSABLE_FORTS));
-		if(bCanEnter)
-		{
-			return true;
-		}
-#else
-		return (isWater() || unit.canMoveAllTerrain());
-#endif
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true));
 		break;
 
 	case DOMAIN_AIR:
 		return false;
 		break;
 
-	case DOMAIN_LAND:
+	case DOMAIN_HOVER:
+		return !isDeepWater();
+		break;
+
 	case DOMAIN_IMMOBILE:
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-		// Only hover over shallow water or ice
-		{ bool bOK = (!isWater() || (unit.IsHoveringUnit() && isShallowWater()) || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-		bOK = bOK || (unit.IsHoveringUnit() && isIce());
-#endif
-		return bOK; }
-#else
-		return (!isWater() || unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-#endif
+		return false;
+		break;
+
+	case DOMAIN_LAND:
+		return (needsEmbarkation()==unit.isEmbarked()) || unit.canMoveAllTerrain();
 		break;
 
 	default:
@@ -13836,17 +13814,10 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
 								return pLoopUnit;
 							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit())
-							{
-								// Need to count adjacent hovering units as enemies regardless
-								return pLoopUnit;
-							}
-#endif
 						}
 					}
 				}
@@ -13901,17 +13872,10 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
 								iNumEnemiesAdjacent++;
 							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit()) {
-							
-								// Need to count adjacent hovering units as enemies regardless
-								iNumEnemiesAdjacent++;
-							}
-#endif
 						}
 					}
 				}
