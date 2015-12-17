@@ -94,7 +94,7 @@
 			<Text>25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the city where it is built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned cities. In addition, the Crystal Palace grants +1 [ICON_CULTURE] Culture and a [ICON_GREAT_WORK] Great Work slot.</Text>
+			<Text>The empire enters a [ICON_GOLDEN_AGE] Golden Age. +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONSULATE_HELP">
 			<Text>Receive an additional Delegate in the World Congress.</Text>
@@ -149,7 +149,7 @@
 			<Text>Combining the strengths of the Hotel, Stadium and Hermitage in one, the Olympic Village is a powerhouse of late-game culture. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_STRATEGY">
-			<Text>Like its real-world counterpart, the Crystal Palace dabbles in a wide varitey of bonuses. Players with a large number of cities, and Factories, will benefit most from the Crystal Palace, however the additional Great Work slot is useful for any Civilization. May only be built collaboratively through the World Congress.</Text>
+			<Text>Like its real-world counterpart, the Crystal Palace dabbles in a wide varitey of bonuses. Players with a large number of cities, and Factories, will benefit most from the Crystal Palace, however the additional Culture and Great Work slot are useful for any Civilization. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CONSULATE_STRATEGY">
 			<Text>The Consulate gives its owner a slight edge in the World Congress by granting an additional Delegate. May only be built collaboratively through the World Congress.</Text>

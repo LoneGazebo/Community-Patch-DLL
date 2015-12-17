@@ -11641,6 +11641,17 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					bTypeMatch = true;
 				}
 			}
+			else if(m_pPlayer->isMinorCiv())
+			{
+				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
+					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
+				{
+					bTypeMatch = true;
+				}
+			}
 			else
 			{
 #endif
@@ -11656,7 +11667,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			}
-			if (bAllowDefensiveTargets)
+			if (bAllowDefensiveTargets || m_pPlayer->isMinorCiv())
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
 					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||
@@ -13450,7 +13461,8 @@ bool TacticalAIHelpers::PerformAttack(CvUnit* pUnit, const CvPlot* pTargetPlot)
 		if (vBasePlots.empty())
 			return false;
 
-		std::sort(vBasePlots.begin(), vBasePlots.end());
+		//lowest danger first
+		std::stable_sort(vBasePlots.begin(), vBasePlots.end());
 
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),vBasePlots[0].pPlot->getX(),vBasePlots[0].pPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 
@@ -13735,7 +13747,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(const CvUnit* pUnit, bo
 			break;
 
 		//start with the plot that is closest to one of our cities
-		std::sort( nextRing.begin(), nextRing.end() );
+		std::stable_sort( nextRing.begin(), nextRing.end() );
 
 		//see if one candidate from this ring is good
 		for (std::vector<SPlotWithScore>::iterator it = nextRing.begin(); it!=nextRing.end(); ++it)
@@ -13827,7 +13839,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 	}
 
 	//sort by increasing distance
-	std::sort(vIntermediate.begin(), vIntermediate.end());
+	std::stable_sort(vIntermediate.begin(), vIntermediate.end());
 
 	for (size_t i=0; i<vIntermediate.size(); i++)
 		vPlots.push_back(vIntermediate[i].pPlot);

@@ -5,14 +5,15 @@
 		<Row>
 			<Class>UNITCLASS_EMISSARY</Class>
 			<Type>UNIT_EMISSARY</Type>
-			<Cost>50</Cost>
-			<Moves>3</Moves>
+			<Cost>150</Cost>
+			<Moves>2</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatLimit>0</CombatLimit>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_MESSENGER</DefaultUnitAI>
 			<Description>TXT_KEY_UNIT_EMISSARY</Description>
+			<ExtraMaintenanceCost>2</ExtraMaintenanceCost>
 			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_EMISSARY_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_EMISSARY</Help>
@@ -28,7 +29,7 @@
 		<Row>
 			<Class>UNITCLASS_ENVOY</Class>
 			<Type>UNIT_ENVOY</Type>
-			<Cost>120</Cost>
+			<Cost>400</Cost>
 			<Moves>3</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
@@ -38,6 +39,7 @@
 			<Civilopedia>TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ENVOY_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_ENVOY</Help>
+			<ExtraMaintenanceCost>4</ExtraMaintenanceCost>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
@@ -51,8 +53,8 @@
 		<Row>
 			<Class>UNITCLASS_DIPLOMAT</Class>
 			<Type>UNIT_DIPLOMAT</Type>
-			<Cost>240</Cost>
-			<Moves>3</Moves>
+			<Cost>600</Cost>
+			<Moves>4</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
@@ -64,6 +66,7 @@
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
+			<ExtraMaintenanceCost>6</ExtraMaintenanceCost>
 			<BaseGold>1</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_DIPLOMAT</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
@@ -74,8 +77,8 @@
 		<Row>
 			<Class>UNITCLASS_AMBASSADOR</Class>
 			<Type>UNIT_AMBASSADOR</Type>
-			<Cost>470</Cost>
-			<Moves>3</Moves>
+			<Cost>900</Cost>
+			<Moves>4</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
@@ -86,6 +89,7 @@
 			<Help>TXT_KEY_UNIT_HELP_AMBASSADOR</Help>
 			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 			<CombatLimit>0</CombatLimit>
+			<ExtraMaintenanceCost>10</ExtraMaintenanceCost>
 			<BaseGold>1</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_AMBASSADOR</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
@@ -169,22 +173,22 @@
 		<Row>
 			<UnitType>UNIT_ENVOY</UnitType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<UnitType>UNIT_DIPLOMAT</UnitType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>60</Flavor>
 		</Row>
 		<Row>
 			<UnitType>UNIT_AMBASSADOR</UnitType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>80</Flavor>
 		</Row>
 		<Row>
 			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 	</Unit_Flavors>
 	<Unit_AITypes>
@@ -232,17 +236,17 @@
 		<Row>
 			<UnitType>UNIT_ENVOY</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>2</Cost>
+			<Cost>3</Cost>
 		</Row>
 		<Row>
 			<UnitType>UNIT_DIPLOMAT</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>3</Cost>
+			<Cost>5</Cost>
 		</Row>
 		<Row>
 			<UnitType>UNIT_AMBASSADOR</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>4</Cost>
+			<Cost>7</Cost>
 		</Row>
 	</Unit_ResourceQuantityRequirements>
 	<Unit_Builds>

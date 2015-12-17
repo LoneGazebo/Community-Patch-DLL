@@ -255,105 +255,47 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		return true;
 	}
 
-	if (!pUnit->isEmbarked() && (pToPlot->IsAllowsWalkWater() || pFromPlot->IsAllowsWalkWater()))
-	{
-		return false;
-	}
-
 	if(!pFromPlot->isValidDomainForLocation(*pUnit))
 	{
 		// If we are a land unit that can embark, then do further tests.
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->canMoveAllTerrain())
-			return true;
-			
-		if(pUnit->IsHoveringUnit()) {
-			if (!pUnit->IsEmbarkDeepWater()) {
-				return true;
-			}
-		} else {
-			if (!pUnit->CanEverEmbark()) {
-				return true;
-			}
-		}
-#else
 		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
 			return true;
-#endif
 	}
 
-	// if the unit can embark and we are transitioning from land to water or vice versa
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool bFromWater = !pFromPlot->isTerraFirma(pUnit);
-	bool bToWater = !pToPlot->isTerraFirma(pUnit);
-	bool bCanEmbark = pUnit->CanEverEmbark();
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	if (pUnit->IsHoveringUnit() && pUnit->IsEmbarkDeepWater()) {
-		bCanEmbark = true;
-	}
-#endif
-	if(bToWater != bFromWater && bCanEmbark)
-#else
-	if(pToPlot->isWater() != pFromPlot->isWater() && pUnit->CanEverEmbark())
-#endif
+	// if the unit can (or has to) embark and we are transitioning from land to water or vice versa
+	if(pUnit->CanEverEmbark() && !pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() )
 	{
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 		bool bCanMoveFreely = false;
 		TeamTypes eUnitTeam = pUnit->getTeam();
 		CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-		if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+
+		//disembarking?
+		if (!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation() && pUnit->isEmbarked())
 		{
-			bCanMoveFreely = true;
-		}
-#else
-		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-		{
-			bCanMoveFreely = true;
-		}
-#endif
-		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked())
-		{
+			//trait?
+			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+				return false;
+
 			//If city, and player has disembark to city at no cost...
-			if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) )
 			{
-				bCanMoveFreely = true;
+				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
+					return false;
 			}
-			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				bCanMoveFreely = true;
-			}
+
+			return true;
 		}
-		if(pToPlot->isWater() && !pFromPlot->isWater() && !pUnit->isEmbarked())
+
+		//embarkation?
+		if (pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation() && !pUnit->isEmbarked())
 		{
 			//If city, and player has embark from city at no cost...
-			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) )
 			{
-				bCanMoveFreely = true;
+				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
+					return false;
 			}
-			//If city, and player has embark from city at reduced cost...
-			else if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				bCanMoveFreely = true;
-			}
-		}
-		if(bCanMoveFreely)
-		{
-			return false;
-		}
-#else
-		// Is the unit from a civ that can disembark for just 1 MP?
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-		if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-#else
-		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-#endif
-		{
-			return false;	// Then no, it does not.
-		}
-#endif
-		if(!pUnit->canMoveAllTerrain())
-		{
+
 			return true;
 		}
 	}
@@ -501,20 +443,16 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 					// At war with this unit's team?
 					if(unit_loop_team_type == BARBARIAN_TEAM || kUnitTeam.isAtWar(unit_loop_team_type))
 					{
-
 						// Same Domain?
-
 						DomainTypes loop_unit_domain_type = pLoopUnit->getDomainType();
 						if(loop_unit_domain_type != unit_domain_type)
 						{
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+#if defined(MOD_BALANCE_CORE)
 							// hovering units always exert a ZOC
 							if (pLoopUnit->IsHoveringUnit())
 							{
 								// continue on
 							}
-#endif
-#if defined(MOD_BALANCE_CORE)
 							// water unit can ZoC embarked land unit
 							else if(loop_unit_domain_type == DOMAIN_SEA && pUnit->isEmbarked())
 #else

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{63283aea-f6ad-4004-8fbd-639e69d54803}</ProjectGuid>
-    <Name>(6) Community Balance Patch - Compatibility Files (No-EUI) (12-15)</Name>
+    <Name>(6) Community Balance Patch - Compatibility Files (No-EUI) (12-16)</Name>
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
@@ -97,6 +97,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModDependencies>
     <ModBlockers>
       <Association>
@@ -107,6 +114,10 @@
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModBlockers>
+    <ReloadUnitSystem>true</ReloadUnitSystem>
+    <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
+    <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>

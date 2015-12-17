@@ -198,9 +198,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetPlotType);
 	Method(IsFlatlands);
 	Method(IsHills);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PATHFINDER_TERRAFIRMA)
-	Method(IsTerraFirma);
-#endif
 	Method(IsOpenGround);
 	Method(IsRoughGround);
 	Method(IsMountain);
@@ -1373,18 +1370,7 @@ int CvLuaPlot::lIsHills(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::isHills);
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PATHFINDER_TERRAFIRMA)
-//------------------------------------------------------------------------------
-//bool isTerraFirma(CyUnit* pUnit);
-int CvLuaPlot::lIsTerraFirma(lua_State* L)
-{
-	CvPlot* pkPlot = GetInstance(L);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-	const bool bResult = pkPlot->isTerraFirma(pkUnit);
-	lua_pushboolean(L, bResult);
-	return 1;
-}
-#endif
+
 //------------------------------------------------------------------------------
 //bool isOpenGround();
 int CvLuaPlot::lIsOpenGround(lua_State* L)

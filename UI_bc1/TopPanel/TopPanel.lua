@@ -25,7 +25,6 @@ local PushScratchDeal = EUI.PushScratchDeal
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
-local GreatPeopleIcon = EUI.GreatPeopleIcon
 
 for i,v in pairs( Modding.GetActivatedMods() ) do
 	print("Active Mod", Modding.GetModProperty(v.ID, v.Version, "Name"), "ID", v.ID, "Version", v.Version )
@@ -1136,10 +1135,9 @@ if civ5_mode then
 		local tipText = ""
 		local gp = ScanGP( Players[Game.GetActivePlayer()] )
 		if gp then
-			local icon = GreatPeopleIcon( gp.Class.Type )
 			tipText = L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( gp.Class.Description ) .. "[ENDCOLOR]" )
-				.. " " .. gp.Progress .. icon .. " / " .. gp.Threshold .. icon .. "[NEWLINE]"
-				.. gp.City:GetName() .. S( " %+g", gp.Change ) .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE"
+				.. " " .. gp.Progress .. "[ICON_GREAT_PEOPLE]/ " .. gp.Threshold .. "[ICON_GREAT_PEOPLE][NEWLINE]"
+				.. gp.City:GetName() .. S( " %+g", gp.Change ) .. "[ICON_GREAT_PEOPLE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE"
 				.. " [COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gp.Turns ) ) .. "[ENDCOLOR]"
 		else
 			tipText = "No GP..."

@@ -450,8 +450,6 @@
 #define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
-// Permits hovering units to attack coastal shipping
-#define MOD_UNITS_HOVERING_COASTAL_ATTACKS          gCustomMods.isUNITS_HOVERING_COASTAL_ATTACKS()
 
 // Removes religion preference
 #define MOD_RELIGION_NO_PREFERRENCES                gCustomMods.isRELIGION_NO_PREFERRENCES()
@@ -849,38 +847,8 @@
 #define MOD_BUGFIX_UNIT_PREREQ_PROJECT              gCustomMods.isBUGFIX_UNIT_PREREQ_PROJECT()
 // Fixes a bug where hovering units can be chosen as rebels! (v39)
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
-// Fixes a bug in the pathfinder code for hovering units at the seaside!
-#define MOD_BUGFIX_HOVERING_PATHFINDER              gCustomMods.isBUGFIX_HOVERING_PATHFINDER()
-// Fixes a bug in the pathfinder code for embarking
-#define MOD_BUGFIX_EMBARKING_PATHFINDER             gCustomMods.isBUGFIX_EMBARKING_PATHFINDER()
-
 
 #endif // ACHIEVEMENT_HACKS
-
-
-//
-// MOD_PROMOTIONS_XYZ changes manage/grant the promotions and may affect the game saving code
-// MOD_PATHFINDER_XYZ changes only affect the path finding code so can be disabled if necessary
-//
-
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-#define MOD_PATHFINDER_CROSS_MOUNTAINS         MOD_PROMOTIONS_CROSS_MOUNTAINS
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-#define MOD_PATHFINDER_CROSS_OCEANS            MOD_PROMOTIONS_CROSS_OCEANS
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-#define MOD_PATHFINDER_CROSS_ICE               MOD_PROMOTIONS_CROSS_ICE
-#endif
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-#define MOD_PATHFINDER_DEEP_WATER_EMBARKATION  MOD_PROMOTIONS_DEEP_WATER_EMBARKATION
-#endif
-
-// ONLY CHANGE THIS IF YOU TRULY KNOW WHAT YOU ARE DOING IN THE PATHFINDER CODE!!!
-#if defined(MOD_PATHFINDER_CROSS_ICE) || defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-#define MOD_PATHFINDER_TERRAFIRMA
-#endif
-
 
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING
@@ -1208,6 +1176,7 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
+	MOD_OPT_DECL(BALANCE_CORE_DEBUGGING);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_1UPT);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_RESTRICTIONS);
@@ -1306,7 +1275,6 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_MINOR_VARIABLE_BULLYING);
 	MOD_OPT_DECL(BALANCE_YIELD_SCALE_ERA);
 	MOD_OPT_DECL(BALANCE_CORE_NEW_GP_ATTRIBUTES);
-	MOD_OPT_DECL(BALANCE_CORE_DEBUGGING);
 	MOD_OPT_DECL(BALANCE_CORE_JFD);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESISTANCE);
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);

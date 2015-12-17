@@ -1,15 +1,15 @@
 -- Insert SQL Rules Here 
 
 UPDATE LeagueSpecialSessions
-Set TurnsBetweenSessions = 25
+Set TurnsBetweenSessions = 20
 WHERE Type = 'LEAGUE_SPECIAL_SESSION_START_WORLD_CONGRESS' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
 
 UPDATE LeagueSpecialSessions
-Set TurnsBetweenSessions = 20
+Set TurnsBetweenSessions = 15
 WHERE Type = 'LEAGUE_SPECIAL_SESSION_WELCOME_CITY_STATES' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
 
 UPDATE LeagueSpecialSessions
-Set TurnsBetweenSessions = 15
+Set TurnsBetweenSessions = 10
 WHERE Type = 'LEAGUE_SPECIAL_SESSION_LEADERSHIP_COUNCIL' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
 
 

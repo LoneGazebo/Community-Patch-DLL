@@ -90,11 +90,11 @@ WHERE Tag = 'TXT_KEY_RESOLUTION_WORLD_IDEOLOGY_HELP' AND EXISTS (SELECT * FROM C
 -- Scholars in Residence
 
 UPDATE Language_en_US
-SET Text = 'Civilizations research a technology 20% more quickly if it has been discovered by at least one other Civilization. This value is increased by an additional 5% for every City-State ally the Civilization currently maintains.'
+SET Text = 'Civilizations research a technology 20% more quickly if it has been discovered by at least one other Civilization. This value is increased by an additional 5% for every City-State ally the Civilization currently maintains, up to -50%.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '-{1_ResearchCostPercent}% [ICON_RESEARCH] Research cost for Technologies already discovered by another Civilization. Additional -5% for every City-State ally'
+SET Text = '-{1_ResearchCostPercent}% [ICON_RESEARCH] Research cost for Technologies already discovered by another Civilization. Additional -5% for every City-State ally, up to -50%'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_DISCOVERED_TECH_MODIFIER' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 --Wonder Culture
@@ -179,7 +179,7 @@ SET Text = 'Free Social Policy.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_1_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_CULTURE] Culture increases by 100% for 20 Turns.'
+SET Text = '[ICON_CULTURE] Culture increases by 33% for 20 Turns.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_2_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -225,7 +225,7 @@ SET Building = 'BUILDING_OLYMPIC_VILLAGE'
 WHERE Type = 'LEAGUE_PROJECT_REWARD_WORLD_GAMES_3' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
 
 UPDATE Language_en_US
-SET Text = '[ICON_TOURISM] Tourism increases by 100% for 20 Turns.'
+SET Text = '[ICON_TOURISM] Tourism increases by 50% for 20 Turns.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_1_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US

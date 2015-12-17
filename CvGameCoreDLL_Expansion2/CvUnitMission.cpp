@@ -1077,14 +1077,14 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 	}
 	else if(iMission == CvTypes::getMISSION_EMBARK())
 	{
-		if(hUnit->canEmbark(pPlot))
+		if(hUnit->canEmbarkAtPlot(pPlot))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_DISEMBARK())
 	{
-		if(hUnit->canDisembark(pPlot))
+		if(hUnit->canDisembarkAtPlot(pPlot))
 		{
 			return true;
 		}

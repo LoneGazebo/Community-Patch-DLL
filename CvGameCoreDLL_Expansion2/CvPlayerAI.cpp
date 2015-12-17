@@ -1835,7 +1835,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 					return pCity;
 			}
 		}
@@ -1882,7 +1882,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 					return pCity;
 			}
 		}

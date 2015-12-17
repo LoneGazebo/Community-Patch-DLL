@@ -1488,7 +1488,11 @@ void CvPlot::changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int 
 
 //	--------------------------------------------------------------------------------
 // while this looks more complex than the previous version, it should run much faster
+#if defined(MOD_BALANCE_CORE)
+void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit, CvUnit* pUnit)
+#else
 void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit)
+#endif
 {
 	//check one extra outer ring
 	int iRangeWithOneExtraRing = iRange + 1;
@@ -1632,8 +1636,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
@@ -1641,8 +1649,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{		
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else
@@ -1660,8 +1672,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 								pPlotToCheck->setScratchPad(iHighestLevel);
 							}
 							if(iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{					
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 					}
@@ -1670,8 +1686,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
@@ -1679,8 +1699,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iFirstInwardLevel != INVALID_RING)
@@ -1689,7 +1713,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING)
@@ -1697,8 +1725,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else // I have no idea how this can happen, but...
@@ -1708,8 +1740,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					}
 				}
 				else // this is the center point
-				{					
+				{
+#if defined(MOD_BALANCE_CORE)
+					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 					pPlotToCheck->setScratchPad(0);
 				}
 			}
@@ -2138,10 +2174,12 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	{
 		return false;
 	}
+
 	if(!isValidMovePlot(ePlayer))
 	{
 		return false;
 	}
+
 	if(pkImprovementInfo->IsWater() != isWater())
 	{
 		return false;
@@ -3225,6 +3263,12 @@ bool CvPlot::IsAllowsWalkWater() const
 	}
 	return false;
 }
+
+bool CvPlot::needsEmbarkation() const
+{
+	return isWater() && !isIce() && !IsAllowsWalkWater();
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlot::getExtraMovePathCost() const
 {
@@ -4707,61 +4751,33 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		return true;
 	}
 	
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-	if (unit.getDomainType() == DOMAIN_LAND && isIce() && unit.canCrossIce()) {
-		return true;
-	}
-#endif
-
-	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
-	{
-		return true;
-	}
-
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	return (unit.getDomainType() == DOMAIN_SEA) ? isCityOrPassableImprovement(unit.getOwner(), true) : isCity();
-#else
-	return isCity();
-#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 {
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-	bool bCanEnter = false;
-#endif
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
-		bCanEnter = (isWater() || unit.canMoveAllTerrain() || (isCityOrPassableImprovement(unit.getOwner(), true) && MOD_GLOBAL_PASSABLE_FORTS));
-		if(bCanEnter)
-		{
-			return true;
-		}
-#else
-		return (isWater() || unit.canMoveAllTerrain());
-#endif
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true));
 		break;
 
 	case DOMAIN_AIR:
 		return false;
 		break;
 
-	case DOMAIN_LAND:
+	case DOMAIN_HOVER:
+		return !isDeepWater();
+		break;
+
 	case DOMAIN_IMMOBILE:
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-		// Only hover over shallow water or ice
-		{ bool bOK = (!isWater() || (unit.IsHoveringUnit() && isShallowWater()) || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-		bOK = bOK || (unit.IsHoveringUnit() && isIce());
-#endif
-		return bOK; }
-#else
-		return (!isWater() || unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-#endif
+		return false;
+		break;
+
+	case DOMAIN_LAND:
+		return (needsEmbarkation()==unit.isEmbarked()) || unit.canMoveAllTerrain();
 		break;
 
 	default:
@@ -8384,9 +8400,19 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
 	}
 	// Truly Impassable terrain (not tech locked terrain) has no base yield
-	if(!isValidMovePlot(BARBARIAN_PLAYER))
+	if(ePlayer == NO_PLAYER && !isWater())
 	{
-		iYield = 0;
+		if(!isValidMovePlot(BARBARIAN_PLAYER))
+		{
+			iYield = 0;
+		}
+	}
+	else if(!isWater())
+	{
+		if(!isValidMovePlot(ePlayer))
+		{
+			iYield = 0;
+		}
 	}
 
 
@@ -9288,7 +9314,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isWater())
 		{
-			if(isValidMovePlot(NO_PLAYER))
+			if(isValidMovePlot(ePlayer))
 			{
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
 
@@ -9328,7 +9354,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isRiver())
 		{
-			if(isValidMovePlot(NO_PLAYER))
+			if(isValidMovePlot(ePlayer))
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -9669,7 +9695,11 @@ void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
+#else
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible)
+#endif
 {
 	CvCity* pCity;
 	CvPlot* pAdjacentPlot;
@@ -9734,6 +9764,19 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
+					{
+						if(IsNaturalWonder())
+						{
+							pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+						}
+						else
+						{
+							pUnit->ChangeNumTilesRevealedThisTurn(1);
+						}
+					}
+#endif
 				}
 
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -12957,8 +13000,13 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 //	---------------------------------------------------------------------------
 void CvPlot::updateImpassable(TeamTypes eTeam)
 {
-	const TerrainTypes eTerrain = getTerrainType();
+	TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
+
+	if(eTerrain == TERRAIN_OCEAN && isShallowWater())
+	{
+		eTerrain = TERRAIN_COAST;
+	}
 
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
@@ -13068,8 +13116,11 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 			//inca
 			if (isMountain() && GET_PLAYER(ePlayer).CanCrossMountain() )
 				bCanPassBecauseOfPlayerTrait = true;
-			//don't differentiate between shallow and deep water there, this is done in update impassable. the trait allows both!
-			if (isWater() && GET_PLAYER(ePlayer).CanCrossOcean() )
+			//deep water...
+			if (isWater() && !isShallowWater() && GET_PLAYER(ePlayer).CanCrossOcean())
+				bCanPassBecauseOfPlayerTrait = true;
+			//and shallow water... (this is necessary because of scenarios and tech situations where units can embark before techs, and vice-versa.
+			if (isWater() && isShallowWater() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
 				bCanPassBecauseOfPlayerTrait = true;
 
 			if (!bCanPassBecauseOfPlayerTrait)
@@ -13858,17 +13909,10 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
 								return pLoopUnit;
 							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit())
-							{
-								// Need to count adjacent hovering units as enemies regardless
-								return pLoopUnit;
-							}
-#endif
 						}
 					}
 				}
@@ -13923,17 +13967,10 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || eDomain == NO_DOMAIN)
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
 								iNumEnemiesAdjacent++;
 							}
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-							else if (eDomain == DOMAIN_SEA && pLoopUnit->IsHoveringUnit()) {
-							
-								// Need to count adjacent hovering units as enemies regardless
-								iNumEnemiesAdjacent++;
-							}
-#endif
 						}
 					}
 				}

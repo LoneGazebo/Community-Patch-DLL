@@ -37,7 +37,7 @@ public:
 		m_iAreaID = source.m_iAreaID;
 	}
 
-	bool operator<(const CvContinent& continent)
+	bool operator<(const CvContinent& continent) const
 	{
 		return (m_uiFertilityNextRegion > continent.m_uiFertilityNextRegion);
 	}
@@ -112,7 +112,7 @@ public:
 		m_iNumCivsPlaced = source.m_iNumCivsPlaced;
 	}
 
-	bool operator<(const CvStartRegion& continent)
+	bool operator<(const CvStartRegion& continent) const
 	{
 		return (m_uiFertility / (m_iNumCivsPlaced + 1) >
 		        continent.m_uiFertility / (continent.m_iNumCivsPlaced + 1));
@@ -161,7 +161,7 @@ public:
 		m_iRank = startRankObj.m_iRank;
 	}
 
-	bool operator<(const CvPlayerStartRank& startRankObj)
+	bool operator<(const CvPlayerStartRank& startRankObj) const
 	{
 		return (m_iRank < startRankObj.m_iRank);
 	}

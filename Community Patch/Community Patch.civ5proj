@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
-    <Name>(1) Community Patch  (12-15)</Name>
+    <Name>(1) Community Patch  (12-16)</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>68</ModVersion>
     <Stability>Beta</Stability>

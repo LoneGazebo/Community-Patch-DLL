@@ -250,6 +250,9 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
+#endif
 	, m_iRoughTerrainEndsTurnCount("CvUnit::m_iRoughTerrainEndsTurnCount", m_syncArchive)
 	, m_iEmbarkAbilityCount("CvUnit::m_iEmbarkAbilityCount", m_syncArchive)
 	, m_iHoveringUnitCount("CvUnit::m_iHoveringUnitCount", m_syncArchive)
@@ -2610,6 +2613,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	m_iCanCrossIceCount = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNumTilesRevealedThisTurn = 0;
+#endif
 	m_iRoughTerrainEndsTurnCount = 0;
 	m_iEmbarkAbilityCount = 0;
 	m_iHoveringUnitCount = 0;
@@ -3637,6 +3643,7 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
+	SetNumTilesRevealedThisTurn(0);
 	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
@@ -4222,7 +4229,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	VALIDATE_OBJECT
 	DomainTypes eDomain = getDomainType();
 
-	// Part 1 : Domain specifics ---------------------------------------------------
+	// Part 1 : Domain specific exclusions -----------------------------------------------
 
 	// Air can go anywhere
 	if (eDomain==DOMAIN_AIR)
@@ -4241,8 +4248,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_LAND)
 		if (IsHoveringUnit())
 		{
-			//hovercraft embark in deep water
-			if(enterPlot.isDeepWater() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
+			//helicopter no deep water
+			if(enterPlot.isDeepWater())	
 				return false;
 		}
 		else
@@ -4273,24 +4280,48 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		return bCanCross;
 	}
 
-	// Check coastal water
-	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getSHALLOW_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	bool bOceanImpassable = false;
+	bool bOceanImpassableAstronomy = false;
+	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+	if(isHasPromotion(ePromotionOceanImpassable))
 	{
-		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean();
+		bOceanImpassable = true;
+	}
+	PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+	if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
+	{
+		bOceanImpassableAstronomy = true;
+	}
+	// Check coastal water
+	if (enterPlot.isWater() && enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+	{
+		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean() || (eDomain == DOMAIN_SEA);
 		return bCanCross;
 	}
 
 	// Check high seas
-	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	if (enterPlot.isWater() && !enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
 	{
-		bool bCanCross = canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean();
-		return bCanCross;
+		if(bOceanImpassable)
+		{	
+			return false;
+		}
+		else if(eDomain == DOMAIN_SEA)
+		{
+			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean() || (bOceanImpassableAstronomy && GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage()) || (!bOceanImpassable && !bOceanImpassableAstronomy));
+			return bCanCross;
+		}
+		else
+		{
+			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean());
+			return bCanCross;
+		}
 	}
 
 	// Check ice with specialty: is passable of owned
 	if (enterPlot.isIce()) 
 	{
-		bool bCanCross = canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam());
+		bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
 		return bCanCross;
 	}
 
@@ -4688,7 +4719,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 			}
 
-			if(getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && !plot.IsAllowsWalkWater())
+			if(getDomainType() == DOMAIN_LAND && plot.needsEmbarkation() && !canMoveAllTerrain())
 			{
 				return false;
 			}
@@ -5002,169 +5033,72 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	int iMoveCost = targetPlot.movementCost(this, plot());
 
 	// we need to get our dis/embarking on
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool bChangeEmbarkedState = false;
-
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	if (pOldPlot && (CanEverEmbark() || (IsHoveringUnit() && IsEmbarkDeepWater()))) {
-#else
-	if (pOldPlot && CanEverEmbark()) {
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-		if (IsHoveringUnit()) {
-			// Checks for ocean <--> coastal transition
-			bChangeEmbarkedState = (targetPlot.isTerraFirma(this) != pOldPlot->isTerraFirma(this));
-		} else {
-#endif
-			// Standard check for water <--> land transistion
-			if (targetPlot.isWater() != pOldPlot->isWater() || targetPlot.IsAllowsWalkWater() && pOldPlot->isWater() || targetPlot.isWater() && pOldPlot->IsAllowsWalkWater()) {
-				bChangeEmbarkedState = true;
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-			} else if (canCrossIce()) {
-				// Additional checks for ice <--> ice and water <--> ice transition
-				if (targetPlot.isIce() && pOldPlot->isIce()) {
-					bChangeEmbarkedState = false;
-				} else if ((targetPlot.isWater() && pOldPlot->isIce()) || (targetPlot.isIce() && pOldPlot->isWater())) {
-					bChangeEmbarkedState = true;
-				}
-#endif
-			}
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-		}
-#endif
-	}
-
+	bool bChangeEmbarkedState = CanEverEmbark() && !IsHoveringUnit() && (targetPlot.needsEmbarkation() != pOldPlot->needsEmbarkation());
 	if (bChangeEmbarkedState)
-#else
-	if (pOldPlot && CanEverEmbark() && (targetPlot.isWater() != pOldPlot->isWater() || targetPlot.IsAllowsWalkWater() && pOldPlot->isWater() ||
-		targetPlot.isWater() && pOldPlot->IsAllowsWalkWater()))
-#endif
 	{
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-		bool bFromWater = !pOldPlot->isTerraFirma(this) && !pOldPlot->IsAllowsWalkWater();
-		if(bFromWater)  // moving from water to something this unit thinks is solid
-#else
-		if(pOldPlot->isWater() && !pOldPlot->IsAllowsWalkWater())  // moving from water to the land
-#endif
+		if(isEmbarked() && canDisembarkOnto(*pOldPlot, targetPlot)) // moving from water to the land
 		{
-			if(isEmbarked())
-			{
-				if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
-					PublishQueuedVisualizationMoves();
+			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
+				PublishQueuedVisualizationMoves();
 
-				disembark(pOldPlot);
+			disembark(pOldPlot);
+
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-				TeamTypes eUnitTeam = getTeam();
-				CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-				UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
-				//If city, and player has disembark to city at reduced cost...
-				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			TeamTypes eUnitTeam = getTeam();
+			CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+			UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
+			//If city, and player has disembark to city at reduced cost...
+			if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				if(movesLeft() > (baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR()))
 				{
-					if(movesLeft() > (baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR()))
-					{
-						setMoves(baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR());
-					}
+					setMoves(baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR());
 				}
-				else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-				{
-					changeMoves(-iMoveCost);
-				}
-				else if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-				{
-					finishMoves();
-				}
-#endif
 			}
-		}
-		else
-		{
-			if(!isEmbarked() && canEmbarkOnto(*pOldPlot, targetPlot))  // moving from land to the water
+			else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
 			{
-				if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
-					PublishQueuedVisualizationMoves();
-
-				embark(pOldPlot);
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-				TeamTypes eUnitTeam = getTeam();
-				CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-				UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
-				//If city, and player has disembark to city at reduced cost...
-				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-				{
-					if(movesLeft() > (baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR()))
-					{
-						setMoves(baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR());
-					}
-				}
-				else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-				{
-					changeMoves(-iMoveCost);
-				}
-				else
-				{
-#endif
+				changeMoves(-iMoveCost);
+			}
+			else if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			{
 				finishMoves();
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-				}
+			}
+#else
+			finishMoves();
 #endif
-				bShouldDeductCost = false;
-			}
 		}
-	}
-#if defined(MOD_BALANCE_CORE)
-	bool bScout = false;
-	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
+		else if(!isEmbarked() && canEmbarkOnto(*pOldPlot, targetPlot))  // moving from land to the water
 		{
-			if(isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
-			{
-				bScout = true;
-				break;
-			}
-		}
-	}
-	if(bScout)
-	{
-		int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-		int iRange = visibilityRange();
-		TeamTypes eTeam = getTeam();
-		int iReveal = 0;
-		for (int i = -iRange; i <= iRange; ++i)
-		{
-			for (int j = -iRange; j <= iRange; ++j)
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(targetPlot.getX(), targetPlot.getY(), i, j, iRange);
-				if (NULL != pLoopPlot)
-				{
-					if ((pLoopPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_UNEXPLORED) && targetPlot.canSeePlot(pLoopPlot, eTeam, iRange, NO_DIRECTION))
-					{
-						if(pLoopPlot->IsNaturalWonder())
-						{
-							iExperience += GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
-							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() + 1;
-						}
-						else
-						{
-							iReveal++;
-						}
-					}
-				}
-			}
-		}
-		if((iReveal > 0) && (iReveal >= GC.getGame().getJonRandNum(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE(), "reveal amount from exploration")))
-		{
-			//Up to max barb value - rest has to come through combat!
-			if(getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
-			{
-				changeExperience(iExperience);
-			}
-		}
-	}
-#endif
+			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
+				PublishQueuedVisualizationMoves();
 
+			embark(pOldPlot);
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+			TeamTypes eUnitTeam = getTeam();
+			CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+			UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
+			//If city, and player has disembark to city at reduced cost...
+			if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				if(movesLeft() > (baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR()))
+				{
+					setMoves(baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR());
+				}
+			}
+			else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+			{
+				changeMoves(-iMoveCost);
+			}
+			else
+			{
+				finishMoves();
+			}
+#else
+			finishMoves();
+#endif
+			bShouldDeductCost = false;
+		}
+	}
 
 	if(bShouldDeductCost)
 		changeMoves(-iMoveCost);
@@ -6525,10 +6459,9 @@ void CvUnit::setSetUpForRangedAttack(bool bValue)
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEmbark(const CvPlot* pPlot) const
+bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
 {
-	VALIDATE_OBJECT
-	if(getDomainType() != DOMAIN_LAND)
+	if(!CanEverEmbark())
 	{
 		return false;
 	}
@@ -6543,73 +6476,22 @@ bool CvUnit::canEmbark(const CvPlot* pPlot) const
 		return false;
 	}
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	// Can we embark from this plot?
-	// Only if it's coastal land
-	bool bCanEmbark = pPlot->isCoastalLand();
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	// ... or an ice-floe
-	bCanEmbark = bCanEmbark || (canCrossIce() && pPlot->isIce());
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ... or shallow water
-	bCanEmbark = bCanEmbark || (IsHoveringUnit() && pPlot->isShallowWater());
-#endif
-	if(!bCanEmbark)
-#else
-	if(!pPlot->isCoastalLand())
-#endif
-	{
-		return false;
-	}
-
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	if(!IsHasEmbarkAbility() && !IsEmbarkDeepWater())
-#else
-	if(!IsHasEmbarkAbility())
-#endif
-	{
-		return false;
-	}
-
 	// search the water plots around this plot to see if any are vacant
-	int iRange = 1;
-	bool bOpenPlot = false;
-	for(int iX = -iRange; iX <= iRange; iX++)
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
 	{
-		for(int iY = -iRange; iY <= iRange; iY++)
-		{
-			CvPlot* pEvalPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-			if(!pEvalPlot)
-			{
-				continue;
-			}
-
-			if(pEvalPlot->getX() == pPlot->getX() && pEvalPlot->getY() == pPlot->getY())
-			{
-				continue;
-			}
-
-			CvPlot* p = plot();
-			if(p && canEmbarkOnto(*p, *pEvalPlot))
-			{
-				bOpenPlot = true;
-
-				// get out of the loop
-				iX = iRange + 1;
-				iY = iRange + 1;
-			}
-		}
+		CvPlot* pEvalPlot = aNeighbors[i];
+		if(pEvalPlot && canEmbarkOnto(*plot(), *pEvalPlot))
+			return true;
 	}
 
-	return bOpenPlot;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembark(const CvPlot* pPlot) const
+bool CvUnit::canDisembarkAtPlot(const CvPlot* pPlot) const
 {
-	VALIDATE_OBJECT
-	if(getDomainType() != DOMAIN_LAND)
+	if(!CanEverEmbark())
 	{
 		return false;
 	}
@@ -6624,92 +6506,34 @@ bool CvUnit::canDisembark(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(!pPlot->isWater())
+	// search the water plots around this plot to see if any are vacant
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
 	{
-		return false;
+		CvPlot* pEvalPlot = aNeighbors[i];
+		if(pEvalPlot && canDisembarkOnto(*plot(), *pEvalPlot))
+			return true;
 	}
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	// Can we disembark from our current plot?
-	// Only if we are adjacent to land (actual check for plot being land/ice is below)
-	bool bCanDisembark = plot()->isAdjacentToLand();
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	// ...  or we cross ice and are adjacent to ice
-	bCanDisembark = bCanDisembark || (canCrossIce() && plot()->isAdjacentToIce());
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ...  or we hover and are adjacent to shallow water
-	bCanDisembark = bCanDisembark || (IsHoveringUnit() && plot()->isAdjacentToShallowWater());
-#endif
-	if(!bCanDisembark)
-#else
-	if(!pPlot->isAdjacentToLand())
-#endif
-	{
-		return false;
-	}
-
-	// search the land plots around this plot to see if any can be moved into
-	int iRange = 1;
-	bool bOpenPlot = false;
-	for(int iX = -iRange; iX <= iRange; iX++)
-	{
-		for(int iY = -iRange; iY <= iRange; iY++)
-		{
-			CvPlot* pEvalPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-			if(!pEvalPlot)
-			{
-				continue;
-			}
-
-			if(pEvalPlot->getX() == pPlot->getX() && pEvalPlot->getY() == pPlot->getY())
-			{
-				continue;
-			}
-
-			if(canDisembarkOnto(*pEvalPlot))
-			{
-				bOpenPlot = true;
-
-				// get out of the loop
-				iX = iRange + 1;
-				iY = iRange + 1;
-			}
-		}
-	}
-
-	return bOpenPlot;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
 {
 	VALIDATE_OBJECT
+
+	if(!CanEverEmbark())
+	{
+		return false;
+	}
+		
 	if(isEmbarked() && !bOverrideEmbarkedCheck)
 	{
 		return false;
 	}
 
-	if(!targetPlot.isWater())
-	{
-		return false;
-	}
-
-	if (targetPlot.IsAllowsWalkWater())
-	{
-		return false;
-	}
-
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	if(!IsHasEmbarkAbility() && !IsEmbarkDeepWater())
-#else
-#if defined(MOD_BUGFIX_EMBARKING_PATHFINDER)
-	// Not really a bug, but bloody irritating if you're searching for the getter!
-	if(!IsHasEmbarkAbility())
-#else
-	if(m_iEmbarkAbilityCount <= 0)
-#endif
-#endif
+	if(!targetPlot.needsEmbarkation())
 	{
 		return false;
 	}
@@ -6719,71 +6543,30 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	if(getDomainType() != DOMAIN_LAND)
+	if(originPlot.needsEmbarkation())
 	{
 		return false;
 	}
 
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	// Can we embark from originPlot to targetPlot?
-	// Only if originPlot is land and the targetPlot is shallow water
-	bool bCanEmbark = originPlot.isAdjacentToShallowWater();
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	// ...  or the originPlot is ice and the targetPlot is any water
-	bCanEmbark = bCanEmbark || (canCrossIce() && originPlot.isIce() && targetPlot.isWater());
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ...  or the originPlot is shallow water and the targetPlot is ocean
-	bCanEmbark = bCanEmbark || (IsHoveringUnit() && originPlot.isShallowWater() && targetPlot.isWater());
-#endif
-	if(!bCanEmbark)
-#else
-	if(!originPlot.isAdjacentToShallowWater())
-#endif
-	{
-		return false;
-	}
-
-	return targetPlot.isWater() && !targetPlot.IsAllowsWalkWater() && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
 {
-	// This version is useful if the unit is not actually next to the plot yet -KS
-
 	VALIDATE_OBJECT
-	if(getDomainType() != DOMAIN_LAND)
+
+	if(!CanEverEmbark())
 	{
 		return false;
 	}
-
+		
 	if(!isEmbarked() && !bOverrideEmbarkedCheck)
 	{
 		return false;
 	}
 
-	if(!originPlot.isWater())
-	{
-		return false;
-	}
-
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	// Can we disembark from originPlot to targetPlot?
-	// Only if originPlot is adjacent to land (the check for targetPlot being valid is at the end)
-	bool bCanDisembark = originPlot.isAdjacentToLand();
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	// ...  or the originPlot is adjacent to ice
-	bCanDisembark = bCanDisembark || (canCrossIce() && originPlot.isAdjacentToIce());
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ...  or the originPlot is adjacent to shallow water
-	bCanDisembark = bCanDisembark || (IsHoveringUnit() && originPlot.isAdjacentToShallowWater());
-#endif
-	if(!bCanDisembark)
-#else
-	if(!originPlot.isAdjacentToLand())
-#endif
+	if(targetPlot.needsEmbarkation())
 	{
 		return false;
 	}
@@ -6793,54 +6576,18 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	return (!targetPlot.isWater() || targetPlot.IsAllowsWalkWater()) && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	if(!originPlot.needsEmbarkation())
+	{
+		return false;
+	}
+
+	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot, bool bIsDestination /* = false */) const
 {
-	VALIDATE_OBJECT
-	if(getDomainType() != DOMAIN_LAND)
-	{
-		return false;
-	}
-
-	if(!isEmbarked())
-	{
-		return false;
-	}
-
-	if(!plot()->isWater())
-	{
-		return false;
-	}
-
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	// Can we disembark onto targetPlot from our current plot?
-	// Only if we are adjacent to land (actual check for plot being land/ice is below)
-	bool bCanDisembark = plot()->isAdjacentToLand();
-#if defined(MOD_PATHFINDER_CROSS_ICE)
-	// ...  or we cross ice and the target plot is ice
-	bCanDisembark = bCanDisembark || (canCrossIce() && targetPlot.isIce());
-#endif
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ...  or we hover and the target plot is shallow water
-	bCanDisembark = bCanDisembark || (IsHoveringUnit() && targetPlot.isShallowWater());
-#endif
-	if(!bCanDisembark)
-#else
-	if(!plot()->isAdjacentToLand())
-#endif
-	{
-		return false;
-	}
-
-	if(!targetPlot.isRevealed(getTeam()))
-	{
-		return false;
-	}
-
-	return (!targetPlot.isWater() || targetPlot.IsAllowsWalkWater()) && canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	return canDisembarkOnto( *plot(), targetPlot, false, bIsDestination );
 }
 
 //	--------------------------------------------------------------------------------
@@ -6848,14 +6595,7 @@ bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
 
-	if(getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility());
 }
 
 //	--------------------------------------------------------------------------------
@@ -13768,26 +13508,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 DomainTypes CvUnit::getDomainType() const
 {
 	VALIDATE_OBJECT
-	DomainTypes eDomain = (DomainTypes) m_pUnitInfo->GetDomainType();
-	// antonjs: Added for Smoky Skies Scenario. If unit is DOMAIN_HOVER, dynamically determine its domain by the type of terrain it is over
-	if (eDomain == DOMAIN_HOVER)
-	{
-		CvPlot* pPlot = plot();
-		CvAssertMsg(pPlot, "pPlot is unexpectedly NULL. Please send Anton your save file and version.");
-		if (pPlot)
-		{
-			if (pPlot->isWater())
-			{
-				return DOMAIN_SEA;
-			}
-			else
-			{
-				return DOMAIN_LAND;
-			}
-		}
-	}
-	
-	return eDomain;
+	return (DomainTypes) m_pUnitInfo->GetDomainType();
 }
 
 //	---------------------------------------------------------------------------
@@ -13924,13 +13645,9 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	CvPlayerTraits* pTraits = thisPlayer.GetPlayerTraits();
 	DomainTypes eDomain = getDomainType();
 
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	bool bWantEmbarkedMovement = (eIntoDomain == DOMAIN_SEA && CanEverEmbark()) || (eIntoDomain == NO_DOMAIN && isEmbarked());
-	bWantEmbarkedMovement = bWantEmbarkedMovement || (eIntoDomain == DOMAIN_SEA && IsHoveringUnit() && IsEmbarkDeepWater());
+	//hover units don't embark but movement speed may change!
+	bool bWantEmbarkedMovement = (eIntoDomain == DOMAIN_SEA && (CanEverEmbark() || IsHoveringUnit()) ) || (eIntoDomain == NO_DOMAIN && isEmbarked());
 	if(bWantEmbarkedMovement)
-#else
-	if((eIntoDomain == DOMAIN_SEA && CanEverEmbark()) || (eIntoDomain == NO_DOMAIN && isEmbarked()))
-#endif
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
 		return GC.getEMBARKED_UNIT_MOVEMENT() + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES);
@@ -14032,14 +13749,6 @@ bool CvUnit::hasMoved()	const
 int CvUnit::GetRange() const
 {
 	VALIDATE_OBJECT
-
-#if defined(MOD_UNITS_HOVERING_COASTAL_ATTACKS)
-	// Hovering units over coast/ice become ranged units
-	if (MOD_UNITS_HOVERING_COASTAL_ATTACKS && m_pUnitInfo->GetRangedCombat() == 0 && IsHoveringUnit() && (plot()->isShallowWater() || plot()->getFeatureType() == FEATURE_ICE)) {
-		int iRange = std::max(1, gCustomMods.getOption("UNITS_HOVERING_COASTAL_ATTACKS_RANGE", 1));
-		return (iRange + m_iExtraRange);
-	}
-#endif
 
 	return (m_pUnitInfo->GetRange() + m_iExtraRange);
 }
@@ -15398,16 +15107,6 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
 int CvUnit::GetBaseRangedCombatStrength() const
 {
 	VALIDATE_OBJECT
-	
-#if defined(MOD_UNITS_HOVERING_COASTAL_ATTACKS)
-	// Hovering units over coast/ice become ranged units
-	if (MOD_UNITS_HOVERING_COASTAL_ATTACKS && m_pUnitInfo->GetRangedCombat() == 0 && IsHoveringUnit() && (plot()->isShallowWater() || plot()->getFeatureType() == FEATURE_ICE)) {
-		int iMultiplier = gCustomMods.getOption("UNITS_HOVERING_COASTAL_ATTACKS_MULTIPLIER", 1);
-		int iDivisor = gCustomMods.getOption("UNITS_HOVERING_COASTAL_ATTACKS_DIVISOR", 1);
-		// Must use m_iBaseCombat and not GetBaseCombatStrength(), as the latter will return 0
-		return (iDivisor == 0) ? 0 : ((m_iBaseCombat * iMultiplier) / iDivisor);
-	}
-#endif
 
 #if defined(MOD_API_EXTENSIONS)
 	return m_iBaseRangedCombat;
@@ -17149,7 +16848,29 @@ void CvUnit::changeCanCrossIceCount(int iValue)
 	}
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeNumTilesRevealedThisTurn(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iNumTilesRevealedThisTurn += iValue;
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetNumTilesRevealedThisTurn(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNumTilesRevealedThisTurn = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::GetNumTilesRevealedThisTurn()
+{
+	VALIDATE_OBJECT
+	return m_iNumTilesRevealedThisTurn;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsRoughTerrainEndsTurn() const
@@ -17401,13 +17122,6 @@ void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 bool CvUnit::isOnlyDefensive() const
 {
 	VALIDATE_OBJECT
-	
-#if defined(MOD_UNITS_HOVERING_COASTAL_ATTACKS)
-	// Hovering units over coast/ice become ranged units (defensive only)
-	if (IsHoveringUnit() && plot()->isWater()) {
-		return true;
-	}
-#endif
 
 	return getOnlyDefensiveCount() > 0 ? true : false;
 }
@@ -18531,7 +18245,11 @@ if (!bDoEvade)
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			if (canChangeVisibility())
+#if defined(MOD_BALANCE_CORE)
+				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), true, this); // needs to be here so that the square is considered visible when we move into it...
+#else
 				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
+#endif
 
 			pNewPlot->addUnit(this, bUpdate);
 
@@ -18542,7 +18260,36 @@ if (!bDoEvade)
 		{
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		bool bScout = false;
+		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		{
+			const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
+			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+			if(pkPromotionInfo)
+			{
+				if(!bScout && isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
+				{
+					bScout = true;
+					break;
+				}
+			}
+		}
+		if(bScout && GC.getGame().getActivePlayer() == getOwner())
+		{
+			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
+			{
+				int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
+				iExperience += GetNumTilesRevealedThisTurn();
+				iExperience /= 5;
+				if(iExperience > 0)
+				{
+					//Up to max barb value - rest has to come through combat!
+					changeExperience(iExperience);
+				}
+			}
+		}
+#endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{
@@ -26737,14 +26484,14 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_EMBARK:
-		if(canEmbark(plot()))
+		if(canEmbarkAtPlot(plot()))
 		{
 			return true;
 		}
 		break;
 
 	case INTERFACEMODE_DISEMBARK:
-		if(canDisembark(plot()))
+		if(canDisembarkAtPlot(plot()))
 		{
 			return true;
 		}

@@ -278,8 +278,8 @@ public:
 	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
 #endif
 
-	bool canEmbark(const CvPlot* pPlot) const;
-	bool canDisembark(const CvPlot* pPlot) const;
+	bool canEmbarkAtPlot(const CvPlot* pPlot) const;
+	bool canDisembarkAtPlot(const CvPlot* pPlot) const;
 	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
 	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
 	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
@@ -662,6 +662,12 @@ public:
 	bool canCrossIce() const;
 	int getCanCrossIceCount() const;
 	void changeCanCrossIceCount(int iValue);
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	void ChangeNumTilesRevealedThisTurn(int iValue);
+	void SetNumTilesRevealedThisTurn(int iValue);
+	int GetNumTilesRevealedThisTurn();
 #endif
 
 	bool IsRoughTerrainEndsTurn() const;
@@ -1673,6 +1679,9 @@ protected:
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;

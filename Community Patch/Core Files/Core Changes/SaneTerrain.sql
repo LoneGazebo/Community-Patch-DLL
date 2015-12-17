@@ -8,11 +8,8 @@ UPDATE Terrains
 SET Movement = '3', Defense = '25', SeeFrom = '2', Impassable = '1', Found = '1', InfluenceCost = '3'
 WHERE Type = 'TERRAIN_MOUNTAIN';
 
-INSERT INTO Terrain_Yields (TerrainType, YieldType, Yield)
-SELECT 'TERRAIN_MOUNTAIN', 'YIELD_FOOD' , '1';
-
-INSERT INTO Terrain_Yields (TerrainType, YieldType, Yield)
-SELECT 'TERRAIN_MOUNTAIN', 'YIELD_PRODUCTION' , '1';
+INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset)
+SELECT 'ART_DEF_TERRAIN_MOUNTAIN' , 'Terrain' , 'Sv_TerrainHexGrasslands.dds';
 
 -- treat water tiles as impassable without the proper tech
 

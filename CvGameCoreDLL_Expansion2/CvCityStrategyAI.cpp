@@ -1131,6 +1131,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				continue;
 #endif
 
+
 #if defined(MOD_BALANCE_CORE)
 			iTempWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(m_pCity, eLoopBuilding, iTempWeight);
 			if(iTempWeight <= 0)
@@ -1222,6 +1223,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 				}
 			}
+
 			// Save it for later
 			if(iTempWeight > 0)
 				m_Buildables.push_back(buildable, iTempWeight);

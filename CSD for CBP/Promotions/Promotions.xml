@@ -9,7 +9,7 @@
 			<Help>TXT_KEY_PROMOTION_EMISSARY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-80</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -23,7 +23,7 @@
 			<Help>TXT_KEY_PROMOTION_ENVOY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-70</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-55</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -38,7 +38,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-50</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>41</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -52,7 +52,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-50</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-45</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -68,9 +68,9 @@
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<TradeMissionInfluenceModifier>-30</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
-			<MovesChange>3</MovesChange>
+			<MovesChange>2</MovesChange>
 			<RivalTerritory>true</RivalTerritory>
-			<ExtraNavalMovement>3</ExtraNavalMovement>
+			<ExtraNavalMovement>2</ExtraNavalMovement>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
@@ -112,8 +112,6 @@
 			<OrderPriority>3</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
 			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
-			<MovesChange>1</MovesChange>
-			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
@@ -157,8 +155,6 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
-			<MovesChange>1</MovesChange>
-			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<RivalTerritory>true</RivalTerritory>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
@@ -187,8 +183,6 @@
 			<Help>TXT_KEY_PROMOTION_NOBILITY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<MovesChange>1</MovesChange>
-			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<RivalTerritory>true</RivalTerritory>
 			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>

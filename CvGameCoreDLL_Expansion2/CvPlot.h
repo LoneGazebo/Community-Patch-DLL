@@ -145,7 +145,11 @@ public:
 	int seeFromLevel(TeamTypes eTeam) const;
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
+#if defined(MOD_BALANCE_CORE)
+	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true, CvUnit* pUnit = NULL);
+#else
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
+#endif
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
@@ -435,32 +439,10 @@ public:
 	{
 		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isIce()            const
 	{
 		return getFeatureType() == FEATURE_ICE;
 	};
-#endif
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool isTerraFirma(const CvUnit* pUnit)     const
-	{
-		bool bTerraFirma = !isWater();
-		
-		if (pUnit->getDomainType() == DOMAIN_LAND) {
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-			bTerraFirma = bTerraFirma || (pUnit->canCrossIce() && isIce());
-#endif
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
-#endif
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && (isShallowWater() || getFeatureType() == FEATURE_ICE));
-#endif
-		}
-		
-		return bTerraFirma;
-	};
-#endif
 	bool isOpenGround()     const
 	{
 		if( isHills() || isMountain() || m_bRoughFeature) 
@@ -541,8 +523,8 @@ public:
 #endif
 
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
-
 	bool IsAllowsWalkWater() const;
+	bool needsEmbarkation() const;
 
 	bool isRoughGround() const
 	{
@@ -692,8 +674,11 @@ public:
 
 		return m_aiVisibilityCount[eTeam];
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
+#else
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible);
+#endif
 
 	PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;
 	TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;

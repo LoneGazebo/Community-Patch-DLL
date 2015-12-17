@@ -271,11 +271,7 @@ public:
 	void Update();
 
 	// Public exploration routines
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck) const;
-#else
-	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
-#endif
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
@@ -293,11 +289,7 @@ public:
 
 private:
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	typedef CHomelandUnitArray MoveUnitsArray;
-#else
-	typedef FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL > MoveUnitsArray;
-#endif
 
 	// Internal turn update routines - commandeered unit processing
 	void EstablishHomelandPriorities();

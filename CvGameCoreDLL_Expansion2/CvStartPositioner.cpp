@@ -72,7 +72,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 		// Assign all the regions to continents
 		while(iNumRegionsPlaced < iNumRegions)
 		{
-			std::sort(m_ContinentVector.begin(), m_ContinentVector.end());
+			std::stable_sort(m_ContinentVector.begin(), m_ContinentVector.end());
 
 			// Add a region to the first in our list
 			m_ContinentVector[0].AddRegion();
@@ -87,7 +87,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 	}
 
 	// Sort the regions by fertility
-	std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+	std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 }
 
 /// Compute the value of having a city at each plot
@@ -149,7 +149,7 @@ void CvStartPositioner::RankPlayerStartOrder()
 	}
 
 	// Sort by rank
-	std::sort(m_PlayerOrder.begin(), m_PlayerOrder.end());
+	std::stable_sort(m_PlayerOrder.begin(), m_PlayerOrder.end());
 }
 
 /// Pick start positions for all civs
@@ -197,7 +197,7 @@ void CvStartPositioner::AssignStartingLocations()
 	while(iPlayersPlaced < iMajorCivs && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
-		std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+		std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 
 		// Reduce start distance by 1 (the previous condition could get stuck)
 		m_iRequiredSeparation--;
@@ -226,7 +226,7 @@ void CvStartPositioner::AssignStartingLocations()
 	m_iRequiredSeparation = StartingPlotRange();
 
 	// Resort by fertility (based on the fact that some of these regions are filling up)
-	std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+	std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 	while(iPlayersPlaced < (int)m_PlayerOrder.size() && iNextRegion < m_StartRegionVector.size())
 	{
 		strString.Format("Trying to place minor civ with full separation of %d", m_iRequiredSeparation);
@@ -238,7 +238,7 @@ void CvStartPositioner::AssignStartingLocations()
 			m_StartRegionVector[iNextRegion].m_iNumCivsPlaced++;
 
 			// Sort again, now that the region in slot 0 has another civ placed there
-			std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+			std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 			iNextRegion = 0;
 		}
 
@@ -253,7 +253,7 @@ void CvStartPositioner::AssignStartingLocations()
 	while(iPlayersPlaced < (int)m_PlayerOrder.size() && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
-		std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+		std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 
 		// Reduce start distance by 10%
 		m_iRequiredSeparation--;
@@ -270,7 +270,7 @@ void CvStartPositioner::AssignStartingLocations()
 				m_StartRegionVector[iNextRegion].m_iNumCivsPlaced++;
 
 				// Sort again, now that the region in slot 0 has another civ placed there
-				std::sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
+				std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
 				iNextRegion = 0;
 			}
 

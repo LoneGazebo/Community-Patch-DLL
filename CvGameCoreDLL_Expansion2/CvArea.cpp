@@ -335,7 +335,9 @@ void CvArea::CalcNumBadPlots()
 
 		if(pLoopPlot->getArea() == GetID())
 		{
-			if((pLoopPlot->getTerrainType() == TERRAIN_SNOW && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()) || (pLoopPlot->getFeatureType() == FEATURE_ICE) || (pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()))
+			if( (pLoopPlot->getTerrainType() == TERRAIN_SNOW && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()) || 
+				(pLoopPlot->getFeatureType() == FEATURE_ICE) || 
+				(pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills() ))
 			{
 				m_iBadPlots++;
 			}
