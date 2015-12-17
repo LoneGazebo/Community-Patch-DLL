@@ -11642,6 +11642,17 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					bTypeMatch = true;
 				}
 			}
+			else if(m_pPlayer->isMinorCiv())
+			{
+				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
+					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
+				{
+					bTypeMatch = true;
+				}
+			}
 			else
 			{
 #endif
@@ -11657,7 +11668,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			}
-			if (bAllowDefensiveTargets)
+			if (bAllowDefensiveTargets || m_pPlayer->isMinorCiv())
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
 					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||

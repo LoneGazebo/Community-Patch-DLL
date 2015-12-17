@@ -1488,7 +1488,11 @@ void CvPlot::changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int 
 
 //	--------------------------------------------------------------------------------
 // while this looks more complex than the previous version, it should run much faster
+#if defined(MOD_BALANCE_CORE)
+void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit, CvUnit* pUnit)
+#else
 void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit)
+#endif
 {
 	//check one extra outer ring
 	int iRangeWithOneExtraRing = iRange + 1;
@@ -1632,8 +1636,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
@@ -1641,8 +1649,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{		
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else
@@ -1660,8 +1672,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 								pPlotToCheck->setScratchPad(iHighestLevel);
 							}
 							if(iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-							{								
+							{					
+#if defined(MOD_BALANCE_CORE)
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 					}
@@ -1670,8 +1686,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
@@ -1679,8 +1699,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iFirstInwardLevel != INVALID_RING)
@@ -1689,7 +1713,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING)
@@ -1697,8 +1725,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
-						{							
+						{
+#if defined(MOD_BALANCE_CORE)
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else // I have no idea how this can happen, but...
@@ -1708,8 +1740,12 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					}
 				}
 				else // this is the center point
-				{					
+				{
+#if defined(MOD_BALANCE_CORE)
+					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false, pUnit);
+#else
 					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 					pPlotToCheck->setScratchPad(0);
 				}
 			}
@@ -8354,8 +8390,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	// impassable terrain has no base yield
-	if(!isValidMovePlot(ePlayer) || getTerrainType()==NO_TERRAIN)
+
+	if(getTerrainType()==NO_TERRAIN)
 	{
 		iYield = 0;
 	} 
@@ -8363,6 +8399,22 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	{
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
 	}
+	// Truly Impassable terrain (not tech locked terrain) has no base yield
+	if(ePlayer == NO_PLAYER && !isWater())
+	{
+		if(!isValidMovePlot(BARBARIAN_PLAYER))
+		{
+			iYield = 0;
+		}
+	}
+	else if(!isWater())
+	{
+		if(!isValidMovePlot(ePlayer))
+		{
+			iYield = 0;
+		}
+	}
+
 
 #if defined(MOD_API_PLOT_YIELDS)
 	if (MOD_API_PLOT_YIELDS) {
@@ -9262,7 +9314,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isWater())
 		{
-			if(isValidMovePlot(NO_PLAYER))
+			if(isValidMovePlot(ePlayer))
 			{
 				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
 
@@ -9302,7 +9354,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 		if(isRiver())
 		{
-			if(isValidMovePlot(NO_PLAYER))
+			if(isValidMovePlot(ePlayer))
 			{
 				if(NULL != pWorkingCity)
 				{
@@ -9643,7 +9695,11 @@ void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
+#else
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible)
+#endif
 {
 	CvCity* pCity;
 	CvPlot* pAdjacentPlot;
@@ -9708,6 +9764,19 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
+					{
+						if(IsNaturalWonder())
+						{
+							pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+						}
+						else
+						{
+							pUnit->ChangeNumTilesRevealedThisTurn(1);
+						}
+					}
+#endif
 				}
 
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -11741,7 +11810,6 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_eOwner;
 	kStream << m_ePlotType;
 	kStream << m_eTerrainType;
-
 	CvInfosSerializationHelper::WriteHashed(kStream, (const FeatureTypes)m_eFeatureType.get());
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ResourceTypes)m_eResourceType);
 	CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_eImprovementType);
@@ -12929,8 +12997,13 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 //	---------------------------------------------------------------------------
 void CvPlot::updateImpassable(TeamTypes eTeam)
 {
-	const TerrainTypes eTerrain = getTerrainType();
+	TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
+
+	if(eTerrain == TERRAIN_OCEAN && isShallowWater())
+	{
+		eTerrain = TERRAIN_COAST;
+	}
 
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
@@ -13040,8 +13113,11 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 			//inca
 			if (isMountain() && GET_PLAYER(ePlayer).CanCrossMountain() )
 				bCanPassBecauseOfPlayerTrait = true;
-			//don't differentiate between shallow and deep water there, this is done in update impassable. the trait allows both!
-			if (isWater() && GET_PLAYER(ePlayer).CanCrossOcean() )
+			//deep water...
+			if (isWater() && !isShallowWater() && GET_PLAYER(ePlayer).CanCrossOcean())
+				bCanPassBecauseOfPlayerTrait = true;
+			//and shallow water... (this is necessary because of scenarios and tech situations where units can embark before techs, and vice-versa.
+			if (isWater() && isShallowWater() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
 				bCanPassBecauseOfPlayerTrait = true;
 
 			if (!bCanPassBecauseOfPlayerTrait)

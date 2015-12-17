@@ -295,6 +295,10 @@ public:
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 	void SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel);
 	void DoUpdateWarDamageLevel();
+#if defined(MOD_BALANCE_CORE)
+	int GetWarDamageValue(PlayerTypes ePlayer) const;
+	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
+#endif
 	void DoWarDamageDecay();
 
 	// War Value Lost: the int value of damage ePlayer has inflicted on us in war
@@ -1521,6 +1525,7 @@ private:
 		bool m_abPlayerStopSpyingRequestEverAsked[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
 		short m_aiCiviliansReturnedToMeTurn[MAX_MAJOR_CIVS];
+		short m_aiWarDamageValue[MAX_MAJOR_CIVS];
 		short m_aiPlayerForgaveForSpyingTurn[MAX_MAJOR_CIVS];
 		short m_aiLiberatedCitiesTurn[MAX_MAJOR_CIVS];
 		short m_aiIntrigueSharedTurn[MAX_MAJOR_CIVS];
@@ -1738,6 +1743,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	short* m_paiPlayerNumTurnsAtPeace;
 	short* m_paiPlayerNumTurnsSinceCityCapture;
+	short* m_paiWarDamageValue;
 #endif
 	short* m_paiNumWarsFought;
 

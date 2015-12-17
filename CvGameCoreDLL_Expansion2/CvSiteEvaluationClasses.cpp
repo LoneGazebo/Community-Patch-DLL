@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -127,7 +127,11 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if(!bValid)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pTerrainInfo->isFound() || pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+#else
 		if(pTerrainInfo->isFound())
+#endif
 		{
 			bValid = true;
 		}

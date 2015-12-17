@@ -1910,19 +1910,11 @@ int CvLuaGame::lGetNumResourceRequiredForUnit(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-#if defined(MOD_BALANCE_CORE)
-	if(pkUnitInfo == NULL)
-	{
-		lua_pushinteger(L, 0);
-		return 1;
-	}
-#else
 	if(pkUnitInfo == NULL)
 	{
 		luaL_error(L, "Unit row at ID %d is empty.", eUnit);
 		return 0;
 	}
-#endif
 	const int iNumNeeded = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 
 	lua_pushinteger(L, iNumNeeded);
