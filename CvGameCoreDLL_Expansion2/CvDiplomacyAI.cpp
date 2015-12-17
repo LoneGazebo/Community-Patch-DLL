@@ -421,6 +421,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabPlayerStopSpyingRequestEverAsked(NULL),
 	m_paiNumLandmarksBuiltForMeTurn(NULL),
 	m_paiCiviliansReturnedToMeTurn(NULL),
+	m_paiWarDamageValue(NULL),
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	m_paiOtherPlayerWarmongerAmountTimes100(NULL),
@@ -645,6 +646,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabPlayerStopSpyingRequestEverAsked = &m_pDiploData->m_abPlayerStopSpyingRequestEverAsked[0];
 	m_paiNumLandmarksBuiltForMeTurn = &m_pDiploData->m_aiNumLandmarksBuiltForMeTurn[0];
 	m_paiCiviliansReturnedToMeTurn = &m_pDiploData->m_aiCiviliansReturnedToMeTurn[0];
+	m_paiWarDamageValue = &m_pDiploData->m_aiWarDamageValue[0];
 	m_paiPlayerForgaveForSpyingTurn = &m_pDiploData->m_aiPlayerForgaveForSpyingTurn[0];
 	m_paiLiberatedCitiesTurn = &m_pDiploData->m_aiLiberatedCitiesTurn[0];
 	m_paiIntrigueSharedTurn = &m_pDiploData->m_aiIntrigueSharedTurn[0];
@@ -948,6 +950,7 @@ void CvDiplomacyAI::Uninit()
 	m_pabPlayerStopSpyingRequestEverAsked = NULL;
 	m_paiNumLandmarksBuiltForMeTurn = NULL;
 	m_paiCiviliansReturnedToMeTurn = NULL;
+	m_paiWarDamageValue = NULL;
 	m_paiPlayerForgaveForSpyingTurn = NULL;
 	m_paiLiberatedCitiesTurn = NULL;
 	m_paiIntrigueSharedTurn = NULL;
@@ -1145,6 +1148,7 @@ void CvDiplomacyAI::Reset()
 		m_pabPlayerStopSpyingRequestEverAsked[iI] = false;
 		m_paiNumLandmarksBuiltForMeTurn[iI] = 0;
 		m_paiCiviliansReturnedToMeTurn[iI] = 0;
+		m_paiWarDamageValue[iI] = 0;
 		m_paiPlayerForgaveForSpyingTurn[iI] = 0;
 		m_paiLiberatedCitiesTurn[iI] = 0;
 		m_paiIntrigueSharedTurn[iI] = 0;
@@ -1836,6 +1840,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiCiviliansReturnedToMeTurn(MAX_MAJOR_CIVS, m_paiCiviliansReturnedToMeTurn);
 	kStream >> wrapm_paiCiviliansReturnedToMeTurn; 
 
+	ArrayWrapper<short> wrapm_paiWarDamageValue(MAX_MAJOR_CIVS, m_paiWarDamageValue);
+	kStream >> wrapm_paiWarDamageValue; 
+
 	ArrayWrapper<short> wrapm_paiPlayerForgaveForSpyingTurn(MAX_MAJOR_CIVS, m_paiPlayerForgaveForSpyingTurn);
 	kStream >> wrapm_paiPlayerForgaveForSpyingTurn; 
 
@@ -2131,6 +2138,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerStopSpyingRequestEverAsked);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMeTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiCiviliansReturnedToMeTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiWarDamageValue);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPlayerForgaveForSpyingTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiLiberatedCitiesTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiIntrigueSharedTurn);
@@ -2400,7 +2408,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	DoTestPromises();
 
 	// What we think other Players are up to
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
 	DoUpdateOtherPlayerWarDamageLevel();
 #endif
 	DoUpdateEstimateOtherPlayerLandDisputeLevels();
@@ -7525,213 +7533,138 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	int iWarScore = 0;
 
 #if defined(MOD_BALANCE_CORE)
-	// Military Strength compared to us
-	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
-	{
-	case STRENGTH_PATHETIC:
-		iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-		break;
-	case STRENGTH_WEAK:
-		iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-		break;
-	case STRENGTH_POOR:
-		iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-		break;
-	case STRENGTH_STRONG:
-		iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-		break;
-	case STRENGTH_POWERFUL:
-		iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-		break;
-	case STRENGTH_IMMENSE:
-		iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-		break;
-	}
-
-	// Economic Strength compared to us
-	switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
-	{
-	case STRENGTH_PATHETIC:
-		iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-		break;
-	case STRENGTH_WEAK:
-		iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-		break;
-	case STRENGTH_POOR:
-		iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-		break;
-	case STRENGTH_STRONG:
-		iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-		break;
-	case STRENGTH_POWERFUL:
-		iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-		break;
-	case STRENGTH_IMMENSE:
-		iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-		break;
-	}
-
-	//If this is a prewar calc, double these values (should give us a better idea of how a war might go).
-	if(bIgnoreLoops)
-	{
-		iWarScore *= 2;
-	}
-
-	//War damage inflicted on them
-	switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(GetPlayer()->GetID()))
-	{
-	case WAR_DAMAGE_LEVEL_NONE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		iWarScore += /*10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MINOR();
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		iWarScore += /*30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MAJOR();
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		iWarScore += /*50*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_SERIOUS();
-		break;
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		iWarScore += /*70*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_CRIPPLED();
-		break;
-	}
-
-	//////////////
-   //// THEM //// 
-  //////////////
-	int iTheirWarScore = 0;
-
-	// Military Strength compared to us
-	switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetPlayer()->GetID()))
-	{
-	case STRENGTH_PATHETIC:
-		iTheirWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-		break;
-	case STRENGTH_WEAK:
-		iTheirWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-		break;
-	case STRENGTH_POOR:
-		iTheirWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iTheirWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-		break;
-	case STRENGTH_STRONG:
-		iTheirWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-		break;
-	case STRENGTH_POWERFUL:
-		iTheirWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-		break;
-	case STRENGTH_IMMENSE:
-		iTheirWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-		break;
-	}
-
-	// Economic Strength compared to us
-	switch(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(GetPlayer()->GetID()))
-	{
-	case STRENGTH_PATHETIC:
-		iTheirWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-		break;
-	case STRENGTH_WEAK:
-		iTheirWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-		break;
-	case STRENGTH_POOR:
-		iTheirWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iTheirWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-		break;
-	case STRENGTH_STRONG:
-		iTheirWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-		break;
-	case STRENGTH_POWERFUL:
-		iTheirWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-		break;
-	case STRENGTH_IMMENSE:
-		iTheirWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-		break;
-	}
-		//If this is a prewar calc, double these values (should give us a better idea of how a war might go).
-	if(bIgnoreLoops)
-	{
-		iTheirWarScore *= 2;
-	}
-
-	//War damage inflicted on us
-	switch(GetWarDamageLevel(ePlayer))
-	{
-	case WAR_DAMAGE_LEVEL_NONE:
-		iTheirWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		iTheirWarScore += /*10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MINOR();
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		iTheirWarScore += /*30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MAJOR();
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		iTheirWarScore += /*50*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_SERIOUS();
-		break;
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		iTheirWarScore += /*70*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_CRIPPLED();
-		break;
-	}
-
-	if (bDebug && GC.getAILogging() )
-	{
-		CvString strMsg;
-		strMsg.Format("turn %d - war score for %d against player %d is %d / %d\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
-		OutputDebugString(strMsg.c_str());
-	}
-
 	int iAverageScore = 0;
-	if (iWarScore == iTheirWarScore)
+	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
+	if(bIgnoreLoops)
 	{
-		return 0;
-	}
-	iAverageScore = ((iWarScore + iTheirWarScore) / 2);
-	if(iTheirWarScore > iWarScore)
-	{
-		iAverageScore *= -1;
-	}
-	int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
-	int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
-	int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-	iWarDuration /= 8;
-	if(iWarDuration > 0)
-	{	
-		if(iAverageScore > 0)
+		// Our Military Strength compared to them
+		switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
-			iAverageScore -= iWarDuration;
-			if(iAverageScore < 0)
-			{
-				iAverageScore = 0;
-			}
+		case STRENGTH_PATHETIC:
+			iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
+			break;
+		case STRENGTH_WEAK:
+			iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
+			break;
+		case STRENGTH_POOR:
+			iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
+			break;
+		case STRENGTH_AVERAGE:
+			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
+			break;
+		case STRENGTH_STRONG:
+			iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
+			break;
+		case STRENGTH_POWERFUL:
+			iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
+			break;
+		case STRENGTH_IMMENSE:
+			iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
+			break;
 		}
-		else if(iAverageScore < 0)
+
+		// Our Economic Strength compared to them
+		switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
-			iAverageScore += iWarDuration;
+		case STRENGTH_PATHETIC:
+			iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
+			break;
+		case STRENGTH_WEAK:
+			iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
+			break;
+		case STRENGTH_POOR:
+			iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
+			break;
+		case STRENGTH_AVERAGE:
+			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
+			break;
+		case STRENGTH_STRONG:
+			iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
+			break;
+		case STRENGTH_POWERFUL:
+			iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
+			break;
+		case STRENGTH_IMMENSE:
+			iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
+			break;
+		}
+
+		// What is our war projection of them?
+		switch(GetWarProjection(ePlayer))
+		{
+			case WAR_PROJECTION_DESTRUCTION:
+				iWarScore += -25;
+				break;
+			case WAR_PROJECTION_DEFEAT:
+				iWarScore += -10;
+				break;
+			case WAR_PROJECTION_STALEMATE:
+				iWarScore += 0;
+				break;
+			case WAR_PROJECTION_UNKNOWN:
+				iWarScore += 10;
+				break;
+			case WAR_PROJECTION_GOOD:
+				iWarScore += 25;
+				break;
+			case WAR_PROJECTION_VERY_GOOD:
+				iWarScore += 50;
+				break;
+		}
+		return iWarScore;
+	}
+	else
+	{
+		int iTheirWarScore = GetWarDamageValue(ePlayer);
+		int iWarScore = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(GetPlayer()->GetID());
+	
+		if (bDebug && GC.getAILogging() )
+		{
+			CvString strMsg;
+			strMsg.Format("turn %d - war score for %d against player %d is %d / %d\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
+			OutputDebugString(strMsg.c_str());
+		}
+
+		if (iWarScore == iTheirWarScore)
+		{
+			return 0;
+		}
+		iAverageScore = ((iWarScore + iTheirWarScore) / 2);
+		if(iTheirWarScore > iWarScore)
+		{
+			iAverageScore *= -1;
+		}
+		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
+		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
+		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
+		iWarDuration /= 10;
+		if(iWarDuration > 0)
+		{	
 			if(iAverageScore > 0)
 			{
-				iAverageScore = 0;
+				iAverageScore -= iWarDuration;
+				if(iAverageScore < 0)
+				{
+					iAverageScore = 0;
+				}
+			}
+			else if(iAverageScore < 0)
+			{
+				iAverageScore += iWarDuration;
+				if(iAverageScore > 0)
+				{
+					iAverageScore = 0;
+				}
 			}
 		}
-	}
-	if(iAverageScore >= 100)
-	{
-		return 100;
-	}
-	if(iAverageScore <= -100)
-	{
-		return -100;
+		if(iAverageScore >= 100)
+		{
+			return 100;
+		}
+		if(iAverageScore <= -100)
+		{
+			return -100;
+		}
 	}
 	return iAverageScore;
 	
@@ -11843,7 +11776,7 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 
 	int iValueLost;
 	int iCurrentValue;
-	int iValueLostRatio;
+	int iValueLostRatio = 0;
 
 	CvCity* pLoopCity;
 	CvUnit* pLoopUnit;
@@ -11857,10 +11790,6 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 	// City value
 	for(pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
 	{
-#if defined(MOD_BALANCE_CORE)
-		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
-		iCurrentValue = iDefaultCityValue;
-#endif
 		iCurrentValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
 		if (pLoopCity->IsOriginalCapital()) // anybody's
 		{
@@ -11868,10 +11797,7 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 			iCurrentValue /= 2;
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(pLoopCity->getNumWorldWonders() > 0)
-		{
-			iCurrentValue += (pLoopCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-		}
+		iCurrentValue += (pLoopCity->getEconomicValue() / 2);
 #endif
 	}
 
@@ -11909,15 +11835,9 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 			{
 				// Total original value is the current value plus the amount lost, so compute the percentage on that
 				if(iCurrentValue > 0)
-#if defined(MOD_BALANCE_CORE)
-					//Computation based on what we no longer have makes this feel less painful than it actually is.
-					iValueLostRatio = (iValueLost * 100) / (iCurrentValue + (iValueLost / 2));
-#else
 					iValueLostRatio = iValueLost * 100 / (iCurrentValue + iValueLost);
-#endif
 				else
 					iValueLostRatio = iValueLost;
-
 				if(iValueLostRatio >= /*67*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
 					eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
 				else if(iValueLostRatio >= /*50*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
@@ -11927,12 +11847,31 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 				else if(iValueLostRatio >= /*10*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
 					eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
 			}
+#if defined(MOD_BALANCE_CORE)
+			SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+#endif
 
 			SetWarDamageLevel(eLoopPlayer, eWarDamageLevel);
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// How much damage have we taken in a war against a particular Player?
+int CvDiplomacyAI::GetWarDamageValue(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiWarDamageValue[ePlayer];
+}
 
+void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_paiWarDamageValue[ePlayer] = iValue;
+}
+
+#endif
 /// Every turn we're at peace war damage goes down a bit
 void CvDiplomacyAI::DoWarDamageDecay()
 {
@@ -11976,24 +11915,6 @@ void CvDiplomacyAI::DoWarDamageDecay()
 					ChangeWarValueLost(eLoopPlayer, -iValue);
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			// Update war damage we've suffered while at war (slower, but necessary to bring chance of white peace)
-			else
-			{
-				iValue = GetWarValueLost(eLoopPlayer);
-
-				if(iValue > 0)
-				{
-					// Go down by 1/50th every turn at war
-					iValue /= 50;
-
-					// Make sure it's changing by at least 1
-					iValue = max(1, iValue);
-
-					ChangeWarValueLost(eLoopPlayer, -iValue);
-				}
-			}
-#endif
 
 			// Update war damage other players have suffered from our viewpoint
 			for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_CIV_PLAYERS; iThirdPlayerLoop++)
@@ -18878,6 +18799,9 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 
 		// Have to have been at war for at least a little while
 #if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+		GetPlayer()->SetCachedValueOfPeaceWithHuman(0);
+#endif
 		int iPeace = GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
 		int iOperationID;
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
@@ -19956,6 +19880,14 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 	{
 		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
 		const char* szText = GetGreetHumanMessage(eAnimation);
+#if defined(MOD_BALANCE_CORE)
+		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
+		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
+		{
+			DoUpdatePeaceTreatyWillingness();
+			DoUpdateWarDamageLevel();
+		}
+#endif
 
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_DEFAULT_ROOT, szText, eAnimation);
 	}
@@ -32296,7 +32228,7 @@ void CvDiplomacyAI::LogWarStatus()
 					LogEconomicStrength(strOutBuf, eLoopPlayer);
 
 #if defined(MOD_BALANCE_CORE)
-					if(GetWarScore(eLoopPlayer))
+					if(IsAtWar(eLoopPlayer))
 					{
 						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
 						strOutBuf += ", " + strTemp;

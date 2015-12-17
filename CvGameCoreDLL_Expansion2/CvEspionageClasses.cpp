@@ -3830,11 +3830,17 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	{
 		iResultPercentage = 85;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(iResultPercentage < 15)
+	{
+		iResultPercentage = 15;
+	}
+#else
 	else if(iResultPercentage < 0)
 	{
 		iResultPercentage = 0;
 	}
-
+#endif
 	//int iAdjustedAllyInfluenceTimes100 = iAllyInfluence * (100 + m_aSpyList[uiSpyIndex].m_eRank * 100);
 	//int iAdjustedAllyInfluence = iAdjustedAllyInfluenceTimes100 / 100;
 	//int iResultPercentage = 0;
@@ -3897,12 +3903,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 #endif
 		LogEspionageMsg(strMsg);
 	}
-#if defined(MOD_BALANCE_CORE)
-	int iCoolDown = 20;
-	iCoolDown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iCoolDown /= 100;
-	pMinorCivAI->SetCoupCooldown(iCoolDown);
-#endif
+
 	bool bAttemptSuccess = false;
 	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
@@ -3946,7 +3947,12 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		m_aSpyList[uiSpyIndex].m_eSpyState = SPY_STATE_DEAD; // have to official kill him after the extraction
 #endif
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	int iCoolDown = 20;
+	iCoolDown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iCoolDown /= 100;
+	pMinorCivAI->SetCoupCooldown(iCoolDown);
+#endif
 	// do others influence first so that the potential coup person will be the ally
 	pMinorCivAI->SetDisableNotifications(true);
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)

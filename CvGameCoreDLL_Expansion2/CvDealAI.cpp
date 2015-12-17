@@ -756,7 +756,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	if(pDeal->GetSurrenderingPlayer() == GetPlayer()->GetID())
 	{
 #if defined(MOD_BALANCE_CORE)
-		int iMaxPeace = GetCachedValueOfPeaceWithHuman();
+		int iMaxPeace = (GetCachedValueOfPeaceWithHuman() * -1);
 		if(iTotalValueToMe < 0)
 		{
 			iTotalValueToMe *= -1;
@@ -1395,15 +1395,42 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	else
 	{
 		iValueTimes100 = (iGPTorValue*100)*iNumTurns;
-		//since we get the money right now, apply a little discount!
-		iValueTimes100 = (iValueTimes100*GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT())/100; //typically 80%
 	}
-
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
 		int iModifier;
-
+#if defined(MOD_BALANCE_CORE)
+		if(bNumGPTFromValue)
+		{
+			// Approach is important
+			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+			{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				iModifier = 50;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iModifier = 70;
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+				iModifier = 90;
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				iModifier = 100;
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				iModifier = 100;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iModifier = 100;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -1428,10 +1455,41 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			iModifier = 100;
 			break;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		iValueTimes100 *= iModifier;
 		iValueTimes100 /= 100;
-
+#if defined(MOD_BALANCE_CORE)
+		if(bNumGPTFromValue)
+		{
+			// Opinion also matters
+			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+			{
+			case MAJOR_CIV_OPINION_ALLY:
+			case MAJOR_CIV_OPINION_FRIEND:
+			case MAJOR_CIV_OPINION_FAVORABLE:
+			case MAJOR_CIV_OPINION_NEUTRAL:
+				iModifier = 100;
+				break;
+			case MAJOR_CIV_OPINION_COMPETITOR:
+				iModifier = 115;
+				break;
+			case MAJOR_CIV_OPINION_ENEMY:
+				iModifier = 60;
+				break;
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				iModifier = 30;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iModifier = 100;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Opinion also matters
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
@@ -1455,7 +1513,9 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			iModifier = 100;
 			break;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		iValueTimes100 *= iModifier;
 		iValueTimes100 /= 100;
 	}
@@ -1519,8 +1579,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			if(bFromMe)
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 10;
+				//Every 15 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 15;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1533,8 +1593,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			else
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 25 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 25;
+				//Every 30 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 30;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1771,7 +1831,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 50 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -1947,7 +2007,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 65 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iResourceQuantity * iNumTurns * 40 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
 				//We have it (domestic and/or trade) and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 				{
@@ -4139,7 +4199,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue)
 {
 #if defined(MOD_BALANCE_CORE_DEALS)
-	int iValue = 100;
+	int iValue = 25;
 #else
 	int iValue = 0;
 #endif
@@ -4174,7 +4234,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			{
 			case CvLeagueAI::DESIRE_NEVER:
 			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-				iValue += 3000;
+				iValue += 1000;
 				break;
 			case CvLeagueAI::DESIRE_DISLIKE:
 				iValue += 500;
@@ -4192,7 +4252,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				iValue += 100;
 				break;
 			default:
-				iValue += 5000;
+				iValue += 2000;
 				break;
 			}
 			CvAssert(eOtherPlayer != NO_PLAYER);
@@ -4225,7 +4285,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					break;
 				case CvLeagueAI::ALIGNMENT_ENEMY:
 				case CvLeagueAI::ALIGNMENT_WAR:
-					iValue += 3000;
+					iValue += 2000;
 					break;
 				default:
 					break;
@@ -4299,7 +4359,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				break;
 			case CvLeagueAI::ALIGNMENT_ENEMY:
 			case CvLeagueAI::ALIGNMENT_WAR:
-				iValue += 2000;
+				iValue += 1000;
 				break;
 			default:
 				break;
@@ -4308,7 +4368,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 			if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
 			{
-				iValue = INT_MAX;
+				return MAX_INT;
 			}
 		}
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -4376,7 +4436,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
 			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
 			case CvLeagueAI::DESIRE_NEUTRAL:
-				iValue += -2000;
+				iValue += -1000;
 				break;
 			case CvLeagueAI::DESIRE_WEAK_LIKE:
 				iValue += 50;
@@ -4436,12 +4496,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				else if (fVotesRatio > 0.25f)
 				{
 					// They have a lot of remaining votes
-					iValue += -20;
+					iValue += -200;
 				}
 				else
 				{
 					// They have a hoard of votes
-					iValue += -40;
+					iValue += -400;
 				}
 			}
 		}
@@ -7821,12 +7881,13 @@ void CvDealAI::DoTradeScreenOpened()
 	if(GET_TEAM(GetTeam()).isAtWar(eActiveTeam))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-		PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eActivePlayer);
-		PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eActivePlayer);
 #if defined(MOD_BALANCE_CORE)
+		GetPlayer()->GetDiplomacyAI()->DoUpdatePeaceTreatyWillingness();
 		m_pPlayer->SetCachedValueOfPeaceWithHuman(0);
 #endif
+		PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eActivePlayer);
+		PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eActivePlayer);
+
 		// Does the AI actually want peace?
 		if(ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE && ePeaceTreatyImWillingToAccept >= PEACE_TREATY_WHITE_PEACE)
 		{

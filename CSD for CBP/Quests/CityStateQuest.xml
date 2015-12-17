@@ -235,7 +235,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK">
-			<Text>Citizens of {2_MinorCivName:textkey} have started a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
+			<Text>Citizens of {3_MinorCivName:textkey} have started a revolution against {2_TargetName:textkey}! If the rebels maintain a presence for [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will fall to the revolution[ENDCOLOR] and its alliances will shift.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK_RANDOM">

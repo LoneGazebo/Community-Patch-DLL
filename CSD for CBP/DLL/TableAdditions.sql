@@ -1,8 +1,10 @@
 -- Insert SQL Rules Here 
 
-ALTER TABLE Resolutions ADD COLUMN 'RaiseCityStateInfluenceToAlly' integer default 0;
+ALTER TABLE Resolutions ADD COLUMN 'OpenDoor' boolean default 0;
 
-ALTER TABLE Resolutions ADD COLUMN 'RaiseCityStateInfluenceToFriend' integer default 0;
+ALTER TABLE Resolutions ADD COLUMN 'SphereOfInfluence' boolean default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'Decolonization' boolean default 0;
 
 ALTER TABLE Resolutions ADD COLUMN 'SpaceshipProductionMod' integer default 0;
 
@@ -10,7 +12,7 @@ ALTER TABLE Resolutions ADD COLUMN 'SpaceshipPurchaseMod' integer default 0;
 
 ALTER TABLE Resolutions ADD COLUMN 'IsWorldWar' integer default 0;
 
-ALTER TABLE Resolutions ADD COLUMN 'EmbargoIdeology' boolean default false;
+ALTER TABLE Resolutions ADD COLUMN 'EmbargoIdeology' boolean default 0;
 
 ALTER TABLE LeagueProjectRewards ADD COLUMN 'AttackBonusTurns' integer default 0;
 
@@ -38,4 +40,4 @@ ALTER TABLE LeagueSpecialSessions ADD COLUMN 'BuildingTrigger' text default NULL
 
 ALTER TABLE LeagueSpecialSessions ADD COLUMN 'TriggerResolution' text default NULL;
 
-ALTER TABLE Improvements ADD COLUMN 'IsEmbassy' boolean default false;
+ALTER TABLE Improvements ADD COLUMN 'IsEmbassy' boolean default 0;

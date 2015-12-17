@@ -23770,7 +23770,7 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	return int( rtnValue / max(1.f, sqrt((float)getNumCities())));
+	return int( rtnValue / max(1.f, sqrt((float)(getNumCities() / 3))));
 #else
 
 	//Simplistic increase based on player's gold
@@ -23798,7 +23798,7 @@ int CvPlayer::calculateEconomicMight() const
 		iEconomicMight -= GetSetUnhappiness() * 10;
 	}
 	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
-	return int( iEconomicMight / max(1.f, sqrt((float)getNumCities())));
+	return int( iEconomicMight / max(1.f, sqrt((float)(getNumCities() / 2))));
 #else
 	// Default to 5 so that a fluctuation in Population early doesn't swing things wildly
 	int iEconomicMight = 5;

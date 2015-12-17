@@ -47,3 +47,11 @@ WHERE Tag = 'TXT_KEY_POPUP_MINOR_GOLD_GIFT_CANT' AND EXISTS (SELECT * FROM CSD W
 UPDATE Language_en_US
 SET Text = 'You may initiate a Diplomatic Mission that can improve your [ICON_INFLUENCE] Influence with this City-State.'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_GIFT_GOLD_TT' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Once the United Nations World Congress Project is completed, the World Congress becomes the United Nations. Diplomatic Victory becomes possible once this is achieved, and a World Ideology is active. To win Diplomatic Victory, a civilization must receive enough delegate support on a Global Hegemony resolution.[NEWLINE][NEWLINE]Unlike other resolutions, the World Leader resolution cannot be proposed by a civilization. Instead, every other session of the Congress is dedicated to deciding it. During these sessions, which alternate with sessions of regular proposals, the World Leader resolution is automatically proposed to the Congress and no other proposals are made.[NEWLINE][NEWLINE]The amount of delegate support required to win depends on the number of civilizations and city-states in the game, and can be seen on the World Congress and Victory Progress screens. If no civilization receives enough support to win a World Leader resolution, the two civilizations that received the most support will permanently gain additional delegates.'
+WHERE Tag = 'TXT_KEY_CONGRESS_VICTORY_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Once the United Nations World Congress Project is completed, the World Congress becomes the United Nations. Diplomatic Victory becomes possible once this is achieved, and a World Ideology is active. These prerequisites unlocks the Elect World Leader resolution, the winner of which will achieve a Diplomatic Victory.'
+WHERE Tag = 'TXT_KEY_CONGRESS_UN_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );

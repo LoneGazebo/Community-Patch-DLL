@@ -158,13 +158,13 @@ SELECT 'NEED_DIPLOMAT_THRESHOLD_MODIFIER', '125';
 -- Higher Desire = Higher diplomacy desire.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '0'
+SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '1'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 1 );
 
 -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '8'
+SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '7'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 1 );
 
 -- AI Diplomacy Threshold, Desire and Distaste Modifiers. DEFAULT
@@ -172,13 +172,13 @@ WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 1 );
 -- Higher Desire = Higher diplomacy desire.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '1'
+SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '2'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 2 );
 
 -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '7'
+SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '6'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 2 );
 
 -- AI Diplomacy Threshold, Desire and Distaste Modifiers. MORE COMPETITIVE
@@ -186,13 +186,13 @@ WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 2 );
 -- Higher Desire = Higher diplomacy desire.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '2'
+SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '3'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 3 );
 
 -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '6'
+SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '5'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 3 );
 
 -- AI Diplomacy Threshold, Desire and Distaste Modifiers. EXTREMELY COMPETITIVE
@@ -200,13 +200,13 @@ WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 3 );
 -- Higher Desire = Higher diplomacy desire.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '3'
+SELECT 'NEED_DIPLOMAT_DESIRE_MODIFIER', '4'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 4 );
 
 -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
 INSERT INTO Defines (
 Name, Value)
-SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '5'
+SELECT 'NEED_DIPLOMAT_DISTASTE_MODIFIER', '4'
 WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_DIFFICULTY' AND Value= 4 );
 
 -- Embassy

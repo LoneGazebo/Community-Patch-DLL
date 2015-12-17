@@ -53,8 +53,9 @@
 			<Description>TXT_KEY_BUILDING_COURT_SCRIBE</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY</Strategy>
-			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<SpecialistCount>1</SpecialistCount>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
@@ -74,6 +75,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -94,6 +96,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<FreePromotion>PROMOTION_IMMUNITY</FreePromotion>
 			<MinAreaSize>-1</MinAreaSize>
+			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -113,6 +116,7 @@
 			<Strategy>TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<RAToVotes>1</RAToVotes>
+			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
@@ -134,6 +138,7 @@
 			<Strategy>TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<DoFToVotes>1</DoFToVotes>
+			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType>
@@ -154,6 +159,7 @@
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<CapitalsToVotes>1</CapitalsToVotes>
+			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
@@ -247,6 +253,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>100</ConquestProb>
 			<NukeImmune>true</NukeImmune>
+			<GoldenAge>true</GoldenAge>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -301,6 +308,7 @@
 			<IconAtlas>BW_ATLAS_2</IconAtlas>
 			<PortraitIndex>26</PortraitIndex>
 			<WonderSplashImage>WonderConceptUN.dds</WonderSplashImage>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_UNITED_NATIONS</WonderSplashAudio>
 		</Row>
 <!--
 		<Row>
@@ -917,7 +925,7 @@
 		<Row>
 			<BuildingType>BUILDING_PRINTING_PRESS</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>2</Quantity>
+			<Quantity>1</Quantity>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FOREIGN_OFFICE</BuildingType>
@@ -937,17 +945,17 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>2</Quantity>
+			<Quantity>1</Quantity>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>2</Quantity>
+			<Quantity>1</Quantity>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>2</Quantity>
+			<Quantity>1</Quantity>
 		</Row>
 		<!--
 		<Row>

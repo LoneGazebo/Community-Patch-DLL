@@ -250,6 +250,9 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
+#endif
 	, m_iRoughTerrainEndsTurnCount("CvUnit::m_iRoughTerrainEndsTurnCount", m_syncArchive)
 	, m_iEmbarkAbilityCount("CvUnit::m_iEmbarkAbilityCount", m_syncArchive)
 	, m_iHoveringUnitCount("CvUnit::m_iHoveringUnitCount", m_syncArchive)
@@ -2610,6 +2613,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	m_iCanCrossIceCount = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNumTilesRevealedThisTurn = 0;
+#endif
 	m_iRoughTerrainEndsTurnCount = 0;
 	m_iEmbarkAbilityCount = 0;
 	m_iHoveringUnitCount = 0;
@@ -3173,12 +3179,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
 			int iValue = getUnitInfo().GetPower();
-#if defined(MOD_BALANCE_CORE)
-			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
-			{
-				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-			}
-#endif
 
 			int iTypicalPower = GET_PLAYER(ePlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 
@@ -3190,6 +3190,16 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			{
 				iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
+			{
+				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+			}
+			else if(IsCivilianUnit() && pPlot && pPlot->isCity())
+			{
+				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 4;
+			}
+#endif
 
 			// My viewpoint
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(ePlayer, iValue);
@@ -3637,6 +3647,7 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
+	SetNumTilesRevealedThisTurn(0);
 	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
@@ -4273,24 +4284,48 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		return bCanCross;
 	}
 
-	// Check coastal water
-	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getSHALLOW_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	bool bOceanImpassable = false;
+	bool bOceanImpassableAstronomy = false;
+	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+	if(isHasPromotion(ePromotionOceanImpassable))
 	{
-		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean();
+		bOceanImpassable = true;
+	}
+	PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+	if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
+	{
+		bOceanImpassableAstronomy = true;
+	}
+	// Check coastal water
+	if (enterPlot.isWater() && enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+	{
+		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean() || (eDomain == DOMAIN_SEA);
 		return bCanCross;
 	}
 
 	// Check high seas
-	if (enterPlot.isWater() && enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN() && enterPlot.getFeatureType()==NO_FEATURE)
+	if (enterPlot.isWater() && !enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
 	{
-		bool bCanCross = canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean();
-		return bCanCross;
+		if(bOceanImpassable)
+		{	
+			return false;
+		}
+		else if(eDomain == DOMAIN_SEA)
+		{
+			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean() || (bOceanImpassableAstronomy && GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage()) || (!bOceanImpassable && !bOceanImpassableAstronomy));
+			return bCanCross;
+		}
+		else
+		{
+			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean());
+			return bCanCross;
+		}
 	}
 
 	// Check ice with specialty: is passable of owned
 	if (enterPlot.isIce()) 
 	{
-		bool bCanCross = canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam());
+		bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
 		return bCanCross;
 	}
 
@@ -5068,60 +5103,6 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			bShouldDeductCost = false;
 		}
 	}
-
-#if defined(MOD_BALANCE_CORE)
-	bool bScout = false;
-	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
-		{
-			if(isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
-			{
-				bScout = true;
-				break;
-			}
-		}
-	}
-	if(bScout)
-	{
-		int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-		int iRange = visibilityRange();
-		TeamTypes eTeam = getTeam();
-		int iReveal = 0;
-		for (int i = -iRange; i <= iRange; ++i)
-		{
-			for (int j = -iRange; j <= iRange; ++j)
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(targetPlot.getX(), targetPlot.getY(), i, j, iRange);
-				if (NULL != pLoopPlot)
-				{
-					if ((pLoopPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_UNEXPLORED) && targetPlot.canSeePlot(pLoopPlot, eTeam, iRange, NO_DIRECTION))
-					{
-						if(pLoopPlot->IsNaturalWonder())
-						{
-							iExperience += GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
-							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() + 1;
-						}
-						else
-						{
-							iReveal++;
-						}
-					}
-				}
-			}
-		}
-		if((iReveal > 0) && (iReveal >= GC.getGame().getJonRandNum(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE(), "reveal amount from exploration")))
-		{
-			//Up to max barb value - rest has to come through combat!
-			if(getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
-			{
-				changeExperience(iExperience);
-			}
-		}
-	}
-#endif
 
 	if(bShouldDeductCost)
 		changeMoves(-iMoveCost);
@@ -9569,7 +9550,7 @@ bool CvUnit::pillage()
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
 					// Notify Diplo AI that damage has been done
-					int iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					int iValue = (GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 3);
 					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					{
 						CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(getTeam()));
@@ -16871,7 +16852,29 @@ void CvUnit::changeCanCrossIceCount(int iValue)
 	}
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeNumTilesRevealedThisTurn(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iNumTilesRevealedThisTurn += iValue;
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetNumTilesRevealedThisTurn(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNumTilesRevealedThisTurn = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::GetNumTilesRevealedThisTurn()
+{
+	VALIDATE_OBJECT
+	return m_iNumTilesRevealedThisTurn;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsRoughTerrainEndsTurn() const
@@ -18246,7 +18249,11 @@ if (!bDoEvade)
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			if (canChangeVisibility())
+#if defined(MOD_BALANCE_CORE)
+				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), true, this); // needs to be here so that the square is considered visible when we move into it...
+#else
 				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
+#endif
 
 			pNewPlot->addUnit(this, bUpdate);
 
@@ -18257,7 +18264,36 @@ if (!bDoEvade)
 		{
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		bool bScout = false;
+		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		{
+			const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
+			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+			if(pkPromotionInfo)
+			{
+				if(!bScout && isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
+				{
+					bScout = true;
+					break;
+				}
+			}
+		}
+		if(bScout && GC.getGame().getActivePlayer() == getOwner())
+		{
+			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
+			{
+				int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
+				iExperience += GetNumTilesRevealedThisTurn();
+				iExperience /= 6;
+				if(iExperience > 0)
+				{
+					//Up to max barb value - rest has to come through combat!
+					changeExperience(iExperience);
+				}
+			}
+		}
+#endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{

@@ -664,6 +664,12 @@ public:
 	void changeCanCrossIceCount(int iValue);
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	void ChangeNumTilesRevealedThisTurn(int iValue);
+	void SetNumTilesRevealedThisTurn(int iValue);
+	int GetNumTilesRevealedThisTurn();
+#endif
+
 	bool IsRoughTerrainEndsTurn() const;
 	int GetRoughTerrainEndsTurnCount() const;
 	void ChangeRoughTerrainEndsTurnCount(int iValue);
@@ -1673,6 +1679,9 @@ protected:
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;

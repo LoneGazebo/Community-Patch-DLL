@@ -7,11 +7,8 @@ WHERE Type = 'TERRAIN_MOUNTAIN';
 
 -- yields will only be realized if the plot is passable for the owner
 
-INSERT INTO Terrain_Yields (TerrainType, YieldType, Yield)
-SELECT 'TERRAIN_MOUNTAIN', 'YIELD_FOOD' , '1';
-
-INSERT INTO Terrain_Yields (TerrainType, YieldType, Yield)
-SELECT 'TERRAIN_MOUNTAIN', 'YIELD_PRODUCTION' , '1';
+INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset)
+SELECT 'ART_DEF_TERRAIN_MOUNTAIN' , 'Terrain' , 'Sv_TerrainHexGrasslands.dds';
 
 -- treat water tiles as impassable without the proper tech
 

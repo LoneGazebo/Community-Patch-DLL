@@ -1451,8 +1451,8 @@ int CvPlayerTechs::GetResearchTurnsLeft(TechTypes eTech, bool bOverflow, int iAs
 /// Accessor: How many turns of research left? (in hundredths)
 int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow, int iAssumedResearchRate) const
 {
-	int iResearchRate;
-	int iOverflow;
+	int iResearchRate = 0;
+	int iOverflow = 0;
 	int iTurnsLeft;
 	int iI;
 

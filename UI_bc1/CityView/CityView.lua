@@ -47,7 +47,6 @@ local RadiusHexArea = EUI.RadiusHexArea
 local InstanceStackManager = EUI.InstanceStackManager
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
-local GreatPeopleIcon = EUI.GreatPeopleIcon
 
 -------------------------------
 -- minor lua optimizations
@@ -464,7 +463,7 @@ local function GetSpecialistYields( city, specialist )
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
 		end
 		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
-		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
+		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]" )
 	end
 	return yieldTips:concat(" ")
 end
@@ -1884,17 +1883,16 @@ local function UpdateCityViewNow()
 						local percent = gpProgress / gpThreshold
 						instance.GPMeter:SetPercent( percent )
 						local labelText = L(unitClass.Description)
-						local icon = GreatPeopleIcon(gpuClass)
 						local tips = table( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]"
-									.. " " .. gpProgress .. icon .." / " .. gpThreshold .. icon )
+									.. " " .. gpProgress .. "[ICON_GREAT_PEOPLE] / " .. gpThreshold .. "[ICON_GREAT_PEOPLE]" )
 	--					tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]" )
 						if gpChange > 0 then
 							local gpTurns = math.ceil( (gpThreshold - gpProgress) / gpChange )
 							tips:insert( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gpTurns ) ) .. "[ENDCOLOR]  "
-										 .. gpChange .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
+										 .. gpChange .. "[ICON_GREAT_PEOPLE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
 							labelText = labelText .. ": " .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", gpTurns ) )
 						end
-						instance.GreatPersonLabel:SetText( icon .. labelText )
+						instance.GreatPersonLabel:SetText( labelText )
 						if gk_mode then
 							if gpChangePlayerMod ~= 0 then
 								tips:insert( L( "TXT_KEY_PLAYER_GP_MOD", gpChangePlayerMod ) )
@@ -1916,7 +1914,7 @@ local function UpdateCityViewNow()
 								end
 							end
 						elseif gpChangeMod ~= 0 then
-							tips:insert( "[ICON_BULLET] "..gpChangeMod..icon )
+							tips:insert( "[ICON_BULLET] "..("%+i"):format( gpChangeMod ).."[ICON_GREAT_PEOPLE]" )
 						end
 						instance.GPBox:SetToolTipString( tips:concat("[NEWLINE]") )
 						instance.GPBox:SetVoid1( unitClass.ID )

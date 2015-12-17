@@ -2632,8 +2632,11 @@ void CvCity::doTurn()
 		DoResistanceTurn();
 
 		bool bAllowNoProduction = !doCheckProduction();
-#if !defined(MOD_BALANCE_CORE)
-		doGrowth();
+#if defined(MOD_BALANCE_CORE)
+		if(isFoodProduction())
+		{
+			doGrowth();
+		}
 #endif
 
 		DoUpdateIndustrialRouteToCapital();
@@ -2727,7 +2730,10 @@ void CvCity::doTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		doGrowth();
+		if(!isFoodProduction())
+		{
+			doGrowth();
+		}
 #endif
 		// sending notifications on when routes are connected to the capital
 		if(!isCapital())

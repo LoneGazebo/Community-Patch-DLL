@@ -21,7 +21,6 @@ local EUI = EUI
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
-local GreatPeopleIcon = EUI.GreatPeopleIcon
 
 --print( "Root contexts:", LookUpControl( "/FrontEnd" ) or "nil", LookUpControl( "/InGame" ) or "nil", LookUpControl( "/LeaderHeadRoot" ) or "nil")
 -------------------------------
@@ -818,7 +817,7 @@ local function getSpecialistYields( city, specialist )
 		end
 	end
 	if civ5_mode and (specialist.GreatPeopleRateChange or 0) > 0 then
-		tip = S( "%s %+i%s", tip, specialist.GreatPeopleRateChange, GreatPeopleIcon( specialist.Type ) )
+		tip = S( "%s %+i[ICON_GREAT_PEOPLE]", tip, specialist.GreatPeopleRateChange )
 	end
 	return tip
 end
@@ -1205,7 +1204,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local specialistType = building.SpecialistType
 	local specialist = specialistType and GameInfo.Specialists[ specialistType ]
 	if specialist then
-		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i%s", L( specialist.GreatPeopleTitle ), building.GreatPeopleRateChange, GreatPeopleIcon( specialistType ) ) )
+		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i[ICON_GREAT_PEOPLE]", L( specialist.GreatPeopleTitle or "???" ), building.GreatPeopleRateChange) )
 		if (building.SpecialistCount or 0) ~= 0 then
 			if civ5_mode then
 				local numSpecialistsInBuilding = UI.GetHeadSelectedCity() and city:GetNumSpecialistsInBuilding( buildingID ) or building.SpecialistCount
