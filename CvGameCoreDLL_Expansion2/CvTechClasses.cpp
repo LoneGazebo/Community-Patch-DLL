@@ -1434,9 +1434,9 @@ void CvPlayerTechs::CheckForTechAchievement() const
 }
 
 /// Accessor: How many turns of research left?
-int CvPlayerTechs::GetResearchTurnsLeft(TechTypes eTech, bool bOverflow) const
+int CvPlayerTechs::GetResearchTurnsLeft(TechTypes eTech, bool bOverflow, int iAssumedResearchRate) const
 {
-	int iTurnsLeft = GetResearchTurnsLeftTimes100(eTech, bOverflow);
+	int iTurnsLeft = GetResearchTurnsLeftTimes100(eTech, bOverflow, iAssumedResearchRate);
 
 	if(iTurnsLeft == INT_MAX)
 	{
@@ -1449,29 +1449,34 @@ int CvPlayerTechs::GetResearchTurnsLeft(TechTypes eTech, bool bOverflow) const
 }
 
 /// Accessor: How many turns of research left? (in hundredths)
-int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const
+int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow, int iAssumedResearchRate) const
 {
 	int iResearchRate;
 	int iOverflow;
 	int iTurnsLeft;
 	int iI;
 
-	iResearchRate = 0;
-	iOverflow = 0;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	if (iAssumedResearchRate>0)
 	{
-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
+		iResearchRate = iAssumedResearchRate;
+		iOverflow = 0;
+	}
+	else
+	{
+		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			// Find everyone on our team
-			if(kPlayer.getTeam() == m_pPlayer->getTeam())
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			if(kPlayer.isAlive())
 			{
-				// If this is us or if the tech matches, then increment totals
-				if((iI == m_pPlayer->GetID()) || kPlayer.GetPlayerTechs()->GetCurrentResearch() == eTech)
+				// Find everyone on our team
+				if(kPlayer.getTeam() == m_pPlayer->getTeam())
 				{
-					iResearchRate += kPlayer.GetScienceTimes100();
-					iOverflow += (kPlayer.getOverflowResearch() * m_pPlayer->calculateResearchModifier(eTech)) / 100;
+					// If this is us or if the tech matches, then increment totals
+					if((iI == m_pPlayer->GetID()) || kPlayer.GetPlayerTechs()->GetCurrentResearch() == eTech)
+					{
+						iResearchRate += kPlayer.GetScienceTimes100();
+						iOverflow += (kPlayer.getOverflowResearch() * m_pPlayer->calculateResearchModifier(eTech)) / 100;
+					}
 				}
 			}
 		}

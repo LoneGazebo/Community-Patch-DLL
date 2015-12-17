@@ -259,8 +259,8 @@ public:
 	bool IsCurrentResearchRepeat() const;
 	bool IsNoResearchAvailable() const;
 	void CheckForTechAchievement() const;
-	int GetResearchTurnsLeft(TechTypes eTech, bool bOverflow) const;
-	int GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const;
+	int GetResearchTurnsLeft(TechTypes eTech, bool bOverflow, int iAssumedResearchRate=-1) const;
+	int GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow, int iAssumedResearchRate=-1) const;
 	int GetNumTechsCanBeResearched() const;
 	CvTechXMLEntries* GetTechs() const;
 	int GetResearchCost(TechTypes eTech) const;

@@ -3066,6 +3066,7 @@ CvPlayerPolicies::CvPlayerPolicies():
 {
 #if defined(MOD_BALANCE_CORE)
 	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 }
 
@@ -3318,20 +3319,25 @@ void CvPlayerPolicies::UpdateModifierCache()
 {
 	m_vBuildingClassTourismModifier.clear();
 	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
+	m_vBuildingClassHappinessModifier.clear();
+	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 
 	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
 	{
-		int iValue = 0;
+		int iTourism = 0;
+		int iHappiness = 0;
 		for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 		{
 			// Do we have this policy?
 			if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
 			{
-				iValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
+				iTourism += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
+				iHappiness += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassHappiness((BuildingClassTypes)j);
 			}
 		}
 
-		m_vBuildingClassTourismModifier[j] = iValue;
+		m_vBuildingClassTourismModifier[j] = iTourism;
+		m_vBuildingClassHappinessModifier[j] = iHappiness;
 	}
 }
 #endif
@@ -3799,26 +3805,22 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
 {
 
-#if defined(MOD_BALANCE_CORE)
 	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
 		return m_vBuildingClassTourismModifier[eBuildingClass];
 	else
 		return 0;
-#else
-	int rtnValue = 0;
-
-	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
-	{
-		// Do we have this policy?
-		if(m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
-		{
-			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier(eBuildingClass);
-		}
-	}
-
-	return rtnValue;
-#endif
 }
+
+/// Get happiness modifier from policies for a specific building class
+int CvPlayerPolicies::GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass)
+{
+
+	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassHappinessModifier.size())
+		return m_vBuildingClassHappinessModifier[eBuildingClass];
+	else
+		return 0;
+}
+
 
 /// Does any policy owned give benefit for garrisons?
 bool CvPlayerPolicies::HasPolicyEncouragingGarrisons() const
