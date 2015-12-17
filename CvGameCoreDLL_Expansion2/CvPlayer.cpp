@@ -7336,7 +7336,6 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
-#if defined(MOD_BALANCE_CORE)
 	if (!pCity)
 		return false;
 
@@ -7344,17 +7343,23 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 	{
 		return true;
 	}
-#endif
+
 	CvCity* pPlayerCapital = getCapitalCity();
 	if(pPlayerCapital == NULL)
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	return IsPlotConnectedToPlot(GetID(), pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
-#else
-	return IsPlotConnectedToPlot(pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
-#endif
+
+	//did we already check it this turn?
+	std::map<int,std::pair<int,bool>>::iterator lastState = m_capitalConnectionLookup.find(pCity->GetID());
+	if (lastState!=m_capitalConnectionLookup.end() && lastState->second.first==GC.getGame().getGameTurn())
+		return lastState->second.second;
+
+	//do the actual pathfinding only once per turn
+	bool bResult = IsPlotConnectedToPlot(GetID(), pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
+
+	m_capitalConnectionLookup[pCity->GetID()] = std::make_pair(GC.getGame().getGameTurn(), bResult);
+	return bResult;
 }
 
 #else

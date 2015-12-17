@@ -3499,6 +3499,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
 				ExecuteMoveToTarget(pPlot);
+
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -8601,20 +8602,20 @@ void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(UnitHandle pUnit, CvPlot* pTarg
 	if(pTarget == pUnit->plot())
 	{
 		// Fortify if possible
-		if(pUnit->canFortify(pUnit->plot()))
+		if (!TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
 		{
-			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-			pUnit->SetFortifiedThisTurn(true);
+			if( pUnit->canFortify(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
+			else
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 		else
-		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			if(!bSaveMoves)
-			{
-				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer());
-				pUnit->finishMoves();
-			}
-		}
+
+		//don't call finish moves, otherwise we won't heal!
 	}
 
 	else
@@ -8708,7 +8709,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 }
 
 /// Find one unit to move to target, starting with high priority list
-void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget)
+void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves)
 {
 	std::vector<CvTacticalUnit>::iterator it;
 
@@ -8723,7 +8724,7 @@ void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget)
 			break;
 		}
 
-		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget);
+		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
 		return;
 	}
 
@@ -11641,17 +11642,6 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					bTypeMatch = true;
 				}
 			}
-			else if(m_pPlayer->isMinorCiv())
-			{
-				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
-				{
-					bTypeMatch = true;
-				}
-			}
 			else
 			{
 #endif
@@ -11667,7 +11657,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			}
-			if (bAllowDefensiveTargets || m_pPlayer->isMinorCiv())
+			if (bAllowDefensiveTargets)
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
 					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||

@@ -559,12 +559,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	iRouteID = m_iNextID;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iID = m_iNextID;
-	m_aTradeConnections[iNewTradeRouteIndex].m_iOriginX = pOriginCity->getX();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iOriginY = pOriginCity->getY();
-	m_aTradeConnections[iNewTradeRouteIndex].m_eOriginOwner = pOriginCity->getOwner();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iDestX = pDestCity->getX();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iDestY = pDestCity->getY();
-	m_aTradeConnections[iNewTradeRouteIndex].m_eDestOwner = pDestCity->getOwner();
+	m_aTradeConnections[iNewTradeRouteIndex].SetCities(pOriginCity,pDestCity);
 	m_aTradeConnections[iNewTradeRouteIndex].m_eDomain = eDomain;
 	m_aTradeConnections[iNewTradeRouteIndex].m_eConnectionType = eConnectionType;
 	m_aTradeConnections[iNewTradeRouteIndex].m_unitID = -1;
@@ -1113,31 +1108,8 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 		}
 	}
 
-	kTradeConnection.m_iID = -1;
-	kTradeConnection.m_iDestX = -1;
-	kTradeConnection.m_iDestY = -1;
-	kTradeConnection.m_eDestOwner = NO_PLAYER;
-	kTradeConnection.m_iOriginX = -1;
-	kTradeConnection.m_iOriginY = -1;
-	kTradeConnection.m_eOriginOwner = NO_PLAYER;
-	kTradeConnection.m_eDomain = NO_DOMAIN;
-	kTradeConnection.m_eConnectionType = NUM_TRADE_CONNECTION_TYPES;
-	kTradeConnection.m_iTradeUnitLocationIndex = -1;
-	kTradeConnection.m_bTradeUnitMovingForward = false;
-	kTradeConnection.m_iCircuitsCompleted = 0;
-	kTradeConnection.m_iCircuitsToComplete = 0;
-	kTradeConnection.m_iTurnRouteComplete = 0;
-#if defined(MOD_API_TRADEROUTES)
-	kTradeConnection.m_bTradeUnitRecalled = false;
-#endif
-	kTradeConnection.m_aPlotList.clear();
-	kTradeConnection.m_unitID = -1;
-
-	for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		kTradeConnection.m_aiOriginYields[ui] = 0;
-		kTradeConnection.m_aiDestYields[ui] = 0;
-	}
+	//reset to default
+	kTradeConnection = TradeConnection();
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
@@ -5748,14 +5720,9 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 							continue;
 
 						TradeConnection kConnection;
-						kConnection.m_iOriginX = pOriginCity->getX();
-						kConnection.m_iOriginY = pOriginCity->getY();
-						kConnection.m_iDestX = pDestCity->getX();
-						kConnection.m_iDestY = pDestCity->getY();
+						kConnection.SetCities(pOriginCity,pDestCity);
 						kConnection.m_eConnectionType = eConnection;
 						kConnection.m_eDomain = eDomain;
-						kConnection.m_eOriginOwner = pOriginCity->getOwner();
-						kConnection.m_eDestOwner = pDestCity->getOwner();
 
 						GC.getGame().GetGameTrade()->CopyPathIntoTradeConnection(path, &kConnection);
 						aTradeConnectionList.push_back(kConnection);

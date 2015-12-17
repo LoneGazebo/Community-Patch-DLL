@@ -25,9 +25,53 @@ typedef std::vector<TradeConnectionPlot> TradeConnectionPlotList;
 
 struct TradeConnection
 {
+	//default constructor
+	TradeConnection()
+	{
+		m_iID = -1;
+		m_iDestID = -1;
+		m_iDestX = -1;
+		m_iDestY = -1;
+		m_eDestOwner = NO_PLAYER;
+		m_iOriginID = -1;
+		m_iOriginX = -1;
+		m_iOriginY = -1;
+		m_eOriginOwner = NO_PLAYER;
+		m_eDomain = NO_DOMAIN;
+		m_eConnectionType = NUM_TRADE_CONNECTION_TYPES;
+		m_iTradeUnitLocationIndex = -1;
+		m_bTradeUnitMovingForward = false;
+		m_iCircuitsCompleted = 0;
+		m_iCircuitsToComplete = 0;
+		m_iTurnRouteComplete = 0;
+		m_bTradeUnitRecalled = false;
+		m_aPlotList.clear();
+		m_unitID = -1;
+
+		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
+			m_aiOriginYields[ui] = 0;
+			m_aiDestYields[ui] = 0;
+		}
+	}
+
+	void SetCities(const CvCity* pOriginCity, const CvCity* pDestCity)
+	{
+		m_iOriginID = pOriginCity->GetID();
+		m_iOriginX = pOriginCity->getX();
+		m_iOriginY = pOriginCity->getY();
+		m_eOriginOwner = pOriginCity->getOwner();
+		m_iDestID = pDestCity->GetID();
+		m_iDestX = pDestCity->getX();
+		m_iDestY = pDestCity->getY();
+		m_eDestOwner = pDestCity->getOwner();
+	}
+
 	int m_iID;
+	int m_iOriginID;
 	int m_iOriginX;
 	int m_iOriginY;
+	int m_iDestID;
 	int m_iDestX;
 	int m_iDestY;
 	PlayerTypes m_eOriginOwner;
@@ -41,9 +85,7 @@ struct TradeConnection
 	int m_iCircuitsCompleted;
 	int m_iCircuitsToComplete;
 	int m_iTurnRouteComplete;
-#if defined(MOD_API_TRADEROUTES)
 	bool m_bTradeUnitRecalled;
-#endif
 	int m_aiOriginYields[NUM_YIELD_TYPES];
 	int m_aiDestYields[NUM_YIELD_TYPES];
 };

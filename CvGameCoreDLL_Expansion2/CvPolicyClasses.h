@@ -815,7 +815,10 @@ public:
 #endif
 	int GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass);
 	int GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass);
+	int GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass);
+
 	int GetImprovementCultureChange(ImprovementTypes eImprovement);
+
 	bool HasPolicyEncouragingGarrisons() const;
 	bool HasPolicyGrantingReformationBelief() const;
 	CvString GetWeLoveTheKingString();
@@ -901,6 +904,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void UpdateModifierCache();
 	std::vector<int> m_vBuildingClassTourismModifier;
+	std::vector<int> m_vBuildingClassHappinessModifier;
 #endif
 
 	// Logging functions

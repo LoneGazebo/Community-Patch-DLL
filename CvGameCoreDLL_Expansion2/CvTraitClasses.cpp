@@ -2274,7 +2274,15 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 /// Store off data on bonuses from traits
 void CvPlayerTraits::InitPlayerTraits()
 {
+	// precompute the traits our leader has
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+		if (m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
+		{
+			m_vLeaderHasTrait[iI] = true;
+			m_vLeaderTraits.push_back( (TraitTypes)iI );
+		}
+
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		if(HasTrait((TraitTypes)iI))
 		{
@@ -2811,6 +2819,9 @@ void CvPlayerTraits::Reset()
 {
 	Uninit();
 
+	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
+	m_vLeaderTraits.clear();
+
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
 	m_iGreatGeneralRateModifier = 0;
@@ -3142,7 +3153,7 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		CvAssertMsg((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
 		CvAssertMsg((eTrait >= 0), "eTrait is less than zero");
-		return m_pPlayer->getLeaderInfo().hasTrait(eTrait) && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
+		return m_vLeaderHasTrait[eTrait] && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
 	}
 	else
 	{
@@ -3420,7 +3431,7 @@ int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yield
 bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3443,7 +3454,7 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3465,7 +3476,7 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
 {
 	CvAssertMsg((buildID >= 0), "buildID is less than zero");
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3510,7 +3521,7 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 /// Does the capital get a free building?
 BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3533,7 +3544,7 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3821,7 +3832,7 @@ TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 }
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
@@ -3932,8 +3943,7 @@ const float DAYS_IN_YEAR = 365.242199f;
 /// Is the Maya calendar active for this player?
 bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
-	int iNumTraits = GC.getNumTraitInfos();
-	for(int iI = 0; iI < iNumTraits; iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
 		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);

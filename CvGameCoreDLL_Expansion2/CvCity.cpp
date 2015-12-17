@@ -14596,116 +14596,71 @@ int CvCity::GetLocalHappiness() const
 			}
 
 			// Buildings
-			for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+			for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-
-				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if(!pkBuildingClassInfo)
+				BuildingTypes eBuilding = vBuildings[jJ];
+				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
+				if (pkInfo)
 				{
-					continue;
-				}
-
-				CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
-				BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-
-				if(eBuilding != NO_BUILDING)
-				{
-					if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-					{
-#if defined(MOD_BUGFIX_MINOR)
-						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers) * GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
-#endif
-					}
+					BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkInfo->GetBuildingClassType();
+					iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers) * GetCityBuildings()->GetNumBuilding(eBuilding);
 				}
 			}
 		}
 		iLocalHappiness += iHappinessFromReligion;
 	}
+
 #if defined(MOD_BALANCE_CORE)
-	BuildingClassTypes eBuildingClass;
-
-	// Building Class Mods
+	// Building Class Combo Mods
 	int iSpecialBuildingHappiness = 0;
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 	{
-		eBuildingClass = (BuildingClassTypes) iI;
+		BuildingTypes eBuildingA = vBuildings[jJ];
 
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
-		{
+		if(GetCityBuildings()->GetNumRealBuilding(eBuildingA) <= 0)
 			continue;
-		}
 
-		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		if(GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
-		{
+		CvBuildingEntry* pkBuildingA = GC.getBuildingInfo(eBuildingA);
+		if (!pkBuildingA)
 			continue;
-		}
-		if(eBuilding != NO_BUILDING)
+
+		for(size_t kK = 0; kK < vBuildings.size(); kK++)
 		{
-			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-			if(pkBuilding)
-			{
-				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
-				{
-					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) jJ;
-					int iHappinessPerBuilding = pkBuilding->GetBuildingClassLocalHappiness(eBuildingClassThatGivesHappiness);
-					if(iHappinessPerBuilding > 0)
-					{
-						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
-						if(eBuildingThatGivesHappiness != NO_BUILDING)
-						{
-							if(GetCityBuildings()->GetNumRealBuilding(eBuildingThatGivesHappiness) > 0)
-							{
-								iSpecialBuildingHappiness += iHappinessPerBuilding;
-							}
-						}
-					}
-				}
-			}
+			BuildingTypes eBuildingB = vBuildings[kK];
+
+			if(GetCityBuildings()->GetNumRealBuilding(eBuildingB) <= 0)
+				continue;
+
+			CvBuildingEntry *pkBuildingB = GC.getBuildingInfo(eBuildingB);
+			if (!pkBuildingB)
+				continue;
+
+			BuildingClassTypes eBuildingClassB = (BuildingClassTypes)pkBuildingB->GetBuildingClassType();
+
+			int iHappinessPerBuilding = pkBuildingA->GetBuildingClassLocalHappiness(eBuildingClassB);
+			if(iHappinessPerBuilding > 0)
+				iSpecialBuildingHappiness += iHappinessPerBuilding;
 		}
 	}
+
 	iLocalHappiness += iSpecialBuildingHappiness;
 #endif
+
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
-	int iBuildingClassLoop;
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 	{
-		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
-		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
-		{
-			if(kPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !kPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
-			{
-				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
-				{
-					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+		BuildingTypes eBuilding = vBuildings[jJ];
+		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (!pkBuilding)
+			continue;
 
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-
-					BuildingTypes eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-					if(eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // slewis - added the NO_BUILDING check for the ConquestDLX scenario which has civ specific wonders
-					{
-						if(pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
-						{
-#if defined(MOD_BUGFIX_MINOR)
-							iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) * GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-							iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass);
-#endif
-						}
-					}
-				}
-			}
-		}
+		int iHappinessMod = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier( (BuildingClassTypes)pkBuilding->GetBuildingClassType() );
+		if (iHappinessMod != 0)
+			iSpecialPolicyBuildingHappiness += iHappinessMod * GetCityBuildings()->GetNumBuilding(eBuilding);
 	}
 
 	iLocalHappiness += iSpecialPolicyBuildingHappiness;
@@ -25752,17 +25707,12 @@ bool CvCity::HasAnyDomesticTradeRoute() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		if (pFromCity == this && pToCity->getOwner() == getOwner()) {
+		if ( GetID()==pConnection->m_iOriginID && getOwner()==pConnection->m_eDestOwner )
 			return true;
-		}
 	}
 
 	return false;
@@ -25772,17 +25722,12 @@ bool CvCity::HasAnyInternationalTradeRoute() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		if (pFromCity == this && pToCity->getOwner() != getOwner()) {
+		if ( GetID()==pConnection->m_iOriginID && getOwner()!=pConnection->m_eDestOwner )
 			return true;
-		}
 	}
 
 	return false;
@@ -25792,16 +25737,12 @@ bool CvCity::HasTradeRouteToAnyCity() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-
-		if (pFromCity == this) {
+		if ( GetID()==pConnection->m_iOriginID )
 			return true;
-		}
 	}
 
 	return false;
@@ -25811,17 +25752,12 @@ bool CvCity::HasTradeRouteTo(CvCity* pCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		if (pFromCity == this && pToCity == pCity) {
+		if (GetID()==pConnection->m_iOriginID && pCity->GetID()==pConnection->m_iDestID)
 			return true;
-		}
 	}
 
 	return false;
@@ -25831,16 +25767,12 @@ bool CvCity::HasTradeRouteFromAnyCity() const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		if (pToCity == this) {
+		if (GetID()==pConnection->m_iDestID)
 			return true;
-		}
 	}
 
 	return false;
@@ -25850,17 +25782,12 @@ bool CvCity::HasTradeRouteFrom(CvCity* pCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
-		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute))
 			continue;
-		}
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		if (pToCity == this && pFromCity == pCity) {
+		if (GetID()==pConnection->m_iDestID && pCity->GetID()==pConnection->m_iOriginID)
 			return true;
-		}
 	}
 
 	return false;

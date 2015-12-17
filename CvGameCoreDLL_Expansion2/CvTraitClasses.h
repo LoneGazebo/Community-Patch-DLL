@@ -1272,6 +1272,8 @@ private:
 
 	CvTraitXMLEntries* m_pTraits;
 	CvPlayer* m_pPlayer;
+	std::vector<bool> m_vLeaderHasTrait;
+	std::vector<TraitTypes> m_vLeaderTraits;
 
 	// Cached data about this player's traits
 	int m_iGreatPeopleRateModifier;

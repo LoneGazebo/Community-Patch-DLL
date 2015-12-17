@@ -179,10 +179,15 @@ public:
 	void DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeMyExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountUnderWeWillOffer, bool bUseEvenValue);
 #endif
 
-private:
+protected:
+	void UpdateResearchRateCache(PlayerTypes eOther);
+
 	CvPlayer* m_pPlayer;
 
 	int m_iCachedValueOfPeaceWithHuman;		// NOT SERIALIZED
+
+	//player to (turn,value)
+	std::vector<std::pair<int,int>> m_vResearchRates;
 
 };
 

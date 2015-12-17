@@ -53,6 +53,7 @@ void CvDealAI::Uninit()
 void CvDealAI::Reset()
 {
 	m_iCachedValueOfPeaceWithHuman = 0;
+	m_vResearchRates = std::vector<std::pair<int,int>>(MAX_PLAYERS, std::make_pair(0,0));
 }
 
 /// Serialization read
@@ -8394,22 +8395,53 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 	return iItemValue;
 }
 
+void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
+{
+	TeamTypes ourTeam = m_pPlayer->getTeam();
+	TeamTypes theirTeam = GET_PLAYER(eOther).getTeam();
+
+	if ( m_vResearchRates[m_pPlayer->GetID()].first != GC.getGame().getGameTurn() )
+	{
+		m_vResearchRates[m_pPlayer->GetID()] = std::make_pair(GC.getGame().getGameTurn(),0);
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			if(kPlayer.isAlive() && kPlayer.getTeam() == ourTeam)
+				m_vResearchRates[m_pPlayer->GetID()].second += kPlayer.GetScienceTimes100();
+		}
+	}
+
+	if ( m_vResearchRates[eOther].first != GC.getGame().getGameTurn() )
+	{
+		m_vResearchRates[eOther] = std::make_pair(GC.getGame().getGameTurn(),0);
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			if(kPlayer.isAlive() && kPlayer.getTeam() == theirTeam)
+				m_vResearchRates[eOther].second += kPlayer.GetScienceTimes100();
+		}
+	}
+}
+
 // How much is a technology worth?
 int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	int iItemValue = 50;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
+	//important, don't want to recalculate for every potential tech
+	UpdateResearchRateCache(eOtherPlayer);
+
 	int iTurnsLeft;
 	int iTechEra = pkTechInfo->GetEra();
 
 	if(bFromMe)
 	{
-		iTurnsLeft = GET_PLAYER(eOtherPlayer).GetPlayerTechs()->GetResearchTurnsLeft(eTech, true);
+		iTurnsLeft = GET_PLAYER(eOtherPlayer).GetPlayerTechs()->GetResearchTurnsLeft(eTech, true, m_vResearchRates[eOtherPlayer].second);
 	}
 	else
 	{
-		iTurnsLeft = GetPlayer()->GetPlayerTechs()->GetResearchTurnsLeft(eTech, true);
+		iTurnsLeft = GetPlayer()->GetPlayerTechs()->GetResearchTurnsLeft(eTech, true, m_vResearchRates[GetPlayer()->GetID()].second);
 	}
 
 	int iI, iTechMod = 0;
@@ -9305,6 +9337,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.  Please show Jon");
+
 	CvWeightedVector<int> viTradeValues;
 	if(!bDontChangeTheirExistingItems)
 	{
