@@ -12723,10 +12723,7 @@ int CvPlot::Validate(CvMap& kParentMap)
 	//------------------------------
 	// force mountain terrain on mountain plots for correct impassability & yields - map scripts are sloppy here
 	if (m_ePlotType == PLOT_MOUNTAIN && m_eTerrainType != TERRAIN_MOUNTAIN)
-	{
-		m_eTerrainType = TERRAIN_MOUNTAIN;
-		updateImpassable();
-	}
+		setTerrainType(TERRAIN_MOUNTAIN);
 	//------------------------------
 
 	int iError = 0;

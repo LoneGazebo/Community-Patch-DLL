@@ -1771,6 +1771,12 @@ int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPath
 	if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 		iCost += GC.getINFLUENCE_RIVER_COST();
 
+	//plot type dependent cost. should really be handled via terrain, but ok for now
+	if (pToPlot->isHills())
+		iCost += GC.getINFLUENCE_HILL_COST();
+	if (pToPlot->isMountain())
+		iCost += GC.getINFLUENCE_MOUNTAIN_COST();
+
 	CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
 	CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
 

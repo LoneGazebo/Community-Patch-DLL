@@ -1189,15 +1189,15 @@ enum TerrainTypes
 {
 	NO_TERRAIN = -1,
 
-	TERRAIN_GRASS,
+	TERRAIN_GRASS,		//valid with 
 	TERRAIN_PLAINS,
 	TERRAIN_DESERT,
 	TERRAIN_TUNDRA,
 	TERRAIN_SNOW,
 	TERRAIN_COAST,
 	TERRAIN_OCEAN,
-	TERRAIN_MOUNTAIN,
-	TERRAIN_HILL,
+	TERRAIN_MOUNTAIN,	//use only with plot type mountain
+	TERRAIN_HILL,		//unused!
 
 	NUM_TERRAIN_TYPES
 };
@@ -1206,8 +1206,8 @@ enum PlotTypes
 {
 	NO_PLOT = -1,
 
-	PLOT_MOUNTAIN,	//deprecated, use terrain type instead
-	PLOT_HILLS,		//deprecated, use terrain type instead
+	PLOT_MOUNTAIN,	//use only with terrain type mountain
+	PLOT_HILLS,
 	PLOT_LAND,
 	PLOT_OCEAN,
 

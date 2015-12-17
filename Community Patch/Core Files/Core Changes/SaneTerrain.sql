@@ -1,13 +1,8 @@
-﻿-- don't use hardcoded influence values
+﻿-- treat mountain as a normal tile which is simply impassable without the proper trait
 
+-- note: see from and see through values are handled via plot type, as well as influence cost
 UPDATE Terrains
-SET InfluenceCost = '2'
-WHERE Type = 'TERRAIN_HILL';
-
--- treat mountain as a normal tile which is simply impassable without the proper trait
-
-UPDATE Terrains
-SET Movement = '3', Defense = '25', SeeFrom = '2', SeeThrough = '2', Impassable = '1', Found = '1', InfluenceCost = '3'
+SET Movement = '3', Defense = '25', Impassable = '1', Found = '1'
 WHERE Type = 'TERRAIN_MOUNTAIN';
 
 -- yields will only be realized if the plot is passable for the owner
