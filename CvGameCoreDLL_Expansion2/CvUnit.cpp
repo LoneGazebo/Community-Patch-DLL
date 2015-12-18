@@ -6582,12 +6582,6 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot, bool bIsDestination /* = false */) const
-{
-	return canDisembarkOnto( *plot(), targetPlot, false, bIsDestination );
-}
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT

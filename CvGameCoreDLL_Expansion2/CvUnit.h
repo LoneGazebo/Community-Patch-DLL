@@ -282,7 +282,6 @@ public:
 	bool canDisembarkAtPlot(const CvPlot* pPlot) const;
 	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, int iMoveFlags = 0) const;
 	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, int iMoveFlags = 0) const;
-	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
 	bool CanEverEmbark() const;  // can this unit ever change into an embarked unit
 	void embark(CvPlot* pPlot);
 	void disembark(CvPlot* pPlot);

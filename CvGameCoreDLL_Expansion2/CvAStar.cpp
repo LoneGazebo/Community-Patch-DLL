@@ -59,8 +59,9 @@ struct SLogNode
 		VALID = 1,
 		INVALID = 2
 	};
-	SLogNode( eType _type, int _round, int _x, int _y ) : type(_type), x(_x), y(_y), round(_round) {}
-	int x, y, round;
+	SLogNode( eType _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
+		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves) {}
+	int x, y, round, kc, hc, t, m;
 	eType type; 
 };
 
@@ -363,7 +364,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 				//gStackWalker.ShowCallstack();
 
 				for (size_t i=0; i<svPathLog.size(); i++)
-					pLog->Msg( CvString::format("%d,%d,%d,%d\n", svPathLog[i].round,svPathLog[i].type,svPathLog[i].x,svPathLog[i].y ).c_str() );
+					pLog->Msg( CvString::format("%d,%d,%d,%d,%d,%d,%d,%d\n", svPathLog[i].round,svPathLog[i].type,svPathLog[i].x,svPathLog[i].y,
+						svPathLog[i].kc,svPathLog[i].hc,svPathLog[i].t,svPathLog[i].m ).c_str() );
 			}
 		}
 	}
@@ -445,7 +447,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 {
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	if (MOD_BALANCE_CORE_DEBUGGING)
-		svPathLog.push_back( SLogNode( SLogNode::BEST, m_iRounds, node->m_iX, node->m_iY ) );
+		svPathLog.push_back( SLogNode( SLogNode::BEST, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
 	int count = 6;
@@ -469,7 +471,10 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)
-			svPathLog.push_back( SLogNode( bGood ? SLogNode::VALID : SLogNode::INVALID, m_iRounds, check->m_iX, check->m_iY ) );
+			if (bGood)
+				svPathLog.push_back( SLogNode( SLogNode::VALID, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
+			else
+				svPathLog.push_back( SLogNode( SLogNode::INVALID, m_iRounds, check->m_iX, check->m_iY, -1, -1, -1, -1 ) );
 #endif
 	}
 
@@ -560,7 +565,7 @@ bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		FAssert(node->m_pParent != check);
 		check->m_pParent = node;
 		check->m_iKnownCost = iKnownCost;
-		if(udHeuristic == NULL)
+		if(udHeuristic == NULL || !isValid(m_iXdest, m_iYdest))
 		{
 			check->m_iHeuristicCost = 0;
 		}
@@ -871,8 +876,8 @@ struct UnitPathCacheData
 	bool m_bIsEmbarked;
 	bool m_bCanAttack;
 	bool m_bDoDanger;
-	inline bool DoDanger() const { return m_bDoDanger; }
 
+	inline bool DoDanger() const { return m_bDoDanger; }
 	inline int baseMoves(DomainTypes eType) const { return m_aBaseMoves[eType]; }
 	inline int maxMoves() const { return m_iMaxMoves; }
 	inline PlayerTypes getOwner() const { return m_ePlayerID; }
@@ -905,7 +910,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bAIControl = !pUnit->isHuman() || pUnit->IsAutomated();
 	pCacheData->m_bIsImmobile = pUnit->IsImmobile();
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
-	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
+	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark() && !pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
 	//danger is relevant for AI controlled units, if we didn't explicitly disable it
@@ -1142,7 +1147,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
 	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
 	// of the path segment is different from the destination plot.
-	DomainTypes eDomain = (pToPlot->isWater() || pCacheData->isEmbarked()) ? DOMAIN_SEA : eUnitDomain;
+	DomainTypes eDomain = (bToPlotIsWater || pCacheData->isEmbarked()) ? DOMAIN_SEA : eUnitDomain;
 	int iMovementCost = 0;
 	
 	// do not pass in the remaining moves, we want to see the true cost!
@@ -1397,7 +1402,7 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
 	int iMoveFlags = 0;
 
-	//some checks about units etc. they need to be visible, we leak information
+	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
 		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING)) 
@@ -1415,32 +1420,28 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 			//all other rules are hidden here
 			if (pUnit->isRanged())
 			{
-				//ranged units can only "attack" civilian by moving (i.e. capture them)
+				//ranged units can capture a civilian by moving but need the attack flag to do it
 				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-
-				if (!pUnit->canMoveInto(*pToPlot, iMoveFlags))
-					return FALSE;
 			}
 			else
 			{
-				if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-					return FALSE;
+				//melee units attack enemy cities and units 
+				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
-		}
-		else
-		{
-			//normal "along the way" plot
-			if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
-				return FALSE;
 
 			//civilians shouldn't let themselves be captured
 			if(kToNodeCacheData.iPlotDanger==INT_MAX && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
 				return FALSE;
 		}
+
+		//now that we got the flags sorted out, here's the important line
+		if(!pUnit->canMoveInto(*pToPlot, iMoveFlags))
+			return FALSE;
 	}
 
-	//some checks about terrain etc. needs to be revealed, otherwise we leak information
+	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
 		// check impassable terrain - in case this plot is visible we already checked in canMoveInto, but it should be fast
@@ -1450,7 +1451,7 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		if(!kToNodeCacheData.bCanEnterTerritory)
 			return FALSE;
 
-		if(pCacheData->getDomainType() == DOMAIN_LAND)
+		if(pCacheData->CanEverEmbark())
 		{
 			//don't embark if forbidden - but move along if already on water plot
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && !kFromNodeCacheData.bIsWater)
@@ -1462,29 +1463,18 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 
 			//embark required and possible?
 			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, iMoveFlags))
-			{
-				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
-					return FALSE;
-			}
+				return FALSE;
 
 			//disembark required and possible?
 			if(kFromNodeCacheData.bIsWater && !kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true, iMoveFlags))
-			{
-				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
-					return FALSE;
-			}
+				return FALSE;
 		}
 
 		//normally we would be able to enter enemy territory if at war
 		if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
 		{
-			if(pToPlot->isOwned())
-			{
-				if(atWar(pToPlot->getTeam(), eUnitTeam))
-				{
-					return FALSE;
-				}
-			}
+			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
+				return FALSE;
 		}
 
 		//ocean allowed?
@@ -1743,7 +1733,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 /// Influence path finder - determine heuristic cost
 int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY);
+	return plotDistance(iFromX, iFromY, iToX, iToY) * 3;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1126,7 +1126,7 @@ int CvLuaUnit::lCanDisembarkOnto(lua_State* L)
 	bool bResult = false;
 	if(pkTargetPlot)
 	{
-		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot, bIsDestination ? CvUnit::MOVEFLAG_DESTINATION : 0);	
+		bResult = pkUnit->canDisembarkOnto(*pkUnit->plot(), *pkTargetPlot, false, bIsDestination ? CvUnit::MOVEFLAG_DESTINATION : 0);	
 	}
 
 	lua_pushboolean(L, bResult);

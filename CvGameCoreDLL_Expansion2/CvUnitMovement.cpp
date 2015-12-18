@@ -257,9 +257,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 
 	if(!pFromPlot->isValidDomainForLocation(*pUnit))
 	{
-		// If we are a land unit that can embark, then do further tests.
-		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
-			return true;
+		return true;
 	}
 
 	// if the unit can (or has to) embark and we are transitioning from land to water or vice versa
