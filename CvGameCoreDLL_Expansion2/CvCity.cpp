@@ -3187,56 +3187,58 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreci
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
+	if (ePossibleOwner!=NO_PLAYER)
 	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		//for plots owned by this city
-		if(NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
+		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 		{
-			//todo: add something for currently unworked plots (future potential)
-			ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType( GET_PLAYER(ePossibleOwner).getTeam() );
-			if(eResource == NO_RESOURCE)
-				continue;
-
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (!pkResourceInfo)
-				continue;
-
-			ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
-			int iResourceQuantity = pLoopPlot->getNumResource();
-			// Luxury Resource
-			if(eUsage == RESOURCEUSAGE_LUXURY)
+			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+			//for plots owned by this city
+			if(NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
 			{
-				if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+				//todo: add something for currently unworked plots (future potential)
+				ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType( GET_PLAYER(ePossibleOwner).getTeam() );
+				if(eResource == NO_RESOURCE)
 					continue;
 
-				int iValue = 200;
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (!pkResourceInfo)
+					continue;
 
-				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
-						iValue = 600;
+				ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
+				int iResourceQuantity = pLoopPlot->getNumResource();
+				// Luxury Resource
+				if(eUsage == RESOURCEUSAGE_LUXURY)
+				{
+					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+						continue;
 
-				int iHappinessFromResource = pkResourceInfo->getHappiness();
-				iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
-			}
-			// Strategic Resource
-			else if(eUsage == RESOURCEUSAGE_STRATEGIC)
-			{
-				int iValue = 400;
+					int iValue = 200;
 
-				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
-						iValue = 800;
+					// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+					if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+							iValue = 600;
 
-				iResourceValue += iResourceQuantity * iValue;
-			}
-		} //owned plots
-	} //all plots
+					int iHappinessFromResource = pkResourceInfo->getHappiness();
+					iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
+				}
+				// Strategic Resource
+				else if(eUsage == RESOURCEUSAGE_STRATEGIC)
+				{
+					int iValue = 400;
 
+					// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+					if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+							iValue = 800;
+
+					iResourceValue += iResourceQuantity * iValue;
+				}
+			} //owned plots
+		} //all plots
+	}
 	return (iYieldValue + iResourceValue) * iNumTurnsForDepreciation / 100;
 }
 

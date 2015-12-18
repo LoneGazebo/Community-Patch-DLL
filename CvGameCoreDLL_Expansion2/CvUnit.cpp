@@ -4228,7 +4228,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
+bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int /*iMoveFlags*/) const
 {
 	VALIDATE_OBJECT
 	DomainTypes eDomain = getDomainType();
@@ -4248,20 +4248,12 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), false))
 			return false;
 
-	// Land units may need to embark - can we do it? are we allowed to?
-	if (eDomain==DOMAIN_LAND)
-		if (IsHoveringUnit())
-		{
-			//helicopter no deep water
-			if(enterPlot.isDeepWater())	
-				return false;
-		}
-		else
-		{
-			//normal land unit, embark for all water
-			if(enterPlot.isWater() && !enterPlot.IsAllowsWalkWater() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
-				return false;
-		}
+	// Hover no deep water
+	if (eDomain==DOMAIN_HOVER || IsHoveringUnit())
+		if(enterPlot.isDeepWater())	
+			return false;
+
+	// Land units may go anywhere in principle (with embarkation)
 
 	// Part 2 : easy decisions ---------------------------------------------------
 
@@ -4277,35 +4269,29 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
-	if (enterPlot.isMountain())
-	{
-		bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
-		return bCanCross;
-	}
-
-	bool bOceanImpassable = false;
-	bool bOceanImpassableAstronomy = false;
-	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-	if(isHasPromotion(ePromotionOceanImpassable))
-	{
-		bOceanImpassable = true;
-	}
-	PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
-	if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
-	{
-		bOceanImpassableAstronomy = true;
-	}
 	// Check coastal water
-	if (enterPlot.isWater() && enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+	if ( enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
 	{
 		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean() || (eDomain == DOMAIN_SEA);
 		return bCanCross;
 	}
 
 	// Check high seas
-	if (enterPlot.isWater() && !enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+	if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 	{
+		bool bOceanImpassable = false;
+		bool bOceanImpassableAstronomy = false;
+		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+		if(isHasPromotion(ePromotionOceanImpassable))
+		{
+			bOceanImpassable = true;
+		}
+		PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+		if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
+		{
+			bOceanImpassableAstronomy = true;
+		}
+
 		if(bOceanImpassable)
 		{	
 			return false;
@@ -4322,10 +4308,17 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		}
 	}
 
-	// Check ice with specialty: is passable of owned
+	// Check ice with specialty: is passable if owned
 	if (enterPlot.isIce()) 
 	{
 		bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
+		return bCanCross;
+	}
+
+	// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
+	if (enterPlot.isMountain())
+	{
+		bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
 		return bCanCross;
 	}
 
@@ -6523,7 +6516,7 @@ bool CvUnit::canDisembarkAtPlot(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
+bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 
@@ -6552,11 +6545,11 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	return canMoveInto(targetPlot, iMoveFlags);
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
+bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 
@@ -6585,7 +6578,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	return canMoveInto(targetPlot, iMoveFlags);
 }
 
 //	--------------------------------------------------------------------------------

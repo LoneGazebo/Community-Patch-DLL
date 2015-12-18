@@ -437,7 +437,7 @@ public:
 	};
 	bool isHills()          const
 	{
-		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
+		return (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
 	bool isIce()            const
 	{
@@ -451,6 +451,7 @@ public:
 	}
 	bool isMountain()       const
 	{
+		//the two should be synonymous ...
 		return (TerrainTypes)m_eTerrainType == TERRAIN_MOUNTAIN || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
 	};
 	bool isRiver()          const

@@ -960,7 +960,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
 	}
 
-	kToNodeCacheData.bUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
 
 	if (bDoDanger)
 		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
@@ -1382,7 +1382,7 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		if (kFromNodeCacheData.bPlotVisibleToTeam)
 		{
 			// check stacking (if visible)
-			if(bCheckStacking && kFromNodeCacheData.bUnitLimitReached)
+			if(bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
 			{
 				// Don't count origin, or else a unit will block its own movement!
 				if(parent->m_iX != pUnit->getX() || parent->m_iY != pUnit->getY())
@@ -1394,21 +1394,22 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	CvMap& theMap = GC.getMap();
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
+	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
+	int iMoveFlags = 0;
 
 	//some checks about units etc. they need to be visible, we leak information
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		int iMoveFlags = 0;
 		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING)) 
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 		//special checks for last node - similar as in PathDestValid
-		if (finder->IsPathDest(node->m_iX,node->m_iY))
+		if (bIsDestination)
 		{
 			iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
 			//check friendly stacking - this is also checked in canMoveInto but this way it's maybe faster
-			if(bCheckStacking && kToNodeCacheData.bUnitLimitReached)
+			if(bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
 				return FALSE;
 
 			//all other rules are hidden here
@@ -1460,14 +1461,14 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 				return FALSE;
 
 			//embark required and possible?
-			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
+			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, iMoveFlags))
 			{
 				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
 					return FALSE;
 			}
 
 			//disembark required and possible?
-			if(kFromNodeCacheData.bIsWater && !kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true))
+			if(kFromNodeCacheData.bIsWater && !kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true, iMoveFlags))
 			{
 				if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
 					return FALSE;
@@ -2901,7 +2902,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 		pCacheData->m_ePlayer = data.ePlayer;
 		pCacheData->m_eTeam = kPlayer.getTeam();
-		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean();
+		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() || GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage();
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();

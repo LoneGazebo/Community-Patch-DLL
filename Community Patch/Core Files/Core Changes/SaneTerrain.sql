@@ -2,7 +2,7 @@
 
 -- note: see from and see through values are handled via plot type, as well as influence cost
 UPDATE Terrains
-SET Movement = '3', Defense = '25', Impassable = '1', Found = '1'
+SET Movement = '3', Defense = '25', Impassable = '1', Water = 'false', Found = '1'
 WHERE Type = 'TERRAIN_MOUNTAIN';
 
 -- yields will only be realized if the plot is passable for the owner

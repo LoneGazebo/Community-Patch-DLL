@@ -2269,6 +2269,8 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 
 	m_aUniqueLuxuryAreas.clear();
 	m_iUniqueLuxuryCitiesPlaced = 0;
+
+	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
 }
 
 /// Store off data on bonuses from traits
@@ -2282,7 +2284,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_vLeaderTraits.push_back( (TraitTypes)iI );
 		}
 
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
 		if(HasTrait((TraitTypes)iI))
 		{
