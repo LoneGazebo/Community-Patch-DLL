@@ -261,7 +261,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 	}
 
 	// if the unit can (or has to) embark and we are transitioning from land to water or vice versa
-	if(pUnit->CanEverEmbark() && !pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() )
+	if(pUnit->CanEverEmbark())
 	{
 		bool bCanMoveFreely = false;
 		TeamTypes eUnitTeam = pUnit->getTeam();
@@ -307,7 +307,7 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 	if(!pToPlot->isValidDomainForAction(*pUnit))
 	{
 		// If we are a land unit that can embark, then do further tests.
-		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
+		if(!pUnit->CanEverEmbark())
 			return true;
 	}
 
@@ -318,16 +318,17 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 		return true;
 	}
 
-	// Is the unit from a civ that can disembark for just 1 MP?
-	if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-	{
-		return true;
-	}
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-	if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked())
+	if(!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation() && pUnit->isEmbarked())
 	{
+		// Is the unit from a civ that can disembark for just 1 MP?
+		if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+		{
+			return true;
+		}
+
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 		//If city, and player has disembark to city at reduced cost...
 		if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
 		{
@@ -339,7 +340,8 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 			return true;
 		}
 	}
-	if(pToPlot->isWater() && !pFromPlot->isWater() && !pUnit->isEmbarked())
+
+	if(pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation() && !pUnit->isEmbarked())
 	{
 		//If city, and player has disembark to city at reduced cost...
 		if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
@@ -352,7 +354,8 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 			return true;
 		}
 	}
-			
+#else
+	}
 #endif
 
 	return false;
@@ -447,7 +450,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 						{
 #if defined(MOD_BALANCE_CORE)
 							// hovering units always exert a ZOC
-							if (pLoopUnit->IsHoveringUnit())
+							if (pLoopUnit->IsHoveringUnit() || pLoopUnit->canMoveAllTerrain())
 							{
 								// continue on
 							}

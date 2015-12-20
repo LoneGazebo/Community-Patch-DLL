@@ -3706,7 +3706,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 		return false;
 	}
 
-	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_MIXED, NO_ROUTE);
+	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_MIXED, ROUTE_ANY);
 	bool bReturnValue = GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 
 	if(!bReturnValue)

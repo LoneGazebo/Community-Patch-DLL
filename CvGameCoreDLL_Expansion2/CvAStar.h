@@ -502,6 +502,6 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder);
 void TradePathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 
 //helper functions
-bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = ROUTE_ANY, bool bIgnoreHarbors = false);
 
 #endif	//CVASTAR_H

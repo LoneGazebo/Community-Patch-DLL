@@ -107,6 +107,9 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		}
 	}
 
+	if(pPlot->IsNaturalWonder())
+		return false;
+
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
 		if(GC.getFeatureInfo(pPlot->getFeatureType())->isNoCity())

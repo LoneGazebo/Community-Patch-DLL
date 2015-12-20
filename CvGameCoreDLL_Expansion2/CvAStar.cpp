@@ -910,7 +910,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bAIControl = !pUnit->isHuman() || pUnit->IsAutomated();
 	pCacheData->m_bIsImmobile = pUnit->IsImmobile();
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
-	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark() && !pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain();
+	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
 	//danger is relevant for AI controlled units, if we didn't explicitly disable it
@@ -1096,7 +1096,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return (plotDistance(iFromX, iFromY, iToX, iToY)*PATH_MOVEMENT_WEIGHT*90); //a normal move is 60 times the base cost
+	return (plotDistance(iFromX, iFromY, iToX, iToY)*PATH_MOVEMENT_WEIGHT*50); //a normal move is 60 times the base cost
 }
 
 //	--------------------------------------------------------------------------------
@@ -1121,10 +1121,10 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 	DomainTypes eUnitDomain = pCacheData->getDomainType();
-	CvAssertMsg(eUnitDomain != DOMAIN_AIR, "pUnit->getDomainType() is not expected to be equal with DOMAIN_AIR");
 
-	bool bToPlotIsWater = pToPlot->needsEmbarkation();	//also for sea units
-	bool bFromPlotIsWater = pFromPlot->needsEmbarkation();	//also for sea units
+	//this is quite tricky with passable ice plots which can be either water or land
+	bool bToPlotIsWater = pToPlot->needsEmbarkation() || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bFromPlotIsWater = pFromPlot->needsEmbarkation() || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 
 	//if we would have to start a new turn
 	if (iStartMoves==0)
@@ -1733,7 +1733,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 /// Influence path finder - determine heuristic cost
 int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 3;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * 2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1885,7 +1885,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	if(pNewPlot->IsRoutePillaged())
 		ePlotRoute = NO_ROUTE;
 
-	if (ePlotRoute==NO_ROUTE)
+	if(ePlotRoute == NO_ROUTE)
 	{
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
@@ -1931,31 +1931,32 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 		}
 	}
 
-	//which route types are allowed?
-	if ( eRoute == NO_ROUTE )
+	// City plots match all route types
+	if(pNewPlot->isCity())
 	{
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		// Cities always have the best route, which permits "harbour to harbour" connections before The Wheel
-		if(pNewPlot->isCity())
-		{
-			return TRUE;
-		}
-#endif
+		return TRUE;
+	}
 
+	if(ePlotRoute == NO_ROUTE)
+	{
+		return FALSE;
+	}
+
+	//which route types are allowed?
+	if ( eRoute == ROUTE_ANY )
+	{
 		// if the player can't build
 		if(kPlayer.getBestRoute() == NO_ROUTE)
 		{
 			return FALSE;
 		}
 
-		if(ePlotRoute != NO_ROUTE)
-		{
-			return TRUE;
-		}
+		return TRUE;
 	}
 	else
 	{
-		if(ePlotRoute == eRoute)
+		//a railroad is also a road!
+		if(ePlotRoute >= eRoute)
 		{
 			return TRUE;
 		}
@@ -2928,7 +2929,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 //	--------------------------------------------------------------------------------
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST * 3;
+	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST * 2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3063,11 +3064,11 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 		return TRUE;
 
 	//check passable improvements
-	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),true))
+	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
 	{
 		//not allowed to build chains of passable improvements
 		CvPlot* pParentPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-		if(pParentPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),true))
+		if(pParentPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
 			return FALSE;
 
 		return TRUE;
@@ -3140,7 +3141,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_ROUTE_MIXED : PT_CITY_ROUTE_MIXED, eRestrictRoute);
+	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_ROUTE_LAND : PT_CITY_ROUTE_MIXED, eRestrictRoute);
 
 	return GC.GetStepFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
 }

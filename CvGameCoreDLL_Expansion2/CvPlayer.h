@@ -245,9 +245,9 @@ public:
 
 	int countCitiesFeatureSurrounded() const;
 
-	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = NO_ROUTE, bool bIgnoreHarbors = false);
-	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = NO_ROUTE);
-	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = NO_ROUTE);
+	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false);
+	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = ROUTE_ANY);
+	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = ROUTE_ANY);
 
 	void findNewCapital();
 
@@ -3058,7 +3058,7 @@ protected:
 #endif
 
 	//city ID to (turn,connected)
-	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup;
+	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup[NUM_ROUTE_TYPES];
 };
 
 extern bool CancelActivePlayerEndTurn();

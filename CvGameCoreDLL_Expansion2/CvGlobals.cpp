@@ -2283,7 +2283,7 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if(MOD_BALANCE_CORE_DEBUGGING)
+	//if(MOD_BALANCE_CORE_DEBUGGING)
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );

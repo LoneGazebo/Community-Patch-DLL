@@ -2903,7 +2903,8 @@ void CvCity::SetIndustrialRouteToCapital(bool bValue)
 /// Connected to capital with industrial route? (Railroads)
 void CvCity::DoUpdateIndustrialRouteToCapital()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoUpdateIndustrialRouteToCapital, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+	SetIndustrialRouteToCapital(false);
+
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{

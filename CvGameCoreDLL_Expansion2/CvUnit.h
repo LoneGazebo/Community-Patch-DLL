@@ -1850,6 +1850,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 	AIHomelandMove m_eHomelandMove;
 #endif
+
+	friend class CvLuaUnit;
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

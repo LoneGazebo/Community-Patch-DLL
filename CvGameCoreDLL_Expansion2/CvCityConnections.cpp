@@ -225,7 +225,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	FStaticVector<CvCity*, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> vpCities;
 	CvCity* pLoopCity = NULL;
 	int iLoop;
-#if defined(MOD_BALANCE_CORE)
+
 	bool bAllowDirectRoutes = (eBestRouteType != NO_ROUTE);
 	bool bAllowIndirectRoutes = false;
 	
@@ -300,7 +300,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	// CONNECTION TEST
 	// pass 0 = can cities connect via land routes
 	// pass 1 = can cities connect via water routes
-	// pass 2 = can cities connect via land routes (double checking this)
+	// pass 2 = can cities connect via land routes (in case we hooked up a new continent in pass 1)
 	for(int iPass = 0; iPass <= 2; iPass++)
 	{
 		if(iPass == 0 && !bAllowDirectRoutes)  // if in the first pass we can't create direct routes, skip
@@ -348,34 +348,25 @@ void CvCityConnections::UpdateRouteInfo(void)
 				}
 
 				pRouteInfo->m_cPassEval = iPass + 1;
-				if(iPass == 0)  // check land route
+				if(iPass == 0 || iPass == 2)  // check land route
 				{
-					//Actually check land route.
-					bool bAnyRouteFound = false;
+					SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_ROUTE_LAND, ROUTE_ANY);
+					bool bAnyLandRouteFound = GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
 
-					SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_ROUTE_LAND, NO_ROUTE);
-					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
-					{
-						bAnyRouteFound = true;
-					}
-
-					if (!bAnyRouteFound && bCallDirectEvents)
+					if (!bAnyLandRouteFound && bCallDirectEvents)
 					{
 						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
 						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), true) == GAMEEVENTRETURN_TRUE) {
-							bAnyRouteFound = true;
+							bAnyLandRouteFound = true;
 						}
 					}
 
-					if(bAnyRouteFound)
+					if(bAnyLandRouteFound)
 					{
 						pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE;
-					}
 
-					// walk through the nodes for plot route info
-					if((pFirstCity->isCapital() || pFirstCity->IsConnectedToCapital()) || (pSecondCity->isCapital() || pSecondCity->IsConnectedToCapital()))
-					{
-						if(bAnyRouteFound)
+						// walk through the nodes for plot route info
+						if(pFirstCity->IsConnectedToCapital() || pSecondCity->IsConnectedToCapital())
 						{
 							CvPlot* pPlot = NULL;
 							CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
@@ -393,32 +384,26 @@ void CvCityConnections::UpdateRouteInfo(void)
 				}
 				else if(iPass == 1)  // check water route
 				{
-					//Actually check water route.
 					// if either city is blockaded, don't consider a water connection
 					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
 					{
 						continue;
 					}
 
-					//Actually check land route.
-					bool bAnyRouteFound = false;
+					//check mixed connection: if a city is connected via land to a city with a known harbor connection to another city
+					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, ROUTE_ANY );
+					bool bHaveMixedRoute = GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
 
-					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, NO_ROUTE );
-					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
-					{
-						bAnyRouteFound = true;
-					}
-
-					if (!bAnyRouteFound && bCallDirectEvents)
+					if (!bHaveMixedRoute && bCallDirectEvents)
 					{
 						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
 						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), true) == GAMEEVENTRETURN_TRUE) {
-							bAnyRouteFound = true;
+							bHaveMixedRoute = true;
 						}
 					}
 
-					//Only check for water route if we don't have a direct route available.
-					if(!bAnyRouteFound)
+					//Only check for water only route if we don't already have a mixed route available
+					if(!bHaveMixedRoute)
 					{
 						bool bFirstCityHasHarbor = false;
 						bool bSecondCityHasHarbor = false;
@@ -443,13 +428,15 @@ void CvCityConnections::UpdateRouteInfo(void)
 							if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 							{
 								pRouteInfo->m_cRouteState |= HAS_INDIRECT_ROUTE;
-								if(pFirstCity->isCapital() || pSecondCity->isCapital())
+
+								if(pFirstCity->IsConnectedToCapital() || pSecondCity->IsConnectedToCapital())
 								{
 									pFirstCity->SetRouteToCapitalConnected(true);
 									pSecondCity->SetRouteToCapitalConnected(true);
 								}
 							}
 						}
+
 						if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
 						{
 							// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
@@ -459,227 +446,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 						}
 					}
 				}
-				else if(iPass == 2)  // check land again (after harbor setting)
-				{
-					//Check land route again.
-					bool bAnyRouteFound = false;
-
-					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, NO_ROUTE);
-					if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
-					{
-						bAnyRouteFound = true;
-					}
-
-					if (!bAnyRouteFound && bCallDirectEvents)
-					{
-						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
-						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), true) == GAMEEVENTRETURN_TRUE) {
-							bAnyRouteFound = true;
-						}
-					}
-
-					if(bAnyRouteFound)
-					{
-						pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE;
-					}
-
-					// walk through the nodes for plot route info
-					if((pFirstCity->isCapital() || pFirstCity->IsConnectedToCapital()) || (pSecondCity->isCapital() || pSecondCity->IsConnectedToCapital()))
-					{
-						if(bAnyRouteFound)
-						{
-							CvPlot* pPlot = NULL;
-							CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
-							while(pNode)
-							{
-								pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
-								ConnectPlotRoute(pPlot);
-								pNode = pNode->m_pParent;
-							}
-
-							pFirstCity->SetRouteToCapitalConnected(true);
-							pSecondCity->SetRouteToCapitalConnected(true);
-						}
-					}
-				}
 			}
 		}
 	}
-#else
-	bool bAllowWaterRoutes = false;
-
-	// add all the cities we control and those that we want to connect to
-	for(uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if(GET_PLAYER(ePlayer).isBarbarian())
-		{
-			continue;
-		}
-
-		if(ePlayer == m_pPlayer->GetID())
-		{
-			// player's city
-			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-			{
-				vpCities.push_back(pLoopCity);
-				pLoopCity->SetRouteToCapitalConnected(false);
-
-				if(!bAllowWaterRoutes)
-				{
-					for(uint uiBuildingTypes = 0; uiBuildingTypes < m_aBuildingsAllowWaterRoutes.size(); uiBuildingTypes++)
-					{
-						if(pLoopCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[uiBuildingTypes]) > 0)
-						{
-							bAllowWaterRoutes = true;
-						}
-					}
-				}
-			}
-		}
-		else if(ShouldConnectToOtherPlayer(ePlayer))
-		{
-			CvCity* pOtherCapital = GET_PLAYER(ePlayer).getCapitalCity();
-			if(pOtherCapital)
-			{
-				vpCities.push_back(pOtherCapital);
-			}
-		}
-	}
-
-	if(vpCities.size() > m_uiRouteInfosDimension)
-	{
-		ResizeRouteInfo((uint)((float)m_uiRouteInfosDimension * 1.5f));
-	}
-	ResetRouteInfo();
-
-	// if the player can't build any routes, then we don't need to check this
-	if(eBestRouteType == NO_ROUTE && !bAllowWaterRoutes)
-	{
-		return;
-	}
-	// pass 0 = can cities connect via water routes
-	// pass 1 = can cities connect via land and water routes
-	for(int iPass = 0; iPass < 2; iPass++)
-	{
-		if(iPass == 0 && !bAllowWaterRoutes)  // if in the first pass, we can't embark, skip
-		{
-			continue;
-		}
-		else if(iPass == 1 && eBestRouteType == NO_ROUTE)  // if in the second pass, we can't build a road, skip
-		{
-			continue;
-		}
-
-		CvCity* pFirstCity = NULL;
-		CvCity* pSecondCity = NULL;
-
-		CvAStar* pkLandRouteFinder;
-		pkLandRouteFinder = &GC.GetCityConnectionFinder();
-
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < vpCities.size(); uiFirstCityIndex++)
-		{
-			pFirstCity = vpCities[uiFirstCityIndex];
-			int iFirstCityArrayIndex = GetIndexFromCity(pFirstCity);
-
-			for(uint uiSecondCityIndex = 0; uiSecondCityIndex < vpCities.size(); uiSecondCityIndex++)
-			{
-				// same city! ignore
-				if(uiSecondCityIndex == uiFirstCityIndex)
-				{
-					continue;
-				}
-				pSecondCity = vpCities[uiSecondCityIndex];
-				int iSecondCityArrayIndex = GetIndexFromCity(pSecondCity);
-
-				RouteInfo* pRouteInfo = GetRouteInfo(iFirstCityArrayIndex, iSecondCityArrayIndex);
-				RouteInfo* pInverseRouteInfo = GetRouteInfo(iSecondCityArrayIndex, iFirstCityArrayIndex);
-
-				// bail if either are null
-				if(!pRouteInfo || !pInverseRouteInfo)
-				{
-					continue;
-				}
-
-				// if the route has already been evaluated, copy the data
-				if(pInverseRouteInfo->m_cPassEval > iPass)
-				{
-					pRouteInfo->m_cPassEval = pInverseRouteInfo->m_cPassEval;
-					pRouteInfo->m_cRouteState = pInverseRouteInfo->m_cRouteState;
-					continue;
-				}
-
-				// this path already has an existing route (usually water)
-				//if(pRouteInfo->m_cRouteState & (HAS_ANY_ROUTE | HAS_BEST_ROUTE | HAS_WATER_ROUTE))
-				//{
-				//	continue;
-				//}
-				pRouteInfo->m_cPassEval = iPass + 1;
-				if(iPass == 0)  // check water route
-				{
-					// if either city is blockaded, don't consider a water connection
-					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
-					{
-						continue;
-					}
-
-					bool bFirstCityHasHarbor = false;
-					bool bSecondCityHasHarbor = false;
-
-					// Loop through adding the available buildings
-					for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
-					{
-						if(pFirstCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-						{
-							bFirstCityHasHarbor = true;
-						}
-
-						if(pSecondCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-						{
-							bSecondCityHasHarbor = true;
-						}
-					}
-
-					if(bFirstCityHasHarbor && bSecondCityHasHarbor)
-					{
-						if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
-						{
-							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_WATER_ROUTE;
-						}
-					}
-				}
-				else if(iPass == 1)  // check water route
-				{
-					bool bAnyRouteFound = false;
-					bool bBestRouteFound = false;
-
-					// assuming that there are fewer than 256 players
-					int iRouteValue = eBestRouteType + 1;
-					int iPathfinderFlags = (iRouteValue << 8);
-
-					if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), iPathfinderFlags | m_pPlayer->GetID(), true))
-					{
-						bAnyRouteFound = true;
-						bBestRouteFound = true;
-					}
-					if(!bAnyRouteFound)
-					{
-						if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
-						{
-							bAnyRouteFound = true;
-						}
-					}
-
-					if(bBestRouteFound)
-					{
-						pRouteInfo->m_cRouteState |= HAS_BEST_ROUTE | HAS_ANY_ROUTE;
-					}
-					else if(bAnyRouteFound)
-				}
-			}
-		}
-	}
-#endif
 }
 
 /// Reset the city id array to have invalid data
