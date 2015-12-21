@@ -648,9 +648,9 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < pCityConnections->m_aiCityPlotIDs.size(); uiFirstCityIndex++)
+		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < pCityConnections->GetNumConnectableCities(); uiFirstCityIndex++)
 		{
-			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < pCityConnections->m_aiCityPlotIDs.size(); uiSecondCityIndex++)
+			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
 			{
 				// get the two cities
 				CvCity* pFirstCity  = pCityConnections->GetCityFromIndex(uiFirstCityIndex);

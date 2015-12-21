@@ -443,6 +443,7 @@ private:
 
 // C-style non-member functions (used by path finder)
 int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
+int DistanceHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
@@ -456,7 +457,6 @@ int IgnoreUnitsCost(const CvAStarNode* parent, CvAStarNode* node, int operation,
 int IgnoreUnitsValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
-int StepHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int StepValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder);
@@ -475,7 +475,6 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, int operat
 int JoinLandmass(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
-int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 

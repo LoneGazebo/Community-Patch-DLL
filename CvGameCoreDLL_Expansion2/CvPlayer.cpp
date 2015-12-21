@@ -7350,6 +7350,8 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 		return false;
 	}
 
+	//todo: unify this with CvCityConnections!
+
 	//did we already check it this turn?
 	std::map<int,std::pair<int,bool>>::iterator lastState = m_capitalConnectionLookup[eRestrictRoute].find(pCity->GetID());
 	if (lastState!=m_capitalConnectionLookup[eRestrictRoute].end() && lastState->second.first==GC.getGame().getGameTurn())
@@ -36303,6 +36305,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	{
 		CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
 
+		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
+			continue;
+
 		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
 			vBadPlots.push_back(pPlot);
@@ -36344,6 +36349,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			//check if it's too close to an enemy
 			for (size_t j=0; j<vBadPlots.size(); j++)
 			{
+				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
+					continue;
+
 				if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
 				{
 					isDangerous = true;

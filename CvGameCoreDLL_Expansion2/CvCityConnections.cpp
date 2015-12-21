@@ -197,6 +197,16 @@ CvCityConnections::RouteInfo* CvCityConnections::GetRouteInfo(uint uiFirstCityIn
 	return &(m_aRouteInfos[uiFirstCityIndex * m_uiRouteInfosDimension + uiSecondCityIndex]);
 }
 
+bool CvCityConnections::AreCitiesConnected(const CvCity * pCityA, const CvCity * pCityB, RouteState eRouteType)
+{
+	uint iA = GetIndexFromCity(pCityA);
+	uint iB = GetIndexFromCity(pCityB);
+
+	RouteInfo* pInfo = GetRouteInfo(iA,iB);
+
+	return ( pInfo && (pInfo->m_cRouteState & eRouteType)>0 );
+}
+
 /// Reset the route info array to have empty data
 void CvCityConnections::ResetRouteInfo(void)
 {
@@ -363,7 +373,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 					if(bAnyLandRouteFound)
 					{
-						pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE;
+						pRouteInfo->m_cRouteState |= HAS_LAND_CONNECTION;
 
 						// walk through the nodes for plot route info
 						if(pFirstCity->IsConnectedToCapital() || pSecondCity->IsConnectedToCapital())
@@ -427,7 +437,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 							SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_WATER);
 							if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 							{
-								pRouteInfo->m_cRouteState |= HAS_INDIRECT_ROUTE;
+								pRouteInfo->m_cRouteState |= HAS_WATER_CONNECTION;
 
 								if(pFirstCity->IsConnectedToCapital() || pSecondCity->IsConnectedToCapital())
 								{
@@ -437,11 +447,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 							}
 						}
 
-						if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
+						if (!(pRouteInfo->m_cRouteState & HAS_LAND_CONNECTION) && bCallIndirectEvents)
 						{
 							// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
 							if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), false) == GAMEEVENTRETURN_TRUE) {
-								pRouteInfo->m_cRouteState |= HAS_INDIRECT_ROUTE;
+								pRouteInfo->m_cRouteState |= HAS_WATER_CONNECTION;
 							}
 						}
 					}
@@ -471,27 +481,16 @@ bool CvCityConnections::IsEmpty(void)
 }
 
 /// Get the index value from the city passed in
-uint CvCityConnections::GetIndexFromCity(CvCity* pCity)
+uint CvCityConnections::GetIndexFromCity(const CvCity* pCity)
 {
-	CvCity* pOtherCity = NULL;
-	for(uint ui = 0; ui < m_aiCityPlotIDs.size(); ui++)
-	{
-		int iPlotIndex = m_aiCityPlotIDs[ui];
-		CvPlot* pPlot = GC.getMap().plotByIndex(iPlotIndex);
-		CvAssertMsg(pPlot, "invalid plot. whut??");
-		if(pPlot)
+	if (pCity)
+		for(uint ui = 0; ui < m_aiCityPlotIDs.size(); ui++)
 		{
-			pOtherCity = pPlot->getPlotCity();
-			CvAssertMsg(pOtherCity, "No city on this plot. Whut?");
-
-			if(pOtherCity == pCity)
-			{
+			int iPlotIndex = m_aiCityPlotIDs[ui];
+			if(pCity->plot()->GetPlotIndex() == iPlotIndex)
 				return ui;
-			}
 		}
-	}
 
-	CvAssertMsg(false, "City not found");
 	return UINT_MAX;
 }
 

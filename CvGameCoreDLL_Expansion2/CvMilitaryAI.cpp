@@ -3155,23 +3155,37 @@ CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *
 	}
 
 	// Find a coastal water tile adjacent to enemy city
-	if (pInitialUnit && pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+	if (pInitialUnit)
+	{
+		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		{
+			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
+				if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
+				{
+					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
+					if (iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pCoastalPlot = pAdjacentPlot;
+					}
+				}
+			}
+
+			return pCoastalPlot;
+		}
+		else
+			return NULL;
+	}
+	else
 	{
 		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 		{
 			CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
 			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
-			{
-				int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
-				if (iDistance < iBestDistance)
-				{
-					iBestDistance = iDistance;
-					pCoastalPlot = pAdjacentPlot;
-				}
-			}
+				return pAdjacentPlot;
 		}
-
-		return pCoastalPlot;
 	}
 
 	return NULL;

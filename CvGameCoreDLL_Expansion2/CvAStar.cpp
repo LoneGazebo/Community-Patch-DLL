@@ -100,7 +100,7 @@ CvAStar::CvAStar()
 #endif
 
 	//this matches the default setting for SPathFinderUserData
-	SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+	SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1595,8 +1595,8 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 }
 
 //	--------------------------------------------------------------------------------
-/// Step path finder - determine heuristic cost
-int StepHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+/// Default heuristic cost
+int DistanceHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 {
 	return plotDistance(iFromX, iFromY, iToX, iToY) * 2;
 }
@@ -1728,14 +1728,6 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	return TRUE;
 }
 
-
-//	--------------------------------------------------------------------------------
-/// Influence path finder - determine heuristic cost
-int InfluenceHeuristic(int iFromX, int iFromY, int iToX, int iToY)
-{
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 2;
-}
-
 //	--------------------------------------------------------------------------------
 /// Influence path finder - compute cost of a path
 int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
@@ -1810,56 +1802,41 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
 
 	if(!pPlot)
-	{
 		return 0;
-	}
 
-	CvCity* pCity = pPlot->getPlotCity();
+	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pCity || pCity->getTeam() != eTeam)
-	{
+	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
-	}
 
 	int iValidCount = 0;
 	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
 
-	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pCity);
-	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->m_aiCityPlotIDs.size(); uiSecondCityIndex++)
+	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
+	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
 	{
 		if(uiFirstCityIndex == uiSecondCityIndex)
-		{
 			continue;
-		}
 
 		CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(uiFirstCityIndex, uiSecondCityIndex);
 		if(!pRouteInfo)
-		{
 			continue;
-		}
 
-		// get the two cities
-		CvCity* pFirstCity  = pCityConnections->GetCityFromIndex(uiFirstCityIndex);
-		CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
-
-		if(!pFirstCity || !pSecondCity)
+		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
 		{
-			continue;
-		}
+			// get the second city
+			CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
+			if(!pSecondCity)
+				continue;
 
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
-#else
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_ROUTE)
-#endif
-		{
 			if(iValidCount == iIndex)
 			{
 				iX = pSecondCity->getX();
 				iY = pSecondCity->getY();
 				return 1;
 			}
+
 			iValidCount++;
 		}
 	}
@@ -1884,6 +1861,10 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 
 	if(pNewPlot->IsRoutePillaged())
 		ePlotRoute = NO_ROUTE;
+
+	// City plots implicitly have the best available route (failsafe: should be set anyway)
+	if(pNewPlot->isCity())
+		ePlotRoute = kPlayer.getBestRoute();
 
 	if(ePlotRoute == NO_ROUTE)
 	{
@@ -1931,12 +1912,6 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 		}
 	}
 
-	// City plots match all route types
-	if(pNewPlot->isCity())
-	{
-		return TRUE;
-	}
-
 	if(ePlotRoute == NO_ROUTE)
 	{
 		return FALSE;
@@ -1945,13 +1920,8 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	//which route types are allowed?
 	if ( eRoute == ROUTE_ANY )
 	{
-		// if the player can't build
-		if(kPlayer.getBestRoute() == NO_ROUTE)
-		{
-			return FALSE;
-		}
-
-		return TRUE;
+		//if the player can build any route, it's good
+		return (kPlayer.getBestRoute() != NO_ROUTE);
 	}
 	else
 	{
@@ -1976,69 +1946,36 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
 
 	if(!pPlot)
-	{
 		return 0;
-	}
 
 	// slewis - don't allow the minor civ to use harbors
 	if(kPlayer.isMinorCiv())
-	{
 		return 0;
-	}
 
 	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
 	if(pCityConnections->IsEmpty())
-	{
 		return 0;
-	}
 
 	int iResultNum = 0;
 
-	CvCity* pCity = pPlot->getPlotCity();
+	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pCity || pCity->getTeam() != eTeam)
-	{
+	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
-	}
 
-	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pCity);
-	if(uiFirstCityIndex >= pCityConnections->m_aiCityPlotIDs.size())
-	{
-		CvAssertMsg(false, "City index out of bounds");
-		return 0;
-	}
-
-	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->m_aiCityPlotIDs.size(); uiSecondCityIndex++)
+	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
+	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
 	{
 		if(uiFirstCityIndex == uiSecondCityIndex)
-		{
 			continue;
-		}
 
 		CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(uiFirstCityIndex, uiSecondCityIndex);
 		if(!pRouteInfo)
-		{
 			continue;
-		}
 
-		// get the two cities
-		CvCity* pFirstCity  = pCityConnections->GetCityFromIndex(uiFirstCityIndex);
-		CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
-
-		if(!pFirstCity || !pSecondCity)
-		{
-			continue;
-		}
-
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
-#else
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_ROUTE)
-#endif
-		{
+		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
 			iResultNum++;
-		}
 	}
 
 	return iResultNum;
@@ -2350,19 +2287,19 @@ bool CvPathFinder::Configure(PathType ePathType)
 	switch(ePathType)
 	{
 	case PT_GENERIC_SAME_AREA:
-		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA:
-		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
-		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_GENERIC_ANY_AREA_WIDE:
-		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_UNIT_IGNORE_OTHERS:
@@ -2390,23 +2327,23 @@ bool CvPathFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_INFLUENCE:
-		SetFunctionPointers(DestinationReached, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, InfluenceDestValid, DistanceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 2;
 		break;
 	case PT_CITY_ROUTE_LAND:
-		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_WATER:
-		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_CITY_ROUTE_MIXED:
-		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = 1;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(DestinationReached, NULL, NULL, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = 1;
 		break;
 	default:
