@@ -2308,66 +2308,61 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	return iScore;
 }
 
-CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
+CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 {
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
 
 	if(pCity == NULL)
 		return NULL;
 
-	if (pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns))
+	int iBestDistance = MAX_INT;
+	CvPlot* pBestTarget = NULL;
+
+	// Find suitable adjacent plot
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		int iBestDistance = MAX_INT;
-		CvPlot* pBestTarget = NULL;
+		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
 
-		// Find suitable adjacent plot
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		if(pLoopPlot != NULL)
 		{
-			CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-
-			if(pLoopPlot != NULL)
+			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
 			{
-				CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-				if(pFirstUnit && pFirstUnit->getOwner() != GetID())
-				{
-					continue;
-				}
-				if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), false) || pLoopPlot->isMountain() || pLoopPlot->isIce())
-				{
-					continue;
-				}
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
-				{
-					continue;
-				}
-				// Make sure this is still owned by target and is revealed to us
-				bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-				bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-				if(!bRightOwner || !bIsRevealed)
-				{
-					continue;
-				}
-				// Don't be captured
-				if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
-					continue;
+				continue;
+			}
+			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), false) || pLoopPlot->isMountain() || pLoopPlot->isIce())
+			{
+				continue;
+			}
+			if(pLoopPlot->getResourceType() != NO_RESOURCE)
+			{
+				continue;
+			}
+			// Make sure this is still owned by target and is revealed to us
+			bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+			bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+			if(!bRightOwner || !bIsRevealed)
+			{
+				continue;
+			}
+			// Don't be captured
+			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+				continue;
 
-				int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+			int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-				if(iDistance < iBestDistance)
-				{
-					iBestDistance = iDistance;
-					pBestTarget = pLoopPlot;
-				}
+			if(iDistance < iBestDistance)
+			{
+				iBestDistance = iDistance;
+				pBestTarget = pLoopPlot;
 			}
 		}
-
-		return pBestTarget;
 	}
 
-	return NULL;
+	return pBestTarget;
 }
 
-CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
+CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
@@ -2375,8 +2370,6 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 	}
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit);
 	CvPlot* pBestTarget = NULL;
-	int iTurns;
-	int iBestNumTurns = MAX_INT;
 	if(pCity == NULL)
 	{
 		return NULL;
@@ -2419,12 +2412,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 		}
 #endif
 	}
-	if(pBestTarget != NULL)
-	{
-		iTurns = pUnit->TurnsToReachTarget(pBestTarget, false, false, iBestNumTurns);
-	}
-	if(piTurns)
-		*piTurns = iBestNumTurns;
+
 	return pBestTarget;
 }
 #endif

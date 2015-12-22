@@ -280,7 +280,7 @@ public:
 		return false;
 	}
 
-	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
+	bool isFriendlyCity(const CvUnit& kUnit, bool bIgnored) const;
 	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const;
 	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;

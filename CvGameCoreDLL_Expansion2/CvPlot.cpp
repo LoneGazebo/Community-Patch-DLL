@@ -12781,26 +12781,28 @@ int CvPlot::Validate(CvMap& kParentMap)
 	// force mountain terrain on mountain plots for correct impassability & yields - map scripts are sloppy here
 	if (m_eTerrainType == TERRAIN_MOUNTAIN && m_ePlotType != PLOT_MOUNTAIN)
 	{
-		setFeatureType(NO_FEATURE);
+		if (getFeatureType()<FEATURE_NATURAL_WONDER)
+			setFeatureType(NO_FEATURE);
 		setPlotType(PLOT_MOUNTAIN);
+		setResourceType(NO_RESOURCE,0);
 	}
 
 	if (m_ePlotType == PLOT_MOUNTAIN && m_eTerrainType != TERRAIN_MOUNTAIN)
 	{
-		setFeatureType(NO_FEATURE);
+		if (getFeatureType()<FEATURE_NATURAL_WONDER)
+			setFeatureType(NO_FEATURE);
 		setTerrainType(TERRAIN_MOUNTAIN);
+		setResourceType(NO_RESOURCE,0);
 	}
 
-	// force correct terrain for ocean plots
+	// force correct terrain for ocean plots - just a failsafe
 	if (m_ePlotType == PLOT_OCEAN && m_eTerrainType != TERRAIN_COAST && m_eTerrainType != TERRAIN_OCEAN)
 	{ 
-		setFeatureType(NO_FEATURE);
 		setTerrainType(TERRAIN_COAST);
 	}
 
 	if ( (m_eTerrainType == TERRAIN_COAST || m_eTerrainType == TERRAIN_OCEAN) && m_ePlotType != PLOT_OCEAN)
 	{
-		setFeatureType(NO_FEATURE);
 		setPlotType(PLOT_OCEAN);
 	}
 	//------------------------------

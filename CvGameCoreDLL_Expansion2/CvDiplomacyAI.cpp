@@ -11796,9 +11796,6 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 			iCurrentValue *= 3;
 			iCurrentValue /= 2;
 		}
-#if defined(MOD_BALANCE_CORE)
-		iCurrentValue += (pLoopCity->getEconomicValue() / 2);
-#endif
 	}
 
 	// Unit value

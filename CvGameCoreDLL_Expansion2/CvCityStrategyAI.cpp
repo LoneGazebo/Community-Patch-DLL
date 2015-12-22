@@ -3684,38 +3684,28 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 	}
 	return false;
 }
-// Is this an isolated city with no routes out? Don't build settlers here.
+// Is this an isolated city with no land routes out? Maybe open border with neighbors could help
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
-	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
-	if(pCity == NULL)
-	{
+	if(!pCity)
 		return false;
-	}
-	if(pCapitalCity == NULL)
-	{
-		return false;
-	}
+
 	if(pCity->isCapital())
-	{
 		return false;
-	}
+
+	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
+	if(!pCapitalCity)
+		return false;
+
+	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
 	if(pArea->GetID() != pCapitalCity->getArea())
-	{
 		return false;
-	}
 
-	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_MIXED, ROUTE_ANY);
-	bool bReturnValue = GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
-
-	if(!bReturnValue)
-	{
-		return true;
-	}
-	return false;
+	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_LAND, ROUTE_ANY);
+	return GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
 #endif
+
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)
 {

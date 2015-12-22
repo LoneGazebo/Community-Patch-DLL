@@ -4447,8 +4447,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 		{
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
-			int iTargetTurns;
-			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit, &iTargetTurns);
+			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
 			BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 			if(pTarget)
 			{
@@ -4468,7 +4467,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					continue;
 #endif
 				}
-				else if(iTargetTurns < 1)
+				else if( pUnit->CanReachInXTurns(pTarget,0) )
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 
@@ -4539,8 +4538,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		}
 		
 		//Do trade mission
-		int iTargetTurns;
-		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit);
 		if(pTarget)
 		{
 			if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
@@ -4561,7 +4559,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				continue;
 #endif
 			}
-			else if(iTargetTurns < 1)
+			else if( pUnit->CanReachInXTurns(pTarget,0) )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				

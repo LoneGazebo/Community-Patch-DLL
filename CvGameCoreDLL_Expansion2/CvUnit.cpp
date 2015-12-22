@@ -4250,9 +4250,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Part 1 : Domain specific exclusions -----------------------------------------------
 
-	// Air can go anywhere
+	// Air can go anywhere - provided it's a city or a carrier
 	if (eDomain==DOMAIN_AIR)
-		return true;
+		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
 	// Immobile can go nowhere
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
@@ -4312,9 +4312,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			return canCrossOceans() || kPlayer.CanCrossOcean();
 		}
-		else
+		else if(eDomain == DOMAIN_LAND)
 		{
-			return IsEmbarkAllWater() && !(iMoveFlags & MOVEFLAG_NO_EMBARK) && kPlayer.CanCrossOcean();
+			return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
 		}
 	}
 
@@ -5398,11 +5398,10 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			int iTargetTurns;
 			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit);
 				if(pTarget == NULL)
 				{
 					return false;
