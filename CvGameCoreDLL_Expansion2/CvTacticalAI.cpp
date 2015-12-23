@@ -9516,7 +9516,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 		if(pUnit)
 		{
 			// Compute moves to nearest city and use as sort criteria
-			pNearestCity = GC.getMap().findCity(pUnit->getX(), pUnit->getY(), m_pPlayer->GetID(), NO_TEAM, true /* bSameArea */);
+			pNearestCity = m_pPlayer->GetClosestCity(pUnit->plot());
 			if(pNearestCity != NULL)
 			{
 				iTurnsToReachTarget = pUnit->TurnsToReachTarget(pNearestCity->plot());
@@ -9540,88 +9540,19 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			pNearestCity = GC.getMap().findCity(pUnit->getX(), pUnit->getY(), m_pPlayer->GetID(), NO_TEAM, true /* bSameArea */);
 			if(pNearestCity != NULL)
 			{
-#if defined(MOD_BALANCE_CORE)
 				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND)))
 				{
-#else
-				MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND));
-#endif
-				pUnit->finishMoves();
-				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+					pUnit->finishMoves();
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
 
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("%s withdrew toward %s, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pNearestCity->getName().GetCString(),
-					                    pUnit->getX(), pUnit->getY());
-					LogTacticalMessage(strLogString, false);
-				}
-#if defined(MOD_BALANCE_CORE)
-				}
-				else if(!m_pPlayer->isBarbarian())
-				{
-					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pNearestCity->getX(), pNearestCity->getY(), ((DirectionTypes)iDirectionLoop));
-						if (pAdjacentPlot)
-						{
-							if(pAdjacentPlot != NULL && pAdjacentPlot != pNearestCity->plot())
-							{
-								if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
-								{
-									continue;
-								}
-								CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
-								if(pFriendlyUnit == NULL)
-								{
-									if (pUnit->TurnsToReachTarget(pAdjacentPlot, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/, 1) <= 1)
-									{
-										// Move up there
-										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-										pUnit->finishMoves();
-										UnitProcessed(pUnit->GetID());
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strMsg;
-											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-											strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteWithdrawMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
-											LogTacticalMessage(strMsg);
-										}
-										break;
-									}
-								}
-								else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
-								{
-									CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
-									CvPlot* pCurrentPlot = pUnit->plot();
-									if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
-									{
-										if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
-										{
-											// Move up there
-											pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString strTemp;
-												CvString strTemp2;
-												CvString strMsg;
-												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-												strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
-												strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (ExecuteWithdrawMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
-												LogTacticalMessage(strMsg);
-											}
-											break;
-										}
-									}
-								}
-							}
-						}
+						CvString strLogString;
+						strLogString.Format("%s withdrew toward %s, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pNearestCity->getName().GetCString(),
+											pUnit->getX(), pUnit->getY());
+						LogTacticalMessage(strLogString, false);
 					}
 				}
-#endif
 			}
 		}
 	}
@@ -11097,7 +11028,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 				if(pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION ))
 				{
 					//note: this check works for civilian also, they have infinite danger if they could be captured 
-					if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*3 > pUnit->GetCurrHitPoints())
+					if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer()) > pUnit->GetCurrHitPoints())
 						continue;
 
 					//we check all plots ... don't just use the first one

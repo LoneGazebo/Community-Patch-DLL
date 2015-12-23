@@ -978,6 +978,16 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
+		// Damage from cities
+		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
+		{
+			CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
+			if (!pCity || pCity->getTeam() == pUnit->getTeam())
+				continue;
+
+			iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+		}
+
 		//update cache
 		m_lastUnit = unitStats;
 		m_lastResult = iPlotDamage;
@@ -1008,11 +1018,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
-
 		if (!pAttacker || pAttacker->isDelayedDeath() || pAttacker->IsDead())
-		{
 			continue;
-		}
 
 		pAttackerPlot = NULL;
 		if (pAttacker->plot() != m_pPlot)
@@ -1028,19 +1035,11 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 						// Always assume interception is successful
 						iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
 					}
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage, m_pPlot);
-#else
-					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage);
-#endif
 				}
 				else
 				{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot);
-#else
-					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false);
-#endif
 				}
 			}
 			else
@@ -1054,11 +1053,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 					pUnit->GetMaxDefenseStrength(m_pPlot, pAttacker), pAttacker->getDamage(), false, false, false);
 				if (pAttacker->isRangedSupportFire())
 				{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot, pAttackerPlot);
-#else
-					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false);
-#endif
 				}
 			}
 		}
@@ -1068,20 +1063,10 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
 	{
 		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
-		{
 			continue;
-		}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		if(pCity->GetID() != -1)
-		{
-			iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
-		}
-#else
-		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false);
-#endif
+		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
 	}
 
 	// Damage from surrounding features (citadel) and the plot itself
