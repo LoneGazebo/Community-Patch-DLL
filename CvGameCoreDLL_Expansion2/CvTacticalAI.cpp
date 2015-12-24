@@ -3090,6 +3090,12 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
+		if (pPlot->needsEmbarkation())
+		{
+			pTarget = GetNextZoneTarget();
+			continue;
+		}
+
 		// try paratroopers first, not because they are more effective, just because it looks cooler...
 		if (bFirstPass && FindParatroopersWithinStrikingDistance(pPlot))
 		{

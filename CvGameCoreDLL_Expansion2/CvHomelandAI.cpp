@@ -1731,6 +1731,9 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			// See what units we have who can reach target this turn
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
 
+			if (!pTarget->getArea()==pUnit->getArea())
+				continue;
+
 			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 				continue;
 

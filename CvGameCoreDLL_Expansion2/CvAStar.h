@@ -42,8 +42,10 @@ enum PathType
 	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
 	PT_UI_PLOT_MOVE_HIGHLIGHT,	//mark all hexes in move range
 	PT_UI_PLOT_ATTACK_HIGHLIGHT,//mark all hexes in attack range
-	PT_UI_PATH_VISUALIZIATION	//draw the computed path
+	PT_UI_PATH_VISUALIZATION	//draw the computed path
 };
+
+#define PATH_BASE_COST (100) //base cost per plot respectively movement point expended
 
 //-------------------------------------------------------------------------------------------------
 // All information which might be required for a given path
@@ -81,7 +83,7 @@ struct SPath
 };
 
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
-typedef int(*CvAHeuristic)(int, int, int, int);
+typedef int(*CvAHeuristic)(int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, int, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst1Func)(const CvAStarNode*, CvAStarNode*, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvAStarConst2Func)(const CvAStarNode*, const CvAStarNode*, int, const SPathFinderUserData&, const CvAStar*);
@@ -382,17 +384,17 @@ inline bool CvAStar::isValid(int iX, int iY) const
 
 inline int CvAStar::udFunc(CvAStarFunc func, CvAStarNode* param1, CvAStarNode* param2, int operation, const SPathFinderUserData& data)
 {
-	return (func) ? func(param1, param2, operation, data, this) : 1;
+	return (func) ? func(param1, param2, operation, data, this) : PATH_BASE_COST;
 }
 
 inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, CvAStarNode* param2, int operation, const SPathFinderUserData& data) const
 {
-	return (func) ? func(param1, param2, operation, data, this) : 1;
+	return (func) ? func(param1, param2, operation, data, this) : PATH_BASE_COST;
 }
 
 inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, int operation, const SPathFinderUserData& data) const
 {
-	return (func) ? func(param1, param2, operation, data, this) : 1;
+	return (func) ? func(param1, param2, operation, data, this) : PATH_BASE_COST;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -443,11 +445,10 @@ private:
 
 // C-style non-member functions (used by path finder)
 int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
-int DistanceHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
 int PathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
@@ -456,6 +457,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 int IgnoreUnitsCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int IgnoreUnitsValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 
+int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
@@ -489,7 +491,6 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 int RebaseGetNumExtraChildren(const CvAStarNode* node,  const CvAStar* finder);
 int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder);
 
-int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int TradeRouteWaterPathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);

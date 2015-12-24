@@ -3117,7 +3117,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 					// On same body of water?
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
-						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,eEnemy);
+						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 

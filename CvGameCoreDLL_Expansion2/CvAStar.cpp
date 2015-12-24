@@ -23,23 +23,20 @@
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
 
-#define PATH_MOVEMENT_WEIGHT									(100)	//a normal move costs 60 movement points!
 #define PATH_MOVEMENT_BURN_WEIGHT								(50)	//leftover movement points at the target are mostly wasted
 #define PATH_RIVER_WEIGHT										(100)	//per percent river crossing penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
 #define PATH_TERRITORY_WEIGHT									(50)	//per turn end plot outside of our territory
 #define PATH_STEP_WEIGHT										(50)	//per plot in path
-#define PATH_THROUGH_WATER										(PATH_MOVEMENT_WEIGHT*60)
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
-#define PATH_BUILD_ROUTE_BASE_VALUE								(1000)
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(10)
-#define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(0.5f)
-#define PATH_TRADE_BASE_COST									(100)
-#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_MOVEMENT_WEIGHT*40)
-#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*90)
-#define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_MOVEMENT_WEIGHT*210)	//one of these is worth 3.5 plots of detour
-#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_MOVEMENT_WEIGHT*210)	//don't make it even so we don't get ties
+#define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(2)		//half price
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*60)
+#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*40)
+#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*90)
+#define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
+#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
 #define PATH_DO_NOT_USE_WEIGHT									(1000000000)
 
 #include <xmmintrin.h>
@@ -49,6 +46,9 @@
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
 //for debugging
+int giKnownCostWeight = 1;
+int giHeuristicCostWeight = 1;
+
 unsigned int saiRuntimeHistogram[100] = {0};
 
 struct SLogNode
@@ -57,7 +57,8 @@ struct SLogNode
 	{
 		BEST = 0,
 		VALID = 1,
-		INVALID = 2
+		INVALID = 2,
+		OBSOLETE = 3
 	};
 	SLogNode( eType _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
 		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves) {}
@@ -100,7 +101,7 @@ CvAStar::CvAStar()
 #endif
 
 	//this matches the default setting for SPathFinderUserData
-	SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+	SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 }
 
 //	--------------------------------------------------------------------------------
@@ -276,7 +277,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	}
 	else
 	{
-		temp->m_iHeuristicCost = udHeuristic(m_iXstart, m_iYstart, m_iXdest, m_iYdest);
+		temp->m_iHeuristicCost = udHeuristic(m_iXstart, m_iYstart, m_iXstart, m_iYstart, m_iXdest, m_iYdest);
 	}
 	temp->m_iTotalCost = temp->m_iKnownCost + temp->m_iHeuristicCost;
 
@@ -310,7 +311,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	cvStopWatch timer("pathfinder");
+	cvStopWatch timer("pathfinder",NULL,0,true);
 	timer.StartPerfTest();
 #endif
 
@@ -339,7 +340,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.05  )
+	if ( timer.GetDeltaInSeconds()>0.01 )
 	{
 		int iNumPlots = GC.getMap().numPlots();
 
@@ -446,6 +447,7 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
+	SLogNode::eType result = SLogNode::BEST;
 	if (MOD_BALANCE_CORE_DEBUGGING)
 		svPathLog.push_back( SLogNode( SLogNode::BEST, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
@@ -454,7 +456,6 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	for(int i = 0; i < count; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
-		bool bGood = false;
 		if (!check)
 			continue;
 	
@@ -465,16 +466,17 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if (LinkChild(node, check))
 			{
 				m_iProcessedNodes++;
-				bGood = true;
+				result = SLogNode::VALID;
 			}
+			else
+				result = SLogNode::OBSOLETE;
 		}
+		else
+			result = SLogNode::INVALID;
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)
-			if (bGood)
-				svPathLog.push_back( SLogNode( SLogNode::VALID, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
-			else
-				svPathLog.push_back( SLogNode( SLogNode::INVALID, m_iRounds, check->m_iX, check->m_iY, -1, -1, -1, -1 ) );
+			svPathLog.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 	}
 
@@ -538,7 +540,7 @@ bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
-			check->m_iTotalCost = iKnownCost + check->m_iHeuristicCost;
+			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
 			UpdateOpenNode(check);
 			udFunc(udNotifyChild, node, check, ASNC_OPENADD_UP, m_sData);
@@ -553,7 +555,7 @@ bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 			FAssert(node->m_pParent != check);
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
-			check->m_iTotalCost = iKnownCost + check->m_iHeuristicCost;
+			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 			udFunc(udNotifyChild, node, check, ASNC_CLOSEDADD_UP, m_sData);
 
 			UpdateParents(check);
@@ -565,15 +567,13 @@ bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		FAssert(node->m_pParent != check);
 		check->m_pParent = node;
 		check->m_iKnownCost = iKnownCost;
+
 		if(udHeuristic == NULL || !isValid(m_iXdest, m_iYdest))
-		{
 			check->m_iHeuristicCost = 0;
-		}
 		else
-		{
-			check->m_iHeuristicCost = udHeuristic(check->m_iX, check->m_iY, m_iXdest, m_iYdest);
-		}
-		check->m_iTotalCost = check->m_iKnownCost + check->m_iHeuristicCost;
+			check->m_iHeuristicCost = udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest);
+
+		check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
 		udFunc(udNotifyChild, node, check, ASNC_NEWADD, m_sData);
 
@@ -1094,11 +1094,11 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - determine heuristic cost
-int PathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	return (plotDistance(iFromX, iFromY, iToX, iToY)*PATH_MOVEMENT_WEIGHT*50); //a normal move is 60 times the base cost
+	//a normal move is 60 times the base cost
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*30 + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*2; 
 }
-
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a path
 int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder, bool bWithZOC)
@@ -1184,7 +1184,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	node->m_iTurns = iTurns;
 
 	//base cost
-	int iCost = (PATH_MOVEMENT_WEIGHT * iMovementCost);
+	int iCost = (PATH_BASE_COST * iMovementCost);
 
 	//experimental: burn off superfluous movement points at the destination
 	//they usually go to waste, so we would like to invest them in a better path instead
@@ -1226,7 +1226,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 
 			if(pToPlot->getExtraMovePathCost() > 0)
 			{
-				iCost += (PATH_MOVEMENT_WEIGHT * pToPlot->getExtraMovePathCost());
+				iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
 			}
 		}
 
@@ -1257,7 +1257,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		// the best path, rather than the safest.
 		if(eUnitDomain == DOMAIN_LAND && bToPlotIsWater && pCacheData->isAIControl())
 		{
-			iCost += PATH_THROUGH_WATER;
+			iCost += PATH_END_TURN_WATER;
 		}
 
 		//danger check
@@ -1310,7 +1310,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 				if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 				{
 					iCost += (PATH_RIVER_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
-					iCost += (PATH_MOVEMENT_WEIGHT * iMovesLeft);
+					iCost += (PATH_BASE_COST * iMovesLeft);
 				}
 			}
 		}
@@ -1552,7 +1552,7 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 			pNode2->m_iTurns = node->m_iTurns;
 			pNode2->m_iHeuristicCost = node->m_iHeuristicCost;
 			//but wasting movement points is bad
-			pNode2->m_iKnownCost = node->m_iKnownCost + (PATH_MOVEMENT_WEIGHT * node->m_iMoves);
+			pNode2->m_iKnownCost = node->m_iKnownCost + (PATH_BASE_COST * node->m_iMoves);
 
 			//make sure it's a good idea to stop here ...
 			const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
@@ -1596,11 +1596,10 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Default heuristic cost
-int DistanceHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	return plotDistance(iFromX, iFromY, iToX, iToY) * 2;
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY) * 2;
 }
-
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - compute cost of a path
@@ -1608,7 +1607,7 @@ int StepCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserDa
 {
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	
-	return pNewPlot->isRoughGround() ? 2 : 1;
+	return pNewPlot->isRoughGround() ? 2*PATH_BASE_COST : PATH_BASE_COST;
 }
 
 
@@ -1734,7 +1733,7 @@ int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPath
 {
 	//failsafe
 	if (!parent || !node)
-		return 1;
+		return 0;
 
 	//are we in the first ring?
 	if (parent->m_pParent==NULL && !GC.getUSE_FIRST_RING_INFLUENCE_TERRAIN_COST())
@@ -1766,7 +1765,7 @@ int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPath
 	iCost += pTerrain ? pTerrain->getInfluenceCost() : 0;
 	iCost += pFeature ? pFeature->getInfluenceCost() : 0;
 
-	return max(1,iCost);
+	return max(1,iCost)*PATH_BASE_COST;
 }
 
 
@@ -2023,7 +2022,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const 
 			return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 	}
 
-	int iMaxValue = PATH_BUILD_ROUTE_BASE_VALUE;
+	int iMaxValue = PATH_BASE_COST;
 
 	// if the plot is on a removable feature, it tends to be a good idea to build a road here
 	int iMovementCost = ((pPlot->getFeatureType() == NO_FEATURE) ? GC.getTerrainInfo(pPlot->getTerrainType())->getMovementCost() : GC.getFeatureInfo(pPlot->getFeatureType())->getMovementCost());
@@ -2037,7 +2036,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const 
 	// if the tile already been tagged for building a road, then provide a discount
 	if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == ePlayer)
 	{
-		iMaxValue = (int)(iMaxValue * PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT);
+		iMaxValue = iMaxValue / PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT;
 	}
 
 	return iMaxValue;
@@ -2256,19 +2255,19 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	{
 	case PT_UNIT_WITH_ZOC:
 		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_MOVE_HIGHLIGHT:
 		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UI_PLOT_ATTACK_HIGHLIGHT:
 		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
-	case PT_UI_PATH_VISUALIZIATION:
+	case PT_UI_PATH_VISUALIZATION:
 		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	default:
 		//not implemented here
@@ -2287,64 +2286,64 @@ bool CvPathFinder::Configure(PathType ePathType)
 	switch(ePathType)
 	{
 	case PT_GENERIC_SAME_AREA:
-		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_ANY_AREA:
-		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
-		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWide, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_ANY_AREA_WIDE:
-		SetFunctionPointers(DestinationReached, StepDestValid, DistanceHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_UNIT_IGNORE_OTHERS:
 		SetFunctionPointers(DestinationReached, IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_MOVEMENT_WEIGHT*GC.getMOVE_DENOMINATOR();
+		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_TRADE_WATER:
-		SetFunctionPointers(DestinationReached, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
-		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
+		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(DestinationReached, NULL, TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
-		m_iBasicPlotCost = PATH_TRADE_BASE_COST;
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
 		SetFunctionPointers(DestinationReached, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = PATH_BUILD_ROUTE_BASE_VALUE;
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AREA_CONNECTION:
 		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_LANDMASS_CONNECTION:
 		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, NULL, JoinLandmass, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_INFLUENCE:
-		SetFunctionPointers(DestinationReached, InfluenceDestValid, DistanceHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 2;
+		SetFunctionPointers(DestinationReached, InfluenceDestValid, StepHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_ROUTE_LAND:
-		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_ROUTE_WATER:
-		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_ROUTE_MIXED:
-		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(DestinationReached, NULL, DistanceHeuristic, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = 1;
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:
 		//not implemented here
@@ -2549,7 +2548,7 @@ SPath CvPathFinder::GetPath() const
 		return ret;
 	}
 
-	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost;
+	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
 
 	//walk backwards ...
 	while(pNode != NULL)
@@ -2864,12 +2863,6 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY)
-{
-	return plotDistance(iFromX, iFromY, iToX, iToY) * PATH_TRADE_BASE_COST * 2;
-}
-
-//	--------------------------------------------------------------------------------
 int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
@@ -2884,7 +2877,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 
-	int iCost = PATH_TRADE_BASE_COST;
+	int iCost = PATH_BASE_COST;
 
 	// no route
 	int iRouteFactor = 1;
@@ -2904,16 +2897,16 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 
 	//try to avoid rough plots
 	if (pToPlot->isRoughGround() && iRouteFactor==1)
-		iCost += PATH_TRADE_BASE_COST/2;
+		iCost += PATH_BASE_COST/2;
 
 	//bonus for oasis
 	if (eFeature == FEATURE_OASIS && iRouteFactor==1)
-		iCost -= PATH_TRADE_BASE_COST/4;
+		iCost -= PATH_BASE_COST/4;
 	
 	// avoid enemy lands
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->GetTeam()!=NO_TEAM && eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
-		iCost += PATH_TRADE_BASE_COST*10;
+		iCost += PATH_BASE_COST*10;
 
 	return iCost;
 }
@@ -2963,16 +2956,16 @@ int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SP
 	int iToPlotY = node->m_iY;
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
-	int iCost = PATH_TRADE_BASE_COST;
+	int iCost = PATH_BASE_COST;
 
 	// prefer the coastline (not identical with coastal water)
 	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand_Cached())
-		iCost += PATH_TRADE_BASE_COST/4;
+		iCost += PATH_BASE_COST/4;
 
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->GetTeam()!=NO_TEAM && eToPlotTeam!=NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
-		iCost += PATH_TRADE_BASE_COST*10;
+		iCost += PATH_BASE_COST*10;
 
 	return iCost;
 }
