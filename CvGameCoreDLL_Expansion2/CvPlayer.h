@@ -58,6 +58,7 @@ class CvPlayerTrade;
 class CvTradeAI;
 class CvLeagueAI;
 class CvPlayerCulture;
+struct SPath;
 
 typedef std::list<CvPopupInfo*> CvPopupQueue;
 
@@ -245,7 +246,7 @@ public:
 
 	int countCitiesFeatureSurrounded() const;
 
-	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false);
+	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
 	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = ROUTE_ANY);
 	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = ROUTE_ANY);
 

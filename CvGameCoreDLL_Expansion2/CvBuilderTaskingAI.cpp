@@ -311,7 +311,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		bMajorMinorConnection = true;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	bool bIndustrialRoute = false;
 	if(GC.getGame().GetIndustrialRoute() == eRoute)
 	{
@@ -326,23 +325,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		return;
 	}
-#else
-	bool bIndustrialRoute = false;
-	if(GC.getGame().GetIndustrialRoute() == eRoute)
-	{
-		bIndustrialRoute = true;
-	}
-
-	// if we already have a connection, bail out
-	if(bIndustrialRoute && pTargetCity->IsIndustrialRouteToCapital())
-	{
-		return;
-	}
-	else if(m_pPlayer->IsCapitalConnectedToCity(pTargetCity, eRoute))
-	{
-		return;
-	}
-#endif
 
 	int iGoldForRoute = 0;
 	if(!bMajorMinorConnection)
@@ -511,6 +493,57 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 }
 
+void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute)
+{
+	// don't connect cities from different owners
+	if(pCity1->getOwner() != pCity2->getOwner())
+		return;
+
+	// if we *don't* already have a connection, bail out
+	SPath existingPath;
+	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true, &existingPath))
+		return;
+
+	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->plot()->getX(), pCity1->plot()->getY(), pCity2->plot()->getX(), pCity2->plot()->getY(), data);
+
+	//this cannot really happen, but anyway
+	if(!bFoundPath)
+		return;
+
+	//now compare if the new path is much shorter than the existing path. 
+	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
+	SPath newPath = GC.GetStepFinder().GetPath();
+	if (newPath.vPlots.size() < existingPath.vPlots.size() )
+	{
+		int iGameTurn = GC.getGame().getGameTurn();
+		for (size_t i=0; i<newPath.vPlots.size(); i++)
+		{
+
+			CvPlot* pPlot = GC.getMap().plotUnchecked(newPath.vPlots[i].first,newPath.vPlots[i].second);
+			if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
+				continue;
+
+			// if we already know about this plot, continue on
+			if(pPlot->GetBuilderAIScratchPadTurn() == iGameTurn && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
+				continue;
+
+			// mark nodes and reset values
+			pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
+			pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
+			pPlot->SetBuilderAIScratchPadValue(1000);
+			pPlot->SetBuilderAIScratchPadRoute(eRoute);
+
+			// add nodes that are not in territory to extra list
+			if(pPlot->getOwner() != m_pPlayer->GetID())
+			{
+				m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
+			}
+		}
+	}
+}
+
 void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute)
 {
 	// don't connect cities from different owners
@@ -666,9 +699,12 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				bool bConnectOnlyCapitals = (bool)GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL();
 				if (bConnectOnlyCapitals)
 				{
-					// only need to build roads to the capital
+					// only need to build roads to the capital for the money and happiness
 					if(!pFirstCity->isCapital() && !pSecondCity->isCapital())
 					{
+						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
+						//thus improving unit movement and gold bonus from villages
+						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBestRoute);
 						continue;
 					}
 
@@ -703,6 +739,32 @@ int CorrectWeight(int iWeight)
 	{
 		return iWeight;
 	}
+}
+
+int CvBuilderTaskingAI::CheckAlternativeWorkers(const std::vector<CvUnit*>& otherWorkers, const CvPlot* pTarget) const
+{
+	int iAlternativeTurnsAway = INT_MAX;
+	for (std::vector<CvUnit*>::const_iterator it = otherWorkers.begin(); it != otherWorkers.end(); ++it)
+	{
+		int iTurns = FindTurnsAway(*it, pTarget);
+		if (iTurns == -1)
+			continue;
+			
+		if ((*it)->GetMissionAIType()==MISSIONAI_BUILD)
+		{
+			//already working this plot?
+			CvPlot* pTargetPlot = (*it)->GetMissionAIPlot();
+			if (pTargetPlot == pTarget)
+				return 0;
+			else //busy with something else? simply assume it will take 2 turns
+				iTurns += 2;
+		}
+
+		if (iTurns<iAlternativeTurnsAway)
+			iAlternativeTurnsAway = iTurns;
+	}
+
+	return iAlternativeTurnsAway;
 }
 
 /// Use the flavor settings to determine what the worker should do
@@ -759,10 +821,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		m_aiPlots = m_pPlayer->GetPlots();
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//keep track of all other workers which would be eligible to work on the same plot
 	std::vector<CvUnit*> otherWorkers;
-
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
@@ -774,7 +834,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			}
 		}
 	}
-#endif
 
 	// go through all the plots the player has under their control
 	for(uint uiPlotIndex = 0; uiPlotIndex < m_aiPlots.size(); uiPlotIndex++)
@@ -818,44 +877,17 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		bool bAlreadyTargeted = false;
-		CvUnit* pAlternativeWorker = NULL;
-		int iAlternativeTurnsAway = INT_MAX;
-		for (std::vector<CvUnit*>::iterator it = otherWorkers.begin(); it != otherWorkers.end(); ++it)
-		{
-			//see if someone already has a mission here
-			if ((*it)->GetMissionAIType()==MISSIONAI_BUILD)
-			{
-				CvPlot* pTargetPlot = (*it)->GetMissionAIPlot();
-				if (pTargetPlot && plotDistance(*pPlot,*pTargetPlot)<2)
-				{
-					bAlreadyTargeted = true;
-					break;
-				}
-			}
+		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
 
-			int iTurns = FindTurnsAway(*it, pPlot);
-			if (iTurns>-1 && iTurns<iAlternativeTurnsAway)
-			{
-				iAlternativeTurnsAway = iTurns;
-				pAlternativeWorker = *it;
-			}
-		}
-
-		if (bAlreadyTargeted)
+		//don't double up
+		if (iAlternativeTurnsAway==0)
 			continue;
 
-		if (pAlternativeWorker)
+		//if the other unit is much closer
+		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
 		{
-			//assume the other unit will be busy for a while before it moves
-			iAlternativeTurnsAway += 3;
-
-			//if the other unit is much closer
-			if (iAlternativeTurnsAway < iMoveTurnsAway/2)
-			{
-				//pretent we would have to move much further, which will reduce the score of the directives for this plot
-				iMoveTurnsAway *= 2;
-			}
+			//pretent we would have to move much further, which will reduce the score of the directives for this plot
+			iMoveTurnsAway *= 2;
 		}
 #endif
 
@@ -914,6 +946,22 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 			continue;
 		}
+
+#if defined(MOD_BALANCE_CORE)
+		//see if another worker would be more suitable
+		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+
+		//don't double up
+		if (iAlternativeTurnsAway==0)
+			continue;
+
+		//if the other unit is much closer
+		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
+		{
+			//pretent we would have to move much further, which will reduce the score of the directives for this plot
+			iMoveTurnsAway *= 2;
+		}
+#endif
 
 		if(m_bLogging)
 		{
@@ -987,6 +1035,23 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 							continue;
 						}
+
+#if defined(MOD_BALANCE_CORE)
+						//see if another worker would be more suitable
+						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+
+						//don't double up
+						if (iAlternativeTurnsAway==0)
+							continue;
+
+						//if the other unit is much closer
+						if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
+						{
+							//pretent we would have to move much further, which will reduce the score of the directives for this plot
+							iMoveTurnsAway *= 2;
+						}
+#endif
+
 						if(m_bLogging)
 						{
 							CvString strLog;
@@ -2418,7 +2483,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 
 /// Determines if the builder can get to the plot. Returns -1 if no path can be found, otherwise it returns the # of turns to get there
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
-int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot, bool bLimit)
+int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, bool bLimit) const
 #else
 int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot)
 #endif

@@ -30,8 +30,7 @@
 #define PATH_STEP_WEIGHT										(50)	//per plot in path
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
-#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(10)
-#define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(2)		//half price
+#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
 #define PATH_END_TURN_WATER										(PATH_BASE_COST*60)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*40)
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*90)
@@ -2014,32 +2013,10 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const 
 	PlayerTypes ePlayer = data.ePlayer;
 	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
 
-	if(pPlot->getRouteType() != NO_ROUTE)
-	{
-		if(pPlot->getRouteType() == eRoute)
-			return 1;
-		else
-			return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
-	}
-
-	int iMaxValue = PATH_BASE_COST;
-
-	// if the plot is on a removable feature, it tends to be a good idea to build a road here
-	int iMovementCost = ((pPlot->getFeatureType() == NO_FEATURE) ? GC.getTerrainInfo(pPlot->getTerrainType())->getMovementCost() : GC.getFeatureInfo(pPlot->getFeatureType())->getMovementCost());
-
-	// calculate the max value based on how much of a movement increase we get
-	if(iMovementCost + 1 != 0)
-	{
-		iMaxValue = iMaxValue / 2 + iMaxValue / (iMovementCost + 1);
-	}
-
-	// if the tile already been tagged for building a road, then provide a discount
-	if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == ePlayer)
-	{
-		iMaxValue = iMaxValue / PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT;
-	}
-
-	return iMaxValue;
+	if(pPlot->getRouteType() >= eRoute)
+		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
+	else
+		return PATH_BASE_COST;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3066,14 +3043,25 @@ const CvPathNode* CvPathNodeArray::GetTurnDest(int iTurn)
 }
 
 //	---------------------------------------------------------------------------
-bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
 {
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
 	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_ROUTE_LAND : PT_CITY_ROUTE_MIXED, eRestrictRoute);
 
-	return GC.GetStepFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
+	if (GC.GetStepFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data))
+	{
+		if (pPathOut)
+			*pPathOut = GC.GetStepFinder().GetPath();
+		return true;
+	}
+	else
+	{
+		if (pPathOut)
+			*pPathOut = SPath();
+		return false;
+	}
 }
 
 //	---------------------------------------------------------------------------

@@ -7308,9 +7308,9 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
+bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
 {
-	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
+	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors, pPathOut);
 }
 
 //	--------------------------------------------------------------------------------
