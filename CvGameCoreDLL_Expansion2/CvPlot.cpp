@@ -4741,16 +4741,32 @@ bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 {
-	if(isValidDomainForAction(unit))
-		return true;
+	switch(unit.getDomainType())
+	{
+	case DOMAIN_SEA:
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true));
+		break;
 
-	//valid domain for action allows enemy cities - if we want to stay longterm, it needs to be one of ours
-	if (unit.getDomainType() == DOMAIN_AIR && isCity() && getOwner()==unit.getOwner() )
-		return true;
+	case DOMAIN_AIR:
+		return (isCity() && getOwner()==unit.getOwner()) || unit.canLoad(*this);
+		break;
 
-	//same for sea units - need a friendly city for locating there
-	if (unit.getDomainType() == DOMAIN_SEA && isCityOrPassableImprovement(unit.getOwner(), true) )
-		return true;
+	case DOMAIN_HOVER:
+		return !isDeepWater();
+		break;
+
+	case DOMAIN_IMMOBILE:
+		return false;
+		break;
+
+	case DOMAIN_LAND:
+		return !isCity() || (isCity() && getOwner()==unit.getOwner());
+		break;
+
+	default:
+		CvAssert(false);
+		break;
+	}
 
 	return false;
 }
@@ -4778,10 +4794,7 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-		if (unit.CanEverEmbark())
-			return needsEmbarkation() == unit.isEmbarked();
-		else
-			return true;
+		return true;
 		break;
 
 	default:

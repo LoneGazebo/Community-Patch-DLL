@@ -24207,12 +24207,12 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (pDefender->isEmbarked() || (pInPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pInPlot->isValidDomainForAction(*pDefender)))
+	if (pInPlot->needsEmbarkation() && pDefender->CanEverEmbark())
 #else
 	if (pDefender->isEmbarked())
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	{
-		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
+		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 	}
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS

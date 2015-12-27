@@ -2213,13 +2213,7 @@ void CvUnitPromotions::Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit)
 /// Deallocate memory created in initialize
 void CvUnitPromotions::Uninit()
 {
-	m_kHasPromotion.SetSize(0);
-
-#if defined(MOD_BALANCE_CORE)
-	m_unitClassDefenseMod.clear();
-	m_unitClassAttackMod.clear();
-	m_terrainPassableCache.clear();
-#endif
+	Reset();
 }
 
 /// Reset unit promotion array to all false
@@ -2231,6 +2225,7 @@ void CvUnitPromotions::Reset()
 	m_unitClassDefenseMod.clear();
 	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
+	m_featurePassableCache.clear();
 #endif
 }
 
@@ -2315,6 +2310,42 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 	CvAssert(teamTechs);
 	if(!teamTechs) return false;
 
+#if defined(MOD_BALANCE_CORE)
+	//first check if this feature type is cached
+	if(m_featurePassableCache.size() <= 0)
+	{
+		int iNumPromos = GC.getNumPromotionInfos();
+		for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
+		{
+			PromotionTypes ePromotion = (PromotionTypes) iLoop;
+			if(m_kHasPromotion.GetBit(ePromotion))
+			{
+				CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
+
+				if(promotion)
+				{
+					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(eFeatureType);
+					if(eTech != NO_TECH && teamTechs->HasTech(eTech))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		std::vector<TechTypes> reqTechs = m_featurePassableCache[eFeatureType];
+		for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
+			if (teamTechs->HasTech(*it_techs))
+				return true;
+	}
+
+	//have none of the techs?
+	return false;
+}
+
+#else
 	int iNumPromos = GC.getNumPromotionInfos();
 	for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
 	{
@@ -2335,6 +2366,7 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 
 	return false;
 }
+#endif
 
 /// determines if the terrain type is passable given the unit's current promotions
 #if defined(MOD_BALANCE_CORE)
@@ -2343,6 +2375,7 @@ void CvUnitPromotions::UpdateCache()
 	m_unitClassDefenseMod.clear();
 	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
+	m_featurePassableCache.clear();
 
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
@@ -2368,6 +2401,26 @@ void CvUnitPromotions::UpdateCache()
 		}
 
 		m_terrainPassableCache.push_back( reqTechs );
+	}
+
+	for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
+	{
+		std::vector<TechTypes> reqTechs;
+		for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+		{
+			if(m_kHasPromotion.GetBit(iPromotion))
+			{
+				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
+				if(promotion)
+				{
+					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(iFeature);
+					if(eTech != NO_TECH)
+						reqTechs.push_back(eTech);
+				}
+			}
+		}
+
+		m_featurePassableCache.push_back( reqTechs );
 	}
 }
 #endif
@@ -2404,11 +2457,10 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 	}
 	else
 	{
-
-	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
-	for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
-		if (teamTechs->HasTech(*it_techs))
-			return true;
+		std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
+		for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
+			if (teamTechs->HasTech(*it_techs))
+				return true;
 	}
 
 	//have none of the techs?

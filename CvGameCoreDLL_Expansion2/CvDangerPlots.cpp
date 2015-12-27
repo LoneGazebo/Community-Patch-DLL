@@ -1169,17 +1169,12 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(const CvUnit* pUnit)
 	// Terrain damage is greater than heal rate
 	int iMinimumDamage = m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
-	if ((pUnit->plot() == m_pPlot && !pUnit->isEmbarked()) ||
-		(pUnit->isAlwaysHeal() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit))))
+	if (pUnit->canHeal(m_pPlot))
 	{
 		iMinimumDamage -= pUnit->healRate(m_pPlot);
 	}
-	if (iMinimumDamage > 0)
-	{
-		return true;
-	}
 
-	return false;
+	return (iMinimumDamage > 0);
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot

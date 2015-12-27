@@ -4334,24 +4334,18 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Part 4 : promotions - expensive test, do this last ---------------------------------------------------
 
-	if(enterPlot.getFeatureType() != NO_FEATURE)  
+	// assume that all units can use roads and rails
+	if(enterPlot.getRouteType() == NO_ROUTE)
 	{
-		// assume that all units can use roads and rails
-		if(isFeatureImpassable(enterPlot.getFeatureType()) && enterPlot.getRouteType() == NO_ROUTE)
+		if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
 		{
 			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			if(m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
-				return true;
+			return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType());
 		}
-	}
-	else if(enterPlot.getTerrainType() != NO_TERRAIN)
-	{
-		// assume that all units can use roads and rails
-		if(isTerrainImpassable(enterPlot.getTerrainType()) && enterPlot.getRouteType() == NO_ROUTE)
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
 		{
 			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			if (m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
-				return true;
+			return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType());
 		}
 	}
 
@@ -6596,7 +6590,7 @@ bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
 
-	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain());
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain() && !isCargo() );
 }
 
 //	--------------------------------------------------------------------------------
@@ -15829,7 +15823,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
-		if (pDefender->isEmbarked() || (pTargetPlot && pTargetPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pTargetPlot->isValidDomainForAction(*pDefender)))
+		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation())
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
@@ -22974,7 +22968,7 @@ CvUnit* CvUnit::getTransportUnit()
 bool CvUnit::isCargo() const
 {
 	VALIDATE_OBJECT
-	return (getTransportUnit() != NULL);
+	return !m_transportUnit.isInvalid();
 }
 
 
@@ -24860,77 +24854,55 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = (pSourcePlot && pSourcePlot->isWater() && getDomainType() == DOMAIN_LAND && !pSourcePlot->isValidDomainForAction(*this));
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->isWater() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation() && CanEverEmbark();
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation() && bWouldNeedEmbark;
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif
 
-	// Can only bombard in domain? (used for Subs' torpedo attack)
-	if(getUnitInfo().IsRangeAttackOnlyInDomain())
-	{
-		if(!pTargetPlot->isValidDomainForAction(*this))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				CvCity* pCity = pTargetPlot->getPlotCity();
-				if(!pTargetPlot->isCoastalLand())
-				{
-					return false;
-				}
-				else
-				{
-					if(pCity == NULL)
-					{
-						return false;
-					}
-				}
-			}
-			else
-			{
-#endif
-			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-
-		// preventing submarines from shooting into lakes.
-		if (pSourcePlot->getArea() != pTargetPlot->getArea())
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				CvCity* pCity = pTargetPlot->getPlotCity();
-				if(!pTargetPlot->isCoastalLand())
-				{
-					return false;
-				}
-				else
-				{
-					if(pCity == NULL)
-					{
-						return false;
-					}
-				}
-			}
-			else
-			{
-#endif
-			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-	}
 
 	// In Range?
 	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
 	{
 		return false;
+	}
+
+	// Can only bombard in domain? (used for Subs' torpedo attack)
+	if(getUnitInfo().IsRangeAttackOnlyInDomain())
+	{
+		// preventing submarines from shooting into lakes.
+		if (pSourcePlot->getArea() != pTargetPlot->getArea())
+		{
+			return false;
+		}
+
+		if( !isNativeDomain(pTargetPlot) )
+		{
+
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			{
+				if(!pTargetPlot->isCoastalLand())
+				{
+					return false;
+				}
+				else
+				{
+					if(!pTargetPlot->isCity())
+					{
+						return false;
+					}
+				}
+			}
+			else
+			{
+#endif
+			return false;
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			}
+#endif
+		}
 	}
 
 	// Ignores LoS or can see the plot directly?
@@ -26943,13 +26915,16 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 	}
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if ((!pPlot->isWater() || getDomainType() != DOMAIN_LAND) && !pPlot->isValidDomainForAction(*this))
+	if (CanEverEmbark() && pPlot->needsEmbarkation())
 #else
 	if(!pPlot->isValidDomainForAction(*this))
 #endif
 	{
 		return false;
 	}
+
+	if (isCargo())
+		return false;
 
 	return true;
 }

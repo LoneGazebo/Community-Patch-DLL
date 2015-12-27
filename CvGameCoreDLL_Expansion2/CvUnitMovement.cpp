@@ -268,7 +268,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 
 		//disembarking?
-		if (!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation() && pUnit->isEmbarked())
+		if (!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation())
 		{
 			//trait?
 			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -285,7 +285,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		}
 
 		//embarkation?
-		if (pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation() && !pUnit->isEmbarked())
+		if (pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation())
 		{
 			//If city, and player has embark from city at no cost...
 			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) )
@@ -304,13 +304,6 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 //	---------------------------------------------------------------------------
 bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
-	if(!pToPlot->isValidDomainForAction(*pUnit))
-	{
-		// If we are a land unit that can embark, then do further tests.
-		if(!pUnit->CanEverEmbark())
-			return true;
-	}
-
 	CvAssert(!pUnit->IsImmobile());
 
 	if(pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
@@ -320,43 +313,46 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-	if(!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation() && pUnit->isEmbarked())
+	if (pUnit->CanEverEmbark())
 	{
-		// Is the unit from a civ that can disembark for just 1 MP?
-		if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+		if(!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation())
 		{
-			return true;
-		}
+			// Is the unit from a civ that can disembark for just 1 MP?
+			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			{
+				return true;
+			}
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-		//If city, and player has disembark to city at reduced cost...
-		if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-		{
-			return true;
+			//If city, and player has disembark to city at reduced cost...
+			if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				return true;
+			}
+			//If city, and player has disembark to city at reduced cost...
+			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+			{
+				return true;
+			}
 		}
-		//If city, and player has disembark to city at reduced cost...
-		else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-		{
-			return true;
-		}
-	}
 
-	if(pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation() && !pUnit->isEmbarked())
-	{
-		//If city, and player has disembark to city at reduced cost...
-		if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+		if(pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation())
 		{
-			return true;
+			//If city, and player has disembark to city at reduced cost...
+			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				return true;
+			}
+			//If city, and player has disembark to city at reduced cost...
+			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+			{
+				return true;
+			}
 		}
-		//If city, and player has disembark to city at reduced cost...
-		if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-		{
-			return true;
-		}
-	}
 #else
-	}
+		}
 #endif
+	}
 
 	return false;
 }
