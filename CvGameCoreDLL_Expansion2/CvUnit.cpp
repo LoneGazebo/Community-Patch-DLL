@@ -5112,26 +5112,19 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 bool CvUnit::jumpToNearestValidPlot()
 {
 	VALIDATE_OBJECT
-	CvCity* pNearestCity;
-	CvPlot* pLoopPlot;
-	CvPlot* pBestPlot;
-	int iValue;
-	int iBestValue;
-	int iI;
-
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
 
-	iBestValue = INT_MAX;
-	pBestPlot = NULL;
+	int iBestValue = INT_MAX;
+	CvPlot* pBestPlot = NULL;
 
-	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this))
+		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
 		{
 			if(canMoveInto(*pLoopPlot))
 			{
@@ -5152,7 +5145,7 @@ bool CvUnit::jumpToNearestValidPlot()
 							{
 								if(pLoopPlot->isRevealed(getTeam()))
 								{
-									iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+									int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
 									if(pNearestCity != NULL)
 									{
@@ -5228,7 +5221,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot->isValidDomainForLocation(*this))
+				if(pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
 				{
 					if(canMoveInto(*pLoopPlot))
 					{
@@ -13480,13 +13473,13 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater();
+		return !pPlot->needsEmbarkation();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->isWater();
+		return pPlot->needsEmbarkation();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -15626,7 +15619,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		if(!pPlot->isValidDomainForLocation(*this))
+		if(!pPlot->isValidDomainForLocation(*this) && isNativeDomain(pPlot))
 		{
 			return false;
 		}
@@ -16026,58 +16019,59 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
 	VALIDATE_OBJECT
-	CvUnit* pLoopUnit;
-	CvUnit* pBestUnit;
-	int iValue;
-	int iBestValue;
-	int iLoop;
-	int iI;
-
-	iBestValue = 0;
-	pBestUnit = NULL;
+	CvUnit* pBestUnit = 0;
+	int iBestValue = 0;
+	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kLoopPlayer.isAlive())
-		{
-			TeamTypes eLoopTeam = kLoopPlayer.getTeam();
-			if(isEnemy(eLoopTeam) && !isInvisible(eLoopTeam, false, false))
-			{
-				for(pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
-				{
-					// Must be able to intercept
-					if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
-					{
-						// Must not have already intercepted this turn
-						if(!pLoopUnit->isOutOfInterceptions())
-						{
-							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
-							{
-								// Must either be a non-air Unit or an air Unit on intercept
-								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-								{
-									// Check input booleans
-									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
-									{
-										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
-										{
-											// Test range
-											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
-											{
-												iValue = pLoopUnit->currInterceptionProbability();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
 
-												if(iValue > iBestValue)
-												{
-													iBestValue = iValue;
-													pBestUnit = pLoopUnit;
-												}
-											}
+	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	{
+		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
+		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+
+		//stealth unit? no intercept
+		if(isInvisible(eLoopTeam, false, false))
+			continue;
+
+		int iLoop = 0;
+		for(CvUnit* pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
+		{
+			// Must be able to intercept
+			if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
+			{
+				// Must not have already intercepted this turn
+				if(!pLoopUnit->isOutOfInterceptions())
+				{
+					// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
+					if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
+					{
+						// Must either be a non-air Unit or an air Unit on intercept
+						if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+						{
+							// Check input booleans
+							if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{
+								if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
+								{
+									// Test range
+									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY());
+									if( iDistance <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+									{
+										int iValue = pLoopUnit->currInterceptionProbability();
+
+										if (iValue>0 && piNumPossibleInterceptors)
+											(*piNumPossibleInterceptors)++;
+
+										if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
+										{
+											iBestDistance = iDistance;
+											iBestValue = iValue;
+											pBestUnit = pLoopUnit;
 										}
 									}
 								}
@@ -16095,63 +16089,9 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pk
 //	--------------------------------------------------------------------------------
 int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
-	VALIDATE_OBJECT
-	
-	CvUnit* pLoopUnit;
-	int iReturnValue;
-	int iLoop;
-	int iI;
-
-	iReturnValue = 0;
-
-	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kLoopPlayer.isAlive())
-		{
-			TeamTypes eLoopTeam = kLoopPlayer.getTeam();
-			if(isEnemy(eLoopTeam) && !isInvisible(eLoopTeam, false, false))
-			{
-				for(pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
-				{
-					// Must be able to intercept
-					if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
-					{
-						// Must not have already intercepted this turn
-						if(!pLoopUnit->isOutOfInterceptions())
-						{
-							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
-							{
-								// Must either be a non-air Unit or an air Unit on intercept
-								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-								{
-									// Check input booleans
-									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
-									{
-										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
-										{
-											// Test range
-											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
-											{
-												if (pLoopUnit->currInterceptionProbability() > 0)
-												{
-													iReturnValue++;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iReturnValue;
+	int iCount = 0;
+	GetBestInterceptor(interceptPlot,pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	return iCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26610,6 +26550,10 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		}
 	}
 #endif
+
+	//safety check - air units should not use ranged attack missions (for unknown reasons)
+	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
+		eMission = CvTypes::getMISSION_MOVE_TO();
 
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 }

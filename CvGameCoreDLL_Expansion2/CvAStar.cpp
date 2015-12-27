@@ -340,7 +340,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.01 )
+	if ( timer.GetDeltaInSeconds()>0.05 )
 	{
 		int iNumPlots = GC.getMap().numPlots();
 

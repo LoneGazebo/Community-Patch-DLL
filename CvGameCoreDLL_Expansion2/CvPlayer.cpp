@@ -9053,7 +9053,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						pLoopPlot	= plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iPopRange);
 						if(pLoopPlot != NULL)
 						{
-							if(pLoopPlot->isValidDomainForLocation(*pNewUnit))
+							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isNativeDomain(pLoopPlot))
 							{
 								if(pNewUnit->canMoveInto(*pLoopPlot))
 								{
@@ -35808,7 +35808,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
 	}
 

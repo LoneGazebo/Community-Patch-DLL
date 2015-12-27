@@ -8875,7 +8875,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		if (pUnit)
 		{
 			//special handling for garrison
-			if (pUnit->plot()->isCity())
+			if (pUnit->plot()->isCity() && pUnit->getDomainType()==DOMAIN_LAND )
 			{
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 				continue;
@@ -13434,6 +13434,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
 
 	int iRange = pUnit->GetRange();
 	CvPlot* pBasePlot = pUnit->plot();
+	bool bIsAirUnit = pUnit->getDomainType()==DOMAIN_AIR;
 
 	int iMaxDamage = 0;
 	CvPlot* pBestTarget = NULL;
@@ -13454,12 +13455,12 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
 				continue;
 			}
 
-			UnitHandle pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true/*testWar*/);
+			UnitHandle pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true /*testWar*/);
 
 			//don't blindly attack the first one we find, check how much damage we can do
 			if (pOtherUnit && !pOtherUnit->isDelayedDeath() && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
 			{
-				int iDamage = pUnit->GetRangeCombatDamage(pOtherUnit.pointer(),NULL,false);
+				int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit.pointer(),NULL,false) : pUnit->GetRangeCombatDamage(pOtherUnit.pointer(),NULL,false);
 				if (iDamage>iMaxDamage)
 				{
 					pBestTarget = pLoopPlot;
@@ -13471,7 +13472,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
 
 	if (pBestTarget)
 	{
-		pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pBestTarget->getX(), pBestTarget->getY());
+		pUnit->PushMission(bIsAirUnit ? CvTypes::getMISSION_MOVE_TO() : CvTypes::getMISSION_RANGE_ATTACK(), pBestTarget->getX(), pBestTarget->getY());
 		return true;
 	}
 

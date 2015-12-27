@@ -56,7 +56,7 @@ const MissionTypes getMISSION_LEAD();
 const MissionTypes getMISSION_DIE_ANIMATION();
 const MissionTypes getMISSION_BEGIN_COMBAT();
 const MissionTypes getMISSION_END_COMBAT();
-const MissionTypes getMISSION_AIRSTRIKE();
+const MissionTypes getMISSION_AIRSTRIKE();	//doesn't seem to be used
 const MissionTypes getMISSION_SURRENDER();
 const MissionTypes getMISSION_CAPTURED();
 const MissionTypes getMISSION_IDLE();
