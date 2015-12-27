@@ -4265,92 +4265,100 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
 
-	// Part 2 : easy decisions ---------------------------------------------------
+	// Part 2 : player traits and unit traits ---------------------------------------------------
 
-	// Most plots are easy in fact
-	if(!enterPlot.isImpassable(getTeam()))
-		return true;
-
-	// Some special units also have it easy
-	if(canMoveImpassable() || canMoveAllTerrain())
-		return true;
-
-	// Part 3 : player traits and unit traits ---------------------------------------------------
-
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
-	// Check coastal water
-	if ( enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
+	if(enterPlot.isImpassable(getTeam()))
 	{
-		if(eDomain == DOMAIN_SEA)
-		{
+		// Some special units also have it easy
+		if(canMoveImpassable() || canMoveAllTerrain())
 			return true;
-		}
-		else
-		{
-			return IsHasEmbarkAbility() && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
-		}
-	}
 
-	// Check high seas
-	if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+		// Check coastal water
+		if (enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
+		{
+			if(eDomain == DOMAIN_SEA)
+			{
+				return true;
+			}
+			else
+			{
+				return IsHasEmbarkAbility() && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+			}
+		}
+
+		// Check high seas
+		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
+		{
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
+
+			if(bOceanImpassable)
+			{	
+				return false;
+			}
+			else if(eDomain == DOMAIN_SEA)
+			{
+				return canCrossOceans() || kPlayer.CanCrossOcean();
+			}
+			else if(eDomain == DOMAIN_LAND)
+			{
+				return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+			}
+		}
+
+		// Check ice with specialty: is passable if owned
+		if (enterPlot.isIce()) 
+		{
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
+			return bCanCross;
+		}
+
+		// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
+		if (enterPlot.isMountain())
+		{
+			bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
+			return bCanCross;
+		}
+
+		// general promotions ---------------------------------------------------
+
+		// assume that all units can use roads and rails
+		if(enterPlot.getRouteType() == NO_ROUTE)
+		{
+			if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
+			{
+				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
+				return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType());
+			}
+			else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
+			{
+				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
+				return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType());
+			}
+		}
+
+		//ok, seems we ran out of jokers. no pasaran!
+		return false;
+	}
+	else //passable. need to check for negative promotions / traits and their exceptions
 	{
-		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-		bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-
-		/*
-		//this promotion is not required, after astronomy any ship can cross ocean unless explicitly forbidden
-		PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
-		bool bOceanImpassableAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy);
-		*/
-
-		if(bOceanImpassable)
-		{	
-			return false;
-		}
-		else if(eDomain == DOMAIN_SEA)
+		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			return canCrossOceans() || kPlayer.CanCrossOcean();
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
+
+			if(bOceanImpassable)
+			{	
+				return false;
+			}	
 		}
-		else if(eDomain == DOMAIN_LAND)
-		{
-			return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
-		}
+
+		//ok, seems there are no objections. let's go!
+		return true;
 	}
-
-	// Check ice with specialty: is passable if owned
-	if (enterPlot.isIce()) 
-	{
-		bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
-		return bCanCross;
-	}
-
-	// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
-	if (enterPlot.isMountain())
-	{
-		bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
-		return bCanCross;
-	}
-
-	// Part 4 : promotions - expensive test, do this last ---------------------------------------------------
-
-	// assume that all units can use roads and rails
-	if(enterPlot.getRouteType() == NO_ROUTE)
-	{
-		if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
-		{
-			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType());
-		}
-		else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
-		{
-			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType());
-		}
-	}
-
-	//ok, seems we ran out of jokers. no pasaran!
-	return false;
 }
 
 //	--------------------------------------------------------------------------------

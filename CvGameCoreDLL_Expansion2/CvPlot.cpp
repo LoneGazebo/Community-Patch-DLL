@@ -11705,9 +11705,6 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_abIsImpassable[i];
 #endif
 	}
-	
-	//just to be safe - m_abIsImpassable is also saved/restored
-	updateImpassable();
 
 	for (uint i = 0; i<PlotBoolField::eCount; ++i)
 	{
