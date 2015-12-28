@@ -326,34 +326,15 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		return;
 	}
 
-	int iGoldForRoute = 0;
-	if(!bMajorMinorConnection)
-	{
-		iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) / 100;
-	}
-#if defined(MOD_BALANCE_CORE)
-
-	iGoldForRoute *= 5;
-
-	if(pTargetCity->getUnhappinessFromConnection() > 0)
-	{
-		iGoldForRoute += (pTargetCity->getUnhappinessFromConnection() * 10);
-	}
-#endif
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if(!pRouteInfo)
-	{
-		return;
-	}
-	int iMaintenancePerTile = pRouteInfo->GetGoldMaintenance();
-	if(iMaintenancePerTile < 0)  // div by zero check
 	{
 		return;
 	}
 
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pPlayerCapital->plot()->getX(), pPlayerCapital->plot()->getY(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), data);
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
 	//  if no path, then bail!
 	if(!bFoundPath)
@@ -361,97 +342,80 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		return;
 	}
 
-	// walk the path
-	CvPlot* pPlot = NULL;
-
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
+	int iWildPlots = 0; //plots not under our control ... dangerous
+
 	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 	while(pNode)
 	{
-		pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-		pNode = pNode->m_pParent;
+		CvPlot* pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 		if(!pPlot)
-		{
 			break;
-		}
 
-		CvCity* pCity = pPlot->getPlotCity();
-		if(NULL != pCity && pCity->getTeam() == m_pPlayer->getTeam())
-		{
+		pNode = pNode->m_pParent;
+
+		//don't count the cities themselves
+		if (pPlot->isCity())
 			continue;
-		}
 
-		if(pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
-		{
-			// if this is already a trade route or someone else built it, we can count is as free
-			if(pPlot->IsTradeRoute(m_pPlayer->GetID()) || pPlot->GetPlayerResponsibleForRoute() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-			iRoadLength++;
-		}
-		else
-		{
-			iRoadLength++;
+		iRoadLength++;
+
+		if(pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 			iPlotsNeeded++;
-		}
+
+		if (pPlot->getOwner()!=m_pPlayer->GetID())
+			iWildPlots++;
 	}
 
-	// This is very odd
-	if(iRoadLength <= 0 || iPlotsNeeded <= 0)
-	{
+	//don't build through the wilderness
+	if (3*iWildPlots > 2*iRoadLength+1 || iWildPlots>10)
 		return;
-	}
 
-
+	//see if the new route makes sense economically
 	short sValue = -1;
-	int iProfit = iGoldForRoute - (iRoadLength * iMaintenancePerTile);
-	if(bIndustrialRoute)
+	if(bMajorMinorConnection)
 	{
-		if(iProfit >= 0)
-		{
-			sValue = MAX_SHORT;
-		}
-		else if(m_pPlayer->calculateGoldRate() + iProfit >= 0)
-		{
-			sValue = pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
-		}
-		else
-		{
-			return;
-		}
-	}
-	else if(bMajorMinorConnection)
-	{
+		//this is for a quest ... normal considerations don't apply
 		sValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / iPlotsNeeded, MAX_SHORT);
 	}
-	else // normal route
+	else
 	{
-		// is this route worth building?
-#if defined(MOD_BALANCE_CORE)
-		if((iProfit < 0) && (pTargetCity->getUnhappinessFromConnection() <= 0))
-#else
-		if(iProfit < 0)
-#endif
+		int iMaintenancePerTile = pRouteInfo->GetGoldMaintenance()*(100+m_pPlayer->GetRouteGoldMaintenanceMod());
+		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
+
+		//route has side benefits also (movement, village gold, trade route range, religion spread)
+		int iSideBenefits = iPlotsNeeded * 50;
+
+		if(pTargetCity->getUnhappinessFromConnection() > 0)
 		{
-			return;
+			//assume one unhappiness is worth 4 gold per turn
+			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 400);
 		}
 
-		int iValue = (iGoldForRoute * 100) / (iRoadLength * (iMaintenancePerTile + 1));
-		iValue = (iValue * iRoadLength) / iPlotsNeeded;
-		sValue = min(iValue, MAX_SHORT);
+		if(bIndustrialRoute)
+		{
+			iSideBenefits = iPlotsNeeded * 100 + pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+		}
+
+		int iProfit = iGoldForRoute + iSideBenefits - (iPlotsNeeded*iMaintenancePerTile);
+
+		//alternatively, we could build a harbor - 300 is just an offhand estimate for amortized investment plus maintenance
+		if ( pTargetCity->isCoastal() )
+			iProfit -= 300;
+
+		if (iProfit<0)
+			return;
+		else
+			sValue = min(iProfit, MAX_SHORT);
 	}
 
-	pPlot = NULL;
+	//traverse the path again and mark the plots to be worked
 	pNode = GC.GetStepFinder().GetLastNode();
-
-	int iGameTurn = GC.getGame().getGameTurn();
-
 	while(pNode)
 	{
-		pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
+		CvPlot* pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
 		pNode = pNode->m_pParent;
 
 		if(!pPlot)
@@ -459,13 +423,13 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			break;
 		}
 
-		if(pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 		{
 			continue;
 		}
 
 		// if we already know about this plot, continue on
-		if(pPlot->GetBuilderAIScratchPadTurn() == iGameTurn && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
+		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
 		{
 			if(sValue > pPlot->GetBuilderAIScratchPadValue())
 			{
@@ -476,7 +440,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 
 		// mark nodes and reset values
-		pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
+		pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
 		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
 		pPlot->SetBuilderAIScratchPadValue(sValue);
 		pPlot->SetBuilderAIScratchPadRoute(eRoute);
@@ -499,14 +463,14 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(pCity1->getOwner() != pCity2->getOwner())
 		return;
 
-	// if we *don't* already have a connection, bail out
+	// if we *don't* already have a land connection, bail out
 	SPath existingPath;
 	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true, &existingPath))
 		return;
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->plot()->getX(), pCity1->plot()->getY(), pCity2->plot()->getX(), pCity2->plot()->getY(), data);
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//this cannot really happen, but anyway
 	if(!bFoundPath)
@@ -561,7 +525,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
 
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->plot()->getX(), pCity1->plot()->getY(), pCity2->plot()->getX(), pCity2->plot()->getY(), data);
+	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//  if no path, then bail!
 	if(!bFoundPath)

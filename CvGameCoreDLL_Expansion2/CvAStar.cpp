@@ -2006,14 +2006,12 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 //	--------------------------------------------------------------------------------
 /// Build route cost
-int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
+int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	PlayerTypes ePlayer = data.ePlayer;
-	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
-
-	if(pPlot->getRouteType() >= eRoute)
+	if(pPlot->getRouteType() != NO_ROUTE)
+		//do not check if the type matches exactly - put railroads over roads
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 	else
 		return PATH_BASE_COST;
@@ -2032,21 +2030,20 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 	CvPlayer& thisPlayer = GET_PLAYER(ePlayer);
 	bool bThisPlayerIsMinor = thisPlayer.isMinorCiv();
 
+	//can we build it?
+	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
+	if (eRoute > thisPlayer.getBestRoute())
+		return FALSE;
+
 	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	if(!bThisPlayerIsMinor && !(pNewPlot->isRevealed(thisPlayer.getTeam())))
-	{
 		return FALSE;
-	}
 
 	if(pNewPlot->isWater())
-	{
 		return FALSE;
-	}
 
 	if(!pNewPlot->isValidMovePlot(ePlayer))
-	{
 		return FALSE;
-	}
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 	if(ePlotOwnerPlayer != NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))

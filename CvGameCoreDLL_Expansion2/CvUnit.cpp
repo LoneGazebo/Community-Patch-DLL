@@ -5160,7 +5160,7 @@ bool CvUnit::jumpToNearestValidPlot()
 										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
 									}
 
-									if(iValue < iBestValue)
+									if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
 									{
 										iBestValue = iValue;
 										pBestPlot = pLoopPlot;
@@ -5255,7 +5255,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 											iValue *= 3;
 										}
 
-										if(iValue < iBestValue)
+										if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
 										{
 											iBestValue = iValue;
 											pBestPlot = pLoopPlot;
@@ -13481,7 +13481,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->needsEmbarkation();
+		return pPlot->needsEmbarkation()==isEmbarked();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -17923,16 +17923,15 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	pNewPlot = GC.getMap().plot(iX, iY);
 
-	/*
-	//prevent stupidity - interferes with carriers for land units, so don't do it
+	//sanity check
 	if (pNewPlot)
 	{
 		if ( !pNewPlot->needsEmbarkation() && isEmbarked() )
 			setEmbarked(false);
 		if ( pNewPlot->needsEmbarkation() && CanEverEmbark() && !isEmbarked() )
-			setEmbarked(true);
+			//interferes with carriers for land units, so don't fix it
+			void; //setEmbarked(true);
 	}
-	*/
 
 	if(pNewPlot != NULL && !bNoMove)
 	{
