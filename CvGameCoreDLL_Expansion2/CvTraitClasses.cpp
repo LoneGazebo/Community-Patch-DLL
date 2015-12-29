@@ -3790,40 +3790,23 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE)
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(HasTrait(eTrait))
-			{
-				if(pkTraitInfo->GetFreeBuildingPrereqTech())
-				{
-					return pkTraitInfo->GetFreeBuildingPrereqTech();
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->GetFreeBuildingPrereqTech())
+			return pkTraitInfo->GetFreeBuildingPrereqTech();
 	}
 
 	return NO_TECH;
 }
+
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(HasTrait(eTrait))
-			{
-				if(pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
-				{
-					return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+			return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 	}
 
 	return NO_TECH;
@@ -3923,22 +3906,9 @@ bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(pkTraitInfo->IsMayaCalendarBonuses())
-			{
-				if(HasTrait(eTrait))
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->IsMayaCalendarBonuses())
+			return true;
 	}
 	return false;
 }

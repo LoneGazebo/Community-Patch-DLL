@@ -378,7 +378,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if(bMajorMinorConnection)
 	{
 		//this is for a quest ... normal considerations don't apply
-		sValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / iPlotsNeeded, MAX_SHORT);
+		sValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / max(1,iPlotsNeeded), MAX_SHORT);
 	}
 	else
 	{

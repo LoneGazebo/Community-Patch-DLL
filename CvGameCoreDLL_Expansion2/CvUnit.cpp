@@ -17923,15 +17923,16 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	pNewPlot = GC.getMap().plot(iX, iY);
 
-	//sanity check
+	//sanity check - interferes with carriers for land units, so don't fix it
+	/*
 	if (pNewPlot)
 	{
 		if ( !pNewPlot->needsEmbarkation() && isEmbarked() )
 			setEmbarked(false);
 		if ( pNewPlot->needsEmbarkation() && CanEverEmbark() && !isEmbarked() )
-			//interferes with carriers for land units, so don't fix it
-			void; //setEmbarked(true);
+			setEmbarked(true);
 	}
+	*/
 
 	if(pNewPlot != NULL && !bNoMove)
 	{
@@ -24817,29 +24818,24 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	if(getUnitInfo().IsRangeAttackOnlyInDomain())
 	{
-		// preventing submarines from shooting into lakes.
-		if (pSourcePlot->getArea() != pTargetPlot->getArea())
+		if( pTargetPlot->isWater() )
 		{
-			return false;
+			// preventing submarines from shooting into other water bodies (lakes)
+			if (pSourcePlot->getArea() != pTargetPlot->getArea())
+			{
+				return false;
+			}
 		}
-
-		if( !isNativeDomain(pTargetPlot) )
+		else //land target
 		{
 
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
 			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			{
-				if(!pTargetPlot->isCoastalLand())
+				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || pTargetPlot->getPlotCity()->waterArea()!=pSourcePlot->area() )
 				{
 					return false;
-				}
-				else
-				{
-					if(!pTargetPlot->isCity())
-					{
-						return false;
-					}
 				}
 			}
 			else
@@ -26865,17 +26861,15 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 		return false;
 	}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (CanEverEmbark() && pPlot->needsEmbarkation())
-#else
 	if(!pPlot->isValidDomainForAction(*this))
-#endif
 	{
 		return false;
 	}
 
 	if (isCargo())
+	{
 		return false;
+	}
 
 	return true;
 }
