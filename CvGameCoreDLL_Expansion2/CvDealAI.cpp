@@ -5488,7 +5488,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
 
 		// Don't include the capital in the list of Cities the buyer can receive
 		if(!pLoopCity->isCapital() && iRatio>130)
@@ -5592,7 +5592,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
 
 		// Don't include the capital in the list of Cities the buyer can receive
 		if (!pLoopCity->isCapital() && iRatio<80) 
@@ -7410,7 +7410,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			int iTheirPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), false, eOtherPlayer, false);
 
-			int iBuyRatio = (iMyPrice*100)/iTheirPrice;
+			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -7481,7 +7481,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iTheirPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), false, eOtherPlayer, false);
 
-			int iBuyRatio = (iMyPrice*100)/iTheirPrice;
+			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -7501,7 +7501,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iTheirPrice = GetCityValue(pMyCity->getX(), pMyCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pMyCity->getX(), pMyCity->getY(), false, eOtherPlayer, false);
 
-			int iSellRatio = (iTheirPrice*100)/iMyPrice;
+			int iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
 			{
 				pBestSellCity = pMyCity;

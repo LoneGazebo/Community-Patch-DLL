@@ -16128,7 +16128,7 @@ int CvPlayer::GetBonusHappinessFromLuxuries() const
 	int iNumLux = iNumHappinessResources;
 	if(iNumLux > 0)
 	{
-		iExtraHappiness = ((iNumLux * iHappiness) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+		iExtraHappiness = ((iNumLux * iHappiness) / /*8*/ max(1,GC.getBALANCE_HAPPINESS_LUXURY_BASE()));
 	}
 	return iExtraHappiness;
 }
@@ -36333,7 +36333,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
 					continue;
 
-				if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+				int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
+				int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
+				if (iDistanceToDanger<4 && iDistanceToSettler>1)
 				{
 					isDangerous = true;
 					break;

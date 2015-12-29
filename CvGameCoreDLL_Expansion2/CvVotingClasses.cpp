@@ -7866,7 +7866,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
-						int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
+						int iPercentCompleted = (int) ((float)GetProjectProgress(eProject) / max(1,GetProjectCost(eProject)) * 100);
 						iPercentCompleted = MIN(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
@@ -7938,7 +7938,7 @@ void CvLeague::CheckProjectsProgress()
 				// How close is it?
 				else
 				{
-					int iPercentCompleted = (int) (((float)iTotal / (float)iNeeded) * 100);
+					int iPercentCompleted = (int) (((float)iTotal / max(1,iNeeded)) * 100);
 					iPercentCompleted = MIN(100, iPercentCompleted);
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
