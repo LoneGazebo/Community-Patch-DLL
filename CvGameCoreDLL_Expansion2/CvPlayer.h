@@ -267,10 +267,8 @@ public:
 	bool IsNoSettling(int iPlotIndex) const;
 	void ClearNoSettling();
 
-#if defined(MOD_BALANCE_CORE)
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce = false) const;
-	bool canFound(int iX, int iY, bool bForce = false) const;
-#endif
+	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
+	bool canFound(int iX, int iY) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);

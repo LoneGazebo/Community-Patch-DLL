@@ -9366,23 +9366,12 @@ void CvPlayer::ClearNoSettling()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-bool CvPlayer::canFound(int iX, int iY, bool bForce) const
-#else
 bool CvPlayer::canFound(int iX, int iY) const
-#endif
 {
-#if defined(MOD_BALANCE_CORE)
-	return canFound(iX,iY,false,false,NULL, bForce);
-#else
 	return canFound(iX,iY,false,false,NULL);
-#endif
 }
-#if defined(MOD_BALANCE_CORE)
-bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce) const
-#else
+
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
-#endif
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 #if defined(MOD_EVENTS_CITY_FOUNDING)
@@ -9406,11 +9395,7 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit, bForce);
-#else
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
-#endif
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9420,11 +9405,7 @@ void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
 void CvPlayer::found(int iX, int iY)
 #endif
 {
-#if defined(MOD_BALANCE_CORE)
-	if(!canFound(iX, iY, bForce))
-#else
-	if(!canFound(iX, iY))
-#endif
+	if(!bForce && !canFound(iX, iY))
 	{
 		return;
 	}

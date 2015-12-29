@@ -4274,6 +4274,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(canMoveImpassable() || canMoveAllTerrain())
 			return true;
 
+		// if there's a route, anyone can use it
+		if(enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged())
+			return true;
+
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 		// Check coastal water
@@ -4316,29 +4320,23 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			return bCanCross;
 		}
 
-		// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
+		// Check mountain.
 		if (enterPlot.isMountain())
 		{
-			bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
+			bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain();
 			return bCanCross;
 		}
 
 		// general promotions ---------------------------------------------------
 
-		// assume that all units can use roads and rails
-		if(enterPlot.getRouteType() == NO_ROUTE)
+		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
 		{
-			if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
-			{
-				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-				return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType());
-			}
-			else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
-			{
-				// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-				return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType());
-			}
-		}
+			return true;
+		}	
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
+		{
+			return true;
+		}	
 
 		//ok, seems we ran out of jokers. no pasaran!
 		return false;
@@ -4354,6 +4352,15 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			{	
 				return false;
 			}	
+		}
+
+		if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
+		{
+			return false;
+		}
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
+		{
+			return false;
 		}
 
 		//ok, seems there are no objections. let's go!
@@ -9659,18 +9666,10 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (pPlot)
 		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
 	else
 		return true;
-#else
-	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
-	{
-		return false;
-	}
-	return true;
-#endif
 }
 
 
