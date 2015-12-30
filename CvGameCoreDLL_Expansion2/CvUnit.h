@@ -1335,7 +1335,7 @@ public:
 
 	bool isUnderTacticalControl() const;
 	void setTacticalMove(TacticalAIMoveTypes eMove);
-	TacticalAIMoveTypes getTacticalMove() const;
+	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
@@ -1488,7 +1488,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void setHomelandMove(AIHomelandMove eMove);
-	AIHomelandMove getHomelandMove() const;
+	AIHomelandMove getHomelandMove(int* pTurnSet=NULL) const;
 	bool hasCurrentTacticalMove() const;
 #endif
 

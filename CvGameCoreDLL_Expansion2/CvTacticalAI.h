@@ -948,6 +948,7 @@ private:
 	void ExecutePriorityAttacksOnUnitTarget(CvTacticalTarget& kTarget);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
+	void MoveUpReliefUnits(CvTacticalTarget& kTarget);
 
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)
@@ -1110,6 +1111,7 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker, int& iAttackerDamage);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, int& iAttackerDamage);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
+	bool HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvTacticalTarget* pTarget);
 }
 
 extern const char* barbarianMoveNames[];

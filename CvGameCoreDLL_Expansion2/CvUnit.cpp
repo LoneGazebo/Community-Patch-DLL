@@ -6882,9 +6882,12 @@ void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 }
 
 //	--------------------------------------------------------------------------------
-TacticalAIMoveTypes CvUnit::getTacticalMove() const
+TacticalAIMoveTypes CvUnit::getTacticalMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
+	if (pTurnSet)
+		*pTurnSet = m_iTactMoveSetTurn;
+
 	return m_eTacticalMove;
 }
 
@@ -6932,7 +6935,7 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::hasCurrentTacticalMove() const
 { 
-	return ( m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
+	return ( m_eTacticalMove!=NO_TACTICAL_MOVE && m_eTacticalMove!=GC.getInfoTypeForString("TACTICAL_UNASSIGNED") && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
 }
 
 void CvUnit::setHomelandMove(AIHomelandMove eMove)
@@ -6941,6 +6944,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
+		if (eMove==AI_HOMELAND_MOVE_NONE)
+			return;
+
 		CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
 		if (pkMoveInfo)
 		{
@@ -6967,9 +6973,12 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 }
 
 //	--------------------------------------------------------------------------------
-AIHomelandMove CvUnit::getHomelandMove() const
+AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
+	if (pTurnSet)
+		*pTurnSet = m_iTactMoveSetTurn;
+
 	return m_eHomelandMove;
 }
 #endif
@@ -28470,7 +28479,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	if(pTarget == plot())
 		return 0;
 
-	if(bIgnoreUnits)
+	if(bIgnoreUnits) //ignore all other units (also enemy)
 	{
 		//this is a purely hypothetical path ... use a special pathfinder for that
 		SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
@@ -28495,7 +28504,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 		//normal handling: use the path cache of the unit, so we can possibly re-use the path later
 		//do not ignore danger
 		int iFlags = 0;
-		if(bIgnoreStacking)
+		if(bIgnoreStacking) //ignore our own units
 			iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 		if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )

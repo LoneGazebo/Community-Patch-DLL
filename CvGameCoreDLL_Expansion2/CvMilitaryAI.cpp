@@ -2549,23 +2549,31 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 
 	CityAttackApproaches eApproaches;
 	float fApproachMultiplier = 1;
-	if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
+	if(eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK)
+	{	
+		//naval only
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+	}
+	else if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
 		eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK ||
-		eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK)
 	{	
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, false /* Assume units coming by sea can disembark */, true);
+		//mixed
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, true);
 	}
 	else if(eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK)
 	{	
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true /* Assume units coming by sea can disembark */, false);
+		//land only
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
 	}
 	else
 	{
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true /* Assume units coming by sea can disembark */, target.m_bAttackBySea);
+		//automatic ...
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, target.m_bAttackBySea);
 	}
+
 	//bail if hopeless
 	if (eApproaches==ATTACK_APPROACH_NONE)
 		return 0;
