@@ -4275,7 +4275,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			return true;
 
 		// if there's a route, anyone can use it
-		if(enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged())
+		if(enterPlot.isValidRoute(this))
 			return true;
 
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -19504,11 +19504,15 @@ if (!bDoEvade)
 	CvCity* pkNewGarrisonCity = GetGarrisonedCity();
 	if (pkNewGarrisonCity && pkNewGarrisonCity != pkPrevGarrisonedCity)
 	{
+		pkNewGarrisonCity->SetGarrison( this );
+
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
 	if(pkPrevGarrisonedCity && pkPrevGarrisonedCity != pkNewGarrisonCity)
 	{
+		pkPrevGarrisonedCity->SetGarrison( pOldPlot->getBestDefender(getOwner()).pointer() );
+
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}

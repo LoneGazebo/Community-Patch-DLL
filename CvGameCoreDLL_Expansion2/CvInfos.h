@@ -822,7 +822,7 @@ public:
 	int getProductionFreeUnits() const;
 	int getProductionFreeUnitsPerCity() const;
 	int getProductionFreeUnitsPopulationPercent() const;
-	int getRouteCostPercent() const;
+	int getImprovementMaintenancePercent() const;
 	int getUnitCostPercent() const;
 	int getBuildingCostPercent() const;
 	int getResearchPercent() const;
@@ -898,7 +898,7 @@ protected:
 	int m_iProductionFreeUnits;
 	int m_iProductionFreeUnitsPerCity;
 	int m_iProductionFreeUnitsPopulationPercent;
-	int m_iRouteCostPercent;
+	int m_iImprovementMaintenancePercent;
 	int m_iUnitCostPercent;
 	int m_iBuildingCostPercent;
 	int m_iResearchPercent;

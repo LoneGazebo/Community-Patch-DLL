@@ -3983,7 +3983,7 @@ void CvPlot::removeGoody()
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 {
-	if(!getPlotCity())
+	if(!isCity())
 	{
 		return false;
 	}

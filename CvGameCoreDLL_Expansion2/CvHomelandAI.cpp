@@ -5175,7 +5175,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				
 				if (iWeight>0)
 				{
-					if(pLoopCity->GetGarrisonedUnit() != NULL)
+					if(pLoopCity->HasGarrison())
 					{
 						iWeight *= 2;
 					}
@@ -5590,7 +5590,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			{
 				iWeight -= iTurns;
 			}
-			if(pLoopCity->GetGarrisonedUnit() != NULL)
+			if(pLoopCity->HasGarrison())
 			{
 				iWeight *= 2;
 			}

@@ -12913,9 +12913,12 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 						continue;
 
 					//even with open borders we cannot enter foreign cities
-					CvCity* pCity = pAdjacentPlot->getPlotCity();
-					if (pCity && pCity->getOwner() != pUnit->getOwner())
-						continue;
+					if (pAdjacentPlot->isCity())
+					{
+						CvCity* pCity = pAdjacentPlot->getPlotCity();
+						if (pCity && pCity->getOwner() != pUnit->getOwner() && !GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pCity->getOwner()))
+							continue;
+					}
 				}
 
 				//we can always enter the plot as long as we have some movement points

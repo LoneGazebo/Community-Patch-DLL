@@ -904,9 +904,15 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	//otherwise calculate from scratch
 	int iPlotDamage = 0;
 
-	CvCity* pFriendlyCity = m_pPlot->getPlotCity();
-	if (pFriendlyCity && !m_pPlot->isFriendlyCity(*pUnit, false))
-		pFriendlyCity = NULL;
+	CvCity* pFriendlyCity = NULL;
+	if ( m_pPlot->isCity() )
+	{
+		if ( m_pPlot->isFriendlyCity(*pUnit,true) )
+			pFriendlyCity = m_pPlot->getPlotCity();
+		else
+			//enemy city? don't go there
+			return pUnit->GetCurrHitPoints();
+	}
 
 	// Civilians can be captured - unless they would need to be embarked on this plot
 	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
@@ -994,17 +1000,17 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		return iPlotDamage;
 	}
 
-	// Garrisoning in a city will have the city's health stats replace the unit's health stats (capturing a city with a garrisoned unit destroys the garrisoned unit)
+	// Capturing a city with a garrisoned unit destroys the garrisoned unit
 	if (pFriendlyCity)
 	{
-		// If the city survives all possible attacks this turn, so will the unit
 		int iCityDanger = GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL));
 		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
 		{
-			// Damage from features
-			iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
+			// Reconstruct the amount of damage the garrison would absorb for the city
+			int iUnitShare = (iCityDanger*2*pUnit->GetMaxHitPoints()) / pFriendlyCity->GetMaxHitPoints();
 
-			return iPlotDamage;
+			// Damage from features
+			return iUnitShare + GetDamageFromFeatures(pUnit->getOwner());
 		}
 		else
 		{
@@ -1187,18 +1193,14 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 	CvPlot* pCityPlot = pCity->plot();
 	const int iCityX = pCityPlot->getX();
 	const int iCityY = pCityPlot->getY();
-	const int iMaxNoCaptureDamage = pCity->GetMaxHitPoints() - pCity->getDamage() - 1;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (pPretendGarrison != NULL)
-		pCity->OverrideGarrison(pPretendGarrison);
-#endif
+	CvCityGarrisonOverride guard(pCity,pPretendGarrison);
 
 	CvPlot* pAttackerPlot = NULL;
 	CvUnit* pInterceptor = NULL;
 
 	// Damage from ranged units and melees that cannot capture 
-	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end() && iPlotDamage < iMaxNoCaptureDamage; ++it)
+	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
 		if (!pUnit || pUnit->isDelayedDeath() || pUnit->IsDead())
@@ -1255,7 +1257,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 	}
 
 	// Damage from cities
-	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end() && iPlotDamage < iMaxNoCaptureDamage; ++it)
+	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
 	{
 		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
 
@@ -1270,9 +1272,6 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 		iPlotDamage += pCity->rangeCombatDamage(NULL, pCity, false);
 #endif
 	}
-
-	if (iPlotDamage > iMaxNoCaptureDamage)
-		iPlotDamage = iMaxNoCaptureDamage;
 
 	// Damage from melee units
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
@@ -1291,10 +1290,11 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			{
 				pAttackerPlot = pUnit->plot();
 			}
+
 			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL),
 				pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
 
-			if (pUnit->isRangedSupportFire() && iPlotDamage < iMaxNoCaptureDamage)
+			if (pUnit->isRangedSupportFire())
 			{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
@@ -1305,9 +1305,13 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 		}
 	}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	pCity->UnsetGarrisonOverride();
-#endif
+	//if we have a garrison, split the damage
+	if (pCity->HasGarrison())
+	{
+		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+		int iUnitShare = (iPlotDamage*2*pGarrison->GetMaxHitPoints())/(pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+		iPlotDamage -= iUnitShare;
+	}
 
 	return iPlotDamage;
 }

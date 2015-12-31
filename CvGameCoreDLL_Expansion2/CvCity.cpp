@@ -176,7 +176,7 @@ CvCity::CvCity() :
 	, m_iStrengthValue("CvCity::m_iStrengthValue", m_syncArchive, true)
 	, m_iDamage("CvCity::m_iDamage", m_syncArchive)
 	, m_iThreatValue("CvCity::m_iThreatValue", m_syncArchive, true)
-	, m_iGarrisonedUnit("CvCity::m_iGarrisonedUnit", m_syncArchive)   // unused
+	, m_hGarrison("CvCity::m_hGarrison", m_syncArchive)
 	, m_iResourceDemanded("CvCity::m_iResourceDemanded", m_syncArchive)
 	, m_iWeLoveTheKingDayCounter("CvCity::m_iWeLoveTheKingDayCounter", m_syncArchive)
 	, m_iLastTurnGarrisonAssigned("CvCity::m_iLastTurnGarrisonAssigned", m_syncArchive)
@@ -1106,21 +1106,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
 	// Garrisoned?
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot2 = plot();
-		if(pPlot2)
-		{
-			UnitHandle garrison = pPlot2->getBestDefender(getOwner());
-			if(garrison)
-#else
-	if (GetGarrisonedUnit())
-#endif
+	if (HasGarrison())
 	{
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
@@ -1388,7 +1377,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iStrengthValue = 0;
 	m_iDamage = 0;
 	m_iThreatValue = 0;
-	m_iGarrisonedUnit = -1;    // unused
+	m_hGarrison = -1;
 	m_iResourceDemanded = -1;
 	m_iWeLoveTheKingDayCounter = 0;
 	m_iLastTurnGarrisonAssigned = -1;
@@ -1399,6 +1388,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCountExtraLuxuries = 0;
 	m_iCheapestPlotInfluence = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
+	m_hGarrisonOverride = -1;
 
 	m_bNeverLost = true;
 	m_bDrafted = false;
@@ -10912,40 +10902,47 @@ CvArea* CvCity::waterArea() const
 	VALIDATE_OBJECT
 	return plot()->waterArea();
 }
+
 //	--------------------------------------------------------------------------------
+void CvCity::SetGarrison(const CvUnit* pUnit)
+{
+	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
+		m_hGarrison = pUnit->GetID();
+	else
+		m_hGarrison = -1;
+}
+
+bool CvCity::HasGarrison() const
+{
+	return m_hGarrison>-1;
+}
+
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (m_hGarrisonOverride != -1)
-		return GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
-#else
-	CvUnit* pGarrison = NULL;
+	{
+		CvUnit* pGarrison = GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
+		if (pGarrison)
+			return pGarrison;
+		else
+			OutputDebugString("warning: invalid garrison override!\n");
+	}
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
-	CvPlot* pPlot = plot();
-	if(pPlot)
-	{
-		UnitHandle garrison = pPlot->getBestDefender(getOwner());
-		if(garrison)
-		{
-			return garrison.pointer();
-		}
-	}
+	if (m_hGarrison>-1)
+		return  GET_PLAYER(getOwner()).getUnit(m_hGarrison);
 
 	return NULL;
 }
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 void CvCity::OverrideGarrison(const CvUnit* pUnit)
 {
-	m_hGarrisonOverride = pUnit->GetID();
+	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
+		m_hGarrisonOverride = pUnit->GetID();
+	else
+		m_hGarrisonOverride = -1;
 }
-
-void CvCity::UnsetGarrisonOverride()
-{
-	m_hGarrisonOverride = -1;
-}
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 //	--------------------------------------------------------------------------------
 CvPlot* CvCity::getRallyPlot() const
@@ -14559,22 +14556,10 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = plot();
-		if(pPlot)
+		if(HasGarrison())
 		{
-			UnitHandle garrison = pPlot->getBestDefender(getOwner());
-			if(garrison)
-			{
-				iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
-			}
+			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
-#else
-		if(GetGarrisonedUnit() != NULL)
-		{
-			iLocalHappiness++;
-		}
-#endif
 	}
 
 	// Follower beliefs
@@ -18799,18 +18784,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
-#if defined(MOD_BALANCE_CORE)
-	int iStrengthFromUnits = 0;
-	CvPlot* pPlot = plot();
-	if(pPlot)
-	{
-		UnitHandle pGarrisonedUnit = pPlot->getBestDefender(getOwner());
-		if(pGarrisonedUnit)
-#else
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	int iStrengthFromUnits = 0;
 	if(pGarrisonedUnit)
-#endif
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
@@ -18826,9 +18802,6 @@ void CvCity::updateStrengthValue()
 					break;
 				}
 			}
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
 		}
 #endif
 	}
@@ -18934,22 +18907,12 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 		iValue /= 100;
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = plot();
-		if(pPlot)
-		{
-			UnitHandle garrison = pPlot->getBestDefender(getOwner());
-			if(garrison)
-#else
-		if(GetGarrisonedUnit())
-#endif
+		if(HasGarrison())
 		{
 			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
 			iValue /= 100;
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+
 		// Religion city strike mod
 		int iReligionCityStrikeMod = 0;
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -19044,6 +19007,17 @@ void CvCity::changeDamage(int iChange)
 	VALIDATE_OBJECT
 	if(0 != iChange)
 	{
+		//if there is a garrison, the units absorbs half the damage!
+		CvUnit* pGarrison = GetGarrisonedUnit();
+		if (pGarrison && iChange>1)
+		{
+			//make sure there are no rounding errors
+			int iUnitShare = (iChange*2*pGarrison->GetMaxHitPoints()) / (GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+			iChange -= iUnitShare;
+
+			pGarrison->changeDamage( iUnitShare );
+		}
+
 		setDamage(getDamage() + iChange);
 	}
 }
@@ -22946,7 +22920,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iStrengthValue;
 	kStream >> m_iDamage;
 	kStream >> m_iThreatValue;
-	kStream >> m_iGarrisonedUnit;
+	kStream >> m_hGarrison;
 	m_iResourceDemanded = CvInfosSerializationHelper::ReadHashed(kStream);
 	kStream >> m_iWeLoveTheKingDayCounter;
 	kStream >> m_iLastTurnGarrisonAssigned;
@@ -23393,7 +23367,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iStrengthValue;
 	kStream << m_iDamage;
 	kStream << m_iThreatValue;
-	kStream << m_iGarrisonedUnit;
+	kStream << m_hGarrison;
 	CvInfosSerializationHelper::WriteHashed(kStream, (ResourceTypes)(m_iResourceDemanded.get()));
 	kStream << m_iWeLoveTheKingDayCounter;
 	kStream << m_iLastTurnGarrisonAssigned;

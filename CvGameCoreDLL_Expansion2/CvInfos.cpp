@@ -2792,7 +2792,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iProductionFreeUnits(0),
 	m_iProductionFreeUnitsPerCity(0),
 	m_iProductionFreeUnitsPopulationPercent(0),
-	m_iRouteCostPercent(0),
+	m_iImprovementMaintenancePercent(0),
 	m_iUnitCostPercent(0),
 	m_iBuildingCostPercent(0),
 	m_iResearchPercent(0),
@@ -2924,9 +2924,9 @@ int CvHandicapInfo::getUnitCostPercent() const
 	return m_iUnitCostPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getRouteCostPercent() const
+int CvHandicapInfo::getImprovementMaintenancePercent() const
 {
-	return m_iRouteCostPercent;
+	return m_iImprovementMaintenancePercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getBuildingCostPercent() const
@@ -3210,7 +3210,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iProductionFreeUnits = kResults.GetInt("ProductionFreeUnits");
 	m_iProductionFreeUnitsPerCity = kResults.GetInt("ProductionFreeUnitsPerCity");
 	m_iProductionFreeUnitsPopulationPercent = kResults.GetInt("ProductionFreeUnitsPopulationPercent");
-	m_iRouteCostPercent = kResults.GetInt("RouteCostPercent");
+	m_iImprovementMaintenancePercent = kResults.GetInt("RouteCostPercent");
 	m_iUnitCostPercent = kResults.GetInt("UnitCostPercent");
 	m_iBuildingCostPercent = kResults.GetInt("BuildingCostPercent");
 	m_iResearchPercent = kResults.GetInt("ResearchPercent");

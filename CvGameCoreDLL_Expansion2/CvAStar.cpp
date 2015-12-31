@@ -52,17 +52,17 @@ unsigned int saiRuntimeHistogram[100] = {0};
 
 struct SLogNode
 {
-	enum eType
+
+	SLogNode( NodeState _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
+		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves)
 	{
-		BEST = 0,
-		VALID = 1,
-		INVALID = 2,
-		OBSOLETE = 3
-	};
-	SLogNode( eType _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
-		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves) {}
+		if (type == NS_INVALID)
+		{
+			kc = -1; hc = -1; t = -1; m = -1;
+		}
+	}
 	int x, y, round, kc, hc, t, m;
-	eType type; 
+	NodeState type; 
 };
 
 std::vector<SLogNode> svPathLog;
@@ -312,6 +312,11 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	cvStopWatch timer("pathfinder",NULL,0,true);
 	timer.StartPerfTest();
+	if (MOD_BALANCE_CORE_DEBUGGING)
+	{
+		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXstart, m_iYstart, 0, 0, 0, 0 ) );
+		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXdest, m_iYdest, 0, 0, 0, 0 ) );
+	}
 #endif
 
 	//here the magic happens
@@ -345,7 +350,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
 		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms (path length %d)\n", 
-			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, (100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
+			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
+			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
 		if (MOD_BALANCE_CORE_DEBUGGING)
 		{
@@ -446,32 +452,39 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	SLogNode::eType result = SLogNode::BEST;
 	if (MOD_BALANCE_CORE_DEBUGGING)
-		svPathLog.push_back( SLogNode( SLogNode::BEST, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
+		svPathLog.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
-	int count = 6;
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
 		if (!check)
 			continue;
-	
-		//important things happening here
-		m_iTestedNodes++;
- 		if(udFunc(udValid, node, check, 0, m_sData))
+
+		NodeState result = NS_INVALID;
+
+		//check if we already found a better way ...
+		if (check->m_iTurns>0)
 		{
-			if (LinkChild(node, check))
-			{
-				m_iProcessedNodes++;
-				result = SLogNode::VALID;
-			}
-			else
-				result = SLogNode::OBSOLETE;
+			if (check->m_iTurns < node->m_iTurns)
+				result = NS_OBSOLETE;
+			else if (check->m_iTurns==node->m_iTurns && check->m_iMoves > node->m_iMoves)
+				result = NS_OBSOLETE;
 		}
-		else
-			result = SLogNode::INVALID;
+
+		if (result==NS_INVALID)
+		{
+			//now the real checks
+			m_iTestedNodes++;
+ 			if(udFunc(udValid, node, check, 0, m_sData))
+			{
+				result = LinkChild(node, check);
+			
+				if (result==NS_VALID)
+					m_iProcessedNodes++;
+			}
+		}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)
@@ -491,11 +504,22 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if(isValid(x, y))
 			{
 				CvAStarNode* check = &(m_ppaaNodes[x][y]);
+				if (!check)
+					continue;
 
-				if(check && udFunc(udValid, node, check, 0, m_sData))
+				NodeState result = NS_INVALID;
+ 				if(udFunc(udValid, node, check, 0, m_sData))
 				{
-					LinkChild(node, check);
+					result = LinkChild(node, check);
+			
+					if (result==NS_VALID)
+						m_iProcessedNodes++;
 				}
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+				if (MOD_BALANCE_CORE_DEBUGGING)
+					svPathLog.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
+#endif
 			}
 		}
 	}
@@ -503,31 +527,31 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Link in a child
-bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
+NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
 	//we would have to start a new turn to continue
 	if(node->m_iMoves == 0)
 		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
-			return false;
+			return NS_FORBIDDEN;
 
 	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 
 	//don't even link it up, it's a dead end or an invalid cost function
 	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT || iKnownCost < 0)
-		return false; 
+		return NS_FORBIDDEN; 
 
 	//calculate the cumulative cost up to here
 	iKnownCost += node->m_iKnownCost;
 
-	//check termination because of total cost / normalized length
+	//check termination because of total cost / normalized length - could use total cost here if heuristic is admissible
 	if (m_sData.iMaxNormalizedDistance!= INT_MAX && iKnownCost > m_sData.iMaxNormalizedDistance*m_iBasicPlotCost)
-		return false;
+		return NS_FORBIDDEN;
 
 	//final check. there may have been a previous path here.
 	//in that case we want to keep the one with the lower total cost, which should correspond to the shorter one
 	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost )
-		return false;
+		return NS_OBSOLETE;
 
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
@@ -581,7 +605,7 @@ bool CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		node->m_apChildren.push_back(check);
 	}
 	
-	return true;
+	return NS_VALID;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1280,7 +1304,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 			{
 				//danger usually means capture (INT_MAX), unless embarked
 				if (iPlotDanger > pUnit->GetCurrHitPoints())
-					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
+					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4;
 				else
 					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
 			}
@@ -1336,16 +1360,6 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	// If this is the first node in the path, it is always valid (starting location)
 	if (parent == NULL)
 		return TRUE;
-
-	//check if we already found a better way ...
-	if (node->m_iTurns>0)
-	{
-		if (node->m_iTurns<parent->m_iTurns)
-			return FALSE;
-
-		if (node->m_iTurns==parent->m_iTurns && node->m_iMoves>parent->m_iMoves)
-			return FALSE;
-	}
 
 	// Cached values for this node that we will use
 	const CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
@@ -1429,10 +1443,6 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
-
-			//civilians shouldn't let themselves be captured
-			if(kToNodeCacheData.iPlotDanger==INT_MAX && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
-				return FALSE;
 		}
 
 		//now that we got the flags sorted out, here's the important line
@@ -1597,7 +1607,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 /// Default heuristic cost
 int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY) * 2;
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2 + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY) * 2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1605,8 +1615,9 @@ int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDes
 int StepCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
 {
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	
-	return pNewPlot->isRoughGround() ? 2*PATH_BASE_COST : PATH_BASE_COST;
+
+	//when in doubt, avoid rough plots
+	return pNewPlot->isRoughGround() && (!pNewPlot->isRoute() || pNewPlot->IsRoutePillaged()) ? PATH_BASE_COST+PATH_BASE_COST/10 : PATH_BASE_COST;
 }
 
 

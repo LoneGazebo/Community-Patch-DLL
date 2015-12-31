@@ -319,7 +319,7 @@ CvPlayer::CvPlayer() :
 	, m_iFreeMilitaryUnitsPopulationPercent("CvPlayer::m_iFreeMilitaryUnitsPopulationPercent", m_syncArchive)
 	, m_iGoldPerUnit("CvPlayer::m_iGoldPerUnit", m_syncArchive)
 	, m_iGoldPerMilitaryUnit("CvPlayer::m_iGoldPerMilitaryUnit", m_syncArchive)
-	, m_iRouteGoldMaintenanceMod("CvPlayer::m_iRouteGoldMaintenanceMod", m_syncArchive)
+	, m_iImprovementGoldMaintenanceMod("CvPlayer::m_iImprovementGoldMaintenanceMod", m_syncArchive)
 	, m_iBuildingGoldMaintenanceMod("CvPlayer::m_iBuildingGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitGoldMaintenanceMod("CvPlayer::m_iUnitGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitSupplyMod("CvPlayer::m_iUnitSupplyMod", m_syncArchive)
@@ -821,7 +821,7 @@ void CvPlayer::init(PlayerTypes eID)
 		ChangePlotCultureCostModifier(GetPlayerTraits()->GetPlotCultureCostModifier());
 		GetTreasury()->ChangeCityConnectionTradeRouteGoldChange(GetPlayerTraits()->GetCityConnectionTradeRouteChange());
 		changeWonderProductionModifier(GetPlayerTraits()->GetWonderProductionModifier());
-		ChangeRouteGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
+		ChangeImprovementGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
 
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
@@ -1321,7 +1321,7 @@ void CvPlayer::uninit()
 	m_iFreeMilitaryUnitsPopulationPercent = 0;
 	m_iGoldPerUnit = 0;
 	m_iGoldPerMilitaryUnit = 0;
-	m_iRouteGoldMaintenanceMod = 0;
+	m_iImprovementGoldMaintenanceMod = 0;
 	m_iBuildingGoldMaintenanceMod = 0;
 	m_iUnitGoldMaintenanceMod = 0;
 	m_iUnitSupplyMod = 0;
@@ -16914,15 +16914,10 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(MOD_BALANCE_CORE_POLICIES && GetGarrisonsOccupiedUnhapppinessMod() != 0)
 			{
-				CvPlot* pPlot = pLoopCity->plot();
-				if(pPlot)
+				if(pLoopCity->HasGarrison())
 				{
-					UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
-					if(garrison)
-					{
-						iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
-						iUnhappinessFromThisCity /= 100;
-					}
+					iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
+					iUnhappinessFromThisCity /= 100;
 				}
 			}
 #endif
@@ -21197,17 +21192,17 @@ void CvPlayer::changeGoldPerMilitaryUnit(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetRouteGoldMaintenanceMod() const
+int CvPlayer::GetImprovementGoldMaintenanceMod() const
 {
-	return m_iRouteGoldMaintenanceMod;
+	return m_iImprovementGoldMaintenanceMod;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeRouteGoldMaintenanceMod(int iChange)
+void CvPlayer::ChangeImprovementGoldMaintenanceMod(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iRouteGoldMaintenanceMod = (m_iRouteGoldMaintenanceMod + iChange);
+		m_iImprovementGoldMaintenanceMod = (m_iImprovementGoldMaintenanceMod + iChange);
 	}
 }
 
@@ -31838,7 +31833,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeCapitalGrowthMod(pPolicy->GetCapitalGrowthMod() * iChange);
 	changeSettlerProductionModifier(pPolicy->GetSettlerProductionModifier() * iChange);
 	changeCapitalSettlerProductionModifier(pPolicy->GetCapitalSettlerProductionModifier() * iChange);
-	ChangeRouteGoldMaintenanceMod(pPolicy->GetRouteGoldMaintenanceMod() * iChange);
+	ChangeImprovementGoldMaintenanceMod(pPolicy->GetImprovementGoldMaintenanceMod() * iChange);
 	ChangeBuildingGoldMaintenanceMod(pPolicy->GetBuildingGoldMaintenanceMod() * iChange);
 	ChangeUnitGoldMaintenanceMod(pPolicy->GetUnitGoldMaintenanceMod() * iChange);
 	ChangeUnitSupplyMod(pPolicy->GetUnitSupplyMod() * iChange);
@@ -32406,21 +32401,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = pLoopCity->plot();
-		if(pPlot)
-		{
-			UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
-			if(garrison)
-#else
-		if(pLoopCity->GetGarrisonedUnit() != NULL)
-#endif
+		if(pLoopCity->HasGarrison())
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -33469,7 +33454,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFreeMilitaryUnitsPopulationPercent;
 	kStream >> m_iGoldPerUnit;
 	kStream >> m_iGoldPerMilitaryUnit;
-	kStream >> m_iRouteGoldMaintenanceMod;
+	kStream >> m_iImprovementGoldMaintenanceMod;
 	kStream >> m_iBuildingGoldMaintenanceMod;
 	kStream >> m_iUnitGoldMaintenanceMod;
 	kStream >> m_iUnitSupplyMod;
@@ -34233,7 +34218,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iFreeMilitaryUnitsPopulationPercent;
 	kStream << m_iGoldPerUnit;
 	kStream << m_iGoldPerMilitaryUnit;
-	kStream << m_iRouteGoldMaintenanceMod;
+	kStream << m_iImprovementGoldMaintenanceMod;
 	kStream << m_iBuildingGoldMaintenanceMod;
 	kStream << m_iUnitGoldMaintenanceMod;
 	kStream << m_iUnitSupplyMod;

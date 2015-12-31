@@ -131,7 +131,7 @@ public:
 	int GetCapitalSettlerProductionModifier() const;
 	int GetNewCityExtraPopulation() const;
 	int GetFreeFoodBox() const;
-	int GetRouteGoldMaintenanceMod() const;
+	int GetImprovementGoldMaintenanceMod() const;
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
 	int GetUnitSupplyMod() const;
@@ -435,7 +435,7 @@ private:
 	int m_iCapitalSettlerProductionModifier;
 	int m_iNewCityExtraPopulation;
 	int m_iFreeFoodBox;
-	int m_iRouteGoldMaintenanceMod;
+	int m_iImprovementGoldMaintenanceMod;
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;

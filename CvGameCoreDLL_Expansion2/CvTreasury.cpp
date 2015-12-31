@@ -880,11 +880,11 @@ int CvTreasury::GetImprovementGoldMaintenance() const
 	int iMaintenance = m_iBaseImprovementGoldMaintenance;
 
 	// Player modifier
-	iMaintenance *= (100 + m_pPlayer->GetRouteGoldMaintenanceMod());
+	iMaintenance *= (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iMaintenance /= 100;
 
 	// Handicap
-	iMaintenance *= m_pPlayer->getHandicapInfo().getRouteCostPercent();
+	iMaintenance *= m_pPlayer->getHandicapInfo().getImprovementMaintenancePercent();
 	iMaintenance /= 100;
 
 	return iMaintenance;

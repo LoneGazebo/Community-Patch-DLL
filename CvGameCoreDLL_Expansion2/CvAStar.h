@@ -92,6 +92,16 @@ typedef int(*CvAGetExtraChild)(const CvAStarNode*, int, int&, int&, const CvASta
 typedef void(*CvABegin)(const SPathFinderUserData&, CvAStar*);
 typedef void(*CvAEnd)(const SPathFinderUserData&, CvAStar*);
 
+enum NodeState
+{
+	NS_INITIAL_FINAL = 0,
+	NS_CURRENT = 1,
+	NS_VALID = 2,
+	NS_INVALID = 3,
+	NS_OBSOLETE = 4,
+	NS_FORBIDDEN = 5,
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //  CLASS:      CvAStar
@@ -249,7 +259,7 @@ protected:
 	CvAStarNode*	GetBest();
 
 	void CreateChildren(CvAStarNode* node);
-	bool LinkChild(CvAStarNode* node, CvAStarNode* check);
+	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
 	void UpdateOpenNode(CvAStarNode* node);
 	void UpdateParents(CvAStarNode* node);
 

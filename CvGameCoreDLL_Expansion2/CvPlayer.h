@@ -1082,8 +1082,8 @@ public:
 	int getGoldPerMilitaryUnit() const;
 	void changeGoldPerMilitaryUnit(int iChange);
 
-	int GetRouteGoldMaintenanceMod() const;
-	void ChangeRouteGoldMaintenanceMod(int iChange);
+	int GetImprovementGoldMaintenanceMod() const;
+	void ChangeImprovementGoldMaintenanceMod(int iChange);
 
 	int GetBuildingGoldMaintenanceMod() const;
 	void ChangeBuildingGoldMaintenanceMod(int iChange);
@@ -2651,7 +2651,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iFreeMilitaryUnitsPopulationPercent;
 	FAutoVariable<int, CvPlayer> m_iGoldPerUnit;
 	FAutoVariable<int, CvPlayer> m_iGoldPerMilitaryUnit;
-	FAutoVariable<int, CvPlayer> m_iRouteGoldMaintenanceMod;
+	FAutoVariable<int, CvPlayer> m_iImprovementGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iBuildingGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitSupplyMod;
