@@ -225,6 +225,15 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 #endif
 }
 
+static float hexspaceDirections[6][3] = { 
+	{0, 1, -1}, //ne
+	{1, 0, -1}, //e
+	{1, -1, 0}, //se
+	{0, -1, 1}, //sw
+	{-1, 0, 1}, //w
+	{-1, 1, 0}, //nw
+};
+
 DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDestY)
 {
 	int iStartXHex = xToHexspaceX(iStartX,iStartY);
@@ -242,20 +251,11 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 	int iDestZ = -iDestXHex-iDestY;
 	int iDZ = iDestZ - iStartZ;
 
-	static double directions[6][3] = { 
-		{0, 1, -1}, //ne
-		{1, 0, -1}, //e
-		{1, -1, 0}, //se
-		{0, -1, 1}, //sw
-		{-1, 0, 1}, //w
-		{-1, 1, 0}, //nw
-	};
-
-	double maximum = 0;
+	float maximum = 0;
 	int maximumIndex = -1;
 	for(int i=0; i<6; i++)
 	{
-		double dotProduct = iDX * directions[i][0] + iDY * directions[i][1] + iDZ * directions[i][2];
+		float dotProduct = iDX * hexspaceDirections[i][0] + iDY * hexspaceDirections[i][1] + iDZ * hexspaceDirections[i][2];
 		if(dotProduct > maximum)
 		{
 			maximum = dotProduct;
@@ -266,6 +266,39 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 	return (DirectionTypes)maximumIndex;
 }
 
+//compares the vector (start,destA) with (start,destB). returns a value between 0 (perfect agreement) and 60 (polar opposite direction)
+int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDestBX, int iDestBY)
+{
+	//undefined
+	if (iStartX==iDestAX && iStartY==iDestAY)
+		return 0;
+	if (iStartX==iDestBX && iStartY==iDestBY)
+		return 0;
+
+	int iStartXHex = xToHexspaceX(iStartX,iStartY);
+	int iDestAXHex = xToHexspaceX(iDestAX,iDestAY);
+	int iDestBXHex = xToHexspaceX(iDestBX,iDestBY);
+	int iDXA = dxWrap(iDestAXHex - iStartXHex);
+	int iDYA = dyWrap(iDestAY - iStartY);
+	int iDXB = dxWrap(iDestBXHex - iStartXHex);
+	int iDYB = dyWrap(iDestBY - iStartY);
+
+	//reconstruct the Z coordinate
+	int iStartZ = -iStartXHex-iStartY;
+	int iDestAZ = -iDestAXHex-iDestAY;
+	int iDestBZ = -iDestBXHex-iDestBY;
+	int iDZA = iDestAZ - iStartZ;
+	int iDZB = iDestBZ - iStartZ;
+
+	float fRawDotProduct = (float) iDXA *iDXB + iDYA * iDYB + iDZA * iDZB;
+	float fNormA2 = (float) iDXA*iDXA + iDYA*iDYA + iDZA*iDZA;
+	float fNormB2 = (float) iDXB*iDXB + iDYB*iDYB + iDZB*iDZB;
+
+	//this should be between -1 and +1
+	float fNormDotProduct = fRawDotProduct / sqrtf( fNormA2*fNormB2 );
+	//this should be between 0 and 60
+	return (int)((fNormDotProduct-1)*(-30));
+}
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 {

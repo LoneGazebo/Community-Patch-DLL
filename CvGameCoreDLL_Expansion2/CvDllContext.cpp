@@ -1269,7 +1269,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
-	data.ePathType = PT_UI_PATH_VISUALIZIATION;
+	data.ePathType = PT_UI_PATH_VISUALIZATION;
 
 	if (thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data))
 	{

@@ -77,6 +77,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for buttonNum = 1, maxSmallButtons, 1 do
 		local buttonName = "B"..tostring(buttonNum);
 		thisTechButtonInstance[buttonName]:SetHide(true);
+		thisTechButtonInstance[buttonName]:SetAlpha(1);
 	end
 	
 	if tech == nil then
@@ -642,6 +643,12 @@ function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, texture
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
+		--Hide Wonders already taken
+		if (Game.AnyoneHasWonder(thisBuildingInfo.ID) and GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass].MaxGlobalInstances == 1) then
+			thisButton:SetAlpha(0.33);
+		else
+			thisButton:SetAlpha(1);
+		end
 		techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey(thisBuildingInfo.Description);
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 	end

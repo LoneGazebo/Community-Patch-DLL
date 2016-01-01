@@ -2269,6 +2269,8 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 
 	m_aUniqueLuxuryAreas.clear();
 	m_iUniqueLuxuryCitiesPlaced = 0;
+
+	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
 }
 
 /// Store off data on bonuses from traits
@@ -2282,7 +2284,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_vLeaderTraits.push_back( (TraitTypes)iI );
 		}
 
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
 		if(HasTrait((TraitTypes)iI))
 		{
@@ -3433,16 +3435,12 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->IsFreePromotionUnitCombat(promotionID, unitCombatID))
 			{
-				if(pkTraitInfo->IsFreePromotionUnitCombat(promotionID, unitCombatID))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -3456,16 +3454,12 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
 			{
-				if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -3478,16 +3472,12 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 	CvAssertMsg((buildID >= 0), "buildID is less than zero");
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
 			{
-				if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -3499,18 +3489,14 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->GetFreeBuilding()!=NO_BUILDING)
 			{
-				if(pkTraitInfo->GetFreeBuilding())
-				{
-					return pkTraitInfo->GetFreeBuilding();
-				}
+				return pkTraitInfo->GetFreeBuilding();
 			}
 		}
 	}
@@ -3523,16 +3509,12 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->GetFreeCapitalBuilding()!=NO_BUILDING)
 			{
-				if(pkTraitInfo->GetFreeCapitalBuilding())
-				{
-					return pkTraitInfo->GetFreeCapitalBuilding();
-				}
+				return pkTraitInfo->GetFreeCapitalBuilding();
 			}
 		}
 	}
@@ -3546,16 +3528,12 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
 		if(pkTraitInfo)
 		{
-			if(HasTrait(eTrait))
+			if(pkTraitInfo->GetFreeBuildingOnConquest()!=NO_BUILDING)
 			{
-				if(pkTraitInfo->GetFreeBuildingOnConquest())
-				{
-					return pkTraitInfo->GetFreeBuildingOnConquest();
-				}
+				return pkTraitInfo->GetFreeBuildingOnConquest();
 			}
 		}
 	}
@@ -3812,40 +3790,23 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE)
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
-	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(HasTrait(eTrait))
-			{
-				if(pkTraitInfo->GetFreeBuildingPrereqTech())
-				{
-					return pkTraitInfo->GetFreeBuildingPrereqTech();
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->GetFreeBuildingPrereqTech())
+			return pkTraitInfo->GetFreeBuildingPrereqTech();
 	}
 
 	return NO_TECH;
 }
+
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(HasTrait(eTrait))
-			{
-				if(pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
-				{
-					return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+			return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 	}
 
 	return NO_TECH;
@@ -3945,22 +3906,9 @@ bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
 	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
 	{
-		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(pkTraitInfo->IsMayaCalendarBonuses())
-			{
-				if(HasTrait(eTrait))
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
+		if(pkTraitInfo && pkTraitInfo->IsMayaCalendarBonuses())
+			return true;
 	}
 	return false;
 }

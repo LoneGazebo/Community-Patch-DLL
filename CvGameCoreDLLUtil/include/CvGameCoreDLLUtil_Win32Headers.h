@@ -13,7 +13,9 @@
 #define VC_EXTRALEAN
 #define NOGDICAPMASKS    
 #define NOVIRTUALKEYCODES
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 #define NOWINMESSAGES    
+#endif
 #define NOWINSTYLES      
 #define NOSYSMETRICS     
 #define NOMENUS          
@@ -25,12 +27,16 @@
 #define OEMRESOURCE      
 #define NOATOM           
 #define NOCLIPBOARD      
-#define NOCOLOR          
+#define NOCOLOR
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 #define NOCTLMGR         
+#endif       
 #define NODRAWTEXT       
 #define NOGDI            
-#define NOKERNEL         
-#define NOUSER           
+#define NOKERNEL
+#if !defined(MOD_ACTIVE_DIPLOMACY)
+#define NOUSER                    
+#endif          
 #define NOMB             
 #define NOMEMMGR         
 #define NOMETAFILE       

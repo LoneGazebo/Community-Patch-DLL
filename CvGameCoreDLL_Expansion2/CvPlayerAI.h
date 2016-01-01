@@ -76,12 +76,12 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//For Great Diplomats
 	CvCity* FindBestDiplomatTargetCity(UnitHandle pUnit);
-	CvPlot* ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+	CvPlot* ChooseDiplomatTargetPlot(UnitHandle pUnit);
 	int ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit);
 	//And for messengers
 	CvCity* FindBestMessengerTargetCity(UnitHandle pUnit);
 	int ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit);
-	CvPlot* ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+	CvPlot* ChooseMessengerTargetPlot(UnitHandle pUnit);
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)

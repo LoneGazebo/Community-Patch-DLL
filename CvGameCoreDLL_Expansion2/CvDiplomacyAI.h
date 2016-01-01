@@ -1304,7 +1304,9 @@ public:
 	void ChangeDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iChange);
 
 	int GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploLogStatement);
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer);
+#endif
 	// Minor Civ Log
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
 	void LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, int iGold, bool bSuccess, int iBullyMetricScore);
@@ -1655,7 +1657,9 @@ private:
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bool m_abShareOpinionAccepted[MAX_MAJOR_CIVS];
 		short m_aiShareOpinionCounter[MAX_MAJOR_CIVS];
@@ -1959,10 +1963,14 @@ private:
 	StateAllWars m_eStateAllWars;
 
 	// Other
-
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	typedef std::vector<PlayerTypes> PlayerTypesArray;
 	PlayerTypesArray	m_aGreetPlayers;
-
+#else
+	// JdH =>
+	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight);
+	// JdH <=
+#endif
 	PlayerTypes			m_eTargetPlayer;
 
 	// Data members for injecting test messages

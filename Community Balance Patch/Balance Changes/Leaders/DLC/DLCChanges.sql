@@ -322,7 +322,7 @@ Set NaturalWonderYieldModifier = '0'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Religions cannot spread to owned Cities or allied City-States with your majority or founded Religion. When you acquire new Cities, their [ICON_CITIZEN] Citizens are converted to your Religion and you receive [ICON_PEACE] Faith.'
+SET Text = 'Religions other than your founded or majority Religion cannot spread to owned Cities or allied City-States. When you acquire a City, its [ICON_CITIZEN] Citizens are converted to your Religion and you receive [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

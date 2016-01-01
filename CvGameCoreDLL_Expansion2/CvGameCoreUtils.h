@@ -163,6 +163,7 @@ inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 
 // -----------------------------------------------------------------------------
 DirectionTypes estimateDirection(int iSourceX, int iSourceY, int iDestX, int iDestY);
+int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDestBX, int iDestBY);
 
 //	----------------------------------------------------------------------------
 DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot);

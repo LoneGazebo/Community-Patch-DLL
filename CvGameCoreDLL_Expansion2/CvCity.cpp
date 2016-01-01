@@ -176,7 +176,7 @@ CvCity::CvCity() :
 	, m_iStrengthValue("CvCity::m_iStrengthValue", m_syncArchive, true)
 	, m_iDamage("CvCity::m_iDamage", m_syncArchive)
 	, m_iThreatValue("CvCity::m_iThreatValue", m_syncArchive, true)
-	, m_iGarrisonedUnit("CvCity::m_iGarrisonedUnit", m_syncArchive)   // unused
+	, m_hGarrison("CvCity::m_hGarrison", m_syncArchive)
 	, m_iResourceDemanded("CvCity::m_iResourceDemanded", m_syncArchive)
 	, m_iWeLoveTheKingDayCounter("CvCity::m_iWeLoveTheKingDayCounter", m_syncArchive)
 	, m_iLastTurnGarrisonAssigned("CvCity::m_iLastTurnGarrisonAssigned", m_syncArchive)
@@ -1106,21 +1106,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
 	// Garrisoned?
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot2 = plot();
-		if(pPlot2)
-		{
-			UnitHandle garrison = pPlot2->getBestDefender(getOwner());
-			if(garrison)
-#else
-	if (GetGarrisonedUnit())
-#endif
+	if (HasGarrison())
 	{
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
@@ -1388,7 +1377,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iStrengthValue = 0;
 	m_iDamage = 0;
 	m_iThreatValue = 0;
-	m_iGarrisonedUnit = -1;    // unused
+	m_hGarrison = -1;
 	m_iResourceDemanded = -1;
 	m_iWeLoveTheKingDayCounter = 0;
 	m_iLastTurnGarrisonAssigned = -1;
@@ -1399,6 +1388,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCountExtraLuxuries = 0;
 	m_iCheapestPlotInfluence = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
+	m_hGarrisonOverride = -1;
 
 	m_bNeverLost = true;
 	m_bDrafted = false;
@@ -2903,7 +2893,8 @@ void CvCity::SetIndustrialRouteToCapital(bool bValue)
 /// Connected to capital with industrial route? (Railroads)
 void CvCity::DoUpdateIndustrialRouteToCapital()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoUpdateIndustrialRouteToCapital, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+	SetIndustrialRouteToCapital(false);
+
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{
@@ -3187,56 +3178,58 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreci
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
+	if (ePossibleOwner!=NO_PLAYER)
 	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		//for plots owned by this city
-		if(NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
+		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 		{
-			//todo: add something for currently unworked plots (future potential)
-			ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType( GET_PLAYER(ePossibleOwner).getTeam() );
-			if(eResource == NO_RESOURCE)
-				continue;
-
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (!pkResourceInfo)
-				continue;
-
-			ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
-			int iResourceQuantity = pLoopPlot->getNumResource();
-			// Luxury Resource
-			if(eUsage == RESOURCEUSAGE_LUXURY)
+			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+			//for plots owned by this city
+			if(NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
 			{
-				if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+				//todo: add something for currently unworked plots (future potential)
+				ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType( GET_PLAYER(ePossibleOwner).getTeam() );
+				if(eResource == NO_RESOURCE)
 					continue;
 
-				int iValue = 200;
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (!pkResourceInfo)
+					continue;
 
-				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
-						iValue = 600;
+				ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
+				int iResourceQuantity = pLoopPlot->getNumResource();
+				// Luxury Resource
+				if(eUsage == RESOURCEUSAGE_LUXURY)
+				{
+					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+						continue;
 
-				int iHappinessFromResource = pkResourceInfo->getHappiness();
-				iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
-			}
-			// Strategic Resource
-			else if(eUsage == RESOURCEUSAGE_STRATEGIC)
-			{
-				int iValue = 400;
+					int iValue = 200;
 
-				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
-						iValue = 800;
+					// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+					if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+							iValue = 600;
 
-				iResourceValue += iResourceQuantity * iValue;
-			}
-		} //owned plots
-	} //all plots
+					int iHappinessFromResource = pkResourceInfo->getHappiness();
+					iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
+				}
+				// Strategic Resource
+				else if(eUsage == RESOURCEUSAGE_STRATEGIC)
+				{
+					int iValue = 400;
 
+					// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+					if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+							iValue = 800;
+
+					iResourceValue += iResourceQuantity * iValue;
+				}
+			} //owned plots
+		} //all plots
+	}
 	return (iYieldValue + iResourceValue) * iNumTurnsForDepreciation / 100;
 }
 
@@ -4110,6 +4103,25 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		if(m_pCityBuildings->GetNumBuilding(ePrereqBuilding) <= 0)
 		{
 			return false;
+		}
+	}
+	int iNumBuildingInfos = GC.getNumBuildingInfos();
+	//Check for uniques of the same type.
+	for(iI = 0; iI < iNumBuildingInfos; iI++)
+	{
+		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo((BuildingTypes)iI);
+		if(pkBuildingInfo2 == NULL)
+		{
+			continue;
+		}
+		//Same class?
+		if(pkBuildingInfo2->GetBuildingClassType() == pkBuildingInfo->GetBuildingClassType())
+		{
+			//Do we already have this building? Return false if so.
+			if(m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0)
+			{
+				return false;
+			}
 		}
 	}
 #endif
@@ -10909,40 +10921,47 @@ CvArea* CvCity::waterArea() const
 	VALIDATE_OBJECT
 	return plot()->waterArea();
 }
+
 //	--------------------------------------------------------------------------------
+void CvCity::SetGarrison(const CvUnit* pUnit)
+{
+	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
+		m_hGarrison = pUnit->GetID();
+	else
+		m_hGarrison = -1;
+}
+
+bool CvCity::HasGarrison() const
+{
+	return m_hGarrison>-1;
+}
+
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (m_hGarrisonOverride != -1)
-		return GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
-#else
-	CvUnit* pGarrison = NULL;
+	{
+		CvUnit* pGarrison = GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
+		if (pGarrison)
+			return pGarrison;
+		else
+			OutputDebugString("warning: invalid garrison override!\n");
+	}
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
-	CvPlot* pPlot = plot();
-	if(pPlot)
-	{
-		UnitHandle garrison = pPlot->getBestDefender(getOwner());
-		if(garrison)
-		{
-			return garrison.pointer();
-		}
-	}
+	if (m_hGarrison>-1)
+		return  GET_PLAYER(getOwner()).getUnit(m_hGarrison);
 
 	return NULL;
 }
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 void CvCity::OverrideGarrison(const CvUnit* pUnit)
 {
-	m_hGarrisonOverride = pUnit->GetID();
+	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
+		m_hGarrisonOverride = pUnit->GetID();
+	else
+		m_hGarrisonOverride = -1;
 }
-
-void CvCity::UnsetGarrisonOverride()
-{
-	m_hGarrisonOverride = -1;
-}
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 //	--------------------------------------------------------------------------------
 CvPlot* CvCity::getRallyPlot() const
@@ -14114,6 +14133,19 @@ bool CvCity::DoRazingTurn()
 		{
 			return false;
 		}
+		
+		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
+
+		// Notify Diplo AI that damage has been done
+		int iValue = iDefaultCityValue;
+
+		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
+		iValue /= GetRazingTurns();
+
+		// My viewpoint
+		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
+		// Bad guy's viewpoint
+		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue);
 
 		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
 		if(iEra <= 0)
@@ -14556,22 +14588,10 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = plot();
-		if(pPlot)
+		if(HasGarrison())
 		{
-			UnitHandle garrison = pPlot->getBestDefender(getOwner());
-			if(garrison)
-			{
-				iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
-			}
+			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
-#else
-		if(GetGarrisonedUnit() != NULL)
-		{
-			iLocalHappiness++;
-		}
-#endif
 	}
 
 	// Follower beliefs
@@ -18796,18 +18816,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
-#if defined(MOD_BALANCE_CORE)
-	int iStrengthFromUnits = 0;
-	CvPlot* pPlot = plot();
-	if(pPlot)
-	{
-		UnitHandle pGarrisonedUnit = pPlot->getBestDefender(getOwner());
-		if(pGarrisonedUnit)
-#else
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	int iStrengthFromUnits = 0;
 	if(pGarrisonedUnit)
-#endif
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
@@ -18823,9 +18834,6 @@ void CvCity::updateStrengthValue()
 					break;
 				}
 			}
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
 		}
 #endif
 	}
@@ -18931,22 +18939,12 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 		iValue /= 100;
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = plot();
-		if(pPlot)
-		{
-			UnitHandle garrison = pPlot->getBestDefender(getOwner());
-			if(garrison)
-#else
-		if(GetGarrisonedUnit())
-#endif
+		if(HasGarrison())
 		{
 			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
 			iValue /= 100;
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+
 		// Religion city strike mod
 		int iReligionCityStrikeMod = 0;
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -19041,6 +19039,17 @@ void CvCity::changeDamage(int iChange)
 	VALIDATE_OBJECT
 	if(0 != iChange)
 	{
+		//if there is a garrison, the units absorbs half the damage!
+		CvUnit* pGarrison = GetGarrisonedUnit();
+		if (pGarrison && iChange>1)
+		{
+			//make sure there are no rounding errors
+			int iUnitShare = (iChange*2*pGarrison->GetMaxHitPoints()) / (GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+			iChange -= iUnitShare;
+
+			pGarrison->changeDamage( iUnitShare );
+		}
+
 		setDamage(getDamage() + iChange);
 	}
 }
@@ -22943,7 +22952,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iStrengthValue;
 	kStream >> m_iDamage;
 	kStream >> m_iThreatValue;
-	kStream >> m_iGarrisonedUnit;
+	kStream >> m_hGarrison;
 	m_iResourceDemanded = CvInfosSerializationHelper::ReadHashed(kStream);
 	kStream >> m_iWeLoveTheKingDayCounter;
 	kStream >> m_iLastTurnGarrisonAssigned;
@@ -23390,7 +23399,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iStrengthValue;
 	kStream << m_iDamage;
 	kStream << m_iThreatValue;
-	kStream << m_iGarrisonedUnit;
+	kStream << m_hGarrison;
 	CvInfosSerializationHelper::WriteHashed(kStream, (ResourceTypes)(m_iResourceDemanded.get()));
 	kStream << m_iWeLoveTheKingDayCounter;
 	kStream << m_iLastTurnGarrisonAssigned;
@@ -24204,12 +24213,12 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (pDefender->isEmbarked() || (pInPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pInPlot->isValidDomainForAction(*pDefender)))
+	if (pInPlot->needsEmbarkation() && pDefender->CanEverEmbark())
 #else
 	if (pDefender->isEmbarked())
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	{
-		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
+		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 	}
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS

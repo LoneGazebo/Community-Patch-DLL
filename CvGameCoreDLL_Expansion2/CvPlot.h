@@ -280,7 +280,7 @@ public:
 		return false;
 	}
 
-	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
+	bool isFriendlyCity(const CvUnit& kUnit, bool bIgnored) const;
 	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const;
 	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
@@ -437,7 +437,7 @@ public:
 	};
 	bool isHills()          const
 	{
-		return (TerrainTypes)m_eTerrainType == TERRAIN_HILL || (PlotTypes)m_ePlotType == PLOT_HILLS;
+		return (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
 	bool isIce()            const
 	{
@@ -451,6 +451,7 @@ public:
 	}
 	bool isMountain()       const
 	{
+		//the two should be synonymous ...
 		return (TerrainTypes)m_eTerrainType == TERRAIN_MOUNTAIN || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
 	};
 	bool isRiver()          const

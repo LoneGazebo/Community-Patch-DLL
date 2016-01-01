@@ -70,7 +70,7 @@ void CvCitySiteEvaluator::Init()
 
 /// Is it valid for this player to found a city here?
 #if defined(MOD_BALANCE_CORE)
-bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit, bool bForce) const
+bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
 #else
 bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 #endif
@@ -95,17 +95,20 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		}
 	}
 
-	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+	if (pUnit)
 	{
-		if(pUnit && !pUnit->canEnterTerrain(*pPlot))
-		{
-			return false;
-		}
-		else if(!bForce)
+		if(!pUnit->canEnterTerrain(*pPlot))
 		{
 			return false;
 		}
 	}
+	else if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+	{
+		return false;
+	}
+
+	if(pPlot->IsNaturalWonder())
+		return false;
 
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
@@ -127,11 +130,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if(!bValid)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(pTerrainInfo->isFound() || pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
-#else
 		if(pTerrainInfo->isFound())
-#endif
 		{
 			bValid = true;
 		}

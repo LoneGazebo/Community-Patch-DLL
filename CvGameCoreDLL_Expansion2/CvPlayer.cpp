@@ -319,7 +319,7 @@ CvPlayer::CvPlayer() :
 	, m_iFreeMilitaryUnitsPopulationPercent("CvPlayer::m_iFreeMilitaryUnitsPopulationPercent", m_syncArchive)
 	, m_iGoldPerUnit("CvPlayer::m_iGoldPerUnit", m_syncArchive)
 	, m_iGoldPerMilitaryUnit("CvPlayer::m_iGoldPerMilitaryUnit", m_syncArchive)
-	, m_iRouteGoldMaintenanceMod("CvPlayer::m_iRouteGoldMaintenanceMod", m_syncArchive)
+	, m_iImprovementGoldMaintenanceMod("CvPlayer::m_iImprovementGoldMaintenanceMod", m_syncArchive)
 	, m_iBuildingGoldMaintenanceMod("CvPlayer::m_iBuildingGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitGoldMaintenanceMod("CvPlayer::m_iUnitGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitSupplyMod("CvPlayer::m_iUnitSupplyMod", m_syncArchive)
@@ -821,7 +821,7 @@ void CvPlayer::init(PlayerTypes eID)
 		ChangePlotCultureCostModifier(GetPlayerTraits()->GetPlotCultureCostModifier());
 		GetTreasury()->ChangeCityConnectionTradeRouteGoldChange(GetPlayerTraits()->GetCityConnectionTradeRouteChange());
 		changeWonderProductionModifier(GetPlayerTraits()->GetWonderProductionModifier());
-		ChangeRouteGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
+		ChangeImprovementGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
 
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
@@ -1321,7 +1321,7 @@ void CvPlayer::uninit()
 	m_iFreeMilitaryUnitsPopulationPercent = 0;
 	m_iGoldPerUnit = 0;
 	m_iGoldPerMilitaryUnit = 0;
-	m_iRouteGoldMaintenanceMod = 0;
+	m_iImprovementGoldMaintenanceMod = 0;
 	m_iBuildingGoldMaintenanceMod = 0;
 	m_iUnitGoldMaintenanceMod = 0;
 	m_iUnitSupplyMod = 0;
@@ -6099,6 +6099,17 @@ void CvPlayer::doTurn()
 				GetTrade()->DoTurn();
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
+#if defined(MOD_ACTIVE_DIPLOMACY)
+				// JdH => do diplomacy
+				// Note: There is no need for DIPLO_AI_PLAYERS in Multiplayer anymore.
+				// AI to AI diplomacy is handled first, then the AI to human diplomacy is processed.
+				// If an AI has a request for a human, it sends a notification. The request is processed as the human wishes.
+				// IMPORTANT: this changes singleplayer and hotseat behavior (and obviously mp):
+				// An AI in hotseat can now only send one request to a single player a turn.
+				// An AI in singleplayer will not have it's requests processed "in turn" anymore.
+				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
+				// JdH <=
+#else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
 					// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
@@ -6110,6 +6121,7 @@ void CvPlayer::doTurn()
 
 				if (!isHuman())
 					bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+#endif
 			}
 		}
 	}
@@ -7308,9 +7320,9 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
+bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
 {
-	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
+	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors, pPathOut);
 }
 
 //	--------------------------------------------------------------------------------
@@ -7336,7 +7348,7 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
-	if (!pCity)
+	if (!pCity || eRestrictRoute==NO_ROUTE)
 		return false;
 
 	if(pCity->isCapital())
@@ -7350,15 +7362,17 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 		return false;
 	}
 
+	//todo: unify this with CvCityConnections!
+
 	//did we already check it this turn?
-	std::map<int,std::pair<int,bool>>::iterator lastState = m_capitalConnectionLookup.find(pCity->GetID());
-	if (lastState!=m_capitalConnectionLookup.end() && lastState->second.first==GC.getGame().getGameTurn())
+	std::map<int,std::pair<int,bool>>::iterator lastState = m_capitalConnectionLookup[eRestrictRoute].find(pCity->GetID());
+	if (lastState!=m_capitalConnectionLookup[eRestrictRoute].end() && lastState->second.first==GC.getGame().getGameTurn())
 		return lastState->second.second;
 
 	//do the actual pathfinding only once per turn
 	bool bResult = IsPlotConnectedToPlot(GetID(), pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
 
-	m_capitalConnectionLookup[pCity->GetID()] = std::make_pair(GC.getGame().getGameTurn(), bResult);
+	m_capitalConnectionLookup[eRestrictRoute][pCity->GetID()] = std::make_pair(GC.getGame().getGameTurn(), bResult);
 	return bResult;
 }
 
@@ -9051,7 +9065,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						pLoopPlot	= plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iPopRange);
 						if(pLoopPlot != NULL)
 						{
-							if(pLoopPlot->isValidDomainForLocation(*pNewUnit))
+							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isNativeDomain(pLoopPlot))
 							{
 								if(pNewUnit->canMoveInto(*pLoopPlot))
 								{
@@ -9364,23 +9378,12 @@ void CvPlayer::ClearNoSettling()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-bool CvPlayer::canFound(int iX, int iY, bool bForce) const
-#else
 bool CvPlayer::canFound(int iX, int iY) const
-#endif
 {
-#if defined(MOD_BALANCE_CORE)
-	return canFound(iX,iY,false,false,NULL, bForce);
-#else
 	return canFound(iX,iY,false,false,NULL);
-#endif
 }
-#if defined(MOD_BALANCE_CORE)
-bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce) const
-#else
+
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
-#endif
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 #if defined(MOD_EVENTS_CITY_FOUNDING)
@@ -9404,11 +9407,7 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit, bForce);
-#else
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
-#endif
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9418,11 +9417,7 @@ void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
 void CvPlayer::found(int iX, int iY)
 #endif
 {
-#if defined(MOD_BALANCE_CORE)
-	if(!canFound(iX, iY, bForce))
-#else
-	if(!canFound(iX, iY))
-#endif
+	if(!bForce && !canFound(iX, iY))
 	{
 		return;
 	}
@@ -13986,20 +13981,23 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		}
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		int iValue = (pConqueredCity->getPopulation() * 10 * iEra);
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue /= 100;
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(pConqueredCity->getPopulation() * 10 * iEra);
+			changeOverflowResearch(iValue);
 		}
 		else
 		{
-			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (pConqueredCity->getPopulation() * 10 * iEra), GetID());
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
 		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
 			Localization::String strSummary;
 			strMessage = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST");
-			strMessage << (pConqueredCity->getPopulation() * 10 * iEra);
+			strMessage << iValue;
 			strMessage << strTargetNameKey;
 			strSummary = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY");
 
@@ -16145,7 +16143,7 @@ int CvPlayer::GetBonusHappinessFromLuxuries() const
 	int iNumLux = iNumHappinessResources;
 	if(iNumLux > 0)
 	{
-		iExtraHappiness = ((iNumLux * iHappiness) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+		iExtraHappiness = ((iNumLux * iHappiness) / /*8*/ max(1,GC.getBALANCE_HAPPINESS_LUXURY_BASE()));
 	}
 	return iExtraHappiness;
 }
@@ -16931,15 +16929,10 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(MOD_BALANCE_CORE_POLICIES && GetGarrisonsOccupiedUnhapppinessMod() != 0)
 			{
-				CvPlot* pPlot = pLoopCity->plot();
-				if(pPlot)
+				if(pLoopCity->HasGarrison())
 				{
-					UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
-					if(garrison)
-					{
-						iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
-						iUnhappinessFromThisCity /= 100;
-					}
+					iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
+					iUnhappinessFromThisCity /= 100;
 				}
 			}
 #endif
@@ -21214,17 +21207,17 @@ void CvPlayer::changeGoldPerMilitaryUnit(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetRouteGoldMaintenanceMod() const
+int CvPlayer::GetImprovementGoldMaintenanceMod() const
 {
-	return m_iRouteGoldMaintenanceMod;
+	return m_iImprovementGoldMaintenanceMod;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeRouteGoldMaintenanceMod(int iChange)
+void CvPlayer::ChangeImprovementGoldMaintenanceMod(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iRouteGoldMaintenanceMod = (m_iRouteGoldMaintenanceMod + iChange);
+		m_iImprovementGoldMaintenanceMod = (m_iImprovementGoldMaintenanceMod + iChange);
 	}
 }
 
@@ -22342,6 +22335,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		CvCity* pBestCity = 0;
 		int iBestScore = 0;
+		CvCity* pCapital = getCapitalCity();
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
@@ -22360,6 +22354,12 @@ void CvPlayer::DoFreedomCorp()
 							{
 								iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
 							}
+							if(pCapital != NULL)
+							{
+								//Prioritize closer cities first.
+								int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+								iScore -= (iDistance * 5);
+							}
 							if(iScore > iBestScore)
 							{
 								iBestScore = iScore;
@@ -22372,7 +22372,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
 		{
-			int iSpreadChance = GC.getGame().getJonRandNum((1000 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
+			int iSpreadChance = GC.getGame().getJonRandNum((1200 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
 			if(iSpreadChance <= iBestScore)
 			{
 				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)
@@ -31855,7 +31855,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeCapitalGrowthMod(pPolicy->GetCapitalGrowthMod() * iChange);
 	changeSettlerProductionModifier(pPolicy->GetSettlerProductionModifier() * iChange);
 	changeCapitalSettlerProductionModifier(pPolicy->GetCapitalSettlerProductionModifier() * iChange);
-	ChangeRouteGoldMaintenanceMod(pPolicy->GetRouteGoldMaintenanceMod() * iChange);
+	ChangeImprovementGoldMaintenanceMod(pPolicy->GetImprovementGoldMaintenanceMod() * iChange);
 	ChangeBuildingGoldMaintenanceMod(pPolicy->GetBuildingGoldMaintenanceMod() * iChange);
 	ChangeUnitGoldMaintenanceMod(pPolicy->GetUnitGoldMaintenanceMod() * iChange);
 	ChangeUnitSupplyMod(pPolicy->GetUnitSupplyMod() * iChange);
@@ -32423,21 +32423,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
-#if defined(MOD_BALANCE_CORE)
-		CvPlot* pPlot = pLoopCity->plot();
-		if(pPlot)
-		{
-			UnitHandle garrison = pPlot->getBestDefender(pLoopCity->getOwner());
-			if(garrison)
-#else
-		if(pLoopCity->GetGarrisonedUnit() != NULL)
-#endif
+		if(pLoopCity->HasGarrison())
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -33486,7 +33476,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFreeMilitaryUnitsPopulationPercent;
 	kStream >> m_iGoldPerUnit;
 	kStream >> m_iGoldPerMilitaryUnit;
-	kStream >> m_iRouteGoldMaintenanceMod;
+	kStream >> m_iImprovementGoldMaintenanceMod;
 	kStream >> m_iBuildingGoldMaintenanceMod;
 	kStream >> m_iUnitGoldMaintenanceMod;
 	kStream >> m_iUnitSupplyMod;
@@ -34250,7 +34240,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iFreeMilitaryUnitsPopulationPercent;
 	kStream << m_iGoldPerUnit;
 	kStream << m_iGoldPerMilitaryUnit;
-	kStream << m_iRouteGoldMaintenanceMod;
+	kStream << m_iImprovementGoldMaintenanceMod;
 	kStream << m_iBuildingGoldMaintenanceMod;
 	kStream << m_iUnitGoldMaintenanceMod;
 	kStream << m_iUnitSupplyMod;
@@ -35806,7 +35796,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
 	}
 
@@ -36303,6 +36293,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	{
 		CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
 
+		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
+			continue;
+
 		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
 			vBadPlots.push_back(pPlot);
@@ -36344,7 +36337,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			//check if it's too close to an enemy
 			for (size_t j=0; j<vBadPlots.size(); j++)
 			{
-				if (plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]))<4)
+				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
+					continue;
+
+				int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
+				int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
+				if (iDistanceToDanger<4 && iDistanceToSettler>1)
 				{
 					isDangerous = true;
 					break;

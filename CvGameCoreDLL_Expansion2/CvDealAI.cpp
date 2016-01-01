@@ -729,7 +729,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		if (iDiff < iOneGPT)
 		{
 #if defined(MOD_BALANCE_CORE_DEALS)
-			if(iValueImOffering > 0)
+			if(iValueImOffering > 0 && iTotalValueToMe >= 0)
 			{
 #endif
 			return true;
@@ -1279,6 +1279,37 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(bNumGoldFromValue)
+		{
+			// Approach is important
+			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+			{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				iModifier = 50;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iModifier = 70;
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+				iModifier = 90;
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				iModifier = 100;
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				iModifier = 100;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iModifier = 100;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -1302,7 +1333,9 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 			iModifier = 100;
 			break;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		// See whether we should multiply or divide
 		if(!bNumGoldFromValue)
 		{
@@ -1314,7 +1347,36 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 			iReturnValue *= 100;
 			iReturnValue /= iModifier;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(bNumGoldFromValue)
+		{
+			// Opinion also matters
+			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+			{
+			case MAJOR_CIV_OPINION_ALLY:
+			case MAJOR_CIV_OPINION_FRIEND:
+			case MAJOR_CIV_OPINION_FAVORABLE:
+			case MAJOR_CIV_OPINION_NEUTRAL:
+				iModifier = 100;
+				break;
+			case MAJOR_CIV_OPINION_COMPETITOR:
+				iModifier = 115;
+				break;
+			case MAJOR_CIV_OPINION_ENEMY:
+				iModifier = 60;
+				break;
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				iModifier = 30;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iModifier = 100;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Opinion also matters
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
@@ -1344,6 +1406,9 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 			iReturnValue *= 100;
 			break;
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 		// See whether we should multiply or divide
 		if(!bNumGoldFromValue)
@@ -1387,15 +1452,14 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// We passed in Value, we want to know how much GPT we get for it
 	if(bNumGPTFromValue)
 	{
-		iValueTimes100 = (iGPTorValue*100)/iNumTurns;
-		//if we don't get the money right now, we want more of it!
-		iValueTimes100 = (iValueTimes100*100) / GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT(); //typically 80%
+		iValueTimes100 = (iGPTorValue * 100)/iNumTurns;
 	}
-	// We passed in an amount of GPT, we want to know how much it's worth
 	else
 	{
-		iValueTimes100 = (iGPTorValue*100)*iNumTurns;
+		iValueTimes100 = (iGPTorValue * iNumTurns);
+		iValueTimes100 = ((iValueTimes100 * GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 100);
 	}
+
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
@@ -1526,13 +1590,18 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 += 99;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((iValueTimes100 > (iGPTorValue * 100)) && bNumGPTFromValue)
+	int iReturnValue = 0;
+	if(bNumGPTFromValue)
 	{
-		iValueTimes100 = iGPTorValue;
+		 iReturnValue = iValueTimes100/100;
 	}
-#endif
-
+	else
+	{
+		iReturnValue = iValueTimes100;
+	}
+#else
 	int iReturnValue = iValueTimes100/100;
+#endif
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
@@ -5488,7 +5557,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
 
 		// Don't include the capital in the list of Cities the buyer can receive
 		if(!pLoopCity->isCapital() && iRatio>130)
@@ -5592,7 +5661,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / iWhatIWouldPay;
+		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
 
 		// Don't include the capital in the list of Cities the buyer can receive
 		if (!pLoopCity->isCapital() && iRatio<80) 
@@ -7410,7 +7479,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			int iTheirPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), false, eOtherPlayer, false);
 
-			int iBuyRatio = (iMyPrice*100)/iTheirPrice;
+			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -7481,7 +7550,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iTheirPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), false, eOtherPlayer, false);
 
-			int iBuyRatio = (iMyPrice*100)/iTheirPrice;
+			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -7501,7 +7570,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iTheirPrice = GetCityValue(pMyCity->getX(), pMyCity->getY(), true, eOtherPlayer, false);
 			int iMyPrice = GetCityValue(pMyCity->getX(), pMyCity->getY(), false, eOtherPlayer, false);
 
-			int iSellRatio = (iTheirPrice*100)/iMyPrice;
+			int iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
 			{
 				pBestSellCity = pMyCity;

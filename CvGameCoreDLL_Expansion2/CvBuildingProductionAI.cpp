@@ -277,7 +277,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 		{
 			//Higher value the higher the number of routes.
 			iValue *= 100;
-			iValue /= (110 - iLandTrade);
+			iValue /= max(1, (110 - iLandTrade));
 		}
 	}
 
@@ -293,7 +293,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 		{
 			//Higher value the higher the number of routes.
 			iValue *= 100;
-			iValue /= min(1, (110 - iSeaTrade));
+			iValue /= max(1, (110 - iSeaTrade));
 		}
 	}
 	if(pkBuildingInfo->IsAddsFreshWater() && pCity->plot()->isFreshWater())
@@ -324,7 +324,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 		else
 		{
 			iValue *= 100;
-			iValue /= min(1, (120 - iResource));
+			iValue /= max(1, (120 - iResource));
 		}
 	}
 
@@ -367,30 +367,20 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 		int iFromImprovements = pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
 
 		int iTest = (iFromWonders + iFromNaturalWonders + iFromImprovements);
-		if(iTest <= 0)
-		{
-			return 0;
-		}
-		if(iTest > 100)
-		{
-			iTest = 100;
-		}
-		if(iTest <= 100)
-		{
-			//Higher value the higher the number of routes.
-			iValue *= 100;
-			iValue /= min(1, (100 - iTest));
-		}
+		iTest = range(iTest,0,99);
 
+		//Higher value the higher the number of routes.
+		iValue *= 100;
+		iValue /= (100-iTest);
 	}
 	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
 	{
-		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks();
-		iWorks *= GC.getBASE_TOURISM_PER_GREAT_WORK();
+		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
+		iWorks = range(iWorks,0,99);
 
 		//Higher value the higher the number of works.
 		iValue *= 100;
-		iValue /= min(1, (100 - iWorks));
+		iValue /= (100-iWorks);
 	}
 
 	//Faith Bonus for Faith Civs

@@ -74,6 +74,8 @@ public:
 	void Update(void);
 	void UpdateRoutePlots(void);
 
+	int CheckAlternativeWorkers(const std::vector<CvUnit*>& otherWorkers, const CvPlot* pTarget) const;
+
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
 	bool EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDirectives, UINT uaDirectives, bool bKeepOnlyBest = false, bool bOnlyEvaluateWorkersPlot = false, bool bLimit = false);
 #else
@@ -90,7 +92,7 @@ public:
 
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // determines all the logistics if the builder should get to the plot
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
-	int FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot, bool bLimit = false);  // returns -1 if no path can be found, otherwise it returns the # of turns to get there
+	int FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, bool bLimit = false) const; // returns -1 if no path can be found, otherwise it returns the # of turns to get there
 #else
 	int FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot);  // returns -1 if no path can be found, otherwise it returns the # of turns to get there
 #endif
@@ -125,6 +127,7 @@ protected:
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 
 	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute);
+	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);

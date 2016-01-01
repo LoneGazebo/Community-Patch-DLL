@@ -33,6 +33,7 @@ enum YieldTypes
 #if defined(MOD_BALANCE_CORE_JFD)
 	YIELD_JFD_HEALTH,
 	YIELD_JFD_DISEASE,
+	YIELD_JFD_CRIME,
 #endif
 
     NUM_YIELD_TYPES

@@ -121,7 +121,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCapitalSettlerProductionModifier(0),
 	m_iNewCityExtraPopulation(0),
 	m_iFreeFoodBox(0),
-	m_iRouteGoldMaintenanceMod(0),
+	m_iImprovementGoldMaintenanceMod(0),
 	m_iBuildingGoldMaintenanceMod(0),
 	m_iUnitGoldMaintenanceMod(0),
 	m_iUnitSupplyMod(0),
@@ -477,7 +477,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCapitalSettlerProductionModifier = kResults.GetInt("CapitalSettlerProductionModifier");
 	m_iNewCityExtraPopulation = kResults.GetInt("NewCityExtraPopulation");
 	m_iFreeFoodBox = kResults.GetInt("FreeFoodBox");
-	m_iRouteGoldMaintenanceMod = kResults.GetInt("RouteGoldMaintenanceMod");
+	m_iImprovementGoldMaintenanceMod = kResults.GetInt("ImprovementGoldMaintenanceMod");
 	m_iBuildingGoldMaintenanceMod = kResults.GetInt("BuildingGoldMaintenanceMod");
 	m_iUnitGoldMaintenanceMod = kResults.GetInt("UnitGoldMaintenanceMod");
 	m_iUnitSupplyMod = kResults.GetInt("UnitSupplyMod");
@@ -1672,9 +1672,9 @@ int CvPolicyEntry::GetFreeFoodBox() const
 }
 
 /// Route upkeep cost Modifier (e.g. 50 = 150% normal cost)
-int CvPolicyEntry::GetRouteGoldMaintenanceMod() const
+int CvPolicyEntry::GetImprovementGoldMaintenanceMod() const
 {
-	return m_iRouteGoldMaintenanceMod;
+	return m_iImprovementGoldMaintenanceMod;
 }
 
 /// Building upkeep cost Modifier (e.g. 50 = 150% normal cost)

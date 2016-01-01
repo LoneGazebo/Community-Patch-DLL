@@ -535,10 +535,10 @@
 			<Text>[ICON_BLOCKADED] Isolation: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_INFLUENCE_OTHER">
-			<Text>Our [ICON_TOURISM] Influence: {1_Num}%</Text>
+			<Text>Our [ICON_TOURISM]: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_CONNECTED">
-			<Text>[ICON_CONNECTED] Connected</Text>
+			<Text>[ICON_CONNECTED]</Text>
 		</Row>
 
 		<!-- Partisans -->

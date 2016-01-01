@@ -26,6 +26,7 @@
 #include "../CvInternalGameCoreUtils.h"
 #include "../CvGameTextMgr.h"
 #include "../CvReplayMessage.h"
+#include "../cvStopWatch.h"
 
 #define Method(func) RegisterMethod(L, l##func, #func);
 
@@ -3338,7 +3339,8 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 	const int iLimit = luaL_optint(L, 1, 1000);
 
 	int iValue = 0;
-	const ULONGLONG startTick = GetTickCount64();
+	cvStopWatch watch("lua test event",0,0,true);
+	watch.StartPerfTest();
 
 	if (iLimit > 0) {
 		for (int i = 0; i < iLimit; ++i) {
@@ -3367,10 +3369,13 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 		}
 	}
 
-	const ULONGLONG endTick = GetTickCount64();
+	watch.EndPerfTest();
 
-	lua_pushinteger(L, ((int) (endTick - startTick) / 1000));
-	lua_pushinteger(L, ((int) (endTick - startTick) % 1000));
+	int iSec = (int) watch.GetDeltaInSeconds();
+	int iMSec = (int) ((watch.GetDeltaInSeconds() - iSec)*1000);
+
+	lua_pushinteger(L, iSec);
+	lua_pushinteger(L, iMSec);
 	lua_pushinteger(L, iValue);
 	return 3;
 }

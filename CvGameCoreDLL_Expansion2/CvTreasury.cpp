@@ -367,27 +367,10 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 		return FALSE;
 	}
 
-	int iFirstCityIndex = -1;
-	int iSecondCityIndex = -1;
-	for(uint ui = 0; ui < pCityConnections->m_aiCityPlotIDs.size(); ui++)
-	{
-		if(pFirstCity->plot()->GetPlotIndex() == pCityConnections->m_aiCityPlotIDs[ui])
-		{
-			iFirstCityIndex = ui;
-		}
+	uint iFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
+	uint iSecondCityIndex = pCityConnections->GetIndexFromCity(pSecondCity);
 
-		if(pSecondCity->plot()->GetPlotIndex() == pCityConnections->m_aiCityPlotIDs[ui])
-		{
-			iSecondCityIndex = ui;
-		}
-
-		if(iFirstCityIndex >= 0 && iSecondCityIndex >= 0)
-		{
-			break;
-		}
-	}
-
-	if(iFirstCityIndex < 0 || iSecondCityIndex < 0)
+	if(iFirstCityIndex == UINT_MAX || iSecondCityIndex == UINT_MAX)
 	{
 		// did not find one or both of the cities
 		return FALSE;
@@ -396,26 +379,13 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 	CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(iFirstCityIndex, iSecondCityIndex);
 	if(pRouteInfo)
 	{
-#if !defined(MOD_EVENTS_CITY_CONNECTIONS)
-		if(bBestRoute)
+		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_LAND_CONNECTION)
 		{
-			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_BEST_ROUTE;
+			return true;
 		}
-		else
-#endif
+		else if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE)
-			{
-				return true;
-			}
-			else if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
-			{
-				return true;
-			}
-#else
-			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE;
-#endif
+			return true;
 		}
 	}
 
@@ -910,11 +880,11 @@ int CvTreasury::GetImprovementGoldMaintenance() const
 	int iMaintenance = m_iBaseImprovementGoldMaintenance;
 
 	// Player modifier
-	iMaintenance *= (100 + m_pPlayer->GetRouteGoldMaintenanceMod());
+	iMaintenance *= (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iMaintenance /= 100;
 
 	// Handicap
-	iMaintenance *= m_pPlayer->getHandicapInfo().getRouteCostPercent();
+	iMaintenance *= m_pPlayer->getHandicapInfo().getImprovementMaintenancePercent();
 	iMaintenance /= 100;
 
 	return iMaintenance;

@@ -125,7 +125,7 @@ void CvHomelandAI::RecruitUnits()
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			//don't use units which were assigned a tactical move this turn!
-			if ( pLoopUnit->hasCurrentTacticalMove())
+			if ( pLoopUnit->hasCurrentTacticalMove() )
 			{
 				CvString msg = CvString::format("warning: homeland AI unit %d has a current tactical move (%s at %d,%d)", 
 										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
@@ -1730,6 +1730,9 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 		{
 			// See what units we have who can reach target this turn
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
+
+			if (!pTarget->getArea()==pUnit->getArea())
+				continue;
 
 			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 				continue;
@@ -4447,8 +4450,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 		{
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
-			int iTargetTurns;
-			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit, &iTargetTurns);
+			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
 			BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 			if(pTarget)
 			{
@@ -4468,7 +4470,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					continue;
 #endif
 				}
-				else if(iTargetTurns < 1)
+				else if( pUnit->CanReachInXTurns(pTarget,0) )
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 
@@ -4539,8 +4541,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		}
 		
 		//Do trade mission
-		int iTargetTurns;
-		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit);
 		if(pTarget)
 		{
 			if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
@@ -4561,7 +4562,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				continue;
 #endif
 			}
-			else if(iTargetTurns < 1)
+			else if( pUnit->CanReachInXTurns(pTarget,0) )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				
@@ -5174,7 +5175,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				
 				if (iWeight>0)
 				{
-					if(pLoopCity->GetGarrisonedUnit() != NULL)
+					if(pLoopCity->HasGarrison())
 					{
 						iWeight *= 2;
 					}
@@ -5589,7 +5590,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			{
 				iWeight -= iTurns;
 			}
-			if(pLoopCity->GetGarrisonedUnit() != NULL)
+			if(pLoopCity->HasGarrison())
 			{
 				iWeight *= 2;
 			}

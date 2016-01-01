@@ -62,6 +62,9 @@
 // Come back to this
 #include "LintFree.h"
 
+// for statistics
+int saiTaskWhenKilled[100] = {0};
+
 namespace FSerialization
 {
 std::set<CvUnit*> unitsToCheck;
@@ -2456,6 +2459,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
+	//safety first
+	if(CanEverEmbark() && GC.getMap().plot(iX,iY)->needsEmbarkation())
+		setEmbarked(true);
+
 	if(bSetupGraphical)
 		setupGraphical();
 		
@@ -3089,6 +3096,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
+
+//---------------------------------
+	if (ePlayer!=NO_PLAYER)
+	{
+		TacticalAIMoveTypes move = getTacticalMove();
+		saiTaskWhenKilled[ (int)move+1 ]++;
+	}
+//---------------------------------
 
 	auto_ptr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
 
@@ -4235,9 +4250,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Part 1 : Domain specific exclusions -----------------------------------------------
 
-	// Air can go anywhere
+	// Air can go anywhere - provided it's a city or a carrier
 	if (eDomain==DOMAIN_AIR)
-		return true;
+		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
 	// Immobile can go nowhere
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
@@ -4248,112 +4263,109 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), false))
 			return false;
 
-	// Land units may need to embark - can we do it? are we allowed to?
-	if (eDomain==DOMAIN_LAND)
-		if (IsHoveringUnit())
+	// Land units and hover units may go anywhere in principle (with embarkation)
+
+	// Part 2 : player traits and unit traits ---------------------------------------------------
+
+	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
+	if(enterPlot.isImpassable(getTeam()))
+	{
+		// Some special units also have it easy
+		if(canMoveImpassable() || canMoveAllTerrain())
+			return true;
+
+		// if there's a route, anyone can use it
+		if(enterPlot.isValidRoute(this))
+			return true;
+
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+		// Check coastal water
+		if (enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			//helicopter no deep water
-			if(enterPlot.isDeepWater())	
-				return false;
+			if(eDomain == DOMAIN_SEA)
+			{
+				return true;
+			}
+			else
+			{
+				return IsHasEmbarkAbility() && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+			}
 		}
-		else
+
+		// Check high seas
+		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			//normal land unit, embark for all water
-			if(enterPlot.isWater() && !enterPlot.IsAllowsWalkWater() && (!CanEverEmbark() || (iMoveFlags & CvUnit::MOVEFLAG_NO_EMBARK)))	
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
+
+			if(bOceanImpassable)
+			{	
 				return false;
+			}
+			else if(eDomain == DOMAIN_SEA)
+			{
+				return canCrossOceans() || kPlayer.CanCrossOcean();
+			}
+			else if(eDomain == DOMAIN_LAND)
+			{
+				return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+			}
 		}
 
-	// Part 2 : easy decisions ---------------------------------------------------
+		// Check ice with specialty: is passable if owned
+		if (enterPlot.isIce()) 
+		{
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
+			return bCanCross;
+		}
 
-	// Most plots are easy in fact
-	if(!enterPlot.isImpassable(getTeam()))
-		return true;
+		// Check mountain.
+		if (enterPlot.isMountain())
+		{
+			bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain();
+			return bCanCross;
+		}
 
-	// Some special units also have it easy
-	if(canMoveImpassable() || canMoveAllTerrain())
-		return true;
+		// general promotions ---------------------------------------------------
 
-	// Part 3 : player traits and unit traits ---------------------------------------------------
+		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
+		{
+			return true;
+		}	
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
+		{
+			return true;
+		}	
 
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
-	// Check mountain. Any land unit may travel over a mountain with a pass (note: city plots have a route)
-	if (enterPlot.isMountain())
-	{
-		bool bCanCross = canCrossMountains() || kPlayer.CanCrossMountain() || (enterPlot.getRouteType() != NO_ROUTE && !enterPlot.IsRoutePillaged());
-		return bCanCross;
+		//ok, seems we ran out of jokers. no pasaran!
+		return false;
 	}
+	else //passable. need to check for negative promotions / traits and their exceptions
+	{
+		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
+		{
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
 
-	bool bOceanImpassable = false;
-	bool bOceanImpassableAstronomy = false;
-	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-	if(isHasPromotion(ePromotionOceanImpassable))
-	{
-		bOceanImpassable = true;
-	}
-	PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
-	if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
-	{
-		bOceanImpassableAstronomy = true;
-	}
-	// Check coastal water
-	if (enterPlot.isWater() && enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
-	{
-		bool bCanCross = canCrossOceans() || IsHasEmbarkAbility() || kPlayer.CanCrossOcean() || (eDomain == DOMAIN_SEA);
-		return bCanCross;
-	}
+			if(bOceanImpassable)
+			{	
+				return false;
+			}	
+		}
 
-	// Check high seas
-	if (enterPlot.isWater() && !enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
-	{
-		if(bOceanImpassable)
-		{	
+		if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
+		{
 			return false;
 		}
-		else if(eDomain == DOMAIN_SEA)
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
 		{
-			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean() || (bOceanImpassableAstronomy && GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage()) || (!bOceanImpassable && !bOceanImpassableAstronomy));
-			return bCanCross;
+			return false;
 		}
-		else
-		{
-			bool bCanCross = (canCrossOceans() || IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean());
-			return bCanCross;
-		}
-	}
 
-	// Check ice with specialty: is passable of owned
-	if (enterPlot.isIce()) 
-	{
-		bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
-		return bCanCross;
+		//ok, seems there are no objections. let's go!
+		return true;
 	}
-
-	// Part 4 : promotions - expensive test, do this last ---------------------------------------------------
-
-	if(enterPlot.getFeatureType() != NO_FEATURE)  
-	{
-		// assume that all units can use roads and rails
-		if(isFeatureImpassable(enterPlot.getFeatureType()) && enterPlot.getRouteType() == NO_ROUTE)
-		{
-			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			if(m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType()))
-				return true;
-		}
-	}
-	else if(enterPlot.getTerrainType() != NO_TERRAIN)
-	{
-		// assume that all units can use roads and rails
-		if(isTerrainImpassable(enterPlot.getTerrainType()) && enterPlot.getRouteType() == NO_ROUTE)
-		{
-			// Check all Promotions to see if this Unit has one which allows Impassable movement with a certain Tech
-			if (m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType()))
-				return true;
-		}
-	}
-
-	//ok, seems we ran out of jokers. no pasaran!
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4723,7 +4735,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 			}
 
-			if(getDomainType() == DOMAIN_LAND && plot.needsEmbarkation() && !canMoveAllTerrain())
+			// can't embark and attack in one go. however, disembark to attack is allowed
+			if(CanEverEmbark() && plot.needsEmbarkation())
 			{
 				return false;
 			}
@@ -5037,10 +5050,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	int iMoveCost = targetPlot.movementCost(this, plot());
 
 	// we need to get our dis/embarking on
-	bool bChangeEmbarkedState = CanEverEmbark() && !IsHoveringUnit() && (targetPlot.needsEmbarkation() != pOldPlot->needsEmbarkation());
+	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation() != pOldPlot->needsEmbarkation());
 	if (bChangeEmbarkedState)
 	{
-		if(isEmbarked() && canDisembarkOnto(*pOldPlot, targetPlot)) // moving from water to the land
+		if(isEmbarked() && !targetPlot.needsEmbarkation()) // moving from water to the land
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -5071,7 +5084,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			finishMoves();
 #endif
 		}
-		else if(!isEmbarked() && canEmbarkOnto(*pOldPlot, targetPlot))  // moving from land to the water
+		else if(!isEmbarked() && targetPlot.needsEmbarkation())  // moving from land to the water
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -5114,26 +5127,19 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 bool CvUnit::jumpToNearestValidPlot()
 {
 	VALIDATE_OBJECT
-	CvCity* pNearestCity;
-	CvPlot* pLoopPlot;
-	CvPlot* pBestPlot;
-	int iValue;
-	int iBestValue;
-	int iI;
-
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
 
-	iBestValue = INT_MAX;
-	pBestPlot = NULL;
+	int iBestValue = INT_MAX;
+	CvPlot* pBestPlot = NULL;
 
-	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this))
+		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
 		{
 			if(canMoveInto(*pLoopPlot))
 			{
@@ -5154,14 +5160,14 @@ bool CvUnit::jumpToNearestValidPlot()
 							{
 								if(pLoopPlot->isRevealed(getTeam()))
 								{
-									iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+									int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
 									if(pNearestCity != NULL)
 									{
 										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
 									}
 
-									if(iValue < iBestValue)
+									if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
 									{
 										iBestValue = iValue;
 										pBestPlot = pLoopPlot;
@@ -5230,7 +5236,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot->isValidDomainForLocation(*this))
+				if(pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
 				{
 					if(canMoveInto(*pLoopPlot))
 					{
@@ -5256,7 +5262,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 											iValue *= 3;
 										}
 
-										if(iValue < iBestValue)
+										if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
 										{
 											iBestValue = iValue;
 											pBestPlot = pLoopPlot;
@@ -5394,11 +5400,10 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			int iTargetTurns;
 			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit, &iTargetTurns);
+				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit);
 				if(pTarget == NULL)
 				{
 					return false;
@@ -6523,7 +6528,7 @@ bool CvUnit::canDisembarkAtPlot(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
+bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 
@@ -6552,11 +6557,11 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
+	return canMoveInto(targetPlot, iMoveFlags);
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
+bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, int iMoveFlags) const
 {
 	VALIDATE_OBJECT
 
@@ -6585,13 +6590,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	return canMoveInto(targetPlot, bIsDestination?MOVEFLAG_DESTINATION:0);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot, bool bIsDestination /* = false */) const
-{
-	return canDisembarkOnto( *plot(), targetPlot, false, bIsDestination );
+	return canMoveInto(targetPlot, iMoveFlags);
 }
 
 //	--------------------------------------------------------------------------------
@@ -6599,7 +6598,7 @@ bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
 
-	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility());
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain() && !isCargo() );
 }
 
 //	--------------------------------------------------------------------------------
@@ -6883,9 +6882,12 @@ void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 }
 
 //	--------------------------------------------------------------------------------
-TacticalAIMoveTypes CvUnit::getTacticalMove() const
+TacticalAIMoveTypes CvUnit::getTacticalMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
+	if (pTurnSet)
+		*pTurnSet = m_iTactMoveSetTurn;
+
 	return m_eTacticalMove;
 }
 
@@ -6933,7 +6935,7 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::hasCurrentTacticalMove() const
 { 
-	return ( m_eTacticalMove>NO_TACTICAL_MOVE && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
+	return ( m_eTacticalMove!=NO_TACTICAL_MOVE && m_eTacticalMove!=GC.getInfoTypeForString("TACTICAL_UNASSIGNED") && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
 }
 
 void CvUnit::setHomelandMove(AIHomelandMove eMove)
@@ -6942,6 +6944,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
+		if (eMove==AI_HOMELAND_MOVE_NONE)
+			return;
+
 		CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
 		if (pkMoveInfo)
 		{
@@ -6968,9 +6973,12 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 }
 
 //	--------------------------------------------------------------------------------
-AIHomelandMove CvUnit::getHomelandMove() const
+AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
+	if (pTurnSet)
+		*pTurnSet = m_iTactMoveSetTurn;
+
 	return m_eHomelandMove;
 }
 #endif
@@ -7119,7 +7127,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -7503,7 +7511,7 @@ void CvUnit::doHeal()
 	if(!isBarbarian())
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -9667,18 +9675,10 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (pPlot)
 		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
 	else
 		return true;
-#else
-	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
-	{
-		return false;
-	}
-	return true;
-#endif
 }
 
 
@@ -13489,13 +13489,13 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater();
+		return pPlot->needsEmbarkation()==isEmbarked();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->isWater();
+		return pPlot->needsEmbarkation();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -14682,9 +14682,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->isWater() && pFromPlot != plot() && getDomainType() == DOMAIN_LAND && !pFromPlot->isValidDomainForAction(*this)));
-	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->isWater() && bWouldNeedEmbark;
-
+	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->needsEmbarkation() && CanEverEmbark()));
+	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation() && bWouldNeedEmbark;
 #else
 	bool bIsEmbarkedAttackingLand = isEmbarked() && (pToPlot && !pToPlot->isWater());
 
@@ -14851,7 +14850,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Amphibious attack
 			if(!isAmphib())
 			{
-				if(!(pToPlot->isWater()) && pFromPlot->isWater() && getDomainType() == DOMAIN_LAND)
+				if(pFromPlot->needsEmbarkation() && getDomainType() == DOMAIN_LAND)
 				{
 					iTempModifier = GC.getAMPHIB_ATTACK_MODIFIER();
 					iModifier += iTempModifier;
@@ -14897,7 +14896,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (isEmbarked() || (pInPlot && pInPlot->isWater() && pInPlot != plot() && getDomainType() == DOMAIN_LAND && !pInPlot->isValidDomainForAction(*this)))
+	if (isEmbarked() || (pInPlot && pInPlot->needsEmbarkation() && CanEverEmbark()))
 #else
 	if(m_bEmbarked)
 #endif
@@ -15636,7 +15635,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		if(!pPlot->isValidDomainForLocation(*this))
+		if(!pPlot->isValidDomainForLocation(*this) && isNativeDomain(pPlot))
 		{
 			return false;
 		}
@@ -15833,7 +15832,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
-		if (pDefender->isEmbarked() || (pTargetPlot && pTargetPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pTargetPlot->isValidDomainForAction(*pDefender)))
+		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation())
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
@@ -16036,58 +16035,59 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
 	VALIDATE_OBJECT
-	CvUnit* pLoopUnit;
-	CvUnit* pBestUnit;
-	int iValue;
-	int iBestValue;
-	int iLoop;
-	int iI;
-
-	iBestValue = 0;
-	pBestUnit = NULL;
+	CvUnit* pBestUnit = 0;
+	int iBestValue = 0;
+	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kLoopPlayer.isAlive())
-		{
-			TeamTypes eLoopTeam = kLoopPlayer.getTeam();
-			if(isEnemy(eLoopTeam) && !isInvisible(eLoopTeam, false, false))
-			{
-				for(pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
-				{
-					// Must be able to intercept
-					if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
-					{
-						// Must not have already intercepted this turn
-						if(!pLoopUnit->isOutOfInterceptions())
-						{
-							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
-							{
-								// Must either be a non-air Unit or an air Unit on intercept
-								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-								{
-									// Check input booleans
-									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
-									{
-										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
-										{
-											// Test range
-											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
-											{
-												iValue = pLoopUnit->currInterceptionProbability();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
 
-												if(iValue > iBestValue)
-												{
-													iBestValue = iValue;
-													pBestUnit = pLoopUnit;
-												}
-											}
+	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	{
+		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
+		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+
+		//stealth unit? no intercept
+		if(isInvisible(eLoopTeam, false, false))
+			continue;
+
+		int iLoop = 0;
+		for(CvUnit* pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
+		{
+			// Must be able to intercept
+			if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
+			{
+				// Must not have already intercepted this turn
+				if(!pLoopUnit->isOutOfInterceptions())
+				{
+					// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
+					if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
+					{
+						// Must either be a non-air Unit or an air Unit on intercept
+						if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+						{
+							// Check input booleans
+							if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{
+								if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
+								{
+									// Test range
+									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY());
+									if( iDistance <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+									{
+										int iValue = pLoopUnit->currInterceptionProbability();
+
+										if (iValue>0 && piNumPossibleInterceptors)
+											(*piNumPossibleInterceptors)++;
+
+										if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
+										{
+											iBestDistance = iDistance;
+											iBestValue = iValue;
+											pBestUnit = pLoopUnit;
 										}
 									}
 								}
@@ -16105,63 +16105,9 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pk
 //	--------------------------------------------------------------------------------
 int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
-	VALIDATE_OBJECT
-	
-	CvUnit* pLoopUnit;
-	int iReturnValue;
-	int iLoop;
-	int iI;
-
-	iReturnValue = 0;
-
-	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kLoopPlayer.isAlive())
-		{
-			TeamTypes eLoopTeam = kLoopPlayer.getTeam();
-			if(isEnemy(eLoopTeam) && !isInvisible(eLoopTeam, false, false))
-			{
-				for(pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
-				{
-					// Must be able to intercept
-					if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
-					{
-						// Must not have already intercepted this turn
-						if(!pLoopUnit->isOutOfInterceptions())
-						{
-							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
-							{
-								// Must either be a non-air Unit or an air Unit on intercept
-								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-								{
-									// Check input booleans
-									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
-									{
-										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
-										{
-											// Test range
-											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
-											{
-												if (pLoopUnit->currInterceptionProbability() > 0)
-												{
-													iReturnValue++;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return iReturnValue;
+	int iCount = 0;
+	GetBestInterceptor(interceptPlot,pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	return iCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17985,6 +17931,17 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	pNewPlot = GC.getMap().plot(iX, iY);
 
+	//sanity check - interferes with carriers for land units, so don't fix it
+	/*
+	if (pNewPlot)
+	{
+		if ( !pNewPlot->needsEmbarkation() && isEmbarked() )
+			setEmbarked(false);
+		if ( pNewPlot->needsEmbarkation() && CanEverEmbark() && !isEmbarked() )
+			setEmbarked(true);
+	}
+	*/
+
 	if(pNewPlot != NULL && !bNoMove)
 	{
 		pTransportUnit = getTransportUnit();
@@ -19547,11 +19504,15 @@ if (!bDoEvade)
 	CvCity* pkNewGarrisonCity = GetGarrisonedCity();
 	if (pkNewGarrisonCity && pkNewGarrisonCity != pkPrevGarrisonedCity)
 	{
+		pkNewGarrisonCity->SetGarrison( this );
+
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
 	if(pkPrevGarrisonedCity && pkPrevGarrisonedCity != pkNewGarrisonCity)
 	{
+		pkPrevGarrisonedCity->SetGarrison( pOldPlot->getBestDefender(getOwner()).pointer() );
+
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
@@ -22967,7 +22928,7 @@ CvUnit* CvUnit::getTransportUnit()
 bool CvUnit::isCargo() const
 {
 	VALIDATE_OBJECT
-	return (getTransportUnit() != NULL);
+	return !m_transportUnit.isInvalid();
 }
 
 
@@ -24853,77 +24814,50 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = (pSourcePlot && pSourcePlot->isWater() && getDomainType() == DOMAIN_LAND && !pSourcePlot->isValidDomainForAction(*this));
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->isWater() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation() && CanEverEmbark();
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation() && bWouldNeedEmbark;
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif
 
-	// Can only bombard in domain? (used for Subs' torpedo attack)
-	if(getUnitInfo().IsRangeAttackOnlyInDomain())
-	{
-		if(!pTargetPlot->isValidDomainForAction(*this))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				CvCity* pCity = pTargetPlot->getPlotCity();
-				if(!pTargetPlot->isCoastalLand())
-				{
-					return false;
-				}
-				else
-				{
-					if(pCity == NULL)
-					{
-						return false;
-					}
-				}
-			}
-			else
-			{
-#endif
-			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-
-		// preventing submarines from shooting into lakes.
-		if (pSourcePlot->getArea() != pTargetPlot->getArea())
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				CvCity* pCity = pTargetPlot->getPlotCity();
-				if(!pTargetPlot->isCoastalLand())
-				{
-					return false;
-				}
-				else
-				{
-					if(pCity == NULL)
-					{
-						return false;
-					}
-				}
-			}
-			else
-			{
-#endif
-			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-	}
 
 	// In Range?
 	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
 	{
 		return false;
+	}
+
+	// Can only bombard in domain? (used for Subs' torpedo attack)
+	if(getUnitInfo().IsRangeAttackOnlyInDomain())
+	{
+		if( pTargetPlot->isWater() )
+		{
+			// preventing submarines from shooting into other water bodies (lakes)
+			if (pSourcePlot->getArea() != pTargetPlot->getArea())
+			{
+				return false;
+			}
+		}
+		else //land target
+		{
+
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			{
+				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || pTargetPlot->getPlotCity()->waterArea()!=pSourcePlot->area() )
+				{
+					return false;
+				}
+			}
+			else
+			{
+#endif
+			return false;
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			}
+#endif
+		}
 	}
 
 	// Ignores LoS or can see the plot directly?
@@ -26632,6 +26566,10 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	}
 #endif
 
+	//safety check - air units should not use ranged attack missions (for unknown reasons)
+	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
+		eMission = CvTypes::getMISSION_MOVE_TO();
+
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
 }
 
@@ -26935,11 +26873,12 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 		return false;
 	}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if ((!pPlot->isWater() || getDomainType() != DOMAIN_LAND) && !pPlot->isValidDomainForAction(*this))
-#else
 	if(!pPlot->isValidDomainForAction(*this))
-#endif
+	{
+		return false;
+	}
+
+	if (isCargo())
 	{
 		return false;
 	}
@@ -27283,7 +27222,7 @@ bool CvUnit::DoWithdrawFromMelee(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			return true;
@@ -28544,7 +28483,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	if(pTarget == plot())
 		return 0;
 
-	if(bIgnoreUnits)
+	if(bIgnoreUnits) //ignore all other units (also enemy)
 	{
 		//this is a purely hypothetical path ... use a special pathfinder for that
 		SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
@@ -28569,7 +28508,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 		//normal handling: use the path cache of the unit, so we can possibly re-use the path later
 		//do not ignore danger
 		int iFlags = 0;
-		if(bIgnoreStacking)
+		if(bIgnoreStacking) //ignore our own units
 			iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 		if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )

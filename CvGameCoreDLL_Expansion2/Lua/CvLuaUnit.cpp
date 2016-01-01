@@ -1109,7 +1109,7 @@ int CvLuaUnit::lCanEmbarkOnto(lua_State* L)
 	bool bResult = false;
 	if(pkOriginPlot && pkTargetPlot)
 	{
-		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot, false, bIsDestination);
+		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot, false, bIsDestination ? CvUnit::MOVEFLAG_DESTINATION : 0);
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1126,7 +1126,7 @@ int CvLuaUnit::lCanDisembarkOnto(lua_State* L)
 	bool bResult = false;
 	if(pkTargetPlot)
 	{
-		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot, bIsDestination);	
+		bResult = pkUnit->canDisembarkOnto(*pkUnit->plot(), *pkTargetPlot, false, bIsDestination ? CvUnit::MOVEFLAG_DESTINATION : 0);	
 	}
 
 	lua_pushboolean(L, bResult);

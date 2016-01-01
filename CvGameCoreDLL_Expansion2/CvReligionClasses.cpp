@@ -2707,19 +2707,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 	}
 	if(!GET_PLAYER(pToCity->getOwner()).isMinorCiv() && GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoSpread())
 	{
-		if(GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+		ReligionTypes eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
+		if((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
 		{
-			if(eReligion != GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false))
-			{
-				return iPressure;
-			}
+			return iPressure;
 		}
-		if((GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
+		if((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
 		{
-			if(eReligion != GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities())
-			{
-				return iPressure;
-			}
+			return iPressure;
 		}
 	}
 	if(GET_PLAYER(pToCity->getOwner()).isMinorCiv())
@@ -2729,19 +2725,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		{
 			if(GET_PLAYER(eAlly).GetPlayerTraits()->IsNoSpread())
 			{
-				if(GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+				ReligionTypes eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false);
+				if((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
 				{
-					if(eReligion != GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false))
-					{
-						return iPressure;
-					}
+					return iPressure;
 				}
-				if((GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+				eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities();
+				if((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
 				{
-					if(eReligion != GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities())
-					{
-						return iPressure;
-					}
+					return iPressure;
 				}
 			}
 		}

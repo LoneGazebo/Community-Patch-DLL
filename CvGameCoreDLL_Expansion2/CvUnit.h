@@ -280,9 +280,8 @@ public:
 
 	bool canEmbarkAtPlot(const CvPlot* pPlot) const;
 	bool canDisembarkAtPlot(const CvPlot* pPlot) const;
-	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
-	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
-	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
+	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, int iMoveFlags = 0) const;
+	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, int iMoveFlags = 0) const;
 	bool CanEverEmbark() const;  // can this unit ever change into an embarked unit
 	void embark(CvPlot* pPlot);
 	void disembark(CvPlot* pPlot);
@@ -583,7 +582,7 @@ public:
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 #endif
 
-	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false, int* piNumPossibleInterceptors = NULL) const;
 	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
@@ -1336,7 +1335,7 @@ public:
 
 	bool isUnderTacticalControl() const;
 	void setTacticalMove(TacticalAIMoveTypes eMove);
-	TacticalAIMoveTypes getTacticalMove() const;
+	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
@@ -1489,7 +1488,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void setHomelandMove(AIHomelandMove eMove);
-	AIHomelandMove getHomelandMove() const;
+	AIHomelandMove getHomelandMove(int* pTurnSet=NULL) const;
 	bool hasCurrentTacticalMove() const;
 #endif
 
@@ -1851,6 +1850,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 	AIHomelandMove m_eHomelandMove;
 #endif
+
+	friend class CvLuaUnit;
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

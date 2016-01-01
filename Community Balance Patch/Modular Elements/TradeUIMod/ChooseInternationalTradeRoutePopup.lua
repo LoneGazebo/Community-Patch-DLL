@@ -263,9 +263,9 @@ function RefreshData()
 			end
 		end
 		tradeRoute.OtherInfluence = 0;
-		if (pTargetCity ~= nil and tradeRoute.Category == 2) then
+		if (pTargetCity ~= nil and pTargetPlayer ~= nil and tradeRoute.Category == 2) then
 			local iInfluence = pPlayer:GetInfluenceOn(iTargetOwner);
-			local iCulture = pPlayer:GetJONSCultureEverGenerated();
+			local iCulture = pTargetPlayer:GetJONSCultureEverGenerated();
 			local iPercent = 0;
 			if (iCulture > 0) then
 				iPercent = iInfluence / iCulture;

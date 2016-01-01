@@ -522,6 +522,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void UpdateCache();
 	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
+	std::vector<std::vector<TechTypes>> m_featurePassableCache;
 	std::vector<int> m_unitClassDefenseMod;
 	std::vector<int> m_unitClassAttackMod;
 #endif

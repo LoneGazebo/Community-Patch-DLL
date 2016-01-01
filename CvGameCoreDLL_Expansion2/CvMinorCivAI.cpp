@@ -3351,7 +3351,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (MOD_GLOBAL_CS_GIFTS) {
 						// Reduce gifts if we're not the first team to meet the CS
 						int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER();
-						int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR();
+						int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR());
 
 						if (iBonusDivisor == 0) {
 							iFriendshipBoost = 0;
@@ -3385,7 +3385,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 		 			// Personality modifiers - friendly = x1.5, hostile = x0.5
 					if (eFakePersonality == MINOR_CIV_PERSONALITY_FRIENDLY) {
 						int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER();
-						int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR();
+						int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR());
 
 						if (iBonusDivisor == 0) {
 							iFriendshipBoost = 0;
@@ -3404,7 +3404,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						}
 
 						int iUnitMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER();
-						int iUnitDivisor = GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR();
+						int iUnitDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR());
 
 						if (iUnitDivisor == 0) {
 							iUnitGift = 0;
@@ -3413,7 +3413,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						}
 					} else if (eFakePersonality == MINOR_CIV_PERSONALITY_HOSTILE) {
 						int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER();
-						int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR();
+						int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR());
 
 						if (iBonusDivisor == 0) {
 							iFriendshipBoost = 0;
@@ -3432,7 +3432,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						}
 
 						int iUnitMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER();
-						int iUnitDivisor = GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR();
+						int iUnitDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR());
 
 						if (iUnitDivisor == 0) {
 							iUnitGift = 0;
@@ -3483,7 +3483,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						// Food and unit gifts only go to the player who actually met the CS
 						if (eMeetingPlayer == ePlayer) {
 							int iBonusMultiplier = GC.getMINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER();
-							int iBonusDivisor = GC.getMINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR();
+							int iBonusDivisor = max(1,GC.getMINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR());
 
 							// Give the friendship boost again to this team member (ie the meeting player gets twice the friendship boost)
 							int iExtraFriendship = (iFriendshipBoost * iBonusMultiplier / iBonusDivisor) - iFriendshipBoost;

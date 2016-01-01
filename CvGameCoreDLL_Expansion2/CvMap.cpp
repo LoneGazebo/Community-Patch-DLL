@@ -1405,8 +1405,6 @@ void CvMap::recalculateAreas()
 //	--------------------------------------------------------------------------------
 int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange)
 {
-	CvAStarNode* pNode;
-
 	if(pSource == NULL || pDest == NULL)
 	{
 		return -1;
@@ -1416,12 +1414,9 @@ int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRa
 
 	if(GC.GetStepFinder().GeneratePath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data))
 	{
-		pNode = GC.GetStepFinder().GetLastNode();
-
-		if(pNode != NULL)
-		{
-			return pNode->m_iKnownCost;
-		}
+		int iDist = GC.GetStepFinder().GetNormalizedLength();
+		if (iDist<INT_MAX)
+			return iDist;
 	}
 
 	return -1; // no passable path exists

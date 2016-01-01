@@ -40,7 +40,7 @@ public:
 
 	bool IsEmpty(void);  // if there are no cities in the route list
 
-	uint GetIndexFromCity(CvCity* pCity);
+	uint GetIndexFromCity(const CvCity* pCity);
 	CvCity* GetCityFromIndex(int iIndex);
 
 	uint GetNumConnectableCities(void);
@@ -51,13 +51,8 @@ public:
 
 	typedef enum RouteState
 	{
-	    HAS_ANY_ROUTE   = 0x1,
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-	    HAS_INDIRECT_ROUTE = 0x2,
-#else
-	    HAS_WATER_ROUTE = 0x2,
-	    HAS_BEST_ROUTE  = 0x4,
-#endif
+	    HAS_LAND_CONNECTION   = 0x1,
+	    HAS_WATER_CONNECTION = 0x2,
 	};
 
 	struct RouteInfo
@@ -72,15 +67,8 @@ public:
 		char m_cPassEval; // used to create the data, but should not be referenced as a value
 	};
 
-	uint m_uiRouteInfosDimension;
-	RouteInfo* m_aRouteInfos;
-
-	RouteInfo* GetRouteInfo(uint uiFirstCityIndex, uint uiSecondCityIndex);
-
-	//typedef FStaticVector< RouteInfo, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0 > RouteInfosRow;
-	//FFastVector< RouteInfosRow, false, c_eCiv5GameplayDLL, 0 > m_aaRouteInfos;
-	FStaticVector<int, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_aiCityPlotIDs;
-	FStaticVector<BuildingTypes, 10, true, c_eCiv5GameplayDLL, 0> m_aBuildingsAllowWaterRoutes;
+	RouteInfo* GetRouteInfo( uint uiFirstCityIndex, uint uiSecondCityIndex );
+	bool AreCitiesConnected( const CvCity* pCityA, const CvCity* pCityB, RouteState eRouteType );
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -90,6 +78,9 @@ protected:
 	void ConnectPlotRoute(CvPlot* pPlot);
 
 	void ResizeRouteInfo(uint uiNewSize);
+
+	uint m_uiRouteInfosDimension;
+	RouteInfo* m_aRouteInfos;
 
 	// these are used to update the engine
 	typedef enum PlotRouteState
@@ -112,6 +103,8 @@ protected:
 	};
 
 	FStaticVector<PlotRouteInfo, 100, true, c_eCiv5GameplayDLL, 0> m_aPlotRouteInfos;
+	FStaticVector<int, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_aiCityPlotIDs;
+	FStaticVector<BuildingTypes, 10, true, c_eCiv5GameplayDLL, 0> m_aBuildingsAllowWaterRoutes;
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

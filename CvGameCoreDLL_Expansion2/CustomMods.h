@@ -31,6 +31,9 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
+//JDH Active Diplo
+#define MOD_ACTIVE_DIPLOMACY
+
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc

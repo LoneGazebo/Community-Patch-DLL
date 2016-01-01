@@ -406,11 +406,9 @@ public:
 	CvArea* area() const;
 	CvArea* waterArea() const;
 
+	void SetGarrison(const CvUnit* pUnit);
+	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	void OverrideGarrison(const CvUnit* pUnit);
-	void UnsetGarrisonOverride();
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 	CvPlot* getRallyPlot() const;
 	void setRallyPlot(CvPlot* pPlot);
@@ -1375,7 +1373,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iStrengthValue;
 	FAutoVariable<int, CvCity> m_iDamage;
 	FAutoVariable<int, CvCity> m_iThreatValue;
-	FAutoVariable<int, CvCity> m_iGarrisonedUnit;  // unused
+	FAutoVariable<int, CvCity> m_hGarrison;  // unused
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int m_hGarrisonOverride;
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -1620,6 +1618,11 @@ protected:
 	int getHurryGold(HurryTypes eHurry, int iHurryCost, int iFullCost) const;
 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+
+protected:
+	//we can pretend a garrison in this city, but only for limited time
+	void OverrideGarrison(const CvUnit* pUnit);
+	friend class CvCityGarrisonOverride;
 };
 
 namespace FSerialization
@@ -1627,5 +1630,25 @@ namespace FSerialization
 void SyncCities();
 void ClearCityDeltas();
 }
+
+//just a guard class so we never forget to unset the garrison override
+class CvCityGarrisonOverride
+{
+public:
+	CvCityGarrisonOverride(CvCity* pCity, const CvUnit* pUnit)
+	{
+		m_pCity = pCity;
+		//can only garrison units of the city owner!
+		if (m_pCity && pUnit && m_pCity->getOwner()==pUnit->getOwner())
+			m_pCity->OverrideGarrison(pUnit);
+	}
+	~CvCityGarrisonOverride()
+	{
+		if (m_pCity)
+			m_pCity->OverrideGarrison(0);
+	}
+protected:
+	CvCity* m_pCity;
+};
 
 #endif

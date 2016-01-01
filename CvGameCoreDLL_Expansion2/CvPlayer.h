@@ -58,6 +58,7 @@ class CvPlayerTrade;
 class CvTradeAI;
 class CvLeagueAI;
 class CvPlayerCulture;
+struct SPath;
 
 typedef std::list<CvPopupInfo*> CvPopupQueue;
 
@@ -245,9 +246,9 @@ public:
 
 	int countCitiesFeatureSurrounded() const;
 
-	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = NO_ROUTE, bool bIgnoreHarbors = false);
-	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = NO_ROUTE);
-	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = NO_ROUTE);
+	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
+	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = ROUTE_ANY);
+	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = ROUTE_ANY);
 
 	void findNewCapital();
 
@@ -266,10 +267,8 @@ public:
 	bool IsNoSettling(int iPlotIndex) const;
 	void ClearNoSettling();
 
-#if defined(MOD_BALANCE_CORE)
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit, bool bForce = false) const;
-	bool canFound(int iX, int iY, bool bForce = false) const;
-#endif
+	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
+	bool canFound(int iX, int iY) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
@@ -1083,8 +1082,8 @@ public:
 	int getGoldPerMilitaryUnit() const;
 	void changeGoldPerMilitaryUnit(int iChange);
 
-	int GetRouteGoldMaintenanceMod() const;
-	void ChangeRouteGoldMaintenanceMod(int iChange);
+	int GetImprovementGoldMaintenanceMod() const;
+	void ChangeImprovementGoldMaintenanceMod(int iChange);
 
 	int GetBuildingGoldMaintenanceMod() const;
 	void ChangeBuildingGoldMaintenanceMod(int iChange);
@@ -2652,7 +2651,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iFreeMilitaryUnitsPopulationPercent;
 	FAutoVariable<int, CvPlayer> m_iGoldPerUnit;
 	FAutoVariable<int, CvPlayer> m_iGoldPerMilitaryUnit;
-	FAutoVariable<int, CvPlayer> m_iRouteGoldMaintenanceMod;
+	FAutoVariable<int, CvPlayer> m_iImprovementGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iBuildingGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitSupplyMod;
@@ -3058,7 +3057,7 @@ protected:
 #endif
 
 	//city ID to (turn,connected)
-	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup;
+	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup[NUM_ROUTE_TYPES];
 };
 
 extern bool CancelActivePlayerEndTurn();

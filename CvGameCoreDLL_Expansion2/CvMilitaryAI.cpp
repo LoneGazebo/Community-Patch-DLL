@@ -2549,23 +2549,31 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 
 	CityAttackApproaches eApproaches;
 	float fApproachMultiplier = 1;
-	if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
+	if(eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK)
+	{	
+		//naval only
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+	}
+	else if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
 		eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK ||
-		eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK)
 	{	
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, false /* Assume units coming by sea can disembark */, true);
+		//mixed
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, true);
 	}
 	else if(eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK ||
 		eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK)
 	{	
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true /* Assume units coming by sea can disembark */, false);
+		//land only
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
 	}
 	else
 	{
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true /* Assume units coming by sea can disembark */, target.m_bAttackBySea);
+		//automatic ...
+		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, target.m_bAttackBySea);
 	}
+
 	//bail if hopeless
 	if (eApproaches==ATTACK_APPROACH_NONE)
 		return 0;
@@ -3117,7 +3125,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 					// On same body of water?
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
-						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,eEnemy);
+						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -3155,23 +3163,37 @@ CvPlot* CvMilitaryAI::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *
 	}
 
 	// Find a coastal water tile adjacent to enemy city
-	if (pInitialUnit && pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+	if (pInitialUnit)
+	{
+		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		{
+			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
+				if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
+				{
+					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
+					if (iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pCoastalPlot = pAdjacentPlot;
+					}
+				}
+			}
+
+			return pCoastalPlot;
+		}
+		else
+			return NULL;
+	}
+	else
 	{
 		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 		{
 			CvPlot* pAdjacentPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iDirectionLoop));
 			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
-			{
-				int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
-				if (iDistance < iBestDistance)
-				{
-					iBestDistance = iDistance;
-					pCoastalPlot = pAdjacentPlot;
-				}
-			}
+				return pAdjacentPlot;
 		}
-
-		return pCoastalPlot;
 	}
 
 	return NULL;
