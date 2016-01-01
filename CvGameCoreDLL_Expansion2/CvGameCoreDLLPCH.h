@@ -42,6 +42,14 @@
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
 
+
+#ifdef FINAL_RELEASE
+// Undefine OutputDebugString in final release builds
+#undef OutputDebugString
+#define OutputDebugString(x)
+#endif //FINAL_RELEASE
+
+
 #if defined _DEBUG
 #include <crtdbg.h>
 #endif
@@ -82,6 +90,32 @@ typedef wchar_t          wchar;
 #define AI_PERF_FORMAT_NESTED(perfFileName, FormatValue) ((void)0)
 #endif
 
+
+#include <stack>
+
+#ifdef __MSVC_RUNTIME_CHECKS
+#  define __JDH_MSVC_RUNTIME_CHECKS __MSVC_RUNTIME_CHECKS
+#  undef __MSVC_RUNTIME_CHECKS
+#endif
+
+#define BOOST_THREAD_DONT_PROVIDE_NESTED_LOCKS
+#define BOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS
+
+#include <boost\atomic.hpp>
+#include <boost\preprocessor.hpp>
+#include <boost\thread\mutex.hpp>
+
+#ifdef __JDH_MSVC_RUNTIME_CHECKS
+#  define __MSVC_RUNTIME_CHECKS __JDH_MSVC_RUNTIME_CHECKS
+#  undef __JDH_MSVC_RUNTIME_CHECKS
+#endif // __MSVC_RUNTIME_CHECKS
+
+#pragma message("          BOOST_VERSION = " BOOST_PP_STRINGIZE(BOOST_VERSION))
+#pragma message("            _SECURE_SCL = " BOOST_PP_STRINGIZE(_SECURE_SCL))
+#pragma message("_HAS_ITERATOR_DEBUGGING = " BOOST_PP_STRINGIZE(_HAS_ITERATOR_DEBUGGING))
+
+#include "jdh/assert.h"
+
 #include <FireWorks/FDefNew.h>
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>
@@ -103,6 +137,9 @@ typedef wchar_t          wchar;
 #include "ICvDLLUtility.h"
 #include "ICvDllUserInterface.h"
 #include "Lua/CvLuaSupport.h"
+
+#include "jdh/tostring.h"
+#include "jdh/log.h"
 
 #include "CvPlayerAI.h"
 #include "CvTreasury.h"
@@ -155,11 +192,5 @@ typedef wchar_t          wchar;
 #include "CvAdvisorRecommender.h"
 
 using namespace fastdelegate;
-
-#ifdef FINAL_RELEASE
-// Undefine OutputDebugString in final release builds
-#undef OutputDebugString
-#define OutputDebugString(x)
-#endif //FINAL_RELEASE
 
 #endif	// CVGAMECOREDLLPCH_H

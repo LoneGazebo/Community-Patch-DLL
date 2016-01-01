@@ -1026,8 +1026,6 @@ void CvDiplomacyAI::Reset()
 	}
 
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
-
-	m_aGreetPlayers.clear();
 }
 
 /// Serialization read
@@ -1749,19 +1747,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 //	-----------------------------------------------------------------------------------------------
 void CvDiplomacyAI::update()
 {
-	if(!m_aGreetPlayers.empty())
-	{
-		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-		// In out list?
-		PlayerTypesArray::iterator itr = std::find(m_aGreetPlayers.begin(), m_aGreetPlayers.end(), eActivePlayer);
-		if(itr != m_aGreetPlayers.end())
-		{
-			m_aGreetPlayers.erase(itr);
-
-			const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
-		}
-	}
 }
 //	-----------------------------------------------------------------------------------------------
 /// Returns the Player object this class is associated with
@@ -1925,6 +1910,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 /// Runs every turn!  The order matters for a lot of this stuff, so be VERY careful about moving anything around (!)
 void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO, GetPlayer()->GetID(), static_cast<DiplomacyPlayerType>(eTargetPlayer));
 	m_eTargetPlayer = eTargetPlayer;
 	// Military Stuff
 	DoWarDamageDecay();
@@ -1973,6 +1959,10 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
+		// JdH => cleanup, as ai now uses proposed deals to store data between ai and human turns
+		// TODO: move this cleanup to the human players end turn processing
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
+		// JdH <=
 		MakeWar();
 		DoMakePeaceWithMinors();
 
@@ -1981,11 +1971,9 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoUpdatePlanningExchanges();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
-		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID());	//Proposed deals with AI players are purely transitional.
-																																														//If there are any remaining now, this is because this civ
-																																														//was previously controlled by a human player who had a proposed
-																																														//human-to-human deal.  AI can't process human-to-human deals
-																																														//so cancel them now to prevent zombie deals.
+		// JdH => cleanup AI to AI deals (was all deals before)
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_AI_PLAYERS);
+		// JdH <=
 	}
 
 	// Update Counters
@@ -1999,6 +1987,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	LogStatements();
 
 	m_eTargetPlayer = NO_PLAYER;
+	JDHLOG_FUNC_END();
 }
 
 /// Increment our turn counters
@@ -2273,6 +2262,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 	if(GetPlayer()->getTeam() == kPlayerEvaluating.getTeam())
 	{
 		eOpinion = MAJOR_CIV_OPINION_ALLY;
+
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
+		// JdH <=
 	}
 	// Different teams
 	else
@@ -2298,6 +2291,9 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		//if (IsWorkingAgainstPlayer(ePlayer) && eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
 		//	eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
 
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
+		// JdH <=
 	}
 
 	// Finally, set the Opinion
@@ -2305,6 +2301,26 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 
 	//LogOpinionUpdate(ePlayer, viOpinionWeights);
 }
+
+// JdH => calculate ai to human trade priority for multiplayer
+void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight)
+{
+	JDHLOG_FUNC_BEGIN(jdh::INFO, GetPlayer()->GetID(), ePlayer, iOpinionWeight);
+	if (m_pDiploData && ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
+	{
+		iOpinionWeight = max(iOpinionWeight, GC.getOPINION_THRESHOLD_ALLY());
+		iOpinionWeight = min(iOpinionWeight, GC.getOPINION_THRESHOLD_UNFORGIVABLE());
+		iOpinionWeight -= GC.getOPINION_THRESHOLD_UNFORGIVABLE(); // make it >= 0
+
+		float opinion = iOpinionWeight / (float)(GC.getOPINION_THRESHOLD_ALLY() - GC.getOPINION_THRESHOLD_UNFORGIVABLE());
+
+		int turnsPassed = GC.getGame().getGameTurn() - GetNumTurnsSinceSomethingSent(ePlayer);
+
+		m_pDiploData->m_aTradePriority[ePlayer] = 10.0f * opinion + turnsPassed; // faktor in turns since last contact and the optinion to player.
+	}
+	JDHLOG_FUNC_END();
+}
+// JdH <=
 
 // What is the number value of our opinion towards ePlayer?
 int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
@@ -5490,6 +5506,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::MakeWar()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), m_eTargetPlayer);
 	CvWeightedVector<int> playerList;
 	int iWeight;
 
@@ -5502,7 +5519,10 @@ void CvDiplomacyAI::MakeWar()
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eTarget = (PlayerTypes)iPlayerLoop;
-			if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
+			// JdH => no need to check for Valid UI Target: a notification is enqued instead
+			//if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
+			if (IsPlayerValid(eTarget))
+			// JdH <=
 			{
 				iWeight = (int)GetWarProjection(eTarget) + 1;
 
@@ -5572,6 +5592,7 @@ void CvDiplomacyAI::MakeWar()
 			}
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 
 /// We've decided to declare war on someone
@@ -5590,10 +5611,10 @@ void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 		m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
 		// Show scene to human
-		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
+		// JdH => deciding whether to send a notification or pop up directy is done in SendRequest
 		{
 			const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
 		}
 
 		LogWarDeclaration(ePlayer);
@@ -10090,48 +10111,16 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		// Default States, will be updated on turn cycling
 		//SetPlayerTargetValue(ePlayer, TARGET_VALUE_AVERAGE);
 
-		// Humans don't say hi to one another through the shadow diplo AI and, uh, don't show up in MP please
-		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+		// JdH => notifications do get send in MP + updated to new 
+		if (GC.getGame().isFinalInitialized())
 		{
-			if(!GetPlayer()->isHuman())
+			if (!IsAtWar(ePlayer))
 			{
-				// Should fire off a diplo message when we meet a human
-				if(GET_PLAYER(ePlayer).isHuman())
-				{
-					if(!IsAtWar(ePlayer))
-					{
-						if(GC.getGame().isFinalInitialized())
-						{
-							if(std::find(m_aGreetPlayers.begin(), m_aGreetPlayers.end(), ePlayer) == m_aGreetPlayers.end())
-							{
-								// Put in the list of people to greet when their turn comes up.
-								m_aGreetPlayers.push_back(ePlayer);
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				// Human to Human will just send a notification
-				CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
-				if(kTargetPlayer.isHuman())
-				{
-					if(!IsAtWar(ePlayer))
-					{
-						if(GC.getGame().isFinalInitialized())
-						{
-							CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
-							if(pNotifications)
-							{
-								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
-								pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetPlayer()->GetID());
-							}
-						}
-					}
-				}
+				const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
+				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
 			}
 		}
+		// JdH <=
 
 		// Catch up on public declarations this player has made
 
@@ -10233,7 +10222,7 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 /// Player killed us
 void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 {
-	if(ePlayer == GC.getGame().getActivePlayer() && !GC.getGame().isNetworkMultiPlayer())
+	if(ePlayer == GC.getGame().getActivePlayer()) // && !GC.getGame().isNetworkMultiPlayer())
 	{
 		const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_DEFEATED);
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
@@ -10250,20 +10239,19 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 /// Say hi to someone else
 void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eStatement, int iData1, CvDeal* pDeal)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), ePlayer, eStatement, iData1);
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eStatement < NUM_DIPLO_LOG_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	const char* szText;
-	//bool bShouldShowLeaderScene = GC.getGame().getActivePlayer() == ePlayer;
 	bool bHuman = GET_PLAYER(ePlayer).isHuman();
-	bool bShouldShowLeaderScene = bHuman;
 
 	// Aggressive Military warning
 	if(eStatement == DIPLO_STATEMENT_AGGRESSIVE_MILITARY_WARNING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			if(IsActHostileTowardsHuman(ePlayer))
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_AGGRESSIVE_MILITARY_WARNING);
@@ -10277,7 +10265,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Player Killed a City State we're protecting
 	else if(eStatement == DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -10294,7 +10282,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Player Attacked a City State we're protecting
 	else if(eStatement == DIPLO_STATEMENT_ATTACKED_PROTECTED_CITY_STATE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -10311,7 +10299,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Player Bullied a City State we're protecting
 	else if(eStatement == DIPLO_STATEMENT_BULLIED_PROTECTED_CITY_STATE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -10328,7 +10316,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Serious Expansion warning
 	else if(eStatement == DIPLO_STATEMENT_EXPANSION_SERIOUS_WARNING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_EXPANSION_SERIOUS_WARNING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_YOU_EXPANSION_SERIOUS_WARNING, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10338,7 +10326,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Expansion warning
 	else if(eStatement == DIPLO_STATEMENT_EXPANSION_WARNING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_EXPANSION_WARNING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_YOU_EXPANSION_WARNING, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -10348,7 +10336,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Expansion Broken Promise
 	else if(eStatement == DIPLO_STATEMENT_EXPANSION_BROKEN_PROMISE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_EXPANSION_BROKEN_PROMISE);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10358,7 +10346,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Serious Plot Buying warning
 	else if(eStatement == DIPLO_STATEMENT_PLOT_BUYING_SERIOUS_WARNING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PLOT_BUYING_SERIOUS_WARNING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_SERIOUS_WARNING, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10368,7 +10356,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Plot Buying warning
 	else if(eStatement == DIPLO_STATEMENT_PLOT_BUYING_WARNING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PLOT_BUYING_WARNING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_WARNING, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -10378,7 +10366,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Plot Buying broken promise
 	else if(eStatement == DIPLO_STATEMENT_PLOT_BUYING_BROKEN_PROMISE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PLOT_BUYING_BROKEN_PROMISE);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10388,7 +10376,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We attacked a Minor someone has a PtP with
 	else if(eStatement == DIPLO_STATEMENT_WE_ATTACKED_YOUR_MINOR)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -10411,7 +10399,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We bullied a Minor someone has a PtP with
 	else if(eStatement == 	DIPLO_STATEMENT_WE_BULLIED_YOUR_MINOR)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			CvAssert(eMinorCiv != NO_PLAYER);
@@ -10432,14 +10420,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_WORK_WITH_US)
 	{
 		// Send message to human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US);
 
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// AI resolution
-		else if(!bHuman)
+		else
 		{
 			SetDoFCounter(ePlayer, 0);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
@@ -10470,13 +10458,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
 
 		// Send message to human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_END_WORK_WITH_US, ePlayer);
 
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
-		else if(!bHuman)
+		else
 		{
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
@@ -10490,7 +10478,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		LogDenounce(ePlayer);
 
 		// Send message to human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_AGAINST_SOMEONE, ePlayer);
 
@@ -10505,7 +10493,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		LogDenounce(ePlayer, /*bBackstab*/ true);
 
 		// Send message to human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_AI_DOF_BACKSTAB, ePlayer);
 
@@ -10523,13 +10511,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
 
 			// Send message to human
-			if(bShouldShowLeaderScene)
+			if (bHuman)
 			{
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_AI_DENOUNCE_REQUEST, ePlayer, strTargetCivKey);
 
 				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_AI_REQUEST_DENOUNCE, szText, LEADERHEAD_ANIM_POSITIVE, eTarget);
 			}
-			else if(!bHuman)
+			else
 			{
 				bool bAgree = IsDenounceAcceptable(eTarget, /*bBias*/ true);
 
@@ -10541,7 +10529,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogDenounce(eTarget);
 
 					// Denounced a human?
-					if(eTarget == GC.getGame().getActivePlayer())
+					if(GET_PLAYER(eTarget).isHuman())
 					{
 						szText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_AGAINST_SOMEONE, eTarget);
 						CvDiplomacyRequests::SendRequest(ePlayer, eTarget, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10591,7 +10579,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if(eAgainstPlayer != NO_PLAYER)
 		{
 			// Send message to human
-			if(bShouldShowLeaderScene)
+			if (bHuman)
 			{
 				const char* strAgainstPlayerKey = GET_PLAYER(eAgainstPlayer).getNameKey();
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_REQUEST, ePlayer, strAgainstPlayerKey);
@@ -10599,7 +10587,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_COOP_WAR, szText, LEADERHEAD_ANIM_POSITIVE, eAgainstPlayer);
 			}
 			// AI resolution
-			else if(!bHuman)
+			else
 			{
 				SetCoopWarCounter(ePlayer, eAgainstPlayer, 0);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), eAgainstPlayer, 0);
@@ -10638,7 +10626,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if(eAgainstPlayer != NO_PLAYER)
 		{
 			// Send message to human
-			if(bShouldShowLeaderScene)
+			if (bHuman)
 			{
 				const char* strAgainstPlayerKey = GET_PLAYER(eAgainstPlayer).getNameKey();
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_TIME, ePlayer, strAgainstPlayerKey);
@@ -10653,14 +10641,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We're making a demand of Player
 	else if(eStatement == DIPLO_STATEMENT_DEMAND)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_DEMAND);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND, szText, LEADERHEAD_ANIM_DEMAND);
 		}
 		// AI player
-		else if(!bHuman)
+		else
 		{
 			// For now the AI will always give in
 
@@ -10674,14 +10661,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We're making a request of Player
 	else if(eStatement == DIPLO_STATEMENT_REQUEST)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_REQUEST);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// AI player
-		else if(!bHuman)
+		else
 		{
 			// For now the AI will always give in - may eventually write additional logic here
 
@@ -10695,14 +10681,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Player has a Luxury we'd like
 	else if(eStatement == DIPLO_STATEMENT_LUXURY_TRADE)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_LUXURY_TRADE);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10715,12 +10700,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer Embassy Exchange
 	else if(eStatement == DIPLO_STATEMENT_EMBASSY_EXCHANGE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_EMBASSY_EXCHANGE);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10733,12 +10718,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer Embassy
 	else if(eStatement == DIPLO_STATEMENT_EMBASSY_OFFER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_EMBASSY_OFFER);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10751,14 +10736,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer Open Borders Exchange
 	else if(eStatement == DIPLO_STATEMENT_OPEN_BORDERS_EXCHANGE)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OPEN_BORDERS_EXCHANGE);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10771,14 +10755,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer Open Borders
 	else if(eStatement == DIPLO_STATEMENT_OPEN_BORDERS_OFFER)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OPEN_BORDERS_OFFER);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10791,14 +10774,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer plans to make Research Agreement
 	else if(eStatement == DIPLO_STATEMENT_PLAN_RESEARCH_AGREEMENT)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PLAN_RESEARCH_AGREEMENT);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_PLAN_RESEARCH_AGREEMENT, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			if(!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoAddWantsResearchAgreementWithPlayer(GetPlayer()->GetID());	// just auto-reciprocate right now
@@ -10808,14 +10790,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer Research Agreement
 	else if(eStatement == DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_RESEARCH_AGREEMENT_OFFER);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -10828,8 +10809,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Offer to renew deal
 	else if(eStatement == DIPLO_STATEMENT_RENEW_DEAL)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
@@ -10876,7 +10856,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 			int iDealType = -1;
@@ -10900,7 +10880,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// They're now unforgivable
 	else if(eStatement == DIPLO_STATEMENT_NOW_UNFORGIVABLE)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_NOW_UNFORGIVABLE);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10910,7 +10890,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// They're now an enemy
 	else if(eStatement == DIPLO_STATEMENT_NOW_ENEMY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_NOW_ENEMY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10920,7 +10900,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// They caught one of our spies
 	else if(eStatement == DIPLO_STATEMENT_CAUGHT_YOUR_SPY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_CAUGHT_YOUR_SPY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_CAUGHT_YOUR_SPY, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -10930,7 +10910,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// They killed one of our spies
 	else if(eStatement == DIPLO_STATEMENT_KILLED_YOUR_SPY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_KILLED_YOUR_SPY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_KILLED_YOUR_SPY, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -10940,7 +10920,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We killed one of their spies
 	else if(eStatement == DIPLO_STATEMENT_KILLED_MY_SPY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_KILLED_MY_SPY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_KILLED_MY_SPY, szText, LEADERHEAD_ANIM_DEFEATED);
@@ -10973,7 +10953,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				// add the notification to the 
 				GET_PLAYER(ePlayer).GetEspionage()->AddIntrigueMessage(m_pPlayer->GetID(), ePlotterPlayer, ePlayer, NO_BUILDING, NO_PROJECT, eIntrigueType, 0, pCity, false);
 
-				if(bShouldShowLeaderScene)
+				if (bHuman)
 				{
 					const char* szPlayerName;
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlotterPlayer).isHuman())
@@ -11034,7 +11014,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Stop converting our cities
 	else if(eStatement == DIPLO_STATEMENT_STOP_CONVERSIONS)
 	{
-		if(bShouldShowLeaderScene)
+		if(bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_CONVERSIONS);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_STOP_CONVERSIONS, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11044,7 +11024,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Stop digging up our yard
 	else if(eStatement == DIPLO_STATEMENT_STOP_DIGGING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_DIGGING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_STOP_DIGGING, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11058,7 +11038,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_HOSTILE);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_INSULT_ROOT);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -11072,7 +11052,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_FRIENDLY);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_COMPLIMENT);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11086,7 +11066,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_AFRAID);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_BOOT_KISSING);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11096,7 +11076,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We're warning a player his warmongering behavior is attracting attention
 	else if(eStatement == DIPLO_STATEMENT_WARMONGER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_WARMONGER);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, szText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -11106,7 +11086,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We're warning a player his interactions with city states is not to our liking
 	else if(eStatement == DIPLO_STATEMENT_MINOR_CIV_COMPETITION)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
 			const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -11119,7 +11099,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Human befriended an enemy of this AI!
 	else if(eStatement == DIPLO_STATEMENT_ANGRY_BEFRIEND_ENEMY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11132,7 +11112,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Human denounced a friend of this AI!
 	else if(eStatement == DIPLO_STATEMENT_ANGRY_DENOUNCED_FRIEND)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11145,7 +11125,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Human denounced an enemy of this AI!
 	else if(eStatement == DIPLO_STATEMENT_HAPPY_DENOUNCED_ENEMY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11158,7 +11138,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Human befriended a friend of this AI!
 	else if(eStatement == DIPLO_STATEMENT_HAPPY_BEFRIENDED_FRIEND)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11171,7 +11151,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// AI befriended an enemy of the human!
 	else if(eStatement == DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_ENEMY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11184,7 +11164,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// AI denounced a friend of the human!
 	else if(eStatement == DIPLO_STATEMENT_FYI_DENOUNCED_HUMAN_FRIEND)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11197,7 +11177,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// AI denounced an enemy of the human!
 	else if(eStatement == DIPLO_STATEMENT_FYI_DENOUNCED_HUMAN_ENEMY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11210,7 +11190,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// AI befriended a friend of the human!
 	else if(eStatement == DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_FRIEND)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			PlayerTypes eTarget = (PlayerTypes) iData1;
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -11223,7 +11203,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// AI chose same late game policy tree!
 	else if(eStatement == DIPLO_STATEMENT_SAME_POLICIES_FREEDOM)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SAME_POLICIES_FREEDOM);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11232,7 +11212,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_SAME_POLICIES_ORDER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SAME_POLICIES_ORDER);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11241,7 +11221,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_SAME_POLICIES_AUTOCRACY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SAME_POLICIES_AUTOCRACY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11250,7 +11230,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_WE_LIKED_THEIR_PROPOSAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			Localization::String sLeagueName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -11265,7 +11245,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_WE_DISLIKED_THEIR_PROPOSAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			Localization::String sLeagueName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -11280,7 +11260,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_THEY_SUPPORTED_OUR_PROPOSAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			Localization::String sLeagueName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_THEY_SUPPORTED_OUR_PROPOSAL, ePlayer, sLeagueName);
@@ -11290,7 +11270,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_THEY_FOILED_OUR_PROPOSAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			Localization::String sLeagueName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_THEY_FOILED_OUR_PROPOSAL, ePlayer, sLeagueName);
@@ -11300,7 +11280,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 	else if(eStatement == DIPLO_STATEMENT_THEY_SUPPORTED_OUR_HOSTING)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			Localization::String sLeagueName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -11316,7 +11296,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Ideological statements
 	else if(eStatement == DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11324,7 +11304,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}	
 	else if(eStatement == DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11332,7 +11312,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11340,7 +11320,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11348,7 +11328,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}	
 	else if(eStatement == DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11356,7 +11336,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}	
 	else if(eStatement == DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11364,7 +11344,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_FREEDOM)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_FREEDOM);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11372,7 +11352,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_ORDER)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_ORDER);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11380,7 +11360,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_SWITCH_OUR_IDEOLOGY_AUTOCRACY)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_AUTOCRACY);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11388,7 +11368,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_YOUR_CULTURE_INFLUENTIAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_YOUR_CULTURE_INFLUENTIAL);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
@@ -11396,7 +11376,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 	else if(eStatement == DIPLO_STATEMENT_OUR_CULTURE_INFLUENTIAL)
 	{
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_OUR_CULTURE_INFLUENTIAL);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
@@ -11406,14 +11386,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// Do we want peace with ePlayer?
 	else if(eStatement == DIPLO_STATEMENT_REQUEST_PEACE)
 	{
-		// Active human
-		if(bShouldShowLeaderScene)
+		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PEACE_OFFER);
 			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_POSITIVE);
 		}
 		// Offer to an AI player
-		else if(!bHuman)
+		else
 		{
 			CvDeal kDeal = *pDeal;
 
@@ -11424,6 +11403,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			LogPeaceMade(ePlayer);
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 //	-------------------------------------------------------------------------------------------------------------------
 /// Does this AI have something to say to the world this turn?
@@ -11432,6 +11412,7 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 	// Don't give Public Declarations if we're a human
 	if(GetPlayer()->isHuman())
 	{
+		// TODO: jdh, check if we do want public declarations from humans
 		return;
 	}
 
@@ -11564,13 +11545,58 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			DoContactPlayer(eLoopPlayer);
 		}
 	}
+	// JdH => in MP: contact humans by priority, but use a notification instead of pop up the diplo screen
+	// every AI can only talk to one human a time (as a human can only talk to one human a time
+	// TODO: the one to one restriction should be removed in favor of a trade resource pool allocation
+	else
+	{
+		vector<PlayerTypes> aeHumansByPriority;
+		vector<PlayerTypes>::iterator iter;
+		// bring players in priority order
+		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			if (!IsPlayerValid(eLoopPlayer))
+				continue;
+
+			// No AI
+			if (!GET_PLAYER(eLoopPlayer).isHuman())
+				continue;
+
+			for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
+			{
+				if (m_pDiploData->m_aTradePriority[*iter] < m_pDiploData->m_aTradePriority[eLoopPlayer])
+				{
+					aeHumansByPriority.insert(iter, eLoopPlayer);
+					break;
+				}
+			}
+			if (iter == aeHumansByPriority.end())
+			{
+				aeHumansByPriority.push_back(eLoopPlayer);
+			}
+		}
+
+		for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
+		{
+			DoContactPlayer(*iter);
+			if (GET_PLAYER(*iter).GetDiplomacyRequests()->HasActiveRequestFrom(GetPlayer()->GetID()))
+			{
+				// we actually found someone worth talking with, the others must wait...
+				break;
+			}
+		}
+	}
+	// JdH <=
 }
 
 /// Individual contact opportunity
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
-	if(!IsValidUIDiplomacyTarget(ePlayer))
-		return;		// Can't contact the this player at the moment.
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), ePlayer);
+	// JdH => a check if ePlayer is valid ui target isn't needed anymore, as notifications are sent in MP now
+	// JdH <=
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
@@ -11584,7 +11610,10 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 
 	// If this is the same turn we've met a player, don't send anything his way quite yet - wait until we've said hello at least
 	if(GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
+	{
+		JDHLOG_FUNC_END();
 		return;
+	}
 
 	// Clear out the scratch pad
 	for(int iLoop = 0; iLoop < NUM_DIPLO_LOG_STATEMENT_TYPES; iLoop++)
@@ -11730,6 +11759,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	// Now see if it's a valid time to send this message (we may have already sent it)
 	if(eStatement != NO_DIPLO_STATEMENT_TYPE)
 	{
+		JDHLOG(jdh::DEBUG, eStatement);
 		//if (bSendStatement)
 		{
 			LogStatementToPlayer(ePlayer, eStatement);
@@ -11738,11 +11768,13 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoAddNewStatementToDiploLog(ePlayer, eStatement);
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 
 /// Anyone we want to chat with?
 void CvDiplomacyAI::DoContactMinorCivs()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID());
 	// If the player has deleted the DIPLOMACY Flavor we have to account for that
 	int iDiplomacyFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 	int iGoldFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
@@ -12538,6 +12570,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 
 void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivApproachTypes eApproach)
@@ -15142,10 +15175,19 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 {
 	if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 	{
-		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
-		const char* szText = GetGreetHumanMessage(eAnimation);
+		// JdH => go into the deal, if there is anything proposed
+		PlayerTypes eTo = GC.getGame().getActivePlayer();
+		CvPlayer& kTo = GET_PLAYER(eTo);
+		CvDiplomacyRequests* pRequests = kTo.GetDiplomacyRequests();
+		pRequests->ActivateAllFrom(GetPlayer()->GetID());
+		if (!pRequests->HasActiveRequest())
+		{
+			LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
+			const char* szText = GetGreetHumanMessage(eAnimation);
 
-		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_DEFAULT_ROOT, szText, eAnimation);
+			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_DEFAULT_ROOT, szText, eAnimation);
+		}
+		// JdH <=
 	}
 }
 
@@ -16378,6 +16420,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, eMyPlayer, eFromPlayer, eEvent, iArg1, iArg2);
 	switch(eEvent)
 	{
 		// *********************************************
@@ -17658,6 +17701,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		CvAssert(false);
 		break;
 	}
+	JDHLOG_FUNC_END();
 }
 
 /// Is the AI acting mean to the active human player?
@@ -20978,15 +21022,9 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 		// Message for human
 		if(iChange > 0)
 		{
-			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-			{
-				if(GC.getGame().getActivePlayer() == ePlayer)
-				{
-					GC.GetEngineUserInterface()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
-					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_RETURNED_CIVILIAN);
-					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
-				}
-			}
+			const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_RETURNED_CIVILIAN);
+			// TODO: what about GC.GetEngineUserInterface()->SetForceDiscussionModeQuitOnBack(true)?
+			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE, -1);
 		}
 	}
 }
@@ -22258,7 +22296,7 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
 
 
 /// Helper function: is this a valid player to be looking at?  (e.g. are they alive, do we know them, etc.)
-bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid)
+bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false */)
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22416,6 +22454,37 @@ int CvDiplomacyAI::GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploState
 					// Now break out, otherwise we'll find later entries and think it's been longer since we sent something than it really has been!
 					break;
 				}
+			}
+		}
+	}
+
+	return iMostRecentTurn;
+}
+/// How long has it been since we sent something?
+int CvDiplomacyAI::GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	int iMostRecentTurn = MAX_TURNS_SAFE_ESTIMATE;
+
+	int iLoopTurnNum;
+	DiploStatementTypes eLoopStatement;
+
+	for (int iI = 0; iI < MAX_DIPLO_LOG_STATEMENTS; iI++)
+	{
+		eLoopStatement = GetDiploLogStatementTypeForIndex(ePlayer, iI);
+
+		if (eLoopStatement != NO_DIPLO_STATEMENT_TYPE)
+		{
+			iLoopTurnNum = GetDiploLogStatementTurnForIndex(ePlayer, iI);
+
+			if (iMostRecentTurn == MAX_TURNS_SAFE_ESTIMATE || iLoopTurnNum > iMostRecentTurn)
+			{
+				iMostRecentTurn = iLoopTurnNum;
+
+				// Now break out, otherwise we'll find later entries and think it's been longer since we sent something than it really has been!
+				break;
 			}
 		}
 	}
@@ -26173,6 +26242,7 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 	}
 }
 
+#if 0 // JdH => not needed anymore
 //	-------------------------------------------------------------------------------------
 //	Returns true if the target is valid to show a UI to immediately.
 //	This will return true if the source and destination are both AI.
@@ -26187,6 +26257,7 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 
 	return false;
 }
+#endif
 
 
 FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)

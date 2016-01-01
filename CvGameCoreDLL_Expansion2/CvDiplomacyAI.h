@@ -51,13 +51,7 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
-	enum DiplomacyPlayerType
-	{
-	    DIPLO_FIRST_PLAYER		=  0,
-	    DIPLO_ALL_PLAYERS		= -1,
-	    DIPLO_AI_PLAYERS		= -2,
-	    DIPLO_HUMAN_PLAYERS		= -3
-	};
+	// JdH => moved DiplomacyPlayerType to CvEnums (for JDHLOG)
 
 	struct MinorGoldGiftInfo
 	{
@@ -1031,6 +1025,7 @@ public:
 	void ChangeDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iChange);
 
 	int GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploLogStatement);
+	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer);
 
 	// Minor Civ Log
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
@@ -1068,7 +1063,9 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
+#if 0 // JdH => not needed anymore
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
+#endif // JdH <=
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
@@ -1276,7 +1273,7 @@ private:
 		char m_aiOtherPlayerNumProtectedMinorsBullied[MAX_MAJOR_CIVS];
 
 		short m_aiOtherPlayerTurnsSinceSidedWithTheirProtectedMinor[MAX_MAJOR_CIVS];
-		
+
 		char m_aiOtherPlayerNumMinorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMinorsConquered[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
@@ -1324,6 +1321,10 @@ private:
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+
+		// JdH =>
+		float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
+		// JdH >=
 	};
 	DiplomacyAIData* m_pDiploData;
 
@@ -1538,15 +1539,17 @@ private:
 
 	// Other
 
-	typedef std::vector<PlayerTypes> PlayerTypesArray;
-	PlayerTypesArray	m_aGreetPlayers;
-
 	PlayerTypes			m_eTargetPlayer;
 
 	// Data members for injecting test messages
 	PlayerTypes			m_eTestToPlayer;
 	DiploStatementTypes m_eTestStatement;
 	int					m_iTestStatementArg1;
+
+
+	// JdH =>
+	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight);
+	// JdH <=
 };
 
 namespace CvDiplomacyAIHelpers

@@ -80,10 +80,9 @@ void CvDiplomacyRequests::Init(PlayerTypes ePlayer)
 void CvDiplomacyRequests::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
-	m_eNextAIPlayer = NO_PLAYER;
 	m_aRequests.clear();
 	m_bRequestActive = false;
-	m_bRequestActiveFromPlayer = NO_PLAYER;
+	m_eRequestActiveFromPlayer = NO_PLAYER;
 }
 
 /// Serialization read
@@ -130,18 +129,47 @@ void CvDiplomacyRequests::Write(FDataStream& kStream) const
 /// Update - called from within CvPlayer
 void CvDiplomacyRequests::Update(void)
 {
+	if (HasActiveRequest()) return;
+
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 	// If we are active, send out the requests
-	if(m_aRequests.size() && m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
+	if (m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
 	{
-		CvDiplomacyRequests::Request& kRequest = m_aRequests.front();
-
-		// Make sure the player this is from is still alive.
-		if(kRequest.m_eFromPlayer != NO_PLAYER && GET_PLAYER(kRequest.m_eFromPlayer).isAlive())
+		// JdH => handle requests from one player first...
+		if (m_eRequestActiveFromPlayer != NO_PLAYER)
 		{
-			Send(kRequest.m_eFromPlayer, kRequest.m_eDiploType, kRequest.m_strMessage, kRequest.m_eAnimationType, kRequest.m_iExtraGameData);
+			for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+			{
+				if (iter->m_eFromPlayer == m_eRequestActiveFromPlayer)
+				{
+					if (iter->m_iLookupIndex >= 0)
+					{
+						Activate(iter->m_iLookupIndex);
+					}
+					else
+					{
+						Activate(*iter);
+						m_aRequests.erase(iter);
+					}
+					if (HasActiveRequest()) return; // keep searching if we only found invalid requests...
+				}
+			}
+			m_eRequestActiveFromPlayer = NO_PLAYER;
 		}
-		m_aRequests.pop_front();
+		// JdH <=
+		if (m_aRequests.size() && !GC.getGame().isNetworkMultiPlayer())
+		{
+			CvDiplomacyRequests::Request& kRequest = m_aRequests.front();
+
+			// Make sure the player this is from is still alive.
+			if (kRequest.m_eFromPlayer != NO_PLAYER && GET_PLAYER(kRequest.m_eFromPlayer).isAlive())
+			{
+				// JdH => activate makes sure a deal is loaded, if necessary
+				Activate(kRequest);
+				// JdH <=
+			}
+			m_aRequests.pop_front();
+		}
 	}
 }
 
@@ -149,20 +177,37 @@ void CvDiplomacyRequests::Update(void)
 //	Called from within CvPlayer at the beginning of the turn
 void CvDiplomacyRequests::BeginTurn(void)
 {
-	m_eNextAIPlayer = (PlayerTypes)0;
+	// JdH => change requests to notifications in network MP
+	if (GC.getGame().isNetworkMultiPlayer()) // TODO: only if simultaneous turns?
+	{
+		CvPlayer& kTo = GET_PLAYER(m_ePlayer);
+		CvNotifications* pNotifications = kTo.GetNotifications();
+		for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+		{
+			if (iter->m_iLookupIndex < 0)
+			{
+				CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
+				CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
+				iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
+			}
+		}
+	}
+	// JdH <=
 }
 
 //	----------------------------------------------------------------------------
 //	Called from within CvPlayer at the end of turn
 void CvDiplomacyRequests::EndTurn(void)
 {
-	m_eNextAIPlayer = NO_PLAYER;
+
 }
 
 //	----------------------------------------------------------------------------
-/// Adds a new notification to the list
+/// Adds a new request to the list
 bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO, m_ePlayer, eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+
 	// Queue it up
 	m_aRequests.push_back(Request());
 	Request& newRequest = m_aRequests.back();
@@ -175,26 +220,98 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 	newRequest.m_eAnimationType = eAnimationType;
 	newRequest.m_iTurn = GC.getGame().getGameTurn();
 
+	BeginTurn(); // this adds notifications, if necessary
+	Update(); // this activates requests if appropriate
+
+	JDHLOG(jdh::INFO, "m_aRequests.size(): ", static_cast<int>(m_aRequests.size()));
+	JDHLOG_FUNC_END(true);
 	return true;
 }
+// JdH => new request functions
+/// helper function, to determine diplo types that coop with deals
+inline bool isDealDiploType(DiploUIStateTypes eDiploType)
+{
+	return eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
+		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
+		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST;
+}
+
+//	----------------------------------------------------------------------------
+//	remove a request. Used by CvNotifications::Dismiss()
+void CvDiplomacyRequests::Remove(int iLookupIndex)
+{
+	for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	{
+		if (iter->m_iLookupIndex == iLookupIndex)
+		{
+			// remove potential deals...
+			if (isDealDiploType(iter->m_eDiploType))
+				GC.getGame().GetGameDeals()->FinalizeDeal(iter->m_eFromPlayer, m_ePlayer, false);
+			m_aRequests.erase(iter);
+			break;
+		}
+	}
+}
+void CvDiplomacyRequests::Activate(CvDiplomacyRequests::Request& kRequest)
+{
+	JDHLOG_FUNC_BEGIN(jdh::INFO, m_ePlayer, kRequest.m_eFromPlayer, kRequest.m_eDiploType);
+	if (isDealDiploType(kRequest.m_eDiploType))
+	{
+		CvDeal* pkDeal = GC.getGame().GetGameDeals()->GetProposedDeal(kRequest.m_eFromPlayer, m_ePlayer);
+		if (pkDeal)
+		{
+			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
+			DLLUI->SetScratchDeal(pDeal.get());
+			// we are using the scratch deal from now on, delete the proposed deal...
+			GC.getGame().GetGameDeals()->FinalizeDeal(kRequest.m_eFromPlayer, m_ePlayer, false);
+		}
+		else
+		{
+			JDHLOG(jdh::WARNING, "No Deal found!");
+			JDHLOG_FUNC_END();
+			return;
+		}
+	}
+
+	Send(kRequest.m_eFromPlayer, kRequest.m_eDiploType, kRequest.m_strMessage, kRequest.m_eAnimationType, kRequest.m_iExtraGameData);
+	JDHLOG_FUNC_END();
+}
+void CvDiplomacyRequests::Activate(int iLookupIndex)
+{
+	CvAssert(iLookupIndex >= 0);
+	CvAssert(m_ePlayer == GC.getGame().getActivePlayer());
+	for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	{
+		if (iter->m_iLookupIndex == iLookupIndex)
+		{
+			Activate(*iter);
+		}
+	}
+	// cleanup notification & request:
+	GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iLookupIndex, false);
+}
+//	----------------------------------------------------------------------------
+void CvDiplomacyRequests::ActivateAllFrom(PlayerTypes eFromPlayer)
+{
+	CvAssertMsg(!HasActiveRequest(), "There should not be any active requests, if the player was able to start Diplomacy with AI ...");
+	m_eRequestActiveFromPlayer = eFromPlayer;
+	Update();
+}
+// JdH <=
 //	----------------------------------------------------------------------------
 //	Send the request immediately
 void CvDiplomacyRequests::Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_ePlayer, eFromPlayer, pszMessage, eAnimationType, iExtraGameData);
+	// JdH => disable leader root for human players (meeting, denouncing etc...)
+	if (GET_PLAYER(eFromPlayer).isHuman())
+	{
+		eDiploType = DIPLO_UI_STATE_BLANK_DISCUSSION;
+	}
 	gDLL->GameplayDiplomacyAILeaderMessage(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-	m_bRequestActiveFromPlayer = eFromPlayer;
+	m_eRequestActiveFromPlayer = eFromPlayer;
 	m_bRequestActive = true;
-}
-
-//	----------------------------------------------------------------------------
-PlayerTypes CvDiplomacyRequests::GetNextAIPlayer() const
-{
-	return m_eNextAIPlayer;
-}
-//	----------------------------------------------------------------------------
-void CvDiplomacyRequests::SetNextAIPlayer(PlayerTypes eNextPlayer)
-{
-	m_eNextAIPlayer = eNextPlayer;
+	JDHLOG_FUNC_END();
 }
 
 //	----------------------------------------------------------------------------
@@ -212,7 +329,7 @@ bool CvDiplomacyRequests::HasActiveRequest() const
 //	----------------------------------------------------------------------------
 bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 {
-	return m_bRequestActive && m_bRequestActiveFromPlayer == eFromPlayer;
+	return m_bRequestActive && m_eRequestActiveFromPlayer == eFromPlayer;
 }
 
 //	----------------------------------------------------------------------------
@@ -222,18 +339,24 @@ bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 // static
 void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+
+	if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
+	{
+		// we are in network multiplayer, but not the active player => don't add the request
+		JDHLOG_FUNC_END("", eToPlayer, " not the active player!");
+		return;
+	}
+
 	CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
 	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
 	if(pkDiploRequests)
 	{
-		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
-		{
-			// Target is the active player, just send it right now
-			pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-		}
-		else
-			pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+		// JdH => add now handles everything, from direct sending to adding notifications...
+		pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+		// JdH <=
 	}
+	JDHLOG_FUNC_END();
 }
 
 //	----------------------------------------------------------------------------
@@ -241,71 +364,39 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //static
 void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
 {
-	// Deals must currently happen on the active player's turn...
-	if(GC.getGame().getActivePlayer() == eToPlayer)
+	CvAssert(eFromPlayer != NO_PLAYER);
+	CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), __FUNCTION__ " must not be used by a human player!");
+
+
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, CvString::format("deal: 0x08X", pkDeal));
+
+	if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
 	{
-		auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
-		GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
-		SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
-	}
-}
-
-//	---------------------------------------------------------------------------
-//	Have all the AIs do a diplomacy evaluation with the supplied player.
-//	Please note that the destination player may not be the active player.
-//	static
-void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
-{
-	if(eTargetPlayer != NO_PLAYER)
-	{
-		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
-		// WARNING: Processing depends on the state of the interface!
-		CvAssert(!CvPreGame::isNetworkMultiplayerGame());
-
-		// Don't process while a modal dialog is up or another diplo or popup is up.
-		if(pkIFace->IsModalStackEmpty() && !pkIFace->isDiploOrPopupWaiting() && !pkIFace->isCityScreenUp())
-		{
-			CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes) eTargetPlayer);
-			CvDiplomacyRequests* pkTargetRequests = kTargetPlayer.GetDiplomacyRequests();
-			if(pkTargetRequests)
-			{
-				if(!pkTargetRequests->HasPendingRequests())
-				{
-					PlayerTypes ePlayerLoop = pkTargetRequests->GetNextAIPlayer();
-					if(ePlayerLoop != NO_PLAYER)
-					{
-						int iMaxCivPlayers = MAX_CIV_PLAYERS;
-						while((int)ePlayerLoop < iMaxCivPlayers)
-						{
-							CvPlayer& kPlayer = GET_PLAYER(ePlayerLoop);
-
-							if(eTargetPlayer != ePlayerLoop && kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
-							{
-								kPlayer.GetDiplomacyAI()->DoTurn(eTargetPlayer);
-								if(pkTargetRequests->HasPendingRequests())
-								{
-									ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);
-									break;
-								}
-							}
-
-							ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);
-						}
-
-						pkTargetRequests->SetNextAIPlayer((((int)ePlayerLoop >= iMaxCivPlayers)?NO_PLAYER:ePlayerLoop));
-					}
-				}
-			}
-		}
+		// we are in network multiplayer, but not the active player => don't add the request
+		JDHLOG_FUNC_END("", eToPlayer, " not the active player!");
+		return;
 	}
 
+	CvPlayer& kTo = GET_PLAYER(eToPlayer);
+	CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
+	if (pDiploRequests && pkDeal)
+	{
+		CvAssert(isDealDiploType(eDiploType));
+		GC.getGame().GetGameDeals()->AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
+		pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
+	}
+
+	JDHLOG_FUNC_END();
 }
 
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActiveRequestComplete()
 {
+	JDHLOG(jdh::DEBUG, __FILE__ "::" __FUNCTION__ "();");
 	m_bRequestActive = false;
-	m_bRequestActiveFromPlayer = NO_PLAYER;
+	// JdH => don't reset, because it is used in update()
+	//m_eRequestActiveFromPlayer = NO_PLAYER;
+	// JdH <=
 }
 
 //	---------------------------------------------------------------------------

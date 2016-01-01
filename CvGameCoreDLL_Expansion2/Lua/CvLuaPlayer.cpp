@@ -12,7 +12,7 @@
 //!		This file includes the implementation for a Lua Player instance.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include <CvGameCoreDLLPCH.h>
+#include "CvGameCoreDLLPCH.h"
 #include "CvLuaSupport.h"
 #include "CvLuaCity.h"
 #include "CvLuaPlayer.h"
@@ -29,7 +29,7 @@
 #include "CvDllInterfaces.h"
 
 // include this last to turn warnings into errors for code analysis
-#include "LintFree.h"
+#include "FireWorks\LintFree.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\

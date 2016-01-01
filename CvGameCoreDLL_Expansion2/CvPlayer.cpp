@@ -4037,6 +4037,7 @@ ArtStyleTypes CvPlayer::getArtStyleType() const
 //	---------------------------------------------------------------------------
 void CvPlayer::doTurn()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_eID);
 	// Time building of these maps
 	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayer::doTurn(), Turn %d, %s", GC.getGame().getGameTurn(), getCivilizationShortDescription()));
 
@@ -4067,7 +4068,7 @@ void CvPlayer::doTurn()
 		ChangeNumMayaBoosts(1);
 	}
 
-	bool bHasActiveDiploRequest = false;
+	bool bHasActiveDiploRequest = false; // TODO: fixme!!!
 	if(isAlive())
 	{
 		if(!isBarbarian())
@@ -4077,17 +4078,15 @@ void CvPlayer::doTurn()
 				GetTrade()->DoTurn();
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
-				if(GC.getGame().isHotSeat() && !isHuman())
-				{
-					// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
-					// Diplomacy toward a human is done at the beginning of the humans turn.
-					GetDiplomacyAI()->DoTurn((PlayerTypes)CvDiplomacyAI::DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
-				}
-				else
-					GetDiplomacyAI()->DoTurn((PlayerTypes)CvDiplomacyAI::DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
-
-				if (!isHuman())
-					bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+				// JdH => do diplomacy
+				// Note: There is no need for DIPLO_AI_PLAYERS in Multiplayer anymore.
+				// AI to AI diplomacy is handled first, then the AI to human diplomacy is processed.
+				// If an AI has a request for a human, it sends a notification. The request is processed as the human wishes.
+				// IMPORTANT: this changes singleplayer and hotseat behavior (and obviously mp):
+				// An AI in hotseat can now only send one request to a single player a turn.
+				// An AI in singleplayer will not have it's requests processed "in turn" anymore.
+				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
+				// JdH <=
 			}
 		}
 	}
@@ -4097,7 +4096,7 @@ void CvPlayer::doTurn()
 
 	if( (bHasActiveDiploRequest || GC.GetEngineUserInterface()->isDiploActive()) && !GC.getGame().isGameMultiPlayer() && !isHuman())
 	{
-		GC.getGame().SetWaitingForBlockingInput(m_eID);
+		GC.getGame().SetWaitingForBlockingInput(m_eID); // TODO: fixme!
 	}
 	else
 	{
@@ -4115,11 +4114,13 @@ void CvPlayer::doTurn()
 	}
 
 	m_kPlayerAchievements.StartTurn();
+	JDHLOG_FUNC_END();
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::doTurnPostDiplomacy()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_eID);
 	CvGame& kGame = GC.getGame();
 
 	if(isAlive())
@@ -4286,6 +4287,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 
 	AI_doTurnPost();
+	JDHLOG_FUNC_END();
 }
 
 //	--------------------------------------------------------------------------------
@@ -15784,6 +15786,7 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
 //	--------------------------------------------------------------------------------
 void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetID(), isTurnActive(), bNewValue, bDoTurn);
 	if(isTurnActive() != bNewValue)
 	{
 		m_bTurnActive = bNewValue;
@@ -15952,6 +15955,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		logOutput.Format("SetTurnActive() called without changing the end turn status. Player(%i) OldTurnActive(%i) NewTurnActive(%i)", GetID(), isTurnActive(), bNewValue);
 		gDLL->netMessageDebugLog(logOutput);
 	}
+	JDHLOG_FUNC_END();
 }
 
 //	----------------------------------------------------------------------------

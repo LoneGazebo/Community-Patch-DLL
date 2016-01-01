@@ -405,7 +405,9 @@ bool CvDllPlayer::MayNotAnnex()
 //------------------------------------------------------------------------------
 bool CvDllPlayer::AddDiplomacyRequest(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData)
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO, ePlayerID, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 	return m_pPlayer->GetDiplomacyRequests()->Add(ePlayerID, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+	JDHLOG_FUNC_END();
 }
 //------------------------------------------------------------------------------
 void CvDllPlayer::ActiveDiplomacyRequestComplete()
@@ -425,7 +427,9 @@ void CvDllPlayer::ActivateNotification(int iLookupIndex)
 //------------------------------------------------------------------------------
 void CvDllPlayer::DismissNotification(int iLookupIndex, bool bUserInvoked)
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO, iLookupIndex, bUserInvoked);
 	m_pPlayer->GetNotifications()->Dismiss(iLookupIndex, bUserInvoked);
+	JDHLOG_FUNC_END();
 }
 //------------------------------------------------------------------------------
 bool CvDllPlayer::MayUserDismissNotification(int iLookupIndex)

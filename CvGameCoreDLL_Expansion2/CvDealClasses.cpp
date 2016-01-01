@@ -1987,8 +1987,10 @@ void CvGameDeals::Init()
 }
 
 /// Save off a new deal that has been agreed to
+/// JdH: rather seems to me that AddProposedDeal does what it sounds like, and not what the comment above tells...
 void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, kDeal.GetFromPlayer(), kDeal.GetToPlayer());
 	// Store Deal away
 	m_ProposedDeals.push_back(kDeal);
 
@@ -1998,12 +2000,14 @@ void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 	{
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
+	JDHLOG_FUNC_END();
 }
 
 
 /// Moves a deal from the proposed list to the active one (returns FALSE if deal not found)
 bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, eFromPlayer, eToPlayer, bAccepted);
 	DealList::iterator dealIt;
 	CvDeal kDeal;
 	bool bFoundIt = false;
@@ -2017,52 +2021,40 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		{
 			kDeal = *dealIt;
 
-// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
-//			m_ProposedDeals.erase(dealIt);
+			// JdH => slight perfomance improvement
+			m_ProposedDeals.erase(dealIt); // we can use this function, if we reduce the iterator (as it gets increased again)
+			--dealIt; // the iterator is a plain data pointer, so we can just decrease it.
+			// JdH <=
 			bFoundIt = true;
+
+			// how about we break here? If we want the last deal in here (why should there be more than one?) we could just reverse iterate. --- JdH
+			// Update: No break here, because PvP deals can cause multiple deals and we need to pick the latest.
 		}
 	}
 
-	if(bFoundIt)
-	{
+	JDHLOG(jdh::DEBUG, "bFountIt = ", bFoundIt);
 
+	if(bFoundIt && bAccepted) // no need for this if deal is canceled... --- jdh
+	{
 		TradedItemList::iterator iter;
-		for(iter = kDeal.m_TradedItems.begin(); iter != kDeal.m_TradedItems.end(); ++iter)
+		for (iter = kDeal.m_TradedItems.begin(); iter != kDeal.m_TradedItems.end(); ++iter)
 		{
-			if(iter->m_bToRenewed)  // slewis - added exception in case of something that was renewed
+			if (iter->m_bToRenewed)  // slewis - added exception in case of something that was renewed
 			{
+				JDHLOG(jdh::DEBUG, "iter->m_bToRenewed = ", iter->m_bToRenewed, " ( ", iter->m_eFromPlayer, iter->m_eItemType, " )");
 				continue;
 			}
 
-			if(!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
+			if (!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
 			{
 				// mark that the deal is no longer valid. We will still delete the deal but not commit its actions
+				JDHLOG(jdh::DEBUG, "deal not valid.");
 				bValid = false;
 				break;
 			}
 		}
 
-
-		// **** START HACK ****
-		// EFB: temporary delete method; recopy vector without this element
-		//
-		// Copy the deals into a temporary container
-		DealList tempDeals;
-		for(dealIt = m_ProposedDeals.begin(); dealIt != m_ProposedDeals.end(); ++dealIt)
-		{
-			tempDeals.push_back(*dealIt);
-		}
-
-		// Copy back in minus this element
-		m_ProposedDeals.clear();
-		for(dealIt = tempDeals.begin(); dealIt != tempDeals.end(); ++dealIt)
-		{
-			if(dealIt->m_eFromPlayer != eFromPlayer || dealIt->m_eToPlayer != eToPlayer)
-			{
-				m_ProposedDeals.push_back(*dealIt);
-			}
-		}
-		// **** END HACK ****
+		JDHLOG(jdh::DEBUG, "Deal valid: ", bValid);
 
 
 		if(bValid && bAccepted)
@@ -2332,7 +2324,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 	}
-
+	JDHLOG_FUNC_END(bFoundIt && bValid);
 	return bFoundIt && bValid;
 }
 
@@ -2667,22 +2659,30 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 	}
 }
 
-void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
+// JdH => added eTargetPlayers parameter to be able to control proposed deal removal
+void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyPlayerType eTargetPlayers)
 {//Cancel all proposed deals involving eCancelPlayer.
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
-		{//deal from eCancelPlayer
-			FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
-		}
-		if(GetProposedDeal(eLoopPlayer, eCancelPlayer))
-		{//deal to eCancelPlayer
-			FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
+		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (   (eTargetPlayers == DIPLO_AI_PLAYERS && !kLoopPlayer.isHuman())
+			|| (eTargetPlayers == DIPLO_ALL_PLAYERS)
+			|| (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
+		{
+			if (GetProposedDeal(eCancelPlayer, eLoopPlayer))
+			{//deal from eCancelPlayer
+				FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
+			}
+			if (GetProposedDeal(eLoopPlayer, eCancelPlayer))
+			{//deal to eCancelPlayer
+				FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
+			}
 		}
 	}
 }
+// JdH <=
 
 /// End a TradedItem (if it's an ongoing item)
 void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled)

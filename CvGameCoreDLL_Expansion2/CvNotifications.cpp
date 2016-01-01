@@ -13,6 +13,7 @@
 #include "ICvDLLUserInterface.h"
 #include "CvEnumSerialization.h"
 #include "CvDllPlot.h"
+#include "CvDiplomacyRequests.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -355,6 +356,7 @@ void CvNotifications::Update(void)
 // EndOfTurnCleanup - called from within CvPlayer at the end of turn
 void CvNotifications::EndOfTurnCleanup(void)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_ePlayer);
 	int iIndex = m_iNotificationsBeginIndex;
 	while(iIndex != m_iNotificationsEndIndex)
 	{
@@ -376,6 +378,7 @@ void CvNotifications::EndOfTurnCleanup(void)
 			iIndex = 0;
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 
 /// Adds a new notification to the list
@@ -401,6 +404,7 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 	if(GC.getGame().isDebugMode())
 		return -1;
 
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_ePlayer, eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 
 	Notification newNotification;
 	newNotification.Clear();
@@ -426,6 +430,7 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 	if(IsNotificationRedundant(newNotification))
 	{
 		// redundant notification
+		JDHLOG_FUNC_END(-1);
 		return -1;
 	}
 
@@ -470,6 +475,7 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 
 	m_iCurrentLookupIndex++;
 
+	JDHLOG_FUNC_END(newNotification.m_iLookupIndex, m_iCurrentLookupIndex, m_iNotificationsEndIndex);
 	return newNotification.m_iLookupIndex;
 }
 
@@ -493,8 +499,9 @@ void CvNotifications::Activate(int iLookupIndex)
 }
 
 //	---------------------------------------------------------------------------
-void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
+void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked) // TODO: improve performance by using iIndex instead of lookupIndex! --- JdH
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_ePlayer, iLookupIndex, bUserInvoked);
 	int iIndex = m_iNotificationsBeginIndex;
 	while(iIndex != m_iNotificationsEndIndex)
 	{
@@ -511,7 +518,19 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				{
 					GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 				}
+				break;
 			}
+			// JdH =>
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+			{
+				if (m_aNotifications[iIndex].m_iY == -2 /* request hack */)
+				{
+					JDHLOG(jdh::INFO, m_ePlayer, ": Dismiss diplo request notification (from: ", m_aNotifications[iIndex].m_ePlayerID, "; m_iLookupIndex: ", m_aNotifications[iIndex].m_iLookupIndex, ")");
+					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
+				}
+				break;
+			}
+			// JdH <=
 			default:
 				break;
 			}
@@ -525,6 +544,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 			iIndex = 0;
 		}
 	}
+	JDHLOG_FUNC_END();
 }
 
 //	---------------------------------------------------------------------------
@@ -799,6 +819,8 @@ bool CvNotifications::IsNotificationDismissed(int iZeroBasedIndex)
 
 void CvNotifications::Activate(Notification& notification)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, m_ePlayer, notification.m_eNotificationType, notification.m_iX, notification.m_iY, notification.m_strSummary);
+
 	GC.GetEngineUserInterface()->ActivateNotification(notification.m_iLookupIndex, notification.m_eNotificationType, notification.m_strMessage, notification.m_iX, notification.m_iY, notification.m_iGameDataIndex, notification.m_iExtraGameData, m_ePlayer);
 
 	gDLL->GameplayMinimapNotification(notification.m_iX, notification.m_iY, notification.m_iLookupIndex+1);	// The index is used to uniquely identify each flashing dot on the minimap. We're adding 1 since the selected unit is always 0. It ain't pretty, but it'll work
@@ -929,7 +951,22 @@ void CvNotifications::Activate(Notification& notification)
 	break;
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
-		GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
+		// JdH => we need to switch behaviour for AI vs Human players.
+		PlayerTypes eFrom = static_cast<PlayerTypes>(notification.m_iX);
+		CvPlayer& kFrom = GET_PLAYER(eFrom);
+		if (kFrom.isHuman() && notification.m_iY != -2 /* request hack */)
+		{
+			// Keep old PvP notification behaviour
+			GC.GetEngineUserInterface()->OpenPlayerDealScreen(eFrom);
+		}
+		else
+		{
+			// This request was sent by an AI.
+			PlayerTypes eTo = notification.m_ePlayerID;
+			CvPlayer& kTo = GET_PLAYER(eTo);
+			kTo.GetDiplomacyRequests()->Activate(notification.m_iLookupIndex);
+		}
+		// JdH <=
 	}
 	break;
 	case NOTIFICATION_FREE_GREAT_PERSON:
@@ -1116,6 +1153,7 @@ void CvNotifications::Activate(Notification& notification)
 	}
 	break;
 	}
+	JDHLOG_FUNC_END();
 }
 
 //	---------------------------------------------------------------------------
@@ -1655,10 +1693,17 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvGame& game = GC.getGame();
 		CvGameDeals* pDeals = game.GetGameDeals();
 
-		if(!pDeals->ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
+		// JdH =>
+		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+		if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
+		{
+			return false;
+		}
+		else if (!pDeals->ProposedDealExists(eFrom, m_ePlayer))
 		{
 			return true;
 		}
+		// JdH <=
 	}
 	break;
 	case NOTIFICATION_DEMAND_RESOURCE:
@@ -1913,6 +1958,7 @@ bool CvNotifications::IsArrayFull()
 //	---------------------------------------------------------------------------
 void CvNotifications::RemoveOldestNotification()
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO);
 	// if the notification is somehow active, dismiss it
 	if(!m_aNotifications[m_iNotificationsBeginIndex].m_bDismissed)
 	{
@@ -1920,6 +1966,7 @@ void CvNotifications::RemoveOldestNotification()
 	}
 	m_aNotifications[m_iNotificationsBeginIndex].Clear();
 	IncrementBeginIndex();
+	JDHLOG_FUNC_END();
 }
 
 void CvNotifications::IncrementBeginIndex()

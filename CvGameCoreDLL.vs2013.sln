@@ -1,23 +1,43 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 13.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CvGameCoreDLL", "CvGameCoreDLL\CvGameCoreDLL.vs2013.vcxproj", "{E323AF8E-688B-4ED7-BA84-269D8F3AAE2D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CvGameCoreDLL_Expansion1", "CvGameCoreDLL_Expansion1\CvGameCoreDLL_Expansion1.vs2013.vcxproj", "{BA66E125-88D7-48AF-8CCF-F4F1901040AE}"
-EndProject
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CvGameCoreDLL_Expansion2", "CvGameCoreDLL_Expansion2\CvGameCoreDLL_Expansion2.vs2013.vcxproj", "{F58F230D-EE4A-40E0-91D5-93626E790055}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D050935C-BC3B-4C7B-BE94-56770B0B0F95}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JdH Lib", "JdH Lib\JdH Lib.vcxproj", "{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Mod|Win32 = Mod|Win32
+		Assert|Win32 = Assert|Win32
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		ReleaseAssert|Win32 = ReleaseAssert|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E323AF8E-688B-4ED7-BA84-269D8F3AAE2D}.Mod|Win32.ActiveCfg = Mod|Win32
-		{E323AF8E-688B-4ED7-BA84-269D8F3AAE2D}.Mod|Win32.Build.0 = Mod|Win32
-		{BA66E125-88D7-48AF-8CCF-F4F1901040AE}.Mod|Win32.ActiveCfg = Mod|Win32
-		{BA66E125-88D7-48AF-8CCF-F4F1901040AE}.Mod|Win32.Build.0 = Mod|Win32
-		{F58F230D-EE4A-40E0-91D5-93626E790055}.Mod|Win32.ActiveCfg = Mod|Win32
-		{F58F230D-EE4A-40E0-91D5-93626E790055}.Mod|Win32.Build.0 = Mod|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Assert|Win32.ActiveCfg = Assert|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Assert|Win32.Build.0 = Assert|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Debug|Win32.Build.0 = Debug|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Release|Win32.ActiveCfg = Release|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Release|Win32.Build.0 = Release|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.ReleaseAssert|Win32.ActiveCfg = ReleaseAssert|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.ReleaseAssert|Win32.Build.0 = ReleaseAssert|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Assert|Win32.ActiveCfg = Assert|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Assert|Win32.Build.0 = Assert|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Debug|Win32.Build.0 = Debug|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Release|Win32.ActiveCfg = Release|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.Release|Win32.Build.0 = Release|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.ReleaseAssert|Win32.ActiveCfg = ReleaseAssert|Win32
+		{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}.ReleaseAssert|Win32.Build.0 = ReleaseAssert|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

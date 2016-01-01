@@ -146,10 +146,14 @@ void CvDllGameContext::InitializeSingleton()
 
 	}
 	s_pSingleton = FNEW(CvDllGameContext(), c_eCiv5GameplayDLL, 0);
+
+	JDHLOG(jdh::INFO, "Atached GameCoreDll v. ", s_pSingleton->GetDLLVersion());
 }
 //------------------------------------------------------------------------------
 void CvDllGameContext::DestroySingleton()
 {
+	JDHLOG(jdh::INFO, "Detached GameCoreDll v.", s_pSingleton->GetDLLVersion());
+
 	SAFE_DELETE(s_pSingleton);
 	HeapDestroy(s_hHeap);
 	s_hHeap = INVALID_HANDLE_VALUE;

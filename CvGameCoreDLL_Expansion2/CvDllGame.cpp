@@ -383,7 +383,9 @@ void CvDllGame::LogGameState(bool bLogHeaders)
 //------------------------------------------------------------------------------
 void CvDllGame::ResetTurnTimer()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	m_pGame->resetTurnTimer();
+	JDHLOG_FUNC_END();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::SelectAll(ICvPlot1* pPlot)
@@ -447,6 +449,7 @@ void CvDllGame::SetMPOption(MultiplayerOptionTypes eIndex, bool bEnabled)
 //------------------------------------------------------------------------------
 void CvDllGame::SetPausePlayer(PlayerTypes eNewValue)
 {
+	JDHLOG(jdh::INFO, "CvDllGame::SetPausePlayer( ", eNewValue, " );");
 	m_pGame->setPausePlayer(eNewValue);
 }
 //------------------------------------------------------------------------------

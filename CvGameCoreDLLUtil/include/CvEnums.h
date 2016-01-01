@@ -3205,4 +3205,15 @@ enum GreatWorkSlotType
 	NO_GREAT_WORK_SLOT = -1,
 };
 
+// JdH => from CvDiplomacyAI
+enum DiplomacyPlayerType
+{
+	DIPLO_FIRST_PLAYER		=  0,
+	DIPLO_ALL_PLAYERS		= -1,
+	DIPLO_AI_PLAYERS		= -2
+};
+
+#include "jdh/tostring_enums.h"
+// JdH <=
+
 #endif //CVENUMS_H

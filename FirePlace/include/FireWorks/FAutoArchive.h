@@ -29,8 +29,10 @@ class FAutoVariableBase;
 
 //---------------------------------------------------------------------------------------
 
+#if 0 // JdH: We do not have any debug libs, do we?
 #if !defined(FINAL_RELEASE)
 #define FAUTOARCHIVE_DEBUG
+#endif
 #endif
 
 class FAutoArchive

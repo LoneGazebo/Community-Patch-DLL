@@ -33,7 +33,7 @@
 #include <CvLocalization.h>
 #include <CvGameDatabase.h>
 // include this after all other headers
-#include "LintFree.h"
+#include "FireWorks\LintFree.h"
 
 
 #define GAMEPLAYXML_PATH "Gameplay\\XML\\"
@@ -114,6 +114,8 @@ void* CvDllDatabaseUtility::operator new(size_t bytes)
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::CacheGameDatabaseData()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
+
 	//Do not cache everything if we don't need to.
 	if(m_bGameDatabaseNeedsCaching == false)
 		return true;
@@ -180,17 +182,21 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
 
+	JDHLOG_FUNC_END(bSuccess);
 	return bSuccess;
 }
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::FlushGameDatabaseData()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	m_bGameDatabaseNeedsCaching = true;
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	//Insert any database methods that you would like performed after the database
 	//has been fully loaded.  This method will execute every single time the game
 	//is run.
@@ -268,11 +274,14 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 
 	db->EndTransaction();
 
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::PrefetchGameData()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
+
 	cvStopWatch kTest("PrefetchGameData", "xml-perf.log");
 
 	//Because Colors and PlayerColors are used everywhere during load
@@ -399,17 +408,23 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 
 	ValidatePrefetchProcess();
 
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::ValidateGameDatabase()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
+
 	//This function contains a suite of useful game database unit tests that will
 	//ensure the database conforms to certain unique rules of Civ5.
 	if(!gDLL->ShouldValidateGameDatabase())
 	{
 		LogMsg("*** SKIPPING Game Database Validation. ****");
 		LogMsg("You can enable it by setting 'ValidateGameDatabase = 1' in config.ini");
+		JDHLOG(jdh::DEBUG, "*** SKIPPING Game Database Validation. ****");
+		JDHLOG(jdh::DEBUG, "You can enable it by setting 'ValidateGameDatabase = 1' in config.ini");
+		JDHLOG_FUNC_END(true);
 		return true;
 	}
 
@@ -572,6 +587,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 	kPerfTest.EndPerfTest();
 	LogMsg("Validation Took %f seconds", kPerfTest.GetDeltaInSeconds());
 
+	JDHLOG_FUNC_END(!bError);
 	return !bError;
 }
 
@@ -580,6 +596,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 #define ValidateVectorSize(vec) ValidateCount(gc.##vec);
 bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	bool bError = false;
 	CvGlobals& gc = GC;
 
@@ -665,6 +682,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 		LogMsg("**** Validation Success *****");
 	}
 
+	JDHLOG_FUNC_END(!bError);
 	return !bError;
 }
 
@@ -679,7 +697,9 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 //------------------------------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::LoadGlobalDefines()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	GC.cacheGlobals();
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 
@@ -690,6 +710,7 @@ bool CvDllDatabaseUtility::LoadGlobalDefines()
 //
 bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	cvStopWatch kPerfTest("UpdatePlayableCivilizationCounts", "xml-perf.log");
 
 	int numPlayableCivilizations = 0;
@@ -712,6 +733,7 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 		GC.getNumAIPlayableCivilizationInfos() = numAIPlayableCivilizations;
 	}
 
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 
@@ -726,6 +748,7 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 //------------------------------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::SetGlobalActionInfo()
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG);
 	cvStopWatch kPerfTest("SetGlobalActionInfo", "xml-perf.log");
 	LogMsg("SetGlobalActionInfo\n");
 
@@ -959,6 +982,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 // 	SAFE_DELETE_ARRAY(piPriorityList);
 // 	SAFE_DELETE_ARRAY(piActionInfoTypeList);
 
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 

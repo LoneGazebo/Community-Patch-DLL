@@ -290,6 +290,7 @@ public:
 	};
 	void SetWaitingForBlockingInput(PlayerTypes ePlayer)
 	{
+		JDHLOG(jdh::DEBUG, "SetWaitingForBlockingInput( %i )", ePlayer);
 		m_eWaitDiploPlayer = ePlayer;
 	};
 

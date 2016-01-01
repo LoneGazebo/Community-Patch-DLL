@@ -19,6 +19,43 @@
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_JDH_ASSERT_DLG DIALOGEX 0, 0, 341, 221
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Assert Failed"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Break",IDOK,7,196,50,18
+    PUSHBUTTON      "Abort",IDABORT,284,196,50,18
+    CONTROL         " ignore always",IDC_JDH_ASSERT_IGNORE_ALLWAYS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,198,76,16
+    PUSHBUTTON      "Ignore",IDIGNORE,62,196,50,18
+    EDITTEXT        IDC_JDH_ASSERT_TEXT_1,7,7,327,185,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_JDH_ASSERT_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 334
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -38,50 +75,11 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "#include ""jdh/JdH.rc""\0"
+    "\r\n"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,0,3,0
- PRODUCTVERSION 3,0,3,1
- FILEFLAGSMASK 0x17L
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "Comments", "Use the SDK to override the default game rules"
-            VALUE "CompanyName", "Firaxis Games"
-            VALUE "FileDescription", "Game core DLL for Sid Meier's Civilization V"
-            VALUE "FileVersion", "3, 0, 3, 0"
-            VALUE "InternalName", "Sid Meier's Civilization V Game Core DLL"
-            VALUE "LegalCopyright", "Copyright (C) Firaxis Games.  All Rights Reserved."
-            VALUE "OriginalFilename", "CvGameCoreDLL.dll"
-            VALUE "ProductName", "Sid Meier's Civilization V"
-            VALUE "ProductVersion", "3, 0, 3, 1"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
-END
 
 #endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
@@ -93,7 +91,8 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "jdh/JdH.rc"
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

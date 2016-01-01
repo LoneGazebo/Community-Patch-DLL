@@ -159,6 +159,8 @@ CvGame::~CvGame()
 //	--------------------------------------------------------------------------------
 void CvGame::init(HandicapTypes eHandicap)
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO, eHandicap);
+
 	bool bValid;
 	int iStartTurn;
 	int iEstimateEndTurn;
@@ -377,11 +379,14 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvGoodyHuts::Reset();
 
 	doUpdateCacheOnTurn();
+	JDHLOG_FUNC_END();
 }
 
 //	--------------------------------------------------------------------------------
 bool CvGame::init2()
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO);
+
 	InitPlayers();
 
 	CvGameInitialItemsOverrides kItemOverrides;
@@ -402,7 +407,8 @@ bool CvGame::init2()
 
 	initScoreCalculation();
 	setFinalInitialized(true);
-
+	
+	JDHLOG_FUNC_END(true);
 	return true;
 }
 
@@ -1425,6 +1431,7 @@ void CvGame::update()
 		}
 		else
 		{
+			JDHLOG(jdh::DEBUG, "Blocking Player: ", m_eWaitDiploPlayer);
 			return;
 		}
 	}
@@ -1471,6 +1478,7 @@ void CvGame::update()
 			{
 				if(gDLL->CanAdvanceTurn())
 					doTurn();
+				else JDHLOG(jdh::DEBUG, "gDLL->CanAdvanceTurn() == FALSE!");
 			}
 
 			if(!isPaused())	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
@@ -1509,6 +1517,7 @@ void CvGame::update()
 			const CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
 			if(NO_PLAYER != activePlayerID && activePlayer.getAdvancedStartPoints() >= 0 && !GC.GetEngineUserInterface()->isInAdvancedStart())
 			{
+				JDHLOG(jdh::DEBUG, "GC.GetEngineUserInterface()->setInAdvancedStart(true);");
 				GC.GetEngineUserInterface()->setInAdvancedStart(true);
 			}
 		}
@@ -1944,8 +1953,10 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 //	-----------------------------------------------------------------------------------------------
 void CvGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, fCurTurnTime, fTurnStartTime);
 	m_curTurnTimer.StartWithOffset(fCurTurnTime);
 	m_timeSinceGameTurnStart.StartWithOffset(fTurnStartTime);
+	JDHLOG_FUNC_END();
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -4367,7 +4378,7 @@ void CvGame::setGameTurn(int iNewValue)
 	{
 		std::string turnMessage = std::string("Game Turn ") + FSerialization::toString(iNewValue) + std::string("\n");
 		gDLL->netMessageDebugLog(turnMessage);
-
+		JDHLOG(jdh::INFO, "setGameTurn: %i", iNewValue);
 		CvPreGame::setGameTurn(iNewValue);
 		CvAssert(getGameTurn() >= 0);
 
@@ -4563,12 +4574,14 @@ void CvGame::changeTurnSlice(int iChange)
 //	--------------------------------------------------------------------------------
 void CvGame::resetTurnTimer(bool resetGameTurnStart)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, resetGameTurnStart);
 	m_curTurnTimer.Start();
 	m_fCurrentTurnTimerPauseDelta = 0;
 	if(resetGameTurnStart)
 	{
 		m_timeSinceGameTurnStart.Start();
 	}
+	JDHLOG_FUNC_END();
 }
 
 //	--------------------------------------------------------------------------------
@@ -5024,6 +5037,7 @@ bool CvGame::circumnavigationAvailable() const
 /// Message from UI to gameplay about something that should happen with regards to diplomacy
 void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2)
 {
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, eEvent, eAIPlayer, iArg1, iArg2);
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -5038,6 +5052,7 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 	}
 
 	gDLL->sendFromUIDiploEvent(eAIPlayer, eEvent, iArg1, iArg2);
+	JDHLOG_FUNC_END();
 }
 
 
@@ -5692,6 +5707,7 @@ bool CvGame::isPaused()
 //	-----------------------------------------------------------------------------------------------
 void CvGame::setPausePlayer(PlayerTypes eNewValue)
 {
+	JDHLOG(jdh::DEBUG, "CvGame::setPausePlayer: ", m_ePausePlayer, " => ", eNewValue);
 	if(!isNetworkMultiPlayer())
 	{
 		// If we're not in Network MP, if the game is paused the turn timer is too.
@@ -7479,6 +7495,7 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
+	JDHLOG_FUNC_BEGIN(jdh::INFO);
 #ifndef FINAL_RELEASE
 	char temp[256];
 	sprintf_s(temp, "Turn %i\n", getGameTurn());
@@ -7503,7 +7520,9 @@ void CvGame::doTurn()
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
 
+	JDHLOG(jdh::DEBUG, "gDll->doTurn()");
 	gDLL->DoTurn();
+	JDHLOG(jdh::DEBUG, "Turn %i", getGameTurn());
 
 	CvBarbarians::BeginTurn();
 
@@ -7656,7 +7675,9 @@ void CvGame::doTurn()
 		gDLL->AutoSave(false);
 	}
 
+	JDHLOG(jdh::INFO, "gDLL->PublishNewGameTurn( %i );", getGameTurn());
 	gDLL->PublishNewGameTurn(getGameTurn());
+	JDHLOG_FUNC_END();
 }
 
 //	--------------------------------------------------------------------------------
@@ -8377,18 +8398,6 @@ void CvGame::updateTimers()
 		if(kPlayer.isAlive())
 		{
 			kPlayer.updateTimers();
-		}
-	}
-
-	if(isHotSeat())
-	{
-		// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
-		PlayerTypes eActivePlayer = getActivePlayer();
-		if(eActivePlayer != NO_PLAYER)
-		{
-			CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-			if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
-				CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
 		}
 	}
 }

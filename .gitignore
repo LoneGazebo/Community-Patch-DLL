@@ -3,3 +3,9 @@
 !*/
 !*.h
 !*.cpp
+
+#NuGet
+packages/
+!packages.config
+!.nuget/*
+.nuget/NuGet.exe
