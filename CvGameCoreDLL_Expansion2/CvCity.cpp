@@ -23897,6 +23897,11 @@ int CvCity::getBombardRange(bool& bIndirectFireAllowed) const
 bool CvCity::canRangeStrike() const
 {
 	VALIDATE_OBJECT
+	
+	// Can't shoot if it's not our turn
+	if(!GET_PLAYER(getOwner()).isTurnActive()){
+		return false;
+	}
 
 #if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Can't shoot more than once per turn
