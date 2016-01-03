@@ -1078,7 +1078,7 @@ void CvPlayerTechs::SetLocalePriorities()
 		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 		{
-			CvPlot* pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+			CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 			if(pLoopPlot != NULL)
 			{

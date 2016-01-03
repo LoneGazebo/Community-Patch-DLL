@@ -123,7 +123,7 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
-CvPlot* plotCity(int iX, int iY, int iIndex)
+CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 {
 	int iDeltaHexX = 0;
 	int iDeltaHexY = 0;
@@ -197,32 +197,20 @@ CvPlot* plotCity(int iX, int iY, int iIndex)
 }
 
 
-int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
+int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot)
 {
-	int iDX;
-	int iWrappedDX = dxWrap(pPlot->getX() - pCity->getX());
-	int iWrappedDY = dyWrap(pPlot->getY() - pCity->getY());
-	int iDY = iWrappedDY;
+	int iWrappedDX = dxWrap(pPlot->getX() - pCenter->getX());
+	int iWrappedDY = dyWrap(pPlot->getY() - pCenter->getY());
 
 	// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-	int iCityHexX = xToHexspaceX(pCity->getX(), pCity->getY());
-	int iPlotHexX = xToHexspaceX(pCity->getX() + iWrappedDX, pCity->getY() + iWrappedDY);
+	int iCenterHexX = xToHexspaceX(pCenter->getX(), pCenter->getY());
+	int iPlotHexX = xToHexspaceX(pCenter->getX() + iWrappedDX, pCenter->getY() + iWrappedDY);
 
-	iDX = dxWrap(iPlotHexX - iCityHexX);
+	int iDX = dxWrap(iPlotHexX - iCenterHexX);
+	int iDY = iWrappedDY;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	// Regardless of the working radius, we need to offset into the array by the maximum radius
-	return GC.getXYCityPlot((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
-#else
-	if(hexDistance(iDX, iDY) > CITY_PLOTS_RADIUS)
-	{
-		return -1;
-	}
-	else
-	{
-		return GC.getXYCityPlot((iDX + CITY_PLOTS_RADIUS), (iDY + CITY_PLOTS_RADIUS));
-	}
-#endif
+	return GC.getRingIterationIndexHex((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
 }
 
 static float hexspaceDirections[6][3] = { 

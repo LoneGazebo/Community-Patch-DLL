@@ -711,7 +711,7 @@ int CvLuaCity::lChooseProduction(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getCityPlotIndex(CyPlot* pPlot);
+//int getCityPlotIndex(CvPlot* pPlot);
 int CvLuaCity::lGetCityPlotIndex(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -733,7 +733,7 @@ int CvLuaCity::lGetCityIndexPlot(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canWork(CyPlot* pPlot);
+//bool canWork(CvPlot* pPlot);
 int CvLuaCity::lCanWork(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -744,23 +744,23 @@ int CvLuaCity::lCanWork(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool IsBlockaded(CyPlot* pPlot);
+//bool IsBlockaded(CvPlot* pPlot);
 int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkCity->GetCityCitizens()->IsPlotBlockaded(pkPlot);
+	const bool bResult = pkPlot->isBlockaded(pkCity->getOwner());
 
 	lua_pushboolean(L, bResult);
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
-//bool IsBlockadedTest(CyPlot* pPlot);
+//bool IsBlockadedTest(CvPlot* pPlot);
 int CvLuaCity::lIsBlockadedTest(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const bool bResult = pkCity->IsBlockadedTest();
+	const bool bResult = pkCity->IsBlockadedWaterAndLand();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3615,7 +3615,7 @@ int CvLuaCity::lSetDrafted(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lIsBlockaded(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::IsBlockaded);
+	return BasicLuaMethod(L, &CvCity::IsBlockadedWaterAndLand);
 }
 
 //------------------------------------------------------------------------------

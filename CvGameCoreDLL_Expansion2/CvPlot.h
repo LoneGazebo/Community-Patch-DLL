@@ -297,14 +297,8 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true, bool bNavalUnitsOnly=false) const;
-#else
-	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
-#endif
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	bool IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
-#endif
+	//units which can cause or lift a blockade
+	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
 
 	int getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
 
@@ -462,9 +456,7 @@ public:
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
 	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
-#endif
 
 	TerrainTypes getTerrainType() const
 	{

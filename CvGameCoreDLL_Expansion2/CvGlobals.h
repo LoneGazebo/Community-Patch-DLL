@@ -250,15 +250,16 @@ public:
 
 	inline int* getCityPlotX()
 	{
-		return m_aiCityPlotX;
+		return m_aiRingPlotXOffset;
 	}
 	inline int* getCityPlotY()
 	{
-		return m_aiCityPlotY;
+		return m_aiRingPlotYOffset;
 	}
 
 	int* getCityPlotPriority();
-	int getXYCityPlot(int i, int j);
+	int getRingIterationIndexHex(int i, int j);
+
 	DirectionTypes* getTurnLeftDirection();
 	DirectionTypes getTurnLeftDirection(int i);
 	DirectionTypes* getTurnRightDirection();
@@ -8855,15 +8856,15 @@ protected:
 	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES];
 #endif
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	int m_aiCityPlotX[MAX_CITY_PLOTS];
-	int m_aiCityPlotY[MAX_CITY_PLOTS];
+	int m_aiRingPlotXOffset[MAX_CITY_PLOTS];
+	int m_aiRingPlotYOffset[MAX_CITY_PLOTS];
 	int m_aiCityPlotPriority[MAX_CITY_PLOTS];
-	int m_aaiXYCityPlot[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1];
+	int m_aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1];
 #else
-	int m_aiCityPlotX[NUM_CITY_PLOTS];
-	int m_aiCityPlotY[NUM_CITY_PLOTS];
+	int m_aiRingPlotXOffset[NUM_CITY_PLOTS];
+	int m_aiRingPlotYOffset[NUM_CITY_PLOTS];
 	int m_aiCityPlotPriority[NUM_CITY_PLOTS];
-	int m_aaiXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
+	int m_aaiRingPlotIndex[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
 #endif
 
 	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];

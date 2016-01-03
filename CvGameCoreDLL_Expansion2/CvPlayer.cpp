@@ -7252,7 +7252,7 @@ int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
 		for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
 #endif
 		{
-			pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+			pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -9053,7 +9053,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						pLoopPlot	= plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iPopRange);
 						if(pLoopPlot != NULL)
 						{
-							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isNativeDomain(pLoopPlot))
+							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isMatchingDomain(pLoopPlot))
 							{
 								if(pNewUnit->canMoveInto(*pLoopPlot))
 								{
@@ -35437,7 +35437,7 @@ void CvPlayer::ChangeCityWorkingChange(int iChange)
 			int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
 			
 			for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-				CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+				CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 				if (pLoopPlot) {
 					pLoopPlot->changeCityRadiusCount(iChange);

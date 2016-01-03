@@ -1358,7 +1358,7 @@ int CvCitySpecializationAI::PlotValueForSpecificYield(CvPlot* pPlot, YieldTypes 
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				iPotentialYield = pLoopPlot->getYield(eYield);
@@ -1410,7 +1410,7 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything
@@ -1458,7 +1458,7 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				if(pLoopPlot->getResourceType() == NO_RESOURCE)
@@ -1528,7 +1528,7 @@ int CvCitySpecializationAI::PlotValueForCulture(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything
@@ -1587,7 +1587,7 @@ int CvCitySpecializationAI::PlotValueForFaith(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything

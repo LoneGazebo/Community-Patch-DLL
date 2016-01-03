@@ -1496,7 +1496,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes
 	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
 #endif
 	{
-		CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 
 		// Too close to map edge?
 		if(pLoopPlot == NULL)

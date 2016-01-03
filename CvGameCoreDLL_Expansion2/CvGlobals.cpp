@@ -2384,9 +2384,9 @@ void CvGlobals::init()
 
 	// these are now in hex-space coords
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	int aiCityPlotX[MAX_CITY_PLOTS] =
+	int aiRingPlotXOffset[MAX_CITY_PLOTS] =
 #else
-	int aiCityPlotX[NUM_CITY_PLOTS] =
+	int aiRingPlotXOffset[NUM_CITY_PLOTS] =
 #endif
 	{
 		//	0
@@ -2410,9 +2410,9 @@ void CvGlobals::init()
 	};
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	int aiCityPlotY[MAX_CITY_PLOTS] =
+	int aiRingPlotYOffset[MAX_CITY_PLOTS] =
 #else
-	int aiCityPlotY[NUM_CITY_PLOTS] =
+	int aiRingPlotYOffset[NUM_CITY_PLOTS] =
 #endif
 	{
 		//	0
@@ -2455,9 +2455,9 @@ void CvGlobals::init()
 	};
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	int aaiXYCityPlot[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1] =
+	int aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1] =
 #else
-	int aaiXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER] =
+	int aaiRingPlotIndex[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER] =
 #endif
 	{
 #if defined(MOD_GLOBAL_CITY_WORKING)
@@ -2579,12 +2579,12 @@ void CvGlobals::init()
 
 	memcpy(m_aiPlotDirectionX, aiPlotDirectionX, sizeof(m_aiPlotDirectionX));
 	memcpy(m_aiPlotDirectionY, aiPlotDirectionY, sizeof(m_aiPlotDirectionY));
-	memcpy(m_aiCityPlotX, aiCityPlotX, sizeof(m_aiCityPlotX));
-	memcpy(m_aiCityPlotY, aiCityPlotY, sizeof(m_aiCityPlotY));
+	memcpy(m_aiRingPlotXOffset, aiRingPlotXOffset, sizeof(m_aiRingPlotXOffset));
+	memcpy(m_aiRingPlotYOffset, aiRingPlotYOffset, sizeof(m_aiRingPlotYOffset));
 	memcpy(m_aiCityPlotPriority, aiCityPlotPriority, sizeof(m_aiCityPlotPriority));
 	memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
-	memcpy(m_aaiXYCityPlot, aaiXYCityPlot, sizeof(m_aaiXYCityPlot));
+	memcpy(m_aaiRingPlotIndex, aaiRingPlotIndex, sizeof(m_aaiRingPlotIndex));
 
 	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
 	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
@@ -2872,7 +2872,7 @@ int* CvGlobals::getCityPlotPriority()
 	return m_aiCityPlotPriority;
 }
 
-int CvGlobals::getXYCityPlot(int i, int j)
+int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	CvAssertMsg(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
@@ -2892,7 +2892,7 @@ int CvGlobals::getXYCityPlot(int i, int j)
 	if(j < 0 || j >= CITY_PLOTS_DIAMETER) return -1;
 #endif
 
-	return m_aaiXYCityPlot[i][j];
+	return m_aaiRingPlotIndex[i][j];
 }
 
 DirectionTypes* CvGlobals::getTurnLeftDirection()

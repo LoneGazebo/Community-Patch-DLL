@@ -3452,7 +3452,7 @@ void CvTeam::changeCityWorkingChange(int iChange)
 						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
 			
 						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-							CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+							CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 							if (pLoopPlot) {
 								pLoopPlot->changeCityRadiusCount(iChange);

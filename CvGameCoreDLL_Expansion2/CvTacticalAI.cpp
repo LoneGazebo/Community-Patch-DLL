@@ -10690,7 +10690,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
 	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			if(pUnit->plot()==pLoopPlot)
@@ -11034,8 +11034,10 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 				continue;
 			}
 
-			if (!pUnit->isNativeDomain(pPlot))
+			if (!pUnit->isMatchingDomain(pPlot))
+			{
 				continue;
+			}
 
 			//allow disembarking
 			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
@@ -13591,7 +13593,7 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
 	for(int iI = 1; iI < AVG_CITY_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
 		if (!pLoopPlot)
 			continue;
 

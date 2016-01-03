@@ -91,7 +91,6 @@ public:
 	void ChangeNumForcedWorkingPlots(int iChange);
 
 	bool IsCanWork(CvPlot* pPlot) const;
-	bool IsPlotBlockaded(CvPlot* pPlot) const;
 	bool IsAnyPlotBlockaded() const;
 
 	void DoVerifyWorkingPlot(CvPlot* pPlot);

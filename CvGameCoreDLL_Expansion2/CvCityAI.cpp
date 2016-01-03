@@ -181,7 +181,7 @@ void CvCityAI::AI_stealPlots()
 	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
 #endif
 	{
-		pLoopPlot = plotCity(getX(),getY(),iI);
+		pLoopPlot = iterateRingPlots(getX(),getY(),iI);
 
 		if(pLoopPlot != NULL)
 		{

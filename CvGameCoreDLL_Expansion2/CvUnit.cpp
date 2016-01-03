@@ -5139,7 +5139,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
+		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 		{
 			if(canMoveInto(*pLoopPlot))
 			{
@@ -5236,7 +5236,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
+				if(pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 				{
 					if(canMoveInto(*pLoopPlot))
 					{
@@ -13483,8 +13483,31 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 }
 #endif
 
-
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
+{
+	switch (getDomainType())
+	{
+	case DOMAIN_LAND:
+		return !pPlot->isWater();
+		break;
+	case DOMAIN_AIR:
+		return true;
+		break;
+	case DOMAIN_SEA:
+		return pPlot->isWater();
+		break;
+	case DOMAIN_HOVER:
+		return true;
+		break;
+	case DOMAIN_IMMOBILE:
+		return false;
+		break;
+	}
+
+	return true;
+}
+
+bool CvUnit::isMatchingDomain(const CvPlot* pPlot) const
 {
 	switch (getDomainType())
 	{
@@ -14762,13 +14785,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(pToPlot->getPlotCity()->IsBlockadedTest())
-			{
-				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
-				iModifier += iTempModifier;
-			}
-#endif
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
@@ -15635,7 +15651,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		if(!pPlot->isValidDomainForLocation(*this) && isNativeDomain(pPlot))
+		if(!pPlot->isValidDomainForLocation(*this) && isMatchingDomain(pPlot))
 		{
 			return false;
 		}

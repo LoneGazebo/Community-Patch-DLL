@@ -656,7 +656,6 @@ public:
 	int getUnhappinessFromPillaged() const;
 	int getUnhappinessFromStarving() const;
 	int getUnhappinessFromMinority() const;
-	bool IsConnectedToTradeNetwork() const;
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
@@ -709,10 +708,11 @@ public:
 	void SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue);
 #endif
 
-	bool IsBlockaded() const;
-#if defined(MOD_BALANCE_CORE)
-	bool IsBlockadedTest() const;
-#endif
+	//check both water and land
+	bool IsBlockadedWaterAndLand() const;
+	//check water or land
+	bool IsBlockaded(bool bWater) const;
+
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
 	void ChangeWeLoveTheKingDayCounter(int iChange);

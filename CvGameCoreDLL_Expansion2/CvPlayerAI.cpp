@@ -2463,7 +2463,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
 #endif
 		{
-			CvPlot *pLoopPlot = plotCity(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
+			CvPlot *pLoopPlot = iterateRingPlots(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
 			if(pLoopPlot != NULL)
 			{
 				// Make sure this is still owned by target and is revealed to us

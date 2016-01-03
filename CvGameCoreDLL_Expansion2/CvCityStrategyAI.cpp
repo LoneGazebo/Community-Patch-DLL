@@ -3344,7 +3344,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 		{
-			pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 			if(pLoopPlot != NULL)
 			{
@@ -3518,7 +3518,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTyp
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 	{
-		pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 		if(pLoopPlot != NULL)
 		{
@@ -3568,7 +3568,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
 	{
-		pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 		if(pLoopPlot != NULL)
 		{

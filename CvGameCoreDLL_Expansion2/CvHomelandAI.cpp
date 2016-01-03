@@ -7898,7 +7898,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 	// Look at spaces adjacent to target
 	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && 
 			plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() <= 2))
 		{

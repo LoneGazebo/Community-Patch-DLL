@@ -2443,12 +2443,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			iItemValue *= 120;
 			iItemValue /= 100;
 		}
-
-		if (pCity->IsConnectedToTradeNetwork())
-		{
-			iItemValue *= 120;
-			iItemValue /= 100;
-		}
 	}
 
 	//Resistance? Reduces the value

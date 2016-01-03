@@ -473,7 +473,10 @@ public:
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
 	DomainTypes getDomainType() const;
+	//check if plot type matches the (primary) domain type
 	bool isNativeDomain(const CvPlot* pPlot) const;
+	//similar to native domain, but consider embarked state for land units
+	bool isMatchingDomain(const CvPlot* pPlot) const;
 
 	int flavorValue(FlavorTypes eFlavor) const;
 

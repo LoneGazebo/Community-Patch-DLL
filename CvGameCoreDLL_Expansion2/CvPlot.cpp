@@ -29,11 +29,7 @@
 #include "CvDLLUtilDefines.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvBarbarians.h"
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
 #include "CvDiplomacyAI.h"
-#endif
-
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 #include "CvUnitMovement.h"
@@ -4393,12 +4389,8 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Is there an enemy Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly, bool bNavalUnitsOnly) const
-#else
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-#endif
+// does not check visibility!
+bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam& kTeam = GET_TEAM(eTeam);
@@ -4408,18 +4400,39 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
 		if(pkUnit)
 		{
-			if(kTeam.isAtWar(pkUnit->getTeam()))
+			bool bCorrectOwner = false;
+			if (bFriendly)
 			{
-				if(!bCombatUnitsOnly || pkUnit->IsCombatUnit())
+				if ( pkUnit->getTeam()==eTeam )
 				{
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-					if (!bNavalUnitsOnly || pkUnit->getDomainType() == DOMAIN_SEA)
+					bCorrectOwner = true;
+				}
+				else 
+				{
+					CvPlayer& kOwner = GET_PLAYER(pkUnit->getOwner());
+					// Is it an allied minor or DoF major?
+					if ( (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) ||
+						 (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) )
 					{
-#endif
-						return true;
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
+						bCorrectOwner = true;
 					}
-#endif
+				}
+			}
+			else
+			{
+				bCorrectOwner = kTeam.isAtWar(pkUnit->getTeam());
+			}
+
+			if (bCorrectOwner)
+			{
+				//exclude civilians
+				if(pkUnit->IsCombatUnit())
+				{
+					//exclude embarked units, ships in port etc
+					if (pkUnit->isNativeDomain(this))
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -4427,37 +4440,6 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 
 	return false;
 }
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-//	--------------------------------------------------------------------------------
-/// Is there an allied Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-bool CvPlot::IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-{
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-
-	for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++) {
-		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
-		if (pkUnit) {
-			PlayerTypes eOwner = ((PlayerTypes) pkUnit->getOwner());
-			CvPlayer& kOwner = GET_PLAYER(eOwner);
-			
-			if (ePlayer == eOwner || kPlayer.getTeam() == kOwner.getTeam()) {
-				// It's our unit (or a team member's)
-				return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-			} else {
-				// Is it an allied minor or DoF major?
-				if (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				} else if (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 // Used to restrict number of units allowed on a plot at one time
@@ -5527,7 +5509,7 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -5560,7 +5542,7 @@ void CvPlot::updatePotentialCityWork()
 	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -6162,78 +6144,57 @@ bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 	return false;
 }
 
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 {
-	if (!isWater()) {
-		return false;
-	}
-
 	// An enemy ship on the plot trumps all
-	if (getVisibleEnemyDefender(ePlayer)) {
+	if (IsBlockadeUnit(ePlayer,false))
 		return true;
-	}
 
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship on the plot secures the plot
-		if (IsActualAlliedUnit(ePlayer)) {
-			return false;
-		}
-	}
-#endif
+	// An allied ship on the plot secures the plot
+	if (IsBlockadeUnit(ePlayer,true))
+		return false;
 
 	// An enemy ship adjacent to the plot blockades it
-	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop) {
+	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
+	{
 		CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
+		if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
 			return true;
-		}
 	}
 
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship adjacent to the plot secures it
-		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop) {
-			CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
+	// An allied ship adjacent to the plot secures it
+	for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
+	{
+		CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
 
-			if (pAlliedPlot && (pAlliedPlot->isWater() || pAlliedPlot->isCity()) && pAlliedPlot->IsActualAlliedUnit(ePlayer)) {
-				return false;
-			}
-		}
+		if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
+			return false;
 	}
-#endif
 
-	// An enemy ship 2 tiles away blockades it
-	int iRange = 2;
-	CvPlot* pLoopPlot = NULL;
+	if (isWater()) 
+	{
+		// An enemy ship 2 tiles away blockades it
+		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
+		CvPlot* pLoopPlot = NULL;
 
-	for (int iDX = -iRange; iDX <= iRange; iDX++) {
-		for (int iDY = -iRange; iDY <= iRange; iDY++) {
-			pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-			if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange) {
-				continue;
-			}
+		for (int iDX = -iRange; iDX <= iRange; iDX++)
+		{
+			for (int iDY = -iRange; iDY <= iRange; iDY++)
+			{
+				pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+				if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange)
+					continue;
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
-				return true;
+				if (pLoopPlot->isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+					return true;
 			}
 		}
 	}
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFlatlands() const
@@ -6358,7 +6319,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8082,7 +8043,7 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 #endif
 	{
 		// We're not actually looking around a City but Resources have to be within the RANGE of a City, so we can still use this
-		pLoopPlot = plotCity(getX(), getY(), iJ);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -8150,7 +8111,7 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8185,7 +8146,7 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8245,7 +8206,7 @@ void CvPlot::updateWorkingCity()
 		for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
 #endif
 		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
+			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{

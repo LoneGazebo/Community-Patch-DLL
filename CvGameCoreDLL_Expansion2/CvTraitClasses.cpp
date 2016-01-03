@@ -3585,7 +3585,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
 #endif
 			{
-				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
 					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
@@ -3610,7 +3610,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 				for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
 #endif
 				{
-					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+					pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
