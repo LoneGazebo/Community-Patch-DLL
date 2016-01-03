@@ -1648,8 +1648,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			if(bFromMe)
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 15 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 15;
+				//Every 5 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 5;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1662,8 +1662,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			else
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 30 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 30;
+				//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 10;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1900,7 +1900,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -6303,7 +6303,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	CvPlayer* pLosingPlayer = &GET_PLAYER(eLosingPlayer);
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
-
+	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool bVassalageOK = ((iWarScore <= -95) && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() <= 0);

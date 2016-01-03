@@ -658,7 +658,11 @@ private:
 
 namespace CvBeliefHelpers
 {
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	bool ConvertBarbarianUnit(const CvUnit *pByUnit, UnitHandle pUnit);
+#else
 	bool ConvertBarbarianUnit(CvPlayer *pPlayer, UnitHandle pUnit);
+#endif
 }
 
 #endif //CIV5_BELIEF_CLASSES_H

@@ -532,7 +532,9 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				}
 #if defined(MOD_ACTIVE_DIPLOMACY)
 				break;
+#endif
 			}
+#if defined(MOD_ACTIVE_DIPLOMACY)
 			// JdH =>
 			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 			{
@@ -541,8 +543,8 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
 				}
 				break;
-#endif
 			}
+#endif
 			default:
 				break;
 			}

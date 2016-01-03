@@ -10,6 +10,8 @@
 #ifndef CIV5_TRAIT_CLASSES_H
 #define CIV5_TRAIT_CLASSES_H
 
+#include "CustomMods.h"
+
 struct FreeResourceXCities
 {
 	FreeResourceXCities():
@@ -1209,7 +1211,11 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource);
 #endif
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	bool CheckForBarbarianConversion(CvUnit* pByUnit, CvPlot* pPlot);
+#else
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
+#endif
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
 #if defined(MOD_BALANCE_CORE)
 	TechTypes GetFreeBuildingPrereqTech() const;
@@ -1267,8 +1273,13 @@ public:
 	void Write(FDataStream& kStream);
 
 private:
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
+	bool ConvertBarbarianNavalUnit(CvUnit* pByUnit, UnitHandle pUnit);
+#else
 	bool ConvertBarbarianCamp(CvPlot* pPlot);
 	bool ConvertBarbarianNavalUnit(UnitHandle pUnit);
+#endif
 
 	CvTraitXMLEntries* m_pTraits;
 	CvPlayer* m_pPlayer;

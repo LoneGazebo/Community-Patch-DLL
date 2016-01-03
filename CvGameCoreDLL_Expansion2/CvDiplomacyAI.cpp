@@ -2441,6 +2441,9 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
+#endif
 		MakeWar();
 		DoMakePeaceWithMinors();
 
@@ -2449,7 +2452,11 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoUpdatePlanningExchanges();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_AI_PLAYERS);
+#else
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID());	//Proposed deals with AI players are purely transitional.
+#endif
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -7671,15 +7678,19 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		{
 			return 0;
 		}
-		iAverageScore = ((iWarScore + iTheirWarScore) / 2);
 		if(iTheirWarScore > iWarScore)
 		{
+			iAverageScore = iTheirWarScore - iWarScore;
 			iAverageScore *= -1;
+		}
+		else
+		{
+			iAverageScore = iWarScore - iTheirWarScore ;
 		}
 		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
 		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
 		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-		iWarDuration /= 10;
+		iWarDuration /= 7;
 		if(iWarDuration > 0)
 		{	
 			if(iAverageScore > 0)

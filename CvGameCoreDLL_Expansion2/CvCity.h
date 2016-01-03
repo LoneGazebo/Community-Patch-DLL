@@ -423,7 +423,11 @@ public:
 	void setGameTurnLastExpanded(int iNewValue);
 
 	int getPopulation() const;
+#if defined(MOD_BALANCE_CORE)
+	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
+#else
 	void setPopulation(int iNewValue, bool bReassignPop = true);
+#endif
 	void changePopulation(int iChange, bool bReassignPop = true);
 
 	long getRealPopulation() const;

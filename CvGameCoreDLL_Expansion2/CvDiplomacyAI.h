@@ -1343,7 +1343,9 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
+#endif
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);

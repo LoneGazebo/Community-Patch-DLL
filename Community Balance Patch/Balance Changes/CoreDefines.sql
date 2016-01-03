@@ -1,7 +1,31 @@
--- Trade Route value reduction
+-- Trade Routes
 	UPDATE Defines
 	SET Value = '60'
 	WHERE Name = 'INTERNATIONAL_TRADE_CITY_GPT_DIVISOR';
+
+	UPDATE Defines
+	SET Value = '10'
+	WHERE Name = 'TRADE_ROUTE_BASE_LAND_MODIFIER';
+
+	UPDATE Defines
+	SET Value = '20'
+	WHERE Name = 'TRADE_ROUTE_BASE_SEA_MODIFIER';
+
+	UPDATE Defines
+	SET Value = '500'
+	WHERE Name = 'TRADE_ROUTE_BASE_FOOD_VALUE';
+	
+	UPDATE Defines
+	SET Value = '500'
+	WHERE Name = 'TRADE_ROUTE_BASE_PRODUCTION_VALUE';
+
+	UPDATE Defines
+	SET Value = '15'
+	WHERE Name = 'TRADE_ROUTE_RIVER_CITY_MODIFIER';
+
+	UPDATE Defines
+	SET Value = '50'
+	WHERE Name = 'TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE';
 
 -- Deal Durations
 	UPDATE GameSpeeds

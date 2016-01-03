@@ -189,17 +189,22 @@ function RefreshList()
 -- CBP
 		local sTTHappinessHeader = Locale.Lookup("TXT_KEY_TRADE_UNIT_HAPPINESS");
 		local sTTHappiness = "";
-		local iPoverty = pTargetCity:GetUnhappinessFromGold();
-		if(iPoverty > 0) then
-			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY", iPoverty);
+		local iStarvingUnhappiness = pTargetCity:GetUnhappinessFromStarving();
+		local iPillagedUnhappiness = pTargetCity:GetUnhappinessFromPillaged();
+		local iGoldUnhappiness = pTargetCity:GetUnhappinessFromGold();
+		local iDefenseUnhappiness = pTargetCity:GetUnhappinessFromDefense();
+		local iConnectionUnhappiness = pTargetCity:GetUnhappinessFromConnection();
+		local iMinorityUnhappiness = pTargetCity:GetUnhappinessFromMinority();
+		local iScienceUnhappiness = pTargetCity:GetUnhappinessFromScience();
+		local iCultureUnhappiness = pTargetCity:GetUnhappinessFromCulture();
+		if(iGoldUnhappiness > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY", iGoldUnhappiness);
 		end
-		local iIlliteracy = pTargetCity:GetUnhappinessFromScience();
-		if(iIlliteracy > 0) then
-			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY", iIlliteracy);
+		if(iScienceUnhappiness > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY", iScienceUnhappiness);
 		end
-		local iIsolation = pTargetCity:GetUnhappinessFromConnection();
-		if(iIsolation > 0) then
-			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION", iIsolation);
+		if(iConnectionUnhappiness > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION", iConnectionUnhappiness);
 		end
 		if(sTTHappiness ~= "") then
 			sTT = sTT .. sTTHappinessHeader .. sTTHappiness .. "[NEWLINE][NEWLINE]"

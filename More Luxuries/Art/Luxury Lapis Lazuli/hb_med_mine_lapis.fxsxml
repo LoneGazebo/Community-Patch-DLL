@@ -1,0 +1,19 @@
+<Asset>
+  <Mesh file="HB_MED_Mine_Lapis.gr2" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="HB_MID_Mine_Hill_DIFF.dds" source="Max" />
+  <Texture file="HB_Mine_Decal_D.dds" source="Max" />
+  <Texture file="HB_Mine_Decal_H.dds" source="Max" />
+  <Texture file="HB_Plantation_MID_DIFF.dds" source="Max" />
+  <Texture file="HB_Plantation_MID_SREF.dds" source="Max" />
+  <Texture file="Lapis_Decal_DIFF.dds" source="Max" />
+  <Texture file="Iron_ore_Decal_H.dds" source="Max" />
+  <Texture file="MID_Mine_Hill_DIFF.dds" source="Max" />
+  <Texture file="MID_Mine_Hill_SREF.dds" source="Max" />
+  <Texture file="Mine_Decal_S.dds" source="Max" />
+  <Texture file="Resource_Irradiance.dds" source="Max" />
+  <Texture file="Lapis_ore_DIFF.dds" source="Max" />
+  <Texture file="Lapis_ore_SREF.dds" source="Max" />
+  <Texture file="resource_Environment_Sharp.dds" source="Max" />
+  <Texture file="resources_Environment_Dull.dds" source="Max" />
+</Asset>

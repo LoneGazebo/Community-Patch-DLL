@@ -222,7 +222,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_COFFEE';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_COFFEE';
 
 	UPDATE Resources
@@ -234,7 +234,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
@@ -258,7 +258,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_PERFUME';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_PERFUME';
 
 	UPDATE Resources
@@ -270,7 +270,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_TOBACCO';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_TOBACCO';
 
 	-- Text files for changes.
