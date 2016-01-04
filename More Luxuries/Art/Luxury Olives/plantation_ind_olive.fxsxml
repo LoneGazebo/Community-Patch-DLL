@@ -1,0 +1,18 @@
+<Asset>
+  <Mesh file="Plantation_IND_Olive.gr2" source="Max" />
+  <Texture file="Crop_Ground_D.dds" source="Max" />
+  <Texture file="Crop_Ground_H.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="Plant_Resource_Shadows.dds" source="Max" />
+  <Texture file="Plantation_IND_DIFF.dds" source="Max" />
+  <Texture file="Plantation_IND_Ground_D.dds" source="Max" />
+  <Texture file="Plantation_IND_Ground_H.dds" source="Max" />
+  <Texture file="Plantation_IND_SREF.dds" source="Max" />
+  <Texture file="Sub_MID_Farm_Grnd_D.dds" source="Max" />
+  <Texture file="Sub_MID_Farm_Grnd_H.dds" source="Max" />
+  <Texture file="Olive_Trees_DIFF.dds" source="Max" />
+  <Texture file="Olive_Trees_SREF.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>

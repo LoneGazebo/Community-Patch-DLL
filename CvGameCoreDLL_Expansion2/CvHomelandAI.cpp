@@ -1285,9 +1285,7 @@ void CvHomelandAI::PlotHealMoves()
 					iHealingLimit /= 2;
 				}
 			}
-#endif
 
-#if defined(MOD_AI_SMART_HEALING)
 			// Am I under my health limit and not at sea or already in a city?
 			if(pUnit->GetCurrHitPoints() < iHealingLimit && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
 #else
@@ -1395,10 +1393,12 @@ void CvHomelandAI::PlotMovesToSafety()
 					}
 
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
+#if defined(MOD_BALANCE_CORE)
 					else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
 					{
 						bAddUnit = true;
 					}
+#endif
 					// Everyone else flees at more than 70% damage
 					else if(MOD_AI_SMART_FLEE_FROM_DANGER && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>70))
 					{
@@ -1409,11 +1409,13 @@ void CvHomelandAI::PlotMovesToSafety()
 					{
 						bAddUnit = true;
 					}
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
 					// Everyone flees under (heavy) enemy fire
 					else if(pUnit->isProjectedToDieNextTurn())
 					{
 						bAddUnit = true;
 					}
+#endif
 #else
 					// Everyone else flees at less than or equal to 50% combat strength
 					else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
@@ -1885,30 +1887,29 @@ void CvHomelandAI::PlotUpgradeMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 
 #if defined(MOD_AI_SMART_UPGRADES)
-		if(MOD_AI_SMART_UPGRADES && pUnit && !pUnit->isHuman())
+		if(pUnit && !pUnit->isHuman() && (MOD_AI_SMART_UPGRADES || pUnit->getArmyID() == -1))
 		{
-			int iArmyId = pUnit->getArmyID();
-			if (iArmyId != -1)
+			// Also eligible to upgrade if army is not moving/at destination
+			if (MOD_AI_SMART_UPGRADES)
 			{
-				CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(iArmyId);
-
-				if (pThisArmy)
+				int iArmyId = pUnit->getArmyID();
+				if (iArmyId != -1)
 				{
-					if((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
+					CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(iArmyId);
+
+					if (pThisArmy)
 					{
-						continue;
+						if((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
+						{
+							continue;
+						}
 					}
 				}
 			}
-		}
-#endif
-
-#if defined(MOD_AI_SMART_UPGRADES)
-		if(pUnit && !pUnit->isHuman() && (!MOD_AI_SMART_UPGRADES || pUnit->getArmyID() == -1))
 #else
 		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
-#endif
 		{
+#endif
 			// Can this unit be upgraded?
 			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 			if(eUpgradeUnitType != NO_UNIT)
@@ -6017,6 +6018,7 @@ void CvHomelandAI::ExecuteTreasureMoves()
 	}
 }
 
+#if defined(MOD_AI_SMART_AIR_TACTICS)
 // Similar to interception moves on tacticalAI, grant some interceptions based on number of enemies
 void CvHomelandAI::ExecuteAircraftInterceptions()
 {
@@ -6030,7 +6032,11 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 		if(pUnit)
 		{
 			// Am I eligible to intercept?
+#if defined(MOD_AI_SMART_AIR_TACTICS) && defined(MOD_BALANCE_CORE_MILITARY)
 			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit.pointer()))
+#else
+			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pUnit.pointer()))
+#endif
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
@@ -6065,6 +6071,7 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 		}
 	}
 }
+#endif
 
 /// Moves an aircraft into an important city near the front to aid its defense (or offense)
 void CvHomelandAI::ExecuteAircraftMoves()

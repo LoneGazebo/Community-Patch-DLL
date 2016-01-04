@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<GameData>
+
+	<Language_en_US>
+		<!--
+		<Replace Tag="TXT_KEY_RESOURCE_COCOA">
+			<Text>Cocoa</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_COCOA_TEXT">
+			<Text>Cocoa is produced from the seeds of the tropical cacao tree, which are fermented, roasted, peeled, and then ground into cocoa mass or liquified into chocolate liquor. This pure chocolate was used originally in Mesoamerica, both as a beverage and as an ingredient in foods, and played a special role in both Maya and Aztec royal and religious events. Eventually, once Europeans obtained this luxury, they sweetened and fattened it to create the types of chocolate we know today.</Text>
+		</Replace>
+		-->
+		<Replace Tag="TXT_KEY_RESOURCE_COFFEE">
+			<Text>Coffee</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_COFFEE_TEXT">
+			<Text>Coffee is a brewed beverage prepared from the roasted seeds of several species of evergreen shrub belonging to the genus Coffea. The earliest credible evidence of either coffee drinking or knowledge of the coffee tree appears in the middle of the 15th century, in the monasteries of Arabia. It was there that coffee seeds were first roasted and brewed, in a similar way to how it is prepared today. Eventually, through trade, coffee spread to Venetian ports in Italy, and from there, it was introduced to the rest of Europe.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_TEA">
+			<Text>Tea</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_TEA_TEXT">
+			<Text>Tea is an aromatic beverage commonly prepared by pouring hot water over cured leaves of the tea plant. Tea drinking likely began in China, during the Shang Dynasty, when it was initially used for medicinal purposes and combined with other herbs. It was first introduced to Portuguese priests and merchants in China during the 16th century, and later became popular in Britain during the 17th century, which eventually led to Britain competing with China's monopoly over it.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_TOBACCO">
+			<Text>Tobacco</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_TOBACCO_TEXT">
+			<Text>Tobacco is a product processed from the dried leaves of plants in the genus Nicotiana. It is used recreationally in cigars and cigarettes, snuff, pipe tobacco, chewing tobacco and flavored shisha. Many Native American tribes have traditionally gReplacen and used tobacco, with some cultivation sites in Mexico dating back to 1400-1000 B.C. Eastern North American tribes carried large amounts of tobacco in pouches as a readily accepted trade item, and often smoked it in peace pipes, either in defined sacred ceremonies or to seal a bargain. Following the arrival of the Europeans, tobacco became increasingly popular as a trade item and grew into its own industry.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_AMBER">
+			<Text>Amber</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_AMBER_TEXT">
+			<Text>Amber is fossilized tree resin, which has been appreciated for its color and natural beauty since Neolithic times. Much valued from antiquity to the present as a gemstone, amber is made into a variety of decorative objects. Amber is used as an ingredient in perfumes, as a healing agent in folk medicine, and as jewelry. Because it originates as a soft, sticky tree resin, amber sometimes contains animal and plant material as inclusions.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_JADE">
+			<Text>Jade</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_JADE_TEXT">
+			<Text>Jade is an ornamental stone and is the name given to two types of metamorphic rock, nephrite and jadeite. Among the earliest known jade artifacts excavated from prehistoric sites are simple ornaments with bead, button, and tubular shapes. Additionally, jade was used for adze heads, knives, and other weapons, which can be delicately shaped. As metal-working technologies became available, the beauty of jade made it valuable for ornaments and decorative objects. In Chinese history, Jade was considered the "imperial gem" and  had a status-value exceeding that of gold or silver.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_OLIVE">
+			<Text>Olives</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_OLIVE_TEXT">
+			<Text>The olive is a species of small tree in the family Oleaceae, native to the coastal areas of the eastern Mediterranean Basin as well as northern Iraq, and northern Iran at the south of the Caspian Sea. Its fruit, also called the olive, is of major agricultural importance in the Mediterranean region as the source of olive oil. The olive has been the symbol of peace, wisdom, glory, fertility, power and purity. Olive oil has long been considered sacred, and even today,  it is still used in many religious ceremonies. Over the years, the olive has been the symbol of peace, wisdom, glory, fertility, power and purity.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_PERFUME">
+			<Text>Perfume</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_PERFUME_TEXT">
+			<Text>Perfumes have been known to exist in some of the earliest human civilizations. Perfumery, or the art of making perfumes, began in ancient Mesopotamia and Egypt and was further refined by the Romans and Persians.  The production technique of rose perfumes originated in Persia then spread through Arabia and India, and more recently into Eastern Europe.  Rose oil is the essential oil extracted from the petals of various types of roses. Due to the labor-intensive production process and the low content of oil in the rose blooms, rose oil commands a very high price. Even so, it is still perhaps the most widely used essential oil in perfumery.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_CORAL">
+			<Text>Coral</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_CORAL_TEXT">
+			<Text>Coral is a branching skeleton-like structure built by small marine animals known as polyps.  Red coral, also known as precious coral, is one of the most ancient of gems and has been harvested since antiquity for decorative use.  It belongs to a small class of organic gemstones, which are not really stones at all, that include materials such as pearl, amber, ivory, and jet.  Historically, precious coral was not only a highly prized form of ornamentation, but it was also a substance believed to be endowed with mysterious sacred properties.  Along with being used as a charm, it also had many medicinal virtues attributed to it.  Today, laws and organizations help protect coral reefs since their populations are threatened by overharvesting, overfishing, and climate change.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_LAPIS">
+			<Text>Lapis Lazuli</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_LAPIS_TEXT">
+			<Text>Lapis lazuli is a deep blue semi-precious stone that has been prized since antiquity for its intense color.  It has been mined for over 6,000 years in Afghanistan and was the source of lapis for ancient Egyptian and Mesopotamian civilizations, as well as the later Greeks and Romans.  In addition to the Afghan deposits, lapis lazuli can be found in other parts of the world, such as Russia, Chile, Canada, India, Italy, and the USA.  Lapis lazuli takes an excellent polish and was valued for making into jewelry, carvings, vases, and other ornaments; especially in ancient Egypt.  It was also ground and processed to make the most highly sought after pigment, ultramarine, which was worth more than gold.  During the Renaissance, this valuable pigment was used sparingly and often reserved to color the robes of Mary and other important religious figures.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_GLASS">
+			<Text>Glass</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_RESOURCE_GLASS_TEXT">
+			<Text>Glass has been used for centuries in windows and drinking vessels. Archaeological evidence suggests the first man made glass was in Eastern Mesopotamia and Egypt around 3500 BC and the first glass vessels were made there around 1500 BC. Syrian craftsmen invented the blow pipe in the 1st century BC, which made glass production easier, faster, and cheaper. Glass production flourished in the Roman Empire and spread from Italy to all countries under its rule. Venice was famous for its ornate glass-work, known as Venetian glass, and was the glassmaking center of the western world. Toward the end of the 13th century, the center of the Venetian glass industry moved to Murano. Some of the most important brands of glass in the world today are still produced in the historical glass factories within Murano.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_RESOURCE_GLASS_HELP">
+			<Text>Glass is only available through a Mercantile City-State.</Text>
+		</Replace>
+	</Language_en_US>
+  
+</GameData>

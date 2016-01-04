@@ -2441,6 +2441,9 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
+#endif
 		MakeWar();
 		DoMakePeaceWithMinors();
 
@@ -2449,7 +2452,11 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoUpdatePlanningExchanges();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_AI_PLAYERS);
+#else
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID());	//Proposed deals with AI players are purely transitional.
+#endif
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -7671,15 +7678,19 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		{
 			return 0;
 		}
-		iAverageScore = ((iWarScore + iTheirWarScore) / 2);
 		if(iTheirWarScore > iWarScore)
 		{
+			iAverageScore = iTheirWarScore - iWarScore;
 			iAverageScore *= -1;
+		}
+		else
+		{
+			iAverageScore = iWarScore - iTheirWarScore ;
 		}
 		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
 		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
 		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-		iWarDuration /= 10;
+		iWarDuration /= 7;
 		if(iWarDuration > 0)
 		{	
 			if(iAverageScore > 0)
@@ -15840,8 +15851,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 /// Individual contact opportunity
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	if(!IsValidUIDiplomacyTarget(ePlayer))
 		return;		// Can't contact the this player at the moment.
+#endif
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
@@ -34743,7 +34756,7 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 #endif
 	}
 }
-
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 //	-------------------------------------------------------------------------------------
 //	Returns true if the target is valid to show a UI to immediately.
 //	This will return true if the source and destination are both AI.
@@ -34758,7 +34771,7 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 
 	return false;
 }
-
+#endif
 
 FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)
 {

@@ -3857,7 +3857,7 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 		if(szUnitType == "UNIT_FRENCH_MUSKETEER")
 		{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser->GetOwner(), pkLoser, pkWinner) >=3)
+			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
 #else
 			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
 #endif

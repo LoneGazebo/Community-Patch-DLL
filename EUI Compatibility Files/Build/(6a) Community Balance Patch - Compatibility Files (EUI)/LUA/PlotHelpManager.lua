@@ -927,14 +927,14 @@ local function UpdatePlotHelp( timeChange )
 			featureTips:insert( L"TXT_KEY_PLOTROLL_FRESH_WATER" )
 		end
 -- CBP
-		if isNoob then
-			local plotX = plot:GetX();
-			local plotY = plot:GetY();
-			local danger = activePlayer:GetPlotDanger(plot);
-			if(plotX ~= -1 and plotY ~= -1) then
-				featureTips:insert( L("TXT_KEY_DEBUG_X_Y" , plotX, plotY, danger) )
-			end
-		end
+		--if isNoob then
+		--	local plotX = plot:GetX();
+		--	local plotY = plot:GetY();
+		--	local danger = activePlayer:GetPlotDanger(plot);
+		--	if(plotX ~= -1 and plotY ~= -1) then
+		--		featureTips:insert( L("TXT_KEY_DEBUG_X_Y" , plotX, plotY, danger) )
+		--	end
+		--end
 -- END
 
 		if #featureTips > 0 then

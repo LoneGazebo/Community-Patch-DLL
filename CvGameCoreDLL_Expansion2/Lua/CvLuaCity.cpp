@@ -4889,20 +4889,20 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int eYield = lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = pkCity->getOwner();
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-	if(eFoundedReligion != NO_RELIGION)
+	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
-		if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+		if(eFoundedReligion != NO_RELIGION)
 		{
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
 				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield);
 			}
 		}
+		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	}
-	iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;

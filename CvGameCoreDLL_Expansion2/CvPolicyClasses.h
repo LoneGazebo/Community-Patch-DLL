@@ -833,9 +833,6 @@ public:
 	// Policy Branch Stuff
 	void DoUnlockPolicyBranch(PolicyBranchTypes eBranchType);
 	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType);
-#if defined(MOD_AI_SMART_POLICY_CHOICE)
-	bool IsEraPrereqBranch(PolicyBranchTypes eBranchType);
-#endif
 
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);

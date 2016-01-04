@@ -13244,10 +13244,6 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (iDanger==INT_MAX)
 			iDanger = 10000 + kPlayer.GetCityDistance(pPlot);
 
-		//avoid overflow further down and useful handling for civilians
-		if (iDanger==INT_MAX)
-			iDanger = 10000 + kPlayer.GetCityDistance(pPlot);
-
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)

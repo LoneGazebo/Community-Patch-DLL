@@ -19,6 +19,7 @@
 !*.civ5proj
 !*.civ5sln
 !*.dll
+!*.sln
 
 !*.py
 !*.inl

@@ -3530,7 +3530,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		iPopulation = max(1, iPopulation * iPercentPopulationRetained / 100);
 	}
+#if defined(MOD_BALANCE_CORE)
+	pNewCity->setPopulation(iPopulation, true, true);
+#else
 	pNewCity->setPopulation(iPopulation);
+#endif
 	pNewCity->setHighestPopulation(iHighestPopulation);
 	pNewCity->setName(strName);
 	pNewCity->setNeverLost(false);
@@ -9612,7 +9616,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 			}
 		}
 
-		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange);
+		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange, true, true);
 
 		//25% food, to prevent instant-starvation
 		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));

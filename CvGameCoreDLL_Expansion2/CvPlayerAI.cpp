@@ -1045,6 +1045,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
+#endif
 	// Defend against ideology pressure if not going for culture win
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
 	{
@@ -1056,38 +1057,23 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
-	if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
-	}
-#else
-	// Defend against ideology pressure if not going for culture win
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
-	}
-
-	// If not going for culture win and a Level 2 or 3 Tenet is available, try to snag it
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetPlayerPolicies()->CanGetAdvancedTenet())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
-	}
-
+#if !defined(MOD_BALANCE_CORE)
 	// Create Great Work if there is a slot
 	GreatWorkType eGreatWork = pGreatWriter->GetGreatWork();
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
+#endif
+
 #if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
 #else
 	else
 #endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
-#endif
 	return eDirective;
 }
 
@@ -1170,14 +1156,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
-
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	// If still no directive, defaults at building great work.
-	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-#endif
 #endif
 	return eDirective;
 }
@@ -1220,14 +1198,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
-
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	// If still no directive, defaults at building great work.
-	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-#endif
 
 	return eDirective;
 }

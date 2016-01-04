@@ -11069,7 +11069,11 @@ int CvCity::getPopulation() const
 //	Be very careful with setting bReassignPop to false.  This assumes that the caller
 //  is manually adjusting the worker assignments *and* handling the setting of
 //  the CityCitizens unassigned worker value.
+#if defined(MOD_BALANCE_CORE)
+void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool bNoBonus)
+#else
 void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
+#endif
 {
 	VALIDATE_OBJECT
 	int iOldPopulation;
@@ -11239,7 +11243,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
-			if(!IsResistance() && (iGameTurn > 0))
+			if(!IsResistance() && (iGameTurn > 0) && !bNoBonus)
 			{
 				const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
@@ -23908,6 +23912,13 @@ bool CvCity::canRangeStrike() const
 	// Can't shoot more than once per turn
 	if(isMadeAttack())
 		return false;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	// Can't shoot if it's not our turn
+	if(!GET_PLAYER(getOwner()).isTurnActive())
+	{
+		return false;
+	}
 #endif
 
 	// Can't shoot when in resistance

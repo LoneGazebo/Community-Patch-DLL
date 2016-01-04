@@ -22,17 +22,20 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v68 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 68)
+#define MOD_DLL_NAME "Community Patch v69 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 69)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
 
+//MULTIPLAYER INSTRUCTIONS:
+
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
+// UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
+//#define MOD_ACTIVE_DIPLOMACY
 
-//JDH Active Diplo
-#define MOD_ACTIVE_DIPLOMACY
+//END MULTIPLAYER INSTRUCTIONS
 
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
@@ -491,8 +494,6 @@
 #define MOD_AI_SMART_GREAT_PEOPLE                   (MOD_AI_SMART && gCustomMods.isAI_SMART_GREAT_PEOPLE())
 // Delay grand strategy bias until the Renaissance (v50)
 #define MOD_AI_SMART_GRAND_STRATEGY                 (MOD_AI_SMART && gCustomMods.isAI_SMART_GRAND_STRATEGY())
-// Make better policy choices ignoring grand strategy until medieval and giving less importance to opening branches vs unlocked branches (v50)
-#define MOD_AI_SMART_POLICY_CHOICE                  (MOD_AI_SMART && gCustomMods.isAI_SMART_POLICY_CHOICE())
 // Stop making archaeologists sooner and also disband archaeologists if there are not valid targets (v50)
 #define MOD_AI_SMART_ARCHAEOLOGISTS                 (MOD_AI_SMART && gCustomMods.isAI_SMART_ARCHAEOLOGISTS())
 // Disband long obsolete units, eg triremes in industrial era (v50)
@@ -636,6 +637,8 @@
 #define MOD_EVENTS_UNIT_PREKILL                     gCustomMods.isEVENTS_UNIT_PREKILL()
 
 // Event sent as a unit is captured (v46)
+//   GameEvents.UnitCaptured.Add(function(iByPlayer, iByUnit, iCapturedPlayer, iCapturedUnit, bWillBeKilled, iReason) end) (v69)
+//   iReason - 0=Move, 1=Combat, 2=Trait (barb land), 3=Trait (barb naval), 4=Belief (barb)
 //   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end)
 #define MOD_EVENTS_UNIT_CAPTURE                     gCustomMods.isEVENTS_UNIT_CAPTURE()
 
@@ -1075,6 +1078,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitCanHaveName				"UnitCanHaveName",				"iii"
 #define GAMEEVENT_UnitCanHavePromotion			"UnitCanHavePromotion",			"iii"
 #define GAMEEVENT_UnitCanHaveUpgrade			"UnitCanHaveUpgrade",			"iiii"
+#define GAMEEVENT_UnitCaptured					"UnitCaptured",					"iiiibi"
 #define GAMEEVENT_UnitCaptureType				"UnitCaptureType",				"iiii"
 #define GAMEEVENT_UnitCityFounded				"UnitCityFounded",				"iiiii"
 #define GAMEEVENT_UnitCreated					"UnitCreated",					"iiiii"
@@ -1336,7 +1340,6 @@ public:
 	MOD_OPT_DECL(AI_SMART_DEALS);
 	MOD_OPT_DECL(AI_SMART_GREAT_PEOPLE);
 	MOD_OPT_DECL(AI_SMART_GRAND_STRATEGY);
-	MOD_OPT_DECL(AI_SMART_POLICY_CHOICE);
 	MOD_OPT_DECL(AI_SMART_ARCHAEOLOGISTS);
 	MOD_OPT_DECL(AI_SMART_DISBAND);
 	MOD_OPT_DECL(AI_SMART_UPGRADES);
