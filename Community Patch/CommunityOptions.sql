@@ -81,6 +81,15 @@ Changes to City Strategy Flavors
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_CITYSTRATEGY_TWEAKS', 1);
 
+/*
+Minimize AI Turn Slices
+1 = Enabled (Default)
+0 = Disabled
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_MINIMIZEAITURNSLICES', 1);
+
 -- DO NOT EDIT
 
 UPDATE CustomModOptions
