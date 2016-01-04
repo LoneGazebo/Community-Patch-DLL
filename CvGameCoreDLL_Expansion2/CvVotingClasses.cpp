@@ -10679,9 +10679,12 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
+#if defined(MOD_BALANCE_CORE)
+			VoteConsideration chosen = vConsiderations.GetElement(0);
+#else
 			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 			VoteConsideration chosen = vConsiderations.ChooseByWeight(&fcn, "Choosing a vote to allocate");
-
+#endif
 			if (chosen.bEnact)
 			{
 				pLeague->DoVoteEnact(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);
@@ -13370,9 +13373,12 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 				vConsiderations.SetWeight(i, 1);
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		ProposalConsideration proposal = vConsiderations.GetElement(0);
+#else
 		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		ProposalConsideration proposal = vConsiderations.ChooseFromTopChoices(MIN(vConsiderations.size(), LeagueHelpers::AI_CHOOSE_PROPOSAL_FROM_TOP), &fn, "Choosing proposal from top choices");
+#endif
 		if (proposal.bEnact)
 		{
 			ResolutionTypes eResolution = vInactive[proposal.iIndex];

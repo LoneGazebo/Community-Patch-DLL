@@ -44,7 +44,7 @@
 	WHERE Type = 'RESOURCE_CLOVES';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_CLOVES';
 
 	UPDATE Resources
@@ -80,7 +80,7 @@
 	WHERE Type = 'RESOURCE_FUR';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_FUR';
 
 	UPDATE Resources
@@ -112,7 +112,7 @@
 	WHERE Type = 'RESOURCE_INCENSE';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_INCENSE';
 
 	UPDATE Resources
@@ -136,7 +136,7 @@
 	WHERE Type = 'RESOURCE_JEWELRY';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_JEWELRY';
 
 	UPDATE Resources
@@ -164,7 +164,7 @@
 	WHERE Type = 'RESOURCE_PEPPER';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_PEPPER';
 
 	UPDATE Resources
@@ -204,7 +204,7 @@
 	WHERE Type = 'RESOURCE_TRUFFLES';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_TRUFFLES';
 
 	UPDATE Resources
@@ -224,7 +224,7 @@
 	WHERE Type = 'RESOURCE_WINE';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '3'
+	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_WINE';
 
 	-- Text files for changes.
@@ -232,11 +232,11 @@
 	-- Other Text
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS'
-	WHERE MonopolyHappiness = 3;
+	WHERE MonopolyHappiness = '5';
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH'
-	WHERE MonopolyGALength = 25;
+	WHERE MonopolyGALength = '25';
 
 	-- Yield Text
 	UPDATE Resources

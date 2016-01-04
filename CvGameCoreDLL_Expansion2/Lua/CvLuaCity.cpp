@@ -2298,24 +2298,9 @@ int CvLuaCity::lGetBuyPlotCost(lua_State* L)
 int CvLuaCity::lGetGarrisonedUnit(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
-	CvPlot* pPlot = pkCity->plot();
-	if(pPlot != NULL)
-	{
-		UnitHandle garrison = pPlot->getBestDefender(pkCity->getOwner());
-		if(garrison)
-		{
-			CvLuaUnit::Push(L, garrison.pointer());
-			return 1;
-		}
-	}
-	CvLuaUnit::Push(L, NULL);
-	return 1;
-#else
 	CvUnit* pkUnit = pkCity->GetGarrisonedUnit();
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -4881,18 +4866,18 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 	int iRtnValue = 0;
 	CvCity* pkCity = GetInstance(L);
 	const int eYield = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = pkCity->getOwner();
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-	if(eFoundedReligion != NO_RELIGION)
+	if(pkCity->GetWeLoveTheKingDayCounter() > 0)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
-		if(pkCity->GetWeLoveTheKingDayCounter() > 0)
+		const PlayerTypes ePlayer = pkCity->getOwner();
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+		if(eFoundedReligion != NO_RELIGION)
 		{
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
 		}
+		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
 	}
-	iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;
@@ -4904,20 +4889,20 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int eYield = lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = pkCity->getOwner();
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-	if(eFoundedReligion != NO_RELIGION)
+	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
-		if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+		if(eFoundedReligion != NO_RELIGION)
 		{
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
 				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield);
 			}
 		}
+		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	}
-	iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;

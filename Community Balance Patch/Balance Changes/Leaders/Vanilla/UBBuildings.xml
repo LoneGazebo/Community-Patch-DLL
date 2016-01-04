@@ -79,6 +79,7 @@
 			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
 			<FoodKept>30</FoodKept>
+			<NeverCapture>true</NeverCapture>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>15</HurryCostModifier>

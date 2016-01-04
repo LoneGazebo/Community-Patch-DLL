@@ -5710,16 +5710,39 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity()))
+						if(getImprovementType() != NO_IMPROVEMENT)
+						{
+							if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+								}
+							}
+							else if(GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+								}
+							}
+							else if(GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+								}
+							}
+						}
 #else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
-#endif
 						{
 							if(!IsImprovementPillaged())
 							{
 								GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
 							}
 						}
+#endif
 					}
 				}
 			}
@@ -5925,16 +5948,39 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity()))
+						if(getImprovementType() != NO_IMPROVEMENT)
+						{
+							if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
+								}
+							}
+							else if(GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
+								}
+							}
+							else if(GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+							{
+								if(!IsImprovementPillaged())
+								{
+									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
+								}
+							}
+						}
 #else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
-#endif
 						{
 							if(!IsImprovementPillaged())
 							{
 								GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
 							}
 						}
+#endif
 					}
 
 					// Should we link the Resource here with a City so special Buildings may be constructed?
@@ -6147,15 +6193,15 @@ bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 {
-	// An enemy ship on the plot trumps all
+	// An enemy unit on the plot trumps all
 	if (IsBlockadeUnit(ePlayer,false))
 		return true;
 
-	// An allied ship on the plot secures the plot
+	// An allied unit on the plot secures the plot
 	if (IsBlockadeUnit(ePlayer,true))
 		return false;
 
-	// An enemy ship adjacent to the plot blockades it
+	// An enemy unit adjacent to the plot blockades it
 	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
 	{
 		CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
@@ -6164,7 +6210,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 			return true;
 	}
 
-	// An allied ship adjacent to the plot secures it
+	// An allied unit adjacent to the plot secures it
 	for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
 	{
 		CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
@@ -6173,9 +6219,9 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 			return false;
 	}
 
+	//ships have additional range
 	if (isWater()) 
 	{
-		// An enemy ship 2 tiles away blockades it
 		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
 		CvPlot* pLoopPlot = NULL;
 
@@ -6187,7 +6233,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 				if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange)
 					continue;
 
-				if (pLoopPlot->isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+				if (pLoopPlot->IsBlockadeUnit(ePlayer,false))
 					return true;
 			}
 		}
@@ -7249,10 +7295,35 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && newImprovementEntry.IsCreatedByGreatPerson()) || newImprovementEntry.IsAdjacentCity())
+						if(getImprovementType() != NO_IMPROVEMENT)
+						{
+							if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
+							{
+								owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
+
+								// Activate Resource city link?
+								if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+									SetResourceLinkedCityActive(true);
+							}
+							else if(newImprovementEntry.IsCreatedByGreatPerson())
+							{
+								owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
+
+								// Activate Resource city link?
+								if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+									SetResourceLinkedCityActive(true);
+							}
+							else if(newImprovementEntry.IsAdjacentCity())
+							{
+								owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
+
+								// Activate Resource city link?
+								if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+									SetResourceLinkedCityActive(true);
+							}
+						}
 #else
 						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
-#endif
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
@@ -7260,6 +7331,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
 								SetResourceLinkedCityActive(true);
 						}
+#endif
 					}
 				}
 
@@ -7270,7 +7342,23 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && newImprovementEntry.IsCreatedByGreatPerson()) || newImprovementEntry.IsAdjacentCity())
+					bool bGood = false;
+					if(getImprovementType() != NO_IMPROVEMENT)
+					{
+						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
+						{
+							bGood = true;
+						}
+						else if(newImprovementEntry.IsCreatedByGreatPerson())
+						{
+							bGood = true;
+						}
+						else if(newImprovementEntry.IsAdjacentCity())
+						{
+							bGood = true;
+						}
+					}
+					if(bGood)
 #else
 					if(newImprovementEntry.IsImprovementResourceTrade(eResource))
 #endif
@@ -7336,10 +7424,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson()) || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
-#else
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
-#endif
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
 
@@ -7347,6 +7432,32 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if(GetResourceLinkedCity() != NULL)
 								SetResourceLinkedCityActive(false);
 						}
+						else if(GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+						{
+							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
+
+							// Disconnect resource link
+							if(GetResourceLinkedCity() != NULL)
+								SetResourceLinkedCityActive(false);
+						}
+						else if(GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
+						{
+							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
+
+							// Disconnect resource link
+							if(GetResourceLinkedCity() != NULL)
+								SetResourceLinkedCityActive(false);
+						}
+#else
+						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
+						{
+							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
+
+							// Disconnect resource link
+							if(GetResourceLinkedCity() != NULL)
+								SetResourceLinkedCityActive(false);
+						}
+#endif
 					}
 				}
 
@@ -7355,7 +7466,23 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(eResource != NO_RESOURCE)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson()) || GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
+					bool bGood = false;
+					if(getImprovementType() != NO_IMPROVEMENT)
+					{
+						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource))
+						{
+							bGood = true;
+						}
+						else if(GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+						{
+							bGood = true;
+						}
+						else if(GC.getImprovementInfo(eOldImprovement)->IsAdjacentCity())
+						{
+							bGood = true;
+						}
+					}
+					if(bGood)
 #else
 					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource))
 #endif
@@ -7534,7 +7661,20 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()) || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					bool bGood = false;
+					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+					{
+						bGood = true;
+					}
+					else if(GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+					{
+						bGood = true;
+					}
+					else if(GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					{
+						bGood = true;
+					}
+					if(bGood)
 #else
 					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif
@@ -8072,7 +8212,24 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 		if(isCity() || getImprovementType() != NO_IMPROVEMENT)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) && GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()) || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+			bool bGood = false;
+			if(isCity())
+			{
+				bGood = true;
+			}
+			else if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+			{
+				bGood = true;
+			}
+			else if(GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+			{
+				bGood = true;
+			}
+			else if(GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+			{
+				bGood = true;
+			}
+			if(bGood)
 #else
 			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
 #endif

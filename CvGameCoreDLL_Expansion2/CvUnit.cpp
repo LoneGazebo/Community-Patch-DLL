@@ -1483,7 +1483,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			
 #if defined(MOD_EVENTS_UNIT_DATA)
 			if (MOD_EVENTS_UNIT_DATA) {
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveName, getOwner(), GetID(), iI) == GAMEEVENTRETURN_FALSE) {
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveName, getOwner(), GetID(), iIndex) == GAMEEVENTRETURN_FALSE) {
 					continue;
 				}
 			}
@@ -3387,6 +3387,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	CvUnitCaptureDefinition kCaptureDef;
 	getCaptureDefinition(&kCaptureDef);
+	
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	if (MOD_EVENTS_UNIT_CAPTURE && (kCaptureDef.eCapturingPlayer != NO_PLAYER && kCaptureDef.eCaptureUnitType != NO_UNIT)) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, getOwner(), GetID(), false, 1);
+	}
+#endif
 
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
@@ -7127,7 +7133,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -7511,7 +7517,7 @@ void CvUnit::doHeal()
 	if(!isBarbarian())
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -13488,13 +13494,13 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater();
+		return pPlot->needsEmbarkation()==isEmbarked();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->isWater();
+		return pPlot->needsEmbarkation();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -18023,7 +18029,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										args->Push(pLoopUnit->GetID());  // captured unit
 
 										bool bResult = false;
-										if(LuaSupport::CallTestAll(pkScriptSystem, "CanDisplaceCivilian", args.get(), bResult))
+										if (LuaSupport::CallTestAny(pkScriptSystem, "CanDisplaceCivilian", args.get(), bResult))
 										{
 											// Check the result.
 											if(bResult)
@@ -18080,6 +18086,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											}
 										}
 										// Unit was killed instead
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+
+										if (MOD_EVENTS_UNIT_CAPTURE) {
+											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
+										}
+#endif
 										else
 #if defined(MOD_BALANCE_CORE)
 if (!bDoEvade)
@@ -18436,7 +18448,7 @@ if (!bDoEvade)
 					UnitHandle pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER, BARBARIAN_PLAYER, NULL, true);
 					if(pAdjacentUnit)
 					{
-						GET_PLAYER(pAdjacentUnit->getOwner()).GetPlayerTraits()->CheckForBarbarianConversion(pAdjacentPlot);
+						GET_PLAYER(pAdjacentUnit->getOwner()).GetPlayerTraits()->CheckForBarbarianConversion(this, pAdjacentPlot);
 					}
 				}
 
@@ -18453,7 +18465,11 @@ if (!bDoEvade)
 							UnitHandle pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 							if(pAdjacentUnit)
 							{
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+								CvBeliefHelpers::ConvertBarbarianUnit(this, pAdjacentUnit);
+#else
 								CvBeliefHelpers::ConvertBarbarianUnit(&kPlayer, pAdjacentUnit);
+#endif
 							}
 						}
 					}
@@ -18472,7 +18488,11 @@ if (!bDoEvade)
 									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, adjUnitPlayer.GetID());
 									if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians())
 									{
-										if (CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+										if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
+#else
+										if(CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
+#endif
 										{
 											ClearMissionQueue();
 										}
@@ -19199,7 +19219,11 @@ if (!bDoEvade)
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
 		{
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot);
+#else
 			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot);
+#endif
 		}
 
 		if(GC.IsGraphicsInitialized())
@@ -19263,7 +19287,11 @@ if (!bDoEvade)
 					kPlayer.GetTacticalAI()->DeleteTemporaryZone(pNewPlot);
 
 					// Is there a camp guard that will convert to our side here, if so have special routine to handle it
-					if(!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot))
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot))
+#else
+					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot))
+#endif
 					{
 						int iNumGold = GC.getGame().getHandicapInfo().getBarbCampGold();
 						iNumGold *= (100 + kPlayer.GetPlayerTraits()->GetPlunderModifier()) / 100;

@@ -569,6 +569,14 @@
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
+		<Row>
+			<ID>14</ID>
+			<Type>YIELD_JFD_CRIME</Type>
+			<Description>TXT_KEY_YIELD_JFD_CRIME</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
 	</Yields>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_YIELD_GREAT_GENERAL_POINTS">

@@ -136,13 +136,13 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP">
-			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Encampments provide a small defense modifier to units stationed on them, and also slightly damage nearby enemy units if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE">
 			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT_SHOSHONE]Encampment[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_HELP">
-			<Text>Constructs an Encampment, which increases the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
+			<Text>Constructs an Encampment, which increases the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and damages adjacent enemy units for 5 Hit Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_REC">
 			<Text>It will increase the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>

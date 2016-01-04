@@ -364,6 +364,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(GetGoldPerTurnTrade(ePlayer) > 0 || GetGoldPerTurnTrade(eToPlayer) > 0)
 				return false;
 		}
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
 #endif
 	}
 	// Gold per Turn
@@ -380,6 +387,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Can't exchange GPT for lump Gold - we aren't a bank.
 			if(GetGoldTrade(ePlayer) > 0 || GetGoldTrade(eToPlayer) > 0)
 				return false;
+		}
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
 		}
 #endif
 
@@ -470,6 +484,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
@@ -507,6 +530,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Can't already have this city in the deal
 		if(!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
 			return false;
+
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Unit
 	else if(eItem == TRADE_ITEM_UNITS)
@@ -528,6 +561,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Same team
 		if(eFromTeam == eToTeam)
 			return false;
+
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Open Borders
 	else if(eItem == TRADE_ITEM_OPEN_BORDERS)
@@ -565,6 +608,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Same Team
 		if(eFromTeam == eToTeam)
 			return false;
+
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Defensive Pact
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
@@ -630,6 +683,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
 				return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Trade Agreement
 	else if(eItem == TRADE_ITEM_TRADE_AGREEMENT)
@@ -900,6 +962,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 #endif
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Third Party Embargo
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_EMBARGO)
@@ -957,6 +1028,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// This player must be allowed to
 		if(!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Maps
@@ -975,6 +1055,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this
 		if (!bFinalizing && IsMapTrade( ePlayer))
 			return false;
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	// Techs
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
@@ -1023,6 +1112,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this
 		if (!bFinalizing && IsTechTrade( ePlayer, (TechTypes) iData1))
 			return false;
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
 	{
@@ -1064,7 +1162,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this
 		if (!bFinalizing && IsRevokeVassalageTrade( ePlayer))
 			return false;
-
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE_REVOKE)
 	{
@@ -1104,6 +1210,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this
 		if (!bFinalizing && IsRevokeVassalageTrade( ePlayer))
 			return false;
+#if defined(MOD_BALANCE_CORE)
+		if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			if(this->GetSurrenderingPlayer() != ePlayer)
+			{
+				return false;
+			}
+		}
+#endif
 	}
 	
 #endif

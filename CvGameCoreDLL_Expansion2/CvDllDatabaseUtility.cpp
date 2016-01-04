@@ -666,7 +666,9 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	//ValidateVectorSize(getNumActionInfos);	//Action Infos are generated as a post process.
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
-	ValidateVectorSize(getNumDiploModifierInfos);
+	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+		ValidateVectorSize(getNumDiploModifierInfos);
+	}
 #endif
 
 	ValidateCount(gc.getMissionInfo().size);

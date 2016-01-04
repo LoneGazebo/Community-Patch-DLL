@@ -9022,7 +9022,7 @@ void CvGame::updateTimers()
 			kPlayer.updateTimers();
 		}
 	}
-
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	if(isHotSeat())
 	{
 		// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
@@ -9034,6 +9034,7 @@ void CvGame::updateTimers()
 				CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
 		}
 	}
+#endif
 }
 
 //	-----------------------------------------------------------------------------------------------

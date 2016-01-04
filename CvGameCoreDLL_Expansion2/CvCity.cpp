@@ -4106,6 +4106,25 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 			return false;
 		}
 	}
+	int iNumBuildingInfos = GC.getNumBuildingInfos();
+	//Check for uniques of the same type.
+	for(iI = 0; iI < iNumBuildingInfos; iI++)
+	{
+		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo((BuildingTypes)iI);
+		if(pkBuildingInfo2 == NULL)
+		{
+			continue;
+		}
+		//Same class?
+		if(pkBuildingInfo2->GetBuildingClassType() == pkBuildingInfo->GetBuildingClassType())
+		{
+			//Do we already have this building? Return false if so.
+			if(m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0)
+			{
+				return false;
+			}
+		}
+	}
 #endif
 
 	///////////////////////////////////////////////////////////////////////////////////
@@ -11051,7 +11070,11 @@ int CvCity::getPopulation() const
 //	Be very careful with setting bReassignPop to false.  This assumes that the caller
 //  is manually adjusting the worker assignments *and* handling the setting of
 //  the CityCitizens unassigned worker value.
+#if defined(MOD_BALANCE_CORE)
+void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool bNoBonus)
+#else
 void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
+#endif
 {
 	VALIDATE_OBJECT
 	int iOldPopulation;
@@ -11221,7 +11244,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
-			if(!IsResistance() && (iGameTurn > 0))
+			if(!IsResistance() && (iGameTurn > 0) && !bNoBonus)
 			{
 				const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
@@ -14115,6 +14138,19 @@ bool CvCity::DoRazingTurn()
 		{
 			return false;
 		}
+		
+		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
+
+		// Notify Diplo AI that damage has been done
+		int iValue = iDefaultCityValue;
+
+		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
+		iValue /= GetRazingTurns();
+
+		// My viewpoint
+		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
+		// Bad guy's viewpoint
+		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue);
 
 		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
 		if(iEra <= 0)
@@ -15882,9 +15918,9 @@ bool CvCity::IsBlockadedWaterAndLand() const
 
 bool CvCity::IsBlockaded(bool bWater) const
 {
-	for (int iPortLoop = 0; iPortLoop < NUM_DIRECTION_TYPES; ++iPortLoop) 
+	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{
-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iPortLoop));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
 		if (pAdjacentPlot && 
 			pAdjacentPlot->isWater()==bWater && 
 			!pAdjacentPlot->isImpassable(getTeam()) && 
@@ -15894,6 +15930,7 @@ bool CvCity::IsBlockaded(bool bWater) const
 		}
 	}
 	
+	//note: if a city is landlocked, it is permanently blockaded from sea side by definition
 	return true;
 }
 
@@ -23760,6 +23797,13 @@ bool CvCity::canRangeStrike() const
 	// Can't shoot more than once per turn
 	if(isMadeAttack())
 		return false;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	// Can't shoot if it's not our turn
+	if(!GET_PLAYER(getOwner()).isTurnActive())
+	{
+		return false;
+	}
 #endif
 
 	// Can't shoot when in resistance

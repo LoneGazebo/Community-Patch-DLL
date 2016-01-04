@@ -4112,7 +4112,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		m_paiNumFreeBuilding[eIndex] = iNewValue;
 
 		// Process building effects
-		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true);
+		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true, false, false, true);
 #else
 		int iOldNumBuilding = GetNumBuilding(eIndex);
 

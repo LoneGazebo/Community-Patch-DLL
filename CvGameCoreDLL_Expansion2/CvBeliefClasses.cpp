@@ -3288,10 +3288,22 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 /// BELIEF HELPER CLASSES
 
 /// Is there an adjacent barbarian naval unit that could be converted?
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, UnitHandle pUnit)
+#else
 bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, UnitHandle pUnit)
+#endif
 {
 	UnitHandle pNewUnit;
 	CvPlot *pPlot = pUnit->plot();
+
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());
+
+	if (MOD_EVENTS_UNIT_CAPTURE) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 4);
+	}
+#endif
 
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);

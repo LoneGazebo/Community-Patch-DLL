@@ -4231,42 +4231,42 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 		bool bConnectedToChina = false;
 		bool bConnectedToIndia = false;
 
-		CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-		for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+		for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 		{
-			if (pGameTrade->IsTradeRouteIndexEmpty(ui))
+			if (pTrade->IsTradeRouteIndexEmpty(ui))
 			{
 				continue;
 			}
 
-			TradeConnection kConnection = pGameTrade->m_aTradeConnections[ui];
-			if (kConnection.m_eOriginOwner != m_pPlayer->GetID())
+			const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+			if (pConnection->m_eOriginOwner != m_pPlayer->GetID())
 			{
 				continue;
 			}
 
-			if (kConnection.m_eDomain != DOMAIN_LAND)
+			if (pConnection->m_eDomain != DOMAIN_LAND)
 			{
 				continue;
 			}
 
-			if (strcmp(GET_PLAYER(kConnection.m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_ARABIA") == 0)
+			if (strcmp(GET_PLAYER(pConnection->m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_ARABIA") == 0)
 			{
 				bConnectedToArabs = true;
 			}
-			else if (strcmp(GET_PLAYER(kConnection.m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_PERSIA") == 0)
+			else if (strcmp(GET_PLAYER(pConnection->m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_PERSIA") == 0)
 			{
 				bConnectedToPersia = true;
 			}
-			else if (strcmp(GET_PLAYER(kConnection.m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_MONGOL") == 0)
+			else if (strcmp(GET_PLAYER(pConnection->m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_MONGOL") == 0)
 			{
 				bConnectedToMongols = true;
 			}
-			else if (strcmp(GET_PLAYER(kConnection.m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_CHINA") == 0)
+			else if (strcmp(GET_PLAYER(pConnection->m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_CHINA") == 0)
 			{
 				bConnectedToChina = true;
 			}
-			else if (strcmp(GET_PLAYER(kConnection.m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_INDIA") == 0)
+			else if (strcmp(GET_PLAYER(pConnection->m_eDestOwner).getCivilizationTypeKey(), "CIVILIZATION_INDIA") == 0)
 			{
 				bConnectedToIndia = true;
 			}

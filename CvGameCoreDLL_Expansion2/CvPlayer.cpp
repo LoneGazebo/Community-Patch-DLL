@@ -3530,7 +3530,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		iPopulation = max(1, iPopulation * iPercentPopulationRetained / 100);
 	}
+#if defined(MOD_BALANCE_CORE)
+	pNewCity->setPopulation(iPopulation, true, true);
+#else
 	pNewCity->setPopulation(iPopulation);
+#endif
 	pNewCity->setHighestPopulation(iHighestPopulation);
 	pNewCity->setName(strName);
 	pNewCity->setNeverLost(false);
@@ -6099,6 +6103,17 @@ void CvPlayer::doTurn()
 				GetTrade()->DoTurn();
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
+#if defined(MOD_ACTIVE_DIPLOMACY)
+				// JdH => do diplomacy
+				// Note: There is no need for DIPLO_AI_PLAYERS in Multiplayer anymore.
+				// AI to AI diplomacy is handled first, then the AI to human diplomacy is processed.
+				// If an AI has a request for a human, it sends a notification. The request is processed as the human wishes.
+				// IMPORTANT: this changes singleplayer and hotseat behavior (and obviously mp):
+				// An AI in hotseat can now only send one request to a single player a turn.
+				// An AI in singleplayer will not have it's requests processed "in turn" anymore.
+				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
+				// JdH <=
+#else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
 					// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
@@ -6110,6 +6125,7 @@ void CvPlayer::doTurn()
 
 				if (!isHuman())
 					bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+#endif
 			}
 		}
 	}
@@ -9600,7 +9616,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 			}
 		}
 
-		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange);
+		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange, true, true);
 
 		//25% food, to prevent instant-starvation
 		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));
@@ -13969,20 +13985,23 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		}
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		int iValue = (pConqueredCity->getPopulation() * 10 * iEra);
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue /= 100;
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(pConqueredCity->getPopulation() * 10 * iEra);
+			changeOverflowResearch(iValue);
 		}
 		else
 		{
-			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (pConqueredCity->getPopulation() * 10 * iEra), GetID());
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
 		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
 			Localization::String strSummary;
 			strMessage = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST");
-			strMessage << (pConqueredCity->getPopulation() * 10 * iEra);
+			strMessage << iValue;
 			strMessage << strTargetNameKey;
 			strSummary = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY");
 
@@ -22320,6 +22339,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		CvCity* pBestCity = 0;
 		int iBestScore = 0;
+		CvCity* pCapital = getCapitalCity();
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
@@ -22338,6 +22358,12 @@ void CvPlayer::DoFreedomCorp()
 							{
 								iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
 							}
+							if(pCapital != NULL)
+							{
+								//Prioritize closer cities first.
+								int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+								iScore -= (iDistance * 5);
+							}
 							if(iScore > iBestScore)
 							{
 								iBestScore = iScore;
@@ -22350,7 +22376,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
 		{
-			int iSpreadChance = GC.getGame().getJonRandNum((1000 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
+			int iSpreadChance = GC.getGame().getJonRandNum((1200 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
 			if(iSpreadChance <= iBestScore)
 			{
 				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)

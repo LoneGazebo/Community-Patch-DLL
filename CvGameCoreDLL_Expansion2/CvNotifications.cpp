@@ -13,6 +13,9 @@
 #include "ICvDLLUserInterface.h"
 #include "CvEnumSerialization.h"
 #include "CvDllPlot.h"
+#if defined(MOD_ACTIVE_DIPLOMACY)
+#include "CvDiplomacyRequests.h"
+#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -527,7 +530,21 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				{
 					GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 				}
+#if defined(MOD_ACTIVE_DIPLOMACY)
+				break;
+#endif
 			}
+#if defined(MOD_ACTIVE_DIPLOMACY)
+			// JdH =>
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+			{
+				if (m_aNotifications[iIndex].m_iY == -2 /* request hack */)
+				{
+					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
+				}
+				break;
+			}
+#endif
 			default:
 				break;
 			}
@@ -1002,7 +1019,26 @@ void CvNotifications::Activate(Notification& notification)
 	break;
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		// JdH => we need to switch behaviour for AI vs Human players.
+		PlayerTypes eFrom = static_cast<PlayerTypes>(notification.m_iX);
+		CvPlayer& kFrom = GET_PLAYER(eFrom);
+		if (kFrom.isHuman() && notification.m_iY != -2 /* request hack */)
+		{
+			// Keep old PvP notification behaviour
+			GC.GetEngineUserInterface()->OpenPlayerDealScreen(eFrom);
+		}
+		else
+		{
+			// This request was sent by an AI.
+			PlayerTypes eTo = notification.m_ePlayerID;
+			CvPlayer& kTo = GET_PLAYER(eTo);
+			kTo.GetDiplomacyRequests()->Activate(notification.m_iLookupIndex);
+		}
+		// JdH <=
+#else
 		GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
+#endif
 	}
 	break;
 	case NOTIFICATION_FREE_GREAT_PERSON:
@@ -1780,11 +1816,24 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& game = GC.getGame();
 		CvGameDeals* pDeals = game.GetGameDeals();
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		// JdH =>
+		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+		if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
+		{
+			return false;
+		}
+		else if (!pDeals->ProposedDealExists(eFrom, m_ePlayer))
+		{
+			return true;
+		}
+		// JdH <=
+#else
 		if(!pDeals->ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
 		{
 			return true;
 		}
+#endif
 	}
 	break;
 	case NOTIFICATION_DEMAND_RESOURCE:

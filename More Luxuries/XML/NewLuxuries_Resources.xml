@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<GameData>
+
+	<Resources>
+		<!-- Delete any luxuries with the same name so there's no conflict. -->
+		<Delete Type="RESOURCE_COFFEE"/>
+		<Delete Type="RESOURCE_TEA"/>
+		<Delete Type="RESOURCE_TOBACCO"/>
+		<Delete Type="RESOURCE_AMBER"/>
+		<Delete Type="RESOURCE_JADE"/>
+		<Delete Type="RESOURCE_OLIVE"/>
+		<Delete Type="RESOURCE_PERFUME"/>
+		<Delete Type="RESOURCE_GLASS"/>
+		<Delete Type="RESOURCE_CORAL"/>
+		<Delete Type="RESOURCE_LAPIS"/>
+		<!-- Delete any luxuries that may exist that are too similar as well. -->
+		<Delete Type="RESOURCE_CIGARS"/>
+		<Delete Type="RESOURCE_OLIVEOIL"/>
+		<Delete Type="RESOURCE_OLIVE_OIL"/>
+		<Delete Type="RESOURCE_OLIVES"/>
+		<Delete Type="RESOURCE_FRAGRANCE"/>
+		<Delete Type="RESOURCE_GLASSWARE"/>
+		<Delete Type="RESOURCE_LAPIS"/>
+		<Delete Type="RESOURCE_LAPISLAZULI"/>
+		<Delete Type="RESOURCE_LAPIS_LAZULI"/>
+		<Row>
+			<Type>RESOURCE_COFFEE</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_COFFEE</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_COFFEE_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_COFFEE</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_COFFEE]</IconString>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_TEA</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_TEA</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_TEA_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_TEA</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_TEA]</IconString>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_TOBACCO</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_TOBACCO</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_TOBACCO_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_TOBACCO</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_TOBACCO]</IconString>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_AMBER</Type>
+			<TechCityTrade>TECH_MINING</TechCityTrade>
+			<Happiness>4</Happiness>
+			<Description>TXT_KEY_RESOURCE_AMBER</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_AMBER_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_AMBER</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_AMBER]</IconString>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_JADE</Type>
+			<TechCityTrade>TECH_MINING</TechCityTrade>
+			<Happiness>4</Happiness>
+			<Description>TXT_KEY_RESOURCE_JADE</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_JADE_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_JADE</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_JADE]</IconString>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_OLIVE</Type>
+			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
+			<Happiness>4</Happiness>
+			<Description>TXT_KEY_RESOURCE_OLIVE</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_OLIVE_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_OLIVE</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_OLIVE]</IconString>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_PERFUME</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_PERFUME</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_PERFUME_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_PERFUME</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<GroupRange>3</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_PERFUME]</IconString>
+			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_CORAL</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_SAILING</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_CORAL</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_CORAL_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_CORAL</ArtDefineTag>
+			<PlacementOrder>4</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>10</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<GroupRange>2</GroupRange>
+			<GroupRand>15</GroupRand>
+			<IconString>[ICON_RES_CORAL]</IconString>
+			<PortraitIndex>8</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Type>RESOURCE_LAPIS</Type>
+			<Happiness>4</Happiness>
+			<TechCityTrade>TECH_MINING</TechCityTrade>
+			<Description>TXT_KEY_RESOURCE_LAPIS</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_LAPIS_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_LAPIS</ArtDefineTag>
+			<PlacementOrder>4</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>3</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Unique>4</Unique>
+			<Hills>true</Hills>
+			<IconString>[ICON_RES_LAPIS]</IconString>
+			<PortraitIndex>9</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<!-- City-State -->
+		<Row>
+			<Type>RESOURCE_GLASS</Type>
+			<Happiness>4</Happiness>
+			<Description>TXT_KEY_RESOURCE_GLASS</Description>
+			<Civilopedia>TXT_KEY_CIV5_RESOURCE_GLASS_TEXT</Civilopedia>
+			<Help>TXT_KEY_RESOURCE_GLASS_HELP</Help>
+			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_MARBLE</ArtDefineTag>
+			<PlacementOrder>3</PlacementOrder>
+			<ConstAppearance>50</ConstAppearance>
+			<MinAreaSize>1500</MinAreaSize>
+			<MaxLatitude>90</MaxLatitude>
+			<RandApp1>25</RandApp1>
+			<RandApp2>25</RandApp2>
+			<Player>67</Player>
+			<Flatlands>true</Flatlands>
+			<OnlyMinorCivs>true</OnlyMinorCivs>
+			<IconString>[ICON_RES_GLASS]</IconString>
+			<PortraitIndex>10</PortraitIndex>
+			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+		</Row>
+		<!-- Existing -->
+		<Update>
+			<Where Type="RESOURCE_SUGAR"/>
+			<Set ArtDefineTag="ART_DEF_RESOURCE_SUGAR_ALT"/>
+		</Update>
+	</Resources>
+
+	<Resource_YieldChanges>
+		<!-- Delete any luxuries with the same name so there's no conflict. -->
+		<Delete ResourceType="RESOURCE_COFFEE"/>
+		<Delete ResourceType="RESOURCE_TEA"/>
+		<Delete ResourceType="RESOURCE_TOBACCO"/>
+		<Delete ResourceType="RESOURCE_AMBER"/>
+		<Delete ResourceType="RESOURCE_JADE"/>
+		<Delete ResourceType="RESOURCE_OLIVE"/>
+		<Delete ResourceType="RESOURCE_PERFUME"/>
+		<Delete ResourceType="RESOURCE_GLASS"/>
+		<Delete ResourceType="RESOURCE_CORAL"/>
+		<Delete ResourceType="RESOURCE_LAPIS"/>
+		<!-- Delete any luxuries that may exist that are too similar as well. -->
+		<Delete ResourceType="RESOURCE_CIGARS"/>
+		<Delete ResourceType="RESOURCE_OLIVEOIL"/>
+		<Delete ResourceType="RESOURCE_OLIVE_OIL"/>
+		<Delete ResourceType="RESOURCE_OLIVES"/>
+		<Delete ResourceType="RESOURCE_FRAGRANCE"/>
+		<Delete ResourceType="RESOURCE_GLASSWARE"/>
+		<Delete ResourceType="RESOURCE_LAPIS"/>
+		<Delete ResourceType="RESOURCE_LAPISLAZULI"/>
+		<Delete ResourceType="RESOURCE_LAPIS_LAZULI"/>
+		<Row>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_GLASS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Resource_YieldChanges>
+	
+	<Resource_Flavors>
+		<!-- Delete any luxuries with the same name so there's no conflict. -->
+		<Delete ResourceType="RESOURCE_COFFEE"/>
+		<Delete ResourceType="RESOURCE_TEA"/>
+		<Delete ResourceType="RESOURCE_TOBACCO"/>
+		<Delete ResourceType="RESOURCE_AMBER"/>
+		<Delete ResourceType="RESOURCE_JADE"/>
+		<Delete ResourceType="RESOURCE_OLIVE"/>
+		<Delete ResourceType="RESOURCE_PERFUME"/>
+		<Delete ResourceType="RESOURCE_GLASS"/>
+		<Delete ResourceType="RESOURCE_CORAL"/>
+		<Delete ResourceType="RESOURCE_LAPIS"/>
+		<!-- Delete any luxuries that may exist that are too similar as well. -->
+		<Delete ResourceType="RESOURCE_CIGARS"/>
+		<Delete ResourceType="RESOURCE_OLIVEOIL"/>
+		<Delete ResourceType="RESOURCE_OLIVE_OIL"/>
+		<Delete ResourceType="RESOURCE_OLIVES"/>
+		<Delete ResourceType="RESOURCE_FRAGRANCE"/>
+		<Delete ResourceType="RESOURCE_GLASSWARE"/>
+		<Delete ResourceType="RESOURCE_LAPIS"/>
+		<Delete ResourceType="RESOURCE_LAPISLAZULI"/>
+		<Delete ResourceType="RESOURCE_LAPIS_LAZULI"/>
+		<Row>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_GLASS</ResourceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</Resource_Flavors>
+	
+	<Resource_TerrainBooleans>
+		<Row>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<TerrainType>TERRAIN_HILL</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<TerrainType>TERRAIN_HILL</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<TerrainType>TERRAIN_COAST</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<TerrainType>TERRAIN_HILL</TerrainType>
+		</Row>
+	</Resource_TerrainBooleans>
+		
+	<Improvement_ResourceTypes>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+		</Row>
+	</Improvement_ResourceTypes>
+	
+	<Improvement_ResourceType_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_ResourceType_Yields>
+	
+</GameData>
