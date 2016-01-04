@@ -4362,16 +4362,6 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	return true;
 }
 
-#if defined(MOD_AI_SMART_POLICY_CHOICE)
-/// can the player unlock eBranchType right now?
-bool CvPlayerPolicies::IsEraPrereqBranch(PolicyBranchTypes eBranchType)
-{
-	CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(eBranchType);
-
-	return (pkBranchEntry && pkBranchEntry->GetEraPrereq() > 0);
-}
-#endif
-
 /// Accessor: has a player unlocked eBranchType to pick Policies from?
 bool CvPlayerPolicies::IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const
 {

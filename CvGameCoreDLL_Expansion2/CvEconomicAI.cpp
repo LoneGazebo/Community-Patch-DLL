@@ -2831,10 +2831,15 @@ void CvEconomicAI::DisbandExtraWorkers()
 	// Are we running at a deficit?
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-#if !defined(MOD_AI_SMART_DISBAND)
+#if !defined(MOD_BALANCE_CORE)
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
+#if defined(MOD_AI_SMART_DISBAND)
+	// Disband more aggressively if at deficit.
+	if(!bInDeficit && iAverageGoldPerUnit <= 3)	
+#else
 	if(!bInDeficit && iAverageGoldPerUnit <= 4)
+#endif
 	{
 		return;
 	}
