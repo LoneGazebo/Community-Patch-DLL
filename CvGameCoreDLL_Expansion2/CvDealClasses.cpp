@@ -3492,8 +3492,32 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 		}
 	}
 }
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyPlayerType eTargetPlayers)
+{
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (   (eTargetPlayers == DIPLO_AI_PLAYERS && !kLoopPlayer.isHuman())
+			|| (eTargetPlayers == DIPLO_ALL_PLAYERS)
+			|| (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
+		{
+			if (GetProposedDeal(eCancelPlayer, eLoopPlayer))
+			{//deal from eCancelPlayer
+				FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
+			}
+			if (GetProposedDeal(eLoopPlayer, eCancelPlayer))
+			{//deal to eCancelPlayer
+				FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
+			}
+		}
+	}
+}
+#else
 void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
+
 {//Cancel all proposed deals involving eCancelPlayer.
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3509,7 +3533,7 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 		}
 	}
 }
-
+#endif
 /// End a TradedItem (if it's an ongoing item)
 void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled)
 {
