@@ -965,7 +965,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 
 	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
-	kToNodeCacheData.bIsWater = pPlot->needsEmbarkation(); //not all water plots count as water ...
+	kToNodeCacheData.bIsWater = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot);
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,false,pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
 
@@ -1079,7 +1079,7 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 				return FALSE;
 		}
 
-		if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && pToPlot->needsEmbarkation())
+		if ( (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) || !pUnit->CanEverEmbark()) && pToPlot->needsEmbarkation(pUnit))
 			return FALSE;
 
 		if(pUnit->IsCombatUnit())
@@ -1129,6 +1129,9 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	int iStartMoves = parent->m_iMoves;
 	int iTurns = parent->m_iTurns;
 
+	const CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
+	const CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
+
 	CvMap& kMap = GC.getMap();
 	int iFromPlotX = parent->m_iX;
 	int iFromPlotY = parent->m_iY;
@@ -1146,8 +1149,8 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	DomainTypes eUnitDomain = pCacheData->getDomainType();
 
 	//this is quite tricky with passable ice plots which can be either water or land
-	bool bToPlotIsWater = pToPlot->needsEmbarkation() || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	bool bFromPlotIsWater = pFromPlot->needsEmbarkation() || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 
 	//if we would have to start a new turn
 	if (iStartMoves==0)

@@ -2460,8 +2460,13 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	//safety first
-	if(CanEverEmbark() && GC.getMap().plot(iX,iY)->needsEmbarkation())
-		setEmbarked(true);
+	if(GC.getMap().plot(iX,iY)->needsEmbarkation(this))
+	{
+		if (CanEverEmbark())
+			setEmbarked(true);
+		else
+			OutputDebugString("warning: putting un-embarkable unit on water plot!\n");
+	}
 
 	if(bSetupGraphical)
 		setupGraphical();
@@ -4270,6 +4275,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			return false;
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
+	if (enterPlot.needsEmbarkation(this))
+	{
+		if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
+			return false;
+	}
 
 	// Part 2 : player traits and unit traits ---------------------------------------------------
 
@@ -4286,36 +4296,16 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-		// Check coastal water
-		if (enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
-		{
-			if(eDomain == DOMAIN_SEA)
-			{
-				return true;
-			}
-			else
-			{
-				return IsHasEmbarkAbility() && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
-			}
-		}
-
 		// Check high seas
 		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-
-			if(bOceanImpassable)
-			{	
-				return false;
-			}
-			else if(eDomain == DOMAIN_SEA)
+			if(eDomain == DOMAIN_SEA)
 			{
 				return canCrossOceans() || kPlayer.CanCrossOcean();
 			}
 			else if(eDomain == DOMAIN_LAND)
 			{
-				return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+				return IsEmbarkAllWater() || kPlayer.CanCrossOcean();
 			}
 		}
 
@@ -4353,10 +4343,19 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
 			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-
 			if(bOceanImpassable)
-			{	
+			{
 				return false;
+			}
+
+			PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+			bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy);
+
+			if(bOceanImpassableUntilAstronomy)
+			{
+				CvTeam& kTeam = GET_TEAM(getTeam());
+				if (!kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() ))
+					return false;
 			}	
 		}
 
@@ -4742,7 +4741,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 			}
 
 			// can't embark and attack in one go. however, disembark to attack is allowed
-			if(CanEverEmbark() && plot.needsEmbarkation())
+			if(CanEverEmbark() && plot.needsEmbarkation(this))
 			{
 				return false;
 			}
@@ -5056,10 +5055,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	int iMoveCost = targetPlot.movementCost(this, plot());
 
 	// we need to get our dis/embarking on
-	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation() != pOldPlot->needsEmbarkation());
+	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation(this) != pOldPlot->needsEmbarkation(this));
 	if (bChangeEmbarkedState)
 	{
-		if(isEmbarked() && !targetPlot.needsEmbarkation()) // moving from water to the land
+		if(isEmbarked() && !targetPlot.needsEmbarkation(this)) // moving from water to the land
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -5090,7 +5089,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			finishMoves();
 #endif
 		}
-		else if(!isEmbarked() && targetPlot.needsEmbarkation())  // moving from land to the water
+		else if(!isEmbarked() && targetPlot.needsEmbarkation(this))  // moving from land to the water
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -6548,7 +6547,7 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	if(!targetPlot.needsEmbarkation())
+	if(!targetPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6558,7 +6557,7 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	if(originPlot.needsEmbarkation())
+	if(originPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6581,7 +6580,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	if(targetPlot.needsEmbarkation())
+	if(targetPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6591,7 +6590,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	if(!originPlot.needsEmbarkation())
+	if(!originPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -9081,11 +9080,8 @@ bool CvUnit::sellExoticGoods()
 				CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
 				if(pCity != NULL)
 				{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 					for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-					for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 					{
 						
 						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
@@ -9104,11 +9100,7 @@ bool CvUnit::sellExoticGoods()
 					}
 					if(!bAlreadyHere)
 					{
-#if defined(MOD_GLOBAL_CITY_WORKING)			
 						for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-						for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 						{
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
 							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
@@ -13494,13 +13486,13 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return pPlot->needsEmbarkation()==isEmbarked();
+		return !pPlot->isWater();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->needsEmbarkation();
+		return pPlot->isWater();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -13518,13 +13510,13 @@ bool CvUnit::isMatchingDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return pPlot->needsEmbarkation()==isEmbarked();
+		return pPlot->needsEmbarkation(this)==isEmbarked();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->needsEmbarkation();
+		return pPlot->isWater();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -14711,8 +14703,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->needsEmbarkation() && CanEverEmbark()));
-	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->needsEmbarkation(this) && CanEverEmbark()));
+	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation(this) && bWouldNeedEmbark;
 #else
 	bool bIsEmbarkedAttackingLand = isEmbarked() && (pToPlot && !pToPlot->isWater());
 
@@ -14872,7 +14864,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Amphibious attack
 			if(!isAmphib())
 			{
-				if(pFromPlot->needsEmbarkation() && getDomainType() == DOMAIN_LAND)
+				if(pFromPlot->needsEmbarkation(this))
 				{
 					iTempModifier = GC.getAMPHIB_ATTACK_MODIFIER();
 					iModifier += iTempModifier;
@@ -14918,7 +14910,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (isEmbarked() || (pInPlot && pInPlot->needsEmbarkation() && CanEverEmbark()))
+	if (isEmbarked() || (pInPlot && pInPlot->needsEmbarkation(this) && CanEverEmbark()))
 #else
 	if(m_bEmbarked)
 #endif
@@ -15837,7 +15829,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		return 0;
 #endif
 
-	int iDefenderStrength;
+	int iDefenderStrength = 0;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -15854,7 +15846,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
-		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation())
+		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation(this))
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
@@ -17953,13 +17945,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	pNewPlot = GC.getMap().plot(iX, iY);
 
-	//sanity check - interferes with carriers for land units, so don't fix it
+	//sanity check - may interfere with carriers for land units, so don't fix it
 	/*
 	if (pNewPlot)
 	{
-		if ( !pNewPlot->needsEmbarkation() && isEmbarked() )
+		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() )
 			setEmbarked(false);
-		if ( pNewPlot->needsEmbarkation() && CanEverEmbark() && !isEmbarked() )
+		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() )
 			setEmbarked(true);
 	}
 	*/
@@ -24858,8 +24850,8 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation() && CanEverEmbark();
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif

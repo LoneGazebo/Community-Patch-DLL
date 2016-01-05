@@ -6826,11 +6826,8 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 				int iImpassable = 0;
 
 				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-				for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 				{
 					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -7056,11 +7053,8 @@ void CvMinorCivAI::DoRebellion()
 		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
 
 		// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -9500,11 +9494,8 @@ void CvMinorCivAI::DoDefection()
 	CvCity* pCity = GetPlayer()->getCapitalCity();
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 	//Let's kill off any barbs remaining.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 

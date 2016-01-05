@@ -1728,9 +1728,7 @@ CvGlobals::CvGlobals() :
 	m_iCULTURE_COST_VISIBLE_DIVISOR(5),
 	m_iCULTURE_PLOT_COST_MOD_MINIMUM(-85),
 	m_iMINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER(150),
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	m_iMAXIMUM_WORK_PLOT_DISTANCE(3),
-#endif
 	m_iMAXIMUM_BUY_PLOT_DISTANCE(3),
 	m_iMAXIMUM_ACQUIRE_PLOT_DISTANCE(5),
 	m_iPLOT_INFLUENCE_BASE_MULTIPLIER(100),
@@ -2383,11 +2381,8 @@ void CvGlobals::init()
 	};
 
 	// these are now in hex-space coords
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	int aiRingPlotXOffset[MAX_CITY_PLOTS] =
-#else
-	int aiRingPlotXOffset[NUM_CITY_PLOTS] =
-#endif
 	{
 		//	0
 		0,
@@ -2397,23 +2392,15 @@ void CvGlobals::init()
 		0,  1,  2,  2,  2,  1,  0,  -1, -2, -2, -2, -1,
 		//	19	20	21	22	23	24	25	26	27	28	29	30	31	32	33	34	35	36
 		0,  1,  2,  3,  3,  3,  3,  2,  1,  0,  -1, -2, -3, -3, -3, -3, -2, -1,
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		//	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	54	55	56	57	58	59	60
-			0,  1,  2,  3,  4,  4,  4,  4,  4,  3,  2,  1,  0,  -1,  -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,
+		0,  1,  2,  3,  4,  4,  4,  4,  4,  3,  2,  1,  0,  -1,  -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,
 		//	61	62	63	64	65	66	67	68	69	70	71	72	73	74	75	76	77	78	79	80	81	82	83	84  85  86  87  88  89  90
-			0,  1,  2,  3,  4,  5,  5,  5,  5,  5,  5,  4,  3,  2,  1,  0,  -1, -2, -3, -4, -5, -5, -5, -5, -5, -5, -4, -3, -2, -1,
+		0,  1,  2,  3,  4,  5,  5,  5,  5,  5,  5,  4,  3,  2,  1,  0,  -1, -2, -3, -4, -5, -5, -5, -5, -5, -5, -4, -3, -2, -1,
 		// The pattern for the Nth ring is 0 .. N, (N-1) * N, N .. -N, (N-1) * -N, -N .. -1
-#else
-		//	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	54	55	56	57	58	59	60
-		//	0,  1,  2,  3,  4,  4,  4,  4,  4,  3,  2,  1,  0,  -1,  -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,
-#endif
 	};
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	int aiRingPlotYOffset[MAX_CITY_PLOTS] =
-#else
-	int aiRingPlotYOffset[NUM_CITY_PLOTS] =
-#endif
 	{
 		//	0
 		0,
@@ -2423,44 +2410,28 @@ void CvGlobals::init()
 		2,  1,  0, -1,	-2, -2, -2, -1,  0,  1,  2,  2,
 		//	19	20	21	22	23	24	25	26	27	28	29	30	31	32	33	34	35	36
 		3,  2,  1,  0,  -1, -2, -3, -3, -3, -3, -2, -1,  0,  1,  2,  3,  3,  3,
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		//	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	54	55	56	57	58	59	60
-			4,  3,  2,  1,  0, -1, -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,  0,  1,  2,  3,  4,  4,  4,  4,
+		4,  3,  2,  1,  0, -1, -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,  0,  1,  2,  3,  4,  4,  4,  4,
 		//	61	62	63	64	65	66	67	68	69	70	71	72	73	74	75	76	77	78	79	80	81	82	83	84  85  86  87  88  89  90
-			5,  4,  3,  2,  1,  0,  -1, -2, -3, -4, -5, -5, -5, -5, -5, -5, -4, -3, -2, -1,  0,  1,  2,  3, 4,  5,  5,  5,  5,  5,
+		5,  4,  3,  2,  1,  0,  -1, -2, -3, -4, -5, -5, -5, -5, -5, -5, -4, -3, -2, -1,  0,  1,  2,  3, 4,  5,  5,  5,  5,  5,
 		// The pattern for the Nth ring is N .. -N, (N-1) * -N, -N .. N, (N-1) * N
-#else
-		//	37	38	39	40	41	42	43	44	45	46	47	48	49	50	51	52	53	54	55	56	57	58	59	60
-		//	4,  3,  2,  1,  0, -1, -2, -3, -4, -4, -4, -4, -4, -3, -2, -1,  0,  1,  2,  3,  4,  4,  4,  4,
-#endif
 	};
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	int aiCityPlotPriority[MAX_CITY_PLOTS] =
-#else
-	int aiCityPlotPriority[NUM_CITY_PLOTS] =
-#endif
 	{
 		0,
 		1,  1,  1,  1,  1,  1,
 		2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 		3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
 		5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
 		// The pattern for the Nth ring is (6*N) N
-#else
-		//4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
-#endif
 	};
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	int aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1] =
-#else
-	int aaiRingPlotIndex[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER] =
-#endif
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		// this is the 5 ring layout
 		//	 -5  -4  -3  -2  -1   0   1   2   3  4  5  -- in the Y direction
 		{-1, -1, -1, -1, -1, 81, 82, 83, 84, 85, 86,}, // -5 hex-space x
@@ -2475,40 +2446,6 @@ void CvGlobals::init()
 		{72, 45, 44, 43, 42, 41, 65, -1, -1, -1, -1,}, //  4 hex-space x
 		{71, 70, 69, 68, 67, 66, -1, -1, -1, -1, -1,}, //  5 hex-space x
 		// There is no pattern to this, adding a ring requires adding a new row at the top and bottom AND a -1 entry at the start and end of each existing row
-#endif
-		// this is the 4 ring layout
-		/*
-		//	 -4  -3  -2  -1   0   1   2   3  4  -- in the Y direction
-		{-1, -1, -1, -1, 53, 54, 55, 56, 57,}, // -4 hex-space x
-		{-1, -1, -1, 52, 31, 32, 33, 34, 58,}, // -3 hex-space x
-		{-1, -1, 51, 30, 15, 16, 17, 35, 59,}, // -2 hex-space x
-		{-1, 50, 29, 14,  5,  6, 18, 36, 60,}, // -1 hex-space x
-		{49, 28, 13,  4,  0,  1,  7, 19, 37,}, //  0 hex-space x
-		{48, 27, 12,  3,  2,  8, 20, 38, -1,}, //  1 hex-space x
-		{47, 26, 11, 10,  9, 21, 39, -1, -1,}, //  2 hex-space x
-		{46, 25, 24, 23, 22, 40, -1, -1, -1,}, //  3 hex-space x
-		{45, 44, 43, 42, 41, -1, -1, -1, -1,}, //  4 hex-space x
-		*/
-#if !defined(MOD_GLOBAL_CITY_WORKING)
-		// this is the 3 ring layout
-		//	 -3  -2  -1   0   1   2   3    -- in the Y direction
-		{-1, -1, -1, 31, 32, 33, 34,}, // -3 hex-space x
-		{-1, -1, 30, 15, 16, 17, 35,}, // -2 hex-space x
-		{-1, 29, 14,  5,  6, 18, 36,}, // -1 hex-space x
-		{28, 13,  4,  0,  1,  7, 19,}, //  0 hex-space x
-		{27, 12,  3,  2,  8, 20, -1,}, //  1 hex-space x
-		{26, 11, 10,  9, 21, -1, -1,}, //  2 hex-space x
-		{25, 24, 23, 22, -1, -1, -1,}, //  3 hex-space x
-#endif
-		/*
-		// this is the 2 ring layout
-		//	-2   -1   0   1   2      -- in the Y direction
-		{-1, -1, 16, 17, 18,}, // -2 hex-space x
-		{-1, 15,  5,  6,  7,}, // -1 hex-space x
-		{14,  4,  0,  1,  8,}, //  0 hex-space x
-		{13,  3,  2,  9, -1,}, //  1 hex-space x
-		{12, 11, 10, -1, -1,}, //  2 hex-space x
-		*/
 	};
 
 	DirectionTypes aeTurnRightDirection[NUM_DIRECTION_TYPES] =
@@ -2874,7 +2811,6 @@ int* CvGlobals::getCityPlotPriority()
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	CvAssertMsg(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) return -1;
@@ -2882,15 +2818,6 @@ int CvGlobals::getRingIterationIndexHex(int i, int j)
 	CvAssertMsg(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
 	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) return -1;
-#else
-	CvAssertMsg(i < CITY_PLOTS_DIAMETER, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	if(i < 0 || i >= CITY_PLOTS_DIAMETER) return -1;
-
-	CvAssertMsg(j < CITY_PLOTS_DIAMETER, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	if(j < 0 || j >= CITY_PLOTS_DIAMETER) return -1;
-#endif
 
 	return m_aaiRingPlotIndex[i][j];
 }
@@ -6187,14 +6114,8 @@ void CvGlobals::cacheGlobals()
 	m_iCULTURE_COST_VISIBLE_DIVISOR = getDefineINT("CULTURE_COST_VISIBLE_DIVISOR");
 	m_iCULTURE_PLOT_COST_MOD_MINIMUM = getDefineINT("CULTURE_PLOT_COST_MOD_MINIMUM");
 	m_iMINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER = getDefineINT("MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER");
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	m_iMAXIMUM_WORK_PLOT_DISTANCE = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, getDefineINT("MAXIMUM_WORK_PLOT_DISTANCE")));
-#endif
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	m_iMAXIMUM_BUY_PLOT_DISTANCE = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, getDefineINT("MAXIMUM_BUY_PLOT_DISTANCE")));
-#else
-	m_iMAXIMUM_BUY_PLOT_DISTANCE = getDefineINT("MAXIMUM_BUY_PLOT_DISTANCE");
-#endif
 	m_iMAXIMUM_ACQUIRE_PLOT_DISTANCE = getDefineINT("MAXIMUM_ACQUIRE_PLOT_DISTANCE");
 	m_iPLOT_INFLUENCE_BASE_MULTIPLIER = getDefineINT("PLOT_INFLUENCE_BASE_MULTIPLIER");
 	m_iPLOT_INFLUENCE_DISTANCE_MULTIPLIER = getDefineINT("PLOT_INFLUENCE_DISTANCE_MULTIPLIER");

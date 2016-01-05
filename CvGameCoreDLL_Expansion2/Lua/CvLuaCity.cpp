@@ -318,7 +318,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetLocalResourceWonderProductionMod);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 #endif
@@ -3038,7 +3038,7 @@ int CvLuaCity::lGetLocalResourceWonderProductionMod(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetLocalResourceWonderProductionMod);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int GetBuyPlotDistance();
 int CvLuaCity::lGetBuyPlotDistance(lua_State* L)
@@ -5044,7 +5044,7 @@ int CvLuaCity::lSetBuildingYieldChange(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetNumCityPlots(lua_State* L)
 {
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->GetNumWorkablePlots());
 #else

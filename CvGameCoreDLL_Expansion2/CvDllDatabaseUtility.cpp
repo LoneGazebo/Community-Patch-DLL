@@ -265,21 +265,12 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "BARBARIAN_PLAYER", BARBARIAN_PLAYER);
 		InsertGameDefine(kInsertDefine, "BARBARIAN_TEAM", BARBARIAN_TEAM);
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		InsertGameDefine(kInsertDefine, "NUM_CITY_PLOTS", AVG_CITY_PLOTS);
 		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
-#else
-		InsertGameDefine(kInsertDefine, "NUM_CITY_PLOTS", NUM_CITY_PLOTS);
-#endif
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
-#if defined(MOD_GLOBAL_CITY_WORKING)
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
-#else
-		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", CITY_PLOTS_RADIUS);
-		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", CITY_PLOTS_DIAMETER);
-#endif
 	}
 
 	db->EndTransaction();

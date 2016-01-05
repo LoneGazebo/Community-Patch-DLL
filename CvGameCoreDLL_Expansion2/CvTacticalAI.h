@@ -1045,11 +1045,7 @@ private:
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	FStaticVector<CvTacticalTarget, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
-#else
-	FStaticVector<CvTacticalTarget, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
-#endif
+	FStaticVector<CvTacticalTarget, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
@@ -1073,13 +1069,8 @@ private:
 	// Blocking (and flanking) position data
 	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_PotentialBlocks;
 	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_TemporaryBlocks;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	FStaticVector<CvBlockingUnit, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
-	FStaticVector<CvBlockingUnit, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
-#else
-	FStaticVector<CvBlockingUnit, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
-	FStaticVector<CvBlockingUnit, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
-#endif
+	FStaticVector<CvBlockingUnit, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
+	FStaticVector<CvBlockingUnit, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
 
 	// Operational AI support data
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_OperationUnits;

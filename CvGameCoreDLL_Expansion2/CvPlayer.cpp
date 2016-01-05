@@ -3419,9 +3419,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int iOldCityRings = pOldCity->getWorkPlotDistance();
-#endif
 
 #if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 	pOldCity->PreKill(bVenice);
@@ -3455,12 +3453,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pCityPlot,iOldCityRings*2);
-#else	
-	GC.getMap().updateWorkingCity(pCityPlot,NUM_CITY_RINGS*2);
-#endif
-
 	// Lost the capital!
 	if(bCapital)
 	{
@@ -3977,12 +3970,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - moved this here so that conquest victory is tested with each city capture
 	GC.getGame().DoTestConquestVictory();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
-#else	
-	GC.getMap().updateWorkingCity(pCityPlot,NUM_CITY_RINGS*2);
-#endif
-
 	if(bConquest)
 	{
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -4545,7 +4533,6 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed) const
 	return true;
 }
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 /// How far out this player may buy plots
 int CvPlayer::getBuyPlotDistance() const
@@ -4581,7 +4568,7 @@ int CvPlayer::GetNumWorkablePlots() const
 {
 	return ((6 * (1+getWorkPlotDistance()) * getWorkPlotDistance() / 2) + 1);
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
@@ -7262,11 +7249,8 @@ int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
 
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-		for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
 			pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
@@ -15277,11 +15261,8 @@ void CvPlayer::DoUprising()
 		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
 
 		// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 

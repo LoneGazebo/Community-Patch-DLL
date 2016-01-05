@@ -103,11 +103,9 @@ public:
 
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance(int iChange = 0) const;
 	int GetNumWorkablePlots(int iChange = 0) const;
-#endif
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, bool bPotential = false) const;

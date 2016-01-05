@@ -7632,10 +7632,9 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 
 	DomainTypes eDomain = pUnit->getDomainType();
 
-#if defined(MOD_BALANCE_CORE)
 	if(eDomain == DOMAIN_LAND)
 	{
-		if(!pUnit->CanEverEmbark() && pPlot->isWater())
+		if(!pUnit->CanEverEmbark() && pPlot->needsEmbarkation(pUnit))
 		{
 			return false;
 		}
@@ -7644,18 +7643,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	{
 		return false;
 	}
-#else
-	if(pPlot->area() != pUnit->area())
-	{
-		if(!pUnit->CanEverEmbark())
-		{
-			if(!(eDomain == DOMAIN_SEA && pPlot->isWater()))
-			{
-				return false;
-			}
-		}
-	}
-#endif
+
 	// don't let the auto-explore end it's turn in a city
 	CvCity* pCity = pPlot->getPlotCity();
 	if(pCity && pCity->getOwner() != pUnit->getOwner())
@@ -7896,7 +7884,7 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand)
 {
 	// Look at spaces adjacent to target
-	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && 

@@ -113,11 +113,9 @@ public:
 	void getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCivilization) const;
 	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true) const;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance() const;
 	int GetNumWorkablePlots() const;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);

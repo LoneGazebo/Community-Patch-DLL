@@ -406,12 +406,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	int iRange = pPlayer ? pPlayer->getWorkPlotDistance() : 3;
-#else
-	int iRange = NUM_CITY_RINGS;
-#endif
 
+	int iRange = pPlayer ? pPlayer->getWorkPlotDistance() : 3;
 	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for (int iDY = -iRange; iDY <= iRange; iDY++)
@@ -1489,12 +1485,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes
 	}
 
 	// We have our own special method of scoring, so don't call the base class for that (like settler version does)
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	int iLimit = AVG_CITY_PLOTS;
-	for(int iI = 0; iI < iLimit; iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
+	for(int iI = 0; iI < RING3_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 
@@ -1506,13 +1497,6 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes
 		else
 		{
 			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-#if defined(MOD_GLOBAL_CITY_WORKING)
-			if(iDistance > AVG_CITY_RADIUS)
-				continue;
-#else	
-			if(iDistance > NUM_CITY_RINGS) 
-				continue;
-#endif
 			int iRingModifier = m_iRingModifier[iDistance];
 
 			// Skip the city plot itself for now

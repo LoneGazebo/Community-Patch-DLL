@@ -81,14 +81,9 @@ void CvCityCitizens::Reset()
 
 	int iI;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	m_vWorkedPlots.clear();
 	CvAssertMsg((0 < MAX_CITY_PLOTS),  "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
 	for(iI = 0; iI < MAX_CITY_PLOTS; iI++)
-#else
-	CvAssertMsg((0 < NUM_CITY_PLOTS),  "NUM_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		m_pabWorkingPlot[iI] = false;
 		m_pabForcedWorkingPlot[iI] = false;
@@ -167,7 +162,6 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piBuildingGreatPeopleRateChanges, GC.getNumSpecialistInfos());
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	m_vWorkedPlots.clear();
 	for (int i=0; i<MAX_CITY_PLOTS; i++)
 	{
@@ -181,7 +175,6 @@ void CvCityCitizens::Read(FDataStream& kStream)
 			}
 		}
 	}
-#endif
 }
 
 /// Serialization write
@@ -1943,11 +1936,8 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 #endif
 
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -2109,7 +2099,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
-#if defined(MOD_GLOBAL_CITY_WORKING)
 
 	int iPlotNum = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 	std::vector<int>::iterator it = std::find( m_vWorkedPlots.begin(), m_vWorkedPlots.end(), iPlotNum );
@@ -2128,11 +2117,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if(IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
-#else
-	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
-
-	if(IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
-#endif
 	{
 		m_pabWorkingPlot[iIndex] = bNewValue;
 
@@ -2220,23 +2204,16 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
-#else
-	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
-#endif
 
+	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 	// Clicking ON the city "resets" it to default setup
 	if(iIndex == CITY_HOME_PLOT)
 	{
 		CvPlot* pLoopPlot;
 
 		// If we've forced any plots to be worked, reset them to the normal state
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			if(iPlotLoop != CITY_HOME_PLOT)
 			{
@@ -2353,15 +2330,9 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if(IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
-#else
-	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
-
-	if(IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
-#endif
 	{
 		m_pabForcedWorkingPlot[iIndex] = bNewValue;
 
@@ -2424,11 +2395,8 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 #endif
 
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -2520,11 +2488,8 @@ bool CvCityCitizens::IsAnyPlotBlockaded() const
 	CvPlot* pLoopPlot;
 
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -2566,11 +2531,8 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 	int iI;
 	CvPlot* pPlot;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		pPlot = GetCityPlotFromIndex(iI);
 

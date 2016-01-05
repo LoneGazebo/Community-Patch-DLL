@@ -3579,11 +3579,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			int iNumResourceGiven = 0;
 			int iNumResourceTotal = iNumResource;
 			CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-			for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 			{
 				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
@@ -3604,11 +3601,8 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			}
 			if(iNumResourceGiven < iNumResourceTotal)
 			{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-				for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 				{
 					pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 

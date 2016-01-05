@@ -895,7 +895,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBuyPlotCost);
 	Method(GetPlotDanger);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS) 
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 #endif
@@ -8912,7 +8912,7 @@ int CvLuaPlayer::lGetPlotDanger(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetPlotDanger(*pkPlot));
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int getBuyPlotDistance();
 int CvLuaPlayer::lGetBuyPlotDistance(lua_State* L)

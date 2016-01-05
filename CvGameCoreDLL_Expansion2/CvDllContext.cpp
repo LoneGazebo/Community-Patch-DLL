@@ -668,7 +668,6 @@ int CvDllGameContext::GetAI_HANDICAP() const
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetNUM_CITY_PLOTS() const
 {
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int iNumCityPlots = AVG_CITY_PLOTS;
 	
 	auto_ptr<ICvCity1> pCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
@@ -678,9 +677,6 @@ int CvDllGameContext::GetNUM_CITY_PLOTS() const
 	}
 				
 	return iNumCityPlots;
-#else
-	return NUM_CITY_PLOTS;
-#endif
 }
 //------------------------------------------------------------------------------
 const char** CvDllGameContext::GetHexDebugLayerNames()

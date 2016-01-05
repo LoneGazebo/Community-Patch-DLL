@@ -3076,7 +3076,8 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (pPlot->needsEmbarkation())
+		//don't pillage on water
+		if (pPlot->isWater())
 		{
 			pTarget = GetNextZoneTarget();
 			continue;
@@ -10687,8 +10688,8 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	int iBestScore = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
-	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
-	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
+	// Look at spaces adjacent to target
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
@@ -13590,8 +13591,8 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 	if (pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY || pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY_TO_DEFEND)
 		iReqUnits = 4;
 
-	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
-	for(int iI = 1; iI < AVG_CITY_PLOTS; iI++)
+	// Look at spaces adjacent to target
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
 		if (!pLoopPlot)

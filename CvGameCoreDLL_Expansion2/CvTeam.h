@@ -375,7 +375,7 @@ public:
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
-void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
+	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
 #else
 	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);
 #endif

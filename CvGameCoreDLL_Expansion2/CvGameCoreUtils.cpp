@@ -127,11 +127,8 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 {
 	int iDeltaHexX = 0;
 	int iDeltaHexY = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	if(iIndex < MAX_CITY_PLOTS)
-#else
-	if(iIndex < NUM_CITY_PLOTS)
-#endif
 	{
 		iDeltaHexX = GC.getCityPlotX()[iIndex]; // getCityPlotX now uses hex-space coords
 		iDeltaHexY = GC.getCityPlotY()[iIndex];

@@ -1389,11 +1389,8 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 
 						// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 						for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-						for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 						{
 							pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 

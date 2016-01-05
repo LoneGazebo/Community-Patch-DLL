@@ -6869,23 +6869,18 @@ public:
 	{
 		return m_iMINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER;
 	}
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	inline int getMAXIMUM_WORK_PLOT_DISTANCE()
 	{
 		return m_iMAXIMUM_WORK_PLOT_DISTANCE;
 	}
-#endif
 	inline int getMAXIMUM_BUY_PLOT_DISTANCE()
 	{
 		return m_iMAXIMUM_BUY_PLOT_DISTANCE;
 	}
 	inline int getMAXIMUM_ACQUIRE_PLOT_DISTANCE()
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		return std::min(m_iMAXIMUM_ACQUIRE_PLOT_DISTANCE, MAX_CITY_RADIUS);
-#else
-		return m_iMAXIMUM_ACQUIRE_PLOT_DISTANCE;
-#endif
 	}
 	inline int getPLOT_INFLUENCE_BASE_MULTIPLIER()
 	{
@@ -8845,27 +8840,15 @@ protected:
 	CvTwoLayerPathFinder* m_interfacePathFinder;
 	CvPathFinder* m_ignoreUnitsPathFinder;
 	CvPathFinder* m_stepFinder;
-
-
+	
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
-#if defined(MOD_BALANCE_CORE)
 	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES+2];
 	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES+2];
-#else
-	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES];
-	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES];
-#endif
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	int m_aiRingPlotXOffset[MAX_CITY_PLOTS];
 	int m_aiRingPlotYOffset[MAX_CITY_PLOTS];
 	int m_aiCityPlotPriority[MAX_CITY_PLOTS];
 	int m_aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1];
-#else
-	int m_aiRingPlotXOffset[NUM_CITY_PLOTS];
-	int m_aiRingPlotYOffset[NUM_CITY_PLOTS];
-	int m_aiCityPlotPriority[NUM_CITY_PLOTS];
-	int m_aaiRingPlotIndex[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
-#endif
 
 	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];
 	DirectionTypes m_aeTurnRightDirection[NUM_DIRECTION_TYPES];
@@ -10628,9 +10611,7 @@ protected:
 	int m_iCULTURE_COST_VISIBLE_DIVISOR;
 	int m_iCULTURE_PLOT_COST_MOD_MINIMUM;
 	int m_iMINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER;
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int m_iMAXIMUM_WORK_PLOT_DISTANCE;
-#endif
 	int m_iMAXIMUM_BUY_PLOT_DISTANCE;
 	int m_iMAXIMUM_ACQUIRE_PLOT_DISTANCE;
 	int m_iPLOT_INFLUENCE_BASE_MULTIPLIER;

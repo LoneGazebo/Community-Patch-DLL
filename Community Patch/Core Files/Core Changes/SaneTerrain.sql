@@ -10,16 +10,6 @@ WHERE Type = 'TERRAIN_MOUNTAIN';
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset)
 SELECT 'ART_DEF_TERRAIN_MOUNTAIN' , 'Terrain' , 'Sv_TerrainHexGrasslands.dds';
 
--- treat water tiles as impassable without the proper tech
-
-UPDATE Terrains
-SET Impassable = '1', PassableTechTerrain = 'TECH_FISHING'
-WHERE Type = 'TERRAIN_COAST';
-
-UPDATE Terrains
-SET Impassable = '1', PassableTechTerrain = 'TECH_ASTRONOMY'
-WHERE Type = 'TERRAIN_OCEAN';
-
 -- Ice is impassable!
 
 UPDATE Features

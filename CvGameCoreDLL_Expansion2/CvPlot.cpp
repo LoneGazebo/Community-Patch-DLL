@@ -2653,11 +2653,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										{
 											if(pLoopCity != NULL)
 											{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 												for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-												for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 												{
 													CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2679,11 +2676,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
 										if(pCity != NULL)
 										{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 											for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-											for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 											{
 												CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -3260,9 +3254,20 @@ bool CvPlot::IsAllowsWalkWater() const
 	return false;
 }
 
-bool CvPlot::needsEmbarkation() const
+bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-	return isWater() && !isIce() && !IsAllowsWalkWater();
+	if (pUnit==NULL)
+		return isWater() && !isIce() && !IsAllowsWalkWater();
+	else
+	{
+		//only land units need to embark
+		if (pUnit->getDomainType()==DOMAIN_LAND)
+		{
+			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
+		}
+		else
+			return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -5503,11 +5508,8 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 	CvPlot* pLoopPlot;
 	int iI;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
 		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -5536,11 +5538,8 @@ void CvPlot::updatePotentialCityWork()
 
 	bValid = false;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
 		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -6233,7 +6232,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 				if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange)
 					continue;
 
-				if (pLoopPlot->IsBlockadeUnit(ePlayer,false))
+				if (pLoopPlot->isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
 					return true;
 			}
 		}
@@ -6359,11 +6358,8 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
 				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -8176,11 +8172,8 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 
 	// Loop through nearby plots to find the closest city to link to
 	CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iJ = 0; iJ < MAX_CITY_PLOTS; iJ++)
-#else
-	for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 	{
 		// We're not actually looking around a City but Resources have to be within the RANGE of a City, so we can still use this
 		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
@@ -8262,11 +8255,8 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
 				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -8297,11 +8287,8 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 
 		if(isCity())
 		{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
 				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -8357,11 +8344,8 @@ void CvPlot::updateWorkingCity()
 	{
 		iBestPlot = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-		for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 		{
 			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
@@ -14393,35 +14377,15 @@ void CvPlot::UpdatePlotsWithLOS()
 	}
 }
 
-//void checkNeighborOffset(CvPlot* pPlot, int iRange)
-//{
-//	CvString res = CvString::format("Plot %d,%d: Range %d\n",pPlot->getX(),pPlot->getY(),iRange);
-//	OutputDebugString(res.c_str());
-//	for (int iDX = -iRange; iDX <= iRange; iDX++)
-//		for (int iDY = -iRange; iDY <= iRange; iDY++)
-//		{
-//			CvPlot *pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-//			if (pLoopPlot && plotDistance(*pPlot,*pLoopPlot)==iRange)
-//			{
-//				CvString res = CvString::format("\t%d,%d\n",iDX,iDY);
-//				OutputDebugString(res.c_str());
-//			}
-//		}
-//}
-
-int g_ciNumNeighborsRange2 = 12;
-int g_ciNumNeighborsRange3 = 18;
-int g_aiOffsetXRange2[] = {-2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2};
-int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
-int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
-int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
-
 bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
 {
 	vResult.clear();
 
 	//for now, we can only do up to range 3
-	//TODO: on the fly lookup for range 4 etc
+	if (iRange<1 || iRange>3)
+		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
+
+	iRange = max(1,iRange);
 	iRange = min(3,iRange);
 
 	if (bWithLOS)
@@ -14457,19 +14421,19 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 				return true;
 			}
 		case 2:
-			vResult.reserve(g_ciNumNeighborsRange2);
-			for (int i=0; i<g_ciNumNeighborsRange2; i++)
+			vResult.reserve( RING2_PLOTS-RING1_PLOTS );
+			for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange2[i], getY()+g_aiOffsetYRange2[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
 			return true;
 		case 3:
-			vResult.reserve(g_ciNumNeighborsRange3);
-			for (int i=0; i<g_ciNumNeighborsRange3; i++)
+			vResult.reserve( RING3_PLOTS-RING2_PLOTS );
+			for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange3[i], getY()+g_aiOffsetYRange3[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
@@ -14477,8 +14441,6 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 		}
 	}
 
-	//todo: compute plots on the fly?
-	OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 	return false;
 }
 

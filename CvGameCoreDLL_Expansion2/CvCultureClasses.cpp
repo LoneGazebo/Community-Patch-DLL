@@ -7129,7 +7129,6 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 	int iRtnValue = 0;
 
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
 	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
 	{
@@ -7139,32 +7138,6 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 			iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
 		}
 	}
-#else
-	CvPlot* pLoopPlot;
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-	{
-		if(iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = m_pCity->GetCityCitizens()->GetCityPlotFromIndex(iPlotLoop);
-
-			if(pLoopPlot != NULL)
-			{
-				// Is this a Plot this City controls?
-				if(pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == m_pCity->GetID())
-				{
-					// Working the Plot?
-					if (m_pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-					{
-						if(pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsNaturalWonder())
-						{
-							iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return iRtnValue;
 }
 
@@ -7178,7 +7151,6 @@ int CvCityCulture::GetCultureFromImprovements() const
 	int iRtnValue = 0;
 	
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
 	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
 	{
@@ -7207,51 +7179,7 @@ int CvCityCulture::GetCultureFromImprovements() const
 			}
 		}
 	}
-#else
-	CvPlot* pLoopPlot;
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-	{
-		if(iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = m_pCity->GetCityCitizens()->GetCityPlotFromIndex(iPlotLoop);
 
-			if(pLoopPlot != NULL)
-			{
-				// Is this a Plot this City controls?
-				if(pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == m_pCity->GetID())
-				{
-					// Working the Plot?
-					if (m_pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-					{
-						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-						if (eImprovement != NO_IMPROVEMENT)
-						{
-							iRtnValue += pLoopPlot->calculateYield(eYield);
-
-							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-							if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
-							{
-#if defined(MOD_API_UNIFIED_YIELDS)
-								int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-#else
-								int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-#endif
-								if(iAdjacentCulture > 0)
-								{
-#if defined(MOD_API_UNIFIED_YIELDS)
-									iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-#else
-									iRtnValue += pLoopPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-#endif
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return iRtnValue;
 }
 
