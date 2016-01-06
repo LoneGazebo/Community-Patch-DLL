@@ -4283,6 +4283,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 	// Part 2 : player traits and unit traits ---------------------------------------------------
 
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
 	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
 	if(enterPlot.isImpassable(getTeam()))
 	{
@@ -4294,8 +4296,6 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(enterPlot.isValidRoute(this))
 			return true;
 
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
 		// Check high seas
 		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
@@ -4305,7 +4305,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			}
 			else if(eDomain == DOMAIN_LAND)
 			{
-				return IsEmbarkAllWater() || kPlayer.CanCrossOcean();
+				return IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean();
 			}
 		}
 
@@ -4349,9 +4349,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			}
 
 			PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
-			bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy);
+			bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
+				(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
 
-			if(bOceanImpassableUntilAstronomy)
+			if(bOceanImpassableUntilAstronomy )
 			{
 				CvTeam& kTeam = GET_TEAM(getTeam());
 				if (!kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() ))

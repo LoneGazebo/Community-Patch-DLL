@@ -1117,7 +1117,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - determine heuristic cost
-int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
+int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
 	//a normal move is 60 times the base cost
 	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*40; 
@@ -1608,7 +1608,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Default heuristic cost
-int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
+int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
 	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2;
 }
