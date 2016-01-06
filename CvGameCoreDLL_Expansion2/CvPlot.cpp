@@ -89,7 +89,7 @@ void ClearPlotDeltas()
 	std::set<int>::iterator i;
 	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 	{
-		CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
+		CvPlot* plot = GC.getMap().plotByIndex(*i);
 
 		if(plot)
 		{

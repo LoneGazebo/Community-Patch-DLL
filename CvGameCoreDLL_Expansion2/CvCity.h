@@ -1255,8 +1255,8 @@ public:
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
 	bool HasTerrain(TerrainTypes iTerrainType) const;
 	bool HasWorkedTerrain(TerrainTypes iTerrainType) const;
-	bool HasAnyDomesticTradeRoute() const;
-	bool HasAnyInternationalTradeRoute() const;
+	bool HasAnyDomesticTradeRoute(bool bOutgoing = true) const;
+	bool HasAnyInternationalTradeRoute(bool bOutgoing = true) const;
 	bool HasTradeRouteToAnyCity() const;
 	bool HasTradeRouteTo(CvCity* pCity) const;
 	bool HasTradeRouteFromAnyCity() const;

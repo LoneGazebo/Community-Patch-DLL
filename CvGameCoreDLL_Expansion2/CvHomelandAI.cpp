@@ -7477,7 +7477,6 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pLog->Msg(strLog);
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
@@ -7507,7 +7506,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 				if(bPushMission)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, aDirective[0].m_eDirective, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 				}
 
 				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
@@ -7517,40 +7516,6 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				}
 				UnitProcessed(pUnit->GetID());
 			}
-#else
-			if(eMission == CvTypes::getMISSION_BUILD())
-			{
-				// check to see if we already have this mission as the unit's head mission
-				bool bPushMission = true;
-				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
-				if(pkMissionData != NULL)
-				{
-					if(pkMissionData->eMissionType == eMission && pkMissionData->iData1 == aDirective[0].m_eBuild)
-					{
-						bPushMission = false;
-					}
-				}
-
-				if(bPushMission)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
-				}
-
-				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
-				if(pUnit->ReadyToMove())
-				{
-					pUnit->finishMoves();
-				}
-				UnitProcessed(pUnit->GetID());
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
-			}
-#endif
-
 			return true;
 		}
 		break;

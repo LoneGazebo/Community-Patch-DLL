@@ -1120,7 +1120,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
 {
 	//a normal move is 60 times the base cost
-	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*30 + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*2; 
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*40; 
 }
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a path
@@ -1610,7 +1610,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 /// Default heuristic cost
 int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2 + angularDeviation(iCurrentX, iCurrentY, iNextX, iNextY, iDestX, iDestY) * 2;
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2020,7 +2020,7 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 //	--------------------------------------------------------------------------------
 /// Build route cost
-int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
+int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
@@ -2028,7 +2028,13 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const 
 		//do not check if the type matches exactly - put railroads over roads
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 	else
-		return PATH_BASE_COST;
+	{
+		// if the tile already been tagged for building a road, then provide a discount
+		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer)
+			return PATH_BASE_COST/2;
+		else
+			return PATH_BASE_COST;
+	}
 }
 
 //	--------------------------------------------------------------------------------

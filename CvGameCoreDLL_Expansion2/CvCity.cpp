@@ -15244,45 +15244,53 @@ int CvCity::getUnhappinessFromConnection() const
 	}
 #endif
 
-	float fUnhappiness = 0.0f;
-	
 	//note: it's only connected to the capital if it's not blockaded
-	if(!IsConnectedToCapital())
+	if(IsConnectedToCapital())
 	{
-		if(/*0.25f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
-		{
-			int iRealCityPop = getPopulation();
-			fUnhappiness += (float) iRealCityPop * /*0.25f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
+		return 0;
+	}
+
+	//if we have an internal traderoute, whether in or out, it's just as good as a route
+	if ( (HasAnyDomesticTradeRoute(true) || HasAnyDomesticTradeRoute(false)) && !IsBlockadedWaterAndLand() )
+	{
+		return 0;
+	}
+
+	//ok, how much unhappiness do we generate?
+	float fUnhappiness = 0.0f;
+	if(GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0) /*0.25f*/
+	{
+		int iRealCityPop = getPopulation();
+		fUnhappiness += (float) iRealCityPop * /*0.25f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-			if(IsPuppet())
-			{
-				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
-			}
+		if(IsPuppet())
+		{
+			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+		}
 #endif
-			if(fUnhappiness < 0)
-			{
-				return 0;
-			}
-			if(getUnhappyCitizenCount() > 0)
-			{
-				iRealCityPop -= getUnhappyCitizenCount();
-			}
-			if(fUnhappiness > iRealCityPop)
-			{
-				changeUnhappyCitizenCount(iRealCityPop);
-				return iRealCityPop;
-			}
-			else
-			{
-				changeUnhappyCitizenCount((int)fUnhappiness);
-			}
-			return (int) fUnhappiness;
+		if(fUnhappiness < 0)
+		{
+			return 0;
+		}
+		if(getUnhappyCitizenCount() > 0)
+		{
+			iRealCityPop -= getUnhappyCitizenCount();
+		}
+		if(fUnhappiness > iRealCityPop)
+		{
+			changeUnhappyCitizenCount(iRealCityPop);
+			return iRealCityPop;
 		}
 		else
 		{
-			fUnhappiness = 1;
-			changeUnhappyCitizenCount(1);
+			changeUnhappyCitizenCount((int)fUnhappiness);
 		}
+		return (int) fUnhappiness;
+	}
+	else
+	{
+		fUnhappiness = 1;
+		changeUnhappyCitizenCount(1);
 	}
 
 	return (int) fUnhappiness;
@@ -25474,7 +25482,7 @@ bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 	return false;
 }
 
-bool CvCity::HasAnyDomesticTradeRoute() const
+bool CvCity::HasAnyDomesticTradeRoute(bool bOutgoing) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
@@ -25482,14 +25490,16 @@ bool CvCity::HasAnyDomesticTradeRoute() const
 			continue;
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		if ( GetID()==pConnection->m_iOriginID && getOwner()==pConnection->m_eDestOwner )
+		if ( bOutgoing && GetID()==pConnection->m_iOriginID && getOwner()==pConnection->m_eDestOwner )
+			return true;
+		if ( !bOutgoing && GetID()==pConnection->m_iDestID && getOwner()==pConnection->m_eOriginOwner )
 			return true;
 	}
 
 	return false;
 }
 
-bool CvCity::HasAnyInternationalTradeRoute() const
+bool CvCity::HasAnyInternationalTradeRoute(bool bOutgoing) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
@@ -25497,7 +25507,9 @@ bool CvCity::HasAnyInternationalTradeRoute() const
 			continue;
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		if ( GetID()==pConnection->m_iOriginID && getOwner()!=pConnection->m_eDestOwner )
+		if ( bOutgoing && GetID()==pConnection->m_iOriginID && getOwner()!=pConnection->m_eDestOwner )
+			return true;
+		if ( !bOutgoing && GetID()==pConnection->m_iDestID && getOwner()!=pConnection->m_eOriginOwner )
 			return true;
 	}
 
