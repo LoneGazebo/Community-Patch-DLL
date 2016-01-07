@@ -250,14 +250,10 @@
 #define MOD_GLOBAL_PROMOTION_CLASSES                gCustomMods.isGLOBAL_PROMOTION_CLASSES()
 // Permits ships to enter coastal forts/citadels in friendly lands
 #define MOD_GLOBAL_PASSABLE_FORTS                   gCustomMods.isGLOBAL_PASSABLE_FORTS()
-// Permits ships to enter any forts/citadels (based on code supplied by 12monkeys)
-#define MOD_GLOBAL_PASSABLE_FORTS_ANY               (MOD_GLOBAL_PASSABLE_FORTS && gCustomMods.isGLOBAL_PASSABLE_FORTS_ANY())
 // Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22)
 #define MOD_GLOBAL_ANYTIME_GOODY_GOLD               gCustomMods.isGLOBAL_ANYTIME_GOODY_GOLD()
 // Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker
 #define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
-// Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space
-#define MOD_GLOBAL_CITY_WORKING                     gCustomMods.isGLOBAL_CITY_WORKING()
 // Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
 #define MOD_GLOBAL_ALPINE_PASSES                    gCustomMods.isGLOBAL_ALPINE_PASSES()
 // Permits City States to gift ships
@@ -284,17 +280,6 @@
 #define MOD_GLOBAL_NO_OCEAN_PLUNDERING              gCustomMods.isGLOBAL_NO_OCEAN_PLUNDERING()
 // Remove assembled spaceship parts from conquered capitals
 #define MOD_GLOBAL_NO_CONQUERED_SPACESHIPS          gCustomMods.isGLOBAL_NO_CONQUERED_SPACESHIPS()
-// Modified blockade logic (v52)
-// The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded"
-// HOWEVER - this includes the situations where
-//   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port)
-//   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port)
-// What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself
-#define MOD_GLOBAL_ADJACENT_BLOCKADES               gCustomMods.isGLOBAL_ADJACENT_BLOCKADES()
-// Adjacent allied ships block blockades by enemy ships 2 or more tiles away
-#define MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES           gCustomMods.isGLOBAL_ALLIES_BLOCK_BLOCKADES()
-// Embarked combat units only blockade adjacent tiles
-#define MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES         gCustomMods.isGLOBAL_SHORT_EMBARKED_BLOCKADES()
 // Other player's settlers captured from Barbarians will sometimes remain as settlers
 #define MOD_GLOBAL_GRATEFUL_SETTLERS                gCustomMods.isGLOBAL_GRATEFUL_SETTLERS()
 // Units that can found a city take their religion with them (v34)
@@ -1191,7 +1176,6 @@ public:
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GREAT_ADMIRAL);
 	MOD_OPT_DECL(GLOBAL_PROMOTION_CLASSES);
 	MOD_OPT_DECL(GLOBAL_PASSABLE_FORTS);
-	MOD_OPT_DECL(GLOBAL_PASSABLE_FORTS_ANY);
 	MOD_OPT_DECL(GLOBAL_ANYTIME_GOODY_GOLD);
 	MOD_OPT_DECL(GLOBAL_CITY_FOREST_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_WORKING);
@@ -1208,9 +1192,6 @@ public:
 	MOD_OPT_DECL(GLOBAL_CAPTURE_AFTER_ATTACKING);
 	MOD_OPT_DECL(GLOBAL_NO_OCEAN_PLUNDERING);
 	MOD_OPT_DECL(GLOBAL_NO_CONQUERED_SPACESHIPS);
-	MOD_OPT_DECL(GLOBAL_ADJACENT_BLOCKADES);
-	MOD_OPT_DECL(GLOBAL_ALLIES_BLOCK_BLOCKADES);
-	MOD_OPT_DECL(GLOBAL_SHORT_EMBARKED_BLOCKADES);
 	MOD_OPT_DECL(GLOBAL_GRATEFUL_SETTLERS);
 	MOD_OPT_DECL(GLOBAL_RELIGIOUS_SETTLERS);
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES);

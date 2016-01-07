@@ -73,7 +73,7 @@
 
 	-- 1.5
 	UPDATE Defines
-	SET Value = '2.05'
+	SET Value = '2.08'
 	WHERE Name = 'CITY_GROWTH_EXPONENT';
 
 	-- 8
@@ -111,11 +111,11 @@
 	WHERE Name = 'CULTURE_COST_FIRST_PLOT';
 
 	UPDATE Defines
-	SET Value = '15'
+	SET Value = '16'
 	WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
 
 	UPDATE Defines
-	SET Value = '1.3'
+	SET Value = '1.32'
 	WHERE Name = 'CULTURE_COST_LATER_PLOT_EXPONENT';
 -- END
 	-- Unit upgrades more expensive based on era and production needed

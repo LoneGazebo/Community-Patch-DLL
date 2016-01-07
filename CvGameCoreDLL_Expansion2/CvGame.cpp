@@ -1037,6 +1037,7 @@ void CvGame::uninit()
 
 	m_bScoreDirty = false;
 	m_bCircumnavigated = false;
+	m_eTechAstronomy = NO_TECH;
 	m_bDebugMode = false;
 	m_bDebugModeCache = false;
 	m_bFOW = true;
@@ -1079,7 +1080,6 @@ void CvGame::uninit()
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iLargestBasePotential = 0;
 #endif
-
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -1303,6 +1303,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 		CvAssertMsg(m_pAdvisorRecommender==NULL, "about to leak memory, CvGame::m_pAdvisorRecommender");
 		m_pAdvisorRecommender = FNEW(CvAdvisorRecommender, c_eCiv5GameplayDLL, 0);
+
+		m_eTechAstronomy = (TechTypes)GC.getInfoTypeForString("TECH_ASTRONOMY");
 	}
 
 	m_mapRand.reset();
@@ -5174,11 +5176,8 @@ void CvGame::initScoreCalculation()
 		CvEraInfo& kStartEra = getStartEraInfo();
 		int iNumSettlers = kStartEra.getStartingUnitMultiplier();
 		m_iInitPopulation = getPopulationScore(iNumSettlers * (kStartEra.getFreePopulation() + 1));
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		m_iInitLand = getLandPlotsScore(iNumSettlers *  AVG_CITY_PLOTS);
-#else
-		m_iInitLand = getLandPlotsScore(iNumSettlers *  NUM_CITY_PLOTS);
-#endif
 	}
 	else
 	{
@@ -5295,6 +5294,10 @@ void CvGame::setScoreDirty(bool bNewValue)
 	m_bScoreDirty = bNewValue;
 }
 
+TechTypes CvGame::getOceanPassableTech() const
+{
+	return m_eTechAstronomy;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isCircumnavigated() const

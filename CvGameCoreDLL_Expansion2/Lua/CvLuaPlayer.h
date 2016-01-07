@@ -943,7 +943,7 @@ protected:
 	static int lGetBuyPlotCost(lua_State* L);
 	static int lGetPlotDanger(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
 #endif

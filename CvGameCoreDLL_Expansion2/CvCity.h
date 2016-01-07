@@ -103,11 +103,9 @@ public:
 
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance(int iChange = 0) const;
 	int GetNumWorkablePlots(int iChange = 0) const;
-#endif
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, bool bPotential = false) const;
@@ -475,6 +473,9 @@ public:
 	int GetJONSCulturePerTurnFromGreatWorks() const;
 
 	int GetJONSCulturePerTurnFromTraits() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
+#endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -660,7 +661,6 @@ public:
 	int getUnhappinessFromPillaged() const;
 	int getUnhappinessFromStarving() const;
 	int getUnhappinessFromMinority() const;
-	bool IsConnectedToTradeNetwork() const;
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
@@ -713,10 +713,11 @@ public:
 	void SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue);
 #endif
 
-	bool IsBlockaded() const;
-#if defined(MOD_BALANCE_CORE)
-	bool IsBlockadedTest() const;
-#endif
+	//check both water and land
+	bool IsBlockadedWaterAndLand() const;
+	//check water or land
+	bool IsBlockaded(bool bWater) const;
+
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
 	void ChangeWeLoveTheKingDayCounter(int iChange);
@@ -935,6 +936,10 @@ public:
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);
+
+	bool IsBastion() const;
+	void SetBastion(bool bValue);
+	void TestBastion();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1257,8 +1262,8 @@ public:
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
 	bool HasTerrain(TerrainTypes iTerrainType) const;
 	bool HasWorkedTerrain(TerrainTypes iTerrainType) const;
-	bool HasAnyDomesticTradeRoute() const;
-	bool HasAnyInternationalTradeRoute() const;
+	bool HasAnyDomesticTradeRoute(bool bOutgoing = true) const;
+	bool HasAnyInternationalTradeRoute(bool bOutgoing = true) const;
 	bool HasTradeRouteToAnyCity() const;
 	bool HasTradeRouteTo(CvCity* pCity) const;
 	bool HasTradeRouteFromAnyCity() const;
@@ -1284,6 +1289,10 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
+	int CountNumWorkedFeature(FeatureTypes eFeature);
+	int CountNumWorkedImprovement(ImprovementTypes eImprovement);
+	int CountNumWorkedResource(ResourceTypes eResource);
+	int CountNumImprovement(ImprovementTypes eImprovement);
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1487,6 +1496,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
+	FAutoVariable<bool, CvCity> m_bIsBastion;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;

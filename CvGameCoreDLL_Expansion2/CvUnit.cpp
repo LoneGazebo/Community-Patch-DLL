@@ -349,6 +349,8 @@ CvUnit::CvUnit() :
 	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
+	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
 	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
 	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
 #endif
@@ -1260,6 +1262,16 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+	{
+		SetScienceBlastStrength(getDiscoverAmount());
+	}
+	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		SetCultureBlastStrength(getGivePoliciesCulture());
+	}
+#endif
 
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
@@ -1809,7 +1821,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+	{
+		SetScienceBlastStrength(getDiscoverAmount());
+	}
+	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		SetCultureBlastStrength(getGivePoliciesCulture());
+	}
+#endif
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
 	{
@@ -2414,6 +2435,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(IsGreatPerson())
 	{
 		int iTourism = kPlayer.GetEventTourism();
+		kPlayer.ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		int iPreviousTurnsToCount = 10;
 		// Calculate boost
@@ -2460,8 +2482,13 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	//safety first
-	if(CanEverEmbark() && GC.getMap().plot(iX,iY)->needsEmbarkation())
-		setEmbarked(true);
+	if(GC.getMap().plot(iX,iY)->needsEmbarkation(this))
+	{
+		if (CanEverEmbark())
+			setEmbarked(true);
+		else
+			OutputDebugString("warning: putting un-embarkable unit on water plot!\n");
+	}
 
 	if(bSetupGraphical)
 		setupGraphical();
@@ -2741,6 +2768,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = (uint)-1;
 #if defined(MOD_BALANCE_CORE)
+	m_iScienceBlastStrength = 0;
+	m_iCultureBlastStrength = 0;
 	m_uiLastPathFlags = 0;
 #endif
 
@@ -2959,6 +2988,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
+				if((ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY()) && (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() || GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage()))
+				{
+					bGivePromotion = false;
+					bFree = false;
+				}
 #endif
 			}
 
@@ -2969,6 +3003,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
+				if((ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY()) && (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() || GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage()))
+				{
+					bGivePromotion = false;
+					bFree = false;
+				}
 #endif
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -3017,7 +3056,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
 	SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
-
+#if defined(MOD_BALANCE_CORE)
+	SetScienceBlastStrength(pUnit->getDiscoverAmount());
+	SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+#endif
 	if (pUnit->getUnitInfo().GetNumExoticGoods() > 0)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
@@ -4270,8 +4312,15 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			return false;
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
+	if (enterPlot.needsEmbarkation(this))
+	{
+		if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
+			return false;
+	}
 
 	// Part 2 : player traits and unit traits ---------------------------------------------------
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
 	if(enterPlot.isImpassable(getTeam()))
@@ -4284,38 +4333,16 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(enterPlot.isValidRoute(this))
 			return true;
 
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
-		// Check coastal water
-		if (enterPlot.isShallowWater() && enterPlot.getFeatureType()==NO_FEATURE)
-		{
-			if(eDomain == DOMAIN_SEA)
-			{
-				return true;
-			}
-			else
-			{
-				return IsHasEmbarkAbility() && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
-			}
-		}
-
 		// Check high seas
 		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-
-			if(bOceanImpassable)
-			{	
-				return false;
-			}
-			else if(eDomain == DOMAIN_SEA)
+			if(eDomain == DOMAIN_SEA)
 			{
 				return canCrossOceans() || kPlayer.CanCrossOcean();
 			}
 			else if(eDomain == DOMAIN_LAND)
 			{
-				return (IsEmbarkAllWater() || kPlayer.CanCrossOcean()) && !(iMoveFlags & MOVEFLAG_NO_EMBARK);
+				return IsEmbarkAllWater() || IsEmbarkDeepWater() || kPlayer.CanCrossOcean();
 			}
 		}
 
@@ -4353,10 +4380,20 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
 			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-
 			if(bOceanImpassable)
-			{	
+			{
 				return false;
+			}
+
+			PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+			bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
+				(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
+
+			if(bOceanImpassableUntilAstronomy )
+			{
+				CvTeam& kTeam = GET_TEAM(getTeam());
+				if (!kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() ))
+					return false;
 			}	
 		}
 
@@ -4742,7 +4779,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 			}
 
 			// can't embark and attack in one go. however, disembark to attack is allowed
-			if(CanEverEmbark() && plot.needsEmbarkation())
+			if(CanEverEmbark() && plot.needsEmbarkation(this))
 			{
 				return false;
 			}
@@ -5056,10 +5093,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	int iMoveCost = targetPlot.movementCost(this, plot());
 
 	// we need to get our dis/embarking on
-	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation() != pOldPlot->needsEmbarkation());
+	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation(this) != pOldPlot->needsEmbarkation(this));
 	if (bChangeEmbarkedState)
 	{
-		if(isEmbarked() && !targetPlot.needsEmbarkation()) // moving from water to the land
+		if(isEmbarked() && !targetPlot.needsEmbarkation(this)) // moving from water to the land
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -5090,7 +5127,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			finishMoves();
 #endif
 		}
-		else if(!isEmbarked() && targetPlot.needsEmbarkation())  // moving from land to the water
+		else if(!isEmbarked() && targetPlot.needsEmbarkation(this))  // moving from land to the water
 		{
 			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
 				PublishQueuedVisualizationMoves();
@@ -5145,7 +5182,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
+		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 		{
 			if(canMoveInto(*pLoopPlot))
 			{
@@ -5242,7 +5279,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot->isValidDomainForLocation(*this) && isNativeDomain(pLoopPlot))
+				if(pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 				{
 					if(canMoveInto(*pLoopPlot))
 					{
@@ -6548,7 +6585,7 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	if(!targetPlot.needsEmbarkation())
+	if(!targetPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6558,7 +6595,7 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	if(originPlot.needsEmbarkation())
+	if(originPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6581,7 +6618,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	if(targetPlot.needsEmbarkation())
+	if(targetPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -6591,7 +6628,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	if(!originPlot.needsEmbarkation())
+	if(!originPlot.needsEmbarkation(this))
 	{
 		return false;
 	}
@@ -9081,11 +9118,8 @@ bool CvUnit::sellExoticGoods()
 				CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
 				if(pCity != NULL)
 				{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 					for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-					for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 					{
 						
 						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
@@ -9104,11 +9138,7 @@ bool CvUnit::sellExoticGoods()
 					}
 					if(!bAlreadyHere)
 					{
-#if defined(MOD_GLOBAL_CITY_WORKING)			
 						for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-						for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 						{
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
 							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
@@ -10842,8 +10872,10 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 int CvUnit::getDiscoverAmount()
 {
 	int iValue = 0;
+#if !defined(MOD_BALANCE_CORE)
 	CvPlot* pPlot = plot();
 	if(canDiscover(pPlot))
+#endif
 	{
 		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
@@ -10917,7 +10949,11 @@ bool CvUnit::discover()
 	if (!pTeam) return false;
 
 	// Beakers boost based on previous turns
+#if defined(MOD_BALANCE_CORE)
+	int iBeakersBonus = GetScienceBlastStrength();
+#else
 	int iBeakersBonus = getDiscoverAmount();
+#endif
 	TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
 	if(eCurrentTech == NO_TECH)
 	{
@@ -11308,7 +11344,7 @@ bool CvUnit::trade()
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+				if(eLoopPlayer != NO_PLAYER && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -12131,8 +12167,10 @@ bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) con
 int CvUnit::getGivePoliciesCulture()
 {
 	int iValue = 0;
+#if !defined(MOD_BALANCE_CORE)
 	CvPlot* pPlot = plot();
 	if(canGivePolicies(pPlot))
+#endif
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -12164,7 +12202,11 @@ bool CvUnit::givePolicies()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 	// Culture boost based on previous turns
+#if defined(MOD_BALANCE_CORE)
+	int iCultureBonus = GetCultureBlastStrength();
+#else
 	int iCultureBonus = getGivePoliciesCulture();
+#endif
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
@@ -13489,19 +13531,42 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 }
 #endif
 
-
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 {
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return pPlot->needsEmbarkation()==isEmbarked();
+		return !pPlot->isWater();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->needsEmbarkation();
+		return pPlot->isWater();
+		break;
+	case DOMAIN_HOVER:
+		return true;
+		break;
+	case DOMAIN_IMMOBILE:
+		return false;
+		break;
+	}
+
+	return true;
+}
+
+bool CvUnit::isMatchingDomain(const CvPlot* pPlot) const
+{
+	switch (getDomainType())
+	{
+	case DOMAIN_LAND:
+		return pPlot->needsEmbarkation(this)==isEmbarked();
+		break;
+	case DOMAIN_AIR:
+		return true;
+		break;
+	case DOMAIN_SEA:
+		return pPlot->isWater();
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -14688,8 +14753,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->needsEmbarkation() && CanEverEmbark()));
-	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = (isEmbarked() || (pFromPlot && pFromPlot->needsEmbarkation(this) && CanEverEmbark()));
+	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation(this) && bWouldNeedEmbark;
 #else
 	bool bIsEmbarkedAttackingLand = isEmbarked() && (pToPlot && !pToPlot->isWater());
 
@@ -14768,13 +14833,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(pToPlot->getPlotCity()->IsBlockadedTest())
-			{
-				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
-				iModifier += iTempModifier;
-			}
-#endif
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
@@ -14856,7 +14914,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Amphibious attack
 			if(!isAmphib())
 			{
-				if(pFromPlot->needsEmbarkation() && getDomainType() == DOMAIN_LAND)
+				if(pFromPlot->needsEmbarkation(this))
 				{
 					iTempModifier = GC.getAMPHIB_ATTACK_MODIFIER();
 					iModifier += iTempModifier;
@@ -14902,7 +14960,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	VALIDATE_OBJECT
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (isEmbarked() || (pInPlot && pInPlot->needsEmbarkation() && CanEverEmbark()))
+	if (isEmbarked() || (pInPlot && pInPlot->needsEmbarkation(this) && CanEverEmbark()))
 #else
 	if(m_bEmbarked)
 #endif
@@ -15641,7 +15699,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		if(!pPlot->isValidDomainForLocation(*this) && isNativeDomain(pPlot))
+		if(!pPlot->isValidDomainForLocation(*this) && isMatchingDomain(pPlot))
 		{
 			return false;
 		}
@@ -15821,7 +15879,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		return 0;
 #endif
 
-	int iDefenderStrength;
+	int iDefenderStrength = 0;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -15838,7 +15896,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
-		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation())
+		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation(this))
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
@@ -17937,13 +17995,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	pNewPlot = GC.getMap().plot(iX, iY);
 
-	//sanity check - interferes with carriers for land units, so don't fix it
+	//sanity check - may interfere with carriers for land units, so don't fix it
 	/*
 	if (pNewPlot)
 	{
-		if ( !pNewPlot->needsEmbarkation() && isEmbarked() )
+		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() )
 			setEmbarked(false);
-		if ( pNewPlot->needsEmbarkation() && CanEverEmbark() && !isEmbarked() )
+		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() )
 			setEmbarked(true);
 	}
 	*/
@@ -23127,6 +23185,31 @@ void CvUnit::SetTourismBlastStrength(int iValue)
 {
 	m_iTourismBlastStrength = iValue;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvUnit::GetScienceBlastStrength() const
+{
+	return m_iScienceBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetScienceBlastStrength(int iValue)
+{
+	m_iScienceBlastStrength = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCultureBlastStrength() const
+{
+	return m_iCultureBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCultureBlastStrength(int iValue)
+{
+	m_iCultureBlastStrength = iValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 std::string CvUnit::getScriptData() const
@@ -24581,6 +24664,8 @@ void CvUnit::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iCannotBeCapturedCount, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iForcedDamage, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iChangeDamage, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iScienceBlastStrength, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCultureBlastStrength, 0);
 #endif
 
 	kStream >> m_iGreatAdmiralCount;
@@ -24720,6 +24805,8 @@ void CvUnit::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iCannotBeCapturedCount);
 	MOD_SERIALIZE_WRITE(kStream, m_iForcedDamage);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeDamage);
+	MOD_SERIALIZE_WRITE(kStream, m_iScienceBlastStrength);
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureBlastStrength);
 #endif
 
 	kStream << m_iGreatAdmiralCount;
@@ -24842,8 +24929,8 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation() && CanEverEmbark();
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation() && bWouldNeedEmbark;
+	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
+	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif

@@ -15,6 +15,7 @@
 #include "CvImprovementClasses.h"
 #include "CvCityConnections.h"
 #include "CvGameCoreEnumSerialization.h" //toString(const YieldTypes& v)
+#include "CvTypes.h"
 
 // include after all other headers
 #include "LintFree.h"
@@ -370,7 +371,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (3*iWildPlots > 2*iRoadLength+1 || iWildPlots>10)
+	if (3*iWildPlots > 2*(iRoadLength+1) || iWildPlots>10)
 		return;
 
 	//see if the new route makes sense economically
@@ -590,20 +591,29 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	}
 
 	// find a builder, if I don't have a builder, bail!
-	CvUnit* pBuilder = NULL;
-	CvUnit* pLoopUnit;
+	int iBuilderCount = 0;
 	int iLoopUnit;
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
 		if(pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
 		{
-			pBuilder = pLoopUnit;
-			break;
+			iBuilderCount++;
+
+			//mark the plot if one of our builders is already active there
+			const MissionData* pMission = pLoopUnit->GetHeadMissionData();
+			if (pMission && pMission->eMissionType==CvTypes::getMISSION_BUILD() && pMission->iData2==BuilderDirective::BUILD_ROUTE)
+			{
+				CvPlot* pPlot = pLoopUnit->plot();
+				pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
+				pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
+				pPlot->SetBuilderAIScratchPadValue(100);
+				pPlot->SetBuilderAIScratchPadRoute(eBestRoute);
+			}
 		}
 	}
 
 	// If there's no builder, bail!
-	if(!pBuilder)
+	if(iBuilderCount==0)
 	{
 		return;
 	}
@@ -792,7 +802,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	{
 		if(pLoopUnit != NULL)
 		{
-			if(pLoopUnit->AI_getUnitAIType()==UNITAI_WORKER && pLoopUnit!=pUnit)
+			//ignore others which are in the same plot! they mess up the alternative worker check below
+			if(pLoopUnit->AI_getUnitAIType()==UNITAI_WORKER && pLoopUnit->plot()!=pUnit->plot())
 			{
 				otherWorkers.push_back(pLoopUnit);
 			}

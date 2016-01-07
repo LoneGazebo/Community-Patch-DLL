@@ -98,6 +98,8 @@ public:
 	bool IsAutocracyCorp() const;
 	bool IsFreedomCorp() const;
 	bool IsUpgradeCSTerritory() const;
+	bool IsArchaeologicalDigTourism() const;
+	bool IsGoldenAgeTourism() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -592,6 +594,8 @@ private:
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;
 	bool m_bUpgradeCSTerritory;
+	bool m_bArchaeologicalDigTourism;
+	bool m_bGoldenAgeTourism;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;

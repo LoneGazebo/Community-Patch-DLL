@@ -29,11 +29,7 @@
 #include "CvDLLUtilDefines.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvBarbarians.h"
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
 #include "CvDiplomacyAI.h"
-#endif
-
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 #include "CvUnitMovement.h"
@@ -93,7 +89,7 @@ void ClearPlotDeltas()
 	std::set<int>::iterator i;
 	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 	{
-		CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
+		CvPlot* plot = GC.getMap().plotByIndex(*i);
 
 		if(plot)
 		{
@@ -2657,11 +2653,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										{
 											if(pLoopCity != NULL)
 											{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 												for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-												for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 												{
 													CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2683,11 +2676,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
 										if(pCity != NULL)
 										{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 											for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-											for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 											{
 												CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -3264,9 +3254,20 @@ bool CvPlot::IsAllowsWalkWater() const
 	return false;
 }
 
-bool CvPlot::needsEmbarkation() const
+bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-	return isWater() && !isIce() && !IsAllowsWalkWater();
+	if (pUnit==NULL)
+		return isWater() && !isIce() && !IsAllowsWalkWater();
+	else
+	{
+		//only land units need to embark
+		if (pUnit->getDomainType()==DOMAIN_LAND)
+		{
+			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
+		}
+		else
+			return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -4393,12 +4394,8 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Is there an enemy Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly, bool bNavalUnitsOnly) const
-#else
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-#endif
+// does not check visibility!
+bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam& kTeam = GET_TEAM(eTeam);
@@ -4408,18 +4405,39 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
 		if(pkUnit)
 		{
-			if(kTeam.isAtWar(pkUnit->getTeam()))
+			bool bCorrectOwner = false;
+			if (bFriendly)
 			{
-				if(!bCombatUnitsOnly || pkUnit->IsCombatUnit())
+				if ( pkUnit->getTeam()==eTeam )
 				{
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-					if (!bNavalUnitsOnly || pkUnit->getDomainType() == DOMAIN_SEA)
+					bCorrectOwner = true;
+				}
+				else 
+				{
+					CvPlayer& kOwner = GET_PLAYER(pkUnit->getOwner());
+					// Is it an allied minor or DoF major?
+					if ( (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) ||
+						 (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) )
 					{
-#endif
-						return true;
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
+						bCorrectOwner = true;
 					}
-#endif
+				}
+			}
+			else
+			{
+				bCorrectOwner = kTeam.isAtWar(pkUnit->getTeam());
+			}
+
+			if (bCorrectOwner)
+			{
+				//exclude civilians
+				if(pkUnit->IsCombatUnit())
+				{
+					//exclude embarked units, ships in port etc
+					if (pkUnit->isNativeDomain(this))
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -4427,37 +4445,6 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 
 	return false;
 }
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-//	--------------------------------------------------------------------------------
-/// Is there an allied Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-bool CvPlot::IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-{
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-
-	for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++) {
-		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
-		if (pkUnit) {
-			PlayerTypes eOwner = ((PlayerTypes) pkUnit->getOwner());
-			CvPlayer& kOwner = GET_PLAYER(eOwner);
-			
-			if (ePlayer == eOwner || kPlayer.getTeam() == kOwner.getTeam()) {
-				// It's our unit (or a team member's)
-				return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-			} else {
-				// Is it an allied minor or DoF major?
-				if (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				} else if (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 // Used to restrict number of units allowed on a plot at one time
@@ -5521,13 +5508,10 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 	CvPlot* pLoopPlot;
 	int iI;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -5554,13 +5538,10 @@ void CvPlot::updatePotentialCityWork()
 
 	bValid = false;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -6208,78 +6189,57 @@ bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 	return false;
 }
 
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 {
-	if (!isWater()) {
-		return false;
-	}
-
-	// An enemy ship on the plot trumps all
-	if (getVisibleEnemyDefender(ePlayer)) {
+	// An enemy unit on the plot trumps all
+	if (IsBlockadeUnit(ePlayer,false))
 		return true;
-	}
 
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship on the plot secures the plot
-		if (IsActualAlliedUnit(ePlayer)) {
-			return false;
-		}
-	}
-#endif
+	// An allied unit on the plot secures the plot
+	if (IsBlockadeUnit(ePlayer,true))
+		return false;
 
-	// An enemy ship adjacent to the plot blockades it
-	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop) {
+	// An enemy unit adjacent to the plot blockades it
+	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
+	{
 		CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
+		if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
 			return true;
-		}
 	}
 
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship adjacent to the plot secures it
-		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop) {
-			CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
+	// An allied unit adjacent to the plot secures it
+	for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
+	{
+		CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
 
-			if (pAlliedPlot && (pAlliedPlot->isWater() || pAlliedPlot->isCity()) && pAlliedPlot->IsActualAlliedUnit(ePlayer)) {
-				return false;
-			}
-		}
+		if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
+			return false;
 	}
-#endif
 
-	// An enemy ship 2 tiles away blockades it
-	int iRange = 2;
-	CvPlot* pLoopPlot = NULL;
+	//ships have additional range
+	if (isWater()) 
+	{
+		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
+		CvPlot* pLoopPlot = NULL;
 
-	for (int iDX = -iRange; iDX <= iRange; iDX++) {
-		for (int iDY = -iRange; iDY <= iRange; iDY++) {
-			pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-			if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange) {
-				continue;
-			}
+		for (int iDX = -iRange; iDX <= iRange; iDX++)
+		{
+			for (int iDY = -iRange; iDY <= iRange; iDY++)
+			{
+				pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+				if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange)
+					continue;
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
-				return true;
+				if (pLoopPlot->isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+					return true;
 			}
 		}
 	}
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFlatlands() const
@@ -6398,13 +6358,10 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8215,14 +8172,11 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 
 	// Loop through nearby plots to find the closest city to link to
 	CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iJ = 0; iJ < MAX_CITY_PLOTS; iJ++)
-#else
-	for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 	{
 		// We're not actually looking around a City but Resources have to be within the RANGE of a City, so we can still use this
-		pLoopPlot = plotCity(getX(), getY(), iJ);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -8301,13 +8255,10 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8336,13 +8287,10 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 
 		if(isCity())
 		{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8396,13 +8344,10 @@ void CvPlot::updateWorkingCity()
 	{
 		iBestPlot = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-		for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
+			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -14432,35 +14377,15 @@ void CvPlot::UpdatePlotsWithLOS()
 	}
 }
 
-//void checkNeighborOffset(CvPlot* pPlot, int iRange)
-//{
-//	CvString res = CvString::format("Plot %d,%d: Range %d\n",pPlot->getX(),pPlot->getY(),iRange);
-//	OutputDebugString(res.c_str());
-//	for (int iDX = -iRange; iDX <= iRange; iDX++)
-//		for (int iDY = -iRange; iDY <= iRange; iDY++)
-//		{
-//			CvPlot *pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-//			if (pLoopPlot && plotDistance(*pPlot,*pLoopPlot)==iRange)
-//			{
-//				CvString res = CvString::format("\t%d,%d\n",iDX,iDY);
-//				OutputDebugString(res.c_str());
-//			}
-//		}
-//}
-
-int g_ciNumNeighborsRange2 = 12;
-int g_ciNumNeighborsRange3 = 18;
-int g_aiOffsetXRange2[] = {-2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2};
-int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
-int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
-int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
-
 bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
 {
 	vResult.clear();
 
 	//for now, we can only do up to range 3
-	//TODO: on the fly lookup for range 4 etc
+	if (iRange<1 || iRange>3)
+		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
+
+	iRange = max(1,iRange);
 	iRange = min(3,iRange);
 
 	if (bWithLOS)
@@ -14496,19 +14421,19 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 				return true;
 			}
 		case 2:
-			vResult.reserve(g_ciNumNeighborsRange2);
-			for (int i=0; i<g_ciNumNeighborsRange2; i++)
+			vResult.reserve( RING2_PLOTS-RING1_PLOTS );
+			for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange2[i], getY()+g_aiOffsetYRange2[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
 			return true;
 		case 3:
-			vResult.reserve(g_ciNumNeighborsRange3);
-			for (int i=0; i<g_ciNumNeighborsRange3; i++)
+			vResult.reserve( RING3_PLOTS-RING2_PLOTS );
+			for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange3[i], getY()+g_aiOffsetYRange3[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
@@ -14516,8 +14441,6 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 		}
 	}
 
-	//todo: compute plots on the fly?
-	OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 	return false;
 }
 

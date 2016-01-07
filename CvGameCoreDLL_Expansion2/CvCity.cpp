@@ -259,6 +259,7 @@ CvCity::CvCity() :
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
+	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -624,11 +625,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	setGameTurnAcquired(iGameTurn);
 	setGameTurnLastExpanded(iGameTurn);
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pPlot,getWorkPlotDistance()*2);
-#else	
-	GC.getMap().updateWorkingCity(pPlot,NUM_CITY_RINGS*2);
-#endif
 	GetCityCitizens()->DoFoundCity();
 
 	// Default starting population
@@ -901,6 +898,24 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(ePlayer).GetCityConnections()->Update();
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes) iJ;
+		for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iK;
+			if(eImprovement != NO_IMPROVEMENT)
+			{
+				int iYieldChange = GET_PLAYER(getOwner()).GetImprovementExtraYield(eImprovement, eYield);
+				if(iYieldChange > 0)
+				{
+					ChangeImprovementExtraYield(eImprovement, eYield, iYieldChange);
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
@@ -946,13 +961,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	CvPlot* pLoopPlot;
 
 	// We may need to link Resources to this City if it's constructed within previous borders and the Resources were too far away for another City to link to
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-#else
-	for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iJ);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -1476,6 +1488,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLandTourismBonus = 0;
 	m_iSeaTourismBonus = 0;
 	m_iAlwaysHeal = 0;
+	m_bIsBastion = false;
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -2125,11 +2138,8 @@ void CvCity::PreKill()
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot);
 
 	// Update resources linked to this city
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		CvPlot* pLoopPlot;
 		pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -2285,12 +2295,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pPlot,getWorkPlotDistance()*2);
-#else	
-	GC.getMap().updateWorkingCity(pPlot,NUM_CITY_RINGS*2);
-#endif
-
 	if(bCapital)
 	{
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
@@ -2438,6 +2443,9 @@ void CvCity::doTurn()
 		setDamage(0);
 	}
 #if defined(MOD_BALANCE_CORE)
+	//See if we are a defense-necessary city.
+	TestBastion();
+
 	CvUnit* pLoopUnit;
 	if(plot() != NULL)
 	{
@@ -2639,11 +2647,8 @@ void CvCity::doTurn()
 
 		{
 			AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("doImprovement, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 			{
 				pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2776,11 +2781,8 @@ void CvCity::doTurn()
 
 				iCount = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-#else
-				for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 				{
 					pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
 
@@ -2853,11 +2855,8 @@ void CvCity::updateYield()
 	CvPlot* pLoopPlot;
 	int iI;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2967,6 +2966,7 @@ bool CvCity::IsRouteToCapitalConnected(void) const
 bool CvCity::IsRouteToCapitalConnected(void)
 #endif
 {
+	//todo: unify this with IsConnectedToCapital
 	return m_bRouteToCapitalConnectedThisTurn;
 }
 
@@ -3180,11 +3180,8 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreci
 
 	if (ePossibleOwner!=NO_PLAYER)
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 			//for plots owned by this city
@@ -3316,7 +3313,7 @@ void CvCity::DoRankIncreaseWarning(int iRank)
 	SetRank(iRank);
 }
 #endif
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 //	--------------------------------------------------------------------------------
 /// How far out this city may buy plots
 int CvCity::getBuyPlotDistance() const
@@ -3347,7 +3344,6 @@ int CvCity::GetNumWorkablePlots(int iChange) const
 	int iWorkablePlots = ((6 * (1+getWorkPlotDistance(iChange)) * getWorkPlotDistance(iChange) / 2) + 1);
 	return iWorkablePlots;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::clearWorkingOverride(int iIndex)
@@ -3376,11 +3372,8 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
 
@@ -3419,11 +3412,8 @@ int CvCity::countNumWaterPlots() const
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
 
@@ -3450,11 +3440,8 @@ int CvCity::countNumRiverPlots() const
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
 
@@ -3479,11 +3466,8 @@ int CvCity::countNumForestPlots() const
 	VALIDATE_OBJECT
 	int iCount = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -4618,13 +4602,10 @@ bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 
 	// Loop through all plots near this City to see if we can find eResource - tests are ordered to optimize performance
 	CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iCityPlotLoop);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot
 		if(pLoopPlot == NULL)
@@ -4667,13 +4648,10 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 
 	// Loop through all plots near this City to see if we can find eResource - tests are ordered to optimize performance
 	CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iCityPlotLoop);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 		// Invalid plot
 		if(pLoopPlot == NULL)
@@ -5125,13 +5103,10 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	}
 
 	// Loop through all Plots near this City to see if there's Luxuries we should invalidate
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iPlotLoop);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 
 		if(pLoopPlot != NULL)
 		{
@@ -8072,6 +8047,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				int iTourism = owningPlayer.GetEventTourism();
+				owningPlayer.ChangeNumHistoricEvents(1);
 				// Culture boost based on previous turns
 				int iPreviousTurnsToCount = 10;
 				// Calculate boost
@@ -8958,13 +8934,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			CvPlot* pLoopPlot;
 
 			// Subtract off old luxury counts
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-#else
-			for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iJ);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 				if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 				{
@@ -8988,13 +8961,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeExtraLuxuryResources(iChange);
 
 			// Add in new luxury counts
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-#else
-			for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iJ);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 				if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 				{
@@ -10229,9 +10199,9 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 			iFoodReduction /= 2;
 			iNum -= iFoodReduction;
 		}
-		else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
 		{
-			int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+			int iFoodReduction = iSpecialists * iFoodPerPop;
 			iFoodReduction /= 2;
 			iNum -= iFoodReduction;
 		}
@@ -12011,11 +11981,8 @@ void CvCity::DoJONSCultureLevelIncrease()
 		if (MOD_UI_CITY_EXPANSION && bIsHumanControlled) 
 		{
 			// Yep CITY_PLOTS_RADIUS is a #define and not taken from the database - well done Firaxis!
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			bool bCanAcquirePlot = plotDistance(getX(), getY(), pPlotToAcquire->getX(), pPlotToAcquire->getY()) <= getWorkPlotDistance();
-#else
-			bool bCanAcquirePlot = plotDistance(getX(), getY(), pPlotToAcquire->getX(), pPlotToAcquire->getY()) <= CITY_PLOTS_RADIUS);
-#endif
 			if (bCanAcquirePlot && GetBuyPlotCost(pPlotToAcquire->getX(), pPlotToAcquire->getY()) < 1) {
 				// Within working/buying distance
 				bSendEvent = false;
@@ -12380,22 +12347,16 @@ void CvCity::DoJONSCultureLevelIncrease()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-		int iTotal = 0;
-		if(eTerrainBoost != NO_TERRAIN)
+		if(pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
 		{
-			if(pPlotToAcquire->getTerrainType() == eTerrainBoost)
+			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 			{
-				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
+				if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == pPlotToAcquire->getTerrainType())
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
-					if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == eTerrainBoost)
+					if(pAdjacentPlot->getOwner() == NO_PLAYER)
 					{
-						if(pAdjacentPlot->getOwner() == NO_PLAYER && iTotal < GC.getBALANCE_CORE_ARABIA_TILE_BONUS())
-						{
-							DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
-							iTotal++;
-						}
+						DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
 					}
 				}
 			}
@@ -12594,6 +12555,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
+	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 #endif
 
 	return iCulturePerTurn;
@@ -12672,7 +12634,19 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
+{
+	if(!isCapital())
+	{
+		return 0;
+	}
+	//Currently only used by Arabian CBP UA.
+	int iYield = (GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldFromHistoricEvent(eYield) * GET_PLAYER(m_eOwner).GetNumHistoricEvents());
+	return iYield;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromReligion() const
 {
@@ -12769,6 +12743,7 @@ int CvCity::GetFaithPerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetBaseYieldRateFromCSAlliance(YIELD_FAITH);
+	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -13634,7 +13609,7 @@ void CvCity::changeCityWorkingChange(int iChange)
 		int iNewPlots = GetNumWorkablePlots();
 			
 		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-			CvPlot* pLoopPlot = plotCity(getX(), getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if (pLoopPlot) {
 				pLoopPlot->changeCityRadiusCount(iChange);
@@ -14207,11 +14182,8 @@ bool CvCity::DoRazingTurn()
 			CvCityCitizens* pCitizens = GetCityCitizens();
 
 			// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-#else
-			for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 			{
 				pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -14441,13 +14413,10 @@ void CvCity::DoCreatePuppet()
 	CvPlot* pLoopPlot;
 
 	// Loop through all plots near this City
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iPlotLoop);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 
 		if(pLoopPlot != NULL)
 		{
@@ -14758,7 +14727,7 @@ int CvCity::getThresholdAdditions() const
 	iModifier += iTech;
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
-	iModifier += (getPopulation() / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+	iModifier += (getPopulation() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
 
 	if(isCapital())
 	{
@@ -15284,7 +15253,7 @@ int CvCity::getUnhappinessFromConnection() const
 	{
 		return 0;
 	}
-	if(isCapital() && !IsBlockaded())
+	if(isCapital() && !IsBlockadedWaterAndLand())
 	{
 		return 0;
 	}
@@ -15307,48 +15276,53 @@ int CvCity::getUnhappinessFromConnection() const
 	}
 #endif
 
-	if (IsConnectedToTradeNetwork())
-		return false;
-
-	float fUnhappiness = 0.0f;
-	
-
-	if(!IsConnectedToCapital() || IsBlockaded())
+	//note: it's only connected to the capital if it's not blockaded
+	if(IsConnectedToCapital())
 	{
-		if(/*0.25f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
-		{
-			int iRealCityPop = getPopulation();
-			fUnhappiness += (float) iRealCityPop * /*0.25f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
+		return 0;
+	}
+
+	//if we have an internal traderoute, whether in or out, it's just as good as a route
+	if ( (HasAnyDomesticTradeRoute(true) || HasAnyDomesticTradeRoute(false)) && !IsBlockadedWaterAndLand() )
+	{
+		return 0;
+	}
+
+	//ok, how much unhappiness do we generate?
+	float fUnhappiness = 0.0f;
+	if(GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0) /*0.25f*/
+	{
+		int iRealCityPop = getPopulation();
+		fUnhappiness += (float) iRealCityPop * /*0.25f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-			if(IsPuppet())
-			{
-				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
-			}
+		if(IsPuppet())
+		{
+			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+		}
 #endif
-			if(fUnhappiness < 0)
-			{
-				return 0;
-			}
-			if(getUnhappyCitizenCount() > 0)
-			{
-				iRealCityPop -= getUnhappyCitizenCount();
-			}
-			if(fUnhappiness > iRealCityPop)
-			{
-				changeUnhappyCitizenCount(iRealCityPop);
-				return iRealCityPop;
-			}
-			else
-			{
-				changeUnhappyCitizenCount((int)fUnhappiness);
-			}
-			return (int) fUnhappiness;
+		if(fUnhappiness < 0)
+		{
+			return 0;
+		}
+		if(getUnhappyCitizenCount() > 0)
+		{
+			iRealCityPop -= getUnhappyCitizenCount();
+		}
+		if(fUnhappiness > iRealCityPop)
+		{
+			changeUnhappyCitizenCount(iRealCityPop);
+			return iRealCityPop;
 		}
 		else
 		{
-			fUnhappiness = 1;
-			changeUnhappyCitizenCount(1);
+			changeUnhappyCitizenCount((int)fUnhappiness);
 		}
+		return (int) fUnhappiness;
+	}
+	else
+	{
+		fUnhappiness = 1;
+		changeUnhappyCitizenCount(1);
 	}
 
 	return (int) fUnhappiness;
@@ -15374,13 +15348,10 @@ int CvCity::getUnhappinessFromPillaged() const
 	CvPlot* pLoopPlot;
 	int iPillaged = 0;
 	
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -15603,37 +15574,8 @@ int CvCity::getUnhappinessFromMinority() const
 
 	return 0;
 }
-
-bool CvCity::IsConnectedToTradeNetwork() const
-{
-	if (HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
-	{
-		return true;
-	}
-	int iLoop = 0;
-	CvCity* pLoopCity;
-	for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if (pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity != this)
-		{
-			if (HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
-			{
-				if (pLoopCity->HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || pLoopCity->HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
-				{
-					return true;
-				}
-				else if (pLoopCity->IsConnectedToCapital())
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
 #endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::GetHappinessFromBuildings() const
 {
@@ -15940,115 +15882,31 @@ void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewV
 	m_abOwedChosenBuilding.setAt(eBuildingClass, bNewValue);
 }
 #endif
+
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockaded() const
+bool CvCity::IsBlockadedWaterAndLand() const
 {
-	VALIDATE_OBJECT
-	bool bHasWaterRouteBuilding = false;
+	return IsBlockaded(true) && IsBlockaded(false);
+}
 
-	CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
-
-	// Loop through adding the available buildings
-	for(int i = 0; i < GC.GetGameBuildings()->GetNumBuildings(); i++)
+bool CvCity::IsBlockaded(bool bWater) const
+{
+	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop) 
 	{
-		BuildingTypes eBuilding = (BuildingTypes)i;
-		CvBuildingEntry* pkBuildingInfo = pkGameBuildings->GetEntry(i);
-		if(pkBuildingInfo)
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
+		if (pAdjacentPlot && 
+			pAdjacentPlot->isWater()==bWater && 
+			!pAdjacentPlot->isImpassable(getTeam()) && 
+			!pAdjacentPlot->isBlockaded(getOwner())) 
 		{
-			if(pkBuildingInfo->AllowsWaterRoutes())
-			{
-				if(GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
-				{
-					bHasWaterRouteBuilding = true;
-					break;
-				}
-			}
+			return false;
 		}
-	}
-
-	// there is no water route building, so it can't be blockaded
-	if(!bHasWaterRouteBuilding)
-	{
-		return false;
 	}
 	
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
-	if (MOD_GLOBAL_ADJACENT_BLOCKADES) {
-		for (int iPortLoop = 0; iPortLoop < NUM_DIRECTION_TYPES; ++iPortLoop) {
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iPortLoop));
-			if (pAdjacentPlot && pAdjacentPlot->isWater() && !pAdjacentPlot->isBlockaded(getOwner())) {
-				return false;
-			}
-		}
-	
-		return true;
-	} else {
-#endif
-		int iRange = 2;
-		CvPlot* pLoopPlot = NULL;
-
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-				if(!pLoopPlot)
-				{
-					continue;
-				}
-
-				if(pLoopPlot->isWater() && pLoopPlot->getVisibleEnemyDefender(getOwner()))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
-	}
-#endif
+	//note: if a city is landlocked, it is permanently blockaded from sea side by definition
+	return true;
 }
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-bool CvCity::IsBlockadedTest() const
-{
-	VALIDATE_OBJECT
-	int iRange = 1;
-	int iFriendly = 0;
-	int iEnemy = 0;
-	CvPlot* pLoopPlot = NULL;
 
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
-	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-			if(!pLoopPlot)
-			{
-				continue;
-			}
-			if(pLoopPlot->isWater() && (pLoopPlot->getUnitByIndex(0) != NULL) && (pLoopPlot->getUnitByIndex(0)->getDomainType() == DOMAIN_SEA) && (pLoopPlot->getUnitByIndex(0)->IsCombatUnit()))
-			{
-				if(pLoopPlot->getUnitByIndex(0)->getOwner() == getOwner())
-				{
-					iFriendly++;
-				}
-				else if(GET_TEAM(GET_PLAYER(pLoopPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
-				{
-					iEnemy++;
-				}
-			}
-		}
-	}
-	if(iEnemy > iFriendly)
-	{
-		return true;
-	}
-
-	return false;
-}
-#endif
 //	--------------------------------------------------------------------------------
 /// Amount of turns left in WLTKD
 int CvCity::GetWeLoveTheKingDayCounter() const
@@ -16803,6 +16661,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromReligion(eIndex);
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
+	iValue += GetYieldPerTurnFromTraits(eIndex);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(GetCorporationYieldChange(eIndex) > 0)
@@ -17772,6 +17631,80 @@ void CvCity::SetAlwaysHeal(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iAlwaysHeal = iChange;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBastion() const
+{
+	VALIDATE_OBJECT
+	return m_bIsBastion;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::TestBastion()
+{
+	//Check to see if this is a city we really need to defend.
+	if(isCapital())
+	{
+		if(!IsBastion())
+		{
+			SetBastion(true);
+		}
+		return;
+	}
+	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
+	{
+		if(!IsBastion())
+		{
+			SetBastion(true);
+		}
+		return;
+	}
+	//Coastal? Check for lake, otherwise make a bastion (better safe than sorry).
+	if(plot()->isCoastalLand())
+	{
+		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+		bool bLake = false;
+		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+		{
+			bLake = GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound);
+			if(!bLake)
+			{
+				if(!IsBastion())
+				{
+					SetBastion(true);
+				}
+				return;
+			}
+		}
+	}
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
+		{
+			if(plot()->IsHomeFrontForPlayer(eLoopPlayer))
+			{
+				if(!IsBastion())
+				{
+					SetBastion(true);
+				}
+				return;
+			}
+		}
+	}
+	//Not a frontier city, and not a chokepoint? Not a bastion.
+	if(IsBastion())
+	{
+		SetBastion(false);
+	}
+	return;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBastion(bool bValue)
+{
+	VALIDATE_OBJECT
+	m_bIsBastion = bValue;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -19128,11 +19061,8 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		return false;
 
 	// Max range of 3
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	const int iMaxRange = getBuyPlotDistance();
-#else
-	const int iMaxRange = /*3*/ GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-#endif
 	if(plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return false;
 
@@ -19178,11 +19108,8 @@ bool CvCity::CanBuyAnyPlot(void)
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot = NULL;
 	CvPlot* pThisPlot = plot();
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	const int iMaxRange = getBuyPlotDistance();
-#else
-	const int iMaxRange = GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-#endif
 	CvMap& thisMap = GC.getMap();
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -19323,9 +19250,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 	bool bFoundAdjacentOwnedByCity;
 
 	int iDX, iDY;
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int iWorkPlotDistance = getWorkPlotDistance();
-#endif
 
 	ImprovementTypes eBarbCamptype = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
@@ -19407,11 +19332,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 						if (bBonusResource)
 #endif
 						{
-#if defined(MOD_GLOBAL_CITY_WORKING)
 							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
-#else	
-							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > NUM_CITY_RINGS)
-#endif
 							{
 								// undo the bonus - we can't work this tile from this city
 								iInfluenceCost -= iPLOT_INFLUENCE_RESOURCE_COST;
@@ -19441,11 +19362,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 						}
 
 						// if we can't work this tile in this city make it much less likely to be picked
-#if defined(MOD_GLOBAL_CITY_WORKING)
 						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
-#else	
-						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > NUM_CITY_RINGS)
-#endif
 						{
 							iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
 						}
@@ -19481,16 +19398,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
-#if defined(MOD_BALANCE_CORE)
-						TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-						if(eTerrainBoost != NO_TERRAIN)
-						{
-							if(pLoopPlot->getTerrainType() == eTerrainBoost)
-							{
-								iInfluenceCost -= (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pLoopPlot->getTerrainType(), (YieldTypes) iYieldLoop) * 25);
-							}
-						}
-#endif
 						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes) iYieldLoop));
 					}
 
@@ -19509,22 +19416,14 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 								if (eAdjacentResource != NO_RESOURCE)
 								{
 									// if we are close enough to work, or this is not a bonus resource
-#if defined(MOD_GLOBAL_CITY_WORKING)
 									if (iPlotDistance <= iWorkPlotDistance || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
-#else	
-									if (iPlotDistance <= NUM_CITY_RINGS || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
-#endif
 									{
 										--iInfluenceCost;
 									}
 								}
 								if (pAdjacentPlot->IsNaturalWonder())
 								{
-#if defined(MOD_GLOBAL_CITY_WORKING)
 									if (iPlotDistance <= iWorkPlotDistance) // grab for this city
-#else	
-									if (iPlotDistance <= NUM_CITY_RINGS) // grab for this city
-#endif
 									{
 										bUnownedNaturalWonderAdjacentCount = true;
 									}
@@ -19611,11 +19510,8 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	// Influence cost factor (e.g. Hills are more expensive than flat land)
 	CvMap& thisMap = GC.getMap();
 	CvPlot* pThisPlot = plot();
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	const int iMaxRange = getBuyPlotDistance();
-#else
-	const int iMaxRange = /*3*/ GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-#endif
 	if(plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return 9999; // Critical hit!
 
@@ -19733,13 +19629,10 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 
 		// See if there's anyone else nearby that could get upset by this action
 		CvCity* pNearbyCity;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
-			pPlot = plotCity(iPlotX, iPlotY, iI);
+			pPlot = iterateRingPlots(iPlotX, iPlotY, iI);
 
 			if(pPlot != NULL)
 			{
@@ -19753,7 +19646,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 						if(pPlot2 != NULL)
 						{
 							int iDistance = plotDistance(pNearbyCity->getX(), pNearbyCity->getY(), pPlot2->getX(), pPlot2->getY());
-							if(iDistance <= GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT())
+							if(iDistance <= (max(1, GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() - 1)))
 							{
 								pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
 							}
@@ -19967,12 +19860,8 @@ int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 {
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot = NULL;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	const int iMaxRange = getBuyPlotDistance();
-#else
-	const int iMaxRange = /*3*/ GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-#endif
 
+	const int iMaxRange = getBuyPlotDistance();
 	int iBestScore = -1;
 	int iTempScore;
 
@@ -20071,16 +19960,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		eYield = (YieldTypes) iI;
 
 		iYield = pPlot->calculateNatureYield(eYield, getOwner());
-#if defined(MOD_BALANCE_CORE)
-		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-		if(eTerrainBoost != NO_TERRAIN)
-		{
-			if(pPlot->getTerrainType() == eTerrainBoost)
-			{
-				iYield += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYield) * 5);
-			}
-		}
-#endif
+
 		iTempValue = 0;
 
 		if(eYield == eSpecializationYield)
@@ -22037,6 +21917,16 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+			{
+				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
+			}
+			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+			{
+				pUnit->SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+			}
+#endif
 
 			kPlayer.ChangeFaith(-iFaithCost);
 
@@ -23025,6 +22915,7 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iLandTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iSeaTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAlwaysHeal, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_bIsBastion, false);
 	MOD_SERIALIZE_READ(68, kStream, m_bNoWarmonger, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -23472,6 +23363,7 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iLandTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iSeaTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iAlwaysHeal);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsBastion);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoWarmonger);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -24224,7 +24116,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	if (pInPlot->needsEmbarkation() && pDefender->CanEverEmbark())
+	if (pInPlot->needsEmbarkation(pDefender))
 #else
 	if (pDefender->isEmbarked())
 #endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -24590,13 +24482,10 @@ void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 	{
 		CvPlot* pLoopPlot;
 		int nForests = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
+			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -24619,13 +24508,10 @@ void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 		int iCityX = getX();
 		int iCityY = getY();
 		PlayerTypes eCityOwner = getOwner();
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
-			CvPlot* pLoopPlot = plotCity(iCityX, iCityY, iI);
+			CvPlot* pLoopPlot = iterateRingPlots(iCityX, iCityY, iI);
 
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == eCityOwner && pLoopPlot->isLake())
 			{
@@ -25374,13 +25260,10 @@ bool CvCity::HasFeature(FeatureTypes iFeatureType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25399,13 +25282,10 @@ bool CvCity::HasWorkedFeature(FeatureTypes iFeatureType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25429,13 +25309,10 @@ bool CvCity::HasAnyNaturalWonder() const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25459,13 +25336,10 @@ bool CvCity::HasImprovement(ImprovementTypes iImprovementType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25484,13 +25358,10 @@ bool CvCity::HasWorkedImprovement(ImprovementTypes iImprovementType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25514,13 +25385,10 @@ bool CvCity::HasPlotType(PlotTypes iPlotType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25539,13 +25407,10 @@ bool CvCity::HasWorkedPlotType(PlotTypes iPlotType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25579,13 +25444,10 @@ bool CvCity::HasResource(ResourceTypes iResourceType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25614,13 +25476,10 @@ bool CvCity::HasWorkedResource(ResourceTypes iResourceType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25678,13 +25537,10 @@ bool CvCity::HasTerrain(TerrainTypes iTerrainType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25703,13 +25559,10 @@ bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-	for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 	{
-		CvPlot* pLoopPlot = plotCity(iX, iY, iCityPlotLoop);
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
@@ -25729,7 +25582,7 @@ bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 	return false;
 }
 
-bool CvCity::HasAnyDomesticTradeRoute() const
+bool CvCity::HasAnyDomesticTradeRoute(bool bOutgoing) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
@@ -25737,14 +25590,16 @@ bool CvCity::HasAnyDomesticTradeRoute() const
 			continue;
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		if ( GetID()==pConnection->m_iOriginID && getOwner()==pConnection->m_eDestOwner )
+		if ( bOutgoing && GetID()==pConnection->m_iOriginID && getOwner()==pConnection->m_eDestOwner )
+			return true;
+		if ( !bOutgoing && GetID()==pConnection->m_iDestID && getOwner()==pConnection->m_eOriginOwner )
 			return true;
 	}
 
 	return false;
 }
 
-bool CvCity::HasAnyInternationalTradeRoute() const
+bool CvCity::HasAnyInternationalTradeRoute(bool bOutgoing) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
@@ -25752,7 +25607,9 @@ bool CvCity::HasAnyInternationalTradeRoute() const
 			continue;
 
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
-		if ( GetID()==pConnection->m_iOriginID && getOwner()!=pConnection->m_eDestOwner )
+		if ( bOutgoing && GetID()==pConnection->m_iOriginID && getOwner()!=pConnection->m_eDestOwner )
+			return true;
+		if ( !bOutgoing && GetID()==pConnection->m_iDestID && getOwner()!=pConnection->m_eOriginOwner )
 			return true;
 	}
 
@@ -25909,6 +25766,122 @@ bool CvCity::IsAdjacentToTerrain(TerrainTypes iTerrainType) const
 bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const
 {
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+}
+int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->HasFeature(iFeatureType)) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getImprovementType() == eImprovement) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumWorkedResource(ResourceTypes eResource)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getResourceType() == eResource) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Does not belong to this city
+		if (pLoopPlot->getWorkingCity() != this) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getImprovementType() == eImprovement) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
 }
 #endif
 

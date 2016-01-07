@@ -1072,13 +1072,10 @@ void CvPlayerTechs::SetLocalePriorities()
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		// Look at all Tiles this City could potentially work to see if there are any non-water resources that could be improved
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 0; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
-			CvPlot* pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+			CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 			if(pLoopPlot != NULL)
 			{
@@ -1763,92 +1760,6 @@ void CvTeamTechs::Reset()
 		m_paiTechCount[iI] = 0;
 	}
 }
-
-// WARNING: Expansion only and only so some pre-release saves can be loaded
-const char* ms_V0ExpansionTechTags[81] =
-{
-	"TECH_AGRICULTURE",
-	"TECH_POTTERY",
-	"TECH_ANIMAL_HUSBANDRY",
-	"TECH_ARCHERY",
-	"TECH_MINING",
-	"TECH_SAILING",
-	"TECH_CALENDAR",
-	"TECH_WRITING",
-	"TECH_TRAPPING",
-	"TECH_THE_WHEEL",
-	"TECH_MASONRY",
-	"TECH_BRONZE_WORKING",
-	"TECH_OPTICS",
-	"TECH_HORSEBACK_RIDING",
-	"TECH_MATHEMATICS",
-	"TECH_CONSTRUCTION",
-	"TECH_PHILOSOPHY",
-	"TECH_DRAMA",
-	"TECH_CURRENCY",
-	"TECH_ENGINEERING",
-	"TECH_IRON_WORKING",
-	"TECH_THEOLOGY",
-	"TECH_CIVIL_SERVICE",
-	"TECH_GUILDS",
-	"TECH_METAL_CASTING",
-	"TECH_COMPASS",
-	"TECH_EDUCATION",
-	"TECH_CHIVALRY",
-	"TECH_MACHINERY",
-	"TECH_PHYSICS",
-	"TECH_STEEL",
-	"TECH_ASTRONOMY",
-	"TECH_ACOUSTICS",
-	"TECH_BANKING",
-	"TECH_PRINTING_PRESS",
-	"TECH_GUNPOWDER",
-	"TECH_NAVIGATION",
-	"TECH_ARCHITECTURE",
-	"TECH_ECONOMICS",
-	"TECH_METALLURGY",
-	"TECH_CHEMISTRY",
-	"TECH_ARCHAEOLOGY",
-	"TECH_SCIENTIFIC_THEORY",
-	"TECH_INDUSTRIALIZATION",
-	"TECH_MILITARY_SCIENCE",
-	"TECH_RIFLING",
-	"TECH_FERTILIZER",
-	"TECH_BIOLOGY",
-	"TECH_STEAM_POWER",
-	"TECH_DYNAMITE",
-	"TECH_ELECTRICITY",
-	"TECH_REPLACEABLE_PARTS",
-	"TECH_RAILROAD",
-	"TECH_REFRIGERATION",
-	"TECH_HYDROELECTRICS",
-	"TECH_RADIO",
-	"TECH_FLIGHT",
-	"TECH_BALLISTICS",
-	"TECH_COMBUSTION",
-	"TECH_PLASTIC",
-	"TECH_PENICILIN",
-	"TECH_ELECTRONICS",
-	"TECH_RADAR",
-	"TECH_COMBINED_ARMS",
-	"TECH_ATOMIC_THEORY",
-	"TECH_ECOLOGY",
-	"TECH_COMPUTERS",
-	"TECH_TELECOM",
-	"TECH_ROCKETRY",
-	"TECH_NUCLEAR_FISSION",
-	"TECH_GLOBALIZATION",
-	"TECH_ROBOTICS",
-	"TECH_SATELLITES",
-	"TECH_STEALTH",
-	"TECH_MOBILE_TACTICS",
-	"TECH_LASERS",
-	"TECH_ADVANCED_BALLISTICS",
-	"TECH_PARTICLE_PHYSICS",
-	"TECH_NANOTECHNOLOGY",
-	"TECH_NUCLEAR_FUSION",
-	"TECH_FUTURE_TECH"
-};
 
 //	---------------------------------------------------------------------------
 /// Serialization read

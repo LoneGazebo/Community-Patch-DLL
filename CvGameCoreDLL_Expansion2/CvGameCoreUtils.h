@@ -219,8 +219,8 @@ inline DirectionTypes hexspaceSpikeDirection(const int iXOffset, const int iYOff
 	}
 }
 
-CvPlot* plotCity(int iX, int iY, int iIndex);
-int plotCityXY(const CvCity* pCity, const CvPlot* pPlot);
+CvPlot* iterateRingPlots(int iX, int iY, int iIndex);
+int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot);
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);
 bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);

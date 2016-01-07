@@ -7523,7 +7523,7 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 						// Are there no enemy military units near our cities? Let's not give in.
 						int iLoop;
 						int iDX, iDY;
-						int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
+						int iRange = max(1, (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() - 2));
 						bool bUnit = false;
 						CvCity* pLoopCity;
 						CvPlot* pLoopPlot;
@@ -24299,6 +24299,10 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iMessage = 0;
+	if(GetPlayer()->isHuman())
+	{
+		return iMessage;
+	}
 	if(ePlayer == NO_PLAYER)
 	{
 		ePlayer = GC.getGame().getActivePlayer();

@@ -80,7 +80,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_bAdoptionFreeTech(false),
 	m_bGPWLTKD(false),
 	m_bTradeRouteOnly(false),
-	m_iTerrainClaimBoost(NO_TERRAIN),
 	m_bKeepConqueredBuildings(false),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
@@ -89,6 +88,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
 	m_bNoNaturalReligionSpread(false),
+	m_iTourismToGAP(0),
+	m_iEventTourismBoost(0),
+	m_iEventGP(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -174,6 +176,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
 	m_piYieldFromRouteMovement(NULL),
@@ -590,6 +593,18 @@ int CvTraitEntry::GetTourismGABonus() const
 {
 	return m_iTourismGABonus;
 }
+int CvTraitEntry::GetTourismToGAP() const
+{
+	return m_iTourismToGAP;
+}
+int CvTraitEntry::GetEventTourismBoost() const
+{
+	return m_iEventTourismBoost;
+}
+int CvTraitEntry::GetEventGP() const
+{
+	return m_iEventGP;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvTraitEntry::GetInvestmentModifier() const
@@ -744,6 +759,10 @@ int CvTraitEntry::YieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon ? m_piYieldFromOwnPantheon[i] : -1;
 }
+int CvTraitEntry::YieldFromHistoricEvent(int i) const
+{
+	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
+}
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 {
@@ -781,10 +800,6 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
 {
 	return m_eFreeCapitalBuilding;
-}
-int CvTraitEntry::GetTerrainClaimBoost() const
-{
-	return m_iTerrainClaimBoost;
 }
 #endif
 /// Accessor: free building in each city conquered
@@ -1057,6 +1072,10 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
+{
+	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
+}
 int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
@@ -1401,6 +1420,19 @@ bool CvTraitEntry::NoTrain(UnitClassTypes eUnitClass)
 		return false;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
+{
+	if (eTerrain != NO_TERRAIN)
+	{
+		return m_abTerrainClaimBoost[eTerrain];
+	}
+	else
+	{
+		return false;
+	}
+}
+#endif
 
 /// Load XML data
 bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -1476,6 +1508,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bMountainPass							= kResults.GetBool("MountainPass");
 	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
+	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
+	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
+	m_iEventGP								= kResults.GetInt("EventGP");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1535,11 +1570,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	if(szTextVal)
 	{
 		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
-	}
-	szTextVal = kResults.GetText("TerrainClaimBoost");
-	if(szTextVal)
-	{
-		m_iTerrainClaimBoost = GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
@@ -1864,6 +1894,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
 	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteStartYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
@@ -2101,6 +2132,29 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			const int yield = pResults->GetInt(2);
 
 			m_ppiCityYieldFromUnimprovedFeature[FeatureID][YieldID] = yield;
+		}
+	}
+	// TerrainClaimBoost
+	{
+		int iTerrainLoop;
+		for (iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
+		{
+			m_abTerrainClaimBoost.push_back(false);
+		}
+
+		std::string strKey("Trait_TerrainClaimBoost");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "SELECT Traits.ID, Terrains.ID FROM Trait_TerrainClaimBoost inner join Traits on Trait_TerrainClaimBoost.TraitType = Traits.Type inner join Terrains on Trait_TerrainClaimBoost.TerrainType = Terrains.Type where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iTerrainType = pResults->GetInt(1);
+			m_abTerrainClaimBoost[iTerrainType] = true;
 		}
 	}
 #endif
@@ -2370,10 +2424,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bTradeRouteOnly = true;
 			}
-			if((TerrainTypes) trait->GetTerrainClaimBoost() != NO_TERRAIN)
-			{
-				m_iTerrainClaimBoost = (TerrainTypes) trait->GetTerrainClaimBoost();
-			}
 			if(trait->IsKeepConqueredBuildings())
 			{
 				m_bKeepConqueredBuildings = true;
@@ -2390,10 +2440,13 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoNaturalReligionSpread = true;
 			}
+			m_iTourismToGAP += trait->GetTourismToGAP();
+			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
 			m_iTourismGABonus += trait->GetTourismGABonus();
+			m_iEventGP += trait->GetEventGP();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2602,6 +2655,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
+				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
 				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
@@ -2736,6 +2790,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 			{
 				m_iStrategicResourceQuantityModifier[iTerrain] = trait->GetStrategicResourceQuantityModifier(iTerrain);
+#if defined(MOD_BALANCE_CORE)
+				m_abTerrainClaimBoost[iTerrain] = trait->TerrainClaimBoost((TerrainTypes)iTerrain);			
+#endif
 			}
 
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
@@ -2791,6 +2848,7 @@ void CvPlayerTraits::Uninit()
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
 #if defined(MOD_BALANCE_CORE)
+	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -2883,13 +2941,15 @@ void CvPlayerTraits::Reset()
 	m_iAllianceCSDefense = 0;
 	m_iAllianceCSStrength = 0;
 	m_iTourismGABonus = 0;
+	m_iEventGP = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
-	m_iTerrainClaimBoost = NO_TERRAIN;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
+	m_iTourismToGAP = 0;
+	m_iEventTourismBoost = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3024,6 +3084,7 @@ void CvPlayerTraits::Reset()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
 		m_iTradeRouteStartYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
@@ -3095,11 +3156,16 @@ void CvPlayerTraits::Reset()
 	{
 		m_piGoldenAgeGreatPersonRateModifier[iGreatPerson] = 0;
 	}
+	m_abTerrainClaimBoost.clear();
+	m_abTerrainClaimBoost.resize(GC.getNumTerrainInfos());
 #endif
 
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
 		m_iStrategicResourceQuantityModifier[iTerrain] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_abTerrainClaimBoost[iTerrain] = false;
+#endif
 	}
 
 	m_aiResourceQuantityModifier.clear();
@@ -3579,13 +3645,10 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			int iNumResourceGiven = 0;
 			int iNumResourceTotal = iNumResource;
 			CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-			for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 			{
-				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
 					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
@@ -3604,13 +3667,10 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			}
 			if(iNumResourceGiven < iNumResourceTotal)
 			{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-				for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 				{
-					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+					pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
@@ -3902,6 +3962,19 @@ bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 		return false;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayerTraits::TerrainClaimBoost(TerrainTypes eTerrain)
+{
+	if (eTerrain != NO_TERRAIN)
+	{
+		return m_abTerrainClaimBoost[eTerrain];
+	}
+	else
+	{
+		return false;
+	}
+}
+#endif
 
 
 // MAYA TRAIT SPECIAL METHODS
@@ -4456,7 +4529,6 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bTradeRouteOnly, false);
-	MOD_SERIALIZE_READ(66, kStream, m_iTerrainClaimBoost, NO_TERRAIN);
 	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
@@ -4465,6 +4537,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4749,7 +4824,16 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	for (int iI = 0; iI < iNumEntries; iI++)
 	{
 		kStream >> m_paiMovesChangeUnitClass[iI];
-	}	
+	}
+
+	kStream >> iNumEntries;
+	m_abTerrainClaimBoost.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		bool bValue;
+		kStream >> bValue;
+		m_abTerrainClaimBoost.push_back(bValue);
+	}
 #endif
 
 	kStream >> iNumEntries;
@@ -4779,6 +4863,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<int> kYieldFromHistoricEventWrapper(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
+	kStream >> kYieldFromHistoricEventWrapper;
 	ArrayWrapper<int> kYieldFromOwnPantheonWrapper(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream >> kYieldFromOwnPantheonWrapper;
 	ArrayWrapper<int> kTradeRouteStartYieldWrapper(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
@@ -4933,7 +5019,6 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
 	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
 	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteOnly);
-	MOD_SERIALIZE_WRITE(kStream, m_iTerrainClaimBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
@@ -4942,6 +5027,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
+	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
+	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
+	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -5058,6 +5146,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	{
 		kStream << m_paiMovesChangeUnitClass[ui];
 	}
+	kStream << m_abTerrainClaimBoost.size();
+	for (uint ui = 0; ui < m_abTerrainClaimBoost.size(); ui++)
+	{
+		kStream << m_abTerrainClaimBoost[ui];
+	}
 #endif
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
 	kStream << 	iNumUnitCombatClassInfos;
@@ -5075,6 +5168,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);

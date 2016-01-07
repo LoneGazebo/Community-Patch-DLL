@@ -255,6 +255,9 @@ protected:
 	static int lChangeJONSCulturePerTurnFromSpecialists(lua_State* L);
 	static int lGetJONSCulturePerTurnFromGreatWorks(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetYieldPerTurnFromTraits(lua_State* L);
+#endif
 	static int lGetJONSCulturePerTurnFromReligion(lua_State* L);
 	static int lChangeJONSCulturePerTurnFromReligion(lua_State* L);
 	static int lGetJONSCulturePerTurnFromLeagues(lua_State* L);
@@ -316,7 +319,7 @@ protected:
 
 	static int lGetLocalResourceWonderProductionMod(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
 #endif
@@ -649,6 +652,11 @@ protected:
 	LUAAPIEXTN(IsOnTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsAdjacentToTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsWithinDistanceOfTerrain, bool, iTerrainType, iDistance);
+
+	static int lCountNumWorkedFeature(lua_State* L);
+	static int lCountNumWorkedImprovement(lua_State* L);
+	static int lCountNumWorkedResource(lua_State* L);
+	static int lCountNumImprovement(lua_State* L);
 #endif
 };
 

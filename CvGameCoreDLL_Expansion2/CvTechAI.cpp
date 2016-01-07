@@ -42,7 +42,6 @@ void CvTechAI::Reset()
 	}
 }
 
-extern const char* ms_V0ExpansionTechTags[81];
 /// Serialization read
 void CvTechAI::Read(FDataStream& kStream)
 {

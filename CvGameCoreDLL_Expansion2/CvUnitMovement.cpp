@@ -268,7 +268,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 
 		//disembarking?
-		if (!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation())
+		if (!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
 		{
 			//trait?
 			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -285,7 +285,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		}
 
 		//embarkation?
-		if (pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation())
+		if (pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
 		{
 			//If city, and player has embark from city at no cost...
 			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) )
@@ -315,7 +315,7 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 	if (pUnit->CanEverEmbark())
 	{
-		if(!pToPlot->needsEmbarkation() && pFromPlot->needsEmbarkation())
+		if(!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
 			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -336,7 +336,7 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 			}
 		}
 
-		if(pToPlot->needsEmbarkation() && !pFromPlot->needsEmbarkation())
+		if(pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
 		{
 			//If city, and player has disembark to city at reduced cost...
 			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())

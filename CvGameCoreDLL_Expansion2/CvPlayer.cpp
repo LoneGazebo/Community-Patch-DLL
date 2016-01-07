@@ -369,6 +369,8 @@ CvPlayer::CvPlayer() :
 	, m_iJFDConversionTurn("CvPlayer::m_iJFDConversionTurn", m_syncArchive)
 	, m_bJFDSecularized("CvPlayer::m_bJFDSecularized", m_syncArchive)
 	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
+	, m_iArchaeologicalDigTourism("CvPlayer::m_iArchaeologicalDigTourism", m_syncArchive)
+	, m_iGoldenAgeTourism("CvPlayer::m_iGoldenAgeTourism", m_syncArchive)
 	, m_iRazingSpeedBonus("CvPlayer::m_iRazingSpeedBonus", m_syncArchive)
 	, m_iNoPartisans("CvPlayer::m_iNoPartisans", m_syncArchive)
 	, m_iSpawnCooldown("CvPlayer::m_iSpawnCooldown", m_syncArchive)
@@ -382,6 +384,7 @@ CvPlayer::CvPlayer() :
 	, m_iBuildingMaintenanceMod("CvPlayer::m_iBuildingMaintenanceMod", m_syncArchive)
 	, m_iEventTourism("CvPlayer::m_iEventTourism", m_syncArchive)
 	, m_iEventTourismCS("CvPlayer::m_iEventTourismCS", m_syncArchive)
+	, m_iNumHistoricEvent("CvPlayer::m_iNumHistoricEvent", m_syncArchive)
 	, m_iSingleVotes("CvPlayer::m_iSingleVotes", m_syncArchive)
 	, m_iMonopolyModFlat("CvPlayer::m_iMonopolyModFlat", m_syncArchive)
 	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
@@ -482,6 +485,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiJFDPoliticPercent("CvPlayer::m_paiJFDPoliticPercent", m_syncArchive)
 	, m_paiResourceOverValue("CvPlayer::m_paiResourceOverValue", m_syncArchive)
+	, m_aiGlobalTourismAlreadyReceived("CvPlayer::m_aiGlobalTourismAlreadyReceived", m_syncArchive)
 	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
 	, m_aiYieldFromBirthCapital("CvPlayer::m_aiYieldFromBirthCapital", m_syncArchive)
 	, m_aiYieldFromDeath("CvPlayer::m_aiYieldFromDeath", m_syncArchive)
@@ -872,6 +876,10 @@ void CvPlayer::init(PlayerTypes eID)
 		{
 			changeAdvancedActionBuilding(2);
 		}
+		if(GetPlayerTraits()->GetEventTourismBoost() > 0)
+		{
+			ChangeEventTourism(GetPlayerTraits()->GetEventTourismBoost());
+		}
 #endif
 		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
@@ -1099,6 +1107,7 @@ void CvPlayer::uninit()
 	m_ppiPlotYieldChange.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppiImprovementYieldChange. clear();
 	m_ppiFeatureYieldChange.clear();
 	m_ppiResourceYieldChange.clear();
 	m_ppiTerrainYieldChange.clear();
@@ -1371,6 +1380,8 @@ void CvPlayer::uninit()
 	m_iJFDConversionTurn = 0;
 	m_bJFDSecularized = false;
 	m_iUpgradeCSTerritory = 0;
+	m_iArchaeologicalDigTourism = 0;
+	m_iGoldenAgeTourism = 0;
 	m_iRazingSpeedBonus = 0;
 	m_iNoPartisans = 0;
 	m_iSpawnCooldown = 0;
@@ -1384,6 +1395,7 @@ void CvPlayer::uninit()
 	m_iBuildingMaintenanceMod = 0;
 	m_iEventTourism = 0;
 	m_iEventTourismCS = 0;
+	m_iNumHistoricEvent = 0;
 	m_iSingleVotes = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
@@ -1584,6 +1596,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_paiResourceOverValue.clear();
 	m_paiResourceOverValue.resize(GC.getNumResourceInfos(), 0);
+
+	m_aiGlobalTourismAlreadyReceived.clear();
+	m_aiGlobalTourismAlreadyReceived.resize(NUM_MINOR_CIV_QUEST_TYPES, 0);
 
 	m_aiYieldFromBirth.clear();
 	m_aiYieldFromBirth.resize(NUM_YIELD_TYPES, 0);
@@ -1825,6 +1840,13 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+		m_ppiImprovementYieldChange.clear();
+		m_ppiImprovementYieldChange.resize(GC.getNumImprovementInfos());
+		for(unsigned int i = 0; i < m_ppiImprovementYieldChange.size(); ++i)
+		{
+			m_ppiImprovementYieldChange[i] = yield;
+		}
+
 		m_ppiFeatureYieldChange.clear();
 		m_ppiFeatureYieldChange.resize(GC.getNumFeatureInfos());
 		for(unsigned int i = 0; i < m_ppiFeatureYieldChange.size(); ++i)
@@ -3419,9 +3441,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int iOldCityRings = pOldCity->getWorkPlotDistance();
-#endif
 
 #if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 	pOldCity->PreKill(bVenice);
@@ -3455,12 +3475,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pCityPlot,iOldCityRings*2);
-#else	
-	GC.getMap().updateWorkingCity(pCityPlot,NUM_CITY_RINGS*2);
-#endif
-
 	// Lost the capital!
 	if(bCapital)
 	{
@@ -3977,12 +3992,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - moved this here so that conquest victory is tested with each city capture
 	GC.getGame().DoTestConquestVictory();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	GC.getMap().updateWorkingCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
-#else	
-	GC.getMap().updateWorkingCity(pCityPlot,NUM_CITY_RINGS*2);
-#endif
-
 	if(bConquest)
 	{
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -4545,7 +4555,6 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed) const
 	return true;
 }
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 /// How far out this player may buy plots
 int CvPlayer::getBuyPlotDistance() const
@@ -4581,7 +4590,7 @@ int CvPlayer::GetNumWorkablePlots() const
 {
 	return ((6 * (1+getWorkPlotDistance()) * getWorkPlotDistance() / 2) + 1);
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
@@ -6060,6 +6069,11 @@ void CvPlayer::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	//Reset every turn for CS events.
+	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
+	{
+		SetGlobalTourismAlreadyReceived((MinorCivQuestTypes)iQuestLoop, 0);
+	}
 	if(GetCorporateFounderID() > 0)
 	{
 		DoFreedomCorp();
@@ -7262,13 +7276,10 @@ int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
 
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-		for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
-			pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+			pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -9069,7 +9080,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						pLoopPlot	= plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iPopRange);
 						if(pLoopPlot != NULL)
 						{
-							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isNativeDomain(pLoopPlot))
+							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isMatchingDomain(pLoopPlot))
 							{
 								if(pNewUnit->canMoveInto(*pLoopPlot))
 								{
@@ -11628,6 +11639,24 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	int iLoop;
 	CvCity* pLoopCity;
 	int iBuildingCount;
+#if defined(MOD_BALANCE_CORE)
+	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes) iJ;
+		for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iK;
+			if(eImprovement != NO_IMPROVEMENT)
+			{
+				int iYieldChange = pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield);
+				if(iYieldChange > 0)
+				{
+					ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
+				}
+			}
+		}
+	}
+#endif
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -15277,11 +15306,8 @@ void CvPlayer::DoUprising()
 		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
 
 		// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -18719,10 +18745,20 @@ int CvPlayer::GetGoldenAgePointsFromEmpire()
 	// Add in all the GA points from city yields
 	CvCity* pLoopCity;
 	int iLoop;
-
+	int iTourism = 0;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGAPoints += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
+		if(GetPlayerTraits()->GetTourismToGAP() > 0)
+		{
+			iTourism += pLoopCity->GetBaseTourism();
+		}
+	}
+	iTourism *= GetPlayerTraits()->GetTourismToGAP();
+	iTourism /= 100;
+	if(iTourism > 0)
+	{
+		iGAPoints += iTourism;
 	}
 	return iGAPoints;
 }
@@ -18881,7 +18917,42 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
 
 				gDLL->GameplayGoldenAgeStarted();
-
+#if defined(MOD_BALANCE_CORE)
+				if(CanGoldenAgeTourism())
+				{
+					int iTourism = GetEventTourism();
+					ChangeNumHistoricEvents(1);
+					// Culture boost based on previous turns
+					int iPreviousTurnsToCount = 10;
+					// Calculate boost
+					iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+					iTourism /= 100;
+					GetCulture()->AddTourismAllKnownCivs(iTourism);
+					CvCity* pCapitalCity = getCapitalCity();
+					if(iTourism > 0)
+					{
+						if(GetID() == GC.getGame().getActivePlayer())
+						{
+							if(pCapitalCity != NULL)
+							{
+								char text[256] = {0};
+								float fDelay = 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+								DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
+								CvNotifications* pNotification = GetNotifications();
+								if(pNotification)
+								{
+									CvString strMessage;
+									CvString strSummary;
+									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
+									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
+								}
+							}
+						}
+					}
+				}
+#endif
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 				if (MOD_EVENTS_GOLDEN_AGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
@@ -22181,6 +22252,47 @@ void CvPlayer::SetCurrencyName(const char* strKey)
 	m_strJFDCurrencyName = strKey;
 }
 	//JFD DONE
+//	--------------------------------------------------------------------------------
+bool CvPlayer::CanArchaeologicalDigTourism() const
+{
+	if (GetArchaeologicalDigTourism() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetArchaeologicalDigTourism() const
+{
+	return m_iArchaeologicalDigTourism;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeArchaeologicalDigTourism(int iChange)
+{
+	m_iArchaeologicalDigTourism += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::CanGoldenAgeTourism() const
+{
+	if (GetGoldenAgeTourism() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetGoldenAgeTourism() const
+{
+	return m_iGoldenAgeTourism;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeGoldenAgeTourism(int iChange)
+{
+	m_iGoldenAgeTourism += iChange;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::CanUpgradeCSTerritory() const
@@ -22655,6 +22767,25 @@ int CvPlayer::GetEventTourism() const
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue)
+{
+	CvAssertMsg(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	if(iValue != 0)
+	{
+		m_aiGlobalTourismAlreadyReceived.setAt(eQuest, iValue);
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const
+{
+	CvAssertMsg(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	return m_aiGlobalTourismAlreadyReceived[eQuest];
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayer::ChangeEventTourismCS(int iChange)
 {
 	m_iEventTourismCS += iChange;
@@ -22669,7 +22800,181 @@ int CvPlayer::GetEventTourismCS() const
 {
 	return m_iEventTourismCS;
 }
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNumHistoricEvents(int iChange)
+{
+	if(isMinorCiv())
+	{
+		return;
+	}
+	m_iNumHistoricEvent += iChange;
+	int iValue = m_iNumHistoricEvent;
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogString;
+		strLogString.Format("Historic Event completed. Total: %d.", iValue);
+		GetHomelandAI()->LogHomelandMessage(strLogString);
+	}
+	CvCity* pLoopCity;
+	int iLoop;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			pLoopCity->GetCityCulture()->CalculateBaseTourism();
+		}
+	}
+	CvCity* pCapital = getCapitalCity();
+	//x100 because of GP scoring value.
+	int iEventGP = (GetPlayerTraits()->GetEventGP() * 100);
+	if(pCapital != NULL && iEventGP > 0)
+	{
+		int iEra = GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
+		iEventGP *= iEra;
+		iEventGP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iEventGP /= 100;
+		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+		int iBestValue = 0;
+		for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+		{
+			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+			if(pkSpecialistInfo)
+			{
+				// Does this Specialist spawn a GP?
+				if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+				{
+					int iRandom = GC.getGame().getJonRandNum(iEventGP, "Random GP value");
+					if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+					{ 
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) <= 0)
+						{
+							iRandom /= 2;
+						}
+					}
+					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+					{
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) <= 0)
+						{
+							iRandom /= 2;
+						}
+					}
+					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+					{
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) <= 0)
+						{
+							iRandom /= 2;
+						}
+					}
+					//Guarantee at least one.
+					if(iRandom == 0)
+					{
+						iRandom = 1;
+					}
+					if(iRandom > iBestValue)
+					{
+						iBestValue = iRandom;
+						eBestSpecialist = eSpecialist;
+					}			
+				}
+			}
+		}
+		if(eBestSpecialist != NO_SPECIALIST)
+		{
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+			if(pkSpecialistInfo)
+			{
+				pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iEventGP);
 
+				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+
+				// Enough to spawn a GP?
+				if(pCapital->GetCityCitizens()->GetSpecialistGreatPersonProgress(eBestSpecialist) >= iGPThreshold)
+				{
+					// Reset progress on this Specialist
+					pCapital->GetCityCitizens()->DoResetSpecialistGreatPersonProgressTimes100(eBestSpecialist);
+
+					// Now... actually create the GP!
+					const UnitClassTypes eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
+					const CivilizationTypes eCivilization = getCivilizationType();
+					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
+					if(pCivilizationInfo != NULL)
+					{
+						UnitTypes eUnit = (UnitTypes) pCivilizationInfo->getCivilizationUnits(eUnitClass);
+
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+						pCapital->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true, false, false);
+#else
+						DoSpawnGreatPerson(eUnit, true, false);
+#endif
+					}
+				}
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					iEventGP /= 100;
+					char text[256] = {0};
+					float fDelay = 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iEventGP);
+					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+					CvNotifications* pNotification = GetNotifications();
+					if(pNotification)
+					{
+						CvString strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS", iEventGP);
+						CvString strSummary;
+						// Class specific specialist message.
+						if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST", iEventGP);
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+						{ 
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER", iEventGP);
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST", iEventGP);
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN", iEventGP);
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT", iEventGP);
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iEventGP);
+						}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+						else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iEventGP);
+						}
+#endif
+						strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS");
+						pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, -1);
+					}
+				}
+			}
+		}
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetNumHistoricEvents(int iChange)
+{
+	m_iNumHistoricEvent = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNumHistoricEvents() const
+{
+	return m_iNumHistoricEvent;
+}
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeSingleVotes(int iChange)
 {
@@ -26095,6 +26400,35 @@ int CvPlayer::GetCannotFailSpies() const
 void CvPlayer::changeCannotFailSpies(int iChange)
 {
 	m_iCannotFailSpies += iChange;
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield for a improvement this city is working?
+int CvPlayer::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	CvAssertMsg(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppiImprovementYieldChange[eImprovement][eYield];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiImprovementYieldChange[eImprovement];
+		yields[eYield] = (m_ppiImprovementYieldChange[eImprovement][eYield] + iChange);
+		m_ppiImprovementYieldChange[eImprovement] = yields;
+		CvAssert(GetImprovementExtraYield(eImprovement, eYield) >= 0);
+
+		updateYield();
+	}
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -31827,6 +32161,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeUpgradeCSTerritory(pPolicy->IsUpgradeCSTerritory() * iChange);
 	}
+	if(pPolicy->IsArchaeologicalDigTourism())
+	{
+		ChangeArchaeologicalDigTourism(pPolicy->IsArchaeologicalDigTourism() * iChange);
+	}
+	if(pPolicy->IsGoldenAgeTourism())
+	{
+		ChangeGoldenAgeTourism(pPolicy->IsGoldenAgeTourism() * iChange);
+	}
 	ChangeRazingSpeedBonus(pPolicy->GetRazingSpeedBonus() * iChange);
 	ChangeNoPartisans(pPolicy->IsNoPartisans() * iChange);
 #endif
@@ -32846,11 +33188,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #else
 										incrementGreatWritersCreated();
 #endif
-
+#if !defined(MOD_BALANCE_CORE)
 										if (pNewUnit->getUnitInfo().GetOneShotTourism() > 0)
 										{
 											pNewUnit->SetTourismBlastStrength(GetCulture()->GetTourismBlastStrength(pNewUnit->getUnitInfo().GetOneShotTourism()));
 										}
+#endif
 
 										pNewUnit->jumpToNearestValidPlot();
 									}							
@@ -33551,6 +33894,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iJFDConversionTurn;
 	kStream >> m_bJFDSecularized;
 	kStream >> m_iUpgradeCSTerritory;
+	kStream >> m_iArchaeologicalDigTourism;
+	kStream >> m_iGoldenAgeTourism;
 	kStream >> m_iRazingSpeedBonus;
 	kStream >> m_iNoPartisans;
 	kStream >> m_iSpawnCooldown;
@@ -33564,6 +33909,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iBuildingMaintenanceMod;
 	kStream >> m_iEventTourism;
 	kStream >> m_iEventTourismCS;
+	kStream >> m_iNumHistoricEvent;
 	kStream >> m_iSingleVotes;
 	kStream >> m_iMonopolyModFlat;
 	kStream >> m_iMonopolyModPercent;
@@ -33698,6 +34044,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_paiJFDPoliticPercent, MAX_CIV_PLAYERS, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_paiResourceOverValue, GC.getNumResourceInfos(), 0);
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGlobalTourismAlreadyReceived, NUM_MINOR_CIV_QUEST_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromBirth, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromBirthCapital, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiYieldFromDeath, NUM_YIELD_TYPES, 0);
@@ -33907,6 +34254,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	kStream >> m_ppiImprovementYieldChange;
 	kStream >> m_ppiFeatureYieldChange;
 	kStream >> m_ppiResourceYieldChange;
 	kStream >> m_ppiTerrainYieldChange;
@@ -34294,6 +34642,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iJFDConversionTurn;
 	kStream << m_bJFDSecularized;
 	kStream << m_iUpgradeCSTerritory;
+	kStream << m_iArchaeologicalDigTourism;
+	kStream << m_iGoldenAgeTourism;
 	kStream << m_iRazingSpeedBonus;
 	kStream << m_iNoPartisans;
 	kStream << m_iSpawnCooldown;
@@ -34307,6 +34657,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iBuildingMaintenanceMod;
 	kStream << m_iEventTourism;
 	kStream << m_iEventTourismCS;
+	kStream << m_iNumHistoricEvent;
 	kStream << m_iSingleVotes;
 	kStream << m_iMonopolyModFlat;
 	kStream << m_iMonopolyModPercent;
@@ -34425,6 +34776,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_paiJFDPoliticPercent);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_paiResourceOverValue);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGlobalTourismAlreadyReceived);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromBirth);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromBirthCapital);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromDeath);
@@ -34572,6 +34924,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	kStream << m_ppiImprovementYieldChange;
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;
@@ -35463,7 +35816,7 @@ void CvPlayer::ChangeCityWorkingChange(int iChange)
 			int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
 			
 			for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-				CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+				CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 				if (pLoopPlot) {
 					pLoopPlot->changeCityRadiusCount(iChange);

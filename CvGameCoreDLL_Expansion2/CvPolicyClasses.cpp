@@ -88,6 +88,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAutocracyCorporation(false),
 	m_bFreedomCorporation(false),
 	m_bUpgradeCSTerritory(false),
+	m_bArchaeologicalDigTourism(false),
+	m_bGoldenAgeTourism(false),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -444,6 +446,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bAutocracyCorporation = kResults.GetBool("AutocracyCorporation");
 	m_bFreedomCorporation = kResults.GetBool("FreedomCorporation");
 	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
+	m_bArchaeologicalDigTourism = kResults.GetBool("ArchaeologicalDigTourism");
+	m_bGoldenAgeTourism = kResults.GetBool("GoldenAgeTourism");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1498,6 +1502,14 @@ bool CvPolicyEntry::IsFreedomCorp() const
 bool CvPolicyEntry::IsUpgradeCSTerritory() const
 {
 	return m_bUpgradeCSTerritory;
+}
+bool CvPolicyEntry::IsArchaeologicalDigTourism() const
+{
+	return m_bArchaeologicalDigTourism;
+}
+bool CvPolicyEntry::IsGoldenAgeTourism() const
+{
+	return m_bGoldenAgeTourism;
 }
 #endif
 /// Happiness from each connected Luxury Resource

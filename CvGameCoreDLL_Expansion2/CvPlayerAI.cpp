@@ -1897,11 +1897,8 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	// Do we already have an embassy here?
 	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
 	// Iterate all plots owned by a city
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2427,13 +2424,10 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 		int iBestDistance = INT_MAX;
 		CvPlot* pBestPlot = NULL;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
-#else
-		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 		{
-			CvPlot *pLoopPlot = plotCity(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
+			CvPlot *pLoopPlot = iterateRingPlots(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
 			if(pLoopPlot != NULL)
 			{
 				// Make sure this is still owned by target and is revealed to us

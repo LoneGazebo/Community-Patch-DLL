@@ -38,6 +38,7 @@
 		</Row>
 	</Tech_SpecialistYieldChanges>
 	<!-- CSD -->
+	<!--
 	<Trait_FreePromotionUnitClass>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
@@ -65,6 +66,7 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitClass>
+	-->
 	<Policy_FaithPurchaseUnitClasses>
 		<Row>
 			<PolicyType>POLICY_PATRONAGE_FINISHER</PolicyType>

@@ -7264,6 +7264,13 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 			{
 				continue;
 			}
+			if(pTarget->getImprovementType() != NO_IMPROVEMENT && pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST)
+			{
+				if(GC.getImprovementInfo((ImprovementTypes) pTarget->getImprovementType())->IsCreatedByGreatPerson())
+				{
+					continue;
+				}
+			}
 
 			int iTurns = pUnit->TurnsToReachTarget(pTarget, false, false, iBestTurns);
 			if (iTurns < iBestTurns)
@@ -7484,7 +7491,6 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				pLog->Msg(strLog);
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
@@ -7514,7 +7520,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 				if(bPushMission)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, aDirective[0].m_eDirective, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 				}
 
 				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
@@ -7524,40 +7530,6 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				}
 				UnitProcessed(pUnit->GetID());
 			}
-#else
-			if(eMission == CvTypes::getMISSION_BUILD())
-			{
-				// check to see if we already have this mission as the unit's head mission
-				bool bPushMission = true;
-				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
-				if(pkMissionData != NULL)
-				{
-					if(pkMissionData->eMissionType == eMission && pkMissionData->iData1 == aDirective[0].m_eBuild)
-					{
-						bPushMission = false;
-					}
-				}
-
-				if(bPushMission)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
-				}
-
-				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
-				if(pUnit->ReadyToMove())
-				{
-					pUnit->finishMoves();
-				}
-				UnitProcessed(pUnit->GetID());
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
-			}
-#endif
-
 			return true;
 		}
 		break;
@@ -7639,10 +7611,9 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 
 	DomainTypes eDomain = pUnit->getDomainType();
 
-#if defined(MOD_BALANCE_CORE)
 	if(eDomain == DOMAIN_LAND)
 	{
-		if(!pUnit->CanEverEmbark() && pPlot->isWater())
+		if(!pUnit->CanEverEmbark() && pPlot->needsEmbarkation(pUnit))
 		{
 			return false;
 		}
@@ -7651,18 +7622,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	{
 		return false;
 	}
-#else
-	if(pPlot->area() != pUnit->area())
-	{
-		if(!pUnit->CanEverEmbark())
-		{
-			if(!(eDomain == DOMAIN_SEA && pPlot->isWater()))
-			{
-				return false;
-			}
-		}
-	}
-#endif
+
 	// don't let the auto-explore end it's turn in a city
 	CvCity* pCity = pPlot->getPlotCity();
 	if(pCity && pCity->getOwner() != pUnit->getOwner())
@@ -7903,9 +7863,9 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand)
 {
 	// Look at spaces adjacent to target
-	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand && 
 			plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY() <= 2))
 		{

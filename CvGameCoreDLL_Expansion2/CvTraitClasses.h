@@ -113,7 +113,6 @@ public:
 	bool IsAdoptionFreeTech() const;
 	bool IsGPWLTKD() const;
 	bool IsTradeRouteOnly() const;
-	int GetTerrainClaimBoost() const;
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
@@ -122,6 +121,9 @@ public:
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
 	int GetTourismGABonus() const;
+	int GetTourismToGAP() const;
+	int GetEventTourismBoost() const;
+	int GetEventGP() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -159,6 +161,7 @@ public:
 	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
+	int YieldFromHistoricEvent(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -232,6 +235,7 @@ public:
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
 	int GetTradeRouteStartYield(int i) const;
 	int GetYieldFromRouteMovement(int i) const;
@@ -276,6 +280,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
+	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -353,6 +358,9 @@ protected:
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
 	bool m_bNoNaturalReligionSpread;
+	int m_iTourismToGAP;
+	int m_iEventTourismBoost;
+	int m_iEventGP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -394,7 +402,6 @@ protected:
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
-	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -458,6 +465,7 @@ protected:
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
 	int* m_piTradeRouteStartYield;
 	int* m_piYieldFromRouteMovement;
@@ -501,6 +509,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	std::multimap<int, int> m_FreePromotionUnitClass;
 	std::multimap<int, int> m_BuildsUnitClasses;
+	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -818,6 +827,18 @@ public:
 	{
 		return m_iTourismGABonus;
 	};
+	int GetTourismToGAP() const
+	{
+		return m_iTourismToGAP;
+	};
+	int GetEventTourismBoost() const
+	{
+		return m_iEventTourismBoost;
+	};
+	int GetEventGP() const
+	{
+		return m_iEventGP;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1100,6 +1121,10 @@ public:
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromHistoricEvent(YieldTypes eYield) const
+	{
+		return m_iYieldFromHistoricEvent[(int)eYield];
+	};
 	int GetYieldFromOwnPantheon(YieldTypes eYield) const
 	{
 		return m_iYieldFromOwnPantheon[(int)eYield];
@@ -1224,10 +1249,6 @@ public:
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
-	int GetTerrainClaimBoost() const
-	{
-		return m_iTerrainClaimBoost;
-	};
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
@@ -1253,6 +1274,7 @@ public:
 
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;
+	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
@@ -1348,10 +1370,13 @@ private:
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	bool m_bNoNaturalReligionSpread;
+	int m_iTourismToGAP;
+	int m_iEventTourismBoost;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
+	int m_iEventGP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1431,11 +1456,11 @@ private:
 	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
-	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
@@ -1470,6 +1495,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];

@@ -1801,11 +1801,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes e
 		}
 		int iPower = 0;
 		bool bGeneralInTheVicinity = false;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
 			CvPlot* pLoopPlot;
 			pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -1859,11 +1856,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes e
 				{
 					int iPower = 0;
 					bool bGeneralInTheVicinity = false;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 					for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
-#else
-					for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 					{
 						CvPlot* pLoopPlot;
 						pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -2023,11 +2017,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 		int iPower = 0;
 		bool bGeneralInTheVicinity = false;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 		{
 			CvPlot* pLoopPlot;
 			pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -2070,11 +2061,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		{
 			int iPower = 0;
 			bool bGeneralInTheVicinity = false;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
-#else
-			for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 			{
 				CvPlot* pLoopPlot;
 				pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);

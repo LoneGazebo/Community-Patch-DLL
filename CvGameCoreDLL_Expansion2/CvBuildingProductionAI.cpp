@@ -262,7 +262,19 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 	if(pArea == NULL)
 		return 0;
 
-
+	//Defense Needs
+	if(pCity->IsBastion())
+	{
+		if(pkBuildingInfo->GetDefenseModifier() > 0)
+		{
+			iValue *= pkBuildingInfo->GetDefenseModifier();
+		}
+	}
+	else if(!pCity->IsBastion() && pkBuildingInfo->GetDefenseModifier() > 0)
+	{
+		iValue /= 25;
+	}
+	
 	//Caravan stuff
 
 	//No Land trade connections?
@@ -334,25 +346,54 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 	////////
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if(pCity->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+		// find flavors
+		FlavorTypes eFlavorScience = NO_FLAVOR;
+		FlavorTypes eFlavorGold = NO_FLAVOR;
+		FlavorTypes eFlavorCulture = NO_FLAVOR;
+		FlavorTypes eFlavorDefense = NO_FLAVOR;
+		FlavorTypes eFlavorReligion = NO_FLAVOR;
+		for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 		{
-			iValue *= pCity->getUnhappinessFromCulture();
+			if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
+			{
+				eFlavorScience = (FlavorTypes)iFlavorLoop;
+			}
+			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
+			{
+				eFlavorGold = (FlavorTypes)iFlavorLoop;
+			}
+			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CITY_DEFENSE")
+			{
+				eFlavorDefense = (FlavorTypes)iFlavorLoop;
+			}
+			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CULTURE")
+			{
+				eFlavorCulture = (FlavorTypes)iFlavorLoop;
+			}
+			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+			{
+				eFlavorReligion = (FlavorTypes)iFlavorLoop;
+			}
 		}
-		if(pCity->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
+		if(pCity->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorCulture) > 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
 		{
-			iValue *= pCity->getUnhappinessFromGold();
+			iValue *= (pCity->getUnhappinessFromCulture() * 10);
 		}
-		if(pCity->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+		if(pCity->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorGold) > 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
 		{
-			iValue *= pCity->getUnhappinessFromDefense();
+			iValue *= (pCity->getUnhappinessFromGold() * 10);
 		}
-		if(pCity->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+		if(pCity->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorDefense) > 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
 		{
-			iValue *= pCity->getUnhappinessFromScience();
+			iValue *= (pCity->getUnhappinessFromDefense() * 10);
 		}
-		if(pCity->getUnhappinessFromMinority() > 0 && ((pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+		if(pCity->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorScience) > 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
 		{
-			iValue *= pCity->getUnhappinessFromMinority();
+			iValue *= (pCity->getUnhappinessFromScience() * 10);
+		}
+		if(pCity->getUnhappinessFromMinority() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+		{
+			iValue *= (pCity->getUnhappinessFromMinority() * 10);
 		}
 	}
 

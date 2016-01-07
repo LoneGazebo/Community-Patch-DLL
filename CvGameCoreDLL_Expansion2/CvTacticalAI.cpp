@@ -3076,7 +3076,8 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (pPlot->needsEmbarkation())
+		//don't pillage on water
+		if (pPlot->isWater())
 		{
 			pTarget = GetNextZoneTarget();
 			continue;
@@ -8806,7 +8807,13 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 
 			//get plots that could be used as a base for attacking
 			std::vector<CvPlot*> vAttackPlots;
-			TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit, pUnit->GetRange(), false, vAttackPlots);
+			if (pUnit->getDomainType()==DOMAIN_AIR)
+			{
+				if (plotDistance(*pTargetPlot,*pUnit->plot())<=pUnit->GetRange())
+					vAttackPlots.push_back(pUnit->plot());
+			}
+			else
+				TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit, pUnit->GetRange(), false, vAttackPlots);
 
 			//get plots we can move into with enough movement left
 			int iMinMovesLeft = pUnit->isSetUpForRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
@@ -8839,27 +8846,30 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 				{
 					CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked(it->first);
 
-					//Check for presence of movable friendly units
-					UnitHandle pBlockingUnit = pBasePlot->getBestDefender(m_pPlayer->GetID());
-					if (pBlockingUnit)
+					if (pUnit->getDomainType()!=DOMAIN_AIR)
 					{
-						if (pBlockingUnit->IsCanAttackRanged())
-							continue; //don't shuffle around other ranged units
-						else if (ExecuteMoveOfBlockingUnit(pBlockingUnit,pTargetPlot))
-							pBlockingUnit = NULL;
+						//Check for presence of movable friendly units
+						UnitHandle pBlockingUnit = pBasePlot->getBestDefender(m_pPlayer->GetID());
+						if (pBlockingUnit && pBlockingUnit->getDomainType()==pUnit->getDomainType())
+						{
+							if (pBlockingUnit->IsCanAttackRanged())
+								continue; //don't shuffle around other ranged units
+							else if (ExecuteMoveOfBlockingUnit(pBlockingUnit,pTargetPlot))
+								pBlockingUnit = NULL;
+							else
+								continue; //can't remove block
+						}
 						else
-							continue; //can't remove block
-					}
-					else
-					{ 
-						//any other unit there? can't use the plot then
-						if (!pUnit->canMoveInto(*pBasePlot,CvUnit::MOVEFLAG_DESTINATION ))
-							continue;
-					}
+						{ 
+							//any other unit there? can't use the plot then
+							if (!pUnit->canMoveInto(*pBasePlot,CvUnit::MOVEFLAG_DESTINATION ))
+								continue;
+						}
 
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBasePlot->getX(), pBasePlot->getY());
-					if (pUnit->plot()!=pBasePlot)
-						continue; //movement failed
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBasePlot->getX(), pBasePlot->getY());
+						if (pUnit->plot()!=pBasePlot)
+							continue; //movement failed
+					}
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -10687,10 +10697,10 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	int iBestScore = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
-	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
-	for(int iI = 0; iI < AVG_CITY_PLOTS; iI++)
+	// Look at spaces adjacent to target
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->getX(), pTarget->getY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			if(pUnit->plot()==pLoopPlot)
@@ -11034,8 +11044,10 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 				continue;
 			}
 
-			if (!pUnit->isNativeDomain(pPlot))
+			if (!pUnit->isMatchingDomain(pPlot))
+			{
 				continue;
+			}
 
 			//allow disembarking
 			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
@@ -13584,10 +13596,10 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 	if (pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY || pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY_TO_DEFEND)
 		iReqUnits = 4;
 
-	// Look at spaces adjacent to target - misuse the city plot iterator to start near the center
-	for(int iI = 1; iI < AVG_CITY_PLOTS; iI++)
+	// Look at spaces adjacent to target
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotCity(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
 		if (!pLoopPlot)
 			continue;
 

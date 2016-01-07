@@ -235,6 +235,7 @@ public:
 	bool isScoreDirty() const;
 	void setScoreDirty(bool bNewValue);
 
+	TechTypes getOceanPassableTech() const;
 	bool isCircumnavigated() const;
 	void makeCircumnavigated();
 	bool circumnavigationAvailable() const;
@@ -712,6 +713,7 @@ protected:
 	bool m_bTunerEverConnected;
 	bool m_bDynamicTurnsSimultMode;		//if playing dynamic turn mode, are we currently running simultaneous turns?
 	PlayerTypes m_eWaitDiploPlayer;
+	TechTypes m_eTechAstronomy;
 
 	bool m_bFOW;
 

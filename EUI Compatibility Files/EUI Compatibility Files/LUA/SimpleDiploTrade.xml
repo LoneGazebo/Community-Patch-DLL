@@ -346,6 +346,9 @@
 			<Image ID="ThemSymbolShadow" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
 			<Label Anchor="R,B" Offset="0,28" AnchorSide="O.I" String="(Team Name)'s Items" Font="TwCenMT18" FontStyle="Shadow" ID="ThemName"/>
 			<Label Anchor="R,B" Offset="0,13" AnchorSide="O.I" String="CivName" Font="TwCenMT14" FontStyle="Shadow" ID="ThemCiv"/>
+			<!-- CBP -->
+			<GridButton ID="DenounceButton" Anchor="R,B" Size="70,22" Offset="100,20" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_DENOUNCE_HUMAN" />
+			<!-- END -->
 		</Image>
 		<TextButton Offset="0,22" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" ToolTip="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="CloseButton" Hidden="0" />
 	</Grid>

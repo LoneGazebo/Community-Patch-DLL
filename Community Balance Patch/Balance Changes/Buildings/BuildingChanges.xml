@@ -82,26 +82,13 @@
 			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
 			<ResourceType>RESOURCE_DYE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
-			<ResourceType>RESOURCE_DYE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	<!--Opera House -->
-		<Row>
-			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
 			<ResourceType>RESOURCE_SILK</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
-			<ResourceType>RESOURCE_SILK</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<!-- Broadcast Tower -->
@@ -252,7 +239,7 @@
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
 			<ResourceType>RESOURCE_SPICES</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -270,7 +257,7 @@
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -306,44 +293,38 @@
 			<BuildingType>BUILDING_BANK</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BANK</BuildingType>
 			<ResourceType>RESOURCE_GOLD</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BANK</BuildingType>
 			<ResourceType>RESOURCE_SILVER</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	<!-- Forge -->
 		<Row>
 			<BuildingType>BUILDING_FORGE</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	<!-- Caravanserai -->
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
-			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -497,13 +478,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ImprovementYieldChanges>
-	<Building_YieldChanges>
-		<Row>
-			<BuildingType>BUILDING_FORGE</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_YieldChanges>
 	<!-- Factory -->
 	<Building_YieldChangesPerPop>
 		<Row>

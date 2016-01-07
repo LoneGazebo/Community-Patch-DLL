@@ -1877,9 +1877,19 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Already got our global bonus from a global quest this round?
+	if(bGlobal && GET_PLAYER(m_eAssignedPlayer).GlobalTourismAlreadyReceived(m_eType))
+	{
+		bGlobal = false;
+	}
+	else if(bGlobal)
+	{
+		GET_PLAYER(m_eAssignedPlayer).SetGlobalTourismAlreadyReceived(m_eType, true);
+	}
 	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
+		GET_PLAYER(m_eAssignedPlayer).ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		int iPreviousTurnsToCount = 10;
 		// Calculate boost
@@ -6826,11 +6836,8 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 				int iImpassable = 0;
 
 				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-				for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 				{
 					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -7056,11 +7063,8 @@ void CvMinorCivAI::DoRebellion()
 		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
 
 		// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -9500,11 +9504,8 @@ void CvMinorCivAI::DoDefection()
 	CvCity* pCity = GetPlayer()->getCapitalCity();
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 	//Let's kill off any barbs remaining.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
