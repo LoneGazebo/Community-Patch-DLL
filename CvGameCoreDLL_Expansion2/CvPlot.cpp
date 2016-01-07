@@ -6192,6 +6192,9 @@ bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 {
+	if (isCity())
+		return false;
+
 	// An enemy unit on the plot trumps all
 	if (IsBlockadeUnit(ePlayer,false))
 		return true;
