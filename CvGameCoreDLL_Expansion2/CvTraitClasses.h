@@ -1272,6 +1272,8 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
+	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
+
 private:
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
@@ -1284,7 +1286,7 @@ private:
 	CvTraitXMLEntries* m_pTraits;
 	CvPlayer* m_pPlayer;
 	std::vector<bool> m_vLeaderHasTrait;
-	std::vector<TraitTypes> m_vLeaderTraits;
+	std::vector<TraitTypes> m_vPotentiallyActiveLeaderTraits;
 
 	// Cached data about this player's traits
 	int m_iGreatPeopleRateModifier;

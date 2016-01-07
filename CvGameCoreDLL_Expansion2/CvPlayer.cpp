@@ -11034,11 +11034,11 @@ int CvPlayer::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) cons
 		}
 
 		// Trait bonus
-		int iNumTraits = GC.getNumTraitInfos();
 		CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
-		for(int iI = 0; iI < iNumTraits; iI++)
+		std::vector<TraitTypes> vTraits = pPlayerTraits->GetPotentiallyActiveTraits();
+		for(size_t iI = 0; iI < vTraits.size(); iI++)
 		{
-			if(pPlayerTraits->HasTrait((TraitTypes)iI))
+			if(pPlayerTraits->HasTrait(vTraits[iI]))
 			{
 				iMultiplier += pUnitEntry->GetProductionTraits(iI);
 
@@ -11074,11 +11074,11 @@ int CvPlayer::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSi
 
 	int iTempMod;
 
-	int iNumTraits = GC.getNumTraitInfos();
 	CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
-	for(int iI = 0; iI < iNumTraits; iI++)
+	std::vector<TraitTypes> vTraits = pPlayerTraits->GetPotentiallyActiveTraits();
+	for(size_t iI = 0; iI < vTraits.size(); iI++)
 	{
-		if(pPlayerTraits->HasTrait((TraitTypes)iI))
+		if(pPlayerTraits->HasTrait(vTraits[iI]))
 		{
 			iTempMod = pkBuildingInfo->GetProductionTraits(iI);
 			iMultiplier += iTempMod;

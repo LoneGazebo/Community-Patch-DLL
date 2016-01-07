@@ -2281,7 +2281,7 @@ void CvPlayerTraits::InitPlayerTraits()
 		if (m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
 		{
 			m_vLeaderHasTrait[iI] = true;
-			m_vLeaderTraits.push_back( (TraitTypes)iI );
+			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
 		}
 
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
@@ -2822,7 +2822,7 @@ void CvPlayerTraits::Reset()
 	Uninit();
 
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
-	m_vLeaderTraits.clear();
+	m_vPotentiallyActiveLeaderTraits.clear();
 
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
@@ -3433,10 +3433,10 @@ int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yield
 bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitCombat(promotionID, unitCombatID))
 			{
@@ -3452,10 +3452,10 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
 			{
@@ -3470,10 +3470,10 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
 {
 	CvAssertMsg((buildID >= 0), "buildID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
 			{
@@ -3489,10 +3489,10 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuilding()!=NO_BUILDING)
 			{
@@ -3507,10 +3507,10 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 /// Does the capital get a free building?
 BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeCapitalBuilding()!=NO_BUILDING)
 			{
@@ -3526,10 +3526,10 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuildingOnConquest()!=NO_BUILDING)
 			{
@@ -3796,10 +3796,10 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE)
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetFreeBuildingPrereqTech())
 			return pkTraitInfo->GetFreeBuildingPrereqTech();
 	}
 
@@ -3808,10 +3808,10 @@ TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
 			return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 	}
 
@@ -3910,10 +3910,10 @@ const float DAYS_IN_YEAR = 365.242199f;
 /// Is the Maya calendar active for this player?
 bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->IsMayaCalendarBonuses())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->IsMayaCalendarBonuses())
 			return true;
 	}
 	return false;

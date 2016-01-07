@@ -18154,14 +18154,14 @@ if (!bDoEvade)
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			// if leaving a city, reveal the unit
-			if(pOldPlot->getPlotCity())
+			if(pOldPlot->isCity())
 			{
 				// if pNewPlot is a valid pointer, we are leaving the city and need to visible
 				// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
 
-				if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
+				if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
 				{
 					pOldPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 				}
@@ -18211,12 +18211,12 @@ if (!bDoEvade)
 		}
 
 		// if entering a city, hide the unit
-		if(pNewPlot->getPlotCity() && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		if(pNewPlot->isCity() && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
 			
-			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
+			if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
 			{
 				pNewPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies((GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 			}
@@ -27319,7 +27319,7 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION) && isMatchingDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			return true;

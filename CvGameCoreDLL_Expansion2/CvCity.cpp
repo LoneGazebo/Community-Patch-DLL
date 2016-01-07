@@ -18869,7 +18869,7 @@ void CvCity::changeDamage(int iChange)
 	VALIDATE_OBJECT
 	if(0 != iChange)
 	{
-		//if there is a garrison, the units absorbs half the damage!
+		//if there is a garrison, the units absorbs part of the damage!
 		CvUnit* pGarrison = GetGarrisonedUnit();
 		if (pGarrison && iChange>1)
 		{

@@ -4608,7 +4608,8 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 				//we have a problem, apparently civilian and escort must split up
 				if (!MoveToUsingSafeEmbark(pCivilian, pOperation->GetTargetPlot(), true))
 				{
-					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target", 
+					pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target. aborting.", 
 						pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY() );
 				}
 
@@ -4637,10 +4638,16 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 			}
 			else
 			{
-				MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot());
-				if(GC.getLogging() && GC.getAILogging())
+				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot()))
 				{
+					if(GC.getLogging() && GC.getAILogging())
 						strLogString.Format("%s at (%d,%d). Moving to empty space near target (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+				}
+				else
+				{
+					pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+					if(GC.getLogging() && GC.getAILogging())
+						strLogString.Format("%s at (%d,%d). Aborted operation. No path to target for civilian.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY() );
 				}
 			}
 		}
