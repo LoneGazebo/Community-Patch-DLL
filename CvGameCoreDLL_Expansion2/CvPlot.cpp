@@ -6203,40 +6203,41 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 	if (IsBlockadeUnit(ePlayer,true))
 		return false;
 
-	// An enemy unit adjacent to the plot blockades it
-	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
-	{
-		CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
-
-		if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
-			return true;
-	}
-
-	// An allied unit adjacent to the plot secures it
-	for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
-	{
-		CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
-
-		if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
-			return false;
-	}
-
 	//ships have additional range
 	if (isWater()) 
 	{
-		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
-		CvPlot* pLoopPlot = NULL;
-
-		for (int iDX = -iRange; iDX <= iRange; iDX++)
+		// An enemy unit adjacent to the plot blockades it
+		for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
 		{
-			for (int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-				if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange)
-					continue;
+			CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
 
-				if (pLoopPlot->isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
-					return true;
+			if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
+				return true;
+		}
+
+		// An allied unit adjacent to the plot secures it
+		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
+		{
+			CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
+
+			if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
+				return false;
+		}
+
+		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
+		if (iRange>1)
+		{
+			for (int iDX = -iRange; iDX <= iRange; iDX++)
+			{
+				for (int iDY = -iRange; iDY <= iRange; iDY++)
+				{
+					CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
+						continue;
+
+					if (pLoopPlot->isWater()==isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+						return true;
+				}
 			}
 		}
 	}

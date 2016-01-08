@@ -4355,8 +4355,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			if(bOceanImpassableUntilAstronomy )
 			{
 				CvTeam& kTeam = GET_TEAM(getTeam());
-				if (!kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() ))
-					return false;
+				return kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() );
 			}	
 		}
 
