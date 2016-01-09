@@ -7084,18 +7084,28 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				int iPlotX = getX();
 				int iPlotY = getY();
 
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++) {
-					if (!pTrade->IsTradeRouteIndexEmpty(uiConnection)) {
-						TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+				{
+					CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+					for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+					{
+						const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
+						if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+						{
+							continue;
+						}
+						for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+						{
+							if (pConnection->m_eDomain == eTradeRouteDomain) {
+								TradeConnectionPlotList aPlotList = pConnection->m_aPlotList;
 
-						if (pConnection->m_eDomain == eTradeRouteDomain) {
-							TradeConnectionPlotList aPlotList = pConnection->m_aPlotList;
-
-							for (uint uiPlotIndex = 0; uiPlotIndex < aPlotList.size(); uiPlotIndex++) {
-								if (aPlotList[uiPlotIndex].m_iX == iPlotX && aPlotList[uiPlotIndex].m_iY == iPlotY) {
-									CUSTOMLOG("Cancelling trade route for domain %i in plot (%i, %i) as enabling improvement destroyed", eTradeRouteDomain, iPlotX, iPlotY);
-									pConnection->m_iCircuitsCompleted = pConnection->m_iCircuitsToComplete;
-									break;
+								for (uint uiPlotIndex = 0; uiPlotIndex < aPlotList.size(); uiPlotIndex++) {
+									if (aPlotList[uiPlotIndex].m_iX == iPlotX && aPlotList[uiPlotIndex].m_iY == iPlotY) 
+									{
+										CUSTOMLOG("Cancelling trade route for domain %i in plot (%i, %i) as enabling improvement destroyed", eTradeRouteDomain, iPlotX, iPlotY);
+										pTrade->EndTradeRoute(pConnection->m_iID);
+										break;
+									}
 								}
 							}
 						}

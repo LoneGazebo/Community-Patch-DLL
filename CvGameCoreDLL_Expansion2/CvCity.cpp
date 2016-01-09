@@ -4707,15 +4707,12 @@ int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 	} else {
 		int iCount = 0;
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
-		CvCityCitizens* pCityCitizens = GetCityCitizens();
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
+		CvPlot* pLoopPlot;
+
+		for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 		{
-			CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+			pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
 			if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == this) {
 				if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes) pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged()) {
