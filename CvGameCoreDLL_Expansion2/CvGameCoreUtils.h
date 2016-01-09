@@ -100,34 +100,8 @@ inline int hexDistance(int iDX, int iDY)
 	}
 }
 
-inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
-{
-	int iDX;
-	int iWrappedDX = dxWrap(iX2 - iX1);
-	int iWrappedDY = dyWrap(iY2 - iY1);
-	int iDY = abs(iWrappedDY);
-
-	// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-	int iHX1 = xToHexspaceX(iX1, iY1);
-	int iHX2 = xToHexspaceX(iX1 + iWrappedDX, iY1 + iWrappedDY);
-
-	iDX = abs(dxWrap(iHX2 - iHX1));
-
-	if((iHX2 - iHX1 >= 0) == (iWrappedDY >= 0))  // the signs match
-	{
-		return iDX + iDY;
-	}
-	else
-	{
-		return (std::max(iDX, iDY));
-	}
-}
-
-inline int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
-{
-	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
-}
-
+int plotDistance(int iX1, int iY1, int iX2, int iY2);
+int plotDistance(const CvPlot& plotA, const CvPlot& plotB);
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection);
 CvPlot* plotXY(int iX, int iY, int iDX, int iDY);
 CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange);

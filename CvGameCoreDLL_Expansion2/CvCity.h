@@ -186,7 +186,7 @@ public:
 #endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int GetNumResourceLocal(ResourceTypes eResource);
+	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false);
 #endif
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 

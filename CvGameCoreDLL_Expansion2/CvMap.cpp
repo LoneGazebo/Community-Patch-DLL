@@ -2282,7 +2282,11 @@ int CvMap::Validate()
 				{
 					if(pOriginPlot->getPlotCity() == NULL)
 					{
+#if defined(MOD_BUGFIX_MINOR)
+						pGameTrade->ClearAllCityTradeRoutes(pOriginPlot, true);
+#else
 						pGameTrade->ClearAllCityTradeRoutes(pOriginPlot);
+#endif
 						continue;
 					}
 				}
@@ -2292,7 +2296,11 @@ int CvMap::Validate()
 				{
 					if(pDestPlot->getPlotCity() == NULL)
 					{
+#if defined(MOD_BUGFIX_MINOR)
+						pGameTrade->ClearAllCityTradeRoutes(pDestPlot, true);
+#else
 						pGameTrade->ClearAllCityTradeRoutes(pDestPlot);
+#endif
 						continue;
 					}
 				}

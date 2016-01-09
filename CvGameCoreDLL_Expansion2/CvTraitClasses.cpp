@@ -198,6 +198,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_piCityYieldChanges(NULL),
 	m_piCoastalCityYieldChanges(NULL),
 	m_piGreatWorkYieldChanges(NULL),
+	m_piArtifactYieldChanges(NULL),
+	m_piArtYieldChanges(NULL),
+	m_piLitYieldChanges(NULL),
+	m_piMusicYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
 	m_ppiTerrainYieldChanges(NULL),
@@ -1150,7 +1154,22 @@ int CvTraitEntry::GetGreatWorkYieldChanges(int i) const
 {
 	return m_piGreatWorkYieldChanges ? m_piGreatWorkYieldChanges[i] : -1;
 }
-
+int CvTraitEntry::GetArtifactYieldChanges(int i) const
+{
+	return m_piArtifactYieldChanges ? m_piArtifactYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetArtYieldChanges(int i) const
+{
+	return m_piArtYieldChanges ? m_piArtYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetLitYieldChanges(int i) const
+{
+	return m_piLitYieldChanges ? m_piLitYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetMusicYieldChanges(int i) const
+{
+	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : -1;
+}
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -1940,6 +1959,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piCityYieldChanges, "Trait_CityYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piCoastalCityYieldChanges, "Trait_CoastalCityYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piGreatWorkYieldChanges, "Trait_GreatWorkYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piArtifactYieldChanges, "Trait_ArtifactYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piArtYieldChanges, "Trait_ArtYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	if (MOD_API_UNIFIED_YIELDS)
@@ -2335,7 +2358,7 @@ void CvPlayerTraits::InitPlayerTraits()
 		if (m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
 		{
 			m_vLeaderHasTrait[iI] = true;
-			m_vLeaderTraits.push_back( (TraitTypes)iI );
+			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
 		}
 
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
@@ -2696,6 +2719,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iCityYieldChanges[iYield] = trait->GetCityYieldChanges(iYield);
 				m_iCoastalCityYieldChanges[iYield] = trait->GetCoastalCityYieldChanges(iYield);
 				m_iGreatWorkYieldChanges[iYield] = trait->GetGreatWorkYieldChanges(iYield);
+				m_iArtifactYieldChanges[iYield] = trait->GetArtifactYieldChanges(iYield);
+				m_iArtYieldChanges[iYield] = trait->GetArtYieldChanges(iYield);
+				m_iLitYieldChanges[iYield] = trait->GetLitYieldChanges(iYield);
+				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -2880,7 +2907,7 @@ void CvPlayerTraits::Reset()
 	Uninit();
 
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
-	m_vLeaderTraits.clear();
+	m_vPotentiallyActiveLeaderTraits.clear();
 
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
@@ -3109,6 +3136,10 @@ void CvPlayerTraits::Reset()
 		m_iCityYieldChanges[iYield] = 0;
 		m_iCoastalCityYieldChanges[iYield] = 0;
 		m_iGreatWorkYieldChanges[iYield] = 0;
+		m_iArtifactYieldChanges[iYield] = 0;
+		m_iArtYieldChanges[iYield] = 0;
+		m_iLitYieldChanges[iYield] = 0;
+		m_iMusicYieldChanges[iYield] = 0;
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
 			m_ppiFeatureYieldChange[iFeature] = yield;
@@ -3499,10 +3530,10 @@ int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yield
 bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitCombat(promotionID, unitCombatID))
 			{
@@ -3518,10 +3549,10 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
 			{
@@ -3536,10 +3567,10 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
 {
 	CvAssertMsg((buildID >= 0), "buildID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
 			{
@@ -3555,10 +3586,10 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuilding()!=NO_BUILDING)
 			{
@@ -3573,10 +3604,10 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 /// Does the capital get a free building?
 BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeCapitalBuilding()!=NO_BUILDING)
 			{
@@ -3592,10 +3623,10 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuildingOnConquest()!=NO_BUILDING)
 			{
@@ -3862,10 +3893,10 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE)
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetFreeBuildingPrereqTech())
 			return pkTraitInfo->GetFreeBuildingPrereqTech();
 	}
 
@@ -3874,10 +3905,10 @@ TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
 			return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 	}
 
@@ -3989,10 +4020,10 @@ const float DAYS_IN_YEAR = 365.242199f;
 /// Is the Maya calendar active for this player?
 bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->IsMayaCalendarBonuses())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->IsMayaCalendarBonuses())
 			return true;
 	}
 	return false;
@@ -4353,7 +4384,7 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 		{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
 			{
 				return 1;
 			}
@@ -4905,6 +4936,18 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	ArrayWrapper<int> kGreatWorkYieldChangesWrapper(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
 	kStream >> kGreatWorkYieldChangesWrapper;
 
+	ArrayWrapper<int> kArtifactYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
+	kStream >> kArtifactYieldChangesWrapper;
+
+	ArrayWrapper<int> kArtYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtYieldChanges);
+	kStream >> kArtYieldChangesWrapper;
+
+	ArrayWrapper<int> kLitYieldChangesWrapper(NUM_YIELD_TYPES, m_iLitYieldChanges);
+	kStream >> kLitYieldChangesWrapper;
+
+	ArrayWrapper<int> kMusicYieldChangesWrapper(NUM_YIELD_TYPES, m_iMusicYieldChanges);
+	kStream >> kMusicYieldChangesWrapper;
+
 	kStream >> m_ppiFeatureYieldChange;
 	kStream >> m_ppiResourceYieldChange;
 	kStream >> m_ppiTerrainYieldChange;
@@ -5191,6 +5234,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;

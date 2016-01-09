@@ -78,6 +78,26 @@ CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
 	return plotXY(iX, iY, iDX, iDY);
 }
 
+int plotDistance(int iX1, int iY1, int iX2, int iY2)
+{
+	int iX1H = xToHexspaceX(iX1,iY1);
+	int iX2H = xToHexspaceX(iX2,iY2);
+	//reconstruct the Z coordinate
+	int iZ1H = -iX1H-iY1;
+	int iZ2H = -iX2H-iY2;
+
+	int iDX = dxWrap(iX2H - iX1H);
+	int iDY = dyWrap(iY2 - iY1);
+	int iDZ = iZ2H - iZ1H;
+
+	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
+}
+
+int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
+{
+	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
+}
+
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
 #if defined(MOD_BALANCE_CORE)

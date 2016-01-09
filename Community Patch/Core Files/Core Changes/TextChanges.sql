@@ -27,6 +27,15 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also greatly increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
+-- LUA
+UPDATE Language_en_US	
+SET Text = 'Base Yield:'
+WHERE Tag = 'TXT_KEY_PEDIA_YIELD_LABEL';
+
+UPDATE Language_en_US	
+SET Text = 'Connected By:'
+WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENTS_LABEL';
+
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US

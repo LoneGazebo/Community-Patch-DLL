@@ -302,6 +302,30 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<Table name="Trait_ArtifactYieldChanges">
+		<!-- Refer to Policy_GreatWorkYieldChanges -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_ArtYieldChanges">
+		<!-- Refer to Policy_GreatWorkYieldChanges -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_LitYieldChanges">
+		<!-- Refer to Policy_GreatWorkYieldChanges -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_MusicYieldChanges">
+		<!-- Refer to Policy_GreatWorkYieldChanges -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<Table name="Trait_ResourceYieldChanges">
 		<!-- Refer to Belief_ResourceYieldChanges -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>

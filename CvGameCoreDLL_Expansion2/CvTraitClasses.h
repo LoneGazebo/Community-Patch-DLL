@@ -257,6 +257,10 @@ public:
 	int GetCityYieldChanges(int i) const;
 	int GetCoastalCityYieldChanges(int i) const;
 	int GetGreatWorkYieldChanges(int i) const;
+	int GetArtifactYieldChanges(int i) const;
+	int GetArtYieldChanges(int i) const;
+	int GetLitYieldChanges(int i) const;
+	int GetMusicYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -487,6 +491,10 @@ protected:
 	int* m_piCityYieldChanges;
 	int* m_piCoastalCityYieldChanges;
 	int* m_piGreatWorkYieldChanges;
+	int* m_piArtifactYieldChanges;
+	int* m_piArtYieldChanges;
+	int* m_piLitYieldChanges;
+	int* m_piMusicYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
 	int** m_ppiTerrainYieldChanges;
@@ -1200,6 +1208,23 @@ public:
 	{
 		return m_iGreatWorkYieldChanges[(int)eYield];
 	};
+	int GetArtifactYieldChanges(YieldTypes eYield) const
+	{
+		return m_iArtifactYieldChanges[(int)eYield];
+	};
+	int GetArtYieldChanges(YieldTypes eYield) const
+	{
+		return m_iArtYieldChanges[(int)eYield];
+	};
+	int GetLitYieldChanges(YieldTypes eYield) const
+	{
+		return m_iLitYieldChanges[(int)eYield];
+	};
+	int GetMusicYieldChanges(YieldTypes eYield) const
+	{
+		return m_iMusicYieldChanges[(int)eYield];
+	};
+
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
@@ -1294,6 +1319,8 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
+	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
+
 private:
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
@@ -1306,7 +1333,7 @@ private:
 	CvTraitXMLEntries* m_pTraits;
 	CvPlayer* m_pPlayer;
 	std::vector<bool> m_vLeaderHasTrait;
-	std::vector<TraitTypes> m_vLeaderTraits;
+	std::vector<TraitTypes> m_vPotentiallyActiveLeaderTraits;
 
 	// Cached data about this player's traits
 	int m_iGreatPeopleRateModifier;
@@ -1517,6 +1544,10 @@ private:
 	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
 	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];
+	int m_iArtifactYieldChanges[NUM_YIELD_TYPES];
+	int m_iArtYieldChanges[NUM_YIELD_TYPES];
+	int m_iLitYieldChanges[NUM_YIELD_TYPES];
+	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;

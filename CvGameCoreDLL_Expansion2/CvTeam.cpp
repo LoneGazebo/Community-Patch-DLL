@@ -1509,8 +1509,10 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
 	}
 
+#if !defined(MOD_GLOBAL_STACKING_RULES)
 	// Bump Units out of places they shouldn't be
 	GC.getMap().verifyUnitValidPlot();
+#endif
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
@@ -1519,6 +1521,12 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	setAtWar(eTeam, true);
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
 #endif
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
+#endif
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
@@ -6419,6 +6427,50 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(pkEraInfo != NULL)
 						{
 							SetCurrentEra(nextEra);
+#if defined(MOD_BALANCE_CORE)
+							if(!bNoBonus)
+							{
+								for(int iI = 0; iI < MAX_PLAYERS; iI++)
+								{
+									const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
+									{
+										int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
+										// Culture boost based on previous turns
+										int iPreviousTurnsToCount = 10;
+										// Calculate boost
+										iTourism *= GET_PLAYER(eLoopPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+										iTourism /= 100;
+										if(iTourism > 0)
+										{
+											GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+											if(eLoopPlayer == GC.getGame().getActivePlayer())
+											{
+												CvCity* pCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
+												if(pCity != NULL)
+												{
+													char text[256] = {0};
+													float fDelay = 0.5f;
+													sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+													DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+													CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+													if(pNotification)
+													{
+														CvString strMessage;
+														CvString strSummary;
+														strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ERA", iTourism);
+														strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+														pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eLoopPlayer);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 							if(!bNoBonus)
 							{

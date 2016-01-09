@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(1-6) CBP Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(1-8) CBP Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBP, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBP by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Description>
@@ -41,21 +41,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>C4DF Compatibility/C4DF Compatibility.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>More Luxuries/MoreLuxuries.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>More Luxuries/MoreLuxuries.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>EUI/NeededText.xml</FileName>
       </Action>
       <Action>
@@ -67,6 +52,21 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Corporations/Corporations.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>C4DFCompatibility/C4DFCompatibility.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>MoreLuxuries/MoreLuxuries.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>MoreLuxuries/MoreLuxuries.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -136,7 +136,7 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
     <PackageMod>false</PackageMod>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="C4DF Compatibility\C4DF Compatibility.sql">
+    <Content Include="C4DFCompatibility\C4DFCompatibility.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -388,11 +388,11 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\MoreLuxuries.sql">
+    <Content Include="MoreLuxuries\MoreLuxuries.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\MoreLuxuries.xml">
+    <Content Include="MoreLuxuries\MoreLuxuries.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -403,11 +403,11 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CSD" />
-    <Folder Include="More Luxuries" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />
-    <Folder Include="C4DF Compatibility" />
     <Folder Include="Corporations" />
+    <Folder Include="MoreLuxuries" />
+    <Folder Include="C4DFCompatibility" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>

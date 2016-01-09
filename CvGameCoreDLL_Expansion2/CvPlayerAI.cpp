@@ -2408,7 +2408,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
 	{
 		int iPathTurns;
-		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,INT_MAX,&iPathTurns))
+		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,iBestTurnsToReach,&iPathTurns))
 		{
 			if(iPathTurns < iBestTurnsToReach)
 			{

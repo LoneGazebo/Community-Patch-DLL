@@ -23,7 +23,6 @@
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
 
-#define PATH_MOVEMENT_BURN_WEIGHT								(50)	//leftover movement points at the target are mostly wasted
 #define PATH_RIVER_WEIGHT										(100)	//per percent river crossing penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
 #define PATH_TERRITORY_WEIGHT									(50)	//per turn end plot outside of our territory
@@ -362,8 +361,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 				if (m_sData.iUnitID>0)
 				{
 					CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
-					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d\n", 
-						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner() ).c_str() );
+					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d, flags %d\n", 
+						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner(),m_sData.iFlags ).c_str() );
 				}
 
 				//gStackWalker.SetLog(pLog);
@@ -452,8 +451,9 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
+	std::vector<SLogNode> newNodes;
 	if (MOD_BALANCE_CORE_DEBUGGING)
-		svPathLog.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
+		newNodes.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
 	for(int i = 0; i < 6; i++)
@@ -488,7 +488,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)
-			svPathLog.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
+			newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 	}
 
@@ -518,11 +518,17 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 				if (MOD_BALANCE_CORE_DEBUGGING)
-					svPathLog.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
+					newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	//don't log nodes which have only obsolete neighbors
+	if (MOD_BALANCE_CORE_DEBUGGING && newNodes.size()>1)
+		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -537,9 +543,13 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 
-	//don't even link it up, it's a dead end or an invalid cost function
-	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT || iKnownCost < 0)
-		return NS_FORBIDDEN; 
+	//don't even link it up, it's a dead end
+	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
+		return NS_OBSOLETE; 
+
+	//invalid cost function
+	if (iKnownCost < 0)
+		return NS_FORBIDDEN;
 
 	//calculate the cumulative cost up to here
 	iKnownCost += node->m_iKnownCost;
@@ -1075,7 +1085,7 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 			if(!pUnit->canEnterTerrain(*pToPlot))
 				return FALSE;
 
-			if(!pUnit->canEnterTerritory(eTeam,false,pToPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR)))
+			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),false,pToPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR)))
 				return FALSE;
 		}
 
@@ -1211,12 +1221,6 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 
 	//base cost
 	int iCost = (PATH_BASE_COST * iMovementCost);
-
-	//experimental: burn off superfluous movement points at the destination
-	//they usually go to waste, so we would like to invest them in a better path instead
-	//however, we leave some for a possible attack
-	if (bIsPathDest)
-		iCost += PATH_MOVEMENT_BURN_WEIGHT * max(0, iMovesLeft-GC.getMOVE_DENOMINATOR()/2);
 
 	//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
 	if(iMovesLeft == 0 && !bIsPathDest)

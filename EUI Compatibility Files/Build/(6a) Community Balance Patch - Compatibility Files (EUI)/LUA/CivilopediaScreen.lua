@@ -837,7 +837,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 
 	for building in GameInfo.Buildings() do	
 		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-		if thisBuildingClass.MaxPlayerInstances == 1 then
+		if thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0 then
 			local article = {};
 			local name = Locale.ConvertTextKey( building.Description )
 			article.entryName = name;
@@ -4734,6 +4734,39 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			end
 			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 	  
 			
+			--CBP
+			numYields = 0;
+			yieldString = "";
+			fullstring = ""
+			local numYields2 = 0;
+			for row in GameInfo.Improvement_ResourceType_Yields( condition ) do
+				numYields = numYields + 1;			
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
+				if(OtherImprovement and numYields2 == 0)then				
+					local condition2 = "ImprovementType = '" .. OtherImprovement.Type .. "'";
+					for row in GameInfo.Improvement_Yields( condition2 ) do
+						numYields2 = numYields2 + 1;				
+						if row.Yield > 0 then
+							yieldString = yieldString.."+";
+							teststring = yieldstring;
+						end
+						yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					end
+				end
+			end
+			if numYields == 0 then
+				Controls.ImprovementYieldFrame:SetHide( true );
+			else
+				fullstring = Locale.ConvertTextKey( yieldString );
+				Controls.ImprovementYieldLabel:SetText( fullstring );
+				Controls.ImprovementYieldFrame:SetHide( false );
+			end
+			--END
+
 			-- game info
 			if (thisResource.Help) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisResource.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
@@ -7146,6 +7179,7 @@ function ClearArticle()
 	Controls.AdjacentYieldFrame:SetHide( true );
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
 	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );	
+	Controls.ImprovementYieldFrame:SetHide( true );
 	--END
 	Controls.MovementCostFrame:SetHide( true );
 	Controls.CombatModFrame:SetHide( true );

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/8/2016 12:29:20 AM -->
+<GameData>
+	<Feature_YieldChanges>
+		<!-- Other Features-->
+		<Delete FeatureType="FEATURE_ATOLL" />
+		<Row>
+			<FeatureType>FEATURE_ATOLL</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<FeatureType>FEATURE_ATOLL</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_FLOOD_PLAINS" />
+		<Row>
+			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_FOREST" />
+		<Row>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_JUNGLE" />
+		<Row>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_MARSH" />
+		<Row>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_OASIS" />
+		<Row>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Feature_YieldChanges>
+	<Feature_YieldChanges>
+		<Delete FeatureType="FEATURE_OASIS" />
+		<Row>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Feature_YieldChanges>
+	<Feature_TerrainBooleans>
+		<Row>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+	</Feature_TerrainBooleans>
+</GameData>

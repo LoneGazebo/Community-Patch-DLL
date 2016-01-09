@@ -4392,8 +4392,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			if(bOceanImpassableUntilAstronomy )
 			{
 				CvTeam& kTeam = GET_TEAM(getTeam());
-				if (!kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() ))
-					return false;
+				return kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() );
 			}	
 		}
 
@@ -8462,7 +8461,13 @@ bool CvUnit::canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) c
 
 	if (getDomainType() == DOMAIN_SEA)
 	{
+#if defined(MOD_BUGFIX_MINOR)
+		// The path finder permits routes between cities on lakes,
+		// so we'd better allow cargo ships to be relocated there!
+		if (!pToCity->isCoastal(0))
+#else
 		if (!pToCity->isCoastal())
+#endif
 		{
 			return false;
 		}
@@ -9649,6 +9654,27 @@ bool CvUnit::pillage()
 			bSuccessfulNonRoadPillage = true;
 			if(pkImprovement->IsDestroyedWhenPillaged())
 			{
+#if defined(MOD_GLOBAL_ALPINE_PASSES)
+				// If this improvement auto-added a route, we also need to remove the route
+				ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+				
+				// Find the build for this improvement
+				for (int i = 0; i < GC.getNumBuildInfos(); i++) {
+					CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+					if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
+						// Found it, but did it auto-add a route?
+						if (pkBuild->getRoute() != NO_ROUTE) {
+							// Yes, so remove the route as well
+							pPlot->setRouteType(NO_ROUTE);
+						}
+						
+						// Our work here is done
+						break;
+					}
+				}
+#endif
+
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 			}
 			// Improvement that's pillaged?
@@ -18203,17 +18229,19 @@ if (!bDoEvade)
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			// if leaving a city, reveal the unit
-			if(pOldPlot->getPlotCity())
+			if(pOldPlot->isCity())
 			{
 				// if pNewPlot is a valid pointer, we are leaving the city and need to visible
 				// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
-
-				if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
+#if !defined(MOD_BALANCE_CORE)
+				if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
 				{
 					pOldPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
+
 				}
+#endif
 			}
 
 			if (canChangeVisibility())
@@ -18260,15 +18288,16 @@ if (!bDoEvade)
 		}
 
 		// if entering a city, hide the unit
-		if(pNewPlot->getPlotCity() && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		if(pNewPlot->isCity() && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
-			
-			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
+#if !defined(MOD_BALANCE_CORE)
+			if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
 			{
 				pNewPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies((GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 			}
+#endif
 		}
 
 		setFortifyTurns(0);
@@ -27397,7 +27426,7 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION) && isMatchingDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			return true;

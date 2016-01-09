@@ -11061,11 +11061,11 @@ int CvPlayer::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) cons
 		}
 
 		// Trait bonus
-		int iNumTraits = GC.getNumTraitInfos();
 		CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
-		for(int iI = 0; iI < iNumTraits; iI++)
+		std::vector<TraitTypes> vTraits = pPlayerTraits->GetPotentiallyActiveTraits();
+		for(size_t iI = 0; iI < vTraits.size(); iI++)
 		{
-			if(pPlayerTraits->HasTrait((TraitTypes)iI))
+			if(pPlayerTraits->HasTrait(vTraits[iI]))
 			{
 				iMultiplier += pUnitEntry->GetProductionTraits(iI);
 
@@ -11101,11 +11101,11 @@ int CvPlayer::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSi
 
 	int iTempMod;
 
-	int iNumTraits = GC.getNumTraitInfos();
 	CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
-	for(int iI = 0; iI < iNumTraits; iI++)
+	std::vector<TraitTypes> vTraits = pPlayerTraits->GetPotentiallyActiveTraits();
+	for(size_t iI = 0; iI < vTraits.size(); iI++)
 	{
-		if(pPlayerTraits->HasTrait((TraitTypes)iI))
+		if(pPlayerTraits->HasTrait(vTraits[iI]))
 		{
 			iTempMod = pkBuildingInfo->GetProductionTraits(iI);
 			iMultiplier += iTempMod;
@@ -18903,7 +18903,42 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		m_iGoldenAgeTurns = (m_iGoldenAgeTurns + iChange);
 		CvAssert(getGoldenAgeTurns() >= 0);
-
+#if defined(MOD_BALANCE_CORE)
+		if(iChange > 0 && CanGoldenAgeTourism())
+		{
+			int iTourism = GetEventTourism();
+			ChangeNumHistoricEvents(1);
+			// Culture boost based on previous turns
+			int iPreviousTurnsToCount = 10;
+			// Calculate boost
+			iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iTourism /= 100;
+			GetCulture()->AddTourismAllKnownCivs(iTourism);
+			CvCity* pCapitalCity = getCapitalCity();
+			if(iTourism > 0)
+			{
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					if(pCapitalCity != NULL)
+					{
+						char text[256] = {0};
+						float fDelay = 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+						DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
+						CvNotifications* pNotification = GetNotifications();
+						if(pNotification)
+						{
+							CvString strMessage;
+							CvString strSummary;
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
+							strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+							pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
+						}
+					}
+				}
+			}
+		}
+#endif
 		if(bOldGoldenAge != isGoldenAge())
 		{
 			GC.getMap().updateYield();	// Do the entire map, so that any potential golden age bonus is reflected in the yield icons.
@@ -18917,42 +18952,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
 
 				gDLL->GameplayGoldenAgeStarted();
-#if defined(MOD_BALANCE_CORE)
-				if(CanGoldenAgeTourism())
-				{
-					int iTourism = GetEventTourism();
-					ChangeNumHistoricEvents(1);
-					// Culture boost based on previous turns
-					int iPreviousTurnsToCount = 10;
-					// Calculate boost
-					iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-					iTourism /= 100;
-					GetCulture()->AddTourismAllKnownCivs(iTourism);
-					CvCity* pCapitalCity = getCapitalCity();
-					if(iTourism > 0)
-					{
-						if(GetID() == GC.getGame().getActivePlayer())
-						{
-							if(pCapitalCity != NULL)
-							{
-								char text[256] = {0};
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GetNotifications();
-								if(pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
-								}
-							}
-						}
-					}
-				}
-#endif
+
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 				if (MOD_EVENTS_GOLDEN_AGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
@@ -22826,18 +22826,9 @@ void CvPlayer::ChangeNumHistoricEvents(int iChange)
 		}
 	}
 	CvCity* pCapital = getCapitalCity();
-	//x100 because of GP scoring value.
-	int iEventGP = (GetPlayerTraits()->GetEventGP() * 100);
+	int iEventGP = GetPlayerTraits()->GetEventGP();
 	if(pCapital != NULL && iEventGP > 0)
 	{
-		int iEra = GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		iEventGP *= iEra;
-		iEventGP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iEventGP /= 100;
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iBestValue = 0;
 		for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
@@ -22849,7 +22840,7 @@ void CvPlayer::ChangeNumHistoricEvents(int iChange)
 				// Does this Specialist spawn a GP?
 				if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 				{
-					int iRandom = GC.getGame().getJonRandNum(iEventGP, "Random GP value");
+					int iRandom = GC.getGame().getJonRandNum(100, "Random GP value");
 					if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{ 
 						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) <= 0)
@@ -22889,72 +22880,54 @@ void CvPlayer::ChangeNumHistoricEvents(int iChange)
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
 			if(pkSpecialistInfo)
 			{
-				pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iEventGP);
-
 				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-
-				// Enough to spawn a GP?
-				if(pCapital->GetCityCitizens()->GetSpecialistGreatPersonProgress(eBestSpecialist) >= iGPThreshold)
-				{
-					// Reset progress on this Specialist
-					pCapital->GetCityCitizens()->DoResetSpecialistGreatPersonProgressTimes100(eBestSpecialist);
-
-					// Now... actually create the GP!
-					const UnitClassTypes eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
-					const CivilizationTypes eCivilization = getCivilizationType();
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if(pCivilizationInfo != NULL)
-					{
-						UnitTypes eUnit = (UnitTypes) pCivilizationInfo->getCivilizationUnits(eUnitClass);
-
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-						pCapital->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true, false, false);
-#else
-						DoSpawnGreatPerson(eUnit, true, false);
-#endif
-					}
-				}
+				iGPThreshold *= 100;
+				//Get % of threshold for test.
+				iGPThreshold *= iEventGP;
+				iGPThreshold /= 100;
+				
+				pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
-					iEventGP /= 100;
+					iGPThreshold /= 100;
 					char text[256] = {0};
 					float fDelay = 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iEventGP);
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
 					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
 					CvNotifications* pNotification = GetNotifications();
 					if(pNotification)
 					{
-						CvString strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS", iEventGP);
+						CvString strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS", iGPThreshold);
 						CvString strSummary;
 						// Class specific specialist message.
 						if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST", iGPThreshold);
 						}
 						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 						{ 
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER", iGPThreshold);
 						}
 						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST", iGPThreshold);
 						}
 						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN", iGPThreshold);
 						}
 						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT", iGPThreshold);
 						}
 						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iGPThreshold);
 						}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 						else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 						{
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iEventGP);
+							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iGPThreshold);
 						}
 #endif
 						strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS");
@@ -32769,10 +32742,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
+#if !defined(MOD_BALANCE_CORE)
 		if(pLoopCity->HasGarrison())
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
+#endif
 
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
