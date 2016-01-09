@@ -141,6 +141,16 @@
 	SET Text = 'Giving Heavy Tribute'
 	WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_UNIT_RELUCTANCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+-- Aesthetics Change
+	UPDATE Language_en_US
+	SET Text = 'When improved with an Archaeological Dig, a Hidden Antiquity Site can then yield an Artifact that can be placed in a Great Work of Art slot, or be transformed into a Landmark improvement. Hidden Antiquity Sites are only visible to civs that have all the policies in the Aesthetics policy tree.'
+	WHERE Tag = 'TXT_KEY_RESOURCE_HIDDEN_ARTIFACTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+-- Help Text Changes
+	UPDATE Language_en_US
+	SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread your cultural influence to other civilizations. It is generated passively by [COLOR_POSITIVE_TEXT]Great Works[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Artifacts[ENDCOLOR, and actively by [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] (for more on ''Historic Events,'' see the section with this label). As you place more and more Great Works and Artifacts into your Museums, Amphitheaters, Opera Houses, etc., your [ICON_TOURISM] Tourism will continue to increase. Additionally, you can boost your [ICON_TOURISM] Tourism output quite a bit through Open Borders, Trade Routes, shared Religion, and certain Ideological Tenets.'
+	WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 -- Capture Popup
 
 	UPDATE Language_en_US	

@@ -59,6 +59,7 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	enum DiplomacyPlayerType
 	{
 	    DIPLO_FIRST_PLAYER		=  0,
@@ -66,6 +67,7 @@ public:
 	    DIPLO_AI_PLAYERS		= -2,
 	    DIPLO_HUMAN_PLAYERS		= -3
 	};
+#endif
 
 	struct MinorGoldGiftInfo
 	{

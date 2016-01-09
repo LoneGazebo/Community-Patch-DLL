@@ -3519,6 +3519,16 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+	{
+		newUnit->SetScienceBlastStrength(newUnit->getDiscoverAmount());
+	}
+	if (newUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		newUnit->SetCultureBlastStrength(newUnit->getGivePoliciesCulture());
+	}
+#endif
 
 	// Notification
 	if(GET_PLAYER(GetOwner()).GetNotifications())

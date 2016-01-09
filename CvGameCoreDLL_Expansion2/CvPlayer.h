@@ -25,6 +25,9 @@
 #include "CvAchievementUnlocker.h"
 #include "CvUnitCycler.h"
 #include "TContainer.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMinorCivAI.h"
+#endif
 
 class CvPlayerPolicies;
 class CvEconomicAI;
@@ -1257,6 +1260,13 @@ public:
 	CvString GetCurrencyName() const;
 
 	//DONE
+	bool CanArchaeologicalDigTourism() const;
+	void ChangeArchaeologicalDigTourism(int iChange);
+	int GetArchaeologicalDigTourism() const;
+
+	bool CanGoldenAgeTourism() const;
+	void ChangeGoldenAgeTourism(int iChange);
+	int GetGoldenAgeTourism() const;
 
 	bool CanUpgradeCSTerritory() const;
 	void ChangeUpgradeCSTerritory(int iChange);
@@ -1310,9 +1320,16 @@ public:
 	int GetEventTourism() const;
 	void SetEventTourism(int iValue);
 
+	int GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const;
+	void SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue);
+
 	void ChangeEventTourismCS(int iValue);
 	int GetEventTourismCS() const;
 	void SetEventTourismCS(int iValue);
+
+	void ChangeNumHistoricEvents(int iValue);
+	int GetNumHistoricEvents() const;
+	void SetNumHistoricEvents(int iValue);
 
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;
@@ -1662,6 +1679,9 @@ public:
 	bool IsCannotFailSpies() const;
 	int GetCannotFailSpies() const;
 	void changeCannotFailSpies(int iChange);
+
+	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -2698,6 +2718,8 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
+	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
+	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
@@ -2711,7 +2733,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiGlobalTourismAlreadyReceived;
 	FAutoVariable<int, CvPlayer> m_iEventTourismCS;
+	FAutoVariable<int, CvPlayer> m_iNumHistoricEvent;
 	FAutoVariable<int, CvPlayer> m_iSingleVotes;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
@@ -2890,6 +2914,7 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiImprovementYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;

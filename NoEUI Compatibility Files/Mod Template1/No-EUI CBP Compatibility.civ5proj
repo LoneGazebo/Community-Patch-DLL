@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(1-3) Community Balance Patch - Compatibility Files (No EUI)</Teaser>
+    <Teaser>(1-6) Community Balance Patch - Compatibility Files (No EUI)</Teaser>
     <Description>LUA and mod compatibility files for CBP if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -365,6 +365,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\TradeLogic.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\UnitPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

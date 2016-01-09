@@ -46,20 +46,28 @@ SET Yield = '0'
 WHERE FeatureType = 'FEATURE_OASIS' AND BuildingType = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices and [ICON_RES_SUGAR] Sugar. [NEWLINE][NEWLINE]Trade routes gain 50% range. Trade Routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from [ICON_RES_SUGAR] Sugar.[NEWLINE][NEWLINE]Trade routes gain 50% range. Trade Routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The Bazaar provides [ICON_GOLD] Gold and boosts Trade Route range. The Bazaar also boosts the yields of [ICON_RES_SPICES] and [ICON_RES_SUGAR] Sugar'
+SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The Bazaar provides [ICON_GOLD] Gold and boosts Trade Route range. The Bazaar also boosts the yields of [ICON_RES_SPICES] and [ICON_RES_SUGAR] Sugar.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_INTERNATIONAL_TRADE] Trade Routes and [ICON_CONNECTED] City Connections that pass over Desert and Plains tiles gain [ICON_FOOD] Food, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold, scaling with Era. Double Unit movement in Deserts, and double Unit healing in Plains.'
+SET Text = 'When you complete a Historic Event, your [ICON_CAPITAL] Capital gains +3 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture, and +100 points (scaling with Era) towards a random [ICON_GREAT_PEOPLE] Great Person. [ICON_TOURISM] Tourism from Historic Events increased by 20%.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Caravans of the Caliphate'
+SET Text = 'One Thousand and One Nights'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET EventTourismBoost = '1'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET EventGP = '100'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET TradeReligionModifier = '0'
@@ -143,11 +151,11 @@ SET BuildingClassType = 'BUILDINGCLASS_STONE_WORKS'
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Grants +1 [ICON_CULTURE] Culture to all River tiles near the city, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City. Each source of [ICON_RES_MARBLE] Marble, [ICON_RES_STONE] Stone, and [ICON_RES_SALT] Salt worked by this City produces +1 [ICON_GOLD] Gold. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'Grants +1 [ICON_CULTURE] Culture to all River tiles near the city, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City. Each source of [ICON_RES_MARBLE] Marble, [ICON_RES_STONE] Stone, and [ICON_RES_SALT] Salt worked by this City produces +2 [ICON_PRODUCTION] Production. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. The Tabya greatly increases the [ICON_CULTURE] Culture of Cities on rivers, boosts the Gold value of Stone, Marble, and Salt, and boosts the production of future Buildings in the City by 10%. Also allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. The Tabya greatly increases the [ICON_CULTURE] Culture of Cities on rivers, boosts the Production value of Stone, Marble, and Salt, and boosts the production of future Buildings in the City by 10%. Also allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -285,11 +293,15 @@ WHERE BuildingType = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Darius -- Stronger Units during Golden Ages
 UPDATE Traits
-SET GoldenAgeCombatModifier = '25'
+SET GoldenAgeCombatModifier = '15'
+WHERE Type = 'TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET TourismToGAP = '10'
 WHERE Type = 'TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Golden Ages last 50% longer. During a Golden Age, units receive +1 [ICON_MOVES] Movement and a +25% [ICON_STRENGTH] Combat Strength bonus.'
+SET Text = '[ICON_GOLDEN_AGE] Golden Ages last 50% longer, and 10% of your [ICON_TOURISM] Tourism output converts into [ICON_GOLDEN_AGE] Golden Age Points every turn. During a [ICON_GOLDEN_AGE] Golden Age, units receive +1 [ICON_MOVES] Movement and a +15% [ICON_STRENGTH] Combat Strength bonus.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Egypt -- Buff Burial Tomb, +1 Production in all cities.
@@ -329,7 +341,7 @@ SET FinishLandTRTourism = '4'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE] Receive 10 [ICON_GOLDEN_AGE] Golden Age Points whenever you win a battle. Bonus scales with era.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE] Nearby sources of [ICON_RES_TRUFFLES] Truffles, [ICON_RES_COTTON] Cotton, and [ICON_RES_FUR] Fur produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
+SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE] Receive 10 [ICON_GOLDEN_AGE] Golden Age Points whenever you win a battle. Bonus scales with era.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles gain +2 [ICON_GOLD] Gold, [ICON_RES_COTTON] Cotton gains +1 [ICON_PRODUCTION] Production and +1 [ICON_CULTURE] Culture, and [ICON_RES_FUR] Furs produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

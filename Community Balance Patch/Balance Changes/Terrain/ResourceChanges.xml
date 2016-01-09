@@ -126,4 +126,20 @@
 			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
 	</Language_en_US>
+	
+	<!-- Resource buffs -->
+	<Improvement_ResourceType_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<ResourceType>RESOURCE_BISON</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_ResourceType_Yields>
 </GameData>

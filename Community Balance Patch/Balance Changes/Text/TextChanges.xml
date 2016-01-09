@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 12/14/2014 8:42:49 PM -->
 <GameData>
+	<!-- Historic Event Info-->
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_HISTORIC_EVENT</Type>
+			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
+			<Description>TXT_KEY_HISTORIC_EVENT</Description>
+			<Summary>TXT_KEY_HISTORIC_EVENT_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_HISTORIC_EVENT_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CULTURE</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_HISTORIC_EVENT">
+			<Text>Historic Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Complete a Global City-State [ICON_INFLUENCE] Quest[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
+			<Text>What is a Historic Event?</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Added to Who's Winning Popup -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_DUDE_8">
@@ -432,6 +455,14 @@
 			<Text>Luxury Pop. Bonus</Text>
 		</Row>
 		
+		<!-- Text for UnitPanel.lua-->
+		<Row Tag="TXT_KEY_BUILD_TOURISM_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_TOURISM] Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_GAP_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+		
 		<!-- Assyria UA Text -->
 		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
 			<Text>Your soldiers found information worth {1_Num} [ICON_RESEARCH] Science during the conquest of {2_Name}!</Text>
@@ -507,6 +538,13 @@
 		<!-- Tech Tree-->
 		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
 			<Text>{1_SpecialistName:textkey} base {2_YieldType:textkey} increased by {3_Num}.</Text>
+		</Row>
+		<!-- Trait LUA -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from your Civilization Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_TRAIT_BONUS">
+			<Text>+{1_Num} {2_IconString} from Trait</Text>
 		</Row>
 		
 		<!-- Trade LUA -->

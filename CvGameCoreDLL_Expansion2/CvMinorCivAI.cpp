@@ -1877,9 +1877,19 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Already got our global bonus from a global quest this round?
+	if(bGlobal && GET_PLAYER(m_eAssignedPlayer).GlobalTourismAlreadyReceived(m_eType))
+	{
+		bGlobal = false;
+	}
+	else if(bGlobal)
+	{
+		GET_PLAYER(m_eAssignedPlayer).SetGlobalTourismAlreadyReceived(m_eType, true);
+	}
 	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
+		GET_PLAYER(m_eAssignedPlayer).ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		int iPreviousTurnsToCount = 10;
 		// Calculate boost

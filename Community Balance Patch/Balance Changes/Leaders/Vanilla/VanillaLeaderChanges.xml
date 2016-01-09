@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 10/28/2014 1:01:30 PM -->
 <GameData>
-	<!-- Arabia -->
+	<!--
 	<UnitPromotions>
-		<!--Arabia Promotion-->
 		<Row>
 			<Type>PROMOTION_DESERT_SHIPS</Type>
 			<Description>TXT_KEY_PROMOTION_DESERT_SHIPS</Description>
@@ -79,56 +78,26 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitClass>
-	<Trait_TerrainYieldChanges>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Trait_TerrainYieldChanges>
 	<UnitPromotions_Terrains>
 		<Row>
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 			<DoubleMove>true</DoubleMove>
 		</Row>
-		<Row>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<DoubleHeal>true</DoubleHeal>
-		</Row>
 	</UnitPromotions_Terrains>
+	-->
+	<Trait_YieldFromHistoricEvent>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Trait_YieldFromHistoricEvent>
 	<!-- Aztec -->
 	<Building_RiverPlotYieldChanges>
 		<Row>
@@ -154,20 +123,20 @@
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<ResourceType>RESOURCE_SALT</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<ResourceType>RESOURCE_MARBLE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<ResourceType>RESOURCE_STONE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_RiverPlotYieldChanges>
@@ -203,7 +172,7 @@
 			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
 		</Row>
 	</Language_en_US>
-	<Trait_FreePromotionUnitCombats>
+	<!--<Trait_FreePromotionUnitCombats>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
@@ -240,13 +209,14 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+	-->
 
 	<!-- Egypt -->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_ResourceYieldChanges>
@@ -291,7 +261,7 @@
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldFromVictory>

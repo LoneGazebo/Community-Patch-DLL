@@ -1200,7 +1200,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 //	-----------------------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #else
 void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #endif
@@ -1222,6 +1222,163 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	{
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
+	if(!isBarbarian())
+	{
+		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
+		CloseEmbassyAtTeam(eTeam);
+		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+		CancelResearchAgreement(eTeam);
+		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
+		EvacuateDiplomatsAtTeam(eTeam);
+		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
+		//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
+		if(!bDefensivePact && bAggressor)
+		{
+			cancelDefensivePacts();
+			// If we've made a peace treaty before, this is bad news (no minors though)
+			if(!GET_TEAM(eTeam).isMinorCiv())
+			{
+				int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
+				if(iPeaceTreatyTurn != -1)
+				{
+					int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+					{
+						SetHasBrokenPeaceTreaty(true);
+					}
+				}
+			}
+		}
+		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
+		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
+			// We declared war on our vassal!
+			if(GET_TEAM(eTeam).GetMaster() == GetID())
+			{
+				// this guy is no longer our vassal
+				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
+			}
+		}
+#endif	
+		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+		{
+			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+			if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+			{
+				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+				{
+					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
+					{
+						// Forget any of that liberation crud!
+						int iNumCitiesLiberated = kDefendingPlayer.GetDiplomacyAI()->GetNumCitiesLiberated(eAttackingPlayer);
+						kDefendingPlayer.GetDiplomacyAI()->ChangeNumCitiesLiberated(eAttackingPlayer, -iNumCitiesLiberated);
+
+						//Update Diplo.
+						kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
+#if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
+						if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
+						{
+							CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
+
+							if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) 
+							{
+								pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
+							}
+						}
+#endif
+					}
+				}
+			}
+		}
+
+		//Secondary major declarations
+		for(iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			if(GET_TEAM((TeamTypes)iI).isAlive())
+			{
+				//Defensive pacts only trigger on the 'first' major declaration - no chain declarations.
+				if(bAggressor && !bDefensivePact)
+				{
+					//Do we have a defensive pact with the target team?
+					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					//Are we a vassal of the player DOW'd on?
+					else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					//Are we the master of eTeam (should never happen, actually)?
+					else if(GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+#endif
+				}
+			}
+		}
+	}
+
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
+	setAtWar(eTeam, true);
+	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (MOD_EVENTS_WAR_AND_PEACE) 
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} 
+	else 
+	{
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	}
+#endif
+
+	// One shot things
+	DoNowAtWarOrPeace(eTeam, true);
+	GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), true);
+
+	// Meet the team if we haven't already
+	meet(eTeam, false);
+#else
 
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
@@ -1301,7 +1458,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, !bAggressor, GetID(), /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
 					GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
@@ -1313,22 +1470,26 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			TeamTypes eHisMaster = GET_TEAM(eTeam).GetMaster();
-
-			// If this guy has a master and it's not us, we declare war on his master
-			if(eHisMaster != NO_TEAM)
+		if (!bDefensivePact && MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
+			for(iI = 0; iI < MAX_TEAMS; iI++)
 			{
-				// Don't declare war if we're not alive!
-				if(isAlive())
+				if(GET_TEAM((TeamTypes)iI).isAlive())
 				{
-					//important, check if we're already at war, otherwise recursion!
-					if(eHisMaster != GetID() && !isAtWar(eHisMaster) )
+					if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), bAggressor, eHisMaster, false);
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
-						GET_TEAM(GetID()).DoDeclareWar(eHisMaster, false);
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					else if(GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
 					}
 				}
@@ -1336,7 +1497,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 #endif
 	}
-
 	// Cancel Trade Deals, RAs, diplomats
 	if(!isBarbarian())
 	{
@@ -1360,30 +1520,24 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
 #endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (MOD_EVENTS_WAR_AND_PEACE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
-	} else {
-#endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
+	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
-		CvLuaArgsHandle args;
-		args->Push(GetID());
-		args->Push(eTeam);
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
-	}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	}
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} 
+	else 
+	{
 #endif
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
 		{
-			GET_TEAM((TeamTypes)iI).DoUpdateVassalWarPeaceRelationships();
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
 		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
 #endif
 
@@ -1418,7 +1572,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			}
 		}
 	}
-
+#endif
 	// Update interface stuff
 	if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
 	{
@@ -1738,20 +1892,23 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
 #endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if (MOD_EVENTS_WAR_AND_PEACE) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
-		} else {
-#endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
+		if (MOD_EVENTS_WAR_AND_PEACE) 
 		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(eTeam);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+		} 
+		else 
+		{
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(eTeam);
 
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
-		}
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+			}
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
@@ -1759,6 +1916,12 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		// One shot things
 		DoNowAtWarOrPeace(eTeam, false);
 		GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), false);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			DoUpdateVassalWarPeaceRelationships();
+		}
+#endif
 
 		// Move Units that shouldn't be in each others' territory any more
 		if(bBumpUnits)
@@ -6035,6 +6198,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
 							int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 							// Culture boost based on previous turns
 							int iPreviousTurnsToCount = 10;
 							// Calculate boost
@@ -9243,7 +9407,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
-				DoDeclareWar(getLeaderID(), GET_TEAM(eMaster).isAggressor(eTeam), eTeam, false, false, true);
+				DoDeclareWar(getLeaderID(), false, eTeam, true);
 			}
 #else
 				DoDeclareWar(eTeam, false, false, true);

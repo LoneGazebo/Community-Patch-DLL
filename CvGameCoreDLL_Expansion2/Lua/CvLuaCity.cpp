@@ -259,6 +259,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeJONSCulturePerTurnFromSpecialists);
 	Method(GetJONSCulturePerTurnFromGreatWorks);
 	Method(GetJONSCulturePerTurnFromTraits);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetYieldPerTurnFromTraits);
+#endif
 	Method(GetJONSCulturePerTurnFromReligion);
 	Method(GetJONSCulturePerTurnFromLeagues);
 
@@ -642,6 +645,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsOnTerrain);
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
+	Method(CountNumWorkedFeature);
+	Method(CountNumWorkedImprovement);
+	Method(CountNumWorkedResource);
+	Method(CountNumImprovement);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -2536,6 +2543,14 @@ int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromTraits);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetYieldPerTurnFromTraits() const;
+int CvLuaCity::lGetYieldPerTurnFromTraits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetYieldPerTurnFromTraits);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromReligion() const;
 int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
@@ -5118,6 +5133,50 @@ int CvLuaCity::lAddMessage(lua_State* L)
 
 	SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage);
 	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedFeature(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const FeatureTypes eFeature = (FeatureTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedFeature(eFeature);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedImprovement(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedImprovement(eImprovement);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedResource(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedResource(eResource);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumImprovement(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumImprovement(eImprovement);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
 }
 #endif
 

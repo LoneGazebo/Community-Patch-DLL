@@ -690,7 +690,7 @@ protected:
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
 #else
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
 #endif

@@ -747,13 +747,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	int iCurrentHappiness = pPlayer->GetExcessHappiness();
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
-#if !defined(MOD_BALANCE_CORE)
 	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-#endif
 #if !defined(NO_ACHIEVEMENTS)
 	PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
-#else
-	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)

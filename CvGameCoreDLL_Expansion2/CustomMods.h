@@ -479,8 +479,6 @@
 #define MOD_AI_SMART_GREAT_PEOPLE                   (MOD_AI_SMART && gCustomMods.isAI_SMART_GREAT_PEOPLE())
 // Delay grand strategy bias until the Renaissance (v50)
 #define MOD_AI_SMART_GRAND_STRATEGY                 (MOD_AI_SMART && gCustomMods.isAI_SMART_GRAND_STRATEGY())
-// Make better policy choices ignoring grand strategy until medieval and giving less importance to opening branches vs unlocked branches (v50)
-#define MOD_AI_SMART_POLICY_CHOICE                  (MOD_AI_SMART && gCustomMods.isAI_SMART_POLICY_CHOICE())
 // Stop making archaeologists sooner and also disband archaeologists if there are not valid targets (v50)
 #define MOD_AI_SMART_ARCHAEOLOGISTS                 (MOD_AI_SMART && gCustomMods.isAI_SMART_ARCHAEOLOGISTS())
 // Disband long obsolete units, eg triremes in industrial era (v50)
@@ -1323,7 +1321,6 @@ public:
 	MOD_OPT_DECL(AI_SMART_DEALS);
 	MOD_OPT_DECL(AI_SMART_GREAT_PEOPLE);
 	MOD_OPT_DECL(AI_SMART_GRAND_STRATEGY);
-	MOD_OPT_DECL(AI_SMART_POLICY_CHOICE);
 	MOD_OPT_DECL(AI_SMART_ARCHAEOLOGISTS);
 	MOD_OPT_DECL(AI_SMART_DISBAND);
 	MOD_OPT_DECL(AI_SMART_UPGRADES);

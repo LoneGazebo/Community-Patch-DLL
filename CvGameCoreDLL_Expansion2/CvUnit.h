@@ -1232,6 +1232,14 @@ public:
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetScienceBlastStrength() const;
+	void SetScienceBlastStrength(int iValue);
+
+	int GetCultureBlastStrength() const;
+	void SetCultureBlastStrength(int iValue);
+#endif
+
 	// Arbitrary Script Data
 	std::string getScriptData() const;
 	void setScriptData(std::string szNewValue);
@@ -1818,6 +1826,10 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
+	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
+#endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	CvString m_strUnitName;

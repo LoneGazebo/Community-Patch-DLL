@@ -1511,6 +1511,7 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+again:
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
@@ -1674,6 +1675,18 @@ void CvGame::update()
 			CvLuaArgsHandle args;
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
+		}
+	}
+
+	if (!isGameMultiPlayer() && !GC.GetEngineUserInterface()->isDiploOrPopupWaiting() && !IsWaitingForBlockingInput() && gCustomMods.getOption("COMMUNITY_MINIMIZEAITURNSLICES", 0) != 0)
+	{
+		PlayerTypes activePlayerID = getActivePlayer();
+		const CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
+		if (NO_PLAYER != activePlayerID && (!activePlayer.isTurnActive() || activePlayer.isAutoMoves()) && !activePlayer.hasBusyUnitOrCity() && !activePlayer.HasActiveDiplomacyRequests())
+		{
+			updateTimers();
+
+			goto again;
 		}
 	}
 }

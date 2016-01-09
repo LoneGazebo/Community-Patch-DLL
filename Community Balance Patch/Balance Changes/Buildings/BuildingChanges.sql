@@ -78,7 +78,7 @@ SET EventTourism = '4'
 WHERE Type = 'BUILDING_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Contains 1 slot for a Great Work of Art.[NEWLINE][NEWLINE]When one of the following actions is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Complete a Global City-State [ICON_INFLUENCE] Quest[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][NEWLINE][ICON_CONNECTED] Connecting other Cities to the [ICON_CAPITAL] Capital by Road will produce additional [ICON_GOLD] Gold.'
+SET Text = 'Contains 1 slot for a Great Work of Art.[NEWLINE][NEWLINE]When one of the following [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Complete a Global City-State [ICON_INFLUENCE] Quest[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][NEWLINE][ICON_CONNECTED] Connecting other Cities to the [ICON_CAPITAL] Capital by Road will produce additional [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Granary
@@ -198,11 +198,11 @@ SET Help = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP'
 WHERE Type = 'BUILDING_AMPHITHEATER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_AMPHITHEATER_HELP', '+1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_DYE] Dye. +1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City.'
+SELECT 'TXT_KEY_BUILDING_AMPHITHEATER_HELP', '+2 [ICON_CULTURE] Culture from [ICON_RES_DYE] Dye and [ICON_RES_SILK] Silk. +1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and grants +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold to all nearby [ICON_RES_DYE] Dye resources, speeding the growth of the territory of the city and the acquisition of Social Policies.  Contains 1 slot for a Great Work of Writing.'
+SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and grants +2 [ICON_CULTURE] Culture to nearby [ICON_RES_DYE] Dye and [ICON_RES_SILK] Silk, speeding the growth of the territory of the city and the acquisition of Social Policies.  Contains 1 slot for a Great Work of Writing.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 -- Opera House
@@ -215,7 +215,7 @@ SET Help = 'TXT_KEY_BUILDING_OPERA_HOUSE_HELP'
 WHERE Type = 'BUILDING_OPERA_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_OPERA_HOUSE_HELP', '+1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_SILK] Silk.'
+SELECT 'TXT_KEY_BUILDING_OPERA_HOUSE_HELP', '+1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -323,7 +323,7 @@ SET PrereqTech = 'TECH_IRON_WORKING'
 WHERE Type = 'BUILDING_FORGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_ResourceYieldChanges
-SET Yield = '1'
+SET Yield = '2'
 WHERE BuildingType = 'BUILDING_FORGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 UPDATE Building_DomainProductionModifiers
@@ -342,7 +342,7 @@ DELETE FROM Building_LocalResourceAnds
 WHERE BuildingType = 'BUILDING_FORGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Each source of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper worked by this City produces +1 [ICON_PRODUCTION] Production. Nearby Mines gain +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Each source of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper worked by this City produces +2 [ICON_PRODUCTION] Production. Nearby Mines gain +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -365,6 +365,9 @@ WHERE Type = 'BUILDING_WORKSHOP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type=
 -- Stoneworks
 DELETE FROM Buildings
 WHERE Type = 'BUILDING_STONE_WORKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+DELETE FROM Building_YieldChanges
+WHERE BuildingType = 'BUILDING_STONE_WORKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_ResourceYieldChanges
 SET Yield = '2'
@@ -443,11 +446,11 @@ SET Yield = '0'
 WHERE BuildingType = 'BUILDING_MARKET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '+1 [ICON_GOLD] Gold for every 6 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, and [ICON_RES_SUGAR] Sugar.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Market will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '+1 [ICON_GOLD] Gold for every 6 [ICON_CITIZEN] Citizens in the City. +1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from [ICON_RES_SUGAR] Sugar.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Market will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Markets increase the amount of [ICON_GOLD] Gold a city generates, and sources of [ICON_RES_SPICES] Spices and [ICON_RES_SUGAR] Sugar gain +1 [ICON_GOLD] and +1 [ICON_PRODUCTION] Production. Trade routes other players make to a city with a Market will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'Markets increase the amount of [ICON_GOLD] Gold a city generates, [ICON_RES_SPICES] Spices gain +1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production, and [ICON_RES_SUGAR] Sugar gains [ICON_GOLD] and +1 [ICON_FOOD] Food. Trade routes other players make to a city with a Market will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_MARKET_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Mint
@@ -534,7 +537,7 @@ SET PrereqTech = 'TECH_CURRENCY'
 WHERE Type = 'BUILDING_CARAVANSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby sources of [ICON_RES_TRUFFLES] Truffles, [ICON_RES_COTTON] Cotton, and [ICON_RES_FUR] Fur produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
+SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles gain +2 [ICON_GOLD] Gold, [ICON_RES_COTTON] Cotton gains +1 [ICON_PRODUCTION] Production and +1 [ICON_CULTURE] Culture, and [ICON_RES_FUR] Furs produce +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 -- Library
@@ -826,15 +829,15 @@ SET Happiness = '1'
 WHERE Type = 'BUILDING_CIRCUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom, and provides a modest sum of [ICON_CULTURE] Culture when completed. Each source of [ICON_RES_IVORY] Ivory worked by this City produces 3 [ICON_GOLD] Gold.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom, and provides a modest sum of [ICON_CULTURE] Culture when completed. Each source of [ICON_RES_IVORY] Ivory worked by this City produces 3 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Circus reduces Boredom in a city and improves the Gold yield output of [ICON_RES_IVORY] Ivory. Build these to combat Unhappiness from Boredom, and gain quick bursts of Culture.'
+SET Text = 'The Circus reduces Boredom in a city and improves the Culture output of [ICON_RES_IVORY] Ivory. Build these to combat Unhappiness from Boredom, and gain quick bursts of Culture.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_CIRCUS', 'RESOURCE_IVORY' , 'YIELD_GOLD' , '3'
+SELECT 'BUILDING_CIRCUS', 'RESOURCE_IVORY' , 'YIELD_CULTURE' , '3'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 -- Colosseum

@@ -259,6 +259,7 @@ CvCity::CvCity() :
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
+	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -897,6 +898,24 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			GET_PLAYER(ePlayer).GetCityConnections()->Update();
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes) iJ;
+		for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iK;
+			if(eImprovement != NO_IMPROVEMENT)
+			{
+				int iYieldChange = GET_PLAYER(getOwner()).GetImprovementExtraYield(eImprovement, eYield);
+				if(iYieldChange > 0)
+				{
+					ChangeImprovementExtraYield(eImprovement, eYield, iYieldChange);
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
@@ -1469,6 +1488,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLandTourismBonus = 0;
 	m_iSeaTourismBonus = 0;
 	m_iAlwaysHeal = 0;
+	m_bIsBastion = false;
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -2423,6 +2443,9 @@ void CvCity::doTurn()
 		setDamage(0);
 	}
 #if defined(MOD_BALANCE_CORE)
+	//See if we are a defense-necessary city.
+	TestBastion();
+
 	CvUnit* pLoopUnit;
 	if(plot() != NULL)
 	{
@@ -8024,6 +8047,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				int iTourism = owningPlayer.GetEventTourism();
+				owningPlayer.ChangeNumHistoricEvents(1);
 				// Culture boost based on previous turns
 				int iPreviousTurnsToCount = 10;
 				// Calculate boost
@@ -10175,9 +10199,9 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 			iFoodReduction /= 2;
 			iNum -= iFoodReduction;
 		}
-		else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
 		{
-			int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+			int iFoodReduction = iSpecialists * iFoodPerPop;
 			iFoodReduction /= 2;
 			iNum -= iFoodReduction;
 		}
@@ -12323,22 +12347,16 @@ void CvCity::DoJONSCultureLevelIncrease()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-		int iTotal = 0;
-		if(eTerrainBoost != NO_TERRAIN)
+		if(pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
 		{
-			if(pPlotToAcquire->getTerrainType() == eTerrainBoost)
+			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 			{
-				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
+				if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == pPlotToAcquire->getTerrainType())
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
-					if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == eTerrainBoost)
+					if(pAdjacentPlot->getOwner() == NO_PLAYER)
 					{
-						if(pAdjacentPlot->getOwner() == NO_PLAYER && iTotal < GC.getBALANCE_CORE_ARABIA_TILE_BONUS())
-						{
-							DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
-							iTotal++;
-						}
+						DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
 					}
 				}
 			}
@@ -12537,6 +12555,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
+	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 #endif
 
 	return iCulturePerTurn;
@@ -12615,7 +12634,19 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
+{
+	if(!isCapital())
+	{
+		return 0;
+	}
+	//Currently only used by Arabian CBP UA.
+	int iYield = (GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldFromHistoricEvent(eYield) * GET_PLAYER(m_eOwner).GetNumHistoricEvents());
+	return iYield;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromReligion() const
 {
@@ -12712,6 +12743,7 @@ int CvCity::GetFaithPerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetBaseYieldRateFromCSAlliance(YIELD_FAITH);
+	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -14695,7 +14727,7 @@ int CvCity::getThresholdAdditions() const
 	iModifier += iTech;
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
-	iModifier += (getPopulation() / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+	iModifier += (getPopulation() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
 
 	if(isCapital())
 	{
@@ -16629,6 +16661,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromReligion(eIndex);
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
+	iValue += GetYieldPerTurnFromTraits(eIndex);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if(GetCorporationYieldChange(eIndex) > 0)
@@ -17598,6 +17631,80 @@ void CvCity::SetAlwaysHeal(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iAlwaysHeal = iChange;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBastion() const
+{
+	VALIDATE_OBJECT
+	return m_bIsBastion;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::TestBastion()
+{
+	//Check to see if this is a city we really need to defend.
+	if(isCapital())
+	{
+		if(!IsBastion())
+		{
+			SetBastion(true);
+		}
+		return;
+	}
+	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
+	{
+		if(!IsBastion())
+		{
+			SetBastion(true);
+		}
+		return;
+	}
+	//Coastal? Check for lake, otherwise make a bastion (better safe than sorry).
+	if(plot()->isCoastalLand())
+	{
+		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+		bool bLake = false;
+		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+		{
+			bLake = GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound);
+			if(!bLake)
+			{
+				if(!IsBastion())
+				{
+					SetBastion(true);
+				}
+				return;
+			}
+		}
+	}
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
+		{
+			if(plot()->IsHomeFrontForPlayer(eLoopPlayer))
+			{
+				if(!IsBastion())
+				{
+					SetBastion(true);
+				}
+				return;
+			}
+		}
+	}
+	//Not a frontier city, and not a chokepoint? Not a bastion.
+	if(IsBastion())
+	{
+		SetBastion(false);
+	}
+	return;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBastion(bool bValue)
+{
+	VALIDATE_OBJECT
+	m_bIsBastion = bValue;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -19291,16 +19398,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
-#if defined(MOD_BALANCE_CORE)
-						TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-						if(eTerrainBoost != NO_TERRAIN)
-						{
-							if(pLoopPlot->getTerrainType() == eTerrainBoost)
-							{
-								iInfluenceCost -= (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pLoopPlot->getTerrainType(), (YieldTypes) iYieldLoop) * 25);
-							}
-						}
-#endif
 						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes) iYieldLoop));
 					}
 
@@ -19549,7 +19646,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 						if(pPlot2 != NULL)
 						{
 							int iDistance = plotDistance(pNearbyCity->getX(), pNearbyCity->getY(), pPlot2->getX(), pPlot2->getY());
-							if(iDistance <= GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT())
+							if(iDistance <= (max(1, GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() - 1)))
 							{
 								pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
 							}
@@ -19863,16 +19960,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		eYield = (YieldTypes) iI;
 
 		iYield = pPlot->calculateNatureYield(eYield, getOwner());
-#if defined(MOD_BALANCE_CORE)
-		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
-		if(eTerrainBoost != NO_TERRAIN)
-		{
-			if(pPlot->getTerrainType() == eTerrainBoost)
-			{
-				iYield += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYield) * 5);
-			}
-		}
-#endif
+
 		iTempValue = 0;
 
 		if(eYield == eSpecializationYield)
@@ -21829,6 +21917,16 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+			{
+				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
+			}
+			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+			{
+				pUnit->SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+			}
+#endif
 
 			kPlayer.ChangeFaith(-iFaithCost);
 
@@ -22817,6 +22915,7 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iLandTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iSeaTourismBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAlwaysHeal, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_bIsBastion, false);
 	MOD_SERIALIZE_READ(68, kStream, m_bNoWarmonger, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -23264,6 +23363,7 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iLandTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iSeaTourismBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iAlwaysHeal);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsBastion);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoWarmonger);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -25666,6 +25766,122 @@ bool CvCity::IsAdjacentToTerrain(TerrainTypes iTerrainType) const
 bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const
 {
 	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+}
+int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->HasFeature(iFeatureType)) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getImprovementType() == eImprovement) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumWorkedResource(ResourceTypes eResource)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Not being worked by this city
+		if (pLoopPlot->getWorkingCity() != this || !pLoopPlot->isBeingWorked()) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getResourceType() == eResource) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Does not belong to this city
+		if (pLoopPlot->getWorkingCity() != this) 
+		{
+			continue;
+		}
+
+		if (pLoopPlot->getImprovementType() == eImprovement) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
 }
 #endif
 

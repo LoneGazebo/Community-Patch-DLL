@@ -2,6 +2,22 @@ UPDATE Resources
 SET Happiness = '1'
 WHERE Happiness = '4';
 
+UPDATE Improvement_ResourceType_Yields
+SET YieldType = 'YIELD_CULTURE'
+WHERE ResourceType = 'RESOURCE_CORAL';
+
+UPDATE Improvement_ResourceType_Yields
+SET YieldType = 'YIELD_FOOD'
+WHERE ResourceType = 'RESOURCE_COFFEE';
+
+UPDATE Improvement_ResourceType_Yields
+SET YieldType = 'YIELD_CULTURE'
+WHERE ResourceType = 'RESOURCE_TOBACCO';
+
+UPDATE Improvement_ResourceType_Yields
+SET YieldType = 'YIELD_CULTURE'
+WHERE ResourceType = 'RESOURCE_PERFUME';
+
 -- Temple -- Amber
 
 UPDATE Language_en_US
@@ -31,15 +47,15 @@ SELECT 'BUILDING_BASILICA', 'RESOURCE_AMBER' , 'YIELD_FAITH' , '1'
 -- Amphitheater -- Lapis Lazuli
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_DYE] Dye and [ICON_RES_LAPIS] Lapis Lazuli. +1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City.'
+SET Text = '+2 [ICON_CULTURE] Culture from [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, and [ICON_RES_LAPIS] Lapis Lazuli. +1 [ICON_CULTURE] Culture for every 6 [ICON_CITIZEN] Citizens in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and grants +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold to all nearby [ICON_RES_DYE] Dye and [ICON_RES_LAPIS] Lapis Lazuli resources, speeding the growth of the territory of the city and the acquisition of Social Policies.  Contains 1 slot for a Great Work of Writing.'
+SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and grants +2 [ICON_CULTURE] Culture to all nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, and [ICON_RES_LAPIS] Lapis Lazuli resources, speeding the growth of the territory of the city and the acquisition of Social Policies.  Contains 1 slot for a Great Work of Writing.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE] +1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye and [ICON_RES_LAPIS] Lapis Lazuli resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.'
+SET Text = 'Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +2 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, and [ICON_RES_LAPIS] Lapis Lazuli resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_HELP';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
@@ -157,14 +173,14 @@ INSERT INTO Building_LocalResourceOrs (BuildingType, ResourceType)
 SELECT 'BUILDING_STONE_WORKS', 'RESOURCE_JADE';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_JADE' , 'YIELD_GOLD' , '1';
+SELECT 'BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_JADE' , 'YIELD_PRODUCTION' , '2';
 
 UPDATE Language_en_US
-SET Text = 'Grants +1 [ICON_CULTURE] Culture to all River tiles near the city, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City. Each source of [ICON_RES_MARBLE] Marble, [ICON_RES_STONE] Stone, [ICON_RES_SALT] Salt, and [ICON_RES_JADE] Jade worked by this City produces +1 [ICON_GOLD] Gold. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'Grants +1 [ICON_CULTURE] Culture to all River tiles near the city, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City. Each source of [ICON_RES_MARBLE] Marble, [ICON_RES_STONE] Stone, [ICON_RES_SALT] Salt, and [ICON_RES_JADE] Jade worked by this City produces +2 [ICON_PRODUCTION] Production. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. The Tabya greatly increases the [ICON_CULTURE] Culture of Cities on rivers, boosts the Gold value of Stone, Marble, Salt, and Jade, and boosts the production of future Buildings in the City by 10%. Also allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. The Tabya greatly increases the [ICON_CULTURE] Culture of Cities on rivers, boosts the Production value of Stone, Marble, Salt, and Jade, and boosts the production of future Buildings in the City by 10%. Also allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY';
 
 -- Olives, Perfume -- Colosseum

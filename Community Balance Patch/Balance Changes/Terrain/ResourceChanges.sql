@@ -1,3 +1,12 @@
+-- Value Changes
+	UPDATE Improvement_ResourceType_Yields
+	SET YieldType = 'YIELD_CULTURE'
+	WHERE ResourceType = 'RESOURCE_INCENSE';
+
+	UPDATE Improvement_ResourceType_Yields
+	SET YieldType = 'YIELD_CULTURE'
+	WHERE ResourceType = 'RESOURCE_PEARLS';
+
 -- Move Coal to Steampower
 
 	UPDATE Resources

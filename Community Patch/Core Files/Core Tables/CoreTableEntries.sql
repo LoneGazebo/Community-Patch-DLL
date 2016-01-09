@@ -94,6 +94,18 @@ ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
 
+-- Adds a trait that converts x% of tourism to GAP, where x is the integer below.
+
+ALTER TABLE Traits ADD COLUMN 'TourismToGAP' INTEGER DEFAULT 0;
+
+-- Adds a trait that boosts the value of historic event tourism. 1 = 10%, 2 = 20%, etc.
+
+ALTER TABLE Traits ADD COLUMN 'EventTourismBoost' INTEGER DEFAULT 0;
+
+-- Adds x# of GP Points to Capital (scaling with era) when you complete a Historic Event.
+
+ALTER TABLE Traits ADD COLUMN 'EventGP' INTEGER DEFAULT 0;
+
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
@@ -151,6 +163,11 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 
 -- Adds abiility for units to upgrade in allied CS lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
+
+-- Adds event tourism from digging up sites.
+ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' BOOLEAN DEFAULT 0;
+-- Adds event tourism from golden ages starting.
+ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' BOOLEAN DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 

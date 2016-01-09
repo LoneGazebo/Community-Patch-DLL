@@ -422,6 +422,17 @@
 			<Yield>200</Yield>
 		</Row>
 	</Trait_YieldFromSettle>
+	<!-- Hunnic Tile Grab -->
+	<Trait_TerrainClaimBoost>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+	</Trait_TerrainClaimBoost>
 	<!-- Make Hunnic Archer a Classical Unit -->
 	<UnitClasses>
 		<Row>

@@ -349,13 +349,13 @@
 			<BuildingType>BUILDING_ODEON</BuildingType>
 			<ResourceType>RESOURCE_DYE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
-			<ResourceType>RESOURCE_DYE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Language_en_US>
@@ -366,7 +366,7 @@
 			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>Increases City Defense by 4. Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>Increases City Defense by 4. Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE] and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +2 [ICON_CULTURE] Culture to nearby [ICON_RES_DYE] Dye and [ICON_RES_SILK] Silk. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
 			<Text>Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city's Defense, Culture, and Tourism, especially while at war for the latter two. Produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
@@ -637,13 +637,13 @@
 			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_ImprovementYieldChanges>
@@ -671,7 +671,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP">
-			<Text>+50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. [NEWLINE][NEWLINE]Each source of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper worked by this City produces +1 [ICON_PRODUCTION] Production. Nearby Mines gain +1 [ICON_PRODUCTION] Production.</Text>
+			<Text>+50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. [NEWLINE][NEWLINE]Each source of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper worked by this City produces +2 [ICON_PRODUCTION] Production. Nearby Mines gain +1 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
 			<Text>Unique Ottoman replacement for the Forge. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands!</Text>

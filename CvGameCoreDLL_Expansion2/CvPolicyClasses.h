@@ -98,6 +98,8 @@ public:
 	bool IsAutocracyCorp() const;
 	bool IsFreedomCorp() const;
 	bool IsUpgradeCSTerritory() const;
+	bool IsArchaeologicalDigTourism() const;
+	bool IsGoldenAgeTourism() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -592,6 +594,8 @@ private:
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;
 	bool m_bUpgradeCSTerritory;
+	bool m_bArchaeologicalDigTourism;
+	bool m_bGoldenAgeTourism;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
@@ -833,9 +837,6 @@ public:
 	// Policy Branch Stuff
 	void DoUnlockPolicyBranch(PolicyBranchTypes eBranchType);
 	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType);
-#if defined(MOD_AI_SMART_POLICY_CHOICE)
-	bool IsEraPrereqBranch(PolicyBranchTypes eBranchType);
-#endif
 
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);

@@ -697,10 +697,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	// Now do the valuation
 	iTotalValueToMe = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
 
-	// Important: check invalid return value!
-	if (iTotalValueToMe==INT_MAX)
-		return false;
-
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We're offering help to a player
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
@@ -708,6 +704,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		return true;
 	}
 #endif
+
+	// Important: check invalid return value!
+	if (iTotalValueToMe==INT_MAX)
+		return false;
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
@@ -2474,7 +2474,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	//buyer likes it close to home (up to 50% bonus) - this is in addition to the tile overlap above
-	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT()+2;
+	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT()+1;
 	iItemValue *= 100 + MapToPercent(iBuyerDistance, iRefDist * 2, iRefDist)/2;
 	iItemValue /= 100;
 

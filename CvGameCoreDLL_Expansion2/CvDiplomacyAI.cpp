@@ -7523,7 +7523,7 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 						// Are there no enemy military units near our cities? Let's not give in.
 						int iLoop;
 						int iDX, iDY;
-						int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
+						int iRange = max(1, (GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() - 2));
 						bool bUnit = false;
 						CvCity* pLoopCity;
 						CvPlot* pLoopPlot;
@@ -15851,8 +15851,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 /// Individual contact opportunity
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	if(!IsValidUIDiplomacyTarget(ePlayer))
 		return;		// Can't contact the this player at the moment.
+#endif
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
@@ -24297,6 +24299,10 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iMessage = 0;
+	if(GetPlayer()->isHuman())
+	{
+		return iMessage;
+	}
 	if(ePlayer == NO_PLAYER)
 	{
 		ePlayer = GC.getGame().getActivePlayer();
@@ -34754,7 +34760,7 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 #endif
 	}
 }
-
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 //	-------------------------------------------------------------------------------------
 //	Returns true if the target is valid to show a UI to immediately.
 //	This will return true if the source and destination are both AI.
@@ -34769,7 +34775,7 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 
 	return false;
 }
-
+#endif
 
 FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)
 {

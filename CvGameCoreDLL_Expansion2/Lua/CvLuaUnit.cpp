@@ -1570,8 +1570,11 @@ int CvLuaUnit::lCanDiscover(lua_State* L)
 int CvLuaUnit::lGetDiscoverAmount(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
+#if defined(MOD_BALANCE_CORE)
+	const int iResult = pkUnit->GetScienceBlastStrength();
+#else
 	const int iResult = pkUnit->getDiscoverAmount();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1695,8 +1698,11 @@ int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
+#if defined(MOD_BALANCE_CORE)
+	const int iResult = pkUnit->GetCultureBlastStrength();
+#else
 	const int iResult = pkUnit->getGivePoliciesCulture();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }

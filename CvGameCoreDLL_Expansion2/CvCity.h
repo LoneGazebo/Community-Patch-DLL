@@ -473,6 +473,9 @@ public:
 	int GetJONSCulturePerTurnFromGreatWorks() const;
 
 	int GetJONSCulturePerTurnFromTraits() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
+#endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -933,6 +936,10 @@ public:
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);
+
+	bool IsBastion() const;
+	void SetBastion(bool bValue);
+	void TestBastion();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1282,6 +1289,10 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
+	int CountNumWorkedFeature(FeatureTypes eFeature);
+	int CountNumWorkedImprovement(ImprovementTypes eImprovement);
+	int CountNumWorkedResource(ResourceTypes eResource);
+	int CountNumImprovement(ImprovementTypes eImprovement);
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1485,6 +1496,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
+	FAutoVariable<bool, CvCity> m_bIsBastion;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;

@@ -406,7 +406,6 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(AI_SMART_DEALS);
 		MOD_OPT_CACHE(AI_SMART_GREAT_PEOPLE);
 		MOD_OPT_CACHE(AI_SMART_GRAND_STRATEGY);
-		MOD_OPT_CACHE(AI_SMART_POLICY_CHOICE);
 		MOD_OPT_CACHE(AI_SMART_ARCHAEOLOGISTS);
 		MOD_OPT_CACHE(AI_SMART_DISBAND);
 		MOD_OPT_CACHE(AI_SMART_UPGRADES);
@@ -514,11 +513,11 @@ int CustomMods::getOption(string sOption, int defValue) {
 		m_bInit = true;
 	}
 
-	if (m_options.find(sOption) == m_options.end()) {
-		return defValue;
-	}
+	std::map<std::string, int>::const_iterator it = m_options.find(sOption);
+	if (it != m_options.end())
+		return it->second;
 
-	return m_options[sOption];
+	return defValue;
 }
 
 int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue) {

@@ -349,6 +349,8 @@ CvUnit::CvUnit() :
 	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
+	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
 	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
 	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
 #endif
@@ -1260,6 +1262,16 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+	{
+		SetScienceBlastStrength(getDiscoverAmount());
+	}
+	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		SetCultureBlastStrength(getGivePoliciesCulture());
+	}
+#endif
 
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
@@ -1809,7 +1821,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
+	{
+		SetScienceBlastStrength(getDiscoverAmount());
+	}
+	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		SetCultureBlastStrength(getGivePoliciesCulture());
+	}
+#endif
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
 	{
@@ -2414,6 +2435,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(IsGreatPerson())
 	{
 		int iTourism = kPlayer.GetEventTourism();
+		kPlayer.ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		int iPreviousTurnsToCount = 10;
 		// Calculate boost
@@ -2746,6 +2768,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = (uint)-1;
 #if defined(MOD_BALANCE_CORE)
+	m_iScienceBlastStrength = 0;
+	m_iCultureBlastStrength = 0;
 	m_uiLastPathFlags = 0;
 #endif
 
@@ -2964,6 +2988,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
+				if((ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY()) && (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() || GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage()))
+				{
+					bGivePromotion = false;
+					bFree = false;
+				}
 #endif
 			}
 
@@ -2974,6 +3003,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
+				if((ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY()) && (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() || GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage()))
+				{
+					bGivePromotion = false;
+					bFree = false;
+				}
 #endif
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -3022,7 +3056,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
 	SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
-
+#if defined(MOD_BALANCE_CORE)
+	SetScienceBlastStrength(pUnit->getDiscoverAmount());
+	SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+#endif
 	if (pUnit->getUnitInfo().GetNumExoticGoods() > 0)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
@@ -10834,8 +10871,10 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 int CvUnit::getDiscoverAmount()
 {
 	int iValue = 0;
+#if !defined(MOD_BALANCE_CORE)
 	CvPlot* pPlot = plot();
 	if(canDiscover(pPlot))
+#endif
 	{
 		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
@@ -10909,7 +10948,11 @@ bool CvUnit::discover()
 	if (!pTeam) return false;
 
 	// Beakers boost based on previous turns
+#if defined(MOD_BALANCE_CORE)
+	int iBeakersBonus = GetScienceBlastStrength();
+#else
 	int iBeakersBonus = getDiscoverAmount();
+#endif
 	TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
 	if(eCurrentTech == NO_TECH)
 	{
@@ -11300,7 +11343,7 @@ bool CvUnit::trade()
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+				if(eLoopPlayer != NO_PLAYER && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -12123,8 +12166,10 @@ bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) con
 int CvUnit::getGivePoliciesCulture()
 {
 	int iValue = 0;
+#if !defined(MOD_BALANCE_CORE)
 	CvPlot* pPlot = plot();
 	if(canGivePolicies(pPlot))
+#endif
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -12156,7 +12201,11 @@ bool CvUnit::givePolicies()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 	// Culture boost based on previous turns
+#if defined(MOD_BALANCE_CORE)
+	int iCultureBonus = GetCultureBlastStrength();
+#else
 	int iCultureBonus = getGivePoliciesCulture();
+#endif
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
@@ -23135,6 +23184,31 @@ void CvUnit::SetTourismBlastStrength(int iValue)
 {
 	m_iTourismBlastStrength = iValue;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvUnit::GetScienceBlastStrength() const
+{
+	return m_iScienceBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetScienceBlastStrength(int iValue)
+{
+	m_iScienceBlastStrength = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCultureBlastStrength() const
+{
+	return m_iCultureBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCultureBlastStrength(int iValue)
+{
+	m_iCultureBlastStrength = iValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 std::string CvUnit::getScriptData() const
@@ -24589,6 +24663,8 @@ void CvUnit::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iCannotBeCapturedCount, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iForcedDamage, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iChangeDamage, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iScienceBlastStrength, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCultureBlastStrength, 0);
 #endif
 
 	kStream >> m_iGreatAdmiralCount;
@@ -24728,6 +24804,8 @@ void CvUnit::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iCannotBeCapturedCount);
 	MOD_SERIALIZE_WRITE(kStream, m_iForcedDamage);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeDamage);
+	MOD_SERIALIZE_WRITE(kStream, m_iScienceBlastStrength);
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureBlastStrength);
 #endif
 
 	kStream << m_iGreatAdmiralCount;

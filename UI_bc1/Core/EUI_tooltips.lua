@@ -2071,6 +2071,10 @@ local function getYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	if(yieldID ~= YieldTypes.YIELD_CULTURE) then
 		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP", city:GetBaseYieldRateFromGreatWorks( yieldID ), yieldIconString)
 	end
+	
+	if(yieldID ~= YieldTypes.YIELD_CULTURE) then
+		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_TRAIT_BONUS", city:GetYieldPerTurnFromTraits( yieldID ), yieldIconString)
+	end
 
 -- CBP
 	-- WLTKD MOD
@@ -2351,6 +2355,7 @@ local function getCultureTooltip( city )
 		end
 		cultureFromPiety = city:GetReligionYieldRateModifier(YieldTypes.YIELD_CULTURE) -- CBP
 		cultureFromCSAlliance = city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_CULTURE) -- CBP
+		cultureFromTraits = (cultureFromTraits + city:GetYieldPerTurnFromTraits(YieldTypes.YIELD_CULTURE)) -- CBP
 	else
 		culturePerTurn = city:GetCulturePerTurn()
 		cultureStored = city:GetCultureStored()
@@ -2502,8 +2507,8 @@ local function getFaithTooltip( city )
 		-- Faith from Specialists
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
 		
-		-- Faith from Traits
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", city:GetFaithPerTurnFromTraits())
+		-- Faith from Traits (EDITED BY CBP)
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", (city:GetFaithPerTurnFromTraits() + city:GetYieldPerTurnFromTraits( YieldTypes.YIELD_FAITH )))
 
 		-- Yield Increase from Piety
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))

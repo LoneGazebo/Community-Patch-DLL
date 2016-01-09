@@ -622,6 +622,14 @@ function DoUpdateButtons()
 
 		Controls.MainStack:CalculateSize();
 		Controls.MainGrid:DoAutoSize();
+--CBP
+		Controls.DenounceButton:SetHide(true);
+		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
+			Controls.DenounceButton:SetHide(false);
+			DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
+			DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+		end
+--END
 
 	-- Dealing with an AI
 	elseif (g_bPVPTrade == false and g_bTradeReview == false) then
@@ -654,7 +662,9 @@ function DoUpdateButtons()
 		Controls.WhatWillMakeThisWorkButton:SetHide(true);
 		Controls.WhatWillEndThisWarButton:SetHide(true);
 		Controls.WhatConcessionsButton:SetHide(true);
-
+--CBP
+		Controls.DenounceButton:SetHide(true);
+--END
 		--CBP
 		Controls.PeaceValue:SetHide(true);
 		Controls.PeaceMax:SetHide(true);
@@ -730,6 +740,9 @@ function DoUpdateButtons()
 		-- If they're making a demand and there's nothing on our side of the table then we can't propose anything
 		if (UI.IsAIRequestingConcessions() and iNumItemsFromUs == 0) then
 			Controls.ProposeButton:SetHide(true);
+--CBP
+			Controls.DenounceButton:SetHide(true);
+--END
 		else
 			Controls.ProposeButton:SetHide(false);
 		end
@@ -934,6 +947,17 @@ function OnPropose( iType )
 	end
 end
 Controls.ProposeButton:RegisterCallback( Mouse.eLClick, OnPropose );
+-- CBP
+function OnDenounceButton( )
+	if( g_bPVPTrade ) then
+		if (g_iUs ~= -1) then
+			Players[g_iUs]:DoTradeScreenClosed(false);
+		end
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_DENOUNCE, g_iThem, 0, 0 );				
+	end
+end
+Controls.DenounceButton:RegisterCallback( Mouse.eLClick, OnDenounceButton );
+--END
 
 
 ----------------------------------------------------------------
@@ -1102,7 +1126,14 @@ function ResetDisplay()
 		TruncateString(Controls.ThemName, Controls.ThemTablePanel:GetSizeX() - Controls.ThemTablePanel:GetOffsetX(),
 							Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", g_pThem:GetNickName() ));
 		Controls.ThemCiv:SetText( "(" .. Locale.ConvertTextKey( GameInfo.Civilizations[ g_pThem:GetCivilizationType() ].ShortDescription ) .. ")" );
-
+--CBP
+		Controls.DenounceButton:SetHide(true);
+		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
+			Controls.DenounceButton:SetHide(false);
+			DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
+			DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+		end
+--END
 	end
 
 
