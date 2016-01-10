@@ -94,7 +94,7 @@
 		</Row>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<YieldType>YIELD_TOURISM</YieldType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>
 	</Trait_YieldFromHistoricEvent>
@@ -122,7 +122,7 @@
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
-			<ResourceType>RESOURCE_SALT</ResourceType>
+			<ResourceType>RESOURCE_STONE</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>2</Yield>
 		</Row>
@@ -130,13 +130,25 @@
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<ResourceType>RESOURCE_MARBLE</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
-			<ResourceType>RESOURCE_STONE</ResourceType>
+			<ResourceType>RESOURCE_MARBLE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_RiverPlotYieldChanges>
@@ -212,6 +224,43 @@
 	-->
 
 	<!-- Egypt -->
+	<Trait_ArtifactYieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_ArtifactYieldChanges>
+	<Trait_ImprovementYieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Trait_ImprovementYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
@@ -224,18 +273,12 @@
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
-			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -479,7 +522,7 @@
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
@@ -500,7 +543,7 @@
 	<Building_ClassesNeededInCity>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
 	<Trait_GreatPersonBornYield>

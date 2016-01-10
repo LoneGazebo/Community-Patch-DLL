@@ -333,6 +333,9 @@
 					</AlphaAnim>
 				</ShowOnMouseOver>
 			</Button>
+			<!-- CBP -->
+			<GridButton ID="DenounceButton" Hidden ="1" Anchor="R,B" Size="70,22" Offset="100,20" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_DENOUNCE_HUMAN" />
+			<!-- END -->
 		</Stack>
 		<Image Size="64,64" Offset="14,40" Anchor="R,T" Texture="IconFrame64.dds">
 			<Image ID="UsCivIconBG" Size="64.64" Anchor="C,C" TextureOffset="77,0" Texture="CivIconBGSizes.dds"/>

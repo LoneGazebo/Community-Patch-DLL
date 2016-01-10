@@ -101,6 +101,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetTurnYear);
 	Method(GetGameTurnYear);
 	Method(GetTurnString);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetDateString);
+#endif
 
 	Method(GetElapsedGameTurns);
 	Method(GetMaxTurns);
@@ -823,6 +826,20 @@ int CvLuaGame::lGetTurnString(lua_State* L)
 	lua_pushstring(L, strString);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetDateString(lua_State* L)
+{
+    const int iTurn = lua_tointeger(L, 1);
+    
+    CvGame& game = GC.getGame();
+    CvString strString;
+    CvGameTextMgr::setDateStr(strString, iTurn, false, game.getCalendar(), game.getStartYear(), game.getGameSpeedType());
+ 
+    lua_pushstring(L, strString);
+    return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getElapsedGameTurns();
 int CvLuaGame::lGetElapsedGameTurns(lua_State* L)

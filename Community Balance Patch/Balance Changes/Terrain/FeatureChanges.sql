@@ -1,3 +1,30 @@
+-- Removal of Forest/Jungle/Marsh moved back a bit
+UPDATE Builds
+SET PrereqTech = 'TECH_IRON_WORKING'
+WHERE Type = 'BUILD_REMOVE_JUNGLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE Builds
+SET PrereqTech = 'TECH_BRONZE_WORKING'
+WHERE Type = 'BUILD_REMOVE_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE Builds
+SET PrereqTech = 'TECH_MACHINERY'
+WHERE Type = 'BUILD_REMOVE_MARSH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_BRONZE_WORKING'
+WHERE FeatureType = 'FEATURE_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_IRON_WORKING'
+WHERE FeatureType = 'FEATURE_JUNGLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_MACHINERY'
+WHERE FeatureType = 'FEATURE_MARSH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+
+
 -- Defense Changes
 
 UPDATE Features
@@ -34,50 +61,6 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
 WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- General data
-
-UPDATE Features SET Impassable=0, Movement=2, Defense=10 WHERE Type IN (
-	'FEATURE_CRATER'			,
-	'FEATURE_GEYSER'			,
-	'FEATURE_FOUNTAIN_YOUTH'	,
-	'FEATURE_EL_DORADO'			,
-	'FEATURE_MESA'				,
-	'FEATURE_REEF'				,
-	'FEATURE_ULURU'				,
-	'FEATURE_SOLOMONS_MINES'	
-);
-
-UPDATE Natural_Wonder_Placement SET ChangeCoreTileToMountain=0 WHERE NaturalWonderType IN (
-	'FEATURE_CRATER'			,
-	'FEATURE_GEYSER'			,
-	'FEATURE_FOUNTAIN_YOUTH'	,
-	'FEATURE_EL_DORADO'			,
-	'FEATURE_MESA'				,
-	'FEATURE_REEF'				,
-	'FEATURE_ULURU'				
-);
-
-UPDATE Features SET Impassable=1 WHERE Type IN (
-	'FEATURE_LAKE_VICTORIA'		
-);
-
-UPDATE Natural_Wonder_Placement SET ChangeCoreTileToMountain=1 WHERE NaturalWonderType IN (
-	'FEATURE_LAKE_VICTORIA'		
-);
-
-
-UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 10 WHERE OccurrenceFrequency <> 0;
-
--- More unique than the numerous mountains
-UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonderType IN (
-	'FEATURE_GIBRALTAR'		,
-	'FEATURE_REEF'			,
-	'FEATURE_VOLCANO'		,
-	'FEATURE_GEYSER'		,
-	'FEATURE_MESA'			,
-	'FEATURE_FOUNTAIN_YOUTH',
-	'FEATURE_LAKE_VICTORIA'	
-);
 
 -- Buff jungles and forests
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
@@ -119,7 +102,3 @@ WHERE Type = 'YIELD_PRODUCTION';
 UPDATE Yields
 SET LakeChange = '1'
 WHERE Type = 'YIELD_FOOD';
-
-UPDATE Language_en_US
-SET Text = 'You have found {@1_Name}!'
-WHERE Tag = 'TXT_KEY_FOUND_NATURAL_WONDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

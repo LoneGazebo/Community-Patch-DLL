@@ -220,6 +220,28 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
 		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+#if defined(MOD_BALANCE_CORE)
+		GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+		GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+		if(pWork->m_eClassType == eWritingClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eArtClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eArtifactsClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eMusicClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+		}
+#endif
 
 		CvCity* pCity = GetGreatWorkCity(iIndex);
 		if (pCity) {

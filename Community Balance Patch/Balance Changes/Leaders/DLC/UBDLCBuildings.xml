@@ -409,7 +409,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
-			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +3 [ICON_FOOD] Food. [ICON_GOLD] Gold and [ICON_CULTURE] Cost of acquiring new tiles reduced by 25% in this city. [NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
+			<Text>[ICON_GOLD] Gold and [ICON_CULTURE] Cost of acquiring new tiles reduced by 25% in this city. Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.[NEWLINE]Nearby [ICON_RES_COW] Cows: +3 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
 			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides Food from livestock instead of crops. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>

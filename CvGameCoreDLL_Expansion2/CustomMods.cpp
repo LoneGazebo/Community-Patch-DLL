@@ -260,8 +260,10 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(GLOBAL_SEPARATE_GREAT_ADMIRAL);
 		MOD_OPT_CACHE(GLOBAL_PROMOTION_CLASSES);
 		MOD_OPT_CACHE(GLOBAL_PASSABLE_FORTS);
+		MOD_OPT_CACHE(GLOBAL_PASSABLE_FORTS_ANY);
 		MOD_OPT_CACHE(GLOBAL_ANYTIME_GOODY_GOLD);
 		MOD_OPT_CACHE(GLOBAL_CITY_FOREST_BONUS);
+		MOD_OPT_CACHE(GLOBAL_CITY_JUNGLE_BONUS);
 		MOD_OPT_CACHE(GLOBAL_CITY_WORKING);
 		MOD_OPT_CACHE(GLOBAL_ALPINE_PASSES);
 		MOD_OPT_CACHE(GLOBAL_CS_GIFT_SHIPS);
@@ -513,11 +515,11 @@ int CustomMods::getOption(string sOption, int defValue) {
 		m_bInit = true;
 	}
 
-	std::map<std::string, int>::const_iterator it = m_options.find(sOption);
-	if (it != m_options.end())
-		return it->second;
+	if (m_options.find(sOption) == m_options.end()) {
+		return defValue;
+	}
 
-	return defValue;
+	return m_options[sOption];
 }
 
 int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue) {

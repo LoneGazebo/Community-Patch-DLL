@@ -8464,7 +8464,13 @@ bool CvUnit::canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) c
 
 	if (getDomainType() == DOMAIN_SEA)
 	{
+#if defined(MOD_BUGFIX_MINOR)
+		// The path finder permits routes between cities on lakes,
+		// so we'd better allow cargo ships to be relocated there!
+		if (!pToCity->isCoastal(0))
+#else
 		if (!pToCity->isCoastal())
+#endif
 		{
 			return false;
 		}
@@ -9651,6 +9657,27 @@ bool CvUnit::pillage()
 			bSuccessfulNonRoadPillage = true;
 			if(pkImprovement->IsDestroyedWhenPillaged())
 			{
+#if defined(MOD_GLOBAL_ALPINE_PASSES)
+				// If this improvement auto-added a route, we also need to remove the route
+				ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+				
+				// Find the build for this improvement
+				for (int i = 0; i < GC.getNumBuildInfos(); i++) {
+					CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+					if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
+						// Found it, but did it auto-add a route?
+						if (pkBuild->getRoute() != NO_ROUTE) {
+							// Yes, so remove the route as well
+							pPlot->setRouteType(NO_ROUTE);
+						}
+						
+						// Our work here is done
+						break;
+					}
+				}
+#endif
+
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 			}
 			// Improvement that's pillaged?

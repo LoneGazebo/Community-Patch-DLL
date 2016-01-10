@@ -4543,6 +4543,57 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	if (pkCivInfo)
+	{
+		for(std::vector<BuildingGreatWork>::const_iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
+		{
+			BuildingClassTypes eBldgClass = (*it).eBuildingClass;
+			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
+			if (pkClassInfo)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
+				if (pkInfo)
+				{
+					int iNumSlots = pkInfo->GetGreatWorkCount();
+					for (int iI = 0; iI < iNumSlots; iI++)
+					{
+						int iGreatWorkIndex = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
+						if (iGreatWorkIndex != -1)
+						{
+							GreatWorkType eGreatWorkType = GC.getGame().GetGameCulture()->GetGreatWorkType(iGreatWorkIndex);
+							if(eGreatWorkType != NO_GREAT_WORK)
+							{
+								GreatWorkClass eGWClass = CultureHelpers::GetGreatWorkClass(eGreatWorkType);
+								if(eGWClass == eWritingClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield);
+								}
+								if(eGWClass == eArtClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield);
+								}
+								if(eGWClass == eArtifactsClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+								}
+								if(eGWClass == eMusicClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 	return iRtnValue;
 }
 #endif

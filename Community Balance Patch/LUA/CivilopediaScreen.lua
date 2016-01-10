@@ -2490,7 +2490,6 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
 			numAbilities = numAbilities + 1;
 		end
-
 		for row in GameInfo.Tech_SpecialistYieldChanges( condition ) do
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
@@ -4684,6 +4683,39 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			end
 			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 	  
 			
+			--CBP
+			numYields = 0;
+			yieldString = "";
+			fullstring = ""
+			local numYields2 = 0;
+			for row in GameInfo.Improvement_ResourceType_Yields( condition ) do
+				numYields = numYields + 1;			
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
+				if(OtherImprovement and numYields2 == 0)then				
+					local condition2 = "ImprovementType = '" .. OtherImprovement.Type .. "'";
+					for row in GameInfo.Improvement_Yields( condition2 ) do
+						numYields2 = numYields2 + 1;				
+						if row.Yield > 0 then
+							yieldString = yieldString.."+";
+							teststring = yieldstring;
+						end
+						yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					end
+				end
+			end
+			if numYields == 0 then
+				Controls.ImprovementYieldFrame:SetHide( true );
+			else
+				fullstring = Locale.ConvertTextKey( yieldString );
+				Controls.ImprovementYieldLabel:SetText( fullstring );
+				Controls.ImprovementYieldFrame:SetHide( false );
+			end
+			--END
+
 			-- game info
 			if (thisResource.Help) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisResource.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
@@ -4692,7 +4724,9 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			-- generic text
 			if (thisResource.Civilopedia) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisResource.Civilopedia ), Controls.HistoryLabel, Controls.HistoryInnerFrame, Controls.HistoryFrame );
-			end		
+			end
+
+			
 			
 			-- update the related images
 			Controls.RelatedImagesFrame:SetHide( true );
@@ -4787,9 +4821,6 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			yieldString = "";
 			for row in GameInfo.Improvement_AdjacentMountainYieldChanges( condition ) do
 				numYields = numYields + 1;
-				if row.Yield > 0 then
-					yieldString = yieldString.."+";
-				end
 				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
 			end
 			if numYields == 0 then
@@ -4805,16 +4836,13 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			fullstring = ""
 			for row in GameInfo.Improvement_AdjacentImprovementYieldChanges( condition ) do
 				numYields = numYields + 1;
-				if row.Yield > 0 then
-					yieldString = yieldString.."+";
-				end
 				local OtherImprovement = GameInfo.Improvements[row.OtherImprovementType];
 				if(OtherImprovement)then
 					if(fullstring ~= "") then
 						fullstring = fullstring .. "[NEWLINE]";
 					end
 					improvementString = Locale.ConvertTextKey(OtherImprovement.Description)..": ";
-					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
 					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
 				end
 			end
@@ -4831,16 +4859,13 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			fullstring = ""
 			for row in GameInfo.Improvement_YieldAdjacentTwoSameType( condition ) do
 				numYields = numYields + 1;
-				if row.Yield > 0 then
-					yieldString = yieldString.."+";
-				end
 				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
 				if(OtherImprovement)then
 					if(fullstring ~= "") then
 						fullstring = fullstring .. "[NEWLINE]";
 					end
 					improvementString = Locale.ConvertTextKey(OtherImprovement.Description) .. ": ";
-					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
 					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
 				end
 			end
@@ -4866,7 +4891,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 						fullstring = fullstring .. "[NEWLINE]";
 					end
 					improvementString = Locale.ConvertTextKey(OtherImprovement.Description) .. ": ";
-					yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
 					fullstring = fullstring .. improvementString .. Locale.ConvertTextKey( yieldString );
 				end
 			end
@@ -7103,6 +7128,7 @@ function ClearArticle()
 	Controls.AdjacentYieldFrame:SetHide( true );
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
 	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );	
+	Controls.ImprovementYieldFrame:SetHide( true );
 	--END
 	Controls.MovementCostFrame:SetHide( true );
 	Controls.CombatModFrame:SetHide( true );

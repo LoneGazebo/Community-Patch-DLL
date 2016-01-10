@@ -502,5 +502,18 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_GoldenAgeYieldMod>
-
+	<!-- Austria-->
+	<Building_YieldFromGPExpend>
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldFromGPExpend>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 </GameData>

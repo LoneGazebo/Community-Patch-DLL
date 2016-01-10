@@ -1108,6 +1108,14 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
+#if !defined(MOD_BALANCE_CORE)
+#else
+	UnitHandle pDefender = plot()->getBestDefender(getOwner());
+	if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
+	{
+		SetGarrison(pDefender.pointer());
+	}
+#endif
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
 	{
@@ -2120,7 +2128,11 @@ void CvCity::PreKill()
 
 	CvPlot* pPlot = plot();
 
+#if defined(MOD_BUGFIX_MINOR)
+	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
+#else
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot);
+#endif
 
 	// Update resources linked to this city
 
@@ -2362,7 +2374,11 @@ void CvCity::kill()
 	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
 	if(pkGameTrade)
 	{
+#if defined(MOD_BUGFIX_MINOR)
+		pkGameTrade->ClearAllCityTradeRoutes(plot(), true);
+#else
 		pkGameTrade->ClearAllCityTradeRoutes(plot());
+#endif
 	}
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
 	GET_PLAYER(eOwner).GetCityConnections()->Update();
@@ -4655,11 +4671,32 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 }
 
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-int CvCity::GetNumResourceLocal(ResourceTypes eResource)
+int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
-	return m_paiNumResourcesLocal[eResource];
+
+	if (!bImproved) {
+		return m_paiNumResourcesLocal[eResource];
+	} else {
+		int iCount = 0;
+		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
+
+		CvPlot* pLoopPlot;
+
+		for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+		{
+			pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
+
+			if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == this) {
+				if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes) pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged()) {
+					++iCount;
+				}
+			}
+		}
+		
+		return iCount;
+	}
 }
 #endif
 
@@ -8407,6 +8444,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						int iMedianTechResearch = owningPlayer.GetPlayerTechs()->GetMedianTechResearch();
 						iMedianTechResearch = (iMedianTechResearch * owningPlayer.GetMedianTechPercentage()) / 100;
+#if defined(MOD_BALANCE_CORE)
+						int iEra = owningPlayer.GetCurrentEra();
+						if(iEra <= 0)
+						{
+							iEra = 1;
+						}
+						iMedianTechResearch *= iEra;
+						iMedianTechResearch *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iMedianTechResearch /= 100;
+#endif
 
 						TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
@@ -12579,6 +12626,12 @@ void CvCity::ChangeJONSCulturePerTurnFromBuildings(int iChange)
 int CvCity::GetJONSCulturePerTurnFromPolicies() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE)
+	if(plot()->getBestDefender(getOwner()))
+	{
+		return (m_iJONSCulturePerTurnFromPolicies + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+	}
+#endif
 	return m_iJONSCulturePerTurnFromPolicies;
 }
 
@@ -14533,7 +14586,8 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
-		if(HasGarrison())
+		UnitHandle pDefender = plot()->getBestDefender(getOwner());
+		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 		{
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
@@ -14722,7 +14776,10 @@ int CvCity::getThresholdAdditions() const
 	iModifier += iTech;
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
-	iModifier += (getPopulation() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
+	iPopMod /= 100;
+
+	iModifier += iPopMod;
 
 	if(isCapital())
 	{
@@ -18759,9 +18816,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
-	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+	UnitHandle pGarrisonedUnit = plot()->getBestDefender(getOwner());
 	int iStrengthFromUnits = 0;
-	if(pGarrisonedUnit)
+	if(pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
@@ -18882,7 +18939,8 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 		iValue /= 100;
-		if(HasGarrison())
+		UnitHandle pDefender = plot()->getBestDefender(getOwner());
+		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 		{
 			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
 			iValue /= 100;
@@ -18983,8 +19041,8 @@ void CvCity::changeDamage(int iChange)
 	if(0 != iChange)
 	{
 		//if there is a garrison, the units absorbs part of the damage!
-		CvUnit* pGarrison = GetGarrisonedUnit();
-		if (pGarrison && iChange>1)
+		UnitHandle pGarrison = plot()->getBestDefender(getOwner());
+		if(pGarrison && pGarrison->getDomainType() == DOMAIN_LAND && iChange>1)
 		{
 			//make sure there are no rounding errors
 			int iUnitShare = (iChange*2*pGarrison->GetMaxHitPoints()) / (GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());

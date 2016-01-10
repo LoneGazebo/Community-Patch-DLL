@@ -733,6 +733,14 @@ void CvPlot::verifyUnitValidPlot()
 	}
 
 	int iUnitListSize = (int) oldUnitList.size();
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	// Bail out early if no units on the plot
+	if (iUnitListSize == 0)
+	{
+		return;
+	}
+#endif
+
 	for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
 	{
 		pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
@@ -806,6 +814,62 @@ void CvPlot::verifyUnitValidPlot()
 			}
 		}
 	}
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	else
+	{
+		if (iUnitListSize > 1)
+		{
+			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+			{
+				pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+				if(pLoopUnit != NULL)
+				{
+					if(!pLoopUnit->isDelayedDeath())
+					{
+						if(pLoopUnit->atPlot(*this))  // it may have jumped
+						{
+							if(!(pLoopUnit->isInCombat()))
+							{
+								for(int iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < (int) iUnitListSize; ++iVectorLoop2)
+								{
+									CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
+									if(pLoopUnit2 != NULL)
+									{
+										if(!pLoopUnit2->isDelayedDeath())
+										{
+											if(pLoopUnit2->atPlot(*this))  // it may have jumped
+											{
+												if(!(pLoopUnit2->isInCombat()))
+												{
+													if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
+													{
+														// We have to evict the weaker of pLoopUnit and pLoopUnit2
+														if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
+														{
+															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
+															if (!pLoopUnit->jumpToNearestValidPlot())
+																pLoopUnit->kill(false);
+														}
+														else
+														{
+															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
+															if (!pLoopUnit2->jumpToNearestValidPlot())
+																pLoopUnit2->kill(false);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -6983,6 +7047,56 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
+
+#if defined(MOD_BUGFIX_MINOR)
+			DomainTypes eTradeRouteDomain = NO_DOMAIN;
+			if (oldImprovementEntry.IsAllowsWalkWater()) {
+				eTradeRouteDomain = DOMAIN_LAND;
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+			}
+			else if (oldImprovementEntry.IsMakesPassable()) {
+				eTradeRouteDomain = DOMAIN_SEA;
+#endif
+			}
+#endif
+
+
+#if defined(MOD_BUGFIX_MINOR)
+			if (eTradeRouteDomain != NO_DOMAIN) {
+				// Take away any trade routes of this domain that pass through the plot
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				int iPlotX = getX();
+				int iPlotY = getY();
+
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+				{
+					CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+					for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+					{
+						const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
+						if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+						{
+							continue;
+						}
+						for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+						{
+							if (pConnection->m_eDomain == eTradeRouteDomain) {
+								TradeConnectionPlotList aPlotList = pConnection->m_aPlotList;
+
+								for (uint uiPlotIndex = 0; uiPlotIndex < aPlotList.size(); uiPlotIndex++) {
+									if (aPlotList[uiPlotIndex].m_iX == iPlotX && aPlotList[uiPlotIndex].m_iY == iPlotY) 
+									{
+										CUSTOMLOG("Cancelling trade route for domain %i in plot (%i, %i) as enabling improvement destroyed", eTradeRouteDomain, iPlotX, iPlotY);
+										pTrade->EndTradeRoute(pConnection->m_iID);
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 
 			// If this improvement can add culture to nearby improvements, update them as well
 #if defined(MOD_API_UNIFIED_YIELDS)

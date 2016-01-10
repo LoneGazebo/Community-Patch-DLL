@@ -155,7 +155,7 @@
 			<Type>BUILD_KUNA</Type>
 			<Time>700</Time>
 			<ImprovementType>IMPROVEMENT_KUNA</ImprovementType>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<Description>TXT_KEY_BUILD_KUNA</Description>
 			<Help>TXT_KEY_BUILD_KUNA_HELP</Help>
 			<Recommendation>TXT_KEY_BUILD_KUNA_REC</Recommendation>

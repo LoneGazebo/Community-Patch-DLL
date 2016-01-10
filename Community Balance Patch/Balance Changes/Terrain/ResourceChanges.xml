@@ -1,6 +1,269 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 2/22/2015 2:32:32 PM -->
 <GameData>
+	<Resource_FeatureBooleans>
+		<Row>
+			<ResourceType>RESOURCE_BANANA</ResourceType>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+		</Row>
+	</Resource_FeatureBooleans>
+	<Resource_YieldChanges>
+		<!-- Bonus -->
+		<Delete ResourceType="RESOURCE_COW" />
+		<Row>
+			<ResourceType>RESOURCE_COW</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SHEEP" />
+		<Row>
+			<ResourceType>RESOURCE_SHEEP</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_BANANA" />
+		<!--Strategic -->
+		<Delete ResourceType="RESOURCE_URANIUM" />
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<!-- Luxury -->
+		<Delete ResourceType="RESOURCE_CITRUS" />
+		<Row>
+			<ResourceType>RESOURCE_CITRUS</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_CLOVES" />
+		<Row>
+			<ResourceType>RESOURCE_CLOVES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_COCOA" />
+		<Row>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_COPPER" />
+		<Row>
+			<ResourceType>RESOURCE_COPPER</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_COTTON" />
+		<Row>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_CRAB" />
+		<Row>
+			<ResourceType>RESOURCE_CRAB</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_CRAB</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_DYE" />
+		<Row>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_FUR" />
+		<Row>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_GEMS" />
+		<Row>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_GOLD" />
+		<Row>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_INCENSE" />
+		<Row>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_IVORY" />
+		<Row>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_MARBLE" />
+		<Row>
+			<ResourceType>RESOURCE_MARBLE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_NUTMEG" />
+		<Row>
+			<ResourceType>RESOURCE_NUTMEG</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_NUTMEG</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_PEARLS" />
+		<Row>
+			<ResourceType>RESOURCE_PEARLS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_PEPPER" />
+		<Row>
+			<ResourceType>RESOURCE_PEPPER</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_PEPPER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SALT" />
+		<Row>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SILK" />
+		<Row>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SILVER" />
+		<Row>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SPICES" />
+		<Row>
+			<ResourceType>RESOURCE_SPICES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SUGAR" />
+		<Row>
+			<ResourceType>RESOURCE_SUGAR</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_TRUFFLES" />
+		<Row>
+			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_WHALE" />
+		<Row>
+			<ResourceType>RESOURCE_WHALE</ResourceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_WHALE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_WINE" />
+		<Row>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Resource_YieldChanges>
+
+	<Resource_TerrainBooleans>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<TerrainType>TERRAIN_OCEAN</TerrainType>
+		</Row>
+	</Resource_TerrainBooleans>
+	<Resource_QuantityTypes>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+	</Resource_QuantityTypes>
 	<Resource_YieldChangeFromMonopoly>
 		<Row>
 			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
@@ -127,19 +390,5 @@
 		</Row>
 	</Language_en_US>
 	
-	<!-- Resource buffs -->
-	<Improvement_ResourceType_Yields>
-		<Row>
-			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
-			<ResourceType>RESOURCE_IVORY</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
-			<ResourceType>RESOURCE_BISON</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Improvement_ResourceType_Yields>
+
 </GameData>
