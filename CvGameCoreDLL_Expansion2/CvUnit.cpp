@@ -277,7 +277,7 @@ CvUnit::CvUnit() :
 	, m_iHealIfDefeatExcludeBarbariansCount("CvUnit::m_iHealIfDefeatExcludeBarbariansCount", m_syncArchive)
 	, m_iTacticalAIPlotX("CvUnit::m_iTacticalAIPlotX", m_syncArchive)
 	, m_iTacticalAIPlotY("CvUnit::m_iTacticalAIPlotY", m_syncArchive)
-	, m_iGarrisonCityID("CvUnit::m_iGarrisonCityID", m_syncArchive)   // unused
+	, m_iGarrisonCityID("CvUnit::m_iGarrisonCityID", m_syncArchive)
 	, m_iFlags("CvUnit::m_iFlags", m_syncArchive)
 	, m_iNumAttacks("CvUnit::m_iNumAttacks", m_syncArchive)
 	, m_iAttacksMade("CvUnit::m_iAttacksMade", m_syncArchive)
@@ -1333,9 +1333,10 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	}
 
 	// Update City Strength
-	if(plot()->isCity())
+	CvPlot* pUnitPlot = plot();
+	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		plot()->getPlotCity()->updateStrengthValue();
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
 	}
 
 	m_iArmyId = -1;
@@ -1887,10 +1888,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	// Update City Strength
-	if(plot()->isCity())
+	CvPlot* pUnitPlot = plot();
+	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		plot()->getPlotCity()->updateStrengthValue();
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent terrain/feature that provides free promotions?
 	CvPlot* pAdjacentPlot;
@@ -2673,7 +2676,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumExoticGoods = 0;
 	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
 	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
-	m_iGarrisonCityID = -1;   // unused
+	m_iGarrisonCityID = -1;
 	m_iFlags = 0;
 	m_iNumAttacks = 1;
 	m_iAttacksMade = 0;
@@ -17978,8 +17981,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	eOldActivityType = GetActivityType();
 
-	CvCity *pkPrevGarrisonedCity = GetGarrisonedCity();
-
 	if(isSetUpForRangedAttack())
 	{
 		setSetUpForRangedAttack(false);
@@ -18208,11 +18209,6 @@ if (!bDoEvade)
 				// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
-
-				if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
-				{
-					pOldPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
-				}
 			}
 
 			if (canChangeVisibility())
@@ -18263,11 +18259,6 @@ if (!bDoEvade)
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
-			
-			if (IsCombatUnit() && getDomainType() == DOMAIN_LAND)
-			{
-				pNewPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies((GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
-			}
 		}
 
 		setFortifyTurns(0);
@@ -18323,8 +18314,6 @@ if (!bDoEvade)
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{
-			pNewCity->updateStrengthValue();
-
 			if(isEnemy(pNewCity->getTeam()) && !canCoexistWithEnemyUnit(pNewCity->getTeam()))
 			{
 				PlayerTypes eNewOwner = GET_PLAYER(getOwner()).pickConqueredCityOwner(*pNewCity);
@@ -18405,21 +18394,10 @@ if (!bDoEvade)
 						}
 					}
 #endif
-					
-
-					
 
 					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
 					pNewCity = NULL;
 				}
-			}
-		}
-
-		if(pOldPlot != NULL)
-		{
-			if(pOldCity != NULL)
-			{
-				pOldCity->updateStrengthValue();
 			}
 		}
 
@@ -19549,26 +19527,6 @@ if (!bDoEvade)
 		}
 	}
 
-	// Units moving into and out of cities change garrison happiness
-	if((pNewPlot && pNewPlot->isCity()) || (pOldPlot && pOldPlot->isCity()))
-	{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
-		{
-			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(getOwner()).CalculateHappiness();
-			}
-		}
-		else
-		{
-#endif
-		GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		}
-#endif
-	}
-
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -19585,21 +19543,27 @@ if (!bDoEvade)
 	if (bOwnerIsActivePlayer)
 		DLLUI->SetDontShowPopups(false);
 
-	// Send out a message that the unit has updated the garrison for the city it was in.
-	CvCity* pkNewGarrisonCity = GetGarrisonedCity();
-	if (pkNewGarrisonCity && pkNewGarrisonCity != pkPrevGarrisonedCity)
+	// update garrison status for old and new city, if applicable
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
+	if (pkPrevGarrisonedCity)
 	{
-		pkNewGarrisonCity->SetGarrison( this );
-
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonCity));
-		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
-	}
-	if(pkPrevGarrisonedCity && pkPrevGarrisonedCity != pkNewGarrisonCity)
-	{
-		pkPrevGarrisonedCity->SetGarrison( pOldPlot->getBestDefender(getOwner()).pointer() );
-
+		//when moving out, another unit might be present to take over garrison duty
+		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison(getOwner()).pointer() );
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+	}
+
+	if (pNewPlot && pNewPlot->isCity())
+	{
+		//when moving in, see if we're better than the previous garrison
+		CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
+		if (pBestGarrison==this)
+		{
+			CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
+			pkNewGarrisonedCity->SetGarrison(this);
+			auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+			DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+		}
 	}
 	
 #if !defined(NO_ACHIEVEMENTS)
@@ -19839,9 +19803,10 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 	{
 		if(IsGarrisoned())
 		{
-			if(GetGarrisonedCity() != NULL)
+			CvCity* pCity = GetGarrisonedCity();
+			if(pCity != NULL)
 			{
-				GetGarrisonedCity()->updateStrengthValue();
+				pCity->updateStrengthValue();
 			}
 		}
 
@@ -20489,49 +20454,34 @@ void CvUnit::changeCombatFirstStrikes(int iChange)
 	setCombatFirstStrikes(getCombatFirstStrikes() + iChange);
 }
 
+bool CvUnit::CanGarrison() const
+{
+	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()==DOMAIN_LAND && IsCanDefend();
+}
+
+int CvUnit::GetMapLayer() const
+{
+	return m_iMapLayer;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
 
-	if (m_iMapLayer != DEFAULT_UNIT_MAP_LAYER)		// Only units on the main layer can be garrisoned.
-		return false;
+	return (m_iGarrisonCityID != -1);
+}
 
-	CvPlot* pPlot = plot();
-	if(pPlot)
-	{
-		CvCity* pCity = pPlot->getPlotCity();
-		if(pCity)
-		{
-			if(pPlot->getOwner() == getOwner())
-			{
-				UnitHandle bestDefender = pPlot->getBestDefender(getOwner());
-				if(bestDefender && bestDefender->GetID() == GetID())
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+void CvUnit::SetGarrisonedCity(int iCityID)
+{
+	m_iGarrisonCityID = iCityID;
 }
 
 //	--------------------------------------------------------------------------------
 CvCity* CvUnit::GetGarrisonedCity()
 {
 	if(IsGarrisoned())
-	{
-		CvPlot* pPlot = plot();
-		if(pPlot)
-		{
-			CvCity* pCity = pPlot->getPlotCity();
-			if(pCity)
-			{
-				return pCity;
-			}
-		}
-	}
+		return GET_PLAYER(getOwner()).getCity(m_iGarrisonCityID);
 
 	return NULL;
 }
@@ -20542,7 +20492,6 @@ int CvUnit::getFortifyTurns() const
 	VALIDATE_OBJECT
 	return m_iFortifyTurns;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::setFortifyTurns(int iNewValue)

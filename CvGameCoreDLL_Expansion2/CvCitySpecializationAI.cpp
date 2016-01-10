@@ -1675,7 +1675,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_FAITH)
 	{
-		int iValue = (pCity->getUnhappinessFromMinority() * 10);
+		int iValue = (pCity->getUnhappinessFromReligion() * 10);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;

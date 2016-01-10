@@ -391,9 +391,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(CvCity* pCity, BuildingType
 		{
 			iValue *= (pCity->getUnhappinessFromScience() * 10);
 		}
-		if(pCity->getUnhappinessFromMinority() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+		if(pCity->getUnhappinessFromReligion() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
 		{
-			iValue *= (pCity->getUnhappinessFromMinority() * 10);
+			iValue *= (pCity->getUnhappinessFromReligion() * 10);
 		}
 	}
 

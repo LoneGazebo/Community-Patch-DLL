@@ -878,7 +878,10 @@ public:
 	void setCombatFirstStrikes(int iNewValue);
 	void changeCombatFirstStrikes(int iChange);
 
+	int GetMapLayer() const;
+	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
+	void SetGarrisonedCity(int iCityID);
 	CvCity* GetGarrisonedCity();
 	int getFortifyTurns() const;
 	void setFortifyTurns(int iNewValue);
@@ -1713,7 +1716,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGoldenAgeValueFromKills;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
-	FAutoVariable<int, CvUnit> m_iGarrisonCityID;   // unused
+	FAutoVariable<int, CvUnit> m_iGarrisonCityID;
 	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;

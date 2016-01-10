@@ -6903,21 +6903,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-					}
+					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -9285,21 +9274,10 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-					}
+					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -9611,21 +9589,10 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	{
 		if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 		{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
+			if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 			{
-				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-				{
-					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-				}
+				GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 			}
-			else
-			{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			}
-#endif
 		}
 	}
 

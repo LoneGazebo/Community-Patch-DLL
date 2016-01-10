@@ -3002,20 +3002,35 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed)
+UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 {
-	// accesses another internal method, user code sees this (mutable) method and const guarantees are maintained
-	return (const_cast<const CvPlot*>(this)->getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestAtWar, bTestPotentialEnemy, bTestCanMove, bNoncombatAllowed));
+	const IDInfo* pUnitNode = headUnitNode();
+	UnitHandle pLoopUnit;
+	UnitHandle pBestUnit;
+
+	while(pUnitNode != NULL)
+	{
+		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison())
+		{
+			if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(),NULL))
+			{
+				pBestUnit = pLoopUnit;
+			}
+		}
+	}
+
+	return pBestUnit;
 }
 
 //	--------------------------------------------------------------------------------
-const UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
+UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
 {
-	const IDInfo* pUnitNode;
-	const UnitHandle pLoopUnit;
-	const UnitHandle pBestUnit;
-
-	pUnitNode = headUnitNode();
+	const IDInfo* pUnitNode = headUnitNode();
+	UnitHandle pLoopUnit;
+	UnitHandle pBestUnit;
 
 	while(pUnitNode != NULL)
 	{
@@ -3053,18 +3068,10 @@ const UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttack
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getSelectedUnit()
+CvUnit* CvPlot::getSelectedUnit() const
 {
-	return const_cast<CvUnit*>(const_cast<const CvPlot*>(this)->getSelectedUnit());
-}
-
-//	--------------------------------------------------------------------------------
-const CvUnit* CvPlot::getSelectedUnit() const
-{
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	pUnitNode = headUnitNode();
+	const IDInfo* pUnitNode = headUnitNode();
+	CvUnit* pLoopUnit;
 
 	while(pUnitNode != NULL)
 	{
@@ -3702,20 +3709,11 @@ int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerT
 	return iCount;
 }
 
-
 //	--------------------------------------------------------------------------------
-const CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
-	return const_cast<CvPlot*>(this)->plotCheck(funcA, iData1A, iData2A, eOwner, eTeam, funcB, iData1B, iData2B);
-}
-
-//	--------------------------------------------------------------------------------
-CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B)
-{
-	IDInfo* pUnitNode;
+	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit;
-
-	pUnitNode = headUnitNode();
 
 	while(pUnitNode != NULL)
 	{
@@ -5058,7 +5056,7 @@ int CvPlot::getUpgradeTimeLeft(ImprovementTypes eImprovement, PlayerTypes ePlaye
 	int iUpgradeRate;
 	int iTurnsLeft;
 
-	iUpgradeLeft = ((100 * GC.getGame().getImprovementUpgradeTime(eImprovement, const_cast<CvPlot*>(this))) - ((getImprovementType() == eImprovement) ? getUpgradeProgress() : 0));
+	iUpgradeLeft = ((100 * GC.getGame().getImprovementUpgradeTime(eImprovement, this)) - ((getImprovementType() == eImprovement) ? getUpgradeProgress() : 0));
 	iUpgradeLeft /= 100;
 
 	if(ePlayer == NO_PLAYER)
@@ -6096,21 +6094,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 				if(bShouldUpdateHappiness)
 				{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-					if(MOD_BALANCE_CORE_HAPPINESS)
-					{
-						if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
-						{
-							GET_PLAYER(getOwner()).CalculateHappiness();
-						}
-					}
-					else
-					{
-#endif
-					GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-					}
-#endif
+					GET_PLAYER(getOwner()).CalculateNetHappiness();
 				}
 			}
 
@@ -7365,21 +7349,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							if(MOD_BALANCE_CORE_HAPPINESS)
+							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 							{
-								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-								{
-									owningPlayer.CalculateHappiness();
-								}
+								owningPlayer.CalculateNetHappiness();
 							}
-							else
-							{
-#endif
-							owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							}
-#endif
 						}
 					}
 				}
@@ -7489,21 +7462,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							if(MOD_BALANCE_CORE_HAPPINESS)
+							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 							{
-								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-								{
-									owningPlayer.CalculateHappiness();
-								}
+								owningPlayer.CalculateNetHappiness();
 							}
-							else
-							{
-#endif
-							owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							}	
-#endif
 						}
 					}
 				}
@@ -10310,21 +10272,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-								if(MOD_BALANCE_CORE_HAPPINESS)
+								if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
 								{
-									if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
-									{
-										playerI.CalculateHappiness();
-									}
+									playerI.CalculateNetHappiness();
 								}
-								else
-								{
-#endif
-								playerI.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-								}
-#endif
 
 								// Add World Anchor
 								if(eTeam == eActiveTeam)

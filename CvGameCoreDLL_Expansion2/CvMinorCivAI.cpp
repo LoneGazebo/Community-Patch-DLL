@@ -9175,21 +9175,11 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		//human player wants to see the effect at once, otherwise update at next turn start is good enough
+		if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(ePlayer).CalculateHappiness();
-			}
+			GET_PLAYER(ePlayer).CalculateNetHappiness();
 		}
-		else
-		{
-#endif
-		GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		}
-#endif
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -9996,21 +9986,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				//human player wants to see the effect at once, otherwise update at next turn start is good enough
+				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER(ePlayer).CalculateHappiness();
-					}
+					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -10025,21 +10005,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				//human player wants to see the effect at once, otherwise update at next turn start is good enough
+				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER(ePlayer).CalculateHappiness();
-					}
+					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 	}

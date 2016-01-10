@@ -404,7 +404,7 @@ public:
 	CvArea* area() const;
 	CvArea* waterArea() const;
 
-	void SetGarrison(const CvUnit* pUnit);
+	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
 
@@ -643,24 +643,34 @@ public:
 	int getThresholdAdditions() const;
 	int getUnhappyCitizenCount() const;
 	void setUnhappyCitizenCount(int iNewValue);
-	void changeUnhappyCitizenCount(int iChange) const;
+	void changeUnhappyCitizenCount(int iChange);
 
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
+	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromCulture() const;
 	int getUnhappinessFromScienceYield() const;
 	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
+	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromScience() const;
 	int getUnhappinessFromDefenseYield() const;
 	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
+	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromDefense() const;
 	int getUnhappinessFromGoldYield() const;
 	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
+	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromGold() const;
+	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromConnection() const;
+	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromPillaged() const;
+	int getUnhappinessFromStarvingRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromStarving() const;
-	int getUnhappinessFromMinority() const;
+	int getUnhappinessFromReligionRaw(int iLimit = INT_MAX) const;
+	int getUnhappinessFromReligion() const;
+
+	int getUnhappinessAggregated() const;
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
@@ -1107,7 +1117,7 @@ public:
 
 	bool canRangeStrikeAt(int iX, int iY) const;
 	CityTaskResult rangeStrike(int iX, int iY);
-	CvUnit* rangedStrikeTarget(CvPlot* pPlot);
+	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
