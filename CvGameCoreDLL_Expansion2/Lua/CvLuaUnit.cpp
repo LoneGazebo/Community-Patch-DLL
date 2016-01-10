@@ -770,9 +770,9 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 			lua_setfield(L, t, "X");
 			lua_pushinteger(L, kNode.m_iY);
 			lua_setfield(L, t, "Y");
-			lua_pushinteger(L, kNode.m_iData1);
+			lua_pushinteger(L, kNode.m_iMoves);
 			lua_setfield(L, t, "RemainingMovement");
-			lua_pushinteger(L, kNode.m_iData2);
+			lua_pushinteger(L, kNode.m_iTurns);
 			lua_setfield(L, t, "Turn");
 			lua_pushinteger(L, kNode.m_iFlags);
 			lua_setfield(L, t, "Flags");

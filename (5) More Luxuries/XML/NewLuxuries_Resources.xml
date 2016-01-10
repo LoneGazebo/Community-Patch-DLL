@@ -273,13 +273,13 @@
 		<Delete ResourceType="RESOURCE_LAPIS_LAZULI"/>
 		<Row>
 			<ResourceType>RESOURCE_COFFEE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_TEA</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_TOBACCO</ResourceType>
@@ -288,13 +288,18 @@
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_AMBER</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_JADE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_OLIVE</ResourceType>
@@ -302,24 +307,24 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<ResourceType>RESOURCE_OLIVE</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
 			<ResourceType>RESOURCE_PERFUME</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_CORAL</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_LAPIS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_GLASS</ResourceType>
@@ -327,7 +332,6 @@
 			<Yield>2</Yield>
 		</Row>
 	</Resource_YieldChanges>
-	
 	<Resource_Flavors>
 		<!-- Delete any luxuries with the same name so there's no conflict. -->
 		<Delete ResourceType="RESOURCE_COFFEE"/>
@@ -547,44 +551,72 @@
 			<ResourceType>RESOURCE_LAPIS</ResourceType>
 		</Row>
 	</Improvement_ResourceTypes>
-	
-	<Improvement_ResourceType_Yields>
+		<Improvement_ResourceType_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_COFFEE</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_TEA</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_TOBACCO</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_OLIVE</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_PERFUME</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			<ResourceType>RESOURCE_CORAL</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_ResourceType_Yields>
-	
 </GameData>

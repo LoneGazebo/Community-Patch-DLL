@@ -535,15 +535,14 @@ public:
 	void ChangeFaithEverGenerated(int iChange);
 
 	// Happiness
-
-	void DoUpdateHappiness();
+	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
+	void DoUpdateTotalHappiness();
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void SetUnhappiness(int iNewValue);
-	int GetSetUnhappiness() const;
-	void CalculateHappiness();
-#endif
+	int GetUnhappiness() const;
+	void CalculateNetHappiness();
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//LUA Functions
 	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
@@ -586,6 +585,7 @@ public:
 	int GetHappinessFromReligion();
 	int GetHappinessFromNaturalWonders() const;
 
+	int GetHappinessFromLuxury(ResourceTypes eResource) const;
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -601,12 +601,7 @@ public:
 	int getCurrentTotalPop() const;
 #endif
 
-	int GetHappinessFromLuxury(ResourceTypes eResource) const;
-
-	int GetUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
-
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
-
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -623,6 +618,7 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappinessFromCitizenNeeds() const;
 	int getUnhappinessFromCityCulture() const;
 	int getUnhappinessFromCityScience() const;
 	int getUnhappinessFromCityDefense() const;

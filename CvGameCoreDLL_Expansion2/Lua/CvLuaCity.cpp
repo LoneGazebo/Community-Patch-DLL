@@ -3341,7 +3341,7 @@ int CvLuaCity::lGetUnhappinessFromStarving(lua_State* L)
 int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromMinority());
+	lua_pushinteger(L, pkCity->getUnhappinessFromReligion());
 	return 1;
 }
 #endif

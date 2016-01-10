@@ -1162,44 +1162,41 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusician)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
 	// If headed on a concert tour, keep going
 	if (pGreatMusician->getArmyID() != -1)
 	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
 
 	// If closing in on a Culture win, go for the Concert Tour
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
+	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
 	{		
 		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 		if(pTarget)
 		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
-
-	// Create Great Work if there is a slot
-	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
-#else
 	else
-#endif
 	{
-		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
-		if(pTarget)
+		// Create Great Work if there is a slot
+		GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
+		if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
 		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+
+		if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+		{
+			CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+			if(pTarget)
+			{
+				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			}
 		}
 	}
 
-	return eDirective;
+	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEngineer)

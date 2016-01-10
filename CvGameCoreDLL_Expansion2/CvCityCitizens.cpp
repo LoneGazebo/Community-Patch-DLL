@@ -426,19 +426,8 @@ void CvCityCitizens::DoTurn()
 		{
 			if(pLoopCity != NULL)
 			{
-				// Start with population
-				int iUnhappiness = pLoopCity->getPopulation();
-				iUnhappiness += pLoopCity->getUnhappinessFromStarving();
-				iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
-				iUnhappiness += pLoopCity->getUnhappinessFromGold();
-				iUnhappiness += pLoopCity->getUnhappinessFromDefense();
-				iUnhappiness += pLoopCity->getUnhappinessFromConnection();
-				iUnhappiness += pLoopCity->getUnhappinessFromMinority();
-				iUnhappiness += pLoopCity->getUnhappinessFromScience();
-				iUnhappiness += pLoopCity->getUnhappinessFromCulture();
-
-				// Subtract off local unhappiness
-				iUnhappiness -= pLoopCity->GetLocalHappiness(); 
+				//mind the sign change
+				int iUnhappiness = - pLoopCity->getHappinessDelta(); 
 
 				if(iUnhappiness > iMostUnhappy)
 				{
@@ -2057,15 +2046,11 @@ void CvCityCitizens::DoReallocateCitizens()
 	{
 		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+
+	if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
-		{
-			GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
-		}
+		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 	}
-#endif
 }
 
 
@@ -2813,15 +2798,10 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
 		}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
-			}
+			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 		GetCity()->processSpecialist(eSpecialist, 1);
@@ -2878,15 +2858,10 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
-			}
+			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 		GetCity()->processSpecialist(eSpecialist, -1);
@@ -2949,15 +2924,10 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		m_aiNumSpecialistsInBuilding[eBuilding]--;
 		GetCity()->processSpecialist(eSpecialist, -1);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
-			}
+			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}
-#endif
 
 		// Do we kill this population or reassign him?
 		if(bEliminatePopulation)

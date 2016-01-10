@@ -4928,53 +4928,71 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 	// Pay adoption bonuses (if any)
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pNewReligion = pReligions->GetReligion(GetReligiousMajority(), NO_PLAYER);
-	if(pNewReligion && !m_bHasPaidAdoptionBonus)
+	if(pNewReligion)
 	{
-		int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-		iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
-		iGoldBonus /= 100;
-
-		if(iGoldBonus > 0)
-		{
-			GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
-			SetPaidAdoptionBonus(true);
-
-			if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-			{
-				char text[256] = {0};
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
-#if defined(SHOW_PLOT_POPUP)
-				SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
-#else
-				GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
-#endif
-			}
-		}
 		int iEra = GET_PLAYER(pNewReligion->m_eFounder).GetCurrentEra();
 		if(iEra < 1)
 		{
 			iEra = 1;
 		}
-		int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
-		if(iScienceBonus > 0)
+		int iGoldenAgeBonus = pNewReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS) * iEra;
+		float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+		if(iGoldenAgeBonus > 0)
 		{
-			TechTypes eCurrentTech = GET_PLAYER(pNewReligion->m_eFounder).GetPlayerTechs()->GetCurrentResearch();
-			if(eCurrentTech == NO_TECH)
-			{
-				GET_PLAYER(pNewReligion->m_eFounder).changeOverflowResearch(iScienceBonus);
-			}
-			else
-			{
-				GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, pNewReligion->m_eFounder);
-			}
-
-			SetPaidAdoptionBonus(true);
-
-			if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+			CvPlayer &kPlayer = GET_PLAYER(pNewReligion->m_eFounder);
+			kPlayer.ChangeGoldenAgeProgressMeter(iGoldenAgeBonus);
+			if (m_pCity->plot() && m_pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
 				char text[256] = {0};
-				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
-				GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 1.0f);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAgeBonus);
+				fDelay += 0.5f;
+				DLLUI->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, fDelay);
+			}
+		}
+		if(!m_bHasPaidAdoptionBonus)
+		{
+			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
+			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+			iGoldBonus /= 100;
+
+			if(iGoldBonus > 0)
+			{
+				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
+				SetPaidAdoptionBonus(true);
+
+				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
+#if defined(SHOW_PLOT_POPUP)
+					SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
+#else
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+#endif
+				}
+			}
+		
+			int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
+			if(iScienceBonus > 0)
+			{
+				TechTypes eCurrentTech = GET_PLAYER(pNewReligion->m_eFounder).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(pNewReligion->m_eFounder).changeOverflowResearch(iScienceBonus);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, pNewReligion->m_eFounder);
+				}
+
+				SetPaidAdoptionBonus(true);
+
+				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 1.0f);
+				}
 			}
 		}
 	}

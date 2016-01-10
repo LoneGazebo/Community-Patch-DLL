@@ -916,21 +916,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+
+	//human player wants to see the effect at once, otherwise update at next turn start is good enough
+	if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-		{
-			owningPlayer.CalculateHappiness();
-		}
+		owningPlayer.CalculateNetHappiness();
 	}
-	else
-	{
-#endif
-	owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
 
 	// Policy changes
 	PolicyTypes ePolicy;
@@ -1056,8 +1047,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// How long before this City picks a Resource to demand?
 	DoSeedResourceDemandedCountdown();
 
-	// Update City Strength
-	updateStrengthValue();
+	// Garrisoned?
+	SetGarrison( plot()->getBestGarrison(getOwner()).pointer() );
 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -1117,20 +1108,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
-	// Garrisoned?
-#if !defined(MOD_BALANCE_CORE)
-	if (HasGarrison())
-	{
-		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
-	}
-#else
+#if defined(MOD_BALANCE_CORE)
 	UnitHandle pDefender = plot()->getBestDefender(getOwner());
 	if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 	{
 		SetGarrison(pDefender.pointer());
 	}
 #endif
-
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
 	{
@@ -2271,22 +2255,11 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 
 	CvPlayer& owningPlayer = GET_PLAYER(eOwner);
 
-	// Recompute Happiness
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	//human player wants to see the effect at once, otherwise update at next turn start is good enough
+	if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-		{
-			owningPlayer.CalculateHappiness();
-		}
+		owningPlayer.CalculateNetHappiness();
 	}
-	else
-	{
-#endif
-	owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
 
 	// Update Unit Maintenance for the player
 	owningPlayer.UpdateUnitProductionMaintenanceMod();
@@ -9314,21 +9287,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	GetCityCulture()->CalculateBaseTourism();
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	//human player wants to see the effect at once, otherwise update at next turn start is good enough
+	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-		{
-			owningPlayer.CalculateHappiness();
-		}
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
-	else
-	{
-#endif
-	owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	float fDelay = 0.0f;
 	int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
@@ -10463,9 +10427,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
 		{
 			//Mechanic to allow for growth malus from happiness/unhappiness.
-			int iHappiness = 0;
+			int iHappiness = GET_PLAYER(getOwner()).GetExcessHappiness();
 			int iTempMod = 0;
-			iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
 
 			//If Happiness is greater than or over threshold, calculate city bonus mod.
 			if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
@@ -10498,8 +10461,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 		{
 			//Mechanic to allow for growth malus from happiness/unhappiness.
-			int iHappiness = 0;
-			iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
+			int iHappiness = GET_PLAYER(getOwner()).GetExcessHappiness();
 
 			//If happiness is less than the main threshold, calculate city penalty mod.
 			if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
@@ -10531,8 +10493,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 			{
 				//Mechanic to allow for growth malus from happiness/unhappiness.
-				int iHappiness = 0;
-				iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
+				int iHappiness = GET_PLAYER(getOwner()).GetExcessHappiness();
 
 				//If happiness is less than the main threshold, calculate city penalty mod.
 				if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
@@ -10940,15 +10901,51 @@ CvArea* CvCity::waterArea() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetGarrison(const CvUnit* pUnit)
+// if called with an invalid unit as argument, the current garrison is removed but no new garrison created!
+void CvCity::SetGarrison(CvUnit* pUnit)
 {
-	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
+	if (pUnit && pUnit->CanGarrison())
+	{
+		bool bNoPreviousGarrison = (m_hGarrison==-1);
+
 		m_hGarrison = pUnit->GetID();
+		pUnit->SetGarrisonedCity( GetID() );
+
+		//no previous garrison. we might earn culture / happiness from this
+		if (bNoPreviousGarrison)
+		{
+			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+			//human wants instant stat update, otherwise beginning of next turns is good enough
+			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+			{
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
+			}
+		}
+	}
 	else
+	{
+		//logic is a bit tricky, happiness calculation calls HasGarrison!
+		bool bPreviousGarrison = (m_hGarrison!=-1);
+		CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
+		if (pOldGarrison)
+			pOldGarrison->SetGarrisonedCity(-1);
+
 		m_hGarrison = -1;
-#if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(getOwner()).CalculateHappiness();
-#endif
+
+		//had a previous garrison. bonuses be gone
+		if (bPreviousGarrison)
+		{
+			ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
+			//human wants instant stat update, otherwise beginning of next turns is good enough
+			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+			{
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
+			}
+		}
+	}
+
+	// Update City Strength
+	updateStrengthValue();
 }
 
 bool CvCity::HasGarrison() const
@@ -11761,21 +11758,11 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		// Update Unit Maintenance for the player
 		GET_PLAYER(getOwner()).UpdateUnitProductionMaintenanceMod();
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		//human player wants to see the effect at once, otherwise update at next turn start is good enough
+		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(getOwner()).CalculateHappiness();
-			}
+			GET_PLAYER(getOwner()).CalculateNetHappiness();
 		}
-		else
-		{
-#endif
-		GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		}
-#endif
 
 		//updateGenericBuildings();
 		updateStrengthValue();
@@ -14500,21 +14487,12 @@ void CvCity::DoCreatePuppet()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	//human player wants to see the effect at once, otherwise update at next turn start is good enough
+	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer()) 
-		{
-			GET_PLAYER(getOwner()).CalculateHappiness();
-		}
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
-	else
-	{
-#endif
-	GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
+
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
@@ -14568,21 +14546,11 @@ void CvCity::DoAnnex()
 
 	setProductionAutomated(false, true);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	//human player wants to see the effect at once, otherwise update at next turn start is good enough
+	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{
-		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
-		{
-			GET_PLAYER(getOwner()).CalculateHappiness();
-		}
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
-	else
-	{
-#endif
-	GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
 
 #if !defined(NO_ACHIEVEMENTS)
 	if(getOriginalOwner() != GetID())
@@ -14740,22 +14708,47 @@ int CvCity::GetLocalHappiness() const
 	}
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+int CvCity::getUnhappinessAggregated() const
+{
+	int iNegativeHappiness = 0;
+	int iLimit = getPopulation();
+	int iContribution;
+
+	//order is very important
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromReligionRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromScienceRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromCultureRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+
+	return iNegativeHappiness;
+}
+
 int CvCity::getHappinessDelta() const
 {
-	GET_PLAYER(getOwner()).CalculateHappiness();
+	GET_PLAYER(getOwner()).CalculateNetHappiness();
 
 	int iPositiveHappiness = GetLocalHappiness();
-
-	int iNegativeHappiness = 0;
-
-	iNegativeHappiness += getUnhappinessFromStarving();
-	iNegativeHappiness += getUnhappinessFromPillaged();
-	iNegativeHappiness += getUnhappinessFromGold();
-	iNegativeHappiness += getUnhappinessFromDefense();
-	iNegativeHappiness += getUnhappinessFromConnection();
-	iNegativeHappiness += getUnhappinessFromMinority();
-	iNegativeHappiness += getUnhappinessFromScience();
-	iNegativeHappiness += getUnhappinessFromCulture();
+	int iNegativeHappiness = getUnhappinessAggregated();
 	
 	if(IsRazing() || IsResistance())
 	{
@@ -14766,9 +14759,7 @@ int CvCity::getHappinessDelta() const
 		iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
 	}
 
-	iPositiveHappiness -= iNegativeHappiness;
-
-	return iPositiveHappiness;
+	return iPositiveHappiness-iNegativeHappiness;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14976,13 +14967,13 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 	}
 	return iModifier;
 }
+
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappyCitizenCount() const
 {
 	VALIDATE_OBJECT
 	return m_iUnhappyCitizen;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvCity::setUnhappyCitizenCount(int iNewValue)
@@ -14992,13 +14983,13 @@ void CvCity::setUnhappyCitizenCount(int iNewValue)
 	CvAssert(getUnhappyCitizenCount() >= 0);
 }
 
-
 //	--------------------------------------------------------------------------------
-void CvCity::changeUnhappyCitizenCount(int iChange) const
+void CvCity::changeUnhappyCitizenCount(int iChange)
 {
 	VALIDATE_OBJECT
-	const_cast<CvCity*>(this)->m_iUnhappyCitizen = (m_iUnhappyCitizen + iChange);
+	m_iUnhappyCitizen = (m_iUnhappyCitizen + iChange);
 }
+
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromCultureYield() const
 {
@@ -15028,7 +15019,7 @@ int CvCity::getUnhappinessFromCultureNeeded(int iMod) const
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCulture() const
+int CvCity::getUnhappinessFromCultureRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -15038,42 +15029,51 @@ int CvCity::getUnhappinessFromCulture() const
 	{
 		return 0;
 	}
-	if(getUnhappyCitizenCount() >= getPopulation())
+	if (iLimit<1)
 	{
 		return 0;
 	}
-	int iUnhappiness = 0;
 
+	int iUnhappiness = 0;
 	int iThreshold = getUnhappinessFromCultureNeeded();
 	int iCityCulture = getUnhappinessFromCultureYield();
 
 	if(iThreshold > iCityCulture)
 	{
 		iUnhappiness = iThreshold - iCityCulture;
-		
 		iUnhappiness /= /* 100 */ max(1, GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM());
-		if(iUnhappiness < 1)
-		{
-			iUnhappiness = 1;
-		}
+
+		return range(iUnhappiness,1,iLimit);
 	}
 
-	int iPop = getPopulation();
-	if(getUnhappyCitizenCount() > 0)
-	{
-		iPop -= getUnhappyCitizenCount();
-	}
-	if(iUnhappiness > iPop)
-	{
-		changeUnhappyCitizenCount(iPop);
-		iUnhappiness = iPop;
-	}
-	else
-	{
-		changeUnhappyCitizenCount(iUnhappiness);
-	}
-	return iUnhappiness;
+	return 0;
 }
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromCulture() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromReligionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromScienceRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromCultureRaw(iLimit);
+
+	return iContribution;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromScienceYield() const
 {
@@ -15103,7 +15103,7 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod) const
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScience() const
+int CvCity::getUnhappinessFromScienceRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -15113,42 +15113,49 @@ int CvCity::getUnhappinessFromScience() const
 	{
 		return 0;
 	}
-	if(getUnhappyCitizenCount() >= getPopulation())
+	if (iLimit<1)
 	{
 		return 0;
 	}
-	int iUnhappiness = 0;
 
+	int iUnhappiness = 0;
 	int iThreshold = getUnhappinessFromScienceNeeded();
 	int iCityResearch = getUnhappinessFromScienceYield();
 
 	if(iThreshold > iCityResearch)
 	{
 		iUnhappiness = iThreshold - iCityResearch;
-		
 		iUnhappiness /= /* 100 */ max(1, GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY());
-		if(iUnhappiness < 1)
-		{
-			iUnhappiness = 1;
-		}
+
+		return range(iUnhappiness,1,iLimit);
 	}
 
-	int iPop = getPopulation();
-	if(getUnhappyCitizenCount() > 0)
-	{
-		iPop -= getUnhappyCitizenCount();
-	}
-	if(iUnhappiness > iPop)
-	{
-		changeUnhappyCitizenCount(iPop);
-		iUnhappiness = iPop;
-	}
-	else
-	{
-		changeUnhappyCitizenCount(iUnhappiness);
-	}
-	return iUnhappiness;
+	return 0;
 }
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromScience() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromReligionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromScienceRaw(iLimit);
+
+	return iContribution;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield() const
 {
@@ -15177,7 +15184,7 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod) const
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefense() const
+int CvCity::getUnhappinessFromDefenseRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -15187,42 +15194,43 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		return 0;
 	}
-	if(getUnhappyCitizenCount() >= getPopulation())
+	if (iLimit<1)
 	{
 		return 0;
 	}
-	int iUnhappiness = 0;
 
+	int iUnhappiness = 0;
 	int iThreshold = getUnhappinessFromDefenseNeeded();
 	int iBuildingDefense = getUnhappinessFromDefenseYield();
 
 	if(iThreshold > iBuildingDefense)
 	{
 		iUnhappiness = iThreshold - iBuildingDefense;
-
 		iUnhappiness /= /* 100 */ max(1, GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER());
-		if(iUnhappiness < 1)
-		{
-			iUnhappiness = 1;
-		}
+
+		return range(iUnhappiness,1,iLimit);
 	}
 
-	int iPop = getPopulation();
-	if(getUnhappyCitizenCount() > 0)
-	{
-		iPop -= getUnhappyCitizenCount();
-	}
-	if(iUnhappiness > iPop)
-	{
-		changeUnhappyCitizenCount(iPop);
-		iUnhappiness = iPop;
-	}
-	else
-	{
-		changeUnhappyCitizenCount(iUnhappiness);
-	}
-	return iUnhappiness;
+	return 0;
 }
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromDefense() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+
+	return iContribution;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromGoldYield() const
 {
@@ -15252,7 +15260,7 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod) const
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGold() const
+int CvCity::getUnhappinessFromGoldRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -15262,50 +15270,45 @@ int CvCity::getUnhappinessFromGold() const
 	{
 		return 0;
 	}
-	if(getUnhappyCitizenCount() >= getPopulation())
+	if (iLimit<1)
 	{
 		return 0;
 	}
-	int iUnhappiness = 0;
 
+	int iUnhappiness = 0;
 	int iThreshold = getUnhappinessFromGoldNeeded();
 	int iGold = getUnhappinessFromGoldYield();
 
 	if(iThreshold > iGold)
 	{
 		iUnhappiness = iThreshold - iGold;
-
 		iUnhappiness /= /* 100 */ max(1, GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY());
-		if(iUnhappiness < 1)
-		{
-			iUnhappiness = 1;
-		}
+
+		return range(iUnhappiness,1,iLimit);
 	}
 
-	int iPop = getPopulation();
-	if(getUnhappyCitizenCount() > 0)
-	{
-		iPop -= getUnhappyCitizenCount();
-	}
-	if(iUnhappiness > iPop)
-	{
-		changeUnhappyCitizenCount(iPop);
-		iUnhappiness = iPop;
-	}
-	else
-	{
-		changeUnhappyCitizenCount(iUnhappiness);
-	}
-	return iUnhappiness;
+	return 0;
 }
+
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromConnection() const
+int CvCity::getUnhappinessFromGold() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+
+	return iContribution;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if(getUnhappyCitizenCount() >= getPopulation())
 	{
 		return 0;
 	}
@@ -15313,6 +15316,11 @@ int CvCity::getUnhappinessFromConnection() const
 	{
 		return 0;
 	}
+	if (iLimit<1)
+	{
+		return 0;
+	}
+
 	if(isCapital() && !IsBlockadedWaterAndLand())
 	{
 		return 0;
@@ -15360,41 +15368,34 @@ int CvCity::getUnhappinessFromConnection() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		if(fUnhappiness < 0)
-		{
-			return 0;
-		}
-		if(getUnhappyCitizenCount() > 0)
-		{
-			iRealCityPop -= getUnhappyCitizenCount();
-		}
-		if(fUnhappiness > iRealCityPop)
-		{
-			changeUnhappyCitizenCount(iRealCityPop);
-			return iRealCityPop;
-		}
-		else
-		{
-			changeUnhappyCitizenCount((int)fUnhappiness);
-		}
-		return (int) fUnhappiness;
-	}
-	else
-	{
-		fUnhappiness = 1;
-		changeUnhappyCitizenCount(1);
 	}
 
-	return (int) fUnhappiness;
+	return range((int)fUnhappiness,1,iLimit);
 }
+
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromPillaged() const
+int CvCity::getUnhappinessFromConnection() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+
+	return iContribution;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromPillagedRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if(getUnhappyCitizenCount() >= getPopulation())
 	{
 		return 0;
 	}
@@ -15402,12 +15403,13 @@ int CvCity::getUnhappinessFromPillaged() const
 	{
 		return 0;
 	}
-	float fUnhappiness = 0.0f;
-	float fExponent = /*0.25f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
+	if (iLimit<1)
+	{
+		return 0;
+	}
 
 	CvPlot* pLoopPlot;
 	int iPillaged = 0;
-	
 
 	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
@@ -15435,47 +15437,39 @@ int CvCity::getUnhappinessFromPillaged() const
 		}
 	}
 
-	fUnhappiness += (float) iPillaged * (float) fExponent;
-
+	float fUnhappiness = 0.0f;
 	if(iPillaged > 0)
 	{
+		float fExponent = /*0.25f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
+
+		fUnhappiness += (float) iPillaged * (float) fExponent;
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		if(IsPuppet())
 		{
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		if(fUnhappiness < 0)
-		{
-			return 0;
-		}
-		int iRealCityPop = getPopulation();
-		if(getUnhappyCitizenCount() > 0)
-		{
-			iRealCityPop -= getUnhappyCitizenCount();
-		}
+	}
 
-		if(fUnhappiness > iRealCityPop)
-		{
-			changeUnhappyCitizenCount(iRealCityPop);
-			return iRealCityPop;
-		}
-		else
-		{
-			changeUnhappyCitizenCount((int)fUnhappiness);
-		}
-		return (int) fUnhappiness;
-	}
-	else
-	{
-		return 0;
-	}
+	return range((int)fUnhappiness,0,iLimit);
 }
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromStarving() const
-{
-	const_cast<CvCity*>(this)->setUnhappyCitizenCount(0);
 
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromPillaged() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+
+	return iContribution;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromStarvingRaw(int iLimit) const
+{
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -15484,48 +15478,47 @@ int CvCity::getUnhappinessFromStarving() const
 	{
 		return 0;
 	}
-	float fUnhappiness = 0.0f;
-	float fExponent = /*.25*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
-	int iDiff = foodDifference();
+	if (iLimit<1)
+	{
+		return 0;
+	}
 
+	int iDiff = foodDifference();
 	if(iDiff < 0 && !isFoodProduction())
 	{
 		iDiff = (iDiff * -1);
 
-		int iRealCityPop = getPopulation();
+		float fUnhappiness = 0.0f;
+		float fExponent = /*.25*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
 		fUnhappiness += (float) iDiff * fExponent;
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		if(IsPuppet())
 		{
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		if(fUnhappiness < 0)
-		{
-			return 0;
-		}
-		if(fUnhappiness > iRealCityPop)
-		{
-			changeUnhappyCitizenCount(iRealCityPop);
-			return iRealCityPop;
-		}
-		else
-		{
-			changeUnhappyCitizenCount((int)fUnhappiness);
-		}
-		return (int) fUnhappiness;
+		return range((int)fUnhappiness,0,iLimit);
 	}
 
 	return 0;
 }
+
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromMinority() const
+int CvCity::getUnhappinessFromStarving() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+
+	return iContribution;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromReligionRaw(int iLimit) const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if(getUnhappyCitizenCount() >= getPopulation())
 	{
 		return 0;
 	}
@@ -15533,6 +15526,11 @@ int CvCity::getUnhappinessFromMinority() const
 	{
 		return 0;
 	}
+	if (iLimit<1)
+	{
+		return 0;
+	}
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait takes away unhappiness from religious strife.
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoReligiousStrife())
@@ -15610,30 +15608,35 @@ int CvCity::getUnhappinessFromMinority() const
 			{
 				fUnhappiness -= (float)((iMinority + (100 + iEra)) / 100);
 			}
-			if(fUnhappiness < 0)
-			{
-				return 0;
-			}
-			if(getUnhappyCitizenCount() > 0)
-			{
-				iCityPop -= getUnhappyCitizenCount();
-			}
-			if(fUnhappiness > iCityPop)
-			{
-				changeUnhappyCitizenCount(iCityPop);
-				return iCityPop;
-			}
-			else
-			{
-				changeUnhappyCitizenCount((int)fUnhappiness);
-			}
-			
-			return (int) fUnhappiness;
+
+			return range((int)fUnhappiness,0,iLimit);
 		}
 	}
 
 	return 0;
 }
+
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromReligion() const
+{
+	//according to the hierarchy of needs
+	int iLimit = getPopulation();
+	int iContribution;
+	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromReligionRaw(iLimit);
+
+	return iContribution;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -16511,8 +16514,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		//Mechanic to allow for production malus from happiness/unhappiness.
-		int iHappiness = 0;
-		iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
+		int iHappiness = GET_PLAYER(getOwner()).GetExcessHappiness();
 
 		//If Happiness is greater than or over threshold, calculate city bonus mod.
 		if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
@@ -24136,11 +24138,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 bool CvCity::canRangedStrikeTarget(const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
-	return (const_cast<CvCity*>(this)->rangedStrikeTarget(const_cast<CvPlot*>(&targetPlot)) != 0);
+	return (rangedStrikeTarget(&targetPlot) != 0);
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvCity::rangedStrikeTarget(CvPlot* pPlot)
+CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	UnitHandle pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true, false, false, /*bNoncombatAllowed*/ true);

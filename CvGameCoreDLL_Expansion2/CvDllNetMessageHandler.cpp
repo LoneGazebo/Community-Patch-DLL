@@ -1018,22 +1018,12 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 		else
 		{
 			kPlayer.setHasPolicy(ePolicy, bValue);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
-		{
+
+			//human player wants to see the effect at once, otherwise update at next turn start is good enough
 			if(kPlayer.isHuman() && ePlayer == GC.getGame().getActivePlayer())
 			{
-				kPlayer.CalculateHappiness();
+				kPlayer.CalculateNetHappiness();
 			}
-		}
-		else
-		{
-#endif
-			kPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		}
-#endif			
-			kPlayer.DoUpdateHappiness();
 		}
 	}
 	// Policy Branch Update

@@ -4465,7 +4465,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCit
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromMinority() > 0)
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromReligion() > 0)
 	{
 		return true;
 	}

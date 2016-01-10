@@ -17,6 +17,13 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Delete ResourceType="RESOURCE_STONE" />
+		<Row>
+			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+			<ResourceType>RESOURCE_STONE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
 		<Delete ResourceType="RESOURCE_FISH" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
@@ -37,10 +44,17 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Delete ResourceType="RESOURCE_BISON" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
 			<ResourceType>RESOURCE_BISON</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<ResourceType>RESOURCE_BISON</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_DEER" />
@@ -57,6 +71,32 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<ResourceType>RESOURCE_COW</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_HORSE" />
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Delete ResourceType="RESOURCE_SHEEP" />
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<ResourceType>RESOURCE_SHEEP</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<ResourceType>RESOURCE_SHEEP</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 		<Delete ResourceType="RESOURCE_SALT" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
@@ -69,6 +109,12 @@
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_CITRUS" />
@@ -88,7 +134,7 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_COCOA</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_COPPER" />
@@ -103,7 +149,13 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_DYE" />
 		<Row>
@@ -122,10 +174,22 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
-			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_GOLD" />
+		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 		<Delete ResourceType="RESOURCE_INCENSE" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -139,10 +203,17 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Delete ResourceType="RESOURCE_IVORY" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
 			<ResourceType>RESOURCE_IVORY</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_MARBLE" />
