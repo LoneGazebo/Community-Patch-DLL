@@ -88,7 +88,7 @@ int plotDistance(int iX1, int iY1, int iX2, int iY2)
 
 	int iDX = dxWrap(iX2H - iX1H);
 	int iDY = dyWrap(iY2 - iY1);
-	int iDZ = iZ2H - iZ1H;
+	int iDZ = dxWrap(iZ2H - iZ1H); //this is by design, dx and dz have the same range
 
 	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
 }
