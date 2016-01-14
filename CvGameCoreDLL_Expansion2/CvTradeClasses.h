@@ -149,7 +149,11 @@ public:
 
 	void DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2); // when war is declared, both sides plunder each others trade routes for cash!
 
+#if defined(MOD_BALANCE_CORE)
+	int GetNumTradeRoutesInPlot (CvPlot* pPlot, bool bBreakAtFirst = false);
+#else
 	int GetNumTradeRoutesInPlot (CvPlot* pPlot);
+#endif
 
 	int GetIndexFromID (int iID);
 	PlayerTypes GetOwnerFromID (int iID);

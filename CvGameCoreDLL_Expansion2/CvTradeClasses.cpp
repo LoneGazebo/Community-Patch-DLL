@@ -1135,22 +1135,13 @@ void CvGameTrade::UpdateTradePlots()
 		if(pLoopPlot == NULL)
 			continue;
 
-		pLoopPlot->SetTradeUnitRoute(false);
-
-		for (uint uiConnection = 0; uiConnection < GetNumTradeConnections(); uiConnection++)
+		if(GetNumTradeRoutesInPlot(pLoopPlot, true) <= 0)
 		{
-			const TradeConnection* pConnection = &(GetTradeConnection(uiConnection));
-			if (IsTradeRouteIndexEmpty(uiConnection))
-			{
-				continue;
-			}
-			for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-			{
-				if (pConnection->m_aPlotList[ui].m_iX == pLoopPlot->getX() && pConnection->m_aPlotList[ui].m_iY == pLoopPlot->getY())
-				{
-					pLoopPlot->SetTradeUnitRoute(true);
-				}
-			}
+			pLoopPlot->SetTradeUnitRoute(false);
+		}
+		else
+		{
+			pLoopPlot->SetTradeUnitRoute(true);
 		}
 		pLoopPlot->updateYield();
 	}
@@ -1500,7 +1491,11 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot, bool bBreakAtFirst)
+#else
 int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot)
+#endif
 {
 	int iResult = 0;
 	int iX = pPlot->getX();
@@ -1517,6 +1512,12 @@ int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot)
 			if (m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iX == iX && m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iY == iY)
 			{
 				iResult++;
+#if defined(MOD_BALANCE_CORE)
+				if(bBreakAtFirst)
+				{
+					return iResult;
+				}
+#endif
 			}
 		}
 	}
