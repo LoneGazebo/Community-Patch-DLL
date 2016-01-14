@@ -312,6 +312,11 @@ public:
 	void SetTradeRoute(PlayerTypes ePlayer, bool bActive);
 	bool IsTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
 
+#if defined(MOD_BALANCE_CORE)
+	void SetTradeUnitRoute(bool bActive);
+	bool IsTradeUnitRoute() const;
+#endif
+
 	bool isValidDomainForLocation(const CvUnit& unit) const;
 	bool isValidDomainForAction(const CvUnit& unit) const;
 
@@ -979,6 +984,7 @@ protected:
 	bool* m_abResourceForceReveal;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abIsImpassable;
+	bool m_bIsTradeUnitRoute;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1019,7 +1025,6 @@ protected:
 	short m_iCulture;
 
 	uint m_uiTradeRouteBitFlags;
-
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;

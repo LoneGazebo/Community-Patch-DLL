@@ -335,6 +335,7 @@
 	SELECT 'UNIT_MOBILE_SAM' , 'PROMOTION_ARMOR_PLATING_1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+
 	INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
 	SELECT 'UNIT_ANTI_AIRCRAFT_GUN' , 'PROMOTION_ARMOR_PLATING_1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -1396,6 +1397,10 @@
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Move Carrier
+	INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
+	SELECT 'UNIT_CARRIER' , 'PROMOTION_INTERCEPTION_IV'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	UPDATE Units
 	SET PrereqTech = 'TECH_COMPUTERS'
 	WHERE Type = 'UNIT_CARRIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -1405,7 +1410,7 @@
 	WHERE Type = 'UNIT_CARRIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Initially carries 2 Aircraft; capacity may be boosted through promotions. Will intercept enemy aircraft which try to bomb nearby Units.'
+	SET Text = 'Initially carries 2 Aircraft; capacity may be boosted through promotions. Will intercept enemy aircraft which try to attack nearby Units.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARRIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -1528,7 +1533,7 @@
 
 	-- Maintenance
 	UPDATE Units
-	SET NoMaintenance = '0'
+	SET NoMaintenance = 'false'
 	WHERE Type = 'UNIT_GUIDED_MISSILE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

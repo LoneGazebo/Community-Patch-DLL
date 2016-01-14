@@ -4927,10 +4927,10 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 #if defined(MOD_BALANCE_CORE)
 	// Pay adoption bonuses (if any)
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	const CvReligion* pNewReligion = pReligions->GetReligion(GetReligiousMajority(), NO_PLAYER);
+	const CvReligion* pNewReligion = pReligions->GetReligion(eReligion, NO_PLAYER);
 	if(pNewReligion)
 	{
-		int iEra = GET_PLAYER(pNewReligion->m_eFounder).GetCurrentEra();
+		int iEra = GET_PLAYER(m_pCity->getOwner()).GetCurrentEra();
 		if(iEra < 1)
 		{
 			iEra = 1;
@@ -4939,7 +4939,7 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 		float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
 		if(iGoldenAgeBonus > 0)
 		{
-			CvPlayer &kPlayer = GET_PLAYER(pNewReligion->m_eFounder);
+			CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 			kPlayer.ChangeGoldenAgeProgressMeter(iGoldenAgeBonus);
 			if (m_pCity->plot() && m_pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
@@ -4960,7 +4960,7 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
 				SetPaidAdoptionBonus(true);
 
-				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+				if(m_pCity->getOwner() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
@@ -4975,19 +4975,19 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 			int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
 			if(iScienceBonus > 0)
 			{
-				TechTypes eCurrentTech = GET_PLAYER(pNewReligion->m_eFounder).GetPlayerTechs()->GetCurrentResearch();
+				TechTypes eCurrentTech = GET_PLAYER(m_pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
 				if(eCurrentTech == NO_TECH)
 				{
-					GET_PLAYER(pNewReligion->m_eFounder).changeOverflowResearch(iScienceBonus);
+					GET_PLAYER(m_pCity->getOwner()).changeOverflowResearch(iScienceBonus);
 				}
 				else
 				{
-					GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, pNewReligion->m_eFounder);
+					GET_TEAM(GET_PLAYER(m_pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, m_pCity->getOwner());
 				}
 
 				SetPaidAdoptionBonus(true);
 
-				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+				if(m_pCity->getOwner() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
@@ -5166,7 +5166,6 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		CvAssertMsg (false, "Invalid city population when recomputing followers");
 		return;
 	}
-
 	// Find total pressure
 	int iTotalPressure = 0;
 	ReligionInCityList::iterator it;
@@ -5183,8 +5182,20 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		CvReligionInCity religion;
 		religion.m_bFoundedHere = false;
 		religion.m_eReligion = NO_RELIGION;
+#if defined(MOD_BALANCE_CORE)
+		if(eReason == FOLLOWER_CHANGE_ADOPT_FULLY)
+		{
+			religion.m_iFollowers = 0;
+			religion.m_iPressure = 0;
+		}
+		else
+		{
+#endif
 		religion.m_iFollowers = 1;
 		religion.m_iPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		m_ReligionStatus.push_back(religion);
 
 		iTotalPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();

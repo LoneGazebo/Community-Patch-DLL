@@ -1,0 +1,10 @@
+<Asset>
+  <Mesh file="Resource_Coffee.gr2" source="Max" />
+  <Texture file="Wine_Grnd_Decal_DIFF.dds" source="Max" />
+  <Texture file="CityBase_SREF.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="PlantRes_Grnd_Decal_H.dds" source="Max" />
+  <Texture file="Plant_Resource_Shadows.dds" source="Max" />
+  <Texture file="Coffee_DIFF.dds" source="Max" />
+  <Texture file="Wine_SREF.dds" source="Max" />
+</Asset>

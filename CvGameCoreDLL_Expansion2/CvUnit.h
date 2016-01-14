@@ -1746,7 +1746,6 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
-
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
 	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;

@@ -133,6 +133,9 @@ public:
 	bool IsFoundLate() const;
 	bool IsCityAttackOnly() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int IsGPExtra() const;
+#endif
 	int GetCultureBombRadius() const;
 	int GetGoldenAgeTurns() const;
 	int GetFreePolicies() const;
@@ -308,6 +311,7 @@ private:
 	bool m_bFoundMid;
 	bool m_bFoundLate;
 	bool m_bIsCityAttackOnly;
+	int m_iGPExtra;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;

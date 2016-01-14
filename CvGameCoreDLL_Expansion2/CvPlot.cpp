@@ -326,6 +326,9 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	}
 
 	m_kArchaeologyData.Reset();
+#if defined(MOD_BALANCE_CORE)
+	m_bIsTradeUnitRoute = false;
+#endif
 }
 
 //////////////////////////////////////
@@ -4756,6 +4759,9 @@ void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		updateYield();
+#endif
 	}
 }
 
@@ -4786,7 +4792,20 @@ bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvPlot::SetTradeUnitRoute(bool bActive)
+{
+	m_bIsTradeUnitRoute = bActive;
+}
 
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsTradeUnitRoute() const
+{
+	return m_bIsTradeUnitRoute;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 {
@@ -7014,10 +7033,6 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 
 		if(pImprovementInfo->IsWater() != isWater())
 			continue;
-#if defined(MOD_BALANCE_CORE)
-		if(!pImprovementInfo->IsAdjacentCity())
-			continue;
-#endif
 
 		eImprovementNeeded = eImprovement;
 	}
@@ -9113,31 +9128,30 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		{
 			eRouteType = getRouteType();
 		}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+		if(ePlayer != NO_PLAYER)
+		{
+			if(IsTradeUnitRoute())
+			{
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+				if(kPlayer.GetCurrentEra() >= 4)
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+				}
+				else
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+				}
+			}
+		}
+#else
+#endif
 		if(eRouteType != NO_ROUTE)
 		{
 #if defined(MOD_BALANCE_CORE_YIELDS)
 			if(ePlayer != NO_PLAYER)
 			{
-				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-				{
-					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-					{
-						continue;
-					}
-					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-					{
-						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-						{
-							bTrade = true;
-							break;
-						}
-					}
-				}
-				if(IsTradeRoute(ePlayer))
+				if(IsTradeRoute(ePlayer) && MOD_BALANCE_YIELD_SCALE_ERA)
 				{
 					if(IsRouteRailroad())
 					{
@@ -9148,21 +9162,21 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 					}
 				}
-				if(bTrade)
+				else
 				{
-					if(IsRouteRailroad())
-					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-					}
-					else if(IsRouteRoad())
-					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					}
-#else
-			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
-#endif
+					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 				}
 			}
+			else
+			{
+#endif
+			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			}
+#else
+				}
+			}
+#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -9630,8 +9644,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 #endif
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pCity->plot() == this)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+		if(MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
 		{
 			//Non-hill, non-freshwater city plots should make one extra gold
 			if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
@@ -11920,6 +11934,9 @@ void CvPlot::read(FDataStream& kStream)
 
 	kStream >> m_cContinentType;
 	kStream >> m_kArchaeologyData;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bIsTradeUnitRoute;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -12068,6 +12085,9 @@ void CvPlot::write(FDataStream& kStream) const
 
 	kStream << m_cContinentType;
 	kStream << m_kArchaeologyData;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bIsTradeUnitRoute;
+#endif
 }
 
 //	--------------------------------------------------------------------------------

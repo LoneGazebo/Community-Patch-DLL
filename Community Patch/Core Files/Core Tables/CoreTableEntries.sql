@@ -484,6 +484,11 @@ ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
 --Units
 ALTER TABLE Units ADD 'NumFreeLux' INTEGER DEFAULT 0;
 
+-- GP tabling - use this to define up to 5 GP types with indpendent meters (will not affect rates of other GPs)
+-- GPs that you assign the same number to will affect each other, so make sure no other mods are using these!
+ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
+-- Example: <GPExtra>1</GPExtra> in a unit's XML table will put all of its GPP into a unique meter and a faith buy track.
+
 -- Promotions
 
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;

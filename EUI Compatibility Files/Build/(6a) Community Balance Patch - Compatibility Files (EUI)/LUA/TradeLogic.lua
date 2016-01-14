@@ -619,17 +619,16 @@ function DoUpdateButtons()
 			Controls.Pockets:SetHide( true );
 			Controls.ModificationBlock:SetHide( false );
 		end
-
-		Controls.MainStack:CalculateSize();
-		Controls.MainGrid:DoAutoSize();
 --CBP
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
 		end
 --END
+		Controls.MainStack:CalculateSize();
+		Controls.MainGrid:DoAutoSize();
 
 	-- Dealing with an AI
 	elseif (g_bPVPTrade == false and g_bTradeReview == false) then
@@ -683,6 +682,9 @@ function DoUpdateButtons()
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
 				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+				if(iMax == -1) then
+					Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				end
 				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
 				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
 				Controls.PeaceValue:SetText(Valuestr);
@@ -1130,8 +1132,8 @@ function ResetDisplay()
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
 		end
 --END
 	end

@@ -228,17 +228,18 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iRounds = 0;
 	svPathLog.clear();
 
-	if (udInitializeFunc)
+	if(!isValid(iXstart, iYstart))
+		return false;
+
+	if(udInitializeFunc)
 		udInitializeFunc(m_sData, this);
 
-	if(!isValid(iXstart, iYstart))
+	if(udDestValid && !udDestValid(iXdest, iYdest, m_sData, this))
 	{
 		if (udUninitializeFunc)
 			udUninitializeFunc(m_sData, this);
 		return false;
 	}
-
-	PREFETCH_FASTAR_NODE(&(m_ppaaNodes[iXdest][iYdest]));
 
 	//reset previously used nodes
 	if(m_pOpen)
@@ -261,15 +262,13 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		}
 	}
 
-	PREFETCH_FASTAR_NODE(&(m_ppaaNodes[iXstart][iYstart]));
-
 	m_pBest = NULL;
 	m_pStackHead = NULL;
 
 	//set up first node
 	temp = &(m_ppaaNodes[iXstart][iYstart]);
 	temp->m_iKnownCost = 0;
-	if(udHeuristic == NULL)
+	if(udHeuristic == NULL || !isValid(m_iXdest,m_iYdest))
 	{
 		temp->m_iHeuristicCost = 0;
 	}
@@ -284,29 +283,6 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	udFunc(udNotifyList, NULL, m_pOpen, ASNL_STARTOPEN, m_sData);
 	udFunc(udValid, NULL, temp, 0, m_sData);
 	udFunc(udNotifyChild, NULL, temp, ASNC_INITIALADD, m_sData);
-
-	if(udDestValid != NULL)
-	{
-		if(!udDestValid(iXdest, iYdest, m_sData, this))
-		{
-			if (udUninitializeFunc)
-				udUninitializeFunc(m_sData, this);
-			return false;
-		}
-	}
-
-	if(isValid(m_iXdest, m_iYdest))
-	{
-		temp = &(m_ppaaNodes[m_iXdest][m_iYdest]);
-
-		if(temp->m_eCvAStarListType == CVASTARLIST_CLOSED)
-		{
-			m_pBest = temp;
-			if (udUninitializeFunc)
-				udUninitializeFunc(m_sData, this);
-			return true;
-		}
-	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	cvStopWatch timer("pathfinder",NULL,0,true);

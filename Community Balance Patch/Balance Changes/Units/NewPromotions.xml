@@ -406,7 +406,7 @@
 			<Text>Difficult Target</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
-			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>

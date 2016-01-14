@@ -876,6 +876,22 @@ public:
 	int getGreatDiplomatsCreated(bool bExcludeFree) const;
 	void incrementGreatDiplomatsCreated(bool bIsFree);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1Created(bool bExcludeFree) const;
+	void incrementGPExtra1Created(bool bIsFree);
+	
+	int getGPExtra2Created(bool bExcludeFree) const;
+	void incrementGPExtra2Created(bool bIsFree);
+
+	int getGPExtra3Created(bool bExcludeFree) const;
+	void incrementGPExtra3Created(bool bIsFree);
+
+	int getGPExtra4Created(bool bExcludeFree) const;
+	void incrementGPExtra4Created(bool bIsFree);
+
+	int getGPExtra5Created(bool bExcludeFree) const;
+	void incrementGPExtra5Created(bool bIsFree);
+#endif
 #else
 	int getGreatPeopleCreated() const;
 	void incrementGreatPeopleCreated();
@@ -902,6 +918,22 @@ public:
 	int getGreatDiplomatsCreated() const;
 	void incrementGreatDiplomatsCreated();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1Created() const;
+	void incrementGPExtra1Created();
+	
+	int getGPExtra2Created() const;
+	void incrementGPExtra2Created();
+
+	int getGPExtra3Created() const;
+	void incrementGPExtra3Created();
+
+	int getGPExtra4Created() const;
+	void incrementGPExtra4Created();
+
+	int getGPExtra5Created() const;
+	void incrementGPExtra5Created();
+#endif
 #endif
 
 	int getMerchantsFromFaith() const;
@@ -923,6 +955,18 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getDiplomatsFromFaith() const;
 	void incrementDiplomatsFromFaith();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1FromFaith() const;
+	void incrementGPExtra1FromFaith();
+	int getGPExtra2FromFaith() const;
+	void incrementGPExtra2FromFaith();
+	int getGPExtra3FromFaith() const;
+	void incrementGPExtra3FromFaith();
+	int getGPExtra4FromFaith() const;
+	void incrementGPExtra4FromFaith();
+	int getGPExtra5FromFaith() const;
+	void incrementGPExtra5FromFaith();
 #endif
 
 	int getGreatPeopleThresholdModifier() const;
@@ -2534,6 +2578,18 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	FAutoVariable<int, CvPlayer> m_iFreeGreatDiplomatsCreated;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iGPExtra1Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra2Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra3Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra4Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra5Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra1Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra2Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra3Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra4Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra5Created;
+#endif
 #endif
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsCreated;
@@ -2549,6 +2605,13 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	FAutoVariable<int, CvPlayer> m_iGreatDiplomatsCreated;
 	FAutoVariable<int, CvPlayer> m_iDiplomatsFromFaith;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iGPExtra1FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra2FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra3FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra4FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra5FromFaith;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMerchantsFromFaith;
 	FAutoVariable<int, CvPlayer> m_iScientistsFromFaith;

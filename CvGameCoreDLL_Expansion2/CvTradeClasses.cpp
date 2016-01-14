@@ -738,6 +738,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			}
 		}
 	}
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	if(pTrade)
+	{
+		pTrade->UpdateTradePlots();
+	}
 #endif
 	
 
@@ -1115,9 +1120,42 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
+#if defined(MOD_BALANCE_CORE)
+	UpdateTradePlots();
+#endif
 	return true;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvGameTrade::UpdateTradePlots()
+{
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if(pLoopPlot == NULL)
+			continue;
 
+		pLoopPlot->SetTradeUnitRoute(false);
+
+		for (uint uiConnection = 0; uiConnection < GetNumTradeConnections(); uiConnection++)
+		{
+			const TradeConnection* pConnection = &(GetTradeConnection(uiConnection));
+			if (IsTradeRouteIndexEmpty(uiConnection))
+			{
+				continue;
+			}
+			for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+			{
+				if (pConnection->m_aPlotList[ui].m_iX == pLoopPlot->getX() && pConnection->m_aPlotList[ui].m_iY == pLoopPlot->getY())
+				{
+					pLoopPlot->SetTradeUnitRoute(true);
+				}
+			}
+		}
+		pLoopPlot->updateYield();
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Called when a city changes hands
 #if defined(MOD_BUGFIX_MINOR)
@@ -4879,10 +4917,27 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eConnectionType, eDomain);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	 if(pTradeConnection->m_aPlotList.size() > 0)
+	 {
+		for (uint ui = 0; ui < pTradeConnection->m_aPlotList.size(); ui++)
+		{
+			int iPlotX = pTradeConnection->m_aPlotList[ui].m_iX;
+			int iPlotY = pTradeConnection->m_aPlotList[ui].m_iY;
+			if(iPlotX != NULL && iPlotY != NULL)
+			{
+				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+				if(pPlot != NULL)
+				{
+					pPlot->updateYield();
+				}
+			}
+		}
+	}
+#endif
 
 	return true;
 }
-
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {

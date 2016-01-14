@@ -83,7 +83,7 @@ WHERE Type = 'IMPROVEMENT_TRADING_POST' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Trading Post - name change
 
 UPDATE Language_en_US
-SET Text = 'Villages are smaller settlements scattered around the countryside of a civilization, representative of the people that live off of the land and trade. They can generate a lot of wealth for a society, particularly when placed on Roads, Railroads, or on Trade Routes.[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if built on a Road that connects two owned Cities, and +2 [ICON_GOLD] and [ICON_PRODUCTION] Production if a Railroad. Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+1 for Roads, +2 for Railroads) if a Trade Route, either internal or international, passes over this Village.'
+SET Text = 'Villages are smaller settlements scattered around the countryside of a civilization, representative of the people that live off of the land and trade. They can generate a lot of wealth for a society, particularly when placed on Roads, Railroads, or on Trade Routes.[NEWLINE][NEWLINE]Receive [ICON_GOLD] Gold [ICON_PRODUCTION] Production if built on a Road or Railroad that connects two owned Cities.[NEWLINE][NEWLINE]Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+1 pre-Industrial Era, +2 Industrial Era or later) if a Trade Route, either internal or international, passes over this Village.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TRADING_POST_TEXT';
 
 UPDATE Language_en_US
@@ -103,11 +103,11 @@ SET Text = 'Does the village provide gold?'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_ADV_QUEST';
 
 UPDATE Language_en_US
-SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold and production if placed on a Road or Railroad that connects two owned cities. Also earns additional gold and production if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
+SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold and production if placed on a Road or Railroad that connects two owned cities and/or if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'The village increases output of a tile by 1 gold. It does not access a resource. It generates additional gold and production if on a route, or if build on a trade route.[NEWLINE]Technology Required: Currency[NEWLINE]Construction Time: 5 Turns[NEWLINE]May Be Constructed On: Any land tile but ice. Cannot be built adjacent to one another.'
+SET Text = 'The village increases output of a tile by 3 gold and 1 culture. It does not access a resource. It generates additional gold and production if on a route and/or if built on a trade route.[NEWLINE]Technology Required: Currency[NEWLINE]Construction Time: 5 Turns[NEWLINE]May Be Constructed On: Any land tile but ice. Cannot be built adjacent to one another.'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
