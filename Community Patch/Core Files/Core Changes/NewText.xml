@@ -292,6 +292,9 @@
 		</Row>
 		
 		<!-- Civilopedia Jazz-->
+		<Row Tag="TXT_KEY_PEDIA_TRADEROUTE_CBP_LABEL">
+			<Text>Bonus on City Connections:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEDIA_IMPROVADJYIELD_LABEL">
 			<Text>Bonus to Adjacent:</Text>
 		</Row>

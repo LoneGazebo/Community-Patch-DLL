@@ -174,11 +174,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Row>
-			<ResourceType>RESOURCE_SILVER</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
 		<Delete ResourceType="RESOURCE_SPICES" />
 		<Row>
 			<ResourceType>RESOURCE_SPICES</ResourceType>

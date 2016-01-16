@@ -111,11 +111,11 @@
 	WHERE Name = 'CULTURE_COST_FIRST_PLOT';
 
 	UPDATE Defines
-	SET Value = '16'
+	SET Value = '15'
 	WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
 
 	UPDATE Defines
-	SET Value = '1.32'
+	SET Value = '1.30'
 	WHERE Name = 'CULTURE_COST_LATER_PLOT_EXPONENT';
 -- END
 	-- Unit upgrades more expensive based on era and production needed

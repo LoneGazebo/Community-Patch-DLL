@@ -19592,6 +19592,12 @@ if (!bDoEvade)
 			DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(pNewPlot && !pNewPlot->isCity())
+	{
+		SetGarrisonedCity(-1);
+	}
+#endif
 	
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
@@ -24240,6 +24246,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange: 0);
 		ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange: 0);
+
 		changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
 		ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange: 0);
 		ChangeGreatGeneralCombatModifier(thisPromotion.GetGreatGeneralCombatModifier() * iChange);

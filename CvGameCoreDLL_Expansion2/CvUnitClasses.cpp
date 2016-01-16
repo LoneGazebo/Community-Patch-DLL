@@ -113,6 +113,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bFoundMid(false),
 	m_bFoundLate(false),
 	m_bIsCityAttackOnly(false),
+	m_iGPExtra(0),
 #endif
 	m_iCultureBombRadius(0),
 	m_iGoldenAgeTurns(0),
@@ -288,6 +289,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		m_bFoundMid = kResults.GetBool("FoundMid");
 		m_bFoundLate = kResults.GetBool("FoundLate");
 		m_bIsCityAttackOnly = kResults.GetBool("CityAttackOnly");
+		m_iGPExtra = kResults.GetInt("GPExtra");
 	}
 #endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
@@ -1056,6 +1058,10 @@ bool CvUnitEntry::IsFoundLate() const
 bool CvUnitEntry::IsCityAttackOnly() const
 {
 	return m_bIsCityAttackOnly;
+}
+int CvUnitEntry::IsGPExtra() const
+{
+	return m_iGPExtra;
 }
 #endif
 

@@ -738,6 +738,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			}
 		}
 	}
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	if(pTrade)
+	{
+		pTrade->UpdateTradePlots();
+	}
 #endif
 	
 
@@ -1115,9 +1120,33 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
+#if defined(MOD_BALANCE_CORE)
+	UpdateTradePlots();
+#endif
 	return true;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvGameTrade::UpdateTradePlots()
+{
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if(pLoopPlot == NULL)
+			continue;
 
+		if(GetNumTradeRoutesInPlot(pLoopPlot, true) <= 0)
+		{
+			pLoopPlot->SetTradeUnitRoute(false);
+		}
+		else
+		{
+			pLoopPlot->SetTradeUnitRoute(true);
+		}
+		pLoopPlot->updateYield();
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Called when a city changes hands
 #if defined(MOD_BUGFIX_MINOR)
@@ -1462,7 +1491,11 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot, bool bBreakAtFirst)
+#else
 int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot)
+#endif
 {
 	int iResult = 0;
 	int iX = pPlot->getX();
@@ -1479,6 +1512,12 @@ int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot)
 			if (m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iX == iX && m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iY == iY)
 			{
 				iResult++;
+#if defined(MOD_BALANCE_CORE)
+				if(bBreakAtFirst)
+				{
+					return iResult;
+				}
+#endif
 			}
 		}
 	}
@@ -4879,10 +4918,27 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eConnectionType, eDomain);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	 if(pTradeConnection->m_aPlotList.size() > 0)
+	 {
+		for (uint ui = 0; ui < pTradeConnection->m_aPlotList.size(); ui++)
+		{
+			int iPlotX = pTradeConnection->m_aPlotList[ui].m_iX;
+			int iPlotY = pTradeConnection->m_aPlotList[ui].m_iY;
+			if(iPlotX != NULL && iPlotY != NULL)
+			{
+				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+				if(pPlot != NULL)
+				{
+					pPlot->updateYield();
+				}
+			}
+		}
+	}
+#endif
 
 	return true;
 }
-
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {

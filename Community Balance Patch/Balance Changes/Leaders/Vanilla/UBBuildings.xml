@@ -489,7 +489,7 @@
 			<Text>+2 [ICON_TOURISM] Tourism. Whenever you defeat a Land Unit, produce +3 [ICON_GREAT_GENERAL] Great General points (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if a Naval Unit) and +3 [ICON_GOLDEN_AGE] Golden Age points, scaling with Era. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
-			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
+			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture, Tourism, and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Steam Mill -->

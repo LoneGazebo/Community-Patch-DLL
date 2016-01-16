@@ -7547,6 +7547,25 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 		if(!GET_PLAYER(eTarget).isMinorCiv())
 			continue;
 
+		if(GET_PLAYER(eTarget).GetCapitalConqueror() == GetPlayer()->GetID())
+			continue;
+
+		int iLoopCity;
+		bool bCapital = false;
+		for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity))
+		{
+			if(pLoopCity != NULL)
+			{
+				if(pLoopCity->getX() == GET_PLAYER(eTarget).GetOriginalCapitalX() && pLoopCity->getY() == GET_PLAYER(eTarget).GetOriginalCapitalY())
+				{
+					bCapital = true;
+					break;
+				}
+			}
+		}
+		if(bCapital)
+			continue;
+
 		if(GetPlayer()->GetProximityToPlayer(eTarget) > eClosestProximity)
 		{
 			eClosestProximity = GetPlayer()->GetProximityToPlayer(eTarget);

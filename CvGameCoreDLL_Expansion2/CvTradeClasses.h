@@ -131,7 +131,9 @@ public:
 	int GetEmptyTradeRouteIndex (void);
 	bool IsTradeRouteIndexEmpty (int iIndex);
 	bool EmptyTradeRoute (int iIndex);
-
+#if defined(MOD_BALANCE_CORE)
+	void UpdateTradePlots();
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 	void ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits = false); // called when a city is captured or traded
 #else
@@ -147,7 +149,11 @@ public:
 
 	void DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2); // when war is declared, both sides plunder each others trade routes for cash!
 
+#if defined(MOD_BALANCE_CORE)
+	int GetNumTradeRoutesInPlot (CvPlot* pPlot, bool bBreakAtFirst = false);
+#else
 	int GetNumTradeRoutesInPlot (CvPlot* pPlot);
+#endif
 
 	int GetIndexFromID (int iID);
 	PlayerTypes GetOwnerFromID (int iID);

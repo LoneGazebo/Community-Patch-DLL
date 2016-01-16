@@ -1108,8 +1108,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
-#if !defined(MOD_BALANCE_CORE)
-#else
+#if defined(MOD_BALANCE_CORE)
 	UnitHandle pDefender = plot()->getBestDefender(getOwner());
 	if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 	{
@@ -6763,6 +6762,36 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 						iNum = kPlayer.getDiplomatsFromFaith();
 					}
 #endif
+#if defined(MOD_BALANCE_CORE)
+					if(pkUnitInfo->IsGPExtra() == 1)
+					{
+						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
+						iNum = kPlayer.getGPExtra1FromFaith();
+					}
+					else if(pkUnitInfo->IsGPExtra() == 2)
+					{
+						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
+						iNum = kPlayer.getGPExtra2FromFaith();
+					}
+
+					else if(pkUnitInfo->IsGPExtra() == 3)
+					{
+						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
+						iNum = kPlayer.getGPExtra3FromFaith();
+					}
+
+					else if(pkUnitInfo->IsGPExtra() == 4)
+					{
+						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
+						iNum = kPlayer.getGPExtra4FromFaith();
+					}
+
+					else if(pkUnitInfo->IsGPExtra() == 5)
+					{
+						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
+						iNum = kPlayer.getGPExtra5FromFaith();
+					}
+#endif
 
 					bool bAllUnlockedByBelief = false;
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
@@ -8215,6 +8244,58 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										pFreeUnit->kill(false);	// Could not find a valid spot!
 								}
 #endif
+#if defined(MOD_BALANCE_CORE)
+								else if (pkUnitInfo->IsGPExtra() == 1)
+								{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+									owningPlayer.incrementGPExtra1Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+									owningPlayer.incrementGPExtra1Created();
+#endif
+									if (!pFreeUnit->jumpToNearestValidPlot())
+										pFreeUnit->kill(false);	// Could not find a valid spot!
+								}
+								else if (pkUnitInfo->IsGPExtra() == 2)
+								{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+									owningPlayer.incrementGPExtra2Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+									owningPlayer.incrementGPExtra2Created();
+#endif
+									if (!pFreeUnit->jumpToNearestValidPlot())
+										pFreeUnit->kill(false);	// Could not find a valid spot!
+								}
+								else if (pkUnitInfo->IsGPExtra() == 3)
+								{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+									owningPlayer.incrementGPExtra3Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+									owningPlayer.incrementGPExtra3Created();
+#endif
+									if (!pFreeUnit->jumpToNearestValidPlot())
+										pFreeUnit->kill(false);	// Could not find a valid spot!
+								}
+								else if (pkUnitInfo->IsGPExtra() == 4)
+								{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+									owningPlayer.incrementGPExtra4Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+									owningPlayer.incrementGPExtra4Created();
+#endif
+									if (!pFreeUnit->jumpToNearestValidPlot())
+										pFreeUnit->kill(false);	// Could not find a valid spot!
+								}
+								else if (pkUnitInfo->IsGPExtra() == 5)
+								{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+									owningPlayer.incrementGPExtra5Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+									owningPlayer.incrementGPExtra5Created();
+#endif
+									if (!pFreeUnit->jumpToNearestValidPlot())
+										pFreeUnit->kill(false);	// Could not find a valid spot!
+								}
+#endif
 								else if (pFreeUnit->IsGreatPerson())
 								{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
@@ -8363,6 +8444,58 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								owningPlayer.incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 								owningPlayer.incrementGreatDiplomatsCreated();
+#endif
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
+							}
+#endif
+#if defined(MOD_BALANCE_CORE)
+							else if (pkUnitInfo->IsGPExtra() == 1)
+							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGPExtra1Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+								owningPlayer.incrementGPExtra1Created();
+#endif
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
+							}
+							else if (pkUnitInfo->IsGPExtra() == 2)
+							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGPExtra2Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+								owningPlayer.incrementGPExtra2Created();
+#endif
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
+							}
+							else if (pkUnitInfo->IsGPExtra() == 3)
+							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGPExtra3Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+								owningPlayer.incrementGPExtra3Created();
+#endif
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
+							}
+							else if (pkUnitInfo->IsGPExtra() == 4)
+							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGPExtra4Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+								owningPlayer.incrementGPExtra4Created();
+#endif
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
+							}
+							else if (pkUnitInfo->IsGPExtra() == 5)
+							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGPExtra5Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+								owningPlayer.incrementGPExtra5Created();
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
@@ -12626,12 +12759,6 @@ void CvCity::ChangeJONSCulturePerTurnFromBuildings(int iChange)
 int CvCity::GetJONSCulturePerTurnFromPolicies() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-	if(plot()->getBestDefender(getOwner()))
-	{
-		return (m_iJONSCulturePerTurnFromPolicies + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
-	}
-#endif
 	return m_iJONSCulturePerTurnFromPolicies;
 }
 
@@ -22044,6 +22171,28 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 			{
 				kPlayer.incrementDiplomatsFromFaith();
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			else if (pUnit->getUnitInfo().IsGPExtra() == 1)
+			{
+				kPlayer.incrementGPExtra1FromFaith();
+			}
+			else if (pUnit->getUnitInfo().IsGPExtra() == 2)
+			{
+				kPlayer.incrementGPExtra2FromFaith();
+			}
+			else if (pUnit->getUnitInfo().IsGPExtra() == 3)
+			{
+				kPlayer.incrementGPExtra3FromFaith();
+			}
+			else if (pUnit->getUnitInfo().IsGPExtra() == 4)
+			{
+				kPlayer.incrementGPExtra4FromFaith();
+			}
+			else if (pUnit->getUnitInfo().IsGPExtra() == 5)
+			{
+				kPlayer.incrementGPExtra5FromFaith();
 			}
 #endif
 

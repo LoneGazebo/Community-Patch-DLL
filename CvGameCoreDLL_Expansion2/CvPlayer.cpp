@@ -246,6 +246,21 @@ CvPlayer::CvPlayer() :
 	, m_iGreatGeneralsCreated("CvPlayer::m_iGreatGeneralsCreated", m_syncArchive)
 	, m_iGreatAdmiralsCreated("CvPlayer::m_iGreatAdmiralsCreated", m_syncArchive)
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	, m_iGPExtra1Created("CvPlayer::m_iGPExtra1Created", m_syncArchive)
+	, m_iGPExtra2Created("CvPlayer::m_iGPExtra2Created", m_syncArchive)
+	, m_iGPExtra3Created("CvPlayer::m_iGPExtra3Created", m_syncArchive)
+	, m_iGPExtra4Created("CvPlayer::m_iGPExtra4Created", m_syncArchive)
+	, m_iGPExtra5Created("CvPlayer::m_iGPExtra5Created", m_syncArchive)
+	, m_iGPExtra1FromFaith("CvPlayer::m_iGPExtra1FromFaith", m_syncArchive)
+	, m_iGPExtra2FromFaith("CvPlayer::m_iGPExtra2FromFaith", m_syncArchive)
+	, m_iGPExtra3FromFaith("CvPlayer::m_iGPExtra3FromFaith", m_syncArchive)
+	, m_iGPExtra4FromFaith("CvPlayer::m_iGPExtra4FromFaith", m_syncArchive)
+	, m_iGPExtra5FromFaith("CvPlayer::m_iGPExtra5FromFaith", m_syncArchive)
+	, m_iFreeGPExtra1Created("CvPlayer::m_iFreeGPExtra1Created", m_syncArchive)
+	, m_iFreeGPExtra2Created("CvPlayer::m_iFreeGPExtra2Created", m_syncArchive)
+	, m_iFreeGPExtra3Created("CvPlayer::m_iFreeGPExtra3Created", m_syncArchive)
+	, m_iFreeGPExtra4Created("CvPlayer::m_iFreeGPExtra4Created", m_syncArchive)
+	, m_iFreeGPExtra5Created("CvPlayer::m_iFreeGPExtra5Created", m_syncArchive)
 	, m_iGreatMerchantsCreated("CvPlayer::m_iGreatMerchantsCreated", m_syncArchive)
 	, m_iGreatScientistsCreated("CvPlayer::m_iGreatScientistsCreated", m_syncArchive)
 	, m_iGreatEngineersCreated("CvPlayer::m_iGreatEngineersCreated", m_syncArchive)
@@ -1255,6 +1270,21 @@ void CvPlayer::uninit()
 	m_iGreatGeneralsCreated = 0;
 	m_iGreatAdmiralsCreated = 0;
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	m_iGPExtra1Created = 0;
+	m_iGPExtra2Created = 0;
+	m_iGPExtra3Created = 0;
+	m_iGPExtra4Created = 0;
+	m_iGPExtra5Created = 0;
+	m_iFreeGPExtra1Created = 0;
+	m_iFreeGPExtra2Created = 0;
+	m_iFreeGPExtra3Created = 0;
+	m_iFreeGPExtra4Created = 0;
+	m_iFreeGPExtra5Created = 0;
+	m_iGPExtra1FromFaith = 0;
+	m_iGPExtra2FromFaith = 0;
+	m_iGPExtra3FromFaith = 0;
+	m_iGPExtra4FromFaith = 0;
+	m_iGPExtra5FromFaith = 0;
 	m_iGreatMerchantsCreated = 0;
 	m_iGreatScientistsCreated = 0;
 	m_iGreatEngineersCreated = 0;
@@ -19235,6 +19265,78 @@ void CvPlayer::incrementGreatDiplomatsCreated(bool bIsFree)
 	if (bIsFree) m_iFreeGreatDiplomatsCreated++;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra1Created(bool bExcludeFree) const
+{
+	int iCount = m_iGPExtra1Created;
+	if (bExcludeFree) iCount -= m_iFreeGPExtra1Created;
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra1Created(bool bIsFree)
+{
+	m_iGPExtra1Created++;
+	if (bIsFree) m_iFreeGPExtra1Created++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra2Created(bool bExcludeFree) const
+{
+	int iCount = m_iGPExtra2Created;
+	if (bExcludeFree) iCount -= m_iFreeGPExtra2Created;
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra2Created(bool bIsFree)
+{
+	m_iGPExtra2Created++;
+	if (bIsFree) m_iFreeGPExtra2Created++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra3Created(bool bExcludeFree) const
+{
+	int iCount = m_iGPExtra3Created;
+	if (bExcludeFree) iCount -= m_iFreeGPExtra3Created;
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra3Created(bool bIsFree)
+{
+	m_iGPExtra3Created++;
+	if (bIsFree) m_iFreeGPExtra3Created++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra4Created(bool bExcludeFree) const
+{
+	int iCount = m_iGPExtra4Created;
+	if (bExcludeFree) iCount -= m_iFreeGPExtra4Created;
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra4Created(bool bIsFree)
+{
+	m_iGPExtra4Created++;
+	if (bIsFree) m_iFreeGPExtra4Created++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra5Created(bool bExcludeFree) const
+{
+	int iCount = m_iGPExtra5Created;
+	if (bExcludeFree) iCount -= m_iFreeGPExtra5Created;
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra5Created(bool bIsFree)
+{
+	m_iGPExtra5Created++;
+	if (bIsFree) m_iFreeGPExtra5Created++;
+}
+#endif
 #else
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatPeopleCreated() const
@@ -19456,6 +19558,63 @@ int CvPlayer::getDiplomatsFromFaith() const
 void CvPlayer::incrementDiplomatsFromFaith()
 {
 	m_iDiplomatsFromFaith++;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra1FromFaith() const
+{
+	return m_iGPExtra1FromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra1FromFaith()
+{
+	m_iGPExtra1FromFaith++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra2FromFaith() const
+{
+	return m_iGPExtra2FromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra2FromFaith()
+{
+	m_iGPExtra2FromFaith++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra3FromFaith() const
+{
+	return m_iGPExtra3FromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra3FromFaith()
+{
+	m_iGPExtra3FromFaith++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra4FromFaith() const
+{
+	return m_iGPExtra4FromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra4FromFaith()
+{
+	m_iGPExtra4FromFaith++;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGPExtra5FromFaith() const
+{
+	return m_iGPExtra5FromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGPExtra5FromFaith()
+{
+	m_iGPExtra5FromFaith++;
 }
 #endif
 
@@ -20622,6 +20781,48 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 				incrementGreatDiplomatsCreated(bIsFree);
 #else
 				incrementGreatDiplomatsCreated();
+#endif
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 1)
+			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				incrementGPExtra1Created(bIsFree);
+#else
+				incrementGPExtra1Created();
+#endif
+			}
+			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 2)
+			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				incrementGPExtra2Created(bIsFree);
+#else
+				incrementGPExtra2Created();
+#endif
+			}
+			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 3)
+			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				incrementGPExtra3Created(bIsFree);
+#else
+				incrementGPExtra3Created();
+#endif
+			}
+			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 4)
+			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				incrementGPExtra4Created(bIsFree);
+#else
+				incrementGPExtra4Created();
+#endif
+			}
+			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 5)
+			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				incrementGPExtra5Created(bIsFree);
+#else
+				incrementGPExtra5Created();
 #endif
 			}
 #endif
@@ -32633,12 +32834,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
-#if !defined(MOD_BALANCE_CORE)
 		if(pLoopCity->HasGarrison())
 		{
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
 		}
-#endif
 
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 		
@@ -33088,6 +33287,53 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 										incrementGreatDiplomatsCreated();
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+#endif
+#if defined(MOD_BALANCE_CORE)
+									else if (pNewUnit->getUnitInfo().IsGPExtra() == 1)
+									{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										incrementGPExtra1Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+										incrementGPExtra1Created();
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+									else if (pNewUnit->getUnitInfo().IsGPExtra() == 2)
+									{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										incrementGPExtra2Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+										incrementGPExtra2Created();
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+									else if (pNewUnit->getUnitInfo().IsGPExtra() == 3)
+									{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										incrementGPExtra3Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+										incrementGPExtra3Created();
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+									else if (pNewUnit->getUnitInfo().IsGPExtra() == 4)
+									{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										incrementGPExtra4Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+										incrementGPExtra4Created();
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+									else if (pNewUnit->getUnitInfo().IsGPExtra() == 5)
+									{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										incrementGPExtra5Created(MOD_GLOBAL_TRULY_FREE_GP);
+#else
+										incrementGPExtra5Created();
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
@@ -33587,6 +33833,21 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGreatGeneralsCreated;
 	kStream >> m_iGreatAdmiralsCreated;
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra1Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra2Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra3Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra4Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra5Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra1FromFaith, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra2FromFaith, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra3FromFaith, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra4FromFaith, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGPExtra5FromFaith, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iFreeGPExtra1Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iFreeGPExtra2Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iFreeGPExtra3Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iFreeGPExtra4Created, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iFreeGPExtra5Created, 0);
 	MOD_SERIALIZE_READ(52, kStream, m_iGreatMerchantsCreated, 0);
 	MOD_SERIALIZE_READ(52, kStream, m_iGreatScientistsCreated, 0);
 	MOD_SERIALIZE_READ(52, kStream, m_iGreatEngineersCreated, 0);
@@ -34377,6 +34638,21 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGreatGeneralsCreated;
 	kStream << m_iGreatAdmiralsCreated;
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra1Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra2Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra3Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra4Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra5Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra1FromFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra2FromFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra3FromFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra4FromFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_iGPExtra5FromFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreeGPExtra1Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreeGPExtra2Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreeGPExtra3Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreeGPExtra4Created);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreeGPExtra5Created);
 	MOD_SERIALIZE_WRITE(kStream, m_iGreatMerchantsCreated);
 	MOD_SERIALIZE_WRITE(kStream, m_iGreatScientistsCreated);
 	MOD_SERIALIZE_WRITE(kStream, m_iGreatEngineersCreated);
@@ -36547,7 +36823,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//if it's too far from our existing cities, it's dangerous
 		int iDistance = GetCityDistance(pUnit->plot());
-		if (iDistance>12)
+		if (iDistance>8)
 			isDangerous = true;
 		else
 		{
@@ -36559,7 +36835,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 				int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
 				int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
-				if (iDistanceToDanger<4 && iDistanceToSettler>1)
+				if (iDistanceToDanger<5 && iDistanceToSettler>1)
 				{
 					isDangerous = true;
 					break;

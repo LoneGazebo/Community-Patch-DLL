@@ -4927,54 +4927,72 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 #if defined(MOD_BALANCE_CORE)
 	// Pay adoption bonuses (if any)
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	const CvReligion* pNewReligion = pReligions->GetReligion(GetReligiousMajority(), NO_PLAYER);
-	if(pNewReligion && !m_bHasPaidAdoptionBonus)
+	const CvReligion* pNewReligion = pReligions->GetReligion(eReligion, NO_PLAYER);
+	if(pNewReligion)
 	{
-		int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-		iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
-		iGoldBonus /= 100;
-
-		if(iGoldBonus > 0)
-		{
-			GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
-			SetPaidAdoptionBonus(true);
-
-			if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-			{
-				char text[256] = {0};
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
-#if defined(SHOW_PLOT_POPUP)
-				SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
-#else
-				GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
-#endif
-			}
-		}
-		int iEra = GET_PLAYER(pNewReligion->m_eFounder).GetCurrentEra();
+		int iEra = GET_PLAYER(m_pCity->getOwner()).GetCurrentEra();
 		if(iEra < 1)
 		{
 			iEra = 1;
 		}
-		int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
-		if(iScienceBonus > 0)
+		int iGoldenAgeBonus = pNewReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS) * iEra;
+		float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+		if(iGoldenAgeBonus > 0)
 		{
-			TechTypes eCurrentTech = GET_PLAYER(pNewReligion->m_eFounder).GetPlayerTechs()->GetCurrentResearch();
-			if(eCurrentTech == NO_TECH)
-			{
-				GET_PLAYER(pNewReligion->m_eFounder).changeOverflowResearch(iScienceBonus);
-			}
-			else
-			{
-				GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, pNewReligion->m_eFounder);
-			}
-
-			SetPaidAdoptionBonus(true);
-
-			if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+			CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
+			kPlayer.ChangeGoldenAgeProgressMeter(iGoldenAgeBonus);
+			if (m_pCity->plot() && m_pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
 				char text[256] = {0};
-				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
-				GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 1.0f);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAgeBonus);
+				fDelay += 0.5f;
+				DLLUI->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, fDelay);
+			}
+		}
+		if(!m_bHasPaidAdoptionBonus)
+		{
+			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
+			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+			iGoldBonus /= 100;
+
+			if(iGoldBonus > 0)
+			{
+				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
+				SetPaidAdoptionBonus(true);
+
+				if(m_pCity->getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
+#if defined(SHOW_PLOT_POPUP)
+					SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
+#else
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+#endif
+				}
+			}
+		
+			int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
+			if(iScienceBonus > 0)
+			{
+				TechTypes eCurrentTech = GET_PLAYER(m_pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(m_pCity->getOwner()).changeOverflowResearch(iScienceBonus);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(m_pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBonus, m_pCity->getOwner());
+				}
+
+				SetPaidAdoptionBonus(true);
+
+				if(m_pCity->getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 1.0f);
+				}
 			}
 		}
 	}
@@ -5148,7 +5166,6 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		CvAssertMsg (false, "Invalid city population when recomputing followers");
 		return;
 	}
-
 	// Find total pressure
 	int iTotalPressure = 0;
 	ReligionInCityList::iterator it;
@@ -5165,8 +5182,20 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		CvReligionInCity religion;
 		religion.m_bFoundedHere = false;
 		religion.m_eReligion = NO_RELIGION;
+#if defined(MOD_BALANCE_CORE)
+		if(eReason == FOLLOWER_CHANGE_ADOPT_FULLY)
+		{
+			religion.m_iFollowers = 0;
+			religion.m_iPressure = 0;
+		}
+		else
+		{
+#endif
 		religion.m_iFollowers = 1;
 		religion.m_iPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		m_ReligionStatus.push_back(religion);
 
 		iTotalPressure = GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
