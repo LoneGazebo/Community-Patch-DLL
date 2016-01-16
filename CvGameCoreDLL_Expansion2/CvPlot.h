@@ -309,8 +309,8 @@ public:
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
 
-	void SetTradeRoute(PlayerTypes ePlayer, bool bActive);
-	bool IsTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
+	void SetCityConnection(PlayerTypes ePlayer, bool bActive);
+	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void SetTradeUnitRoute(bool bActive);
@@ -1024,7 +1024,7 @@ protected:
 
 	short m_iCulture;
 
-	uint m_uiTradeRouteBitFlags;
+	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;

@@ -621,7 +621,7 @@ void CvCityConnections::BroadcastPlotRouteStateChanges(void)
 			{
 				// indicate removed route
 				CvPlot* pPlot = GC.getMap().plotByIndex(m_aPlotRouteInfos[ui].m_iPlotIndex);
-				pPlot->SetTradeRoute(m_pPlayer->GetID(), false);
+				pPlot->SetCityConnection(m_pPlayer->GetID(), false);
 			}
 		}
 		else
@@ -630,7 +630,7 @@ void CvCityConnections::BroadcastPlotRouteStateChanges(void)
 			{
 				// broadcast new connected trade route
 				CvPlot* pPlot = GC.getMap().plotByIndex(m_aPlotRouteInfos[ui].m_iPlotIndex);
-				pPlot->SetTradeRoute(m_pPlayer->GetID(), true);
+				pPlot->SetCityConnection(m_pPlayer->GetID(), true);
 			}
 		}
 	}

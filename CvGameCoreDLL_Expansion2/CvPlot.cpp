@@ -236,7 +236,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iResourceNum = 0;
 	m_cContinentType = 0;
 
-	m_uiTradeRouteBitFlags = 0;
+	m_uiCityConnectionBitFlags = 0;
 
 	m_bStartingPlot = false;
 	m_bHills = false;
@@ -4729,21 +4729,21 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
+void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 {
-	bool bWasTradeRoute = IsTradeRoute();
+	bool bWasConnection = IsCityConnection();
 
 	uint uiNewBitValue = (1 << ePlayer);
 	if(bActive)
 	{
-		m_uiTradeRouteBitFlags |= uiNewBitValue;
+		m_uiCityConnectionBitFlags |= uiNewBitValue;
 	}
 	else
 	{
-		m_uiTradeRouteBitFlags &= ~uiNewBitValue;
+		m_uiCityConnectionBitFlags &= ~uiNewBitValue;
 	}
 
-	if(IsTradeRoute() != bWasTradeRoute)
+	if(IsCityConnection() != bWasConnection)
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -4767,11 +4767,11 @@ void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
+bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
 {
 	if(ePlayer == NO_PLAYER)
 	{
-		if(m_uiTradeRouteBitFlags > 0)
+		if(m_uiCityConnectionBitFlags > 0)
 		{
 			return true;
 		}
@@ -4779,7 +4779,7 @@ bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
 	else
 	{
 		uint uiNewBitValue = (1 << ePlayer);
-		if(m_uiTradeRouteBitFlags & uiNewBitValue)
+		if(m_uiCityConnectionBitFlags & uiNewBitValue)
 		{
 			return true;
 		}
@@ -8079,14 +8079,14 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 
 	m_bRoutePillaged = bPillaged;
 
-	if(bPillaged && IsTradeRoute(NO_PLAYER))
+	if(bPillaged && IsCityConnection(NO_PLAYER))
 	{
 		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)i;
 			if(GET_PLAYER(ePlayer).isAlive())
 			{
-				if(IsTradeRoute(ePlayer))
+				if(IsCityConnection(ePlayer))
 				{
 					GET_PLAYER(ePlayer).GetCityConnections()->Update();
 				}
@@ -9133,8 +9133,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		{
 			if(IsTradeUnitRoute())
 			{
-				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-				if(kPlayer.GetCurrentEra() >= 4)
+				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
 				{
 					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 				}
@@ -9151,7 +9150,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #if defined(MOD_BALANCE_CORE_YIELDS)
 			if(ePlayer != NO_PLAYER)
 			{
-				if(IsTradeRoute(ePlayer) && MOD_BALANCE_YIELD_SCALE_ERA)
+				if(IsCityConnection(ePlayer) && MOD_BALANCE_YIELD_SCALE_ERA)
 				{
 					if(IsRouteRailroad())
 					{
@@ -9384,32 +9383,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				if(iBonus > 0)
 				{
-					bool bTrade = false;
-					if(IsTradeRoute())
-					{
-						bTrade = true;
-					}
-					if(!bTrade)
-					{
-						CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-						for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-						{
-							const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-							if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-							{
-								continue;
-							}
-							for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-							{
-								if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-								{
-									bTrade = true;
-									break;
-								}
-							}
-						}
-					}
-					if(bTrade)
+					if(IsCityConnection() || IsTradeUnitRoute())
 					{
 						int iScale = 0;
 						int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -11758,7 +11732,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_sBuilderAIScratchPadValue;
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
-	kStream >> m_uiTradeRouteBitFlags;
+	kStream >> m_uiCityConnectionBitFlags;
 
 #if defined(MOD_BALANCE_CORE)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
@@ -11969,7 +11943,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_sBuilderAIScratchPadValue;
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
-	kStream << m_uiTradeRouteBitFlags;
+	kStream << m_uiCityConnectionBitFlags;
 
 	kStream << m_bStartingPlot;
 	kStream << m_bHills;
@@ -12182,7 +12156,7 @@ void CvPlot::updateLayout(bool bDebug)
 			{
 				eRoadTypeValue = ROAD_PILLAGED;
 			}
-			else if(IsTradeRoute())
+			else if(IsCityConnection())
 			{
 				eRoadTypeValue = ROAD_TRADE_ROUTE;
 			}
@@ -12196,7 +12170,7 @@ void CvPlot::updateLayout(bool bDebug)
 			{
 				eRoadTypeValue = RR_PILLAGED;
 			}
-			else if(IsTradeRoute())
+			else if(IsCityConnection())
 			{
 				eRoadTypeValue = RR_TRADE_ROUTE;
 			}
@@ -12460,69 +12434,36 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			if(ePlayer != NO_PLAYER)
 			{
 				int iRouteYield = 0;
-				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-				{
-					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-					{
-						continue;
-					}
-					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-					{
-						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-						{
-							bTrade = true;
-							break;
-						}
-					}
-				}
-				if(IsTradeRoute(ePlayer))
+				if(IsCityConnection(ePlayer))
 				{
 					if(IsRouteRailroad())
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
 					}
 					else if(IsRouteRoad())
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
 					}
 				}
-				if(bTrade)
+				if(IsTradeUnitRoute())
 				{
-					if(IsRouteRailroad())
+					if( GET_PLAYER(ePlayer).GetCurrentEra()>=4 )
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
 					}
-					else if(IsRouteRoad())
+					else
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
 					}
 				}
 				if(iRouteYield > 0)
 				{
 					iYield += iRouteYield;
 				}
+
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if((IsCityConnection(ePlayer) || IsTradeUnitRoute()) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
 					{
 						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 						if(iBonus > 0)

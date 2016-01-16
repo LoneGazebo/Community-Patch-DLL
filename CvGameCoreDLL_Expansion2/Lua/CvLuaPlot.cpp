@@ -1043,7 +1043,7 @@ int CvLuaPlot::lIsTradeRoute(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, -1);
-	bool bResult = pkPlot->IsTradeRoute(ePlayer);
+	bool bResult = pkPlot->IsCityConnection(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

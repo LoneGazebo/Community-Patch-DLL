@@ -18251,6 +18251,9 @@ if (!bDoEvade)
 
 	if(pNewPlot != NULL)
 	{
+		if (pOldPlot && plotDistance(*pNewPlot,*pOldPlot)>3)
+			OutputDebugString("teleport!\n");
+
 		m_iX = pNewPlot->getX();
 		m_iY = pNewPlot->getY();
 	}
@@ -19579,25 +19582,26 @@ if (!bDoEvade)
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
-
-	if (pNewPlot && pNewPlot->isCity())
+	else if(pNewPlot)
 	{
-		//when moving in, see if we're better than the previous garrison
-		CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
-		if (pBestGarrison==this)
+		if (pNewPlot->isCity())
 		{
-			CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
-			pkNewGarrisonedCity->SetGarrison(this);
-			auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
-			DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+			//when moving in, see if we're better than the previous garrison
+			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
+			if (pBestGarrison==this)
+			{
+				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
+				pkNewGarrisonedCity->SetGarrison(this);
+				auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+				DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+			}
+		}
+		else //no city
+		{
+			//normally re-setting the garrison in pkPrevGarrisonedCity should have set this already, but better be safe
+			SetGarrisonedCity(-1);
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(pNewPlot && !pNewPlot->isCity())
-	{
-		SetGarrisonedCity(-1);
-	}
-#endif
 	
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
@@ -20501,6 +20505,12 @@ int CvUnit::GetMapLayer() const
 bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
+
+	if (plot())
+	{
+		if (!plot()->isCity() && m_iGarrisonCityID>0)
+			OutputDebugString("bam!\n");
+	}
 
 	return (m_iGarrisonCityID != -1);
 }

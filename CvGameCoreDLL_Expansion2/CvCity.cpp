@@ -2204,6 +2204,9 @@ void CvCity::PreKill()
 	{
 		pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
 
+		if (pLoopUnit->IsGarrisoned())
+			pLoopUnit->SetGarrisonedCity(-1);
+
 		// Only show units that belong to this city's owner - that way we don't show units on EVERY city capture (since the old city is deleted in this case)
 		if(getOwner() == pLoopUnit->getOwner())
 		{
@@ -11038,15 +11041,18 @@ CvArea* CvCity::waterArea() const
 // if called with an invalid unit as argument, the current garrison is removed but no new garrison created!
 void CvCity::SetGarrison(CvUnit* pUnit)
 {
+	bool bPreviousGarrison = (m_hGarrison!=-1);
+	CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
+	if (pOldGarrison)
+		pOldGarrison->SetGarrisonedCity(-1);
+
 	if (pUnit && pUnit->CanGarrison())
 	{
-		bool bNoPreviousGarrison = (m_hGarrison==-1);
-
 		m_hGarrison = pUnit->GetID();
 		pUnit->SetGarrisonedCity( GetID() );
 
 		//no previous garrison. we might earn culture / happiness from this
-		if (bNoPreviousGarrison)
+		if (!bPreviousGarrison)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 			//human wants instant stat update, otherwise beginning of next turns is good enough
@@ -11058,12 +11064,6 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	}
 	else
 	{
-		//logic is a bit tricky, happiness calculation calls HasGarrison!
-		bool bPreviousGarrison = (m_hGarrison!=-1);
-		CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
-		if (pOldGarrison)
-			pOldGarrison->SetGarrisonedCity(-1);
-
 		m_hGarrison = -1;
 
 		//had a previous garrison. bonuses be gone

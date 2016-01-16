@@ -143,7 +143,7 @@ bool CvDllPlot::IsFighting() const
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsTradeRoute(PlayerTypes ePlayer) const
 {
-	return m_pPlot->IsTradeRoute(ePlayer);
+	return m_pPlot->IsCityConnection(ePlayer);
 }
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsImpassable() const
