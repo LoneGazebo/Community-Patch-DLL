@@ -725,7 +725,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	}
 
 	//Island maps need a little more loose restriction here.
-	if((GC.getMap().GetAIMapHint() & 1) || (GC.getMap().GetAIMapHint() & 4))
+	if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 	{
 		if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 		{

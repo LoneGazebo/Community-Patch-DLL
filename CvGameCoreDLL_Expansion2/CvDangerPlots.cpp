@@ -79,9 +79,12 @@ void CvDangerPlots::Uninit()
 	m_bDirty = false;
 }
 
-bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibility)
+bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibility, bool bRemember)
 {
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
+		return false;
+
+	if(IsKnownAttacker(pLoopUnit->getOwner(),pLoopUnit->GetID()))
 		return false;
 
 	//for ranged every plot we can enter with movement left is a base for attack
@@ -118,6 +121,9 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 			AssignUnitDangerValue(pLoopUnit, pMoveTile);
 		}
 	}
+
+	if (bRemember)
+		AddKnownAttacker(pLoopUnit->getOwner(),pLoopUnit->GetID());
 
 	return true;
 }
@@ -165,9 +171,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		CvUnit* pLoopUnit = NULL;
 		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
-			if (UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility))
-				//store the units which are being aggregated
-				m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
+			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility, true);
 		}
 
 		// for each city
@@ -217,7 +221,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			//it's still there, but moved out of sight - nevertheless count is, a human would do that as well
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-				UpdateDangerSingleUnit(pVanishedUnit, true);
+				UpdateDangerSingleUnit(pVanishedUnit, true, false);
 		}
 	}
 
@@ -360,7 +364,12 @@ std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) con
 	return m_DangerPlots[idx].GetPossibleAttackers();
 }
 
-void CvDangerPlots::AddKnownUnit(PlayerTypes eOwner, int iUnitID)
+bool CvDangerPlots::IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const
+{
+	return m_knownUnits.find(std::make_pair(eOwner, iUnitID)) != m_knownUnits.end();
+}
+
+void CvDangerPlots::AddKnownAttacker(PlayerTypes eOwner, int iUnitID)
 {
 	m_knownUnits.insert(std::make_pair(eOwner, iUnitID));
 }

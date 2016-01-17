@@ -3492,7 +3492,7 @@ bool EconomicAIHelpers::IsTestStrategy_NavalMap(CvPlayer* pPlayer)
 		return false;
 	}
 
-	return (GC.getMap().GetAIMapHint() & 1);
+	return (GC.getMap().GetAIMapHint() & ciMapHint_Naval);
 }
 
 /// "Offshore Expansion Map" Player Strategy: the map script will dictate this
@@ -3503,7 +3503,7 @@ bool EconomicAIHelpers::IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer)
 		return false;
 	}
 
-	return (GC.getMap().GetAIMapHint() & 4);
+	return (GC.getMap().GetAIMapHint() & ciMapHint_Offshore);
 }
 
 /// "Developing Religion" Player Strategy: planning to create and spread religion
@@ -3732,7 +3732,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 {
 	int iBestArea;
 	int iSecondBestArea;
-#if defined(MOD_BALANCE_CORE)
+
 	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
@@ -3804,47 +3804,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
-#else
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 
-	{
-		return true;
-	}
-
-	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if (iNumSettleAreas == 0)
-	{
-		return true;
-	}
-
-	int iNumExtraSettlers = 0;
-	if (!pPlayer->IsEmpireUnhappy())
-	{
-
-		// If we are running "ReallyExpandToOtherContinents"
-		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-		if (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-		{
-			if (pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-			{
-				++iNumExtraSettlers;
-				if (GC.getMap().GetAIMapHint() & 4)
-				{
-					++iNumExtraSettlers;
-				}
-			}
-		}
-	}
-	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	int iMaxSettlers = /*1*/ pStrategy->GetWeightThreshold();
-
-	if (iSettlersOnMap >= iMaxSettlers + iNumExtraSettlers)
-	{
-		return true;
-	}
-#endif
 	return false;
 }
 
@@ -4699,13 +4659,8 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 			return false;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	// if we are at war probably shouldn't (unless the map is an offshore expansion map)
 	if(eOffshoreExpansion != NO_ECONOMICAISTRATEGY && !pPlayer->GetEconomicAI()->IsUsingStrategy(eOffshoreExpansion))
-#else
-	// if we are at war probably shouldn't (unless the map is an offshore expansion map)
-	if ((GC.getMap().GetAIMapHint() & 4) == 0)
-#endif
 	{
 		MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 		if(eStrategyAtWar != NO_MILITARYAISTRATEGY)

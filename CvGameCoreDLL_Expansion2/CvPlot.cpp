@@ -9383,7 +9383,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				if(iBonus > 0)
 				{
-					if(IsCityConnection() || IsTradeUnitRoute())
+					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 					{
 						int iScale = 0;
 						int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -12463,27 +12463,30 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if((IsCityConnection(ePlayer) || IsTradeUnitRoute()) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 					{
-						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-						if(iBonus > 0)
+						if (getFeatureType() == NO_FEATURE && getOwner() == GET_PLAYER(ePlayer).GetID())
 						{
-							int iScale = 0;
-							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
-
-							iScale = ((iBonus * iEra) / 4);
-
-							if(iScale <= 0)
+							int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+							if(iBonus > 0)
 							{
-								iScale = 1;
+								int iScale = 0;
+								int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+								iScale = ((iBonus * iEra) / 4);
+
+								if(iScale <= 0)
+								{
+									iScale = 1;
+								}
+								iYield += iScale;
 							}
-							iYield += iScale;
 						}
 					}
 				}
 				else
 				{
-					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+					iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 			}
 #else

@@ -8400,7 +8400,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 		// Must be land Unit
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-		if(!(pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips && (GC.getMap().GetAIMapHint() & 5) != 0)))
+		if(!(pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips && (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore) != 0)))
 #else
 		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 #endif

@@ -5699,20 +5699,11 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
 {
-	if (m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false))
-		AddKnownAttacker(pUnit);
+	m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false,true);
 }
 
-#else
-/// Setting up danger plots
-void CvPlayer::InitDangerPlots()
-{
-	m_pDangerPlots->Init(GetID(), true /*bAllocate*/);
-}
-#endif
 //	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots()
 {
@@ -27113,7 +27104,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 		iAverageDistanceBetweenCities /= iNumCityConnections;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(GC.getMap().GetAIMapHint() & 1)
+		if(GC.getMap().GetAIMapHint() & ciMapHint_Naval)
 		{
 			iSmallestDistanceBetweenCities /= 2;
 		}
@@ -27178,7 +27169,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 		}
 
 		// Players NOT on the same landmass - bump up PROXIMITY by one level (unless we're already distant or on a water map)
-		if(eProximity != PLAYER_PROXIMITY_DISTANT && !(GC.getMap().GetAIMapHint() & 1))
+		if(eProximity != PLAYER_PROXIMITY_DISTANT && !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 		{
 			// Both players have capitals, so we can check their areas to see if they're separated by water
 			if(getCapitalCity() != NULL && GET_PLAYER(ePlayer).getCapitalCity() != NULL)
@@ -36103,10 +36094,18 @@ std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
+bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker) const
+{
+	if (pAttacker)
+		return m_pDangerPlots->IsKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
+
+	return false;
+}
+
 void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
 	if (pAttacker)
-		m_pDangerPlots->AddKnownUnit(pAttacker->getOwner(), pAttacker->GetID());
+		m_pDangerPlots->AddKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
 }
 
 //	--------------------------------------------------------------------------------

@@ -5868,7 +5868,7 @@ int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 	m_iDamageTakenThisTurn+=iDamage;
 
 	if (pAttacker)
-		//remember the attacker for our danger calculation - in case he moves and becomes invisible
+		//remember the attacker for our danger calculation - in case he came out of nowhere, now moves and becomes invisible again
 		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
 
 	return m_iDamageTakenThisTurn;
@@ -18251,9 +18251,6 @@ if (!bDoEvade)
 
 	if(pNewPlot != NULL)
 	{
-		if (pOldPlot && plotDistance(*pNewPlot,*pOldPlot)>3)
-			OutputDebugString("teleport!\n");
-
 		m_iX = pNewPlot->getX();
 		m_iY = pNewPlot->getY();
 	}
@@ -25989,7 +25986,10 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		{
 			iSteps += 0;
 
-			UpdatePathCache(pDestPlot, iFlags);
+			if (!UpdatePathCache(pDestPlot, iFlags))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -27048,12 +27048,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	if(pToPlot == NULL)
 		return false;
 
-	bool bSuccess;
-
 	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 
-	bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	bool bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
@@ -27061,7 +27059,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	m_uiLastPathFlags = iFlags;
 #endif
 
-	CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
+	if (bSuccess)
+		CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
+	else
+		m_kLastPath.setsize(0);
 
 	if(m_kLastPath.size() != 0)
 	{
