@@ -152,9 +152,6 @@ CvCity::CvCity() :
 	, m_iCapturePlunderModifier("CvCity::m_iCapturePlunderModifier", m_syncArchive)
 	, m_iPlotCultureCostModifier("CvCity::m_iPlotCultureCostModifier", m_syncArchive)
 	, m_iPlotBuyCostModifier("CvCity::m_iPlotBuyCostModifier", m_syncArchive)
-#if defined(MOD_BUILDINGS_CITY_WORKING)
-	, m_iCityWorkingChange("CvCity::m_iCityWorkingChange", m_syncArchive)
-#endif
 	, m_iMaintenance("CvCity::m_iMaintenance", m_syncArchive)
 	, m_iHealRate("CvCity::m_iHealRate", m_syncArchive)
 	, m_iNoOccupiedUnhappinessCount("CvCity::m_iNoOccupiedUnhappinessCount", m_syncArchive)
@@ -187,9 +184,6 @@ CvCity::CvCity() :
 	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
 	, m_iCheapestPlotInfluence("CvCity::m_iCheapestPlotInfluence", m_syncArchive)
 	, m_iEspionageModifier("CvCity::m_iEspionageModifier", m_syncArchive)
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
-#endif
 	, m_iTradeRouteRecipientBonus("CvCity::m_iTradeRouteRecipientBonus", m_syncArchive)
 	, m_iTradeRouteTargetBonus("CvCity::m_iTradeRouteTargetBonus", m_syncArchive)
 	, m_unitBeingBuiltForOperation()
@@ -216,6 +210,65 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromBuildings("CvCity::m_aiBaseYieldRateFromBuildings", m_syncArchive)
 	, m_aiBaseYieldRateFromSpecialists("CvCity::m_aiBaseYieldRateFromSpecialists", m_syncArchive)
 	, m_aiBaseYieldRateFromMisc("CvCity::m_aiBaseYieldRateFromMisc", m_syncArchive)
+	, m_aiBaseYieldRateFromReligion("CvCity::m_aiBaseYieldRateFromReligion", m_syncArchive)
+	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
+	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
+	, m_aiYieldPerReligion("CvCity::m_aiYieldPerReligion", m_syncArchive)
+	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
+	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
+	, m_aiExtraSpecialistYield("CvCity::m_aiExtraSpecialistYield", m_syncArchive)
+	, m_aiProductionToYieldModifier("CvCity::m_aiProductionToYieldModifier", m_syncArchive)
+	, m_aiDomainFreeExperience("CvCity::m_aiDomainFreeExperience", m_syncArchive)
+	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
+	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
+	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
+	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
+	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
+	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
+	, m_paiNumResourcesLocal("CvCity::m_paiNumResourcesLocal", m_syncArchive)
+	, m_paiProjectProduction("CvCity::m_paiProjectProduction", m_syncArchive)
+	, m_paiSpecialistProduction("CvCity::m_paiSpecialistProduction", m_syncArchive)
+	, m_paiUnitProduction("CvCity::m_paiUnitProduction", m_syncArchive)
+	, m_paiUnitProductionTime("CvCity::m_paiUnitProductionTime", m_syncArchive)
+	, m_paiSpecialistCount("CvCity::m_paiSpecialistCount", m_syncArchive)
+	, m_paiMaxSpecialistCount("CvCity::m_paiMaxSpecialistCount", m_syncArchive)
+	, m_paiForceSpecialistCount("CvCity::m_paiForceSpecialistCount", m_syncArchive)
+	, m_paiFreeSpecialistCount("CvCity::m_paiFreeSpecialistCount", m_syncArchive)
+	, m_paiImprovementFreeSpecialists("CvCity::m_paiImprovementFreeSpecialists", m_syncArchive)
+	, m_paiUnitCombatFreeExperience("CvCity::m_paiUnitCombatFreeExperience", m_syncArchive)
+	, m_paiUnitCombatProductionModifier("CvCity::m_paiUnitCombatProductionModifier", m_syncArchive)
+	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
+	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
+	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
+	, m_bRouteToCapitalConnectedLastTurn("CvCity::m_bRouteToCapitalConnectedLastTurn", m_syncArchive)
+	, m_bRouteToCapitalConnectedThisTurn("CvCity::m_bRouteToCapitalConnectedThisTurn", m_syncArchive)
+	, m_strName("CvCity::m_strName", m_syncArchive)
+	, m_orderQueue()
+	, m_aaiBuildingSpecialistUpgradeProgresses(0)
+	, m_ppaiResourceYieldChange(0)
+	, m_ppaiFeatureYieldChange(0)
+	, m_ppaiTerrainYieldChange(0)
+	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
+	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
+	, m_pCityCitizens(FNEW(CvCityCitizens, c_eCiv5GameplayDLL, 0))
+	, m_pCityReligions(FNEW(CvCityReligions, c_eCiv5GameplayDLL, 0))
+	, m_pEmphases(FNEW(CvCityEmphases, c_eCiv5GameplayDLL, 0))
+	, m_pCityEspionage(FNEW(CvCityEspionage, c_eCiv5GameplayDLL, 0))
+	, m_pCityCulture(FNEW(CvCityCulture, c_eCiv5GameplayDLL, 0))
+	, m_bombardCheckTurn(0)
+	, m_iPopulationRank("CvCity::m_iPopulationRank", m_syncArchive)
+	, m_bPopulationRankValid("CvCity::m_bPopulationRankValid", m_syncArchive)
+	, m_aiBaseYieldRank("CvCity::m_aiBaseYieldRank", m_syncArchive)
+	, m_abBaseYieldRankValid("CvCity::m_abBaseYieldRankValid", m_syncArchive)
+	, m_aiYieldRank("CvCity::m_aiYieldRank", m_syncArchive)
+	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
+	, m_bOwedCultureBuilding("CvCity::m_bOwedCultureBuilding", m_syncArchive)
+#if defined(MOD_BUILDINGS_CITY_WORKING)
+	, m_iCityWorkingChange("CvCity::m_iCityWorkingChange", m_syncArchive)
+#endif
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_aiBaseYieldRateFromLeague("CvCity::m_aiBaseYieldRateFromLeague", m_syncArchive)
 	, m_iTotalScienceyAid("CvCity::m_iTotalScienceyAid", m_syncArchive)
@@ -276,17 +329,6 @@ CvCity::CvCity() :
 	, m_iCityRank("CvCity::m_iCityRank", m_syncArchive)
 	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
 #endif
-	, m_aiBaseYieldRateFromReligion("CvCity::m_aiBaseYieldRateFromReligion", m_syncArchive)
-	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
-	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
-	, m_aiYieldPerReligion("CvCity::m_aiYieldPerReligion", m_syncArchive)
-	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
-	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
-	, m_aiExtraSpecialistYield("CvCity::m_aiExtraSpecialistYield", m_syncArchive)
-	, m_aiProductionToYieldModifier("CvCity::m_aiProductionToYieldModifier", m_syncArchive)
-	, m_aiDomainFreeExperience("CvCity::m_aiDomainFreeExperience", m_syncArchive)
-	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
-	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_abIsPurchased("CvCity::m_abIsPurchased", m_syncArchive)
 	, m_abFranchised("CvCity::m_abFranchised", m_syncArchive)
@@ -295,42 +337,15 @@ CvCity::CvCity() :
 	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
 #endif
-	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
-	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
-	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
-	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
-	, m_paiNumResourcesLocal("CvCity::m_paiNumResourcesLocal", m_syncArchive)
-	, m_paiProjectProduction("CvCity::m_paiProjectProduction", m_syncArchive)
-	, m_paiSpecialistProduction("CvCity::m_paiSpecialistProduction", m_syncArchive)
-	, m_paiUnitProduction("CvCity::m_paiUnitProduction", m_syncArchive)
-	, m_paiUnitProductionTime("CvCity::m_paiUnitProductionTime", m_syncArchive)
-	, m_paiSpecialistCount("CvCity::m_paiSpecialistCount", m_syncArchive)
-	, m_paiMaxSpecialistCount("CvCity::m_paiMaxSpecialistCount", m_syncArchive)
-	, m_paiForceSpecialistCount("CvCity::m_paiForceSpecialistCount", m_syncArchive)
-	, m_paiFreeSpecialistCount("CvCity::m_paiFreeSpecialistCount", m_syncArchive)
-	, m_paiImprovementFreeSpecialists("CvCity::m_paiImprovementFreeSpecialists", m_syncArchive)
-	, m_paiUnitCombatFreeExperience("CvCity::m_paiUnitCombatFreeExperience", m_syncArchive)
-	, m_paiUnitCombatProductionModifier("CvCity::m_paiUnitCombatProductionModifier", m_syncArchive)
-	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
 #endif
-	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
-	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
-	, m_bRouteToCapitalConnectedLastTurn(false)
-	, m_bRouteToCapitalConnectedThisTurn(false)
-	, m_strName("")
-	, m_orderQueue()
-	, m_aaiBuildingSpecialistUpgradeProgresses(0)
-	, m_ppaiResourceYieldChange(0)
-	, m_ppaiFeatureYieldChange(0)
 #if defined(MOD_BALANCE_CORE)
 	, m_ppaiImprovementYieldChange(0)
 #endif
-	, m_ppaiTerrainYieldChange(0)
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppaiPlotYieldChange(0)
 	, m_ppaiYieldPerXTerrainFromBuildings(0)
@@ -343,20 +358,6 @@ CvCity::CvCity() :
 	, m_ppaiReligionBuildingYieldRateModifier(0)
 	, m_ppaiLocalBuildingClassYield(0)
 #endif
-	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
-	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
-	, m_pCityCitizens(FNEW(CvCityCitizens, c_eCiv5GameplayDLL, 0))
-	, m_pCityReligions(FNEW(CvCityReligions, c_eCiv5GameplayDLL, 0))
-	, m_pEmphases(FNEW(CvCityEmphases, c_eCiv5GameplayDLL, 0))
-	, m_pCityEspionage(FNEW(CvCityEspionage, c_eCiv5GameplayDLL, 0))
-	, m_pCityCulture(FNEW(CvCityCulture, c_eCiv5GameplayDLL, 0))
-	, m_bombardCheckTurn(0)
-	, m_iPopulationRank(0)
-	, m_bPopulationRankValid(false)
-	, m_aiBaseYieldRank("CvCity::m_aiBaseYieldRank", m_syncArchive)
-	, m_abBaseYieldRankValid("CvCity::m_abBaseYieldRankValid", m_syncArchive)
-	, m_aiYieldRank("CvCity::m_aiYieldRank", m_syncArchive)
-	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
@@ -366,9 +367,8 @@ CvCity::CvCity() :
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
-	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-	, m_bOwedFoodBuilding(false)
+	, m_bOwedFoodBuilding("CvCity::m_bOwedFoodBuilding", m_syncArchive)
 #endif
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
@@ -2203,6 +2203,9 @@ void CvCity::PreKill()
 	for(int iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
 		pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
+
+		if (pLoopUnit->IsGarrisoned())
+			pLoopUnit->SetGarrisonedCity(-1);
 
 		// Only show units that belong to this city's owner - that way we don't show units on EVERY city capture (since the old city is deleted in this case)
 		if(getOwner() == pLoopUnit->getOwner())
@@ -11038,15 +11041,18 @@ CvArea* CvCity::waterArea() const
 // if called with an invalid unit as argument, the current garrison is removed but no new garrison created!
 void CvCity::SetGarrison(CvUnit* pUnit)
 {
+	bool bPreviousGarrison = (m_hGarrison!=-1);
+	CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
+	if (pOldGarrison)
+		pOldGarrison->SetGarrisonedCity(-1);
+
 	if (pUnit && pUnit->CanGarrison())
 	{
-		bool bNoPreviousGarrison = (m_hGarrison==-1);
-
 		m_hGarrison = pUnit->GetID();
 		pUnit->SetGarrisonedCity( GetID() );
 
 		//no previous garrison. we might earn culture / happiness from this
-		if (bNoPreviousGarrison)
+		if (!bPreviousGarrison)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 			//human wants instant stat update, otherwise beginning of next turns is good enough
@@ -11058,12 +11064,6 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	}
 	else
 	{
-		//logic is a bit tricky, happiness calculation calls HasGarrison!
-		bool bPreviousGarrison = (m_hGarrison!=-1);
-		CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
-		if (pOldGarrison)
-			pOldGarrison->SetGarrisonedCity(-1);
-
 		m_hGarrison = -1;
 
 		//had a previous garrison. bonuses be gone
@@ -15457,6 +15457,10 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 	{
 		return 0;
 	}
+	if(GET_PLAYER(getOwner()).getCapitalCity() == this)
+	{
+		return 0;
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait takes away unhappiness from lack of connection.
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoConnectionUnhappiness())
@@ -15478,10 +15482,29 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 		return 0;
 	}
 
-	//if we have an internal traderoute, whether in or out, it's just as good as a route
-	if ( (HasAnyDomesticTradeRoute(true) || HasAnyDomesticTradeRoute(false)) && !IsBlockadedWaterAndLand() )
+	//if we have an internal traderoute to our capital, whether in or out, it's just as good as a route
+	CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
+	if(pCapitalCity != NULL)
 	{
-		return 0;
+		if(HasTradeRouteTo(pCapitalCity) || HasTradeRouteFrom(pCapitalCity))
+		{
+			return 0;
+		}
+	}
+	//Daisy chain to capital - only chains once
+	int iLoop = 0;
+	for(CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(pLoopCity->IsConnectedToCapital() || pLoopCity->HasTradeRouteTo(pCapitalCity) || pLoopCity->HasTradeRouteFrom(pCapitalCity))
+			{
+				if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
+				{
+					return 0;
+				}
+			}
+		}
 	}
 
 	//ok, how much unhappiness do we generate?
@@ -18500,7 +18523,7 @@ bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
 const char* CvCity::getNameKey() const
 {
 	VALIDATE_OBJECT
-	return m_strName.c_str();
+	return m_strName.get();
 }
 
 
@@ -18508,7 +18531,7 @@ const char* CvCity::getNameKey() const
 const CvString CvCity::getName() const
 {
 	VALIDATE_OBJECT
-	return GetLocalizedText(m_strName.c_str());
+	return GetLocalizedText(m_strName.get());
 }
 
 
@@ -22964,283 +22987,23 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	kStream >> m_iID;
-	kStream >> m_iX;
-	kStream >> m_iY;
-	kStream >> m_iRallyX;
-	kStream >> m_iRallyY;
-	kStream >> m_iGameTurnFounded;
-	kStream >> m_iGameTurnAcquired;
-	kStream >> m_iPopulation;
-	kStream >> m_iHighestPopulation;
-	kStream >> m_iNumGreatPeople;
-	kStream >> m_iBaseGreatPeopleRate;
-	kStream >> m_iGreatPeopleRateModifier;
-	kStream >> m_iJONSCultureStored;
-	kStream >> m_iJONSCultureLevel;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_iJONSCulturePerTurnFromBuildings;
-#endif
-	kStream >> m_iJONSCulturePerTurnFromPolicies;
-	kStream >> m_iJONSCulturePerTurnFromSpecialists;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_iJONSCulturePerTurnFromReligion;
-#endif
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_iFaithPerTurnFromBuildings;
-#endif
-	kStream >> m_iFaithPerTurnFromPolicies;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream >> m_iFaithPerTurnFromReligion;
-#endif
-
-	kStream >> m_iCultureRateModifier;
-	kStream >> m_iNumWorldWonders;
-	kStream >> m_iNumTeamWonders;
-	kStream >> m_iNumNationalWonders;
-	kStream >> m_iWonderProductionModifier;
-	kStream >> m_iCapturePlunderModifier;
-	kStream >> m_iPlotCultureCostModifier;
-	kStream >> m_iPlotBuyCostModifier;
-#if defined(MOD_BUILDINGS_CITY_WORKING)
-	MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
-#endif
-	kStream >> m_iMaintenance;
-	kStream >> m_iHealRate;
-	kStream >> m_iEspionageModifier;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	MOD_SERIALIZE_READ(23, kStream, m_iConversionModifier, 0);
-#endif
-	kStream >> m_iNoOccupiedUnhappinessCount;
-	kStream >> m_iFood;
-	kStream >> m_iFoodKept;
-	kStream >> m_iMaxFoodKeptPercent;
-	kStream >> m_iOverflowProduction;
-	kStream >> m_iFeatureProduction;
-	kStream >> m_iMilitaryProductionModifier;
-	kStream >> m_iSpaceProductionModifier;
-	kStream >> m_iFreeExperience;
-	kStream >> m_iCurrAirlift; // unused
-
-	if (uiVersion >= 6)
-	{
-		kStream >> m_iMaxAirUnits; 
-	}
-	else
-	{
-		kStream >> m_iMaxAirUnits;
-
-		// Forcibly override this since we didn't track this number before
-		m_iMaxAirUnits = GC.getBASE_CITY_AIR_STACKING();
-
-		// Note that this can get boosted further below once we know which buildings we have
-	}
-	kStream >> m_iAirModifier; // unused
-	kStream >> m_iNukeModifier;
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_iTradeRouteTargetBonus;
-		kStream >> m_iTradeRouteRecipientBonus;
-	}
-	else
-	{
-		m_iTradeRouteTargetBonus = 0;
-		m_iTradeRouteRecipientBonus = 0;
-	}
-
-	kStream >> m_iCultureUpdateTimer;
-	kStream >> m_iCitySizeBoost;
-	kStream >> m_iSpecialistFreeExperience;
-	kStream >> m_iStrengthValue;
-	kStream >> m_iDamage;
-	kStream >> m_iThreatValue;
-	kStream >> m_hGarrison;
-	m_iResourceDemanded = CvInfosSerializationHelper::ReadHashed(kStream);
-	kStream >> m_iWeLoveTheKingDayCounter;
-	kStream >> m_iLastTurnGarrisonAssigned;
-	kStream >> m_iThingsProduced;
-	kStream >> m_iDemandResourceCounter;
-	kStream >> m_iResistanceTurns;
-	kStream >> m_iRazingTurns;
-	kStream >> m_iCountExtraLuxuries;
-	kStream >> m_iCheapestPlotInfluence;
-	kStream >> m_unitBeingBuiltForOperation.m_iOperationID;
-	kStream >> m_unitBeingBuiltForOperation.m_iArmyID;
-	kStream >> m_unitBeingBuiltForOperation.m_iSlotID;
-
-	kStream >> m_bNeverLost;
-	kStream >> m_bDrafted;
-	kStream >> m_bAirliftTargeted;  // unused
-	kStream >> m_bProductionAutomated;
-	kStream >> m_bMadeAttack;
-	kStream >> m_bOccupied;
-	kStream >> m_bPuppet;
-	kStream >> m_bEverCapital;
-	kStream >> m_bIndustrialRouteToCapital;
-	kStream >> m_bFeatureSurrounded;
-
-	kStream >> m_eOwner;
-	kStream >> m_ePreviousOwner;
-	kStream >> m_eOriginalOwner;
-	kStream >> m_ePlayersReligion;
-
-	kStream >> m_aiSeaPlotYield;
-	kStream >> m_aiRiverPlotYield;
-	kStream >> m_aiLakePlotYield;
-	kStream >> m_aiSeaResourceYield;
-	kStream >> m_aiBaseYieldRateFromTerrain;
-	kStream >> m_aiBaseYieldRateFromBuildings;
-	kStream >> m_aiBaseYieldRateFromSpecialists;
-	kStream >> m_aiBaseYieldRateFromMisc;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_READ_AUTO(49, kStream, m_aiBaseYieldRateFromLeague, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ(49, kStream, m_iTotalScienceyAid, 0);
-	MOD_SERIALIZE_READ(49, kStream, m_iTotalArtsyAid, 0);
-	MOD_SERIALIZE_READ(49, kStream, m_iTotalGreatWorkAid, 0);
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ_AUTO(49, kStream, m_aiChangeGrowthExtraYield, NUM_YIELD_TYPES, 0);
-#endif
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromWLTKD, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromConstruction, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiThemingYieldBonus, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiNumTimesOwned, REALLY_MAX_PLAYERS, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iUnitPurchaseCooldown, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBuildingPurchaseCooldown, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iReligiousTradeModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iFreeBuildingTradeTargetCity, -1);
-	MOD_SERIALIZE_READ(66, kStream, m_iBaseTourism, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBaseTourismBeforeModifiers, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiCorporationYieldChange, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiCorporationYieldModChange, NUM_YIELD_TYPES, 0);
-	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiCorporationResourceQuantity, GC.getNumResourceInfos(), 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iCorporationGPChange, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iLandTourismBonus, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iSeaTourismBonus, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iAlwaysHeal, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_bIsBastion, false);
-	MOD_SERIALIZE_READ(68, kStream, m_bNoWarmonger, false);
+	kStream >> m_syncArchive;
+	//Values below deleted, as they're already in the sync archive!
 #endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockBuildingDestruction, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockWWDestruction, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockUDestruction, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockGPDestruction, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockRebellion, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockUnrest, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockScience, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iBlockGold, 0);
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_READ(66, kStream, m_iCityRank, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iTurnsSinceRankAnnouncement, 0);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappiness, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappiness, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeUnculturedUnhappiness, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeIlliteracyUnhappiness, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeMinorityUnhappiness, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappinessGlobal, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappinessGlobal, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeUnculturedUnhappinessGlobal, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeIlliteracyUnhappinessGlobal, 0);
-	MOD_SERIALIZE_READ(53, kStream, m_iChangeMinorityUnhappinessGlobal, 0);
-#endif
-	kStream >> m_aiBaseYieldRateFromReligion;
-	kStream >> m_aiYieldPerPop;
-	if (uiVersion >= 4)
-	{
-		kStream >> m_aiYieldPerReligion;
-	}
-	else
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			m_aiYieldPerReligion.setAt(iI, 0);
-		}
-	}
-	kStream >> m_aiYieldRateModifier;
-	kStream >> m_aiPowerYieldRateModifier;
-	kStream >> m_aiResourceYieldRateModifier;
-	kStream >> m_aiExtraSpecialistYield;
-	kStream >> m_aiProductionToYieldModifier;
-	kStream >> m_aiDomainFreeExperience;
-	kStream >> m_aiDomainProductionModifier;
-
-	kStream >> m_abEverOwned;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_abIsPurchased;
-	kStream >> m_abFranchised;
-	kStream >> m_abTraded;
-	kStream >> m_bHasOffice;
-	kStream >> m_iExtraBuildingMaintenance;
-#endif
-	kStream >> m_abRevealed;
-
-	kStream >> m_strName;
-	kStream >> m_strScriptData;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNoResource.dirtyGet());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreeResource.dirtyGet());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourcesLocal.dirtyGet());
-
-	kStream >> m_paiSpecialistProduction;
-	kStream >> m_paiProjectProduction;
 
 	m_pCityBuildings->Read(kStream);
-
-	if (uiVersion < 6)
+	m_pCityStrategyAI->Read(kStream);
+	if(m_eOwner != NO_PLAYER)
 	{
-		CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
-			BuildingTypes eBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eBuildingClass));
-			if (eBuilding != NO_BUILDING)
-			{
-				CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-				if (pkEntry)
-				{
-					if (pkEntry->GetAirModifier() > 0 && m_pCityBuildings->GetNumBuilding(eBuilding) > 0)
-					{
-#if defined(MOD_BUGFIX_MINOR)
-						m_iMaxAirUnits += pkEntry->GetAirModifier() * m_pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						m_iMaxAirUnits += pkEntry->GetAirModifier();
-#endif
-					}
-				}
-			}
-		}
+		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
 	}
 
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiUnitProduction.dirtyGet());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiUnitProductionTime.dirtyGet());
+	m_pCityCitizens->Read(kStream);
+	kStream >> *m_pCityReligions;
+	m_pEmphases->Read(kStream);
 
-	kStream >> m_paiSpecialistCount;
-	kStream >> m_paiMaxSpecialistCount;
-	kStream >> m_paiForceSpecialistCount;
-	kStream >> m_paiFreeSpecialistCount;
-	kStream >> m_paiImprovementFreeSpecialists;
-	kStream >> m_paiUnitCombatFreeExperience;
-	kStream >> m_paiUnitCombatProductionModifier;
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreePromotionCount.dirtyGet());
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiBuildingClassCulture.dirtyGet());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumTerrainWorked.dirtyGet());
-#endif
+	kStream >> *m_pCityEspionage;
 
 	UINT uLength;
 	kStream >> uLength;
@@ -23328,18 +23091,18 @@ void CvCity::read(FDataStream& kStream)
 			m_orderQueue.insertAtEnd(&Data);
 	}
 
+	if(m_eOwner != NO_PLAYER)
+	{
+		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
+	}
+
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
-#if defined(MOD_BALANCE_CORE)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-#endif
-
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+#if defined(MOD_BALANCE_CORE)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
@@ -23348,80 +23111,12 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+	
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
 #endif
-
-	kStream >> m_iPopulationRank;
-	kStream >> m_bPopulationRankValid;
-	kStream >> m_aiBaseYieldRank;
-	kStream >> m_abBaseYieldRankValid;
-	kStream >> m_aiYieldRank;
-	kStream >> m_abYieldRankValid;
-
-	kStream >> m_iGameTurnLastExpanded;
-	m_strName = "";
-
-	// City Building Happiness
-	kStream >> m_iBaseHappinessFromBuildings;
-	kStream >> m_iUnmoddedHappinessFromBuildings;
-
-	kStream >> m_bRouteToCapitalConnectedLastTurn;
-	kStream >> m_bRouteToCapitalConnectedThisTurn;
-	kStream >> m_strName;
-
-	kStream >> m_bOwedCultureBuilding;
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-	MOD_SERIALIZE_READ(30, kStream, m_bOwedFoodBuilding, false);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_abOwedChosenBuilding;
-	kStream >> m_abBuildingInvestment;
-	kStream >> m_abBuildingConstructed;
-	kStream >> m_iNationalMissionaries;
-	kStream >> m_iBorderObstacleCity;
-	kStream >> m_iNumNearbyMountains;
-	kStream >> m_iLocalUnhappinessMod;
-#endif
-	m_pCityStrategyAI->Read(kStream);
-	if(m_eOwner != NO_PLAYER)
-	{
-		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
-	}
-	m_pCityCitizens->Read(kStream);
-	kStream >> *m_pCityReligions;
-	m_pEmphases->Read(kStream);
-
-	kStream >> *m_pCityEspionage;
-
-	if (uiVersion >= 3)
-	{
-		kStream >> m_iExtraHitPoints;
-	}
-	else
-	{
-		// Recalculate
-		int iTotalExtraHitPoints = 0;
-		for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-			if (pkBuildingInfo)
-			{
-				int iCount = m_pCityBuildings->GetNumBuilding(eBuilding);
-				if(iCount > 0)
-				{
-					iTotalExtraHitPoints += (pkBuildingInfo->GetExtraCityHitPoints() * iCount);
-				}
-			}
-		}
-
-		// Change all at once, rather than one by one, else the clamping might adjust the current damage.
-		ChangeExtraHitPoints(iTotalExtraHitPoints);
-	}
 
 	CvCityManager::OnCityCreated(this);
 }
@@ -23429,232 +23124,29 @@ void CvCity::read(FDataStream& kStream)
 //	--------------------------------------------------------------------------------
 void CvCity::write(FDataStream& kStream) const
 {
-	VALIDATE_OBJECT
+VALIDATE_OBJECT
 
 	// Current version number
 	uint uiVersion = 6;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_iID;
-	kStream << m_iX;
-	kStream << m_iY;
-	kStream << m_iRallyX;
-	kStream << m_iRallyY;
-	kStream << m_iGameTurnFounded;
-	kStream << m_iGameTurnAcquired;
-	kStream << m_iPopulation;
-	kStream << m_iHighestPopulation;
-	kStream << m_iNumGreatPeople;
-	kStream << m_iBaseGreatPeopleRate;
-	kStream << m_iGreatPeopleRateModifier;
-	kStream << m_iJONSCultureStored;
-	kStream << m_iJONSCultureLevel;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_iJONSCulturePerTurnFromBuildings;
-#endif
-	kStream << m_iJONSCulturePerTurnFromPolicies;
-	kStream << m_iJONSCulturePerTurnFromSpecialists;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_iJONSCulturePerTurnFromReligion;
-#endif
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_iFaithPerTurnFromBuildings;
-#endif
-	kStream << m_iFaithPerTurnFromPolicies;
-#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
-	kStream << m_iFaithPerTurnFromReligion;
-#endif
-	kStream << m_iCultureRateModifier;
-	kStream << m_iNumWorldWonders;
-	kStream << m_iNumTeamWonders;
-	kStream << m_iNumNationalWonders;
-	kStream << m_iWonderProductionModifier;
-	kStream << m_iCapturePlunderModifier;  // Added for Version 3
-	kStream << m_iPlotCultureCostModifier; // Added for Version 3
-	kStream << m_iPlotBuyCostModifier; // Added for Version 12
-#if defined(MOD_BUILDINGS_CITY_WORKING)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
-#endif
-	kStream << m_iMaintenance;
-	kStream << m_iHealRate;
-	kStream << m_iEspionageModifier;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iConversionModifier);
-#endif
-	kStream << m_iNoOccupiedUnhappinessCount;
-	kStream << m_iFood;
-	kStream << m_iFoodKept;
-	kStream << m_iMaxFoodKeptPercent;
-	kStream << m_iOverflowProduction;
-	kStream << m_iFeatureProduction;
-	kStream << m_iMilitaryProductionModifier;
-	kStream << m_iSpaceProductionModifier;
-	kStream << m_iFreeExperience;
-	kStream << m_iCurrAirlift; // unused
-	kStream << m_iMaxAirUnits;
-	kStream << m_iAirModifier; // unused
-	kStream << m_iNukeModifier;
-	kStream << m_iTradeRouteTargetBonus;
-	kStream << m_iTradeRouteRecipientBonus;
-	kStream << m_iCultureUpdateTimer;
-	kStream << m_iCitySizeBoost;
-	kStream << m_iSpecialistFreeExperience;
-	kStream << m_iStrengthValue;
-	kStream << m_iDamage;
-	kStream << m_iThreatValue;
-	kStream << m_hGarrison;
-	CvInfosSerializationHelper::WriteHashed(kStream, (ResourceTypes)(m_iResourceDemanded.get()));
-	kStream << m_iWeLoveTheKingDayCounter;
-	kStream << m_iLastTurnGarrisonAssigned;
-	kStream << m_iThingsProduced;
-	kStream << m_iDemandResourceCounter;
-	kStream << m_iResistanceTurns;
-	kStream << m_iRazingTurns;
-	kStream << m_iCountExtraLuxuries;
-	kStream << m_iCheapestPlotInfluence;
-	kStream << m_unitBeingBuiltForOperation.m_iOperationID;
-	kStream << m_unitBeingBuiltForOperation.m_iArmyID;
-	kStream << m_unitBeingBuiltForOperation.m_iSlotID;
-
-	kStream << m_bNeverLost;
-	kStream << m_bDrafted;
-	kStream << m_bAirliftTargeted;  // unused
-	kStream << m_bProductionAutomated;
-	kStream << m_bMadeAttack;
-	kStream << m_bOccupied;
-	kStream << m_bPuppet;
-	kStream << m_bEverCapital;
-	kStream << m_bIndustrialRouteToCapital;
-	kStream << m_bFeatureSurrounded;
-
-	kStream << m_eOwner;
-	kStream << m_ePreviousOwner;
-	kStream << m_eOriginalOwner;
-	kStream << m_ePlayersReligion;
-
-	kStream << m_aiSeaPlotYield;
-	kStream << m_aiRiverPlotYield;
-	kStream << m_aiLakePlotYield;
-	kStream << m_aiSeaResourceYield;
-	kStream << m_aiBaseYieldRateFromTerrain;
-	kStream << m_aiBaseYieldRateFromBuildings;
-	kStream << m_aiBaseYieldRateFromSpecialists;
-	kStream << m_aiBaseYieldRateFromMisc;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromLeague);
-	MOD_SERIALIZE_WRITE(kStream, m_iTotalScienceyAid);
-	MOD_SERIALIZE_WRITE(kStream, m_iTotalArtsyAid);
-	MOD_SERIALIZE_WRITE(kStream, m_iTotalGreatWorkAid);
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeGrowthExtraYield);
-#endif
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromWLTKD);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromConstruction);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiThemingYieldBonus);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiNumTimesOwned);
-	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
-	MOD_SERIALIZE_WRITE(kStream, m_iUnitPurchaseCooldown);
-	MOD_SERIALIZE_WRITE(kStream, m_iBuildingPurchaseCooldown);
-	MOD_SERIALIZE_WRITE(kStream, m_iReligiousTradeModifier);
-	MOD_SERIALIZE_WRITE(kStream, m_iFreeBuildingTradeTargetCity);
-	MOD_SERIALIZE_WRITE(kStream, m_iBaseTourism);
-	MOD_SERIALIZE_WRITE(kStream, m_iBaseTourismBeforeModifiers);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiCorporationYieldChange);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiCorporationYieldModChange);
-	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiCorporationResourceQuantity);
-	MOD_SERIALIZE_WRITE(kStream, m_iCorporationGPChange);
-	MOD_SERIALIZE_WRITE(kStream, m_iLandTourismBonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iSeaTourismBonus);
-	MOD_SERIALIZE_WRITE(kStream, m_iAlwaysHeal);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsBastion);
-	MOD_SERIALIZE_WRITE(kStream, m_bNoWarmonger);
+	kStream << m_syncArchive;
+	//Values below deleted, as they're already in the sync archive!
 #endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockBuildingDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockWWDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockUDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockGPDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockRebellion);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockUnrest);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockScience);
-	MOD_SERIALIZE_WRITE(kStream, m_iBlockGold);
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityRank);
-	MOD_SERIALIZE_WRITE(kStream, m_iTurnsSinceRankAnnouncement);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeDefenseUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeUnculturedUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeIlliteracyUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeMinorityUnhappiness);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappinessGlobal);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeDefenseUnhappinessGlobal);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeUnculturedUnhappinessGlobal);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeIlliteracyUnhappinessGlobal);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeMinorityUnhappinessGlobal);
-#endif
-	kStream << m_aiBaseYieldRateFromReligion;
-	kStream << m_aiYieldPerPop;
-	kStream << m_aiYieldPerReligion;
-	kStream << m_aiYieldRateModifier;
-	kStream << m_aiPowerYieldRateModifier;
-	kStream << m_aiResourceYieldRateModifier;
-	kStream << m_aiExtraSpecialistYield;
-	kStream << m_aiProductionToYieldModifier;
-	kStream << m_aiDomainFreeExperience;
-	kStream << m_aiDomainProductionModifier;
-
-	kStream << m_abEverOwned;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_abIsPurchased;
-	kStream << m_abFranchised;
-	kStream << m_abTraded;
-	kStream << m_bHasOffice;
-	kStream << m_iExtraBuildingMaintenance;
-#endif
-	kStream << m_abRevealed;
-
-	kStream << m_strName;
-	kStream << m_strScriptData;
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNoResource);
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiFreeResource);
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourcesLocal);
-
-	kStream << m_paiSpecialistProduction;
-	kStream << m_paiProjectProduction;
 
 	m_pCityBuildings->Write(kStream);
+	m_pCityStrategyAI->Write(kStream);
+	if(m_eOwner != NO_PLAYER)
+	{
+		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
+	}
 
-	CvInfosSerializationHelper::WriteHashedDataArray<UnitTypes, int>(kStream, m_paiUnitProduction);
-	CvInfosSerializationHelper::WriteHashedDataArray<UnitTypes, int>(kStream, m_paiUnitProductionTime);
+	m_pCityCitizens->Write(kStream);
+	kStream << *m_pCityReligions;
+	m_pEmphases->Write(kStream);
 
-	kStream << m_paiSpecialistCount;
-	kStream << m_paiMaxSpecialistCount;
-	kStream << m_paiForceSpecialistCount;
-	kStream << m_paiFreeSpecialistCount;
-	kStream << m_paiImprovementFreeSpecialists;
-	kStream << m_paiUnitCombatFreeExperience;
-	kStream << m_paiUnitCombatProductionModifier;
-
-	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_paiFreePromotionCount);
-
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes, int>(kStream, m_paiBuildingClassCulture);
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes, int>(kStream, m_paiNumTerrainWorked);
-#endif
+	kStream << *m_pCityEspionage;
 
 	//  Write m_orderQueue
 	UINT uLength = (UINT)m_orderQueue.getLength();
@@ -23706,60 +23198,21 @@ void CvCity::write(FDataStream& kStream) const
 
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
-#if defined(MOD_BALANCE_CORE)
-	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-#endif
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+#if defined(MOD_BALANCE_CORE)
 	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromReligion, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrain, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
+	
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+
+	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
 #endif
-
-	kStream << m_iPopulationRank;
-	kStream << m_bPopulationRankValid;
-	kStream << m_aiBaseYieldRank;
-	kStream << m_abBaseYieldRankValid;
-	kStream << m_aiYieldRank;
-	kStream << m_abYieldRankValid;
-
-	kStream << m_iGameTurnLastExpanded;
-
-	kStream << m_iBaseHappinessFromBuildings;
-	kStream << m_iUnmoddedHappinessFromBuildings;
-
-	kStream << m_bRouteToCapitalConnectedLastTurn;
-	kStream << m_bRouteToCapitalConnectedThisTurn;
-	kStream << m_strName;
-	kStream << m_bOwedCultureBuilding;
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-	MOD_SERIALIZE_WRITE(kStream, m_bOwedFoodBuilding);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_abOwedChosenBuilding;
-	kStream << m_abBuildingInvestment;
-	kStream << m_abBuildingConstructed;
-	kStream << m_iNationalMissionaries;
-	kStream << m_iBorderObstacleCity;
-	kStream << m_iNumNearbyMountains;
-	kStream << m_iLocalUnhappinessMod;
-#endif
-	m_pCityStrategyAI->Write(kStream);
-	m_pCityCitizens->Write(kStream);
-	kStream << *m_pCityReligions;
-	m_pEmphases->Write(kStream);
-	kStream << *m_pCityEspionage;
-
-	kStream << m_iExtraHitPoints;
 }
 
 

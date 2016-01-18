@@ -1756,14 +1756,10 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 				}
 
-				// ... enemy trade route?
-#if defined(MOD_BALANCE_CORE_MILITARY)
+				// ... enemy trade route? (city connection - not caravan)
+				// checking for city connection is not enough, some people (iroquois) don't need roads, so there isn't anything to pillage 
 				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
-				        pLoopPlot->getRevealedRouteType(m_pPlayer->getTeam()) != NO_ROUTE && !pLoopPlot->IsRoutePillaged())
-#else
-				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
-				        pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged() && pLoopPlot->IsTradeRoute()/* && !bEnemyDominatedPlot*/)
-#endif
+				        pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged() && pLoopPlot->IsCityConnection()/* && !bEnemyDominatedPlot*/)
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
 					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
@@ -6221,7 +6217,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						bValid = true;
 					}
 
-					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & 1))
+					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						bValid = true;
 						if (pCell->IsWater())
@@ -6413,7 +6409,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						bValid = true;
 					}
 
-					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & 1))
+					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						bValid = true;
 						if (pCell->IsWater())
@@ -11108,17 +11104,14 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 CvPlot* CvTacticalAI::FindBarbarianGankTradeRouteTarget(UnitHandle pUnit)
 {
 	CvPlot* pBestMovePlot = NULL;
-	int iBestValue;
-	int iValue;
+	int iBestDistance = INT_MAX;
+	int iRange = m_iLandBarbarianRange/2+1;
 
-	// Now looking for BEST score
-	iBestValue = 0;
-	int iMovementRange = pUnit->movesLeft() / GC.getMOVE_DENOMINATOR();
-	for(int iX = -iMovementRange; iX <= iMovementRange; iX++)
+	for(int iX = -iRange; iX <= iRange; iX++)
 	{
-		for(int iY = -iMovementRange; iY <= iMovementRange; iY++)
+		for(int iY = -iRange; iY <= iRange; iY++)
 		{
-			CvPlot* pPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iMovementRange);
+			CvPlot* pPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
 			if(!pPlot)
 			{
 				continue;
@@ -11139,17 +11132,16 @@ CvPlot* CvTacticalAI::FindBarbarianGankTradeRouteTarget(UnitHandle pUnit)
 				continue;
 			}
 
-			if(!pUnit->CanReachInXTurns( pPlot, 1))
+			if(!pUnit->CanReachInXTurns( pPlot, 2))
 			{
 				continue;
 			}
 
-			iValue = GC.getGame().GetGameTrade()->GetNumTradeRoutesInPlot(pPlot);
-
-			if(iValue > iBestValue)
+			int iDistance = plotDistance(*pPlot,*pUnit->plot());
+			if(pPlot->IsTradeUnitRoute() && iDistance<iBestDistance)
 			{
 				pBestMovePlot = pPlot;
-				iBestValue = iValue;
+				iBestDistance = iDistance;
 			}
 		}
 	}

@@ -2120,6 +2120,7 @@ public:
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	bool IsKnownAttacker(const CvUnit* pAttacker) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
 
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);

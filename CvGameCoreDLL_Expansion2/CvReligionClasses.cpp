@@ -9562,7 +9562,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST")&& !(GC.getMap().GetAIMapHint() & 1))
+					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST")&& !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						iScore = 1000;
 					}
@@ -9574,7 +9574,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") && GC.getMap().GetAIMapHint() & 1)
+					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
 					{
 						iScore = 1000;
 					}

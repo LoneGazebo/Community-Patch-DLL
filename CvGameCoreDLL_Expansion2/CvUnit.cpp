@@ -158,23 +158,12 @@ CvUnit::CvUnit() :
 	, m_iRangeAttackIgnoreLOSCount("CvUnit::m_iRangeAttackIgnoreLOSCount", m_syncArchive)
 	, m_iCityAttackOnlyCount("CvUnit::m_iCityAttackOnlyCount", m_syncArchive)
 	, m_iCaptureDefeatedEnemyCount("CvUnit::m_iCaptureDefeatedEnemyCount", m_syncArchive)
-#if defined(MOD_BALANCE_CORE)
-	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
-	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
-	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
-	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
-	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
-#endif
-
 	, m_iRangedSupportFireCount("CvUnit::m_iRangedSupportFireCount", m_syncArchive)
 	, m_iAlwaysHealCount("CvUnit::m_iAlwaysHealCount", m_syncArchive)
 	, m_iHealOutsideFriendlyCount("CvUnit::m_iHealOutsideFriendlyCount", m_syncArchive)
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
-#endif
 	, m_iExtraMoves("CvUnit::m_iExtraMoves", m_syncArchive)
 	, m_iExtraMoveDiscount("CvUnit::m_iExtraMoveDiscount", m_syncArchive)
 	, m_iExtraRange("CvUnit::m_iExtraRange", m_syncArchive)
@@ -227,35 +216,9 @@ CvUnit::CvUnit() :
 	, m_iExtraNavalMoves("CvUnit::m_iExtraNavalMoves", m_syncArchive)
 	, m_iKamikazePercent("CvUnit::m_iKamikazePercent", m_syncArchive)
 	, m_iBaseCombat("CvUnit::m_iBaseCombat", m_syncArchive)
-#if defined(MOD_API_EXTENSIONS)
-	, m_iBaseRangedCombat("CvUnit::m_iBaseRangedCombat", m_syncArchive)
-#endif
 	, m_eFacingDirection("CvUnit::m_eFacingDirection", m_syncArchive, true)
 	, m_iArmyId("CvUnit::m_iArmyId", m_syncArchive)
 	, m_iIgnoreTerrainCostCount("CvUnit::m_iIgnoreTerrainCostCount", m_syncArchive)
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-	, m_iIgnoreTerrainDamageCount("CvUnit::m_iIgnoreTerrainDamageCount", m_syncArchive)
-	, m_iIgnoreFeatureDamageCount("CvUnit::m_iIgnoreFeatureDamageCount", m_syncArchive)
-	, m_iExtraTerrainDamageCount("CvUnit::m_iExtraTerrainDamageCount", m_syncArchive)
-	, m_iExtraFeatureDamageCount("CvUnit::m_iExtraFeatureDamageCount", m_syncArchive)
-#endif
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-	, m_iNearbyImprovementCombatBonus("CvUnit::m_iNearbyImprovementCombatBonus", m_syncArchive)
-	, m_iNearbyImprovementBonusRange("CvUnit::m_iNearbyImprovementBonusRange", m_syncArchive)
-	, m_eCombatBonusImprovement("CvUnit::m_eCombatBonusImprovement", m_syncArchive)
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	, m_iCanCrossOceansCount("CvUnit::m_iCanCrossOceansCount", m_syncArchive)
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
-#endif
-#if defined(MOD_BALANCE_CORE)
-	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
-#endif
 	, m_iRoughTerrainEndsTurnCount("CvUnit::m_iRoughTerrainEndsTurnCount", m_syncArchive)
 	, m_iEmbarkAbilityCount("CvUnit::m_iEmbarkAbilityCount", m_syncArchive)
 	, m_iHoveringUnitCount("CvUnit::m_iHoveringUnitCount", m_syncArchive)
@@ -296,9 +259,6 @@ CvUnit::CvUnit() :
 	, m_iEverSelectedCount("CvUnit::m_iEverSelectedCount", m_syncArchive)
 	, m_bIgnoreDangerWakeup("CvUnit::m_bIgnoreDangerWakeup", m_syncArchive, false, false)
 	, m_iEmbarkedAllWaterCount("CvUnit::m_iEmbarkedAllWaterCount", m_syncArchive)
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	, m_iEmbarkedDeepWaterCount("CvUnit::m_iEmbarkedDeepWaterCount", m_syncArchive)
-#endif
 	, m_iEmbarkExtraVisibility("CvUnit::m_iEmbarkExtraVisibility", m_syncArchive)
 	, m_iEmbarkDefensiveModifier("CvUnit::m_iEmbarkDefensiveModifier", m_syncArchive)
 	, m_iCapitalDefenseModifier("CvUnit::m_iCapitalDefenseModifier", m_syncArchive)
@@ -307,9 +267,6 @@ CvUnit::CvUnit() :
 	, m_iReligiousStrengthLossRivalTerritory("CvUnit::m_iReligiousStrengthLossRivalTerritory", m_syncArchive)
 	, m_iTradeMissionInfluenceModifier("CvUnit::m_iTradeMissionInfluenceModifier", m_syncArchive)
 	, m_iTradeMissionGoldModifier("CvUnit::m_iTradeMissionGoldModifier", m_syncArchive)
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
-	, m_strUnitName("")
-#endif
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
 	, m_iTourismBlastStrength("CvUnit::m_iTourismBlastStrength", m_syncArchive)
@@ -332,10 +289,6 @@ CvUnit::CvUnit() :
 	, m_eInvisibleType("CvUnit::m_eInvisibleType", m_syncArchive)
 	, m_eSeeInvisibleType("CvUnit::m_eSeeInvisibleType", m_syncArchive)
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
-#if defined(MOD_CORE_PER_TURN_DAMAGE)
-	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
-	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
-#endif
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
@@ -344,26 +297,12 @@ CvUnit::CvUnit() :
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
 	, m_featureDoubleMoveCount("CvUnit::m_featureDoubleMoveCount", m_syncArchive)
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-	, m_terrainHalfMoveCount("CvUnit::m_terrainHalfMoveCount", m_syncArchive)
-	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
-#endif
-#if defined(MOD_BALANCE_CORE)
-	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
-	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
-	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
-	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
-#endif
 	, m_terrainImpassableCount("CvUnit::m_terrainImpassableCount", m_syncArchive)
 	, m_featureImpassableCount("CvUnit::m_featureImpassableCount", m_syncArchive)
 	, m_extraTerrainAttackPercent("CvUnit::m_extraTerrainAttackPercent", m_syncArchive/*, true*/)
 	, m_extraTerrainDefensePercent("CvUnit::m_extraTerrainDefensePercent", m_syncArchive/*, true*/)
 	, m_extraFeatureAttackPercent("CvUnit::m_extraFeatureAttackPercent", m_syncArchive/*, true*/)
 	, m_extraFeatureDefensePercent("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
-#if defined(MOD_API_UNIFIED_YIELDS)
-	, m_yieldFromKills("CvUnit::m_yieldFromKills", m_syncArchive/*, true*/)
-	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
-#endif
 	, m_extraUnitCombatModifier("CvUnit::m_extraUnitCombatModifier", m_syncArchive/*, true*/)
 	, m_unitClassModifier("CvUnit::m_unitClassModifier", m_syncArchive/*, true*/)
 	, m_iMissionTimer("CvUnit::m_iMissionTimer", m_syncArchive)
@@ -380,6 +319,66 @@ CvUnit::CvUnit() :
 	, m_iMapLayer("CvUnit::m_iMapLayer", m_syncArchive, DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
 	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
+#if defined(MOD_BALANCE_CORE)
+	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
+	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
+	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
+	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
+	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
+	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
+#endif
+#if defined(MOD_API_EXTENSIONS)
+	, m_iBaseRangedCombat("CvUnit::m_iBaseRangedCombat", m_syncArchive)
+#endif
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	, m_iIgnoreTerrainDamageCount("CvUnit::m_iIgnoreTerrainDamageCount", m_syncArchive)
+	, m_iIgnoreFeatureDamageCount("CvUnit::m_iIgnoreFeatureDamageCount", m_syncArchive)
+	, m_iExtraTerrainDamageCount("CvUnit::m_iExtraTerrainDamageCount", m_syncArchive)
+	, m_iExtraFeatureDamageCount("CvUnit::m_iExtraFeatureDamageCount", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
+	, m_iNearbyImprovementCombatBonus("CvUnit::m_iNearbyImprovementCombatBonus", m_syncArchive)
+	, m_iNearbyImprovementBonusRange("CvUnit::m_iNearbyImprovementBonusRange", m_syncArchive)
+	, m_eCombatBonusImprovement("CvUnit::m_eCombatBonusImprovement", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
+	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
+	, m_iCanCrossOceansCount("CvUnit::m_iCanCrossOceansCount", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
+	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+	, m_iEmbarkedDeepWaterCount("CvUnit::m_iEmbarkedDeepWaterCount", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_UNIT_NAMING)
+	, m_strUnitName("")
+#endif
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+	, m_iDamageTakenThisTurn("CvUnit::m_iDamageTakenThisTurn", m_syncArchive)
+	, m_iDamageTakenLastTurn("CvUnit::m_iDamageTakenLastTurn", m_syncArchive)
+#endif
+#if defined(MOD_PROMOTIONS_HALF_MOVE)
+	, m_terrainHalfMoveCount("CvUnit::m_terrainHalfMoveCount", m_syncArchive)
+	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
+	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
+	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
+	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	, m_yieldFromKills("CvUnit::m_yieldFromKills", m_syncArchive/*, true*/)
+	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
+#endif
 {
 	initPromotions();
 	OBJECT_ALLOCATED
@@ -5868,7 +5867,7 @@ int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 	m_iDamageTakenThisTurn+=iDamage;
 
 	if (pAttacker)
-		//remember the attacker for our danger calculation - in case he moves and becomes invisible
+		//remember the attacker for our danger calculation - in case he came out of nowhere, now moves and becomes invisible again
 		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
 
 	return m_iDamageTakenThisTurn;
@@ -19579,25 +19578,26 @@ if (!bDoEvade)
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
-
-	if (pNewPlot && pNewPlot->isCity())
+	else if(pNewPlot)
 	{
-		//when moving in, see if we're better than the previous garrison
-		CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
-		if (pBestGarrison==this)
+		if (pNewPlot->isCity())
 		{
-			CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
-			pkNewGarrisonedCity->SetGarrison(this);
-			auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
-			DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+			//when moving in, see if we're better than the previous garrison
+			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
+			if (pBestGarrison==this)
+			{
+				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
+				pkNewGarrisonedCity->SetGarrison(this);
+				auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+				DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+			}
+		}
+		else //no city
+		{
+			//normally re-setting the garrison in pkPrevGarrisonedCity should have set this already, but better be safe
+			SetGarrisonedCity(-1);
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(pNewPlot && !pNewPlot->isCity())
-	{
-		SetGarrisonedCity(-1);
-	}
-#endif
 	
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
@@ -20501,6 +20501,12 @@ int CvUnit::GetMapLayer() const
 bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
+
+	if (plot())
+	{
+		if (!plot()->isCity() && m_iGarrisonCityID>0)
+			OutputDebugString("bam!\n");
+	}
 
 	return (m_iGarrisonCityID != -1);
 }
@@ -24539,7 +24545,6 @@ void CvUnit::read(FDataStream& kStream)
 		}
 	}
 
-	kStream >> m_iLastMoveTurn;
 	m_Promotions.Read(kStream);
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	kStream >> m_combatUnit.eOwner;
@@ -24549,116 +24554,9 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_missionAIUnit.eOwner;
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
-	kStream >> m_iEverSelectedCount;
-	kStream >> m_iMapLayer;
-	if (uiVersion >= 9)
-	{
-		kStream >> m_iNumGoodyHutsPopped;
-	}
-	else
-	{
-		m_iNumGoodyHutsPopped = 0;
-	}
 
-	kStream >> m_bIgnoreDangerWakeup;
-
-	kStream >> m_iEmbarkedAllWaterCount;
-	kStream >> m_iEmbarkExtraVisibility;
-
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	MOD_SERIALIZE_READ(23, kStream, m_iEmbarkedDeepWaterCount, 0);
-#endif
-	kStream >> m_iEmbarkDefensiveModifier;
-
-#if defined(MOD_API_EXTENSIONS)
-	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? (m_pUnitInfo ? m_pUnitInfo->GetRangedCombat() : 0) : 0));
-#endif
-
-	kStream >> m_iCapitalDefenseModifier;
-	kStream >> m_iCapitalDefenseFalloff;
-
-	kStream >> m_iCityAttackPlunderModifier;
-
-	kStream >> m_iReligiousStrengthLossRivalTerritory;
-
-	kStream >> m_iTradeMissionInfluenceModifier;
-	kStream >> m_iTradeMissionGoldModifier;
-
-	kStream >> m_iEnemyDamageChance;
-	kStream >> m_iNeutralDamageChance;
-
-	kStream >> m_iEnemyDamage;
-	kStream >> m_iNeutralDamage;
-
-	kStream >> m_iNearbyEnemyCombatMod;
-	kStream >> m_iNearbyEnemyCombatRange;
-
-	kStream >> m_iHealOnPillageCount;
-	kStream >> m_iFlankAttackModifier;
-
-	if (uiVersion >= 3)
-	{
-		kStream >> m_iGoldenAgeValueFromKills;
-	}
-	else
-	{
-		m_iGoldenAgeValueFromKills = 0;
-	}
-
-	kStream >> m_iGreatGeneralReceivesMovementCount;
-	kStream >> m_iGreatGeneralCombatModifier;
-	kStream >> m_iIgnoreGreatGeneralBenefit;
-
-	if (uiVersion >= 8)
-	{
-		kStream >> m_iIgnoreZOC;
-	}
-	else
-	{
-		m_iIgnoreZOC = 0;
-	}
-
-	if (uiVersion >= 2)
-	{
-		kStream >> m_iSapperCount;
-	}
-	else
-	{
-		m_iSapperCount = 0;
-	}
-
-	kStream >> m_iCanHeavyCharge;
-
-	if (uiVersion >= 5)
-	{
-		kStream >> m_iNumExoticGoods;
-	}
-	else
-	{
-		m_iNumExoticGoods = 0;
-	}
-
-	kStream >> m_iCityAttackOnlyCount;
-
-	kStream >> m_iCaptureDefeatedEnemyCount;
-
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, kStream, m_iCannotBeCapturedCount, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iForcedDamage, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iChangeDamage, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iScienceBlastStrength, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iCultureBlastStrength, 0);
-#endif
-
-	kStream >> m_iGreatAdmiralCount;
-
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
-	MOD_SERIALIZE_READ(46, kStream, m_strUnitName, getNameKey());
-#endif
+	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream >> m_strName;
-
-	kStream >> m_iScenarioData;
-
 	kStream >> *m_pReligion;
 
 	m_eGreatWork = NO_GREAT_WORK;
@@ -24680,15 +24578,6 @@ void CvUnit::read(FDataStream& kStream)
 			kStream >> strGreatWorkType;
 			m_eGreatWork = static_cast<GreatWorkType>(GC.getInfoTypeForString(strGreatWorkType.c_str()));
 		}
-	}
-
-	if (uiVersion >= 7)
-	{
-		kStream >> m_iTourismBlastStrength;
-	}
-	else
-	{
-		m_iTourismBlastStrength = 0;
 	}
 
 	//  Read mission queue
@@ -24733,7 +24622,6 @@ void CvUnit::write(FDataStream& kStream) const
 	else
 		kStream << (uint)0;
 
-	kStream << m_iLastMoveTurn;
 	m_Promotions.Write(kStream);
 	kStream << m_combatUnit.eOwner;
 	kStream << m_combatUnit.iID;
@@ -24742,63 +24630,8 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_missionAIUnit.eOwner;
 	kStream << m_missionAIUnit.iID;
 	kStream << m_extraDomainModifiers;
-	kStream << m_iEverSelectedCount;
-	kStream << m_iMapLayer;
-	kStream << m_iNumGoodyHutsPopped;
-
-	// slewis - move to autovariable when saves are broken
-	kStream << m_bIgnoreDangerWakeup;
-	kStream << m_iEmbarkedAllWaterCount;
-	kStream << m_iEmbarkExtraVisibility;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	MOD_SERIALIZE_WRITE(kStream, m_iEmbarkedDeepWaterCount);
-#endif
-	kStream << m_iEmbarkDefensiveModifier;
-#if defined(MOD_API_EXTENSIONS)
-	MOD_SERIALIZE_WRITE(kStream, m_iBaseRangedCombat);
-#endif
-	kStream << m_iCapitalDefenseModifier;
-	kStream << m_iCapitalDefenseFalloff;
-	kStream << m_iCityAttackPlunderModifier;
-	kStream << m_iReligiousStrengthLossRivalTerritory;
-	kStream << m_iTradeMissionInfluenceModifier;
-	kStream << m_iTradeMissionGoldModifier;
-	kStream << m_iEnemyDamageChance;
-	kStream << m_iNeutralDamageChance;
-	kStream << m_iEnemyDamage;
-	kStream << m_iNeutralDamage;
-	kStream << m_iNearbyEnemyCombatMod;
-	kStream << m_iNearbyEnemyCombatRange;
-
-	kStream << m_iHealOnPillageCount;
-	kStream << m_iFlankAttackModifier;
-	kStream << m_iGoldenAgeValueFromKills;
-
-	kStream << m_iGreatGeneralReceivesMovementCount;
-	kStream << m_iGreatGeneralCombatModifier;
-	kStream << m_iIgnoreGreatGeneralBenefit;
-	kStream << m_iIgnoreZOC;
-	kStream << m_iSapperCount;
-	kStream << m_iCanHeavyCharge;
-	kStream << m_iNumExoticGoods;
-	kStream << m_iCityAttackOnlyCount;
-	kStream << m_iCaptureDefeatedEnemyCount;
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_iCannotBeCapturedCount);
-	MOD_SERIALIZE_WRITE(kStream, m_iForcedDamage);
-	MOD_SERIALIZE_WRITE(kStream, m_iChangeDamage);
-	MOD_SERIALIZE_WRITE(kStream, m_iScienceBlastStrength);
-	MOD_SERIALIZE_WRITE(kStream, m_iCultureBlastStrength);
-#endif
-
-	kStream << m_iGreatAdmiralCount;
-
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
-	MOD_SERIALIZE_WRITE(kStream, m_strUnitName);
-#endif
+	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream << m_strName;
-
-	kStream << m_iScenarioData;
 	kStream << *m_pReligion;
 
 	if (m_eGreatWork != NO_GREAT_WORK)
@@ -24819,8 +24652,6 @@ void CvUnit::write(FDataStream& kStream) const
 	{
 		kStream << (uint)0;
 	}
-
-	kStream << m_iTourismBlastStrength;
 
 	//  Write mission list
 	kStream << m_missionQueue.getLength();
@@ -25979,7 +25810,10 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		{
 			iSteps += 0;
 
-			UpdatePathCache(pDestPlot, iFlags);
+			if (!UpdatePathCache(pDestPlot, iFlags))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -27038,12 +26872,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	if(pToPlot == NULL)
 		return false;
 
-	bool bSuccess;
-
 	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 
-	bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	bool bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
@@ -27051,7 +26883,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	m_uiLastPathFlags = iFlags;
 #endif
 
-	CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
+	if (bSuccess)
+		CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
+	else
+		m_kLastPath.setsize(0);
 
 	if(m_kLastPath.size() != 0)
 	{

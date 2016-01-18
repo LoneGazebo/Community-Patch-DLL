@@ -348,14 +348,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	int iPlotsNeeded = 0;
 	int iWildPlots = 0; //plots not under our control ... dangerous
 
-	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
-	while(pNode)
+	SPath path = GC.GetStepFinder().GetPath();
+	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
+		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
 		if(!pPlot)
 			break;
-
-		pNode = pNode->m_pParent;
 
 		//don't count the cities themselves
 		if (pPlot->isCity())
@@ -412,22 +410,15 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			sValue = min(iProfit, MAX_SHORT);
 	}
 
-	//traverse the path again and mark the plots to be worked
-	pNode = GC.GetStepFinder().GetLastNode();
-	while(pNode)
+	//cannot use GetStepFinder().GetLastNode(), state of pathfinder has changed in the meantime!
+	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-		pNode = pNode->m_pParent;
-
+		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
 		if(!pPlot)
-		{
 			break;
-		}
 
 		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
-		{
 			continue;
-		}
 
 		// if we already know about this plot, continue on
 		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())

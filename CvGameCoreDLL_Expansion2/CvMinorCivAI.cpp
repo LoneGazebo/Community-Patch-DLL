@@ -3018,7 +3018,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		{
 			if(GetPlayer()->getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 			{
-				if((GC.getMap().GetAIMapHint() & 4) || (GC.getMap().GetAIMapHint() & 1))
+				if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
 					bCoastal = true;
 				}

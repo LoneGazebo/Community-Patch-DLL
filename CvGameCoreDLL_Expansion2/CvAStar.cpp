@@ -210,8 +210,6 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if (data.ePathType != m_sData.ePathType)
 		return false;
 
-	CvAStarNode* temp;
-
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
 	if (m_iCurrentGenerationID==0xFFFF)
@@ -222,6 +220,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
+	m_pBest = NULL;
+	m_pStackHead = NULL;
 
 	m_iProcessedNodes = 0;
 	m_iTestedNodes = 0;
@@ -242,6 +242,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	}
 
 	//reset previously used nodes
+	CvAStarNode* temp;
+
 	if(m_pOpen)
 	{
 		while(m_pOpen)
@@ -261,9 +263,6 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 			m_pClosed = temp;
 		}
 	}
-
-	m_pBest = NULL;
-	m_pStackHead = NULL;
 
 	//set up first node
 	temp = &(m_ppaaNodes[iXstart][iYstart]);

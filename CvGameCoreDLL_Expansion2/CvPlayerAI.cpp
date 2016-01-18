@@ -304,7 +304,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
 		bool bUnhappy = IsEmpireVeryUnhappy();
-		if (bUnhappy || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
+		if (bUnhappy || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -1982,6 +1982,10 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		return 0;
 	}
 	if(pMinorCivAI->GetPermanentAlly() == GetID())
+	{
+		return 0;
+	}
+	if(pMinorCivAI->GetPermanentAlly() != GetID() && pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 	{
 		return 0;
 	}

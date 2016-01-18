@@ -11068,7 +11068,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eTreasureFleet == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (GC.getMap().GetAIMapHint() & 5)
+			if (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 			{
 				iScore += 100;
 			}

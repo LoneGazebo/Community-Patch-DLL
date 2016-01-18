@@ -71,9 +71,10 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
 FDataStream& operator>>(FDataStream&, CvLandmass&);
 
-
-
-class CvAStar;
+const int ciMapHint_Naval = 1;		// 1 for primarily naval (this does NOT do offshore expansion), 
+const int ciMapHint_Raze = 2;		// 2 for raze cities whenever possible,
+const int ciMapHint_Offshore = 4;	// 4 for expand offshore
+const int ciMapHint_NavalOffshore = 5; // combination of 1 and 5
 
 inline int coordRange(int iCoord, int iRange, bool bWrap)
 {
