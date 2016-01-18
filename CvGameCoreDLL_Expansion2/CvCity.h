@@ -1563,14 +1563,15 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;
 	FAutoVariable<int, CvCity> m_iUnmoddedHappinessFromBuildings;
 
-	bool m_bRouteToCapitalConnectedLastTurn;
-	bool m_bRouteToCapitalConnectedThisTurn;
-	CvString m_strName;
+	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedLastTurn;
+	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedThisTurn;
 
-	bool m_bOwedCultureBuilding;
+	FAutoVariable<CvString, CvCity> m_strName;
+
+	FAutoVariable<bool, CvCity> m_bOwedCultureBuilding;
 
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-	bool m_bOwedFoodBuilding;
+	FAutoVariable<bool, CvCity> m_bOwedFoodBuilding;
 #endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
@@ -1606,8 +1607,8 @@ protected:
 	mutable int m_bombardCheckTurn;
 
 	// CACHE: cache frequently used values
-	mutable int	m_iPopulationRank;
-	mutable bool m_bPopulationRankValid;
+	FAutoVariable<int, CvCity> m_iPopulationRank;
+	FAutoVariable<bool, CvCity> m_bPopulationRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRank;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBaseYieldRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRank;
