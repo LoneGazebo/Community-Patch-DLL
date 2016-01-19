@@ -5907,12 +5907,8 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	int iDirX = pTurnTarget->getX() - pCurrent->getX();
-	int iDirY = pTurnTarget->getY() - pCurrent->getY();
-	float fDist = max(1.f,sqrt((float)iDirX*iDirX+iDirY*iDirY));
-	//this is an approximate unit vector of the direction we should be moving in
-	int iDX = (iDirX > 0) ? int(iDirX/fDist+0.5f) : int(iDirX/fDist-0.5f);
-	int iDY = (iDirY > 0) ? int(iDirY/fDist+0.5f) : int(iDirY/fDist-0.5f);
+	//the direction we are coming from
+	DirectionTypes eFromDir = estimateDirection(pTurnTarget->getX(),pTurnTarget->getY(),pCurrent->getX(),pCurrent->getY());
 #endif
 
 	// See if we have enough places to put everyone
@@ -5950,27 +5946,14 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 			{
 #if defined(MOD_BALANCE_CORE)
 				//find a unit that's a little bit further back, and then try to move it to this good plot
-				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 2, 10, 1, false))
+				CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+				if(FindClosestOperationUnit( pIdealUnitPlot, false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 1, 10, 1, false))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
 						strMsg.Format("Deploying melee unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
-						LogTacticalMessage(strMsg);
-					}
-					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
-					TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
-					pInnerUnit->finishMoves();
-					iMeleeUnitsToPlace--;
-				}
-				else if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 3, 10, 1, false))
-				{
-					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Deploying melee unit (second pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 						LogTacticalMessage(strMsg);
 					}
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
@@ -6033,27 +6016,14 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 				{
 #if defined(MOD_BALANCE_CORE)
 					//find a unit that's a little bit further back, and then try to move it to this good plot
-					if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 2, 10, 1, false))
+					CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+					if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 1, 10, 1, false))
 					{
 						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
 							strMsg.Format("Deploying ranged unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
-							LogTacticalMessage(strMsg);
-						}
-						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
-						TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
-						pInnerUnit->finishMoves();
-						iRangedUnitsToPlace--;
-					}
-					else if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 3, 10, 1, false))
-					{
-						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Deploying ranged unit (second pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
 							LogTacticalMessage(strMsg);
 						}
 						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
@@ -6097,7 +6067,8 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 			{
 #if defined(MOD_BALANCE_CORE)
 				//find a unit that's a little bit further back, and then try to move it to this good plot
-				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 3, 10, 1, false))
+				CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+				if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 1, 10, 1, false))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					if(GC.getLogging() && GC.getAILogging())
@@ -12773,7 +12744,6 @@ void CvTacticalAI::LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZo
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strPlayerName;
-		CvString strTemp;
 		FILogFile* pLog;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
@@ -12782,18 +12752,18 @@ void CvTacticalAI::LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZo
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += strPlayerName + ", ";
-		strTemp = "no zone, ";
 		if(!bSkipLogDominanceZone)
 		{
+			CvString strTemp = "no zone, ";
 			CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
 			if(pZone != NULL)
 			{
 				strTemp.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
 			}
+			strBaseString += strTemp;
 		}
-		strBaseString += strTemp;
-		strOutBuf = strBaseString + strMsg;
 
+		strOutBuf = strBaseString + strMsg;
 		pLog->Msg(strOutBuf);
 	}
 }
