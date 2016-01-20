@@ -18,7 +18,7 @@
 		<Delete ResourceType="RESOURCE_SHEEP" />
 		<Row>
 			<ResourceType>RESOURCE_SHEEP</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_BANANA" />

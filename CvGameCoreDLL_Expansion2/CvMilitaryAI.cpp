@@ -572,7 +572,6 @@ void CvMilitaryAI::DoTurn()
 /// Requests for sneak attack on a city of a player we're not at war with. Returns true if operation started.
 bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 {
-	CvMilitaryTarget target;
 	CvAIOperation* pOperation = 0;
 	int iOperationID;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
@@ -584,7 +583,6 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID))
 	{
 		return false;
@@ -605,12 +603,9 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 			return false;
 		}
 	}
-	target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
+	CvMilitaryTarget target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
 	if(target.m_pTargetCity && target.m_pMusterCity)
-#else
-	target = FindBestAttackTarget(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
-	if(target.m_pTargetCity)
-#endif
+
 	{
 		if(target.m_bAttackBySea)
 		{
@@ -678,8 +673,6 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 /// Send an army to force concessions
 bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	CvMilitaryTarget target;
 	CvAIOperation* pOperation = 0;
 	int iOperationID;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
@@ -695,7 +688,7 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 	{
 		return false;
 	}
-	target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
+	CvMilitaryTarget target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
 
 	if(target.m_pTargetCity && target.m_pMusterCity)
 	{
@@ -750,29 +743,7 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 			}
 		}
 	}
-#else
-	CvMilitaryTarget target;
-	target = FindBestAttackTarget(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
-	if(target.m_pTargetCity)
-	{
-		if (target.m_bAttackBySea)
-		{
-			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SNEAK_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-			if(pOperation != NULL && !pOperation->ShouldAbort())
-			{
-				return true;
-			}
-		}
-		else
-		{
-			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SMALL_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-			if(pOperation != NULL && !pOperation->ShouldAbort())
-			{
-				return true;
-			}
-		}
-	}
-#endif
+
 	return false;
 }
 
@@ -826,13 +797,7 @@ bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 /// Send an army to take a city
 bool CvMilitaryAI::RequestBasicAttack(PlayerTypes eEnemy, int iNumUnitsWillingBuild)
 {
-	CvMilitaryTarget target;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	target = FindBestAttackTarget2(AI_OPERATION_BASIC_CITY_ATTACK, eEnemy);
-#else
-	target = FindBestAttackTarget(AI_OPERATION_BASIC_CITY_ATTACK, eEnemy);
-#endif
+	CvMilitaryTarget target = FindBestAttackTarget2(AI_OPERATION_BASIC_CITY_ATTACK, eEnemy);
 
 	return RequestSpecificAttack(target, iNumUnitsWillingBuild);
 }
@@ -841,15 +806,10 @@ bool CvMilitaryAI::RequestBasicAttack(PlayerTypes eEnemy, int iNumUnitsWillingBu
 bool CvMilitaryAI::RequestPureNavalAttack(PlayerTypes eEnemy, int iNumUnitsWillingBuild)
 {
 	CvAIOperation* pOperation = NULL;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-#else
-	CvMilitaryTarget target;
-#endif
 	int iNumRequiredSlots = 0;
 	int iLandReservesUsed = 0;
 	int iFilledSlots = 0;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	CvMilitaryTarget target;
 	int iOperationID;
 	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID);
@@ -874,32 +834,14 @@ bool CvMilitaryAI::RequestPureNavalAttack(PlayerTypes eEnemy, int iNumUnitsWilli
 			}
 		}
 	}
-#else
-	target = FindBestAttackTarget(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, eEnemy);
-	if(target.m_pTargetCity)
-	{
-		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_PURE_NAVAL_CITY_ATTACK, true, &iNumRequiredSlots, &iLandReservesUsed);
-		if((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)
-		{
-			pOperation = m_pPlayer->addAIOperation(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-		}
 
-		if(pOperation != NULL && !pOperation->ShouldAbort())
-		{
-			return true;
-		}
-	}
-#endif
 	return false;
 }
 
 /// Request for an attack on a city state
 bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 {
-	CvMilitaryTarget target;
 	CvAIOperation* pOperation = 0;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int iOperationID;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
 	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SNEAK_ATTACK, &iOperationID))
@@ -914,7 +856,7 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 	{
 		return false;
 	}
-	target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
+	CvMilitaryTarget target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
 
 	if(target.m_pTargetCity && target.m_pMusterCity)
 	{
@@ -970,50 +912,6 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 		}
 	}
 	return false;
-#else
-	target = FindBestAttackTarget(AI_OPERATION_CITY_STATE_ATTACK, eEnemy);
-
-
-	if(target.m_pTargetCity)
-	{
-		if(target.m_bAttackBySea)
-		{
-			if(IsAttackReady(MUFORMATION_CITY_STATE_INVASION, AI_OPERATION_CITY_STATE_NAVAL_ATTACK))
-
-			{
-				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_CITY_STATE_NAVAL_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-				if(pOperation != NULL && !pOperation->ShouldAbort())
-				{
-					return true;
-				}
-			}
-			else
-			{
-				m_iNumNavalAttacksRequested++;
-				m_eArmyTypeBeingBuilt = (m_iNumLandAttacksRequested > m_iNumNavalAttacksRequested) ? ARMY_TYPE_LAND : ARMY_TYPE_NAVAL_INVASION;
-			}
-		}
-		else
-		{
-			if(IsAttackReady(MUFORMATION_CITY_STATE_ATTACK_FORCE, AI_OPERATION_CITY_STATE_ATTACK))
-			{
-				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_CITY_STATE_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-				if(pOperation != NULL && !pOperation->ShouldAbort())
-				{
-					return true;
-				}
-			}
-			else
-			{
-				m_iNumLandAttacksRequested++;
-				m_eArmyTypeBeingBuilt = (m_iNumLandAttacksRequested > m_iNumNavalAttacksRequested) ? ARMY_TYPE_LAND : ARMY_TYPE_NAVAL_INVASION;
-			}
-		}
-
-		return true;
-	}
-	return false;
-#endif
 }
 
 bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnitsWillingToBuild)
@@ -1223,7 +1121,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 
 	// Get best unit with this AI type
 #if defined(MOD_BALANCE_CORE)
-	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true, false, NULL);
+	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true);
 #else
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType);
 #endif
@@ -5666,7 +5564,7 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	}
 	UnitAITypes eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), false /*bSecondaryUnit*/);
 #if defined(MOD_BALANCE_CORE)
-	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true, NULL);
+	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true);
 #else	
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType);
 #endif
@@ -5674,7 +5572,7 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	{
 		eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), true /*bSecondaryUnit*/);
 #if defined(MOD_BALANCE_CORE)
-		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true, NULL);
+		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true);
 #else			
 		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType);
 #endif

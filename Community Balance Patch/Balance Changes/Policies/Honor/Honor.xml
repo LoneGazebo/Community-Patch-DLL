@@ -54,6 +54,13 @@
 			<UnitClassType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassType>
 		</Row>
 	</Unit_ClassUpgrades>
+	<UnitGameplay2DScripts>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<SelectionSound>AS2D_SELECT_INFANTRY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_INFANTRY</FirstSelectionSound>
+		</Row>
+	</UnitGameplay2DScripts>
 	<Unit_AITypes>
 		<Row>
 			<UnitType>UNIT_GUERILLA</UnitType>

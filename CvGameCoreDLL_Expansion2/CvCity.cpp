@@ -10173,11 +10173,20 @@ void CvCity::CheckForOperationUnits()
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 
 				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 				if(eBestUnit == NO_UNIT)
 				{
 					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+				}
+				if(eBestUnit != NO_UNIT)
+				{
+					int iTempWeight = 100;
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight);
+					if(iTempWeight <= 0)
+					{
+						eBestUnit = NO_UNIT;
+					}
 				}
 
 				if(eBestUnit != NO_UNIT)
@@ -17877,11 +17886,9 @@ void CvCity::TestBastion()
 	if(plot()->isCoastalLand())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
-		bool bLake = false;
 		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 		{
-			bLake = GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound);
-			if(!bLake)
+			if(!GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 			{
 				if(!IsBastion())
 				{
@@ -22993,17 +23000,6 @@ void CvCity::read(FDataStream& kStream)
 #endif
 
 	m_pCityBuildings->Read(kStream);
-	m_pCityStrategyAI->Read(kStream);
-	if(m_eOwner != NO_PLAYER)
-	{
-		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
-	}
-
-	m_pCityCitizens->Read(kStream);
-	kStream >> *m_pCityReligions;
-	m_pEmphases->Read(kStream);
-
-	kStream >> *m_pCityEspionage;
 
 	UINT uLength;
 	kStream >> uLength;
@@ -23091,10 +23087,16 @@ void CvCity::read(FDataStream& kStream)
 			m_orderQueue.insertAtEnd(&Data);
 	}
 
+	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
 	{
 		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
 	}
+	m_pCityCitizens->Read(kStream);
+	kStream >> *m_pCityReligions;
+	m_pEmphases->Read(kStream);
+
+	kStream >> *m_pCityEspionage;
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 
@@ -23136,17 +23138,6 @@ VALIDATE_OBJECT
 #endif
 
 	m_pCityBuildings->Write(kStream);
-	m_pCityStrategyAI->Write(kStream);
-	if(m_eOwner != NO_PLAYER)
-	{
-		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
-	}
-
-	m_pCityCitizens->Write(kStream);
-	kStream << *m_pCityReligions;
-	m_pEmphases->Write(kStream);
-
-	kStream << *m_pCityEspionage;
 
 	//  Write m_orderQueue
 	UINT uLength = (UINT)m_orderQueue.getLength();
@@ -23193,6 +23184,12 @@ VALIDATE_OBJECT
 		kStream << pData->bSave;
 		kStream << pData->bRush;
 	}
+
+	m_pCityStrategyAI->Write(kStream);
+	m_pCityCitizens->Write(kStream);
+	kStream << *m_pCityReligions;
+	m_pEmphases->Write(kStream);
+	kStream << *m_pCityEspionage;
 
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 
@@ -24620,7 +24617,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 
 				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 #else
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
@@ -24628,10 +24625,19 @@ bool CvCity::CommitToBuildingUnitForOperation()
 				{
 					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 #else
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
+				}
+				if(eBestUnit != NO_UNIT)
+				{
+					int iTempWeight = 100;
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight);
+					if(iTempWeight <= 0)
+					{
+						eBestUnit = NO_UNIT;
+					}
 				}
 
 				if(eBestUnit != NO_UNIT)
@@ -24733,7 +24739,7 @@ UnitTypes CvCity::GetUnitForOperation()
 
 				eUnitAI = slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 #else
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
@@ -24741,7 +24747,7 @@ UnitTypes CvCity::GetUnitForOperation()
 				{
 					eUnitAI = slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true, pThisArmy);
+					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 #else
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif

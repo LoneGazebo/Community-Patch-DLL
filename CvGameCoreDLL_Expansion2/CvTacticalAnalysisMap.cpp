@@ -101,7 +101,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
 	m_iZoneValue = 0;
-	m_iRangeClosestEnemyUnit = MAX_INT;
+	m_iRangeClosestEnemyUnit = -1;
 	m_bIsWater = false;
 	m_bIsNavalInvasion = false;
 	m_pTempZoneCenter = NULL;
@@ -1207,7 +1207,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 												if(bVisible)
 												{
 													pZone->AddEnemyUnitCount(1);
-													if(iDistance < pZone->GetRangeClosestEnemyUnit())
+													if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
 													{
 														pZone->SetRangeClosestEnemyUnit(iDistance);
 													}
@@ -1452,7 +1452,6 @@ void CvTacticalAnalysisMap::LogZones()
 			}
 			else if(pZone->GetZoneCity())
 			{
-				szLogMsg += ", " + pZone->GetZoneCity()->getName();
 				if (m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pZone->GetZoneCity()))
 				{
 					szLogMsg += " (Temp)";

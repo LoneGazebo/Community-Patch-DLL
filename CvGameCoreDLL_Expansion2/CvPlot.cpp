@@ -9547,11 +9547,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Extra yield for improvements
-		if(getImprovementType() != NO_FEATURE)
+		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			if(pWorkingCity != NULL)
+			if(pWorkingCity != NULL && pWorkingCity->getOwner() != NO_PLAYER)
 			{
 				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				iYield += GET_PLAYER(pWorkingCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
 			}
 		}
 #endif
@@ -12582,10 +12583,13 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(getImprovementType() != NO_FEATURE)
+		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			if(pWorkingCity != NULL)
+			if(pWorkingCity != NULL && pWorkingCity->getOwner() != NO_PLAYER)
+			{
 				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				iYield += GET_PLAYER(pWorkingCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
+			}
 		}
 #endif
 

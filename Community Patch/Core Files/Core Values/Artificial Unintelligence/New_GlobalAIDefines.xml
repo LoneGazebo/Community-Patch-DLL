@@ -16,7 +16,7 @@
 		<!-- Grand Strategy Stuff -->
 		<!-- Default AI is very schizophrenic with Grand Strategies, following 3 values help them focus a bit more -->
 		<Update>
-			<Set Value="30" />
+			<Set Value="50" />
 			<Where Name="AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE" />
 		</Update>
 		<Update>

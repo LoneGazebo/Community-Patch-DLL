@@ -133,6 +133,9 @@
 							<Stack ID="ThemPocketOtherPlayerStack"/>
 							<Button ID="CancelButton" Hidden="1"/>
 							<Button ID="ProposeButton" Hidden="1"/>
+							<!-- CBP -->
+							<Button ID="DenounceButton" Hidden="1"/>
+							<!-- END -->
 						</Container>
 						<!--   UsTable       -->
 						<Grid Size="225,400" Anchor="R,T" Offset="24,12" Style="GridBlackIndent8">

@@ -122,6 +122,11 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking resources)
 			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech);
+
+#if defined(MOD_BALANCE_CORE)
+			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking resources)
+			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
+#endif
 		}
 	}
 

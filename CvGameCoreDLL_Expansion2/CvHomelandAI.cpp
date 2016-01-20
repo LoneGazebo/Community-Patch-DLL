@@ -1676,7 +1676,14 @@ void CvHomelandAI::PlotWorkerMoves()
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			bool bUsePrimaryUnit = (pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_BUILD);
 			bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER) || pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA)) && pUnit->getDomainType() == DOMAIN_LAND);
-
+			if(pUnit->plot()->getWorkingCity() != NULL)
+			{
+				AICityStrategyTypes eNoNavalWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT");
+				if(eNoNavalWorkers != NO_AICITYSTRATEGY && pUnit->plot()->getWorkingCity()->GetCityStrategyAI()->IsUsingCityStrategy(eNoNavalWorkers))
+				{
+					bUseSecondaryUnit = false;
+				}
+			}
 			if((!bSecondary && bUsePrimaryUnit) || (bSecondary && bUseSecondaryUnit))
 #else
 			if(pUnit->AI_getUnitAIType() == UNITAI_WORKER  ||
@@ -6485,7 +6492,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+			MoveToUsingSafeEmbark(pUnit, pBestPlot, true);
 			return true;
 		}
 	}

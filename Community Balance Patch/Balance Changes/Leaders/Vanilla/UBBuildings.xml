@@ -559,7 +559,7 @@
 		<Row>
 			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>50</Yield>
+			<Yield>34</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<Building_ClassesNeededInCity>
@@ -578,7 +578,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 3 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
 			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. The Steam Mill also boosts the city's Gold income from Trade Routes, thus encouraging other Civlizations to trade with you. Since Steam Mills do not require Coal, you can use your Coal surplus to build Seaports and Coal Plants, or you can trade it away for a large amount of gold.</Text>
@@ -727,7 +727,7 @@
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>20</PortraitIndex>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_ClassesNeededInCity>
@@ -748,6 +748,12 @@
 			<BuildingType>BUILDING_MOMA</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>5</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>5</YieldChange>
 		</Row>
 	</Building_BuildingClassYieldChanges>
@@ -784,30 +790,30 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MOMA</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>5</Yield>
 		</Row>
 	</Building_ThemingYieldBonus>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_MOMA">
-			<Text>Museum of Modern Art</Text>
+			<Text>The Smithsonian</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_MOMA">
-			<Text>Museum of Modern Art</Text>
+			<Text>The Smithsonian Archives</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MOMA_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Art from different Eras and different Civilizations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT">
 			<Text>
-				The Museum of Modern Art (MoMA) is an art museum located in Midtown Manhattan in New York City, on 53rd Street between Fifth and Sixth Avenues. It has been important in developing and collecting modernist art, and is often identified as the most influential museum of modern art in the world. The museum's collection offers an overview of modern and contemporary art, including works of architecture and design, drawing, painting, sculpture, photography, prints, illustrated books and artist's books, film and electronic media. The Library's holdings include approximately 300,000 books and exhibition catalogs, over 1,000 periodical titles, and over 40,000 files of ephemera about individual artists and groups. The archives holds primary source material related to the history of modern and contemporary art.
+				The Smithsonian Institution, established in 1846 "for the increase and diffusion of knowledge," is a group of museums and research centers administered by the Government of the United States. Originally organized as the "United States National Museum," that name ceased to exist as an administrative entity in 1967. Termed "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge. Funding comes from the Institution's endowment, private and corporate contributions, membership dues, government support, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_HELP">
-			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Museum of Modern Art. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold and +5 [ICON_CULTURE] Culture if Themed.</Text>
+			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Smithsonian. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture and [ICON_RESEARCH] Science output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science and +5 [ICON_CULTURE] Culture if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
-			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, The Museum of Modern Art boosts Culture and Tourism in the City greatly. The Museum of Modern Art also boosts the Culture output of all Museums in your Empire. The Museum of Modern Art is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65.</Text>
+			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, the Smithsonian boosts Culture and Tourism in the City greatly. The Smithsonianalso boosts the Culture and Science output of all Museums in your Empire. The Smithsonian is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

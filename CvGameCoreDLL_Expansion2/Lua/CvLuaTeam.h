@@ -138,6 +138,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(SetOpenBorders, int);
 	LUAAPIEXTN(SetForcePeace, int);
+	LUAAPIEXTN(GetNumTurnsAtWar, int);
+	LUAAPIEXTN(GetNumNaturalWondersDiscovered, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);

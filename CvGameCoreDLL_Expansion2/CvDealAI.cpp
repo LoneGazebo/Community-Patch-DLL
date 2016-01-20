@@ -8544,7 +8544,7 @@ void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
 // How much is a technology worth?
 int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	int iItemValue = 50;
+	int iItemValue = 200;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
 	//important, don't want to recalculate for every potential tech
