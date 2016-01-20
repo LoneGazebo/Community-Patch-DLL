@@ -145,7 +145,7 @@ CvPlayer::CvPlayer() :
 	, m_iJONSCulturePerTurnFromMinorCivs("CvPlayer::m_iJONSCulturePerTurnFromMinorCivs", m_syncArchive)
 	, m_iJONSCultureCityModifier("CvPlayer::m_iJONSCultureCityModifier", m_syncArchive)
 	, m_iJONSCulture("CvPlayer::m_iJONSCulture", m_syncArchive, true)
-	, m_iJONSCultureEverGenerated("CvPlayer::m_iJONSCulture", m_syncArchive)
+	, m_iJONSCultureEverGenerated("CvPlayer::m_iJONSCultureEverGenerated", m_syncArchive)
 	, m_iCulturePerWonder("CvPlayer::m_iCulturePerWonder", m_syncArchive)
 	, m_iCultureWonderMultiplier("CvPlayer::m_iCultureWonderMultiplier", m_syncArchive)
 	, m_iCulturePerTechResearched("CvPlayer::m_iCulturePerTechResearched", m_syncArchive)

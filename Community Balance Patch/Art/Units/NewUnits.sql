@@ -9,6 +9,10 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 			('ART_DEF_UNIT_CRUISER'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('0'), ('39'), ('COMMUNITY_ATLAS'), ('CRUSIER_FLAG_ATLAS')
 	FROM Units WHERE (Type = 'UNIT_BATTLESHIP');
 
+INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
+	SELECT 'UNIT_CRUISER', SelectionSound, FirstSelectionSound
+	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_BATTLESHIP');
+
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	SELECT 'UNIT_CRUISER', UnitAIType
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_BATTLESHIP');
@@ -55,6 +59,10 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 	SELECT	('UNIT_VOLLEY_GUN'), ('TXT_KEY_DESC_VOLLEY_GUN'), ('TXT_KEY_CIV5_VOLLEY_GUN_PEDIA') , ('TXT_KEY_CIV5_VOLLEY_GUN_STRATEGY'), ('TXT_KEY_CIV5_VOLLEY_GUN_HELP'), Requirements, ('15'), ('25'), ('225'), ('225'), ('true'), ('2'), Immobile, ('2'), BaseSightRange, ('UNITCLASS_VOLLEY_GUN'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, ('UNITAI_RANGED'), Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, ('true'), PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_METALLURGY'), ('TECH_DYNAMITE'), ('UNITCLASS_GATLINGGUN'), HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
 			('ART_DEF_UNIT_VOLLEY_GUN'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('0'), ('59'), ('COMMUNITY_ATLAS'), ('VOLLEY_FLAG_ATLAS')
 	FROM Units WHERE (Type = 'UNIT_GATLINGGUN');
+
+INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
+	SELECT 'UNIT_VOLLEY_GUN', SelectionSound, FirstSelectionSound
+	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_CANNON');
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	SELECT 'UNIT_VOLLEY_GUN', 'UNITAI_RANGED'

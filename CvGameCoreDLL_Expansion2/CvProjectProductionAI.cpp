@@ -7,6 +7,9 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvProjectProductionAI.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvEconomicAI.h"
+#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -120,6 +123,14 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 			// Update weight based on turns to construct
 			iTurnsLeft = m_pCity->getProductionTurnsLeft((ProjectTypes) iProjectLoop, 0);
 			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop), iTurnsLeft);
+#if defined(MOD_BALANCE_CORE)
+			iWeight += m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop);
+			iWeight = CheckProjectBuildSanity((ProjectTypes)iProjectLoop, iWeight);
+			if(iWeight <= 0)
+			{
+				continue;
+			}
+#endif
 			m_Buildables.push_back(iProjectLoop, iWeight);
 		}
 	}
@@ -138,7 +149,49 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 		return NO_PROJECT;
 	}
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
+{
+	if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
+	{
+		return 0;
+	}
+	if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	{
+		return 0;
+	}
+	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+	if(!pkProjectInfo)
+	{
+		return 0;
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
+	{
+		if(pkProjectInfo->IsAllowsNukes())
+		{
+			iTempWeight *= 10;
+		}
+		else
+		{
+			iTempWeight /= 2;
+		}
+	}
+	EconomicAIStrategyTypes eSpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
+	if(eSpaceShip != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eSpaceShip))
+	{
+		ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+		if(eApolloProgram != NO_PROJECT && eApolloProgram == eProject)
+		{
+			iTempWeight *= 100;
+		}
+		if(pkProjectInfo->IsSpaceship())
+		{
+			iTempWeight *= 100;
+		}
+	}
+	return iTempWeight;
+}
+#endif
 /// Log all potential builds
 void CvProjectProductionAI::LogPossibleBuilds()
 {

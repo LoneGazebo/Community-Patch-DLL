@@ -249,6 +249,9 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 				// if we are forced to restart a wonder, give one that has been started already a huge bump
 				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
+#if defined(MOD_BALANCE_CORE)
+				iTempWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iTempWeight);
+#else
 
 				// Don't build the UN if you aren't going for the diplo victory
 				if(pkBuildingInfo->IsDiplomaticVoting())
@@ -294,6 +297,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 						iTempWeight = 0;
 					}
 				}
+#endif
 
 				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
 

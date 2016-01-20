@@ -11401,15 +11401,15 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 					iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GetPlayer()->GetCurrentEra());
 
 					// Now See what our new Block Level should be
-					if(iVictoryBlockWeight >= 40)
+					if(iVictoryBlockWeight >= 30)
 					{					
 						eBlockLevel = BLOCK_LEVEL_FIERCE;
 					}
-					else if(iVictoryBlockWeight >= 30)
+					else if(iVictoryBlockWeight >= 20)
 					{					
 						eBlockLevel = BLOCK_LEVEL_STRONG;
 					}
-					else if(iVictoryBlockWeight >= 25)
+					else if(iVictoryBlockWeight >= 10)
 					{					
 						eBlockLevel = BLOCK_LEVEL_WEAK;
 					}
@@ -11465,7 +11465,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
-			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 375)
+			else if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 400)
 			{
 				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
@@ -11512,7 +11512,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 
 				// Add weight for Player's competitiveness (0 - 10)
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				int iEraReduction = (4 - GetPlayer()->GetCurrentEra());
+				int iEraReduction = (3 - GetPlayer()->GetCurrentEra());
 				if(MOD_BALANCE_CORE_DIPLOMACY && iEraReduction > 0)
 				{
 					iVictoryDisputeWeight -= iEraReduction;

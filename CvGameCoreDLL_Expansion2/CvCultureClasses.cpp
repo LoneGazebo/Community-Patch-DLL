@@ -6353,6 +6353,8 @@ int CvCityCulture::GetBaseTourism()
 int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const
 {
 	int iMultiplier = 0;
+	if(ePlayer == NO_PLAYER || m_pCity->getOwner() == NO_PLAYER)
+		return 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());

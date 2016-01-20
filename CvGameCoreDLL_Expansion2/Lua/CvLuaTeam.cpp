@@ -132,6 +132,8 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(SetOpenBorders);
 	Method(SetForcePeace);
+	Method(GetNumTurnsAtWar);
+	Method(GetNumNaturalWondersDiscovered);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
 	Method(GetCityWorkingChange);
@@ -866,6 +868,29 @@ int CvLuaTeam::lSetForcePeace(lua_State* L)
 
 	pkTeam->setForcePeace(eTeam, bValue);
 	return 0;
+}
+
+int CvLuaTeam::lGetNumTurnsAtWar(lua_State* L)
+{
+	CvTeam* pkTeam = GetInstance(L);
+	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	int iValue = 0;
+	if(eTeam != NO_TEAM)
+	{
+		iValue =  pkTeam->GetNumTurnsAtWar(eTeam);
+		
+	}
+	lua_pushnumber(L, iValue);
+	return 1;
+}
+int CvLuaTeam::lGetNumNaturalWondersDiscovered(lua_State* L)
+{
+	CvTeam* pkTeam = GetInstance(L);
+
+	const int iValue = pkTeam->GetNumNaturalWondersDiscovered();
+
+	lua_pushnumber(L, iValue);
+	return 1;
 }
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)

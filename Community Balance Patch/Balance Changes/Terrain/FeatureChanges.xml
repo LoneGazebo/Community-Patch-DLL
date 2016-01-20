@@ -55,14 +55,6 @@
 			<Yield>3</Yield>
 		</Row>
 	</Feature_YieldChanges>
-	<Feature_YieldChanges>
-		<Delete FeatureType="FEATURE_OASIS" />
-		<Row>
-			<FeatureType>FEATURE_OASIS</FeatureType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
-		</Row>
-	</Feature_YieldChanges>
 	<Feature_TerrainBooleans>
 		<Row>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>

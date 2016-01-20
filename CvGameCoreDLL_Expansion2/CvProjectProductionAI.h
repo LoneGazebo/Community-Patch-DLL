@@ -44,6 +44,9 @@ public:
 
 	// Recommend highest-weighted Project
 	ProjectTypes RecommendProject();
+#if defined(MOD_BALANCE_CORE)
+	int CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight);
+#endif
 
 	// Logging
 	void LogPossibleBuilds();

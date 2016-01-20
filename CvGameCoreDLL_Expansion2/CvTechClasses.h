@@ -246,11 +246,18 @@ public:
 	int GetCivTechPriority(TechTypes eIndex) const;
 	void SetLocaleTechPriority(TechTypes eIndex, int iNewValue);
 	int GetLocaleTechPriority(TechTypes eIndex) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetGSTechPriority(TechTypes eIndex) const;
+	void SetGSTechPriority(TechTypes eIndex, int iNewValue);
+#endif
 	ResourceTypes GetLocaleTechResource(TechTypes eIndex) const;
 	UnitTypes GetCivTechUniqueUnit(TechTypes eIndex) const;
 	BuildingTypes GetCivTechUniqueBuilding(TechTypes eIndex) const;
 	ImprovementTypes GetCivTechUniqueImprovement(TechTypes eIndex) const;
 	void SetLocalePriorities();
+#if defined(MOD_BALANCE_CORE)
+	void SetGSPriorities();
+#endif
 	bool IsResearch() const;
 	bool CanEverResearch(TechTypes eTech) const;
 	bool CanResearch(TechTypes eTech, bool bTrade = false) const;
@@ -276,6 +283,9 @@ private:
 	bool* m_pabResearchingTech;
 	int* m_piCivTechPriority;
 	int* m_piLocaleTechPriority;
+#if defined(MOD_BALANCE_CORE)
+	int* m_piGSTechPriority;
+#endif
 	ResourceTypes* m_peLocaleTechResources;
 	UnitTypes* m_peCivTechUniqueUnits;
 	BuildingTypes* m_peCivTechUniqueBuildings;

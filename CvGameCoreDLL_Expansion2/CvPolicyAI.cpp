@@ -171,6 +171,43 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 			iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
 #if defined(MOD_BALANCE_CORE)
+			//Grand Strategy Considerations - if valid, it doubles our initial weighting.
+			// == Grand Strategy ==
+			AIGrandStrategyTypes eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+			bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+			bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+			bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo((PolicyTypes) iPolicyLoop);
+			if(pkPolicyInfo)
+			{
+				for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+				{
+					FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+					if(eFlavor == NO_FLAVOR)
+						continue;
+
+					if(pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
+					{
+						if(bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingConquestVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingCultureVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingScienceVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+					}
+				}
+			}
 			//If this is an ideology policy, let's snap those up.
 			if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
 			{

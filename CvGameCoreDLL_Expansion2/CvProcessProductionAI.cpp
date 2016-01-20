@@ -8,6 +8,13 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvProcessProductionAI.h"
 #include "CvInfosSerializationHelper.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMilitaryAI.h"
+#include "CvEconomicAI.h"
+#include "CvVotingClasses.h"
+#include "CvEconomicAI.h"
+#include "CvWonderProductionAI.h"
+#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -106,7 +113,288 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 {
 	return m_ProcessAIWeights.GetWeight(eProject);
 }
+#if defined(MOD_BALANCE_CORE)
+int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
+{
+	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
+	if(!pProcess)
+	{
+		return 0;
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
+	{
+		return 0;
+	}
+	if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	{
+		return 0;
+	}
 
+	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	// scale based on flavor and world size
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+	{
+		return 0;
+	}
+	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
+	AICityStrategyTypes eNeedFood = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD");
+	AICityStrategyTypes eNeedFoodNaval = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
+	EconomicAIStrategyTypes eGrowCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
+	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
+
+	//Help Venice use processes more rationally.
+	if(GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	{
+		CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)eProcess);
+		for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			YieldTypes eYield = (YieldTypes)iYield;
+			if(pProcess->getProductionToYieldModifier(eYield) > 0)
+			{
+				iTempWeight = m_pCity->GetCityStrategyAI()->GetProcessProductionAI()->GetWeight(eProcess);
+				iTempWeight /= 10;
+			}
+		}
+	}
+
+	//Yield value.
+	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if(pProcess->getProductionToYieldModifier(eYield) > 0)
+		{
+			switch(eYield)
+			{
+				case YIELD_GOLD:
+				{
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						if(m_pCity->getUnhappinessFromGold() > 0)
+						{
+							iTempWeight *= (m_pCity->getUnhappinessFromGold() * 2);
+						}
+					}
+					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+					{
+						iTempWeight *= 5;
+					}
+				}
+				break;
+				case YIELD_CULTURE:
+				{
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						if(m_pCity->getUnhappinessFromCulture() > 0)
+						{
+							iTempWeight *= (m_pCity->getUnhappinessFromCulture() * 2);
+						}
+					}
+					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+					{
+						iTempWeight *= 2;
+					}
+				}
+				break;
+				case YIELD_SCIENCE:
+				{
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						if(m_pCity->getUnhappinessFromScience() > 0)
+						{
+							iTempWeight *= (m_pCity->getUnhappinessFromScience() * 2);
+						}
+					}
+					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
+					{
+						iTempWeight *= 2;
+					}
+				}
+				break;
+				case YIELD_FOOD:
+				{
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						if(m_pCity->getUnhappinessFromStarving() > 0)
+						{
+							iTempWeight *= (m_pCity->getUnhappinessFromStarving() * 2);
+						}
+					}
+					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
+					{
+						iTempWeight *= 2;
+					}
+					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
+					{
+						iTempWeight *= 2;
+					}
+					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
+					{
+						iTempWeight *= 2;
+					}
+				}
+				break;
+			}
+		}
+	}
+	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
+	{
+		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
+		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
+		if (pInfo && pInfo->GetProcess() == eProcess)
+		{
+			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
+			{
+				FStaticVector<LeagueProjectRewardTypes, 4, true, c_eCiv5GameplayDLL> veRewards;
+				veRewards.push_back(pInfo->GetRewardTier3());
+				veRewards.push_back(pInfo->GetRewardTier2());
+				veRewards.push_back(pInfo->GetRewardTier1());
+			
+				for (uint i = 0; i < veRewards.size(); i++)
+				{
+					CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(veRewards[i]);
+					CvAssert(pRewardInfo);
+					if (!pRewardInfo) continue;
+
+					// Free Building in Capital
+					if (pRewardInfo->GetBuilding() != NO_BUILDING)
+					{
+						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
+						if(pBuildingInfo && GET_PLAYER(m_pCity->getOwner()).GetWonderProductionAI()->IsWonder(*pBuildingInfo))
+						{
+							iTempWeight += GET_PLAYER(m_pCity->getOwner()).GetWonderProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+						}
+						else
+						{
+							iTempWeight += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+						}
+					}
+
+					// Happiness
+					if (pRewardInfo->GetHappiness() != 0)
+					{
+						iTempWeight += pRewardInfo->GetHappiness() * (20 - GET_PLAYER(m_pCity->getOwner()).GetHappiness());
+					}
+
+					// Free Social Policy
+					if (pRewardInfo->GetFreeSocialPolicies() > 0)
+					{
+						iTempWeight *= GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned();
+					}
+
+					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
+					// Temporary Culture Modifier
+					if (pRewardInfo->GetCultureBonusTurns() > 0)
+					{			
+						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+						{
+							iTempWeight *= 10;
+						}
+					}
+
+					// Temporary Tourism Modifier
+					if (pRewardInfo->GetTourismBonusTurns() > 0)
+					{
+						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+						{
+							iTempWeight *= 10;
+						}
+					}
+
+					// Golden Age Points
+					if (pRewardInfo->GetGoldenAgePoints() > 0)
+					{
+						if(GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
+						{
+							iTempWeight *= GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+						}
+						else
+						{
+							iTempWeight *= GET_PLAYER(m_pCity->getOwner()).getGoldenAgeModifier();
+						}
+						if(GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
+						{
+							iTempWeight /= 5;
+						}
+					}
+
+					// City-State Influence Boost
+					//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
+					EconomicAIStrategyTypes eStrategyUNGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_DIPLOMACY");
+					if (pRewardInfo->GetCityStateInfluenceBoost() > 0)
+					{		
+						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
+						{
+							iTempWeight *= 10;
+						}
+					}
+					EconomicAIStrategyTypes eStrategySpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
+					// Beaker boost based on previous turns
+					if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
+					{
+						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
+						{
+							iTempWeight *= 10;
+						}
+					}
+					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
+					
+					// Free unit class
+					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
+					{
+						UnitTypes eUnit = (UnitTypes) GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+						if (eUnit != NO_UNIT)
+						{
+							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+							if(pkUnitInfo)
+							{
+								if(pkUnitInfo->GetCombat() > 0)
+								{
+									if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+									{
+										iTempWeight *= 10;
+									}
+								}
+							}
+						}
+					}
+		
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+					{
+						//CSD Project Rewards
+						if (pRewardInfo->GetAttackBonusTurns() > 0)
+						{
+							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+							{
+								iTempWeight *= 15;
+							}
+						}
+						if (pRewardInfo->GetBaseFreeUnits() > 0)
+						{
+							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+							{
+								iTempWeight *= 15;
+							}
+						}
+						// Temporary Culture Modifier
+						if (pRewardInfo->GetNumFreeGreatPeople() > 0)
+						{
+							iTempWeight *= 25;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
+	{
+		iTempWeight /= 5;
+	}
+	return iTempWeight;
+}
+#endif
 
 /// Log all potential builds
 void CvProcessProductionAI::LogPossibleBuilds()
