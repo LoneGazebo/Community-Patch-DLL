@@ -1815,8 +1815,8 @@ void CvEconomicAI::DoHurry()
 {
 	int iLoop = 0;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
-  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) 
+#if defined(MOD_BALANCE_CORE)
+  if (MOD_BALANCE_CORE) 
   {
 	//Let's give the AI a treasury cushion ...
 	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
@@ -2305,6 +2305,20 @@ void CvEconomicAI::DoPlotPurchases()
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
+#if defined(MOD_BALANCE_CORE)
+		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			const YieldTypes eYield = static_cast<YieldTypes>(iI);
+			if(eYield == NO_YIELD)
+				continue;
+
+			if(m_pPlayer->GetPlayerTraits()->GetYieldFromTilePurchase(eYield) > 0)
+			{
+				iDiscountPercent *= 3;
+				iDiscountPercent /= 2;
+			}
+		}
+#endif
 		iBestScore = iBestScore - (iBestScore * iDiscountPercent / 100);
 
 		// Find the best city to buy a plot

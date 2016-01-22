@@ -2148,7 +2148,22 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
 				}
 #if defined(MOD_BALANCE_CORE)
-				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+				if(pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+				}
+				if(pPlot->getFeatureType() != NO_FEATURE)
+				{
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
+				}
+				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
+				}
+				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
+				}
 #endif
 			}
 			// No longer working pPlot
@@ -2164,7 +2179,22 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
 				}
 #if defined(MOD_BALANCE_CORE)
-				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+				if(pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+				}
+				if(pPlot->getFeatureType() != NO_FEATURE)
+				{
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
+				}
+				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
+				}
+				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
+				}
 #endif
 			}
 		}
@@ -2336,7 +2366,22 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 			if(pPlot != NULL)
 			{
-				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+				if(pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
+				}
+				if(pPlot->getFeatureType() != NO_FEATURE)
+				{
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
+				}
+				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
+				}
+				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
+				}
 			}
 #endif
 		}
@@ -2346,7 +2391,22 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 			if(pPlot != NULL)
 			{
-				GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+				if(pPlot->getTerrainType() != NO_TERRAIN)
+				{
+					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
+				}
+				if(pPlot->getFeatureType() != NO_FEATURE)
+				{
+					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
+				}
+				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				{
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
+				}
+				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
+				}
 			}
 #endif
 		}
@@ -3369,6 +3429,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				if(iCultureYield > 0)
 				{
 					kPlayer.changeJONSCulture(iCultureYield * iEra);
+					GetCity()->ChangeJONSCultureStored(iCultureYield * iEra);
 					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};

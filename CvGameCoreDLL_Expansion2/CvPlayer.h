@@ -1300,6 +1300,9 @@ public:
 	CvString GetCurrencyName() const;
 
 	//DONE
+	void DoArmyDiversity();
+	int GetArmyDiversity() const;
+
 	bool CanArchaeologicalDigTourism() const;
 	void ChangeArchaeologicalDigTourism(int iChange);
 	int GetArchaeologicalDigTourism() const;
@@ -2778,6 +2781,7 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
+	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
 	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;

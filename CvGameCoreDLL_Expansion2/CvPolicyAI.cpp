@@ -213,6 +213,14 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			{
 				iWeight *= (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() + 1);
 			}
+			if(pPlayer->GetCorporateFounderID() == -1)
+			{
+				//Corporate-specific policies should only be taken if you have a corporation.
+				if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsOrderCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsFreedomCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsAutocracyCorp())
+				{
+					iWeight = 0;
+				}
+			}
 			//Older branches should be slowly phased out.
 			PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType();
 			if(ePolicyBranch != NO_POLICY_BRANCH_TYPE)

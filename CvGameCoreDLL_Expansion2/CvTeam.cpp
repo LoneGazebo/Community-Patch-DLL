@@ -6273,47 +6273,63 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									float fDelay = 3.0;
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
 									{
-										kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.ChangeFaith(iValue);
 										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
 									{
-										kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.GetTreasury()->ChangeGold(iValue);
 										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
 									{
-										kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.changeJONSCulture(iValue);
+										if(kPlayer.getCapitalCity() != NULL)
+										{
+											kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+										}
 										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+											sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
 									{
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
 										TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 										if(eCurrentTech == NO_TECH)
 										{
-											kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+											kPlayer.changeOverflowResearch(iValue);
 										}
 										else
 										{
-											GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+											GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
 										}
 										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
@@ -6326,12 +6342,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 									{
-										kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.ChangeGoldenAgeProgressMeter(iValue);
 										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 
@@ -6551,47 +6570,63 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												float fDelay = 3.0;
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
 												{
-													kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.ChangeFaith(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+														sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
 												{
-													kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.GetTreasury()->ChangeGold(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
 												{
-													kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.changeJONSCulture(iValue);
+													if(kPlayer.getCapitalCity() != NULL)
+													{
+														kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+													}
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+														sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
 												{
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
 													TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 													if(eCurrentTech == NO_TECH)
 													{
-														kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+														kPlayer.changeOverflowResearch(iValue);
 													}
 													else
 													{
-														GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+														GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
 													}
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
@@ -6604,12 +6639,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 												{
-													kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.ChangeGoldenAgeProgressMeter(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 
@@ -8516,6 +8554,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						kPlayer.GetTreasury()->ChangeGold(iHandicap);
 						kPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
 						kPlayer.changeJONSCulture(iHandicap / 3);
+						if(kPlayer.getCapitalCity() != NULL)
+					{
+						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+					}
 
 						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 						

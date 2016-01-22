@@ -121,18 +121,24 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	{
 		return 0;
 	}
-	if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
+
+	if(iTempWeight == 0)
+		return 0;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if(kPlayer.isMinorCiv())
 	{
 		return 0;
 	}
-	if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	if(!kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
 	{
 		return 0;
 	}
 
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
-	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 	{
 		return 0;
 	}
@@ -142,9 +148,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	AICityStrategyTypes eNeedFoodNaval = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
 	EconomicAIStrategyTypes eGrowCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
 	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
+	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
 
 	//Help Venice use processes more rationally.
-	if(GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	if(kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
 	{
 		CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)eProcess);
 		for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -162,6 +169,13 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
+		if(eYield == NO_YIELD)
+			continue;
+
+		if(m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
+		{
+			iTempWeight *= 2;
+		}
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
 			switch(eYield)
@@ -175,7 +189,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iTempWeight *= (m_pCity->getUnhappinessFromGold() * 2);
 						}
 					}
-					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
 						iTempWeight *= 5;
 					}
@@ -190,7 +204,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iTempWeight *= (m_pCity->getUnhappinessFromCulture() * 2);
 						}
 					}
-					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+					{
+						iTempWeight *= 2;
+					}
+					if(eGoodGP != NO_AICITYSTRATEGY &&  m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP))
 					{
 						iTempWeight *= 2;
 					}
@@ -207,7 +225,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					}
 					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
 					{
-						iTempWeight *= 2;
+						iTempWeight *= 3;
 					}
 				}
 				break;
@@ -220,7 +238,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iTempWeight *= (m_pCity->getUnhappinessFromStarving() * 2);
 						}
 					}
-					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
+					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
 					{
 						iTempWeight *= 2;
 					}
@@ -260,9 +278,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if (pRewardInfo->GetBuilding() != NO_BUILDING)
 					{
 						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
-						if(pBuildingInfo && GET_PLAYER(m_pCity->getOwner()).GetWonderProductionAI()->IsWonder(*pBuildingInfo))
+						if(pBuildingInfo && kPlayer.GetWonderProductionAI()->IsWonder(*pBuildingInfo))
 						{
-							iTempWeight += GET_PLAYER(m_pCity->getOwner()).GetWonderProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							iTempWeight += kPlayer.GetWonderProductionAI()->GetWeight(pRewardInfo->GetBuilding());
 						}
 						else
 						{
@@ -273,20 +291,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Happiness
 					if (pRewardInfo->GetHappiness() != 0)
 					{
-						iTempWeight += pRewardInfo->GetHappiness() * (20 - GET_PLAYER(m_pCity->getOwner()).GetHappiness());
+						iTempWeight += pRewardInfo->GetHappiness() * (20 - kPlayer.GetHappiness());
 					}
 
 					// Free Social Policy
 					if (pRewardInfo->GetFreeSocialPolicies() > 0)
 					{
-						iTempWeight *= GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned();
+						iTempWeight *= kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned();
 					}
 
 					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
 					// Temporary Culture Modifier
 					if (pRewardInfo->GetCultureBonusTurns() > 0)
 					{			
-						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
 							iTempWeight *= 10;
 						}
@@ -295,7 +313,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Temporary Tourism Modifier
 					if (pRewardInfo->GetTourismBonusTurns() > 0)
 					{
-						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
 							iTempWeight *= 10;
 						}
@@ -304,15 +322,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Golden Age Points
 					if (pRewardInfo->GetGoldenAgePoints() > 0)
 					{
-						if(GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
+						if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
 						{
-							iTempWeight *= GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+							iTempWeight *= kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
 						}
 						else
 						{
-							iTempWeight *= GET_PLAYER(m_pCity->getOwner()).getGoldenAgeModifier();
+							iTempWeight *= kPlayer.getGoldenAgeModifier();
 						}
-						if(GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
+						if(kPlayer.isGoldenAge())
 						{
 							iTempWeight /= 5;
 						}
@@ -323,7 +341,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					EconomicAIStrategyTypes eStrategyUNGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_DIPLOMACY");
 					if (pRewardInfo->GetCityStateInfluenceBoost() > 0)
 					{		
-						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
+						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
 						{
 							iTempWeight *= 10;
 						}
@@ -332,7 +350,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Beaker boost based on previous turns
 					if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
 					{
-						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
+						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
 						{
 							iTempWeight *= 10;
 						}
@@ -342,7 +360,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Free unit class
 					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes) GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+						UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
 						if (eUnit != NO_UNIT)
 						{
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
@@ -350,7 +368,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							{
 								if(pkUnitInfo->GetCombat() > 0)
 								{
-									if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+									if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 									{
 										iTempWeight *= 10;
 									}
@@ -365,14 +383,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						//CSD Project Rewards
 						if (pRewardInfo->GetAttackBonusTurns() > 0)
 						{
-							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
 								iTempWeight *= 15;
 							}
 						}
 						if (pRewardInfo->GetBaseFreeUnits() > 0)
 						{
-							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
 								iTempWeight *= 15;
 							}
@@ -388,7 +406,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 		}
 	}
-	if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
+	if(kPlayer.IsAtWarAnyMajor())
 	{
 		iTempWeight /= 5;
 	}

@@ -524,6 +524,7 @@ CvPlayer::CvPlayer() :
 	, m_bJFDSecularized("CvPlayer::m_bJFDSecularized", m_syncArchive)
 	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
 	, m_iArchaeologicalDigTourism("CvPlayer::m_iArchaeologicalDigTourism", m_syncArchive)
+	, m_iUnitDiversity("CvPlayer::m_iUnitDiversity", m_syncArchive)
 	, m_iGoldenAgeTourism("CvPlayer::m_iGoldenAgeTourism", m_syncArchive)
 	, m_iRazingSpeedBonus("CvPlayer::m_iRazingSpeedBonus", m_syncArchive)
 	, m_iNoPartisans("CvPlayer::m_iNoPartisans", m_syncArchive)
@@ -1410,6 +1411,7 @@ void CvPlayer::uninit()
 	m_iUpgradeCSTerritory = 0;
 	m_iArchaeologicalDigTourism = 0;
 	m_iGoldenAgeTourism = 0;
+	m_iUnitDiversity = -1;
 	m_iRazingSpeedBonus = 0;
 	m_iNoPartisans = 0;
 	m_iSpawnCooldown = 0;
@@ -6046,7 +6048,7 @@ void CvPlayer::doTurn()
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
 	GET_TEAM(getTeam()).updateTeamStatus();
-
+	DoArmyDiversity();
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
 #endif
@@ -13777,7 +13779,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 				case YIELD_CULTURE:
 					changeJONSCulture(iValue);
 #if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GetPlayerTraits()->GetCultureFromKills() > 0)
+					if(getCapitalCity() != NULL)
 					{
 						getCapitalCity()->ChangeJONSCultureStored(iValue);
 					}
@@ -18215,64 +18217,83 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) > 0)
 			{
-				ChangeFaith(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+				int iValue = (pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				ChangeFaith(iValue);
 				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) > 0)
 			{
-				GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+				int iValue = (pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				GetTreasury()->ChangeGold(iValue);
 				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) > 0)
 			{
+				int iValue = (pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
 				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 				if(eCurrentTech == NO_TECH)
 				{
-					changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
+					changeOverflowResearch(iValue);
 				}
 				else
 				{
-					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra, GetID());
+					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
 				}
 				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
 					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) > 0)
 			{
-				changeJONSCulture(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+				int iValue = (pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				changeJONSCulture(iValue);
+				if(getCapitalCity() != NULL)
+				{
+					getCapitalCity()->ChangeJONSCultureStored(iValue);
+				}
 				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 			{
-				ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				int iValue = (pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				ChangeGoldenAgeProgressMeter(iValue);
 				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 				{
 					char text[256] = {0};
 					fDelay += 0.5f;
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 				}
 			}
@@ -18942,6 +18963,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 						GetTreasury()->ChangeGold(iHandicap);
 						ChangeGoldenAgeProgressMeter(iHandicap);
 						changeJONSCulture(iHandicap / 3);
+						if(getCapitalCity() != NULL)
+						{
+							getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+						}
 				
 						int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 
@@ -19861,7 +19886,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 					iEra = 1;
 				}
 				iYieldBonus *= iEra;
-					
+				CvPlot* pPlot = pGreatPersonUnit->plot(); 
+				CvCity* pCity = pPlot->isCity() ? pPlot->getPlotCity() : pPlot->GetAdjacentCity();
 				switch(eYield)
 				{
 				case YIELD_GOLD:
@@ -19876,6 +19902,11 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 					break;
 				case YIELD_CULTURE:
 					changeJONSCulture(iYieldBonus);
+					if (pCity && pGreatPersonUnit->getTeam() == pCity->getTeam()) 
+					{
+						pCity->ChangeJONSCultureStored(iYieldBonus);
+					}
+					
 					if(GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
@@ -19990,6 +20021,12 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		if(iCultureYield > 0)
 		{
 			changeJONSCulture(iCultureYield * iEra);
+			CvPlot* pPlot = pGreatPersonUnit->plot(); 
+			CvCity* pCity = pPlot->isCity() ? pPlot->getPlotCity() : pPlot->GetAdjacentCity();
+			if (pCity && pGreatPersonUnit->getTeam() == pCity->getTeam()) 
+			{
+				pCity->ChangeJONSCultureStored(iCultureYield * iEra);
+			}
 			if(GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -20062,6 +20099,12 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 			if(iCulture > 0)
 			{
 				changeJONSCulture(iCulture);
+				CvPlot* pPlot = pGreatPersonUnit->plot(); 
+				CvCity* pCity = pPlot->isCity() ? pPlot->getPlotCity() : pPlot->GetAdjacentCity();
+				if (pCity && pGreatPersonUnit->getTeam() == pCity->getTeam()) 
+				{
+					pCity->ChangeJONSCultureStored(iCulture);
+				}
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
@@ -20321,6 +20364,12 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		iYield /= 100;
 
 		changeJONSCulture(iYield);
+		CvPlot* pPlot = pGreatPersonUnit->plot(); 
+		CvCity* pCity = pPlot->isCity() ? pPlot->getPlotCity() : pPlot->GetAdjacentCity();
+		if (pCity && pGreatPersonUnit->getTeam() == pCity->getTeam()) 
+		{
+			pCity->ChangeJONSCultureStored(iYield);
+		}
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
@@ -22386,6 +22435,37 @@ void CvPlayer::SetCurrencyName(const char* strKey)
 	m_strJFDCurrencyName = strKey;
 }
 	//JFD DONE
+void CvPlayer::DoArmyDiversity()
+{
+	//////Let's get sum total of all land military unit AI types and boost the lowest type.
+	int iLowest = MAX_INT;
+	int iUnitAI = -1;
+	m_iUnitDiversity = -1;
+	for(int iJ = 0; iJ < NUM_UNITAI_TYPES; iJ++)
+	{
+		UnitAITypes eUnitAI = (UnitAITypes)iJ;
+		if(eUnitAI == NO_UNITAI)
+			continue;
+
+		if(eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_CITY_BOMBARD || eUnitAI == UNITAI_FAST_ATTACK  || eUnitAI == UNITAI_DEFENSE || eUnitAI == UNITAI_COUNTER || eUnitAI == UNITAI_RANGED)
+		{
+			int iNumUnits = GetNumUnitsWithUnitAI((UnitAITypes)iJ, true, false);
+			if(iNumUnits < iLowest)
+			{
+				iLowest = iNumUnits;
+				iUnitAI = iJ;
+			}
+		}
+	}
+	if(iUnitAI != -1)
+	{
+		m_iUnitDiversity = iUnitAI;
+	}
+}
+int CvPlayer::GetArmyDiversity() const
+{
+	return m_iUnitDiversity;
+}
 //	--------------------------------------------------------------------------------
 bool CvPlayer::CanArchaeologicalDigTourism() const
 {

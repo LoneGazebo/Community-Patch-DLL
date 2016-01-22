@@ -249,10 +249,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 				// if we are forced to restart a wonder, give one that has been started already a huge bump
 				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
-#if defined(MOD_BALANCE_CORE)
-				iTempWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iTempWeight);
-#else
-
+#if !defined(MOD_BALANCE_CORE)
 				// Don't build the UN if you aren't going for the diplo victory
 				if(pkBuildingInfo->IsDiplomaticVoting())
 				{
@@ -300,7 +297,12 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 #endif
 
 				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
-
+#if defined(MOD_BALANCE_CORE)
+				if(iWeight > 0)
+				{
+					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight);
+				}
+#endif
 				if(bAdjustForOtherPlayers && ::isWorldWonderClass(kBuildingClassInfo))
 				{
 					// Adjust weight for this wonder down based on number of other players currently working on it
@@ -390,6 +392,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWei
 			{
 				iWeight = m_WonderAIWeights.GetWeight((UnitTypes)iBldgLoop); // use raw weight since this wonder is essentially free
 				// Don't build the UN if you aren't going for the diplo victory and have a chance of winning it
+#if !defined(MOD_BALANCE_CORE)
 				if(pkBuildingInfo->IsDiplomaticVoting())
 				{
 					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
@@ -433,6 +436,13 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWei
 						iWeight = 0;
 					}
 				}
+#endif
+#if defined(MOD_BALANCE_CORE)
+				if(iWeight > 0)
+				{
+					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight);
+				}
+#endif
 				// ??? do we want to weight it more for more expensive wonders?
 				m_Buildables.push_back(iBldgLoop, iWeight);
 			}

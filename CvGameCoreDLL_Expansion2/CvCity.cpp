@@ -336,6 +336,9 @@ CvCity::CvCity() :
 	, m_bHasOffice("CvCity::m_bHasOffice", m_syncArchive)
 	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
+	, m_paiNumFeatureWorked("CvCity::m_paiNumFeatureWorked", m_syncArchive)
+	, m_paiNumResourceWorked("CvCity::m_paiNumResourceWorked", m_syncArchive)
+	, m_paiNumImprovementWorked("CvCity::m_paiNumImprovementWorked", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
@@ -364,6 +367,7 @@ CvCity::CvCity() :
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
 	, m_iNationalMissionaries("CvCity::m_iNationalMissionaries", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
+	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
@@ -751,7 +755,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{	
 			owningPlayer.GetTreasury()->ChangeGold(iHandicap);
 			owningPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
-			owningPlayer.changeJONSCulture(iHandicap / 3);
+			owningPlayer.changeJONSCulture(iHandicap / 2);
+			ChangeJONSCultureStored(iHandicap / 2);
 				
 			int iBeakersBonus = owningPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 			TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
@@ -769,7 +774,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				if(pLoopCity != NULL)
 				{
-					pLoopCity->changeFood(iHandicap / 6);
+					pLoopCity->changeFood(iHandicap / 4);
 				}
 			}
 			if((GC.getLogging() && GC.getAILogging()))
@@ -810,6 +815,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				{
 					case YIELD_CULTURE:
 						owningPlayer.changeJONSCulture(iYield);
+						ChangeJONSCultureStored(iYield);
 						if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
@@ -1448,6 +1454,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNationalMissionaries = 0;
+	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
@@ -1781,6 +1788,27 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		for(iI = 0; iI < iNumTerrainInfos; iI++)
 		{
 			m_paiNumTerrainWorked.setAt(iI, 0);
+		}
+
+		m_paiNumFeatureWorked.clear();
+		m_paiNumFeatureWorked.resize(iNumFeatureInfos);
+		for(iI = 0; iI < iNumFeatureInfos; iI++)
+		{
+			m_paiNumFeatureWorked.setAt(iI, 0);
+		}
+
+		m_paiNumResourceWorked.clear();
+		m_paiNumResourceWorked.resize(iNumResourceInfos);
+		for(iI = 0; iI < iNumResourceInfos; iI++)
+		{
+			m_paiNumResourceWorked.setAt(iI, 0);
+		}
+
+		m_paiNumImprovementWorked.clear();
+		m_paiNumImprovementWorked.resize(iNumImprovementInfos);
+		for(iI = 0; iI < iNumImprovementInfos; iI++)
+		{
+			m_paiNumImprovementWorked.setAt(iI, 0);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -6968,7 +6996,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	iCost *= (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_BUILDING_PURCHASE_COST_MODIFIER));
 	iCost /= 100;
 
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+#if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Increase cost based on # of techs researched.
@@ -6979,6 +7007,12 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 			iCost *= (100 + iTechProgress);
 			iCost /= 100;
 		}
+	}
+	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	{
+		//Decrease base cost, then increase based on # of cities in empire.
+		iCost /= 2;
+		iCost *= max(1, (GET_PLAYER(getOwner()).getNumCities() / 3));
 	}
 #endif
 
@@ -8719,6 +8753,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						GET_PLAYER(getOwner()).changeJONSCulture(iYield);
+						ChangeJONSCultureStored(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GOLD) > 0)
 					{
@@ -8947,6 +8982,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(MOD_BALANCE_CORE && (pBuildingInfo->GetBorderObstacleCity() > 0))
 		{
 			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
+		}
+		if(MOD_BALANCE_CORE && (pBuildingInfo->GetBorderObstacleWater() > 0))
+		{
+			ChangeBorderObstacleWater(pBuildingInfo->GetBorderObstacleWater() * iChange);
 		}
 		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLTKDTurns() > 0))
 		{
@@ -13131,6 +13170,51 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 	CvAssert(GetNumTerrainWorked(eTerrain) >= 0);
 }
 //	--------------------------------------------------------------------------------
+int CvCity::GetNumFeatureWorked(FeatureTypes eFeature)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiNumFeatureWorked[eFeature];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiNumFeatureWorked.setAt(eFeature, m_paiNumFeatureWorked[eFeature] + iChange);
+	CvAssert(GetNumFeatureWorked(eFeature) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetNumResourceWorked(ResourceTypes eResource)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiNumResourceWorked[eResource];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNumResourceWorked(ResourceTypes eResource, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiNumResourceWorked.setAt(eResource, m_paiNumResourceWorked[eResource] + iChange);
+	CvAssert(GetNumResourceWorked(eResource) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetNumImprovementWorked(ImprovementTypes eImprovement)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiNumImprovementWorked[eImprovement];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiNumImprovementWorked.setAt(eImprovement, m_paiNumImprovementWorked[eImprovement] + iChange);
+	CvAssert(GetNumImprovementWorked(eImprovement) >= 0);
+}
+//	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
@@ -14338,8 +14422,8 @@ bool CvCity::DoRazingTurn()
 			}
 			// In hundreds
 			CvGame& theGame = GC.getGame();
-			int iNumRebels = (getPopulation() * 10); //Based on city size.
-			int iExtraRoll = (theGame.getCurrentEra() * 10 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			int iNumRebels = (getPopulation() * 7); //Based on city size.
+			int iExtraRoll = (theGame.getCurrentEra() * 7 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
 			iNumRebels += theGame.getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
@@ -14422,13 +14506,13 @@ bool CvCity::DoRazingTurn()
 				UnitTypes eUnit = NO_UNIT;
 				if(isCoastal())
 				{
-					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true);
+					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
 				}
 				else
 				{
-					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false);
+					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
 				}
-				UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false);
+				UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
 				if(eUnit == NO_UNIT || emUnit == NO_UNIT)
 				{
 					return false;
@@ -14455,7 +14539,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pmUnit->setMoves(1);
-							pmUnit->setDamage(theGame.getJonRandNum(20, "damage"));
+							pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
 						}
 					}
 
@@ -14474,7 +14558,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pUnit->setMoves(1);
-							pUnit->setDamage(theGame.getJonRandNum(20, "damage"));
+							pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
 						}
 					}
 				}
@@ -16063,6 +16147,26 @@ void CvCity::SetBorderObstacleCity(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iBorderObstacleCity = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetBorderObstacleWater() const
+{
+	VALIDATE_OBJECT
+	return m_iBorderObstacleWater;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBorderObstacleWater(int iChange)
+{
+	VALIDATE_OBJECT
+	SetBorderObstacleWater(GetBorderObstacleWater() + iChange);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBorderObstacleWater(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iBorderObstacleWater = iValue;
 }
 
 
@@ -17882,8 +17986,8 @@ void CvCity::TestBastion()
 		}
 		return;
 	}
-	//Coastal? Check for lake, otherwise make a bastion (better safe than sorry).
-	if(plot()->isCoastalLand())
+	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
+	if(plot()->isCoastalLand() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
@@ -22526,6 +22630,7 @@ bool CvCity::doCheckProduction()
 								//Wonders converted into Culture Points.
 								iProductionGold = (iProductionGold * GC.getBALANCE_CULTURE_PERCENTAGE_VALUE()) / 100;
 								thisPlayer.changeJONSCulture(iProductionGold * iEra);
+								ChangeJONSCultureStored(iProductionGold * iEra);
 							}
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 3)
 							{

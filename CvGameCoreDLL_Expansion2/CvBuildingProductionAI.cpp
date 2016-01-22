@@ -236,38 +236,63 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 }
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
-int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,int iNumLandConnection, int iNumSeaConnection)
+int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection, int iNumSeaConnection)
 {
 	if(m_pCity == NULL)
 		return 0;
 
-	if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if(kPlayer.isMinorCiv())
 		return iValue;
 
 	if(eBuilding == NO_BUILDING)
 		return 0;
 
+	if(iValue == 0)
+		return 0;
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-	bool bIsVenice = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing();
+
+	//Skip if null
+	if(pkBuildingInfo == NULL)
+		return 0;
+
 	if(m_pCity->IsPuppet())
 	{
-		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || ((isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo)) && !bIsVenice))
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+		{
+			return 0;
+		}
+	}
+
+	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+	if(m_pCity->IsPuppet() && !bIsVenice)
+	{
+		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+		{
+			return 0;
+		}
+	}
+	else if(m_pCity->IsPuppet() && bIsVenice)
+	{
+		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo))
 		{
 			return 0;
 		}
 	}
 	
 	//Let's not send uniques through this - they're generally good enough to spam.
-	if((BuildingTypes)GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo().isCivilizationBuildingOverridden(eBuilding))
+	if((BuildingTypes)kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(eBuilding))
 	{
-		iValue *= 10;
+		iValue *= 20;
 		return iValue;
 	}
 
-	//Skip if null
-	if(pkBuildingInfo == NULL)
-		return 0;
+	//Bonus % additive. All values below will be added to this and combined with real value at end.
+	int iBonus = 0;
 
 	////////////
 	///GEOGRAPHY
@@ -279,11 +304,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Airlift
 	if(pkBuildingInfo->IsAirlift())
 	{
-		if(!m_pCity->isCapital() && GET_PLAYER(m_pCity->getOwner()).getCapitalCity() != NULL)
+		if(!m_pCity->isCapital() && kPlayer.getCapitalCity() != NULL)
 		{
-			if(m_pCity->getArea() != GET_PLAYER(m_pCity->getOwner()).getCapitalCity()->getArea())	
+			if(m_pCity->getArea() != kPlayer.getCapitalCity()->getArea())	
 			{
-				iValue *= 5;
+				iBonus += 25;
 			}
 		}
 	}
@@ -291,18 +316,44 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Defense Needs
 	if(m_pCity->IsBastion())
 	{
+		if(pkBuildingInfo->GetNukeModifier() > 0)
+		{
+			iBonus += (pkBuildingInfo->GetNukeModifier() / 5);
+		}
+		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
+		{
+			iBonus += pkBuildingInfo->GetGlobalDefenseModifier();
+		}
 		if(pkBuildingInfo->GetDefenseModifier() > 0)
 		{
-			iValue *= pkBuildingInfo->GetDefenseModifier();
+			iBonus += (pkBuildingInfo->GetDefenseModifier() / 5);
 		}
-	}
-	else if(!m_pCity->IsBastion() && pkBuildingInfo->GetDefenseModifier() > 0)
-	{
-		iValue /= 10;
+		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
+		{
+			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
+		}
+		if(m_pCity->plot()->isCoastalLand())
+		{
+			if(pkBuildingInfo->GetBorderObstacleWater() > 0)
+			{
+				iBonus += 25;
+			}
+		}
+		else
+		{
+			if(pkBuildingInfo->GetBorderObstacleCity() > 0)
+			{
+				iBonus += 33;
+			}
+			if(pkBuildingInfo->IsBorderObstacle())
+			{
+				iBonus += 33;
+			}
+		}
 	}
 
 	//No Land trade connections?
-	if(pkBuildingInfo->GetLandTourismEnd() > 0 || pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
+	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
 	{	
 		if(iNumLandConnection == 0)
 		{
@@ -311,28 +362,45 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		else
 		{
 			//Higher value the higher the number of routes.
-			iValue *= 100;
-			iValue /= max(1, (100 - iNumLandConnection));
+			iBonus += (iNumLandConnection * 10);
+			if(kPlayer.GetPlayerTraits()->GetLandTradeRouteRangeBonus() > 0)
+			{
+				iBonus += 25;
+			}
 		}
 	}
 
 	//No Sea Trade Connections?
-	if(pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
+	if(pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
 	{
-		if(iNumSeaConnection == 0)
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if(iNumSeaConnection == 0 && m_pCity->IsConnectedToCapital())
 		{
 			return 0;
+		}
+		else if(iNumSeaConnection == 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+		{
+			iBonus += 50;
 		}
 		else
 		{
 			//Higher value the higher the number of routes.
-			iValue *= 100;
-			iValue /= max(1, (100 - iNumSeaConnection));
+			iBonus += (iNumSeaConnection * 10);
+			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
+			{
+				iBonus += 25;
+			}
 		}
 	}
+
 	if(pkBuildingInfo->IsAddsFreshWater() && m_pCity->plot()->isFreshWater())
 	{
-		iValue /= 2;
+		iBonus += 50;
+	}
+	
+	if(isWorldWonderClass(kBuildingClassInfo))
+	{
+		iBonus += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
 	}
 
 	if(pkBuildingInfo->IsExtraLuxuries())
@@ -357,8 +425,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else
 		{
-			iValue *= 100;
-			iValue /= max(1, (120 - iResource));
+			iBonus += iResource;
+		}
+	}
+
+	///Free Resources
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if(pkResource)
+		{
+			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)
+			{
+				//Decrease value based on # we own.
+				int iNumOwned = kPlayer.getNumResourceAvailable(eResource, false);
+				iBonus += (20 - iNumOwned);
+			}
 		}
 	}
 
@@ -366,63 +449,81 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	////Happiness (CBP)
 	////////
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		// find flavors
-		FlavorTypes eFlavorScience = NO_FLAVOR;
-		FlavorTypes eFlavorGold = NO_FLAVOR;
-		FlavorTypes eFlavorCulture = NO_FLAVOR;
-		FlavorTypes eFlavorDefense = NO_FLAVOR;
-		FlavorTypes eFlavorReligion = NO_FLAVOR;
-		for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-		{
-			if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
-			{
-				eFlavorScience = (FlavorTypes)iFlavorLoop;
-			}
-			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
-			{
-				eFlavorGold = (FlavorTypes)iFlavorLoop;
-			}
-			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CITY_DEFENSE")
-			{
-				eFlavorDefense = (FlavorTypes)iFlavorLoop;
-			}
-			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CULTURE")
-			{
-				eFlavorCulture = (FlavorTypes)iFlavorLoop;
-			}
-			else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
-			{
-				eFlavorReligion = (FlavorTypes)iFlavorLoop;
-			}
-		}
-		if(m_pCity->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorCulture) > 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
-		{
-			iValue *= (m_pCity->getUnhappinessFromCulture() * 10);
-		}
-		if(m_pCity->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorGold) > 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
-		{
-			iValue *= (m_pCity->getUnhappinessFromGold() * 10);
-		}
-		if(m_pCity->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorDefense) > 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
-		{
-			iValue *= (m_pCity->getUnhappinessFromDefense() * 10);
-		}
-		if(m_pCity->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorScience) > 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
-		{
-			iValue *= (m_pCity->getUnhappinessFromScience() * 10);
-		}
-		if(m_pCity->getUnhappinessFromReligion() > 0 && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
-		{
-			iValue *= (m_pCity->getUnhappinessFromReligion() * 10);
-		}
-	}
-	if(GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
+	if(kPlayer.IsEmpireUnhappy())
 	{
 		if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
 		{
-			iValue *= 10;
+			iBonus += kPlayer.GetUnhappiness();
+		}
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
+		{
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if(eBuildingLoop == NO_BUILDING)
+				continue;
+
+			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+			if(pkLoopBuilding)
+			{
+				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
+				{
+					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 5);
+				}
+			}
+		}
+	}
+
+	FlavorTypes eFlavorScience = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE");
+	FlavorTypes eFlavorGold = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD");
+	FlavorTypes eFlavorCulture = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
+	FlavorTypes eFlavorDefense = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE");
+	FlavorTypes eFlavorReligion = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
+
+	bool bTested = false;
+	//Only checking for buildings that matter, and only once per test (based on prioritization of city happiness logic.
+	if((pkBuildingInfo->GetFlavorValue(eFlavorGold) > 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0))
+	{
+		int iUnhappyGold = m_pCity->getUnhappinessFromGold();
+		if(iUnhappyGold > 0)
+		{
+			bTested = true;
+			iBonus += (iUnhappyGold * 10);
+		}
+	}
+	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorDefense) > 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+	{
+		int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
+		if(iUnhappyDefense > 0)
+		{
+			bTested = true;
+			iBonus += (iUnhappyDefense * 10);
+		}
+	}
+	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+	{
+		int iUnhappyReligion = m_pCity->getUnhappinessFromReligion();
+		if(iUnhappyReligion > 0)
+		{
+			bTested = true;
+			iBonus += (iUnhappyReligion * 10);
+		}
+	}
+	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorCulture) > 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+	{
+		int iUnhappyCulture = m_pCity->getUnhappinessFromCulture();
+		if(iUnhappyCulture > 0)
+		{
+			bTested = true;
+			iBonus += (iUnhappyCulture * 10);
+		}
+	}
+	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorScience) > 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+	{
+		int iUnhappyScience = m_pCity->getUnhappinessFromScience();
+		if(iUnhappyScience > 0)
+		{
+			bTested = true;
+			iBonus += (iUnhappyScience * 10);
 		}
 	}
 
@@ -430,44 +531,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////Specific Concepts
 	///////
 
-	if(pkBuildingInfo->GetLandmarksTourismPercent() > 0)
-	{
-		int iFromWonders = m_pCity->GetCityCulture()->GetCultureFromWonders();
-		int iFromNaturalWonders = m_pCity->GetCityCulture()->GetCultureFromNaturalWonders();
-		int iFromImprovements = m_pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
-
-		int iTest = (iFromWonders + iFromNaturalWonders + iFromImprovements);
-		iTest = range(iTest,0,99);
-
-		//Higher value the higher the number of routes.
-		iValue *= 100;
-		iValue /= (100-iTest);
-	}
-	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
-	{
-		int iWorks = m_pCity->GetCityCulture()->GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
-		iWorks = range(iWorks,0,99);
-
-		//Higher value the higher the number of works.
-		iValue *= 100;
-		iValue /= (100-iWorks);
-	}
-
-	//Faith Bonus for Faith Civs
-	if(pkBuildingInfo && pkBuildingInfo->GetYieldChange(YIELD_FAITH) > 0)
-	{
-		if(GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly() || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsBonusReligiousBelief() || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsReconquista() || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetFaithFromKills() > 0 || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsFaithFromUnimprovedForest())
-		{
-			iValue *= 25;
-		}
-	}
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
+		//Virtually force this.
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 		if(m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
-			iValue *= 100;
+			iBonus += 100;
+		}
+	}
+	//Courthouse? Let's get it.
+	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
+	{
+		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
+		{
+			iBonus += 50;
 		}
 	}
 #endif
@@ -488,212 +567,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
 					{
-						iValue *= m_pCity->getDomainFreeExperience(eTestDomain);
+						iBonus += m_pCity->getDomainFreeExperience(eTestDomain);
 					}
 				}		
 				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(DOMAIN_LAND) > 0)
 				{
 					if(m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
 					{
-						iValue *= m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain);
+						iBonus += m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain);
 					}
 				}
 				if(pkBuildingInfo->GetDomainProductionModifier(DOMAIN_AIR) > 0)
 				{
 					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
 					{
-						iValue *= m_pCity->getDomainProductionModifier(eTestDomain);
+						iBonus += m_pCity->getDomainProductionModifier(eTestDomain);
 					}
 				}
 			}
 		}
 	}
-	
-	/////////////
-	//Grand Strategies
-	///////////////
-	// == Grand Strategy ==
-	AIGrandStrategyTypes eGrandStrategy = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-	bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
-
-	//Let's look at building special traits.
-	if(bSeekingDiploVictory)
+	//Unitcombat Bonuses should stack too.
+	if(!m_pCity->IsPuppet() || bIsVenice)
 	{
-		if(isWorldWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 15;
-		}
-		if(isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 10;
-		}
-		// Don't build the UN if you aren't going for the diplo victory
-		if(pkBuildingInfo->IsDiplomaticVoting())
-		{
-			iValue *= 10;
-		}
-		if(pkBuildingInfo->GetSingleVotes() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetExtraLeagueVotes() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetEspionageModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetGlobalEspionageModifier() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->GetSpyRankChange() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetInstantSpyRankChange() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetExtraSpies() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->GetMinorFriendshipChange() > 0)
-		{
-			iValue *= 3;
-		}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if(MOD_DIPLOMACY_CITYSTATES)
-		{
-			if(pkBuildingInfo->GetCapitalsToVotes() > 0)
-			{
-				iValue *= 2;
-			}
-			if(pkBuildingInfo->GetRAToVotes() > 0)
-			{
-				iValue *= 2;
-			}
-			if(pkBuildingInfo->GetDoFToVotes() > 0)
-			{
-				iValue *= 2;
-			}
-			if(pkBuildingInfo->GetFaithToVotes() > 0)
-			{
-				iValue *= 2;
-			}
-			if(pkBuildingInfo->GetDPToVotes() > 0)
-			{
-				iValue *= 2;
-			}
-			if(pkBuildingInfo->GetGPExpendInfluence() > 0)
-			{
-				iValue *= 2;
-			}
-			UnitCombatTypes eUnitCombat = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY", true);
-			if(eUnitCombat != NO_UNITCOMBAT)
-			{
-				if(pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) > 0)
-				{
-					iValue *= 3;
-				}
-			}
-		}
-#endif
-	}
-	//Let's look at building special traits.
-	if(bSeekingConquestVictory)
-	{
-		if(isWorldWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 5;
-		}
-		if(isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetAirModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetAlwaysHeal() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetBorderObstacleCity() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetDefenseHappinessChangeBuilding() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetDefenseModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetFreeExperience() > 0)
-		{
-			iValue *= 4;
-		}
-		PromotionTypes eFreePromotion = (PromotionTypes) pkBuildingInfo->GetFreePromotion();
-		if(eFreePromotion != NO_PROMOTION)
-		{
-			iValue *= 4;
-		}
-		PromotionTypes eFreeTrainedPromotion = (PromotionTypes) pkBuildingInfo->GetTrainedFreePromotion();
-		if(eFreeTrainedPromotion != NO_PROMOTION)
-		{
-			iValue *= 4;
-		}
-		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetGlobalFreeExperience() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetGreatGeneralRateModifier() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetHappiness() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetUnmoddedHappiness() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetInstantMilitaryIncrease() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetNukeModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetUnitUpgradeCostMod() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->IsBorderObstacle())
-		{
-			iValue *= 2;
-		}
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
 			const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
@@ -702,254 +598,83 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
-					iValue *= 2;
+					iBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+				}
+				if(pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass) > 0)
+				{
+					iBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass);
 				}
 			}
 		}
 	}
-	if(bSeekingScienceVictory)
-	{
-		if(isWorldWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 15;
-		}
-		if(isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 10;
-		}
-		if(pkBuildingInfo->GetFreeTechs() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetGlobalSpaceProductionModifier() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetGreatScientistBeakerModifier() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetSpaceProductionModifier() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetMedianTechPercentChange() > 0)
-		{
-			iValue *= 5;
-		}
-	}
-	if(bSeekingCultureVictory)
-	{
-		if(isWorldWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 20;
-		}
-		if(isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
-		{
-			iValue *= 10;
-		}
-		if(pkBuildingInfo->GetCultureRateModifier() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->GetGlobalCultureRateModifier() > 0)
-		{
-			iValue *= 4;
-		}
-		if(pkBuildingInfo->GetGreatPeopleRateChange() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetEventTourism() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetFreeGreatPeople() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetFreeGreatWork() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetFreePolicies() > 0)
-		{
-			iValue *= 5;
-		}
-		if(pkBuildingInfo->GetGlobalGreatPeopleRateModifier() > 0)
-		{
-			iValue *= 4;
-		}
-		if(pkBuildingInfo->GetGreatPeopleRateModifier() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetGreatWorkCount() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->GetLandmarksTourismPercent() > 0)
-		{
-			iValue *= 3;
-		}
-		if(pkBuildingInfo->GetLandTourismEnd() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetSeaTourismEnd() > 0)
-		{
-			iValue *= 2;
-		}
-		if(pkBuildingInfo->GetTechEnhancedTourism() > 0)
-		{
-			iValue *= 3;
-		}
-	}
+	
+	//////////////////////
+	///BASE BONUSES
+	/////////////////////
+	int iBaseValue = CityStrategyAIHelpers::GetBuildingBasicValue(m_pCity, eBuilding);
+
+	iBonus += iBaseValue;
+
+	/////////////
+	//Grand Strategies
+	///////////////
+
+	//Acts as modifier for value.
+	int iGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(m_pCity, eBuilding, kPlayer.GetID());
+
+	iBonus += iGSValue;
+
+	//////////////////////
+	///POLICY BONUSES
+	/////////////////////
+	int iPolicyValue = CityStrategyAIHelpers::GetBuildingPolicyValue(m_pCity, eBuilding);
+
+	iBonus += iPolicyValue;
 
 	////////////
 	///YIELD BONUSES
 	//////////
 	//Let's look at yield bonuses.
+	int iYieldValue = 0;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
 		if(eYield == NO_YIELD)
 			continue;
 
-		if(pkBuildingInfo->GetYieldChange(eYield) > 0)
-		{
-			iValue *= pkBuildingInfo->GetYieldChange(eYield);
-		}
-		if(pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldChangePerPop(eYield);
-		}
-		if(pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
-		{
-			iValue *= pkBuildingInfo->GetYieldChangePerReligion(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromConstruction(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromConstruction(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromDeath(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromDeath(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromGPExpend(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromTech(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromTech(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromVictory(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromVictory(eYield);
-		}
-		if(pkBuildingInfo->GetYieldFromWLTKD(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldFromWLTKD(eYield);
-		}
-		if(pkBuildingInfo->GetYieldModifier(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetYieldModifier(eYield);
-		}
-		if(pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetThemingYieldBonus(eYield);
-		}
-		if(pkBuildingInfo->GetInstantYield(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetInstantYield(eYield);
-		}
-		if(pkBuildingInfo->GetGrowthExtraYield(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetGrowthExtraYield(eYield);
-		}
-		if(pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
-		{
-			iValue += pkBuildingInfo->GetGlobalYieldModifier(eYield);
-		}
-		if(m_pCity->plot()->isRiver() && pkBuildingInfo->GetRiverPlotYieldChange(eYield) > 0)
-		{
-			iValue *= pkBuildingInfo->GetRiverPlotYieldChange(eYield);
-		}
-		if(m_pCity->plot()->isCoastalLand() && pkBuildingInfo->GetSeaPlotYieldChange(eYield) > 0)
-		{
-			iValue *= pkBuildingInfo->GetSeaPlotYieldChange(eYield);
-		}
-		if(pkBuildingInfo->GetAreaYieldModifier(eYield) > 0)
-		{
-			iValue *= pkBuildingInfo->GetAreaYieldModifier(eYield);
-		}
-		int iNumBuildingInfos = GC.getNumBuildingInfos();
-		for(int iI = 0; iI < iNumBuildingInfos; iI++)
-		{
-			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-			if(eBuildingLoop == NO_BUILDING)
-				continue;
+		iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, eYield);
 
-			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-			if(pkLoopBuilding)
-			{
-				if(pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
-				{
-					iValue *= pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield);
-				}
-				if(pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
-				{
-					iValue += pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield);
-				}
-			}
-		}
-		int iNumTerrainInfos = GC.getNumTerrainInfos();
-		for(int iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			TerrainTypes eTerrain = (TerrainTypes)iI;
-			if(eTerrain == NO_TERRAIN)
-				continue;
+		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding);
 
-			if(m_pCity->GetNumTerrainWorked(eTerrain) > 0)
-			{
-				if(pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) > 0)
-				{
-					iValue *= (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / m_pCity->GetNumTerrainWorked(eTerrain));
-				}
-				if(pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) > 0)
-				{
-					iValue *= m_pCity->GetNumTerrainWorked(eTerrain);
-				}
-			
-			}
+		//JFD CRIME NEGATIVE OVERRIDE
+		if(MOD_BALANCE_CORE_JFD && eYield == YIELD_JFD_CRIME)
+		{
+			iBonus -= iYieldValue;
+			iBonus -= iYieldTrait;
+		}
+		else
+		{
+			iBonus += iYieldValue;
+			iBonus += iYieldTrait;
 		}
 	}
+
 	//////////////
 	///Puppet Controls
 	/////////////////////
 	if(pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		iValue /= pkBuildingInfo->GetGoldMaintenance();
+		iBonus /= pkBuildingInfo->GetGoldMaintenance();
 		if(m_pCity->IsPuppet())
 		{
-			EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-			if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
-			{
-				return 0;
-			}
-			iValue /= max(2, (pkBuildingInfo->GetGoldMaintenance() * 2));
+			iBonus /= max(2, (pkBuildingInfo->GetGoldMaintenance() * 2));
 		}
 	}
 
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GET_PLAYER(m_pCity->getOwner()).GetReligions()->GetReligionInMostCities();
+	ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
@@ -965,17 +690,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if(pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()))
 					{
-						iValue *= 2;
+						iBonus += (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()) * 10);
 					}
 					if(pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()))
 					{
-						iValue *= 2;
+						iBonus *= (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()) * 10);
 					}
 					if(pkBuildingInfo->GetGreatWorkSlotType() != NO_GREAT_WORK_SLOT)
 					{
 						if(pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()))
 						{
-							iValue *= 10;
+							iBonus *= (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) * 5);
 						}
 					}
 					if(pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
@@ -987,22 +712,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 							{
 								if(pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield))
 								{
-									iValue += pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield);
+									iBonus += (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield) * 5);
 								}
 								if(pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield))
 								{
-									iValue += pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield);
+									iBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
+								}
+								if(m_pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
+								{
+									iBonus += (pEntry->GetYieldChangeAnySpecialist(eYield) * 5);
 								}
 							}
-						}
-						if(pEntry->GetYieldChangeAnySpecialist(pkBuildingInfo->GetSpecialistType()))
-						{
-							iValue += pEntry->GetYieldChangeAnySpecialist(pkBuildingInfo->GetSpecialistType());
 						}
 					}
 					if(pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
 					{
-						iValue *= 10;
+						iBonus += pEntry->GetWonderProductionModifier();
 					}
 				}
 			}
@@ -1011,15 +736,24 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////
 	//WAR
 	///////
-	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	//Fewer buildings while at war.
+	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
-		iValue /= max(1, GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 4);
+		iBonus /= max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5);
 	}
+	
+	iValue *= (iBonus + 100);
+	iValue /= 100;
 
 	/////
 	///WEIGHT
 	//////
-	iValue /= max(1, (m_pCity->getProductionTurnsLeft(eBuilding, 0) / 4));
+	//Let's reduce the value by turns to build (to keep us from taking dozens of turn on high-value things).
+	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+	if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && pkBuildingInfo->GetGoldMaintenance() > 0)
+	{
+		iBonus /= 100;
+	}
 
 	return iValue;
 }

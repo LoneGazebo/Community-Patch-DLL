@@ -183,6 +183,22 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 					}
 				}
 			}
+			if(pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pUnit->isEmbarked()))
+			{
+				//Plots worked by city with movement debuff reduce movement speed.
+				CvCity* pCity = pToPlot->getWorkingCity();
+				if(pCity != NULL)
+				{
+					if(pCity->GetBorderObstacleWater() > 0)
+					{
+						// Don't apply penalty to OUR team or teams we've given open borders to
+						if(!pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
+						{
+							iRegularCost += iMoveDenominator;
+						}
+					}
+				}
+			}
 		}
 #endif
 	}

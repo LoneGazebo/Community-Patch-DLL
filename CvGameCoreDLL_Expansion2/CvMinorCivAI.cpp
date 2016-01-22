@@ -12444,6 +12444,10 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 					if(iYield > 0)
 					{
 						GET_PLAYER(eBully).changeJONSCulture(iYield);
+						if(pCapital != NULL)
+						{
+							pCapital->ChangeJONSCultureStored(iYield);
+						}
 						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
 						{
 							char text[256] = {0};
@@ -12640,6 +12644,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					if(iYield > 0)
 					{
 						GET_PLAYER(eBully).changeJONSCulture(iYield);
+						if(pCapital != NULL)
+						{
+							pCapital->ChangeJONSCultureStored(iYield);
+						}
 						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
 						{
 							char text[256] = {0};

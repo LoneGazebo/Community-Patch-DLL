@@ -8303,7 +8303,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource)
 #else
 UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged)
 #endif
@@ -8324,6 +8324,23 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		}
 
 		bool bValid = (pkUnitInfo->GetCombat() > 0);
+
+		if(bNoResource)
+		{
+			int iNumResourceInfos= GC.getNumResourceInfos();
+			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+			{
+				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if(pkResourceInfo)
+				{
+					if(pkUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+					{
+						continue;
+					}
+				}
+			}
+		}
 
 		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
 		if(bValid && pkUnitInfo->GetRange() == 0)

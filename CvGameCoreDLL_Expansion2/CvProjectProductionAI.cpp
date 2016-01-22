@@ -152,20 +152,31 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 #if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
-	if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
-	{
+
+	if(eProject == NO_PROJECT)
 		return 0;
-	}
-	if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
-	{
-		return 0;
-	}
+
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
 	{
 		return 0;
 	}
-	if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
+
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if(iTempWeight == 0)
+		return 0;
+
+	if(kPlayer.isMinorCiv())
+	{
+		return 0;
+	}
+	if(!kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	{
+		return 0;
+	}
+
+	if(kPlayer.IsAtWarAnyMajor())
 	{
 		if(pkProjectInfo->IsAllowsNukes())
 		{
@@ -177,7 +188,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 	}
 	EconomicAIStrategyTypes eSpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
-	if(eSpaceShip != NO_ECONOMICAISTRATEGY && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eSpaceShip))
+	if(eSpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShip))
 	{
 		ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
 		if(eApolloProgram != NO_PROJECT && eApolloProgram == eProject)
@@ -189,6 +200,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight *= 100;
 		}
 	}
+
 	return iTempWeight;
 }
 #endif

@@ -12238,6 +12238,12 @@ bool CvUnit::givePolicies()
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() == getOwner())
+		{
+			pPlot->getWorkingCity()->ChangeJONSCultureStored(iCultureBonus);
+		}
+#endif
 		// Refresh - we might get to pick a policy this turn
 	}
 
@@ -19369,6 +19375,10 @@ if (!bDoEvade)
 									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 								}
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+								if(kPlayer.getCapitalCity() != NULL)
+								{
+									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
+								}
 								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
@@ -19440,6 +19450,10 @@ if (!bDoEvade)
 									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 								}
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+								if(kPlayer.getCapitalCity() != NULL)
+								{
+									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
+								}
 								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
