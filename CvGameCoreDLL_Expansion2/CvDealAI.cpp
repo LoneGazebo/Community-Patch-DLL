@@ -4591,6 +4591,11 @@ void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, bool 
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Them, but them is us. Please send Anton your save file and version.");
 #if defined(MOD_BALANCE_CORE)
 	CvWeightedVector<int> viTradeValues;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if(pLeague == NULL || !pLeague)
+	{
+		return;
+	}
 #endif
 	if(!bDontChangeTheirExistingItems)
 	{
@@ -4682,7 +4687,13 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, bool bD
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
-
+#if defined(MOD_BALANCE_CORE)
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if(pLeague == NULL || !pLeague)
+	{
+		return;
+	}
+#endif
 	if(!bDontChangeMyExistingItems)
 	{
 		if(iTotalValue > 0)

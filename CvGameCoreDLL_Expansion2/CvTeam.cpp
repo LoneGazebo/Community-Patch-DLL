@@ -1317,7 +1317,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					//Are we a vassal of the player DOW'd on?
-					else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
@@ -1326,12 +1326,21 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #endif
 					}
 					//Are we the master of eTeam (should never happen, actually)?
-					else if(GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
 						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					//Are we a vassal of the player DOW'ing player?
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, eTeam, /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ true);
 #endif
 					}
 #endif
@@ -1898,6 +1907,36 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 #else
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			//Secondary major declarations
+			for(int iI = 0; iI < MAX_TEAMS; iI++)
+			{
+				if(GET_TEAM((TeamTypes)iI).isAlive())
+				{
+					//Are we a vassal of the from player?
+					if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, eTeam, true, false);
+#else
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eTeam, true, false);
+#endif
+					}
+					//Are we a vassal of the to player?
+					else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, GetID(), true, false);
+#else
+						GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
+#endif
+					}
+				}
+			}
+		}
 #endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) 
