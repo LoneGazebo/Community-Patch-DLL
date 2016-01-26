@@ -482,7 +482,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 					// for the central plot
 					if (iDistance==0)
-						vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
+						vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
 
 					if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 						bIsAlmostCoast = true;

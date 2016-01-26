@@ -33017,7 +33017,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 						strTemp.Format("unsure");
 						break;
 					default:
-						strTemp.Format("XXX");
+						strTemp.Format("ConfidenceUnknown");
 						break;
 					}
 
@@ -33060,7 +33060,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 									strTemp.Format("Unsure");
 									break;
 								default:
-									strTemp.Format("XXX");
+									strTemp.Format("ConfidenceUnknown");
 									break;
 								}
 
@@ -33098,7 +33098,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("OPN **UNFORGIVABLE**");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("OPN Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33122,7 +33122,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("M_THT N");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("M_THT Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33147,10 +33147,10 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("W_DMG mnr");
 								break;
 							case WAR_DAMAGE_LEVEL_NONE:
-								strTemp.Format("");
+								strTemp.Format("W_DMG None");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("W_DMG Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33171,7 +33171,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("PRX Distant");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("PRX Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33192,7 +33192,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("LND N");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("LND Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33213,7 +33213,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 								strTemp.Format("VCT N");
 								break;
 							default:
-								strTemp.Format("XXX");
+								strTemp.Format("VCT Unknown");
 								break;
 							}
 							strOutBuf += ", " + strTemp;
@@ -33236,7 +33236,7 @@ void CvDiplomacyAI::LogGrandStrategy(CvString& strString)
 
 	if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
 	{
-		strTemp.Format("WC");
+		strTemp.Format("Conquest");
 	}
 	else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
 	{
@@ -33265,16 +33265,16 @@ void CvDiplomacyAI::LogMajorCivApproach(CvString& strString, MajorCivApproachTyp
 		switch(eNewWarFace)
 		{
 		case WAR_FACE_HOSTILE:
-			strTemp.Format("** WAR (H) **");
+			strTemp.Format("**WAR_HOSTILE**");
 			break;
 		case WAR_FACE_NEUTRAL:
-			strTemp.Format("** WAR (N) **");
+			strTemp.Format("**WAR_NEUTRAL**");
 			break;
 		case WAR_FACE_FRIENDLY:
-			strTemp.Format("** WAR (F) **");
+			strTemp.Format("**WAR_FRIENDLY**");
 			break;
 		default:
-			strTemp.Format("** WAR **");
+			strTemp.Format("**WAR**");
 			break;
 		}
 		break;
@@ -33297,7 +33297,7 @@ void CvDiplomacyAI::LogMajorCivApproach(CvString& strString, MajorCivApproachTyp
 		strTemp.Format("N");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("ApproachUnknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33321,13 +33321,13 @@ void CvDiplomacyAI::LogMinorCivApproach(CvString& strString, MinorCivApproachTyp
 		strTemp.Format("PROTECTIVE");
 		break;
 	case MINOR_CIV_APPROACH_CONQUEST:
-		strTemp.Format("** CONQUEST **");
+		strTemp.Format("**CONQUEST**");
 		break;
 	case MINOR_CIV_APPROACH_BULLY:
 		strTemp.Format("BULLY");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("ApproachUnknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33421,7 +33421,7 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 		break;
 #endif
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("Quest_Unknown");
 		break;
 	}
 
@@ -33458,7 +33458,7 @@ void CvDiplomacyAI::LogOpinion(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("OPN **UNFORGIVABLE**");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("OPN Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33532,7 +33532,7 @@ void CvDiplomacyAI::LogMilitaryThreat(CvString& strString, PlayerTypes ePlayer)
 			strTemp.Format("M_THT N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("M_THT Unknown");
 			break;
 		}
 	}
@@ -33549,28 +33549,28 @@ void CvDiplomacyAI::LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		strTemp.Format("Their MSTR **IMMENSE**");
+		strTemp.Format("MSTR **IMMENSE**");
 		break;
 	case STRENGTH_POWERFUL:
-		strTemp.Format("Their MSTR POWERFUL");
+		strTemp.Format("MSTR POWERFUL");
 		break;
 	case STRENGTH_STRONG:
-		strTemp.Format("Their MSTR Strong");
+		strTemp.Format("MSTR Strong");
 		break;
 	case STRENGTH_AVERAGE:
-		strTemp.Format("Their MSTR A");
+		strTemp.Format("MSTR A");
 		break;
 	case STRENGTH_POOR:
-		strTemp.Format("Their MSTR Poor");
+		strTemp.Format("MSTR Poor");
 		break;
 	case STRENGTH_WEAK:
-		strTemp.Format("Their MSTR WEAK");
+		strTemp.Format("MSTR WEAK");
 		break;
 	case STRENGTH_PATHETIC:
-		strTemp.Format("Their MSTR **PATHETIC**");
+		strTemp.Format("MSTR **PATHETIC**");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("MSTR Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33586,28 +33586,28 @@ void CvDiplomacyAI::LogEconomicStrength(CvString& strString, PlayerTypes ePlayer
 	switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		strTemp.Format("Their ESTR **IMMENSE**");
+		strTemp.Format("ESTR **IMMENSE**");
 		break;
 	case STRENGTH_POWERFUL:
-		strTemp.Format("Their ESTR POWERFUL");
+		strTemp.Format("ESTR POWERFUL");
 		break;
 	case STRENGTH_STRONG:
-		strTemp.Format("Their ESTR Strong");
+		strTemp.Format("ESTR Strong");
 		break;
 	case STRENGTH_AVERAGE:
-		strTemp.Format("Their ESTR A");
+		strTemp.Format("ESTR Avg");
 		break;
 	case STRENGTH_POOR:
-		strTemp.Format("Their ESTR Poor");
+		strTemp.Format("ESTR Poor");
 		break;
 	case STRENGTH_WEAK:
-		strTemp.Format("Their ESTR Weak");
+		strTemp.Format("ESTR Weak");
 		break;
 	case STRENGTH_PATHETIC:
-		strTemp.Format("Their ESTR Pathetic");
+		strTemp.Format("ESTR Pathetic");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("ESTR Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33629,7 +33629,7 @@ void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("TGT Bad");
 		break;
 	case TARGET_VALUE_AVERAGE:
-		strTemp.Format("TGT A");
+		strTemp.Format("TGT Avg");
 		break;
 	case TARGET_VALUE_FAVORABLE:
 		strTemp.Format("TGT Favorable");
@@ -33638,7 +33638,7 @@ void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("TGT Soft");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("TGT Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33670,11 +33670,11 @@ void CvDiplomacyAI::LogWarGoal(CvString& strString, PlayerTypes ePlayer)
 	default:
 		if(IsAtWar(ePlayer))
 		{
-			strTemp.Format("XXX");
+			strTemp.Format("WGL Unknown");
 		}
 		else
 		{
-			strTemp.Format("");
+			strTemp.Format("WGL None");
 		}
 		break;
 	}
@@ -33700,34 +33700,34 @@ void CvDiplomacyAI::LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes e
 			strTemp.Format("");
 			break;
 		case PEACE_TREATY_WHITE_PEACE:
-			strTemp.Format("PeaceOff White Peace (0)");
+			strTemp.Format("PeaceOff WhitePeace(0)");
 			break;
 		case PEACE_TREATY_ARMISTICE:
-			strTemp.Format("PeaceOff Armistice (1)");
+			strTemp.Format("PeaceOff Armistice(1)");
 			break;
 		case PEACE_TREATY_SETTLEMENT:
-			strTemp.Format("PeaceOff Settlement (2)");
+			strTemp.Format("PeaceOff Settlement(2)");
 			break;
 		case PEACE_TREATY_BACKDOWN:
-			strTemp.Format("PeaceOff Backdown (3)");
+			strTemp.Format("PeaceOff Backdown(3)");
 			break;
 		case PEACE_TREATY_SUBMISSION:
-			strTemp.Format("PeaceOff Submission (4)");
+			strTemp.Format("PeaceOff Submission(4)");
 			break;
 		case PEACE_TREATY_SURRENDER:
-			strTemp.Format("PeaceOff Surrender (5)");
+			strTemp.Format("PeaceOff Surrender(5)");
 			break;
 		case PEACE_TREATY_CESSION:
-			strTemp.Format("PeaceOff Cession (6)");
+			strTemp.Format("PeaceOff Cession(6)");
 			break;
 		case PEACE_TREATY_CAPITULATION:
-			strTemp.Format("PeaceOff CAPITULATION (7)");
+			strTemp.Format("PeaceOff CAPITULATION(7)");
 			break;
 		case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
-			strTemp.Format("PeaceOff **UN SURRENDER (8)**");
+			strTemp.Format("PeaceOff **SURRENDER(8)**");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("PeaceOff Unknown");
 			break;
 		}
 	}
@@ -33754,34 +33754,34 @@ void CvDiplomacyAI::LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes 
 			strTemp.Format("");
 			break;
 		case PEACE_TREATY_WHITE_PEACE:
-			strTemp.Format("PeaceAcc White Peace (0)");
+			strTemp.Format("PeaceAcc WhitePeace(0)");
 			break;
 		case PEACE_TREATY_ARMISTICE:
-			strTemp.Format("PeaceAcc Armistice (1)");
+			strTemp.Format("PeaceAcc Armistice(1)");
 			break;
 		case PEACE_TREATY_SETTLEMENT:
-			strTemp.Format("PeaceAcc Settlement (2)");
+			strTemp.Format("PeaceAcc Settlement(2)");
 			break;
 		case PEACE_TREATY_BACKDOWN:
-			strTemp.Format("PeaceAcc Backdown (3)");
+			strTemp.Format("PeaceAcc Backdown(3)");
 			break;
 		case PEACE_TREATY_SUBMISSION:
-			strTemp.Format("PeaceAcc Submission (4)");
+			strTemp.Format("PeaceAcc Submission(4)");
 			break;
 		case PEACE_TREATY_SURRENDER:
-			strTemp.Format("PeaceAcc Surrender (5)");
+			strTemp.Format("PeaceAcc Surrender(5)");
 			break;
 		case PEACE_TREATY_CESSION:
-			strTemp.Format("PeaceAcc Cession (6)");
+			strTemp.Format("PeaceAcc Cession(6)");
 			break;
 		case PEACE_TREATY_CAPITULATION:
-			strTemp.Format("PeaceAcc CAPITULATION (7)");
+			strTemp.Format("PeaceAcc CAPITULATION(7)");
 			break;
 		case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
-			strTemp.Format("PeaceAcc **UN SURRENDER (8)**");
+			strTemp.Format("PeaceAcc **SURRENDER(8)**");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("PeaceAcc Unknown");
 			break;
 		}
 	}
@@ -33864,11 +33864,11 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 		default:
 			if(IsAtWar(ePlayer))
 			{
-				strTemp.Format("XXX");
+				strTemp.Format("WST Unknown");
 			}
 			else
 			{
-				strTemp.Format("");
+				strTemp.Format("WST None");
 			}
 			break;
 		}
@@ -33904,7 +33904,7 @@ void CvDiplomacyAI::LogWarProjection(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("W_PRJ ** VERY GOOD **");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("W_PRJ Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33931,10 +33931,10 @@ void CvDiplomacyAI::LogWarDamage(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("W_DMG mnr");
 		break;
 	case WAR_DAMAGE_LEVEL_NONE:
-		strTemp.Format("");
+		strTemp.Format("W_DMG None");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("W_DMG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33949,7 +33949,7 @@ void CvDiplomacyAI::LogMilitaryAggressivePosture(CvString& strString, PlayerType
 	switch(GetMilitaryAggressivePosture(ePlayer))
 	{
 	case AGGRESSIVE_POSTURE_NONE:
-		strTemp.Format("");
+		strTemp.Format("MAGG None");
 		break;
 	case AGGRESSIVE_POSTURE_LOW:
 		strTemp.Format("MAGG Low");
@@ -33964,7 +33964,7 @@ void CvDiplomacyAI::LogMilitaryAggressivePosture(CvString& strString, PlayerType
 		strTemp.Format("MAGG **INCREDIBLE**");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("MAGG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -33979,7 +33979,7 @@ void CvDiplomacyAI::LogExpansionAggressivePosture(CvString& strString, PlayerTyp
 	switch(GetExpansionAggressivePosture(ePlayer))
 	{
 	case AGGRESSIVE_POSTURE_NONE:
-		strTemp.Format("");
+		strTemp.Format("EAGG None");
 		break;
 	case AGGRESSIVE_POSTURE_LOW:
 		strTemp.Format("EAGG Low");
@@ -33994,7 +33994,7 @@ void CvDiplomacyAI::LogExpansionAggressivePosture(CvString& strString, PlayerTyp
 		strTemp.Format("EAGG **INCREDIBLE**");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("EAGG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -34009,7 +34009,7 @@ void CvDiplomacyAI::LogPlotBuyingAggressivePosture(CvString& strString, PlayerTy
 	switch(GetPlotBuyingAggressivePosture(ePlayer))
 	{
 	case AGGRESSIVE_POSTURE_NONE:
-		strTemp.Format("");
+		strTemp.Format("BAGG None");
 		break;
 	case AGGRESSIVE_POSTURE_LOW:
 		strTemp.Format("BAGG Low");
@@ -34024,7 +34024,7 @@ void CvDiplomacyAI::LogPlotBuyingAggressivePosture(CvString& strString, PlayerTy
 		strTemp.Format("BAGG **INCREDIBLE**");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("BAGG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -34057,7 +34057,7 @@ void CvDiplomacyAI::LogLandDispute(CvString& strString, PlayerTypes ePlayer)
 			strTemp.Format("LND N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("LND Unknown");
 			break;
 		}
 	}
@@ -34093,7 +34093,7 @@ void CvDiplomacyAI::LogVictoryDispute(CvString& strString, PlayerTypes ePlayer)
 			strTemp.Format("VCT N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("VCT Unknown");
 			break;
 		}
 	}
@@ -34117,19 +34117,19 @@ void CvDiplomacyAI::LogVictoryBlock(CvString& strString, PlayerTypes ePlayer)
 		switch(GetVictoryBlockLevel(ePlayer))
 		{
 		case BLOCK_LEVEL_FIERCE:
-			strTemp.Format("Block **FIERCE**");
+			strTemp.Format("VBlock **FIERCE**");
 			break;
 		case BLOCK_LEVEL_STRONG:
-			strTemp.Format("Block STRONG");
+			strTemp.Format("VBlock STRONG");
 			break;
 		case BLOCK_LEVEL_WEAK:
-			strTemp.Format("Block Weak");
+			strTemp.Format("VBlock Weak");
 			break;
 		case BLOCK_LEVEL_NONE:
-			strTemp.Format("Block N");
+			strTemp.Format("VBlock N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("VBlock Unknown");
 			break;
 		}
 	}
@@ -34165,7 +34165,7 @@ void CvDiplomacyAI::LogWonderDispute(CvString& strString, PlayerTypes ePlayer)
 			strTemp.Format("WND N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("WND Unknown");
 			break;
 		}
 	}
@@ -34201,7 +34201,7 @@ void CvDiplomacyAI::LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer)
 			strTemp.Format("MCF N");
 			break;
 		default:
-			strTemp.Format("XXX");
+			strTemp.Format("MCF Unknown");
 			break;
 		}
 	}
@@ -34230,7 +34230,7 @@ void CvDiplomacyAI::LogProximity(CvString& strString, PlayerTypes ePlayer)
 		strTemp.Format("PRX Distant");
 		break;
 	default:
-		strTemp.Format("XXX");
+		strTemp.Format("PRX Unknown");
 		break;
 	}
 	strString += ", " + strTemp;

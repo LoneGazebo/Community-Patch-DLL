@@ -1971,6 +1971,11 @@ void CvTacticalAI::ProcessDominanceZones()
 					{
 						m_iCurrentZoneIndex = iI;
 						pZone = m_pMap->GetZone(iI);
+
+						//no units -> nothing to do
+						if (pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
+							continue;
+
 						AITacticalPosture ePosture = FindPosture(pZone);
 						CvString strMoveName = (CvString)pkTacticalMoveInfo->GetType();
 						CvTacticalMove moveToPassOn = move;
@@ -2056,8 +2061,8 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Using move %s for zone %d (city %s)", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
-									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none" );
+								strLogString.Format("Using move %s for zone %d (city %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
+									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", GC.getGame().getTurnSlice() );
 								LogTacticalMessage(strLogString);
 								
 							}
@@ -5253,7 +5258,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 			ClearEnemiesNearArmy(pThisArmy);
 			if(!pThisArmy->GetGoalPlot()->isWater())
 			{
-				pBestPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pThisArmy->GetGoalPlot(), pThisArmy);
+				pBestPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pThisArmy->GetGoalPlot(), pThisArmy);
 				// Error handling: couldn't find path to plot next to target
 				if (pBestPlot == NULL && pOperation->GetTargetPlot() != NULL)
 				{
@@ -5771,7 +5776,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 	CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-	if(pOperation && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+	if(pOperation && pOperation->IsNavalOperation())
 	{
 		iRange += 1;
 	}
@@ -6178,17 +6183,11 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 					CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 
 					bool bValid = false;
-					if(pOperation->IsMixedLandNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
+					if(pOperation->IsNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
 					{
 						bValid = true;
 					}
-
-					else if(pOperation->IsAllNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
-					{
-						bValid = true;
-					}
-
-					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
+					else if(!pOperation->IsNavalOperation() && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						bValid = true;
 						if (pCell->IsWater())
@@ -6197,7 +6196,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						}
 					}
 
-					if(pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation())
+					if(pOperation->IsNavalOperation())
 					{
 						if(!pArmy->IsAllOceanGoing() && pCell->IsOcean())
 						{
@@ -6339,13 +6338,9 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 	{
 		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-		if (pOperation && pOperation->IsMixedLandNavalOperation())
+		if (pOperation && pOperation->IsNavalOperation())
 		{
 			iRange += 1;
-		}
-		else if (pOperation && pOperation->IsAllNavalOperation())
-		{
-			iRange += 2;
 		}
 	}
 	else
@@ -6370,17 +6365,11 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 					CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 
 					bool bValid = false;
-					if(pOperation->IsMixedLandNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
+					if(pOperation->IsNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
 					{
 						bValid = true;
 					}
-
-					else if(pOperation->IsAllNavalOperation() && pCell->CanUseForOperationGatheringCheckWater(true /*bWater*/))
-					{
-						bValid = true;
-					}
-
-					else if((!pOperation->IsAllNavalOperation() && !pOperation->IsMixedLandNavalOperation()) && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
+					else if(!pOperation->IsNavalOperation() && (pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/) || GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						bValid = true;
 						if (pCell->IsWater())
@@ -6389,7 +6378,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						}
 					}
 
-					if(pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation())
+					if(pOperation->IsNavalOperation())
 					{
 						if(!pArmy->IsAllOceanGoing() && pCell->IsOcean())
 						{
@@ -6519,13 +6508,9 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 		if (pOperation && !pOperation->IsCivilianOperation())
 		{
-			if (pOperation->IsMixedLandNavalOperation())
+			if (pOperation->IsNavalOperation())
 			{
 				iRange += 1;
-			}
-			else if (pOperation->IsAllNavalOperation())
-			{
-				iRange += 2;
 			}
 		}
 	}
@@ -11284,7 +11269,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			//Naval unit? Let's get a water plot.
 			if(!pPlot->isWater() && pUnit->getDomainType() == DOMAIN_SEA)
 			{
-				CvPlot* pNewPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pPlot, NULL);
+				CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
 				//No water plot? Ignore.
 				if(pNewPlot == NULL)
 				{

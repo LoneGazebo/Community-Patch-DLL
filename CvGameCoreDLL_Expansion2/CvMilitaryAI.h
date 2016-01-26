@@ -264,7 +264,6 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CvCity* GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const;
 #endif
-	CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy) const;
 
 	// Accessors to provide military data to other AI subsystems
 	ThreatTypes GetHighestThreat();
@@ -483,8 +482,9 @@ int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, 
 #endif
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 #if defined(MOD_BALANCE_CORE)
-MultiunitFormationTypes GetBestFormationType();
+MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 #endif
+CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy);
 }
 
 #endif //CIV5_MILITARY_AI_H

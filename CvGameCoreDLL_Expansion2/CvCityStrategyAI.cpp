@@ -3074,8 +3074,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	if(pArea->GetID() != pCapitalCity->getArea())
 		return false;
 
-	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_LAND, ROUTE_ANY);
-	return GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
+	//do we already have a connection to the capital?
+	if (pCity->IsConnectedToCapital())
+		return false;
+
+	//could we build a route?
+	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
+	return !GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
 #endif
 

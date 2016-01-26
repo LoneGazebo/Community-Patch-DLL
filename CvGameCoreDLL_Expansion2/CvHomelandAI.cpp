@@ -2782,7 +2782,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 #if defined(MOD_BALANCE_CORE)
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-				if(!pUnit->isEmbarked())
+				if(!pUnit->isEmbarked() && pUnit->plot()->getOwner()==pUnit->getOwner())
 				{
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
@@ -2890,7 +2890,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					int iLoop;
 					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTestCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTestCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							if(pPlot->getArea() != pUnit->getArea())
@@ -3162,7 +3162,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("UnitID: %s used Sell Exotic Goods, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s used Sell Exotic Goods, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
@@ -3376,7 +3376,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("UnitID: %s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 				pUnit->SetAutomateType(NO_AUTOMATE);
@@ -3390,7 +3390,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("UnitID: %s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -7304,8 +7304,6 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	return pBestTarget;
 }
 
-/// Find the plot where we want to pillage
-/// Log current status of the operation
 void CvHomelandAI::LogHomelandMessage(CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())

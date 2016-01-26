@@ -30343,13 +30343,13 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster)
+CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int /*iArea*/, CvCity* pTarget, CvCity* pMuster)
 {
 	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType, m_eID);
 	if(pNewOperation)
 	{
 		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
-		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster);
+		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, pTarget, pMuster);
 		m_iNextOperationID++;
 	}
 	return pNewOperation;
@@ -30435,7 +30435,6 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 		{
 			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
 			{
-#if defined(MOD_BALANCE_CORE)
 				if(pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
 				{
 					if(pOperation->GetTargetPlot() != NULL)
@@ -30443,12 +30442,12 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 						if(pOperation->GetTargetPlot() == pCity->plot())
 						{
 							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
 							{
 								return true;
 							}
 
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
 							{
 								return true;
 							}
@@ -30458,12 +30457,12 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 							if(pOperation->GetTargetPlot()->getWorkingCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
 								{
 									return true;
 								}
 
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
 								{
 									return true;
 								}
@@ -30471,21 +30470,6 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 						}
 					}
 				}
-#else
-				if(pOperation->GetTargetPlot() == pCity->plot() && pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
-				{
-					// Naval attacks are mixed land/naval operations
-					if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsMixedLandNavalOperation())
-					{
-						return true;
-					}
-
-					if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
-					{
-						return true;
-					}
-				}
-#endif
 			}
 		}
 	}
@@ -30515,12 +30499,12 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 						if(pOperation->GetMusterPlot() == pCity->plot())
 						{
 							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
 							{
 								return true;
 							}
 
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
 							{
 								return true;
 							}
@@ -30530,12 +30514,12 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 							if(pOperation->GetMusterPlot()->getWorkingCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && (pOperation->IsMixedLandNavalOperation() || pOperation->IsAllNavalOperation()))
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
 								{
 									return true;
 								}
 
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsMixedLandNavalOperation())
+								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
 								{
 									return true;
 								}

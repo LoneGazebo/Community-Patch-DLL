@@ -17984,8 +17984,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	CvCity* pNewCity = 0;
 	CvUnit* pTransportUnit = 0;
 	CvUnit* pLoopUnit = 0;
-	CvPlot* pOldPlot = 0;
-	CvPlot* pNewPlot = 0;
 	FStaticVector<IDInfo, 10, true, c_eCiv5GameplayDLL, 0> oldUnitList;
 	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
@@ -18019,7 +18017,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	int iMapLayer = m_iMapLayer;
 
-	pNewPlot = GC.getMap().plot(iX, iY);
+	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 
 	//sanity check - may interfere with carriers for land units, so don't fix it
 	/*
@@ -18220,7 +18218,8 @@ if (!bDoEvade)
 		}
 	}
 
-	pOldPlot = plot();
+	CvPlot* pOldPlot = plot();
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 
 	if(pOldPlot != NULL)
 	{
@@ -19570,7 +19569,6 @@ if (!bDoEvade)
 		DLLUI->SetDontShowPopups(false);
 
 	// update garrison status for old and new city, if applicable
-	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
@@ -25349,7 +25347,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		SetActivityType(ACTIVITY_AWAKE);
 		if(eOldAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 
 		// if canceling automation, cancel on cargo as well
@@ -25375,7 +25373,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		}
 		else if(m_eAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 	}
 }

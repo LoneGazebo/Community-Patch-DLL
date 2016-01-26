@@ -3306,13 +3306,13 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4040,9 +4040,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-		{
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->m_bExplorationPlotsDirty = true;
-		}
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
 	}
 }
 
@@ -9929,12 +9927,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					{
 						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
 						if(playerI.isAlive())
-						{
 							if(playerI.getTeam() == eTeam)
-							{
-								playerI.GetEconomicAI()->m_bExplorationPlotsDirty = true;
-							}
-						}
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
@@ -13302,7 +13296,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	if (!isValidMovePlot(ePlayer))
 		return false;
 
-	if (getOwner()!=NO_PLAYER)
+	if (getOwner()!=NO_PLAYER && ePlayer!=NO_PLAYER)
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();
