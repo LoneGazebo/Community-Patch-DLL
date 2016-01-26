@@ -20500,12 +20500,6 @@ bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
 
-	if (plot())
-	{
-		if (!plot()->isCity() && m_iGarrisonCityID>0)
-			OutputDebugString("bam!\n");
-	}
-
 	return (m_iGarrisonCityID != -1);
 }
 

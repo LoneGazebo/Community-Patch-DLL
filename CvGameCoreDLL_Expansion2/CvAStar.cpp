@@ -428,6 +428,11 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 {
 	CvAStarNode* finalNode = NULL;
 
+	//catch the odd case where start and destination are equal
+	if (IsPathDest(node->m_iX, node->m_iY))
+		return node;
+
+
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
 	if (MOD_BALANCE_CORE_DEBUGGING)
