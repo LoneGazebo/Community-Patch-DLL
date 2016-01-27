@@ -928,7 +928,7 @@ private:
 	void ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
-	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bInflictWhatWeTake=false, bool bMustSurviveAttack=true);
+	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bInflictWhatWeTake=false, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();

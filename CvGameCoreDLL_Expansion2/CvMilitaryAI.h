@@ -257,7 +257,7 @@ public:
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	void ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target);
+	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 	CvCity* GetNearestCoastalCity(PlayerTypes eEnemy) const;

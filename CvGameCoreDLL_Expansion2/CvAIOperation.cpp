@@ -750,7 +750,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosit
 	//check what kind of path we need
 	int iNumUnits = pArmy->GetNumSlotsFilled();
 	PathType ePathType;
-	if (iNumUnits > 4)
+	if (iNumUnits > 5)
 	{
 		if (pTarget->getArea()==pCurrentPosition->getArea())
 			ePathType = PT_GENERIC_SAME_AREA_WIDE;
@@ -986,7 +986,7 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_MOVING_TO_TARGET:
 						{
-							int iTargetTolerance = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+							int iTargetTolerance = GetDeployRange();
 							pCenterOfMass = pThisArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
 							if(pCenterOfMass && GetTargetPlot() != NULL && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance
 							&& pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
@@ -1118,7 +1118,7 @@ bool CvAIOperation::CheckOnTarget()
 							}
 							else
 							{
-								int iTargetTolerance = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+								int iTargetTolerance = GetDeployRange();
 								pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 								if(pCenterOfMass && GetTargetPlot() != NULL &&
 									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance &&
@@ -2266,7 +2266,7 @@ void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 /// How close to target do we end up?
 int CvAIOperationEnemyTerritory::GetDeployRange() const
 {
-	return GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+	return 2;
 }
 
 /// Figure out the initial rally point
@@ -2447,7 +2447,7 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 		CvString strMsg;
 		if(pArmy)
 		{
-			CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,false,GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE());
+			CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,false,GetDeployRange());
 			if(pTarget)
 			{
 				// Notify Diplo AI we're in place for attack
@@ -2920,7 +2920,7 @@ CvAIOperationPillageEnemy::~CvAIOperationPillageEnemy()
 /// How close to target do we end up?
 int CvAIOperationPillageEnemy::GetDeployRange() const
 {
-	return GC.getAI_OPERATIONAL_PILLAGE_ENEMY_DEPLOY_RANGE();
+	return 2;
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
@@ -4775,7 +4775,7 @@ bool CvAIOperationNaval::ArmyInPosition(CvArmyAI* pArmy)
 		{
 			if(pArmy)
 			{
-				CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,true,GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE());
+				CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,true,GetDeployRange());
 				if(pTarget)
 				{
 					// Notify Diplo AI we're in place for attack
@@ -4837,7 +4837,7 @@ bool CvAIOperationNaval::ShouldAbort()
 /// How close to target do we end up?
 int CvAIOperationNaval::GetDeployRange() const
 {
-	return GC.getAI_OPERATIONAL_NAVAL_BOMBARDMENT_DEPLOY_RANGE();
+	return 2;
 }
 
 /// Find the port our operation will leave from
@@ -5554,7 +5554,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 /// How far out from the target city do we want to gather?
 int CvAIOperationNavalOnlyCityAttack::GetDeployRange() const
 {
-	return GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+	return 2;
 }
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)

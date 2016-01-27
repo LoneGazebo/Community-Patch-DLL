@@ -7239,7 +7239,7 @@ void CvTacticalAI::MoveUpReliefUnits(CvTacticalTarget& kTarget)
 }
 
 /// Attack a defended space
-void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot, bool bInflictWhatWeTake, bool bMustSurviveAttack)
+void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot, bool bInflictWhatWeTake, bool bPreserveMeleeUnits)
 {
 	void* pFirstAttacker = NULL;
 	bool bFirstAttackRanged = false;
@@ -7323,13 +7323,13 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		if(!pUnit || !pUnit->canMove())
 			continue;
 
-		if(bInflictWhatWeTake && m_CurrentMoveUnits[iI].GetExpectedTargetDamage() < m_CurrentMoveUnits[iI].GetExpectedSelfDamage())
-			continue;
-		if(bMustSurviveAttack && ((m_CurrentMoveUnits[iI].GetExpectedSelfDamage() + pUnit->getDamage()) > pUnit->GetMaxHitPoints()))
-			continue;
-
 		// Are we a melee unit
 		if(pUnit->IsCanAttackRanged())
+			continue;
+
+		if(bInflictWhatWeTake && m_CurrentMoveUnits[iI].GetExpectedTargetDamage() < m_CurrentMoveUnits[iI].GetExpectedSelfDamage())
+			continue;
+		if(bPreserveMeleeUnits && ((m_CurrentMoveUnits[iI].GetExpectedSelfDamage() + pUnit->getDamage()) > pUnit->GetMaxHitPoints()/2))
 			continue;
 
 		// Not adjacent to target
@@ -7342,7 +7342,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			// todo: special handling for amphibious units?
 			for (it = plotList.begin(); it != plotList.end(); it++)
 			{
-				//firstly, if there's another unit there (must be friendly), check if we can swap places
+				//if there's a friendly ranged unit there, check if we can swap places
 				UnitHandle pFriendlyUnit = (*it)->getBestDefender(m_pPlayer->GetID());
 				if(pFriendlyUnit && pFriendlyUnit->isRanged())
 				{
@@ -7395,82 +7395,79 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 	// First loop is ranged units only
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size() && iDamageRemaining > 0; iI++)
 	{
-		if(!bInflictWhatWeTake || m_CurrentMoveUnits[iI].GetExpectedTargetDamage() >= m_CurrentMoveUnits[iI].GetExpectedSelfDamage()*0.8)
+		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if(pUnit && pUnit->getMoves() > 0)
 		{
-			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-			if(pUnit && pUnit->getMoves() > 0)
+			// Are we a ranged unit
+			if(pUnit->IsCanAttackRanged() && m_CurrentMoveUnits[iI].GetExpectedTargetDamage()>0)
 			{
-				// Are we a ranged unit
-				if(pUnit->IsCanAttackRanged() && m_CurrentMoveUnits[iI].GetExpectedTargetDamage()>0)
-				{
-					bool bQueueTryRangedAttack = false;
+				bool bQueueTryRangedAttack = false;
 
-					// Are we in range and do we have LOS to the target?
-					if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+				// Are we in range and do we have LOS to the target?
+				if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+				{
+					bQueueTryRangedAttack = true;
+				}
+				else
+				{
+					// Not in range/ not LOS: then lets try to reposition unit.
+					CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
+
+					if (repositionPlot != NULL)
 					{
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), repositionPlot->getX(), repositionPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
 						bQueueTryRangedAttack = true;
 					}
-					else
+				}
+
+				if (bQueueTryRangedAttack)
+				{
+					// Do we have LOS to the target?
+					if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
 					{
-						// Not in range/ not LOS: then lets try to reposition unit.
-						CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
-
-						if (repositionPlot != NULL)
+						// Do we need to set up to make a ranged attack?
+						if(pUnit->canSetUpForRangedAttack(NULL))
 						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), repositionPlot->getX(), repositionPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
-							bQueueTryRangedAttack = true;
-						}
-					}
+							pUnit->setSetUpForRangedAttack(true);
 
-					if (bQueueTryRangedAttack)
-					{
-						// Do we have LOS to the target?
-						if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
-						{
-							// Do we need to set up to make a ranged attack?
-							if(pUnit->canSetUpForRangedAttack(NULL))
-							{
-								pUnit->setSetUpForRangedAttack(true);
-
-								if(!pUnit->canMove())
-								{
-									pUnit->SetTacticalAIPlot(NULL);
-									UnitProcessed(pUnit->GetID());
-									continue;
-								}
-							}
-
-							// Can we hit it with a ranged attack?  If so, that gets first priority
-							// some units (cho-ko-nu) might have multiple ranged attacks
-							// we have to keep track of them ourselves, since attacks are just queued here, not executed yet
-							int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
-							int iMovesLeft = pUnit->getMoves();
-							// in a perfect world we would update this after each attack, but it's good enough
-							int iExpectedDamage = m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
-							while (iDamageRemaining>0 && iMovesLeft>0 && iAttacksLeft>0)
-							{
-								// Queue up this attack
-								if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
-								{
-									pFirstAttacker = (void*)pUnit.pointer();
-									bFirstAttackRanged = true;
-								}
-
-								//just for inspection in GUI
-								pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
-
-								// Subtract off expected damage etc
-								iDamageRemaining -= iExpectedDamage;
-								iMovesLeft -= GC.getMOVE_DENOMINATOR();
-								iAttacksLeft -= 1;
-							}
-
-							//we've given our best
-							if(iMovesLeft<1 || iAttacksLeft<1)
+							if(!pUnit->canMove())
 							{
 								pUnit->SetTacticalAIPlot(NULL);
-								UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+								UnitProcessed(pUnit->GetID());
+								continue;
 							}
+						}
+
+						// Can we hit it with a ranged attack?  If so, that gets first priority
+						// some units (cho-ko-nu) might have multiple ranged attacks
+						// we have to keep track of them ourselves, since attacks are just queued here, not executed yet
+						int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
+						int iMovesLeft = pUnit->getMoves();
+						// in a perfect world we would update this after each attack, but it's good enough
+						int iExpectedDamage = m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
+						while (iDamageRemaining>0 && iMovesLeft>0 && iAttacksLeft>0)
+						{
+							// Queue up this attack
+							if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
+							{
+								pFirstAttacker = (void*)pUnit.pointer();
+								bFirstAttackRanged = true;
+							}
+
+							//just for inspection in GUI
+							pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
+
+							// Subtract off expected damage etc
+							iDamageRemaining -= iExpectedDamage;
+							iMovesLeft -= GC.getMOVE_DENOMINATOR();
+							iAttacksLeft -= 1;
+						}
+
+						//we've given our best
+						if(iMovesLeft<1 || iAttacksLeft<1)
+						{
+							pUnit->SetTacticalAIPlot(NULL);
+							UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						}
 					}
 				}
@@ -7500,91 +7497,91 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		if(!bInflictWhatWeTake || m_CurrentMoveUnits[iI].GetExpectedTargetDamage() >= m_CurrentMoveUnits[iI].GetExpectedSelfDamage()*0.8)
 		{
 			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-			if(pUnit && pUnit->canMove())
+			if(!pUnit || !pUnit->canMove())
+				continue;
+
+			// Are we a melee unit
+			if(pUnit->IsCanAttackRanged())
+				continue;
+
+			if (!bPreserveMeleeUnits || ((m_CurrentMoveUnits[iI].GetExpectedSelfDamage() + pUnit->getDamage()) < pUnit->GetMaxHitPoints() / 2))
 			{
-				if(!bMustSurviveAttack || ((m_CurrentMoveUnits[iI].GetExpectedSelfDamage() + pUnit->getDamage()) < pUnit->GetMaxHitPoints()))
-				{
-					// Are we a melee unit
-					if(!pUnit->IsCanAttackRanged())
-					{
-						bool bQueueAttackNow = false;
+				bool bQueueAttackNow = false;
 						
-						// Already adjacent?
-						if (plotDistance(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= 1)
-						{
-							bQueueAttackNow = true;
-						}
-						else
-						{
-							// Find spaces adjacent to target we can move into with MP left
-							std::vector<CvPlot*>::iterator it;
-							std::vector<CvPlot*>& plotList = (pUnit->getDomainType()==DOMAIN_LAND) ? plotListLand : plotListWater;
-
-							// todo: special handling for amphibious units?
-							for (it = plotList.begin(); it != plotList.end(); it++)
-							{
-								//see if we can go there in the immediate future
-								if (pUnit->TurnsToReachTarget(*it, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, 1) > 2)
-									continue;
-
-								// Move there directly
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strMsg;
-									CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-									strMsg.Format("Moving %s for immediate melee attack, x: %d, y: %d (ExecuteAttack loop 2)", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
-									LogTacticalMessage(strMsg);
-								}
-
-								if (pUnit->canMove())
-									bQueueAttackNow = true;
-
-								plotList.erase(it);
-								break;
-							}
-
-							// Didn't find an open hex
-							if (!bQueueAttackNow)
-							{
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strMsg;
-									strMsg.Format("Not enough free hexes next for all melee units to attack (loop 2), Target X: %d, Y: %d", pTargetPlot->getX(), pTargetPlot->getY());
-									LogTacticalMessage(strMsg);
-								}
-							}
-						}
-
-						if (bQueueAttackNow)
-						{
-							// Queue up this attack
-							if(QueueAttack((void*)pUnit.pointer(), pTarget, false /*bRanged*/, false /*bCity*/))
-							{
-								pFirstAttacker = (void*)pUnit.pointer();
-							}
-
-							//just for inspection in GUI
-							pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
-
-							pUnit->SetTacticalAIPlot(NULL);
-							UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-							// Subtract off expected damage
-							iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
-						}
-					}
+				// Already adjacent?
+				if (plotDistance(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= 1)
+				{
+					bQueueAttackNow = true;
 				}
 				else
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					// Find spaces adjacent to target we can move into with MP left
+					std::vector<CvPlot*>::iterator it;
+					std::vector<CvPlot*>& plotList = (pUnit->getDomainType()==DOMAIN_LAND) ? plotListLand : plotListWater;
+
+					// todo: special handling for amphibious units?
+					for (it = plotList.begin(); it != plotList.end(); it++)
 					{
-						CvString strMsg;
-						strMsg.Format("Not attacking with unit (loop 2). We'll destroy ourself, %s, %d hitpoints, %d for target, %d for us, X: %d, Y: %d", 
-							pUnit->getName().GetCString(), pUnit->GetCurrHitPoints(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), 
-							m_CurrentMoveUnits[iI].GetExpectedSelfDamage(), pUnit->getX(), pUnit->getY());
-						LogTacticalMessage(strMsg);
+						//see if we can go there in the immediate future
+						if (pUnit->TurnsToReachTarget(*it, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, 1) > 2)
+							continue;
+
+						// Move there directly
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+							strMsg.Format("Moving %s for immediate melee attack, x: %d, y: %d (ExecuteAttack loop 2)", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
+							LogTacticalMessage(strMsg);
+						}
+
+						if (pUnit->canMove())
+							bQueueAttackNow = true;
+
+						plotList.erase(it);
+						break;
 					}
+
+					// Didn't find an open hex
+					if (!bQueueAttackNow)
+					{
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Not enough free hexes next for all melee units to attack (loop 2), Target X: %d, Y: %d", pTargetPlot->getX(), pTargetPlot->getY());
+							LogTacticalMessage(strMsg);
+						}
+					}
+				}
+
+				if (bQueueAttackNow)
+				{
+					// Queue up this attack
+					if(QueueAttack((void*)pUnit.pointer(), pTarget, false /*bRanged*/, false /*bCity*/))
+					{
+						pFirstAttacker = (void*)pUnit.pointer();
+					}
+
+					//just for inspection in GUI
+					pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
+
+					pUnit->SetTacticalAIPlot(NULL);
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+
+					// Subtract off expected damage
+					iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
+				}
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Not attacking with unit (loop 2). We'll destroy ourself, %s, %d hitpoints, %d for target, %d for us, X: %d, Y: %d", 
+						pUnit->getName().GetCString(), pUnit->GetCurrHitPoints(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), 
+						m_CurrentMoveUnits[iI].GetExpectedSelfDamage(), pUnit->getX(), pUnit->getY());
+					LogTacticalMessage(strMsg);
 				}
 			}
 		}
@@ -9069,7 +9066,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			{	
 				// Find units really close to target or somewhat close that just came out of an operation
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
-				if(iDistance <= iTacticalRadius || (iDistance <= (GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 3) && pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn()))
+				if(iDistance <= iTacticalRadius || (iDistance <= iTacticalRadius*2 && pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn()))
 				{
 					unit.SetUnitID(pUnit->GetID());
 

@@ -1773,7 +1773,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes e
 						target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
 						target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
 
-						ShouldAttackBySea(eLoopPlayer, target);
+						CheckApproachFromLandAndSea(eLoopPlayer, target);
 						if(target.m_iPathLength == MAX_INT)
 							continue;
 
@@ -1965,7 +1965,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
 				target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
 
-				ShouldAttackBySea(eEnemy, target);
+				CheckApproachFromLandAndSea(eEnemy, target);
 				if(target.m_iPathLength == MAX_INT)
 					continue;
 
@@ -2035,7 +2035,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 }
 
 /// Is it better to attack this target by sea?
-void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target)
+void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target)
 {
 	int iLandPathLength = INT_MAX;
 	int iWaterPathLength = INT_MAX;
@@ -2048,12 +2048,19 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 	if(target.m_pMusterCity == NULL || target.m_pTargetCity == NULL)
 		return;
 
-	// Check land connection in any case
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy, 28);
-
-	if(GC.GetStepFinder().DoesPathExist(target.m_pMusterCity->plot(), target.m_pTargetCity->plot(), data))
+	//don't do the pathfinding again, rely on the trade route cache.
+	SPath landpath;
+	if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_LAND,&landpath))
 	{
-		target.m_iPathLength = GC.GetStepFinder().GetNormalizedLength() + GC.GetStepFinder().CountPlotsOwnedByXInPath(eEnemy)*3;
+		int iEnemyPlots = 0;
+		for (size_t i=0; i<landpath.vPlots.size(); i++)
+		{
+			CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( landpath.vPlots[i].first, landpath.vPlots[i].second );
+			if(pCurrentPlot && pCurrentPlot->getOwner()==eEnemy)
+				iEnemyPlots++;
+		}
+
+		target.m_iPathLength = landpath.vPlots.size() + iEnemyPlots*3;
 	}
 
 	// if we can embark, maybe there's another way
@@ -2062,14 +2069,14 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 		if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
 		{
 			//don't do the pathfinding again, rely on the trade route cache.
-			SPath path;
-			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&path))
+			SPath waterpath;
+			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&waterpath))
 			{
 				// find out the effective path length and check if we need to cross the high seas
 				int iEnemyPlots = 0;
-				for (size_t i=0; i<path.vPlots.size(); i++)
+				for (size_t i=0; i<waterpath.vPlots.size(); i++)
 				{
-					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( waterpath.vPlots[i].first, waterpath.vPlots[i].second );
 					if(pCurrentPlot)
 					{
 						if (pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater())
@@ -2080,7 +2087,7 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 					}
 				}
 
-				iWaterPathLength = path.vPlots.size() + iEnemyPlots*3;
+				iWaterPathLength = waterpath.vPlots.size() + iEnemyPlots*3;
 
 				// No attack across ocean without proper ability
 				if(target.m_bOcean && !m_pPlayer->CanCrossOcean())
