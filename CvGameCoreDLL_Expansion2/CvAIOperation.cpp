@@ -6596,7 +6596,8 @@ bool CvAIOperationNavalColonization::RetargetCivilian(CvUnit* pCivilian, CvArmyA
 			if (!pCity->isCoastal())
 				continue;
 
-			if (pCity->waterArea()->GetID() != pWaterPlot->getArea())
+			//if we know the closest water body, make sure the city borders it
+			if (pWaterPlot && pCity->waterArea()->GetID()!=pWaterPlot->getArea())
 				continue;
 
 			int iDistance = plotDistance(*pCivilian->plot(),*pCity->plot());

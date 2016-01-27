@@ -6300,7 +6300,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
 						continue;
 
-					if (pLoopPlot->isWater()==isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
 						return true;
 				}
 			}
