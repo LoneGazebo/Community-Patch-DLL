@@ -162,6 +162,15 @@ public:
 	void ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange);
 	int GetNumTerrainWorked(TerrainTypes eTerrain);
 
+	void ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange);
+	int GetNumFeatureWorked(FeatureTypes eFeature);
+
+	void ChangeNumResourceWorked(ResourceTypes eResource, int iChange);
+	int GetNumResourceWorked(ResourceTypes eResource);
+
+	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
+	int GetNumImprovementWorked(ImprovementTypes eImprovement);
+
 	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 
@@ -713,6 +722,10 @@ public:
 	void ChangeBorderObstacleCity(int iNewValue);
 	int GetBorderObstacleCity() const;
 	void SetBorderObstacleCity(int iValue);
+
+	void ChangeBorderObstacleWater(int iNewValue);
+	int GetBorderObstacleWater() const;
+	void SetBorderObstacleWater(int iValue);
 
 	void ChangeNearbyMountains(int iNewValue);
 	int GetNearbyMountains() const;
@@ -1466,6 +1479,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
+	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;
@@ -1526,6 +1540,9 @@ protected:
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeatureWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourceWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumImprovementWorked;
 #endif
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
 

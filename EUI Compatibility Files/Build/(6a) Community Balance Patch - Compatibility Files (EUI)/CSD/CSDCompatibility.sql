@@ -77,7 +77,7 @@ SET Cost = '150'
 WHERE Type = 'BUILDING_COURT_SCRIBE';
 
 UPDATE Buildings
-SET Cost = '250'
+SET Cost = '275'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
@@ -85,7 +85,7 @@ SET GoldMaintenance = '2'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET Cost = '700'
+SET Cost = '1000'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings

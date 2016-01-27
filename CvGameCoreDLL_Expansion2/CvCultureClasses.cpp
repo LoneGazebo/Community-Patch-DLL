@@ -3099,7 +3099,12 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				iValue /= 100;
 
 				m_pPlayer->changeJONSCulture(iValue);
-
+#if defined(MOD_BALANCE_CORE)
+				if(pPlot->getWorkingCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+				{
+					pPlot->getWorkingCity()->ChangeJONSCultureStored(iValue);
+				}
+#endif
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
@@ -6356,8 +6361,13 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if(ePlayer == NO_PLAYER || m_pCity->getOwner() == NO_PLAYER)
 		return 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if(kCityPlayer.isMinorCiv())
+		return 0;
+
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -6454,7 +6464,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	{
-		if (kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
+		if (kCityPlayer.GetEspionage() && kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 		}

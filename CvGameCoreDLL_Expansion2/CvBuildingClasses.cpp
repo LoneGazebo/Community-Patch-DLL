@@ -233,6 +233,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity(-1),
+	m_iBorderObstacleWater(-1),
 	m_iWLTKDTurns(-1),
 	m_iEventTourism(0),
 	m_iLandTourism(0),
@@ -520,6 +521,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
+	m_iBorderObstacleWater = kResults.GetInt("BorderObstacleWater");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
@@ -2122,6 +2124,11 @@ bool CvBuildingEntry::IsBorderObstacle() const
 int CvBuildingEntry::GetBorderObstacleCity() const
 {
 	return m_iBorderObstacleCity;
+}
+//Is this an obstacle for the water tiles around your city?
+int CvBuildingEntry::GetBorderObstacleWater() const
+{
+	return m_iBorderObstacleWater;
 }
 int CvBuildingEntry::GetWLTKDTurns() const
 {

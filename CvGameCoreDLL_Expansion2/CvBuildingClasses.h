@@ -315,6 +315,7 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBorderObstacleCity() const;
+	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
 	int GetLandTourismEnd() const;
@@ -713,6 +714,7 @@ private:
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
 	int m_iBorderObstacleCity;
+	int m_iBorderObstacleWater;
 	int m_iWLTKDTurns;
 	int m_iEventTourism;
 	int m_iLandTourism;

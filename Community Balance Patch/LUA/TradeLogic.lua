@@ -3322,7 +3322,7 @@ function ShowOtherPlayerChooser( isUs, type )
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
 
 					-- DP You
-					elseif (not g_pUsTeam:canDeclareWar(iLoopTeam, iFromPlayer)) then
+					elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
 
 -- END

@@ -7015,36 +7015,45 @@ void CvLeague::FinishSession()
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
 						{
-							GET_PLAYER(eProposer).ChangeFaith(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).ChangeFaith(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
 						{
-							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
 						{
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
 							TechTypes eCurrentTech = GET_PLAYER(eProposer).GetPlayerTechs()->GetCurrentResearch();
 							if(eCurrentTech == NO_TECH)
 							{
-								GET_PLAYER(eProposer).changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+								GET_PLAYER(eProposer).changeOverflowResearch(iValue);
 							}
 							else
 							{
-								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra, eProposer);
+								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eProposer);
 							}
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
@@ -7056,23 +7065,30 @@ void CvLeague::FinishSession()
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
 						{
-							GET_PLAYER(eProposer).changeJONSCulture(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).changeJONSCulture(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
+								pHolyCity->ChangeJONSCultureStored(iValue);
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
 						{
-							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
@@ -7145,36 +7161,45 @@ void CvLeague::FinishSession()
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
 						{
-							GET_PLAYER(eProposer).ChangeFaith(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).ChangeFaith(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
 						{
-							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).GetTreasury()->ChangeGold(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
 						{
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
 							TechTypes eCurrentTech = GET_PLAYER(eProposer).GetPlayerTechs()->GetCurrentResearch();
 							if(eCurrentTech == NO_TECH)
 							{
-								GET_PLAYER(eProposer).changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
+								GET_PLAYER(eProposer).changeOverflowResearch(iValue);
 							}
 							else
 							{
-								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra, eProposer);
+								GET_TEAM(GET_PLAYER(eProposer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eProposer);
 							}
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
@@ -7186,23 +7211,30 @@ void CvLeague::FinishSession()
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
 						{
-							GET_PLAYER(eProposer).changeJONSCulture(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).changeJONSCulture(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
+								pHolyCity->ChangeJONSCultureStored(iValue);
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
 						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
 						{
-							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+							GET_PLAYER(eProposer).ChangeGoldenAgeProgressMeter(iValue);
 							if(eProposer == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
@@ -11890,7 +11922,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				else
 				{
 					// Don't let someone going for culture get away with a world religion easily
-					if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) > GUESS_CONFIDENCE_UNSURE)
+					if (pHolyCity && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) > GUESS_CONFIDENCE_UNSURE)
 					{
 						if (GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") == GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()))
 						{
@@ -12206,7 +12238,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 						else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 						{
-							iScore += 50;
+							iScore += 40;
 						}
 						if(bSeekingDiploVictory)
 						{
@@ -12217,7 +12249,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						if(pPlayerTeam->isAtWar(eAlliedTeam))
 						{
-							iScore += 33;
+							iScore += 25;
 						}
 						if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
 						{
@@ -12229,7 +12261,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 						else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 						{
-							iScore += 10;
+							iScore += 8;
 						}
 						if(bSeekingDiploVictory)
 						{
@@ -12263,7 +12295,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				iScore += 50;
+				iScore += 35;
 			}
 			// Do they have a resource we lack?
 			int iResourcesWeLack = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetNumResourcesMajorLacks(ePlayer);
@@ -12273,7 +12305,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			if (eProximity == PLAYER_PROXIMITY_DISTANT)
 			{
-				iScore += 20;
+				iScore += 15;
 			}
 			else if(eProximity == PLAYER_PROXIMITY_FAR)
 			{
@@ -12291,11 +12323,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
 				{
-					iScore += 8;
+					iScore += 7;
 				}
 				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
 				{
-					iScore += 10;
+					iScore += 9;
 				}
 				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
 				{
@@ -12906,6 +12938,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer == NO_PLAYER)
+				continue;
+
 			if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian() && GET_PLAYER(eLoopPlayer).isAlive())
 			{
 				//Do they have more influence than us?
@@ -12936,7 +12971,56 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	}
 #endif
 	// == Diplomat knowledge, Vote Commitments we secured ==
-
+#if defined(MOD_BALANCE_CORE)
+	//How much will friends/enemies care about this?
+	if(eProposer == GetPlayer()->GetID())
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if(pLeague)
+		{
+			LeagueHelpers::PlayerList vLikers = pLeague->GetMembersThatLikeProposal(pProposal->GetType(), eProposer, iChoice);
+			for (LeagueHelpers::PlayerList::iterator it = vLikers.begin(); it != vLikers.end(); ++it)
+			{
+				CvAssert((*it) != NO_PLAYER);
+				CvAssert(CanEverVote(*it));
+				if(*it != NO_PLAYER)
+				{	
+					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
+					//People we don't like like this? We should not do this to spite them!
+					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore -= 20;
+					}
+					//People we like like this? We should do it!
+					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iScore += 20;
+					}
+				}
+			}
+			LeagueHelpers::PlayerList vDislikers = pLeague->GetMembersThatDislikeProposal(pProposal->GetType(), eProposer, iChoice);
+			for (LeagueHelpers::PlayerList::iterator it = vDislikers.begin(); it != vDislikers.end(); ++it)
+			{
+				CvAssert((*it) != NO_PLAYER);
+				CvAssert(CanEverVote(*it));
+				if(*it != NO_PLAYER)
+				{	
+					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
+					//People we don't like? We should do this to spite them!
+					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore += 20;
+					}
+					//People we like? We should reconsider...
+					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iScore -= 20;
+					}
+				}	
+			}
+		}
+	}	
+#endif
 	// == Alignment with Proposer ==
 #if !defined(MOD_BALANCE_CORE)
 	PlayerTypes eProposer = pProposal->GetProposalPlayer();

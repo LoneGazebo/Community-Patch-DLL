@@ -1228,6 +1228,24 @@ void CvPlayerTechs::SetGSPriorities()
 				}
 			}
 		}
+		//Let's look at grandstrategy values for buildings as well and add those in to techs.
+		for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+			if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() == iTechLoop)
+			{
+				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
+				iTechGSValue /= 10;
+				
+				if(iTechGSValue > 0)
+				{
+					m_piGSTechPriority[iTechLoop] += iTechGSValue;
+				}
+
+			}
+		}
 	}
 }
 #endif
