@@ -275,7 +275,7 @@
 			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
 			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<AttackMod>15</AttackMod>
+			<AttackMod>10</AttackMod>
 			<PortraitIndex>59</PortraitIndex>
 			<CannotBeChosen>true</CannotBeChosen>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -391,7 +391,7 @@
 			<Text>Guerilla Fighter</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP">
-			<Text>+15% [ICON_STRENGTH] Strength when attacking.</Text>
+			<Text>+10% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
 			<Text>No Retreat</Text>

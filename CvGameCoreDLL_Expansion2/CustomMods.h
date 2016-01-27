@@ -1086,8 +1086,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
-
-
+#define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
+#define GAMEEVENT_CityRazed					"CityRazed", "iii"
 
 
 // Serialization wrappers

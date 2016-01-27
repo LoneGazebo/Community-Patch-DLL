@@ -205,7 +205,7 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMaxMoves, int iMovesRemaining /*= 0*/)
+int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMovesRemaining /*= 0*/)
 {
 	int iRegularCost;
 	int iRouteCost;
@@ -218,7 +218,7 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 		if (iMovesRemaining > 0)
 			return iMovesRemaining;
 		else
-			return iMaxMoves;
+			return iBaseMoves;
 	}
 	else if(CostsOnlyOne(pUnit, pFromPlot, pToPlot))
 	{
@@ -229,7 +229,7 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 		if (iMovesRemaining > 0)
 			return iMovesRemaining;
 		else
-			return iMaxMoves;
+			return iBaseMoves;
 	}
 
 	GetCostsForMove(pUnit, pFromPlot, pToPlot, iBaseMoves, iRegularCost, iRouteCost, iRouteFlatCost);
@@ -238,7 +238,7 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMaxMoves, int iMovesRemaining /*= 0*/)
+int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMovesRemaining /*= 0*/)
 {
 	int iRegularCost;
 	int iRouteCost;
@@ -251,7 +251,7 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 		if (iMovesRemaining > 0)
 			return iMovesRemaining;
 		else
-			return iMaxMoves;
+			return iBaseMoves;
 	}
 	else if(CostsOnlyOne(pUnit, pFromPlot, pToPlot))
 	{

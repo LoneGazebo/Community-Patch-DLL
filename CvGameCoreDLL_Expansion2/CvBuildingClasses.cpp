@@ -49,7 +49,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
-	m_iNationalMissionaries(0),
 	m_iGetCooldown(0),
 	m_iFreeBuildingTradeTargetCity(NO_BUILDINGCLASS),
 	m_iCorporationID(0),
@@ -761,7 +760,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
-	m_iNationalMissionaries = kResults.GetInt("NationalMissionaries");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
@@ -1301,11 +1299,6 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
-}
-/// Dpes this building grant national missionaries?
-int CvBuildingEntry::GetNationalMissionaries() const
-{
-	return m_iNationalMissionaries;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const

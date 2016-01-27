@@ -180,7 +180,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if(pkProjectInfo->IsAllowsNukes())
 		{
-			iTempWeight *= 10;
+			iTempWeight *= 5;
 		}
 		else
 		{

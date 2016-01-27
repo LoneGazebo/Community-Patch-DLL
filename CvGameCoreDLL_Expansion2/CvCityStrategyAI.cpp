@@ -820,9 +820,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
 
-			iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
-			iTempWeight = GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false, NULL, iTempWeight);		
-			
+			iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);		
 			if(iTempWeight > 0)
 			{
 				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
@@ -947,18 +945,27 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 						if(pThisArmy)
 						{
 							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI));
-							m_Buildables.push_back(selection, iNewWeight);
+							if(iNewWeight > 0)
+							{
+								m_Buildables.push_back(selection, iNewWeight);
+							}
 						}
 						else
 						{
 							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-							m_Buildables.push_back(selection, iNewWeight);
+							if(iNewWeight > 0)
+							{
+								m_Buildables.push_back(selection, iNewWeight);
+							}
 						}
 					}
 					else
 					{
 						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-						m_Buildables.push_back(selection, iNewWeight);
+						if(iNewWeight > 0)
+						{
+							m_Buildables.push_back(selection, iNewWeight);
+						}
 					}
 				}
 				break;
@@ -966,21 +973,30 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
 				case CITY_BUILDABLE_PROCESS:
@@ -989,7 +1005,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					if(m_BuildablesPrecheck.size() > 0)
 					{
 						int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-						m_Buildables.push_back(selection, iNewWeight);
+						if(iNewWeight > 0)
+						{
+							m_Buildables.push_back(selection, iNewWeight);
+						}
 					}
 					else
 					{
@@ -1001,7 +1020,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
 					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 			}
 		}
@@ -1077,7 +1099,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 /// Pick the next build for a city (unit, building)
 CvCityBuildable CvCityStrategyAI::ChooseHurry()
 {
-	int iBldgLoop, iUnitLoop, iProjectLoop, iProcessLoop, iTempWeight;
+	int iBldgLoop, iUnitLoop, iTempWeight;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
 	UnitTypes eUnitForOperation;
@@ -1135,8 +1157,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
 
-			iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
-			iTempWeight = GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false, NULL, iTempWeight);		
+			iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);	
 			
 			if(iTempWeight > 0)
 			{
@@ -1180,50 +1201,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			if(iTempWeight > 0)
 			{
 				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
-			}
-		}
-	}
-
-	// Loop through adding the available projects
-	for(iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
-	{
-		if(m_pCity->canCreate((ProjectTypes)iProjectLoop))
-		{
-			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
-			if(iTempWeight > 0)
-			{
-				buildable.m_eBuildableType = CITY_BUILDABLE_PROJECT;
-				buildable.m_iIndex = iProjectLoop;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((ProjectTypes)iProjectLoop, 0);
-				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop));
-			}
-		}
-	}
-
-	// Loop through adding available processes
-	//I cannot use the yield rate since it adds in set process yield, which is what I am trying to set...
-	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
-	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
-	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
-	iModifiedYield /= 1000;
-
-	if (iModifiedYield >= 6 || m_BuildablesPrecheck.size() <= 0)
-	{
-		for (iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
-		{
-			ProcessTypes eProcess = (ProcessTypes)iProcessLoop;
-			
-			if (m_pCity->canMaintain(eProcess))
-			{		
-				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
-				
-				if(iTempWeight > 0)
-				{
-					buildable.m_eBuildableType = CITY_BUILDABLE_PROCESS;
-					buildable.m_iIndex = iProcessLoop;
-					buildable.m_iTurnsToConstruct = 1;
-					m_BuildablesPrecheck.push_back(buildable, iTempWeight);
-				}
 			}
 		}
 	}
@@ -1281,36 +1258,32 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
+					if(iNewWeight > 0)
+					{
+						m_Buildables.push_back(selection, iNewWeight);
+					}
 				}
 				break;
-				case CITY_BUILDABLE_PROCESS:
-				{
-					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
-				}
-				break;
-				case CITY_BUILDABLE_PROJECT:
-				{
-					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
-					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
-					m_Buildables.push_back(selection, iNewWeight);
-				}
 			}
 		}
 	}
@@ -3172,8 +3145,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	if(pArea->GetID() != pCapitalCity->getArea())
 		return false;
 
-	SPathFinderUserData data(pCity->getOwner(), PT_CITY_ROUTE_LAND, ROUTE_ANY);
-	return GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
+	//do we already have a connection to the capital?
+	if (pCity->IsConnectedToCapital())
+		return false;
+
+	//could we build a route?
+	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
+	return !GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
 #endif
 
@@ -4087,10 +4065,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iYieldValue += (pkBuildingInfo->GetYieldFromWLTKD(eYield) / 5);
 	}
-	if(pkBuildingInfo->GetYieldModifier(eYield) > 0)
-	{
-		iYieldValue += pkBuildingInfo->GetYieldModifier(eYield);
-	}
 	if(pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
 	{
 		iYieldValue += (pkBuildingInfo->GetThemingYieldBonus(eYield) * 5);
@@ -4103,10 +4077,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iYieldValue += (pkBuildingInfo->GetGrowthExtraYield(eYield) / 5);
 	}
-	if(pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
-	{
-		iYieldValue += pkBuildingInfo->GetGlobalYieldModifier(eYield);
-	}
 	if(pCity->plot()->isRiver() && pkBuildingInfo->GetRiverPlotYieldChange(eYield) > 0)
 	{
 		iYieldValue += (pkBuildingInfo->GetRiverPlotYieldChange(eYield) * 5);
@@ -4114,10 +4084,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if(pCity->plot()->isCoastalLand() && pkBuildingInfo->GetSeaPlotYieldChange(eYield) > 0)
 	{
 		iYieldValue += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * 5);
-	}
-	if(pkBuildingInfo->GetAreaYieldModifier(eYield) > 0)
-	{
-		iYieldValue += (pkBuildingInfo->GetAreaYieldModifier(eYield) * 5);
 	}
 	if(pkBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0)
 	{
@@ -4301,6 +4267,33 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
 		iYieldValue += (kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
+	}
+
+	//JFD CRIME NEGATIVE OVERRIDE
+	if(MOD_BALANCE_CORE_JFD && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
+	{
+		//Flip value if Crime or Disease
+		iYieldValue *= -1;
+	}
+
+	//Modifiers
+	if(pkBuildingInfo->GetAreaYieldModifier(eYield) > 0)
+	{
+		iYieldValue += (pkBuildingInfo->GetAreaYieldModifier(eYield) * 5);
+	}
+
+	if(pkBuildingInfo->GetYieldModifier(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetYieldModifier(eYield);
+	}
+		if(pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetGlobalYieldModifier(eYield);
+	}
+
+	if(MOD_BALANCE_CORE_JFD && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
+	{
+		return iYieldValue;
 	}
 
 		//Deficient Yield?
@@ -5078,6 +5071,11 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 		{
 			iBonus += 25;
 		}
+	}
+
+	if(MOD_BALANCE_CORE_JFD && (iBonus > 1) && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
+	{
+		return iBonus *= -1;
 	}
 
 	return iBonus;

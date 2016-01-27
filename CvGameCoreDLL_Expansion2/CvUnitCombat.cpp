@@ -917,7 +917,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 				if(pkAttacker)
 				{
 					bBarbarian = pCity->isBarbarian();
-					pCity->changeDamage(iDamage);
+					pCity->changeDamage(iDamage, pkAttacker);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 					pCity->addDamageReceivedThisTurn(iDamage);
@@ -1109,7 +1109,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	if(pkAttacker && pkDefender)
 	{
 		pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
-		pkDefender->changeDamage(iAttackerDamageInflicted);
+		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
@@ -1659,7 +1659,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pCity->clearCombat();
 				if(pkAttacker)
 				{
-					pCity->changeDamage(iAttackerDamageInflicted);
+					pCity->changeDamage(iAttackerDamageInflicted, pkAttacker);
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pCity->getOwner());
 
 					//		iUnitDamage = std::max(pCity->getDamage(), pCity->getDamage() + iDamage);
@@ -3822,6 +3822,12 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 	}
 
 	// Earn bonuses for kills?
+#if defined(MOD_BALANCE_CORE)
+	if(pkLoser->getOwner() == BARBARIAN_PLAYER && pkLoser->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	{
+		GET_PLAYER(pkWinner->getOwner()).GetPlayerTraits()->SetDefeatedBarbarianCampGuardType(pkLoser->getUnitType());
+	}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	kPlayer.DoYieldsFromKill(pkWinner, pkLoser, pkLoser->getX(), pkLoser->getY(), iExistingDelay);
 #else

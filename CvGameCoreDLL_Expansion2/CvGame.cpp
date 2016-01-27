@@ -7877,177 +7877,7 @@ void CvGame::doTurn()
 	{
 		getGlobalAverage();
 	}
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
-		if(ePlayerLoop != NO_PLAYER && !GET_PLAYER(ePlayerLoop).isMinorCiv() && !GET_PLAYER(ePlayerLoop).isBarbarian())
-		{
-			if(GET_PLAYER(ePlayerLoop).GetCorporateFounderID() > 0)
-			{
-				if(GET_PLAYER(ePlayerLoop).isAlive())
-				{
-					bool bHasCorp = false;
-					CvCity* pLoopCity;
-					int iLoop;
-					int iBuildingCount;
-
-					for(pLoopCity = GET_PLAYER(ePlayerLoop).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop).nextCity(&iLoop))
-					{
-						if(pLoopCity != NULL && !bHasCorp)
-						{
-							BuildingClassTypes eBuildingClass;
-							for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-							{
-								eBuildingClass = (BuildingClassTypes) iI;
-
-								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-								if(!pkBuildingClassInfo)
-								{
-									continue;
-								}
-
-								BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-								if(eBuilding != NO_BUILDING)
-								{
-									CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-									if(pkBuilding)
-									{
-										iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
-										if(iBuildingCount > 0)
-										{
-											if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
-											{
-												bHasCorp = true;
-												break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-					if(!bHasCorp)
-					{
-						CvCity* pCity = GET_PLAYER(ePlayerLoop).getCapitalCity();
-						if(pCity != NULL)
-						{
-							BuildingClassTypes eBuildingClass;
-							for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-							{
-								eBuildingClass = (BuildingClassTypes) iI;
-
-								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-								if(!pkBuildingClassInfo)
-								{
-									continue;
-								}
-
-								BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-								if(eBuilding != NO_BUILDING)
-								{
-									CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-									if(pkBuilding)
-									{
-										if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
-										{
-											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
-											{
-												CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop).GetNotifications();
-												if(pNotifications && ePlayerLoop == GC.getGame().getActivePlayer())
-												{
-													Localization::String strSummary;
-													Localization::String strMessage;
-
-													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_MOVED_SUMMARY");
-													strSummary << pkBuilding->GetTextKey();
-													strSummary << pCity->getNameKey();
-													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_MOVED");
-													strMessage << pCity->getNameKey();
-													strMessage << pkBuilding->GetTextKey();
-													pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_PLAYERS; iPlayerLoop2++)
-					{
-						PlayerTypes ePlayerLoop2 = (PlayerTypes) iPlayerLoop2;
-						if(ePlayerLoop2 != NO_PLAYER)
-						{
-							if(GET_PLAYER(ePlayerLoop2).isAlive())
-							{
-								CvCity* pLoopCity;
-								int iLoop;
-								int iBuildingCount;
-								bool bHappened = false;
-
-								for(pLoopCity = GET_PLAYER(ePlayerLoop2).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop2).nextCity(&iLoop))
-								{
-									if(pLoopCity != NULL)
-									{
-										BuildingClassTypes eBuildingClass;
-										for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-										{
-											eBuildingClass = (BuildingClassTypes) iI;
-
-											CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-											if(!pkBuildingClassInfo)
-											{
-												continue;
-											}
-
-											BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop2).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-											if(eBuilding != NO_BUILDING)
-											{
-												CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-												if(pkBuilding)
-												{
-													iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
-													if(iBuildingCount > 0)
-													{
-														if(pkBuilding->GetCorporationID() > 0 && pkBuilding->GetCorporationID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
-														{
-															pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-															if(!bHappened)
-															{
-																CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop2).GetNotifications();
-																if(pNotifications && ePlayerLoop2 == GC.getGame().getActivePlayer())
-																{
-																	Localization::String strSummary;
-																	Localization::String strMessage;
-
-																	strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED_SUMMARY");
-																	strSummary << pkBuilding->GetTextKey();
-																	strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED");
-																	strMessage << pkBuilding->GetTextKey();
-																	pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, -1);
-																}
-															}
-															bHappened = true;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	CorpCheck();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -9959,6 +9789,183 @@ uint CvGame::getNumReplayMessages() const
 }
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+void CvGame::CorpCheck()
+{
+	//Corp Check
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
+		if(ePlayerLoop != NO_PLAYER && !GET_PLAYER(ePlayerLoop).isMinorCiv() && !GET_PLAYER(ePlayerLoop).isBarbarian())
+		{
+			if(GET_PLAYER(ePlayerLoop).GetCorporateFounderID() > 0)
+			{
+				if(GET_PLAYER(ePlayerLoop).isAlive())
+				{
+					bool bHasCorp = false;
+					CvCity* pLoopCity;
+					int iLoop;
+					int iBuildingCount;
+					int iI;
+
+					for(pLoopCity = GET_PLAYER(ePlayerLoop).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop).nextCity(&iLoop))
+					{
+						if(pLoopCity != NULL && !bHasCorp)
+						{
+							BuildingClassTypes eBuildingClass;
+							for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+							{
+								eBuildingClass = (BuildingClassTypes) iI;
+
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(!pkBuildingClassInfo)
+								{
+									continue;
+								}
+
+								BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+
+								if(eBuilding != NO_BUILDING)
+								{
+									CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+									if(pkBuilding)
+									{
+										iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
+										if(iBuildingCount > 0)
+										{
+											if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
+											{
+												bHasCorp = true;
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					if(!bHasCorp)
+					{
+						CvCity* pCity = GET_PLAYER(ePlayerLoop).getCapitalCity();
+						if(pCity != NULL)
+						{
+							BuildingClassTypes eBuildingClass;
+							for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+							{
+								eBuildingClass = (BuildingClassTypes) iI;
+
+								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+								if(!pkBuildingClassInfo)
+								{
+									continue;
+								}
+
+								BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+
+								if(eBuilding != NO_BUILDING)
+								{
+									CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+									if(pkBuilding)
+									{
+										if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
+										{
+											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+											{
+												CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop).GetNotifications();
+												if(pNotifications && ePlayerLoop == GC.getGame().getActivePlayer())
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+
+													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_MOVED_SUMMARY");
+													strSummary << pkBuilding->GetTextKey();
+													strSummary << pCity->getNameKey();
+													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_MOVED");
+													strMessage << pCity->getNameKey();
+													strMessage << pkBuilding->GetTextKey();
+													pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_PLAYERS; iPlayerLoop2++)
+					{
+						PlayerTypes ePlayerLoop2 = (PlayerTypes) iPlayerLoop2;
+						if(ePlayerLoop2 != NO_PLAYER)
+						{
+							if(GET_PLAYER(ePlayerLoop2).isAlive())
+							{
+								CvCity* pLoopCity;
+								int iLoop;
+								int iI;
+								int iBuildingCount;
+								bool bHappened = false;
+
+								for(pLoopCity = GET_PLAYER(ePlayerLoop2).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop2).nextCity(&iLoop))
+								{
+									if(pLoopCity != NULL)
+									{
+										BuildingClassTypes eBuildingClass;
+										for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+										{
+											eBuildingClass = (BuildingClassTypes) iI;
+
+											CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+											if(!pkBuildingClassInfo)
+											{
+												continue;
+											}
+
+											BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER(ePlayerLoop2).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+
+											if(eBuilding != NO_BUILDING)
+											{
+												CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+												if(pkBuilding)
+												{
+													iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
+													if(iBuildingCount > 0)
+													{
+														if(pkBuilding->GetCorporationID() > 0 && pkBuilding->GetCorporationID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
+														{
+															pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+															if(!bHappened)
+															{
+																CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop2).GetNotifications();
+																if(pNotifications && ePlayerLoop2 == GC.getGame().getActivePlayer())
+																{
+																	Localization::String strSummary;
+																	Localization::String strMessage;
+
+																	strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED_SUMMARY");
+																	strSummary << pkBuilding->GetTextKey();
+																	strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED");
+																	strMessage << pkBuilding->GetTextKey();
+																	pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, -1);
+																}
+															}
+															bHappened = true;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 //	--------------------------------------------------------------------------------
 void CvGame::getGlobalAverage() const
 {

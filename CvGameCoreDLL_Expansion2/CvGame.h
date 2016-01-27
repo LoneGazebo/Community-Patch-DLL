@@ -445,6 +445,7 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void CorpCheck();
 	void getGlobalAverage() const;
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);

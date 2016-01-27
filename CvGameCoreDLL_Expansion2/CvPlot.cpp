@@ -2515,6 +2515,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Can't repair outside of owned territory.
+		if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+		{
+			return false;
+		}
+#endif
 		if(IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;
@@ -3306,13 +3313,13 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4040,9 +4047,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-		{
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->m_bExplorationPlotsDirty = true;
-		}
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
 	}
 }
 
@@ -6302,7 +6307,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
 						continue;
 
-					if (pLoopPlot->isWater()==isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
 						return true;
 				}
 			}
@@ -9929,12 +9934,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					{
 						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
 						if(playerI.isAlive())
-						{
 							if(playerI.getTeam() == eTeam)
-							{
-								playerI.GetEconomicAI()->m_bExplorationPlotsDirty = true;
-							}
-						}
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
@@ -13302,7 +13303,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	if (!isValidMovePlot(ePlayer))
 		return false;
 
-	if (getOwner()!=NO_PLAYER)
+	if (getOwner()!=NO_PLAYER && ePlayer!=NO_PLAYER)
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();

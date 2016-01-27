@@ -616,186 +616,135 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	int iValue = 0;
 
 	// Yield Values
-	int iFoodYieldValue = (/*12*/ GC.getAI_CITIZEN_VALUE_FOOD() * pPlot->getYield(YIELD_FOOD));
-	int iProductionYieldValue = (/*8*/ GC.getAI_CITIZEN_VALUE_PRODUCTION() * pPlot->getYield(YIELD_PRODUCTION));
-	int iGoldYieldValue = (/*10*/ GC.getAI_CITIZEN_VALUE_GOLD() * pPlot->getYield(YIELD_GOLD));
-	int iScienceYieldValue = (/*6*/ GC.getAI_CITIZEN_VALUE_SCIENCE() * pPlot->getYield(YIELD_SCIENCE));
-	int iCultureYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlot->getYield(YIELD_CULTURE));
-	int iFaithYieldValue = (GC.getAI_CITIZEN_VALUE_FAITH() * pPlot->getYield(YIELD_FAITH));
+	///////
+	// Bonuses
+	//////////
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
 
-	// How much surplus food are we making?
-#if !defined(MOD_BALANCE_CORE)
-	// avoid re-doing this expensive calculation for every plot
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
-	bool bAvoidGrowth = IsAvoidGrowth();
+		if(eYield == NO_YIELD)
+			continue;
 
-	// City Focus
-	CityAIFocusTypes eFocus = GetFocusType();
-	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-#if defined(MOD_BALANCE_CORE)
-	{
-#endif
-		iFoodYieldValue *= 4;
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
-#if defined(MOD_BALANCE_CORE)
-	{
-		iProductionYieldValue *= 6;
-		iFoodYieldValue *= 2;
-	}
-#else
-		iProductionYieldValue *= 3;
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
-#if defined(MOD_BALANCE_CORE)
-	{
-		iGoldYieldValue *= 5;
-		iFoodYieldValue *= 2;
-	}
-#else
-		iGoldYieldValue *= 3;
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
-		iScienceYieldValue *= 3;
-	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
-		iCultureYieldValue *= 3;
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		iFoodYieldValue *= 3;
-		iGoldYieldValue *= 2;
-	}
-	else if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		iFoodYieldValue *= 3;
-		iProductionYieldValue *= 2;
-	}
-	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
-	{
-		iFaithYieldValue *= 3;
-#if defined(MOD_BALANCE_CORE)
-		iCultureYieldValue *= 2;
-		ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-		if(eMajority != NO_RELIGION)
+		int iYield = pPlot->getYield(eYield);
+		if(iYield > 0)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
-			if(pReligion)
+			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
 			{
-				if(pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH) > 0)
+				iValue *= 2;
+			}
+			CityAIFocusTypes eFocus = GetFocusType();
+			if(eYield == YIELD_FOOD)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
+				if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 				{
-					iGoldYieldValue *= 2;
+					iYield *= 4;
 				}
-				else if(pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH) > 0)
+				//Food is unique, so let's separate it out for now.
+				int iFood = iYield;
+				bool bAvoidGrowth = IsAvoidGrowth();
+
+				// Food can be worth less if we don't want to grow
+				
+				if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iScienceYieldValue *= 2;
+					int iFoodT100NeededFor0 = -iExcessFoodTimes100;
+
+					if(iFoodT100NeededFor0 > 0)
+					{
+						iFood *= 8;
+					}
+					else
+					{
+						iFood /= 2;
+					}
 				}
-				else if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
+				else if(bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
 				{
-					iFoodYieldValue *= 2;
+					// If we at least have enough Food to feed everyone, zero out the value of additional food
+					iFood = 0;
+				}
+				// If our surplus is not at least 2, really emphasize food plots
+				else if(!bAvoidGrowth)
+				{
+					if(iExcessFoodTimes100 < 200)
+					{
+						iFood *= 10;
+					}
+					else
+					{
+						int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+						int iRemainder = 0;
+						iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 12), 1));
+						if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+						{
+							iFood *= max(1, iRemainder);
+						}
+						else
+						{
+							iFood *= max(1, (iRemainder / 4));
+						}
+					}
+				}
+							
+				iYield += iFood;
+			}
+			else if(eYield == YIELD_PRODUCTION)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
+				if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
+				{
+					iYield *= 4;
+				}
+				if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+				{
+					iYield *= 3;
 				}
 			}
-		}
-#endif
-	}
-#if defined(MOD_BALANCE_CORE)
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-	{
-		iFaithYieldValue *= 2;
-		iCultureYieldValue *= 6;
-	}
-#endif
-
-	// Food can be worth less if we don't want to grow
-	if(bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
-	{
-		// If we at least have enough Food to feed everyone, zero out the value of additional food
-		iFoodYieldValue = 0;
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		int iFoodT100NeededFor0 = -iExcessFoodTimes100;
-
-		if(iFoodT100NeededFor0 > 0)
-		{
-			iFoodYieldValue *= 8;
-		}
-		else
-		{
-			iFoodYieldValue /= 2;
-		}
-	}
-	// If our surplus is not at least 2, really emphasize food plots
-	else if(!bAvoidGrowth)
-	{
-		int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
-
-		if(iFoodT100NeededFor2 > 0)
-		{
-			iFoodYieldValue *= 8;
-		}
-		else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
-		{
-			iFoodYieldValue /= 2;
-		}
-	}
-	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
-	int iRemainder = 0;
-	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 8), 1));
-	if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-	{
-		iFoodYieldValue *= max(1, iRemainder);
-	}
-	else
-	{
-		iFoodYieldValue *= max(1, (iRemainder / 4));
-	}
-#else
-	// We want to grow here
-	else
-	{
-		// If we have a non-default and non-food focus, only worry about getting to 0 food
-		if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-		{
-			int iFoodT100NeededFor0 = -iExcessFoodTimes100;
-
-			if(iFoodT100NeededFor0 > 0)
+			else if(eYield == YIELD_GOLD)
 			{
-				iFoodYieldValue *= 8;
+				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
+				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
+				{
+					iYield *= 4;
+				}
+				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				{
+					iYield *= 3;
+				}
+			}
+			else if(eYield == YIELD_SCIENCE)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
+				if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
+				{
+					iYield *= 4;
+				}			
+			}
+			else if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
+				if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
+				{
+					iYield *= 4;
+				}
+			}
+			else if(eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
+				if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
+				{
+					iYield *= 4;
+				}
 			}
 			else
 			{
-				iFoodYieldValue /= 2;
+				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
 			}
-		}
-		// If our surplus is not at least 2, really emphasize food plots
-		else if(!bAvoidGrowth)
-		{
-			int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
-
-			if(iFoodT100NeededFor2 > 0)
-			{
-				iFoodYieldValue *= 8;
-			}
-			else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
-			{
-				iFoodYieldValue /= 2;
-			}
+			iValue += iYield;
 		}
 	}
-	if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 5)
-	{
-		iFoodYieldValue *= 4;
-	}
-#endif
-	iValue += iFoodYieldValue;
-	iValue += iProductionYieldValue;
-	iValue += iGoldYieldValue;
-	iValue += iScienceYieldValue;
-	iValue += iCultureYieldValue;
-	iValue += iFaithYieldValue;
 
 	return iValue;
 }
@@ -1289,34 +1238,155 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 
 	// factor in the fact that specialists may need less food
 	int iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFood()) ? 1 : 0;
-#if defined(MOD_BALANCE_CORE)
 	if(iFoodConsumptionBonus == 0 && m_pCity->isCapital())
 	{
 		iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFoodCapital ()) ? 1 : 0;
 	}
-#endif
+	CityAIFocusTypes eFocus = GetFocusType();
+	//Calc food first (as it might end the function early)
+	int iPenalty = 0;
+	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+	bool bAvoidGrowth = IsAvoidGrowth();
+	if(iExcessFoodTimes100 < 0 && bAvoidGrowth)
+	{
+		return 0;
+	}
+	else if(iExcessFoodTimes100 <= 0 && !bAvoidGrowth)
+	{
+		return 0;
+	}
+	else if(iExcessFoodTimes100 < 200 && !bAvoidGrowth)
+	{
+		iValue /= 5;
+	}
+	else if(iExcessFoodTimes100 > 0)
+	{
+		//Increase penalty based on function of excess food value and growth thresholds. 
+		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+		int iRemainder = 0;
+		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 12), 1));
+		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+		{
+			iPenalty *= iRemainder;
+		}
+		else
+		{
+			iPenalty *= (iRemainder / 4);
+		}
+	}
+	if(iExcessFoodTimes100 >= 0 && bAvoidGrowth)
+	{
+		// If we at least have enough Food to feed everyone, zero out the value of additional food
+		iPenalty = 0;
+	}
 
-	// Yield Values
-	int iFoodYieldValue = (GC.getAI_CITIZEN_VALUE_FOOD() * (pPlayer->specialistYield(eSpecialist, YIELD_FOOD) + iFoodConsumptionBonus));
-	int iProductionYieldValue = (GC.getAI_CITIZEN_VALUE_PRODUCTION() * pPlayer->specialistYield(eSpecialist, YIELD_PRODUCTION));
-	int iGoldYieldValue = (GC.getAI_CITIZEN_VALUE_GOLD() * pPlayer->specialistYield(eSpecialist, YIELD_GOLD));
-	int iScienceYieldValue = (GC.getAI_CITIZEN_VALUE_SCIENCE() * pPlayer->specialistYield(eSpecialist, YIELD_SCIENCE));
-	int iCultureYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * (m_pCity->GetCultureFromSpecialist(eSpecialist))); 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	iCultureYieldValue += (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_CULTURE));
-#endif
-	int iFaithYieldValue = (GC.getAI_CITIZEN_VALUE_FAITH() * pPlayer->specialistYield(eSpecialist, YIELD_FAITH));
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	int iTourismYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_TOURISM));
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-	int iGoldenAgeYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_GOLDEN_AGE_POINTS));
-#endif
+	///////
+	// Bonuses
+	//////////
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+
+		if(eYield == NO_YIELD)
+			continue;
+
+		int iYield = pPlayer->specialistYield(eSpecialist, eYield);
+		//Culture is treated differently, sadly.
+		if(eYield == YIELD_CULTURE)
+		{
+			iYield = m_pCity->GetCultureFromSpecialist(eSpecialist);
+		}
+		if(iYield > 0)
+		{
+			ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+			if(eMajority >= RELIGION_PANTHEON)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+				if(pReligion)
+				{
+					iYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
+					if(GetTotalSpecialistCount() <= 0 && pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield) > 0)
+					{
+						iYield += (pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield) * 10);
+					}
+					else if(pReligion->m_Beliefs.GetYieldFromGPUse(eYield) > 0)
+					{
+						iYield += (pReligion->m_Beliefs.GetYieldFromGPUse(eYield) / 10);
+					}
+				}
+			}
+			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
+			{
+				iValue *= 2;
+			}
+			if(eYield == YIELD_FOOD)
+			{
+				iYield *= (GC.getAI_CITIZEN_VALUE_FOOD() + iFoodConsumptionBonus);
+				if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
+				{
+					iYield *= 4;
+				}
+			}
+			else if(eYield == YIELD_PRODUCTION)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
+				if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
+				{
+					iYield *= 4;
+				}
+				if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+				{
+					iYield *= 3;
+				}
+			}
+			else if(eYield == YIELD_GOLD)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
+				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
+				{
+					iYield *= 4;
+				}
+				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				{
+					iYield *= 3;
+				}
+			}
+			else if(eYield == YIELD_SCIENCE)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
+				if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
+				{
+					iYield *= 4;
+				}			
+			}
+			else if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
+				if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
+				{
+					iYield *= 4;
+				}
+			}
+			else if(eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
+				if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
+				{
+					iYield *= 4;
+				}
+			}
+			else
+			{
+				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
+			}
+			iValue += iYield;
+		}
+	}
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
-
-	int iHappinessYieldValue = (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness()) ? 5 : 0; // TODO: un-hardcode this
-	iHappinessYieldValue = m_pCity->GetPlayer()->IsEmpireUnhappy() ? iHappinessYieldValue * 2 : iHappinessYieldValue; // TODO: un-hardcode this
-#if defined(MOD_BALANCE_CORE)
+	if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+	{
+		iGPPYieldValue *= 5;
+	}
 	bool bGPCity = false;
 	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
 	if(eGoodGP != NO_AICITYSTRATEGY)
@@ -1327,6 +1397,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	{
 		iGPPYieldValue *= 3;
 	}
+	iValue += iGPPYieldValue;
+
+	///////
+	//Penalties
+	//////////
+	int iHappinessYieldValue = 0;
 	if(GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 	{
 		CvCity* pAssumeCityAnnexed = NULL;
@@ -1340,184 +1416,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			pAssumeCityAnnexed = m_pCity;
 		}
 
-		iHappinessYieldValue *= max(1, (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 5));
-	}
-#endif
-	// How much surplus food are we making?
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-	bool bAvoidGrowth = IsAvoidGrowth();
-
-	// City Focus
-	CityAIFocusTypes eFocus = GetFocusType();
-	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-		iFoodYieldValue *= 3;
-	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
-#if defined(MOD_BALANCE_CORE)
-		iProductionYieldValue *= 5;
-#else
-		iProductionYieldValue *= 3;
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
-#if defined(MOD_BALANCE_CORE)
-		iGoldYieldValue *= 5;
-#else
-		iGoldYieldValue *= 3;
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
-		iScienceYieldValue *= 3;
-	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	{
-		iCultureYieldValue *= 4;
-		iTourismYieldValue *= 2;
-	}
-#else
-		iCultureYieldValue *= 3;
-#endif
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		iFoodYieldValue *= 2;
-		iGoldYieldValue *= 2;
-	}
-	else if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-	{
-		iFoodYieldValue *= 2;
-		iProductionYieldValue *= 2;
-	}
-	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
-	{
-		iFaithYieldValue *= 3;
-#if defined(MOD_BALANCE_CORE)
-		iCultureYieldValue *= 2;
-		ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-		if(eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
-			if(pReligion)
-			{
-				if(pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH) > 0)
-				{
-					iGoldYieldValue *= 2;
-				}
-				else if(pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH) > 0)
-				{
-					iScienceYieldValue *= 2;
-				}
-				else if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
-				{
-					iFoodYieldValue *= 2;
-				}
-			}
-		}
-#endif
-	}
-	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-	{
-		iGPPYieldValue *= 3;
-#if defined(MOD_BALANCE_CORE)
-		iCultureYieldValue *= 3;
-		iScienceYieldValue *= 3;
-#endif
-	}
-	// Food can be worth less if we don't want to grow
-	if(iExcessFoodTimes100 >= 0 && bAvoidGrowth)
-	{
-		// If we at least have enough Food to feed everyone, zero out the value of additional food
-		iFoodYieldValue = 0;
-	}
-	// We want to grow here
-#if defined(MOD_BALANCE_CORE)
-	if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-	{
-		int iFoodT100NeededFor0 = -iExcessFoodTimes100;
-
-		if(iFoodT100NeededFor0 > 0)
-		{
-			iFoodYieldValue *= 8;
-		}
-		else
-		{
-			iFoodYieldValue /= 2;
-		}
-	}
-	// If our surplus is not at least 2, really emphasize food plots
-	else if(!bAvoidGrowth)
-	{
-		int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
-
-		if(iFoodT100NeededFor2 > 0)
-		{
-			iFoodYieldValue *= 8;
-		}
-		else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
-		{
-			iFoodYieldValue /= 2;
-		}
-	}
-	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
-	int iRemainder = 0;
-	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
-	if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-	{
-		iFoodYieldValue *= iRemainder;
-	}
-	else
-	{
-		iFoodYieldValue *= (iRemainder / 4);
-	}
-#else
-	else
-	{
-		// If we have a non-default and non-food focus, only worry about getting to 0 food
-		if(eFocus != NO_CITY_AI_FOCUS_TYPE && eFocus != CITY_AI_FOCUS_TYPE_FOOD && eFocus != CITY_AI_FOCUS_TYPE_PROD_GROWTH && eFocus != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-		{
-			int iFoodT100NeededFor0 = -iExcessFoodTimes100;
-
-			if(iFoodT100NeededFor0 > 0)
-			{
-				iFoodYieldValue *= 8;
-			}
-			else
-			{
-				iFoodYieldValue /= 2;
-			}
-		}
-		// If our surplus is not at least 2, really emphasize food plots
-		else if(!bAvoidGrowth)
-		{
-			int iFoodT100NeededFor2 = 200 - iExcessFoodTimes100;
-
-			if(iFoodT100NeededFor2 > 0)
-			{
-				iFoodYieldValue *= 8;
-			}
-			else if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
-			{
-				iFoodYieldValue /= 2;
-			}
-		}
+		iHappinessYieldValue = (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) * 4);
 	}
 
-	if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 5)
-	{
-		iFoodYieldValue *= 4;
-	}
-#endif
-	iValue += iFoodYieldValue;
-	iValue += iProductionYieldValue;
-	iValue += iGoldYieldValue;
-	iValue += iScienceYieldValue;
-	iValue += iCultureYieldValue;
-	iValue += iFaithYieldValue;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	iValue += iTourismYieldValue;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-	iValue += iGoldenAgeYieldValue;
-#endif
-	iValue += iGPPYieldValue;
-	iValue += iHappinessYieldValue;
-#if defined(MOD_BALANCE_CORE)
+	iValue -= iHappinessYieldValue;
+	iValue -= iPenalty;
+
 	pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if(pSpecialistInfo)
 	{
@@ -1532,46 +1436,55 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 			{
 				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
-				iValue *= (iFlavorCulture * iEmptySlots);
 				if(iEmptySlots == 0)
 				{
-					iValue /= 10;
+					iValue /= 2;
+				}
+				else
+				{
+					iValue += (iFlavorCulture * iEmptySlots);
 				}
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 			{
 				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
-				iValue *= (iFlavorCulture * iEmptySlots);
 				if(iEmptySlots == 0)
 				{
-					iValue /= 10;
+					iValue /= 2;
+				}
+				else
+				{
+					iValue += (iFlavorCulture * iEmptySlots);
 				}
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 			{
 				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-				iValue *= (iFlavorCulture * iEmptySlots);
 				if(iEmptySlots == 0)
 				{
-					iValue /= 10;
+					iValue /= 2;
+				}
+				else
+				{
+					iValue += (iFlavorCulture * iEmptySlots);
 				}
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 			{
-				iValue *= iFlavorProduction;
+				iValue += (iFlavorProduction * 2);
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 			{
-				iValue *= iFlavorGold;
+				iValue += (iFlavorGold * 2);
 			}
 			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 			{
-				iValue *= iFlavorScience;
+				iValue += (iFlavorScience * 2);
 			}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			else if(MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 			{
-				iValue *= iFlavorDiplomacy;
+				iValue += (iFlavorDiplomacy * 2);
 			}
 #endif
 		}
@@ -1581,7 +1494,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	iPop /= 4;
 
 	iValue += iPop;
-#endif
 	return iValue;
 }
 
@@ -1729,8 +1641,8 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 				return true;
 			}
 		}
-		//THIRD, IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD WRECK US
-		else if(eBestSpecialistBuilding != NO_BUILDING && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy() && iPotentialExcessTimes100 >= 0)
+		//THIRD, IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD STARVE US
+		else if(eBestSpecialistBuilding != NO_BUILDING && iPotentialExcessTimes100 >= 0)
 		{
 			DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
 			return true;

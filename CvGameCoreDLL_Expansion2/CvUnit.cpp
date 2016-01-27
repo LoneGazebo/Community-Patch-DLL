@@ -352,9 +352,6 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE)
-	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
-#endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	, m_iEmbarkedDeepWaterCount("CvUnit::m_iEmbarkedDeepWaterCount", m_syncArchive)
 #endif
@@ -1717,32 +1714,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvCity *pPlotCity = plot()->getPlotCity();
 		if (pPlotCity)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pPlotCity->GetNationalMissionaries() > 0)
-			{
-				//Only fires once.
-				ReligionTypes eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
-				if(eNationalReligion == NO_RELIGION)
-				{
-					eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionInMostCities();
-				}
-				if (eNationalReligion != NO_RELIGION)
-				{
-					GetReligionData()->SetReligion(eNationalReligion);
-					GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
-					GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
-				}
-				else
-				{
-					kill(true);
-					pPlotCity->SetNationalMissionaries(0);
-					return;
-				}
-				pPlotCity->SetNationalMissionaries(0);
-			}
-			else
-			{
-#endif
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
 			if (eReligion > RELIGION_PANTHEON)
 			{
@@ -1750,9 +1721,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
 				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	}
@@ -3644,14 +3612,50 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						{
 							// If the unit originally belonged to us, we've already done what we needed to do
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
+#if defined(MOD_BALANCE_CORE)
+								if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+								{
+									if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+									{
+										kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+									}
+									else
+									{
+										kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+									}
+								}
+								else
+								{
+#endif
+
 								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+								}
+#endif
 						}
 						// if Venice
 						else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 						{
-							// If the unit originally belonged to us, we've already done what we needed to do
-							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
-								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+							if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+							{
+								if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+								{
+									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+								else
+								{
+									kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+							}
+							else
+							{
+#endif
+
+							kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+							}
+#endif
 						}
 					}
 					else
@@ -17990,8 +17994,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	CvCity* pNewCity = 0;
 	CvUnit* pTransportUnit = 0;
 	CvUnit* pLoopUnit = 0;
-	CvPlot* pOldPlot = 0;
-	CvPlot* pNewPlot = 0;
 	FStaticVector<IDInfo, 10, true, c_eCiv5GameplayDLL, 0> oldUnitList;
 	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
@@ -18025,7 +18027,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	int iMapLayer = m_iMapLayer;
 
-	pNewPlot = GC.getMap().plot(iX, iY);
+	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 
 	//sanity check - may interfere with carriers for land units, so don't fix it
 	/*
@@ -18226,7 +18228,8 @@ if (!bDoEvade)
 		}
 	}
 
-	pOldPlot = plot();
+	CvPlot* pOldPlot = plot();
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 
 	if(pOldPlot != NULL)
 	{
@@ -19584,7 +19587,6 @@ if (!bDoEvade)
 		DLLUI->SetDontShowPopups(false);
 
 	// update garrison status for old and new city, if applicable
-	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
@@ -20515,12 +20517,6 @@ int CvUnit::GetMapLayer() const
 bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
-
-	if (plot())
-	{
-		if (!plot()->isCity() && m_iGarrisonCityID>0)
-			OutputDebugString("bam!\n");
-	}
 
 	return (m_iGarrisonCityID != -1);
 }
@@ -25363,7 +25359,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		SetActivityType(ACTIVITY_AWAKE);
 		if(eOldAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 
 		// if canceling automation, cancel on cargo as well
@@ -25389,7 +25385,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		}
 		else if(m_eAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 	}
 }

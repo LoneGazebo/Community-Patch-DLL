@@ -1694,7 +1694,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	int m_iNumTilesRevealedThisTurn;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;

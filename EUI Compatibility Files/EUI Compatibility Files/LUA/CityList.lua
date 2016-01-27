@@ -123,8 +123,8 @@ function UpdateDisplay()
 		end
 
 	
-		sortEntry.Strength = math.floor( pCity:GetStrengthValue() / 100 );
-        instance.Defense:SetText( sortEntry.Strength );
+		--sortEntry.Strength = math.floor( pCity:GetStrengthValue() / 100 );
+        --instance.Defense:SetText( sortEntry.Strength );
         
         sortEntry.Production = pCity:GetProductionNameKey();
         ProductionDetails( pCity, instance );
@@ -154,6 +154,9 @@ function UpdateDisplay()
 		end
 
 		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+
+		sortEntry.Strength = math.floor(iTotalUnhappiness);
+        instance.Defense:SetText( sortEntry.Strength );
 
 		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;

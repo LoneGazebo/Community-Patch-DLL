@@ -762,14 +762,14 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation())
+			if(pThisOperation->IsNavalOperation())
 			{
 				CvArea* pArea = GC.getMap().getArea(iAreaID);
 				if(pArea && !pArea->isWater())
 				{
 					if(pCity && pCity->isCoastal())
 					{
-						CvPlot* pPlot = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							iAreaID = pPlot->getArea();
@@ -804,7 +804,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 #if defined(MOD_BALANCE_CORE)
 	CvAIOperation* pBestOperation = NULL;
 	int iBestScore = -1;
-	int iBestArea = -1;
 #endif
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
@@ -813,48 +812,37 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(iAreaID == -1)
 			{
 				iAreaID = pCity->getArea();
 			}
 
-			int iArea = pThisOperation->GetDefaultArea();
 			int iScore = 0;
-			if(iArea == -1 && pThisOperation->GetMusterPlot() != NULL)
+			int iArea = -1;
+			int iDistance = 0;
+			if(pThisOperation->GetMusterPlot() != NULL)
 			{
 				iArea = pThisOperation->GetMusterPlot()->getArea();
+				iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
 			}
+			else
+				continue;
 
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation()) 
+			//for naval ops, check if we're on the correct water body
+			if(pThisOperation->IsNavalOperation()) 
 			{
-				if(!pCity->isCoastal())
+				if(!pCity->isCoastal() || pCity->waterArea()->GetID()!=iArea)
 				{
 					continue;
 				}
-				CvPlot* pCoastal = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
-				if(pCoastal != NULL)
-				{
-					if(iAreaID != -1 && (iArea != pCoastal->getArea()))
-					{
-						continue;
-					}
-					else
-					{
-						iBestArea = pCoastal->getArea();
-					}
-				}
-			}
-			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
-			{
-				iScore = 100;
 			}
 
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+			iScore += range( 10-iDistance, 0, 10 );
 
-			if(!pThisOperation->IsAllNavalOperation() && !pThisOperation->IsMixedLandNavalOperation() && (iAreaID != -1) && (iArea != iAreaID))
+			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
 			{
-				iScore /= 2;
+				iScore *= 2;
 			}
 
 			if(iScore > iBestScore)
@@ -871,14 +859,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		{
 			return thisSlot;
 		}
-#else
-			thisSlot = pThisOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
-			if(thisSlot.IsValid())
-			{
-				break;
-			}
-		}
-#endif
 	}
 
 	return thisSlot;
