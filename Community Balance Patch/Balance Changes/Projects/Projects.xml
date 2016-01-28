@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/26/2016 2:45:26 PM -->
+<GameData>
+	<Policies>
+		<Row>
+			<Type>POLICY_FIRST_ON_MOON</Type>
+			<Description>TXT_KEY_POLICY_FIRST_ON_MOON</Description>
+			<IncludesOneShotFreeUnits>true</IncludesOneShotFreeUnits>
+			<GoldenAgeTurns>10</GoldenAgeTurns>
+		</Row>
+		<Row>
+			<Type>POLICY_MANHATTAN_PROJECT</Type>
+			<Description>TXT_KEY_POLICY_MANHATTAN_PROJECT</Description>
+			<IncludesOneShotFreeUnits>true</IncludesOneShotFreeUnits>
+		</Row>
+	</Policies>
+	<Policy_FreeUnitClasses>
+		<Row>
+			<PolicyType>POLICY_FIRST_ON_MOON</PolicyType>
+			<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MANHATTAN_PROJECT</PolicyType>
+			<UnitClassType>UNITCLASS_ATOMIC_BOMB</UnitClassType>
+			<Count>1</Count>
+		</Row>
+	</Policy_FreeUnitClasses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_POLICY_FIRST_ON_MOON">
+			<Text>First on the Moon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_MANHATTAN_PROJECT">
+			<Text>Atomic Bomb</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

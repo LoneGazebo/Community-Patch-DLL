@@ -8964,6 +8964,14 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	if(MOD_BALANCE_CORE_HAPPINESS && pCity->getOwner() == m_pPlayer->GetID())
+	{
+		int iUnhappy = pCity->getUnhappinessFromReligion();
+		if(iUnhappy > 0)
+		{
+			iScore *= (pCity->getUnhappinessFromReligion() + 1);
+		}
+	}
 	//if a CS, and we have a bonus for that, emphasize.
 	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 	{

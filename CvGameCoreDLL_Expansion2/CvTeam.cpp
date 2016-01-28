@@ -5195,6 +5195,71 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			{
 				GC.getGame().makeNukesValid(true);
 			}
+#if defined(MOD_BALANCE_CORE)
+			bool bFirst = true;
+			for(int iK = 0; iK < MAX_TEAMS; iK++)
+			{
+				const TeamTypes eLoopTeam = static_cast<TeamTypes>(iK);
+				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+				if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
+				{
+					if(eLoopTeam != GetID())
+					{
+						if(kLoopTeam.getProjectCount(eIndex) > 0)
+						{
+							bFirst = false;
+							break;
+						}
+					}
+				}
+			}
+			if(bFirst)
+			{
+				BuildingClassTypes eBuildingClass = pkProject->GetFreeBuilding();
+				if(eBuildingClass != NO_BUILDINGCLASS)
+				{
+					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+					if(pkBuildingClassInfo)
+					{
+						for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+						{
+							if(GET_PLAYER((PlayerTypes)iJ).isAlive())
+							{
+								if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
+								{
+									const BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+									CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+									if(pBuildingEntry == NULL)
+										continue;
+
+									CvCity* pCapital = GET_PLAYER((PlayerTypes)iJ).getCapitalCity();
+
+									if(pCapital == NULL)
+										continue;
+
+									pCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+									pCapital->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+								}
+							}
+						}
+					}
+				}
+				PolicyTypes ePolicy = pkProject->GetFreePolicy();
+				if(ePolicy != NO_POLICY)
+				{
+					for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+					{
+						if(GET_PLAYER((PlayerTypes)iJ).isAlive())
+						{
+							if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
+							{
+								GET_PLAYER((PlayerTypes)iJ).setHasPolicy(ePolicy, true);
+							}
+						}
+					}
+				}	
+			}
+#endif
 
 			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
@@ -5227,6 +5292,50 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 
 			if(GC.getGame().isFinalInitialized())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(bFirst)
+				{
+					CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT_FIRST", getName().GetCString(), pkProject->GetTextKey());
+					CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST", getName().GetCString(), pkProject->GetTextKey());
+					CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST", pkProject->GetTextKey());
+
+					const PlayerTypes eTeamLeader = getLeaderID();
+					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
+					CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
+					CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
+
+
+					for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+					{
+						const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
+						CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+						if(kPlayer.isAlive())
+						{
+							if(isHasMet(kPlayer.getTeam()))
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
+							}
+							else
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
+							}
+						}
+					}
+				}
+				else
+				{
+#endif
 				CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
 				CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
 				CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
@@ -5265,6 +5374,9 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						}
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}

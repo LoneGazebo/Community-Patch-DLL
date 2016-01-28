@@ -2515,6 +2515,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Can't repair outside of owned territory.
+		if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+		{
+			return false;
+		}
+#endif
 		if(IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;

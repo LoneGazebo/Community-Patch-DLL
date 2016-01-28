@@ -120,7 +120,6 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
-	int GetNationalMissionaries() const;
 	int GetFreeBuildingTradeTargetCity() const;
 	int GetCorporationID() const;
 	int GetCorporationHQID() const;
@@ -515,7 +514,6 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
-	int m_iNationalMissionaries;
 	int m_iGetCooldown;
 	int m_iFreeBuildingTradeTargetCity;
 	int m_iCorporationID;

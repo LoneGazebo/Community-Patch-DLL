@@ -467,6 +467,14 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<!-- Hydro Plant -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HYDRO_PLANT</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<!-- Stone Works-->
 	<Buildings>
 		<Row>

@@ -2444,11 +2444,14 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
 #endif
+#if defined(MOD_BALANCE_CORE)
+		DoUpdateDemands();
+#endif
 		MakeWar();
 		DoMakePeaceWithMinors();
-
+#if !defined(MOD_BALANCE_CORE)
 		DoUpdateDemands();
-
+#endif
 		DoUpdatePlanningExchanges();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
@@ -5493,30 +5496,64 @@ void CvDiplomacyAI::DoUpdateDemands()
 			if(IsPlayerDemandAttractive(eLoopPlayer))
 			{
 #if defined(MOD_BALANCE_CORE)
-				iWeight = (GET_PLAYER(eLoopPlayer).GetEconomicMight() - GetPlayer()->GetEconomicMight());
-				if(iWeight <= 0)
+				//Get target softness.
+				switch(GetPlayerTargetValue(eLoopPlayer))
 				{
-					iWeight = GetPlayer()->GetEconomicMight() - GET_PLAYER(eLoopPlayer).GetEconomicMight();
+					case TARGET_VALUE_IMPOSSIBLE:
+						continue;
+					case TARGET_VALUE_BAD:
+						iWeight = 5;
+						break;
+					case TARGET_VALUE_AVERAGE:
+						iWeight = 10;
+						break;
+					case TARGET_VALUE_FAVORABLE:
+						iWeight = 50;
+						break;
+					case TARGET_VALUE_SOFT:
+						iWeight = 100;
+						break;
+					default:
+						iWeight = 1;
+						break;
+				}
+				//If we want war, up the weight
+				if(GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
+				{
+					iWeight += 10;
+				}
+				//If we are deceptive, up the weight
+				else if(GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+				{
+					iWeight += 10;
+				}
+				else
+				{
+					iWeight -= 15;
 				}
 #else
 				iWeight = GC.getGame().getJonRandNumVA(100, "DIPLOMACY_AI: Random weight for player to make demand of. (%d; %d)", (int)GetPlayer()->GetID(), (int)eLoopPlayer);
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_AVERAGE)
-				{
-					iWeight *= 2;
-				}
 				if(GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
-					iWeight *= 2;
+					iWeight += 25;
 				}
-				if(GetMajorCivOpinion(eLoopPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				else
 				{
-					iWeight *= 2;
+					iWeight -= 15;
+				}
+				if(GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					iWeight += 15;
+				}
+				else
+				{
+					iWeight -= 10;
 				}
 				if(GetDemandTargetPlayer() == eLoopPlayer)
 				{
-					iWeight *= 5;
+					iWeight += 100;
 				}
 				if(iWeight <= 0)
 				{
@@ -5594,15 +5631,8 @@ void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
 			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()))
 #endif
 			{
-#if defined(MOD_BALANCE_CORE)
-				if(GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(ePlayer) == NULL)
-				{
-#endif
 				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(ePlayer);
 				SetWarGoal(ePlayer, WAR_GOAL_DEMAND);
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
 			}
 		}
 	}
@@ -5664,11 +5694,7 @@ void CvDiplomacyAI::DoTestDemandReady()
 				if(!IsAtWar(eDemandTarget))
 				{
 					// If we're at least 85% of the way to our objective, let loose the dogs of war!
-#if defined(MOD_BALANCE_CORE)
-					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
-#else
 					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 85))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
-#endif
 					{
 						SetMusteringForAttack(eDemandTarget, false);
 
@@ -5718,8 +5744,8 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	//Wars should be war, not demands
-	if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
+	//If hostile, don't make a demand
+	if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_HOSTILE)
 	{
 		return false;
 	}
@@ -7586,7 +7612,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
 	if(bIgnoreLoops)
 	{
-		// Our Military Strength compared to them
+		// Their Military Strength compared to us
 		switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
 		case STRENGTH_PATHETIC:
@@ -7612,7 +7638,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 			break;
 		}
 
-		// Our Economic Strength compared to them
+		// Their Economic Strength compared to us
 		switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
 		case STRENGTH_PATHETIC:
@@ -7639,25 +7665,31 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		}
 
 		// What is our war projection of them?
-		switch(GetWarProjection(ePlayer))
+		switch(GetMajorCivOpinion(ePlayer))
 		{
-			case WAR_PROJECTION_DESTRUCTION:
-				iWarScore += -25;
-				break;
-			case WAR_PROJECTION_DEFEAT:
-				iWarScore += -10;
-				break;
-			case WAR_PROJECTION_STALEMATE:
-				iWarScore += 0;
-				break;
-			case WAR_PROJECTION_UNKNOWN:
+			case MAJOR_CIV_OPINION_COMPETITOR:
 				iWarScore += 10;
 				break;
-			case WAR_PROJECTION_GOOD:
+			case MAJOR_CIV_OPINION_ENEMY:
+				iWarScore += 15;
+				break;
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
 				iWarScore += 25;
 				break;
-			case WAR_PROJECTION_VERY_GOOD:
-				iWarScore += 50;
+		}
+		switch(GetPlayer()->GetProximityToPlayer(ePlayer))
+		{
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iWarScore += 20;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWarScore += 10;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iWarScore += -10;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iWarScore += -25;
 				break;
 		}
 		return iWarScore;
@@ -7685,12 +7717,16 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		}
 		else
 		{
-			iAverageScore = iWarScore - iTheirWarScore ;
+			iAverageScore = iWarScore - iTheirWarScore;
 		}
+
+		//Doubled because of the 'average' above.
+		iAverageScore *= 2;
+
 		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
 		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
 		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-		iWarDuration /= 7;
+		iWarDuration /= 8;
 		if(iWarDuration > 0)
 		{	
 			if(iAverageScore > 0)
@@ -11101,6 +11137,20 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		//Ignore puppets
 		if(pLoopCity->IsPuppet())
 			continue;
+
+		//Ignore older cities.
+		if(pLoopCity->getOriginalOwner() == pLoopCity->getOwner())
+		{
+			int iTurns = (GC.getGame().getGameTurn() - pLoopCity->getGameTurnFounded());
+			int iCutoff = 100;
+			iCutoff *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCutoff /= 100;
+
+			if(iTurns > iCutoff)
+			{
+				continue;
+			}
+		}
 #endif
 
 		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
@@ -35297,7 +35347,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 	if(GET_TEAM(GetPlayer()->getTeam()).isHuman() || GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
-	// Vassalage never acceptable if I have vassals already (and my GPT is positive)
+	// Vassalage never acceptable if I have vassals already
 	if(GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() > 0)
 		return false;
 
@@ -35305,8 +35355,8 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 	if(!bWar && IsGoingForWorldConquest())
 		return false;
 
-	// No more voluntary capitulation after ePlayer has 2 or more vassals (he must conquer to obtain new ones)
-	if(!bWar && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 2)
+	// No more voluntary capitulation after ePlayer has 1 or more vassals (he must conquer to obtain new ones)
+	if(!bWar && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 1)
 		return false;
 
 	// No voluntary capitulation if there's less than 50% of the players ever alive
@@ -35343,13 +35393,13 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 			iWantsToBecomeVassal += 50;
 			break;
 		case GLOBAL_STATE_BAD:
-			iWantsToBecomeVassal += 35;
+			iWantsToBecomeVassal += 25;
 			break;
 		case GLOBAL_STATE_AVERAGE:
-			iWantsToBecomeVassal += 20;
+			iWantsToBecomeVassal += 0;
 			break;
 		case GLOBAL_STATE_GOOD:
-			iWantsToBecomeVassal += -30;
+			iWantsToBecomeVassal += -25;
 			break;
 		case GLOBAL_STATE_VERY_GOOD:
 			iWantsToBecomeVassal += -50;
@@ -35366,19 +35416,19 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 			iWantsToBecomeVassal += 0;
 			break;
 		case GLOBAL_STATE_VERY_BAD:
-			iWantsToBecomeVassal += 30;
+			iWantsToBecomeVassal += 25;
 			break;
 		case GLOBAL_STATE_BAD:
-			iWantsToBecomeVassal += 20;
+			iWantsToBecomeVassal += 15;
 			break;
 		case GLOBAL_STATE_AVERAGE:
 			iWantsToBecomeVassal += 0;
 			break;
 		case GLOBAL_STATE_GOOD:
-			iWantsToBecomeVassal += -10;
+			iWantsToBecomeVassal += -15;
 			break;
 		case GLOBAL_STATE_VERY_GOOD:
-			iWantsToBecomeVassal += -30;
+			iWantsToBecomeVassal += -25;
 			break;
 		default:
 			CvAssertMsg(false, "DiplomacyAI: Trying to evaluate Vassalage Acceptable for AI, but no global state exists for ePlayer"); 
@@ -35389,25 +35439,25 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantsToBecomeVassal += 100;
+		iWantsToBecomeVassal += 75;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantsToBecomeVassal += 70;
+		iWantsToBecomeVassal += 50;
 		break;
 	case STRENGTH_STRONG:
-		iWantsToBecomeVassal += 40;
+		iWantsToBecomeVassal += 25;
 		break;
 	case STRENGTH_AVERAGE:
 		iWantsToBecomeVassal += 0;
 		break;
 	case STRENGTH_POOR:
-		iWantsToBecomeVassal += -30;
+		iWantsToBecomeVassal += -25;
 		break;
 	case STRENGTH_WEAK:
-		iWantsToBecomeVassal += -60;
+		iWantsToBecomeVassal += -50;
 		break;
 	case STRENGTH_PATHETIC:
-		iWantsToBecomeVassal += -120;
+		iWantsToBecomeVassal += -75;
 		break;
 	}
 
@@ -35418,29 +35468,32 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 		iWantsToBecomeVassal += 5;
 		break;
 	case INFLUENCE_LEVEL_FAMILIAR:
-		iWantsToBecomeVassal += 10;
+		iWantsToBecomeVassal += 15;
 		break;
 	case INFLUENCE_LEVEL_POPULAR:
 		iWantsToBecomeVassal += 25;
 		break;
 	case INFLUENCE_LEVEL_INFLUENTIAL:
-		iWantsToBecomeVassal += 50;
+		iWantsToBecomeVassal += 40;
 		break;
 	case INFLUENCE_LEVEL_DOMINANT:
-		iWantsToBecomeVassal += 100;
+		iWantsToBecomeVassal += 60;
 		break;
 	}
 	
 	// If this guy's been in a lot of wars we lower his value because he'll drag us into them
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	if(!bWar)
 	{
-		// Ignore minors
-		if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv())
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
+			// Ignore minors
+			if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv())
 			{
-				// each war reduces our value by 10
-				iWantsToBecomeVassal -= 10;
+				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
+				{
+					// each war reduces our value by 10
+					iWantsToBecomeVassal -= 10;
+				}
 			}
 		}
 	}
@@ -35453,33 +35506,33 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 
 	if(bWar)
 	{
-		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID()) > GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer))
+		int iWarScore = (GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) / 2);
+		if(iWarScore <= 0)
 		{
-			iWantsToBecomeVassal += (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarScore(GetPlayer()->GetID()) / 5);
-		}
-		else
-		{
-			iWantsToBecomeVassal += (GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) / 5);
+			iWantsToBecomeVassal += (iWarScore *= -1);
 		}
 	}
 
 	// Modifier based on distance
-	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
+	if(!bWar)
 	{
-		case PLAYER_PROXIMITY_NEIGHBORS:
-			iWantsToBecomeVassal *= 133;
-			break;
-		case PLAYER_PROXIMITY_CLOSE:
-			iWantsToBecomeVassal *= 110;
-			break;
-		case PLAYER_PROXIMITY_FAR:
-			iWantsToBecomeVassal *= 75;
-			break;
-		case PLAYER_PROXIMITY_DISTANT:
-			iWantsToBecomeVassal *= 50;
-			break;
+		switch(GetPlayer()->GetProximityToPlayer(ePlayer))
+		{
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iWantsToBecomeVassal *= 133;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWantsToBecomeVassal *= 110;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iWantsToBecomeVassal *= 75;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iWantsToBecomeVassal *= 50;
+				break;
+		}
+		iWantsToBecomeVassal /= 100;
 	}
-	iWantsToBecomeVassal /= 100;
 
 	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 

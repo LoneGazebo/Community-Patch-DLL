@@ -181,6 +181,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
+	m_bDummy(false),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -481,7 +482,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCapitalSettlerProductionModifier = kResults.GetInt("CapitalSettlerProductionModifier");
 	m_iNewCityExtraPopulation = kResults.GetInt("NewCityExtraPopulation");
 	m_iFreeFoodBox = kResults.GetInt("FreeFoodBox");
-	m_iImprovementGoldMaintenanceMod = kResults.GetInt("ImprovementGoldMaintenanceMod");
+	m_iImprovementGoldMaintenanceMod = kResults.GetInt("RouteGoldMaintenanceMod");
 	m_iBuildingGoldMaintenanceMod = kResults.GetInt("BuildingGoldMaintenanceMod");
 	m_iUnitGoldMaintenanceMod = kResults.GetInt("UnitGoldMaintenanceMod");
 	m_iUnitSupplyMod = kResults.GetInt("UnitSupplyMod");
@@ -498,6 +499,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
+	m_bDummy = kResults.GetBool("IsDummy");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -1974,6 +1976,11 @@ int CvPolicyEntry::GetMonopolyModFlat() const
 int CvPolicyEntry::GetMonopolyModPercent() const
 {
 	return m_iMonopolyModPercent;
+}
+/// Dummy Policy?
+bool CvPolicyEntry::IsDummy() const
+{
+	return m_bDummy;
 }
 #endif
 /// Military units now all produced with food
@@ -3504,7 +3511,11 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
 		// Do we have this policy?
+#if defined(MOD_BALANCE_CORE)
+		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsDummy() && (m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE))
+#else
 		if(m_pabHasPolicy[i])
+#endif
 		{
 			rtnValue++;
 		}
@@ -3512,7 +3523,6 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 
 	return rtnValue;
 }
-
 /// Number of policies purchased in this branch
 int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const
 {

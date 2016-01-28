@@ -252,6 +252,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(iValue == 0)
 		return 0;
 
+	//Bring things down a bit.
+	iValue /= 10;
+
+	if(iValue <= 0)
+	{
+		iValue = 1;
+	}
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 	//Skip if null
@@ -318,7 +326,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(pkBuildingInfo->GetNukeModifier() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetNukeModifier() / 5);
+			iBonus += (pkBuildingInfo->GetNukeModifier() / 2);
 		}
 		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 		{
@@ -330,24 +338,24 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
+			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 2);
 		}
 		if(m_pCity->plot()->isCoastalLand())
 		{
 			if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 		else
 		{
 			if(pkBuildingInfo->GetBorderObstacleCity() > 0)
 			{
-				iBonus += 33;
+				iBonus += 50;
 			}
 			if(pkBuildingInfo->IsBorderObstacle())
 			{
-				iBonus += 33;
+				iBonus += 100;
 			}
 		}
 	}
@@ -400,7 +408,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	
 	if(isWorldWonderClass(kBuildingClassInfo))
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+		if(m_pCity->getPopulation() <= 8 && !m_pCity->isCapital())
+		{
+			iBonus -= 100;
+		}
+		else
+		{
+			iBonus += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+		}
 	}
 
 	if(pkBuildingInfo->IsExtraLuxuries())
@@ -541,15 +556,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += 100;
 		}
 	}
-	//Courthouse? Let's get it.
+#endif
+	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
-			iBonus += 50;
+			iBonus += 500;
 		}
 	}
-#endif
 
 	///////////////////
 	//Military Stuff
@@ -646,17 +661,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding);
 
-		//JFD CRIME NEGATIVE OVERRIDE
-		if(MOD_BALANCE_CORE_JFD && eYield == YIELD_JFD_CRIME)
-		{
-			iBonus -= iYieldValue;
-			iBonus -= iYieldTrait;
-		}
-		else
-		{
-			iBonus += iYieldValue;
-			iBonus += iYieldTrait;
-		}
+		iBonus += iYieldValue;
+		iBonus += iYieldTrait;
 	}
 
 	//////////////
@@ -737,9 +743,46 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//WAR
 	///////
 	//Fewer buildings while at war.
-	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	int iSneakies = 0;
+	if(!kPlayer.isMinorCiv())
 	{
-		iBonus /= max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5);
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+				{
+					iSneakies++;
+				}
+				if(kPlayer.GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					iSneakies++;
+					if(kPlayer.GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+					{
+						iSneakies++;
+					}
+				}
+				if(kPlayer.GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) < MAJOR_CIV_APPROACH_AFRAID)
+				{
+					iSneakies++;
+					if(kPlayer.GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+					{
+						iSneakies++;
+					}
+				}
+			}
+		}
+		if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+		{
+			iSneakies += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 10);
+		}
+		if(iSneakies > 0)
+		{
+			iBonus -= (iSneakies * 5);
+		}
 	}
 	
 	iValue *= (iBonus + 100);

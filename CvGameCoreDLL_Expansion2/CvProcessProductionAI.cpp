@@ -136,6 +136,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		return 0;
 	}
 
+	int iModifier = 0;
+
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
@@ -148,7 +150,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	AICityStrategyTypes eNeedFoodNaval = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
 	EconomicAIStrategyTypes eGrowCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
 	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
-	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
 
 	//Help Venice use processes more rationally.
 	if(kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
@@ -159,8 +160,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			YieldTypes eYield = (YieldTypes)iYield;
 			if(pProcess->getProductionToYieldModifier(eYield) > 0)
 			{
-				iTempWeight = m_pCity->GetCityStrategyAI()->GetProcessProductionAI()->GetWeight(eProcess);
-				iTempWeight /= 10;
+				iModifier += m_pCity->GetCityStrategyAI()->GetProcessProductionAI()->GetWeight(eProcess);
+				iModifier /= 100;
 			}
 		}
 	}
@@ -174,7 +175,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 		if(m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
 		{
-			iTempWeight *= 2;
+			iModifier += 50;
 		}
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
@@ -186,12 +187,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromGold() > 0)
 						{
-							iTempWeight *= (m_pCity->getUnhappinessFromGold() * 2);
+							iModifier += (m_pCity->getUnhappinessFromGold() * 5);
 						}
 					}
 					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
-						iTempWeight *= 5;
+						iModifier += 25;
 					}
 				}
 				break;
@@ -201,16 +202,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromCulture() > 0)
 						{
-							iTempWeight *= (m_pCity->getUnhappinessFromCulture() * 2);
+							iModifier += (m_pCity->getUnhappinessFromCulture() * 5);
 						}
 					}
 					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 					{
-						iTempWeight *= 2;
-					}
-					if(eGoodGP != NO_AICITYSTRATEGY &&  m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP))
-					{
-						iTempWeight *= 2;
+						iModifier += 25;
 					}
 				}
 				break;
@@ -220,12 +217,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromScience() > 0)
 						{
-							iTempWeight *= (m_pCity->getUnhappinessFromScience() * 2);
+							iModifier += (m_pCity->getUnhappinessFromScience() * 5);
 						}
 					}
 					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
 					{
-						iTempWeight *= 3;
+						iModifier += 25;
 					}
 				}
 				break;
@@ -235,20 +232,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromStarving() > 0)
 						{
-							iTempWeight *= (m_pCity->getUnhappinessFromStarving() * 2);
+							iModifier += (m_pCity->getUnhappinessFromStarving() * 5);
 						}
 					}
 					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
 					{
-						iTempWeight *= 2;
+						iModifier += 25;
 					}
 					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
-						iTempWeight *= 2;
+						iModifier += 25;
 					}
 					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
 					{
-						iTempWeight *= 2;
+						iModifier += 25;
 					}
 				}
 				break;
@@ -278,26 +275,31 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if (pRewardInfo->GetBuilding() != NO_BUILDING)
 					{
 						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
-						if(pBuildingInfo && kPlayer.GetWonderProductionAI()->IsWonder(*pBuildingInfo))
+						if(pBuildingInfo)
 						{
-							iTempWeight += kPlayer.GetWonderProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							int iValue = 1000;
+							if(kPlayer.getCapitalCity() != NULL)
+							{
+								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5);
+							}
+							iModifier += iValue;
 						}
 						else
 						{
-							iTempWeight += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							iModifier += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
 						}
 					}
 
 					// Happiness
 					if (pRewardInfo->GetHappiness() != 0)
 					{
-						iTempWeight += pRewardInfo->GetHappiness() * (20 - kPlayer.GetHappiness());
+						iModifier += pRewardInfo->GetHappiness() * (20 - kPlayer.GetHappiness());
 					}
 
 					// Free Social Policy
 					if (pRewardInfo->GetFreeSocialPolicies() > 0)
 					{
-						iTempWeight *= kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned();
+						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 5);
 					}
 
 					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -306,7 +308,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{			
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iTempWeight *= 10;
+							iModifier += 100;
 						}
 					}
 
@@ -315,7 +317,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iTempWeight *= 10;
+							iModifier += 100;
 						}
 					}
 
@@ -324,15 +326,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
 						{
-							iTempWeight *= kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
+							iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
 						}
 						else
 						{
-							iTempWeight *= kPlayer.getGoldenAgeModifier();
-						}
-						if(kPlayer.isGoldenAge())
-						{
-							iTempWeight /= 5;
+							iModifier += kPlayer.getGoldenAgeModifier();
 						}
 					}
 
@@ -343,7 +341,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{		
 						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
 						{
-							iTempWeight *= 10;
+							iModifier += 50;
 						}
 					}
 					EconomicAIStrategyTypes eStrategySpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
@@ -352,10 +350,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
 						{
-							iTempWeight *= 10;
+							iModifier += 50;
 						}
 					}
-					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
 					
 					// Free unit class
 					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
@@ -366,16 +363,16 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 							if(pkUnitInfo)
 							{
-								if(pkUnitInfo->GetCombat() > 0)
+								int iValue = 500;
+								if(kPlayer.getCapitalCity() != NULL)
 								{
-									if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
-									{
-										iTempWeight *= 10;
-									}
+									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue);
 								}
+								iModifier += iValue;
 							}
 						}
 					}
+					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
 		
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
@@ -385,20 +382,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iTempWeight *= 15;
+								iModifier += 50;
 							}
 						}
 						if (pRewardInfo->GetBaseFreeUnits() > 0)
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iTempWeight *= 15;
+								iModifier += 50;
 							}
 						}
 						// Temporary Culture Modifier
 						if (pRewardInfo->GetNumFreeGreatPeople() > 0)
 						{
-							iTempWeight *= 25;
+							iModifier += 50;
 						}
 					}
 #endif
@@ -408,8 +405,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	}
 	if(kPlayer.IsAtWarAnyMajor())
 	{
-		iTempWeight /= 5;
+		iModifier /= 10;
 	}
+
+	iTempWeight *= (100 + iModifier);
+	iTempWeight /= 100;
+
 	return iTempWeight;
 }
 #endif

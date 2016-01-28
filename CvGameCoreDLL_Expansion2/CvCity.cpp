@@ -365,7 +365,6 @@ CvCity::CvCity() :
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
-	, m_iNationalMissionaries("CvCity::m_iNationalMissionaries", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
 	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
@@ -1453,7 +1452,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_iNationalMissionaries = 0;
 	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
 	m_iNumNearbyMountains = 0;
@@ -5312,6 +5310,9 @@ void CvCity::DoTestResourceDemanded()
 			if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
 			{
 				SetWeLoveTheKingDayCounter(/*20*/ GC.getCITY_RESOURCE_WLTKD_TURNS());
+#if defined(MOD_BALANCE_CORE)
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), GC.getCITY_RESOURCE_WLTKD_TURNS());
+#endif
 
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
@@ -8959,10 +8960,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GetNationalMissionaries() > 0))
-		{
-			ChangeNationalMissionaries(pBuildingInfo->GetNationalMissionaries() * iChange);
-		}
 		if(MOD_BALANCE_CORE && (pBuildingInfo->GetTradeReligionModifier() > 0))
 		{
 			ChangeReligiousTradeModifier(pBuildingInfo->GetTradeReligionModifier() * iChange);
@@ -10379,28 +10376,25 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iNum = iPopulation * iFoodPerPop;
 
 		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if(iEra <= 2)
+		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION())
 		{
-			iEra = 2;
+			iEra = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 		}
-		if(iEra > 6)
+		if(iEra > 7)
 		{
-			iEra = 6;
+			iEra = 7;
 		}
 
-		iNum += (iEra * iSpecialists);
+		int iSpecialistFood = (iEra * iSpecialists);
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 		{
-			int iFoodReduction = iSpecialists * iFoodPerPop;
-			iFoodReduction /= 2;
-			iNum -= iFoodReduction;
+			iSpecialistFood /= 2;
 		}
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
 		{
-			int iFoodReduction = iSpecialists * iFoodPerPop;
-			iFoodReduction /= 2;
-			iNum -= iFoodReduction;
+			iSpecialistFood /= 2;
 		}
+		iNum += iSpecialistFood;
 		return iNum;
 	}
 	else
@@ -11323,6 +11317,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_GOLD) > 0)
 				{
 					int iGoldBoost = ((getYieldRate(YIELD_GOLD, false) * GetGrowthExtraYield(YIELD_GOLD)) / 100);
+					iGoldBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iGoldBoost /= 100;
 					if(iGoldBoost <= 0)
 					{
 						iGoldBoost = 1;
@@ -11340,6 +11336,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_PRODUCTION) > 0)
 				{
 					int iProductionBoost = ((getYieldRate(YIELD_PRODUCTION, false) * GetGrowthExtraYield(YIELD_PRODUCTION)) / 100);
+					iProductionBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iProductionBoost /= 100;
 					if(iProductionBoost <= 0)
 					{
 						iProductionBoost = 1;
@@ -11357,6 +11355,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_CULTURE) > 0)
 				{
 					int iCultureBoost = ((getJONSCulturePerTurn() * GetGrowthExtraYield(YIELD_CULTURE)) / 100);
+					iCultureBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iCultureBoost /= 100;
 					if(iCultureBoost <= 0)
 					{
 						iCultureBoost = 1;
@@ -11375,6 +11375,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_FOOD) > 0)
 				{
 					int iFoodBoost = ((getYieldRate(YIELD_FOOD, false) * GetGrowthExtraYield(YIELD_FOOD)) / 100);
+					iFoodBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iFoodBoost /= 100;
 					if(iFoodBoost <= 0)
 					{
 						iFoodBoost = 1;
@@ -11392,6 +11394,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_FAITH) > 0)
 				{
 					int iFaithBoost = ((GetFaithPerTurn() * GetGrowthExtraYield(YIELD_FAITH)) / 100);
+					iFaithBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iFaithBoost /= 100;
 					if(iFaithBoost <= 0)
 					{
 						iFaithBoost = 1;
@@ -11409,6 +11413,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_SCIENCE) > 0)
 				{
 					int iScienceBoost = ((getYieldRate(YIELD_SCIENCE, false) * GetGrowthExtraYield(YIELD_SCIENCE)) / 100);
+					iScienceBoost *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iScienceBoost /= 100;
 					if(iScienceBoost <= 0)
 					{
 						iScienceBoost = 1;
@@ -12308,14 +12314,8 @@ void CvCity::DoJONSCultureLevelIncrease()
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
 			if(pReligion)
-			{
-				int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-				if(iEra < 1)
-				{
-					iEra = 1;
-				}
-				
-				int iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FOOD) * iEra;
+			{				
+				int iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FOOD);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12329,7 +12329,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_PRODUCTION) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_PRODUCTION);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12343,7 +12343,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLD) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLD);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12357,7 +12357,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12371,7 +12371,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_CULTURE) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_CULTURE);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12385,7 +12385,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GOLDEN_AGE_POINTS);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12399,7 +12399,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_SCIENCE) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_SCIENCE);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -12421,7 +12421,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
-				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra;
+				iYield = pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_GREAT_GENERAL_POINTS);
 				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iYield /= 100;
 				if(iYield > 0)
@@ -14359,6 +14359,9 @@ bool CvCity::DoRazingTurn()
 
 			kPlayer.disband(this);
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, getOwner(), "", pkPlot->getX(), pkPlot->getY());
+#if defined(MOD_BALANCE_CORE)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, getOwner(), getX(), getY());
+#endif
 			return true;
 		}
 		// Counter is positive, reduce population
@@ -16109,25 +16112,6 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-int CvCity::GetNationalMissionaries() const
-{
-	VALIDATE_OBJECT
-	return m_iNationalMissionaries;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeNationalMissionaries(int iChange)
-{
-	VALIDATE_OBJECT
-	SetNationalMissionaries(GetNationalMissionaries() + iChange);
-}
-//	--------------------------------------------------------------------------------
-void CvCity::SetNationalMissionaries(int iValue)
-{
-	VALIDATE_OBJECT
-	m_iNationalMissionaries = iValue;
-}
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetBorderObstacleCity() const

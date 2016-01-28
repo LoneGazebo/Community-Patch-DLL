@@ -886,7 +886,7 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_CAPITAL_NEED_SETTLER</AICityStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>300</Flavor>
+			<Flavor>100</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 	<AIEconomicStrategy_Player_Flavors>

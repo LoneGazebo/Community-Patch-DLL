@@ -1,0 +1,12 @@
+<trigger_system type="FGrannyTimedTriggerSystem">
+  <event_tracks>
+    <event_track ec="1000">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+    </event_track>
+  </event_tracks>
+  <triggers>
+    <trigger type="FTimedTriggerEffect" id="1" time="0" duration="10" repeat="0" ec="1000" track="2" tier="0" event="ART_DEF_VEFFECT_PILLAGED_SMOKE_01" bone="FX_PillagedSmoke" />
+  </triggers>
+</trigger_system>

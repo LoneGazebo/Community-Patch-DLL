@@ -91,7 +91,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Religious Settlements (Now God of the Expanse)
 UPDATE Language_en_US
-SET Text = '+20% faster border growth, and gain 25 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era and Gamespeed'
+SET Text = '+20% faster border growth, and gain 25 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Gamespeed'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements 

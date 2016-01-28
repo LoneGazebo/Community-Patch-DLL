@@ -427,75 +427,81 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
 		ResourceTypes eResource = (ResourceTypes) iData1;
-		if(eResource != NO_RESOURCE)
+		if(eResource == NO_RESOURCE)
+			return false;
+
+		int iResourceQuantity = iData2;
+
+		// Can't trade a negative amount of something!
+		if(iResourceQuantity < 0)
+			return false;
+
+		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
 		{
-			int iResourceQuantity = iData2;
+			return false;
+		}
 
-			// Can't trade a negative amount of something!
-			if(iResourceQuantity < 0)
-				return false;
+		//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
 
-			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
+		int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+
+		int iNumInRenewDeal = 0;
+		int iNumInExistingDeal = 0;
+
+		if (pRenewDeal)
+		{
+			// count any that are in the renew deal
+			TradedItemList::iterator it;
+			for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
 			{
-				return false;
-			}
-
-			//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
-
-			int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
-			int iNumInRenewDeal = 0;
-			int iNumInExistingDeal = 0;
-
-			if (pRenewDeal)
-			{
-				// count any that are in the renew deal
-				TradedItemList::iterator it;
-				for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
+				if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
 				{
-					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-					{
-						// credit the amount
-						iNumInRenewDeal += it->m_iData2;
-					}
-				}
-
-				// remove any that are in this deal
-				for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-				{
-					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-					{
-						iNumInExistingDeal += it->m_iData2;
-					}
+					// credit the amount
+					iNumInRenewDeal += it->m_iData2;
 				}
 			}
 
-			// Offering up more of a Resource than we have available
-			if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
-				return false;
-
-			// Must be a Luxury or a Strategic Resource
-			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-			if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
-				return false;
-
-			if(eUsage == RESOURCEUSAGE_LUXURY)
+			// remove any that are in this deal
+			for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 			{
-				// Can't trade Luxury if the other player already has one
-				if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
+				if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
 				{
-					return false;
+					iNumInExistingDeal += it->m_iData2;
 				}
 			}
+		}
 
-			// Can't trade them something they're already giving us in the deal
-			if(IsResourceTrade(eToPlayer, eResource))
-				return false;
+		// Offering up more of a Resource than we have available
+		if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
+			return false;
+#if defined(MOD_BALANCE_CORE)
+		//Nothing available, nothing in the deal, nothing to renew?
+		if((iNumInExistingDeal + iNumAvailable + iNumInRenewDeal) == 0)
+			return false;
+#endif
 
-			// AI can't trade an obsolete resource
-			if (!pFromTeam->isHuman() && pFromTeam->IsResourceObsolete(eResource))
+		// Must be a Luxury or a Strategic Resource
+		ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
+			return false;
+
+		if(eUsage == RESOURCEUSAGE_LUXURY)
+		{
+			// Can't trade Luxury if the other player already has one
+			if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
 			{
 				return false;
 			}
+		}
+
+		// Can't trade them something they're already giving us in the deal
+		if(!bFinalizing && IsResourceTrade(eToPlayer, eResource))
+			return false;
+
+		// AI can't trade an obsolete resource
+		if (!pFromTeam->isHuman() && pFromTeam->IsResourceObsolete(eResource))
+		{
+			return false;
 		}
 #if defined(MOD_BALANCE_CORE)
 		if(!bHumanToHuman)
@@ -548,6 +554,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 #if defined(MOD_BALANCE_CORE)
+		//Can't in a peace deal if not surrendering.
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -582,6 +589,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 #if defined(MOD_BALANCE_CORE)
+		//Can't if at war.
+		if(pFromTeam->isAtWar(eToTeam))
+			return false;
+
+		//Can't in a peace deal.
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -632,6 +644,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 #if defined(MOD_BALANCE_CORE)
+		//Can't if at war.
+		if(pFromTeam->isAtWar(eToTeam))
+			return false;
+
+		//Can't be part of a peace deal.
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -660,6 +677,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eFromTeam == eToTeam)
 			return false;
 #if defined(MOD_BALANCE_CORE)
+		//Can't if at war.
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 #endif
@@ -709,6 +727,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 		}
 #if defined(MOD_BALANCE_CORE)
+		//Not allowed in peace deals.
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -799,9 +818,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
 #if defined(MOD_BALANCE_CORE)
-		if(eThirdTeam == NULL)
-			return false;
-
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
@@ -810,10 +826,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
+		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
-			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!GET_TEAM(pFromPlayer->getTeam()).HasEmbassyAtTeam(pToPlayer->getTeam()) || !GET_TEAM(pToPlayer->getTeam()).HasEmbassyAtTeam(pFromPlayer->getTeam())))
-				return false;
+			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+					return false;
 		}
 #endif
 		// Can't be the same team
@@ -822,6 +839,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		// Can't ask teammates
 		if(eToTeam == eFromTeam)
+			return false;
+
+		//Can't ask for yourself
+		if(eToTeam == eThirdTeam)
 			return false;
 
 		// Must be alive
@@ -834,16 +855,54 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Player that would go to Peace hasn't yet met the 3rd Team
 		if(!pFromTeam->isHasMet(eThirdTeam))
 			return false;
+
 		// Player that would go to peace is already at peace with the 3rd Team
 		if(!pFromTeam->isAtWar(eThirdTeam))
 			return false;
 
-		// Can't already have this in the deal
-		//if (IsThirdPartyPeaceTrade( ePlayer, GET_TEAM(eThirdTeam).getLeaderID() ))
-		//	return false;
+#if defined(MOD_BALANCE_CORE)
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			{
+				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
 
-		// If eThirdTeam is an AI then they have to want peace with ToTeam
+				if(!pOtherPlayer)
+					continue;
+
+				// Minor civ
+				if(pOtherPlayer->isMinorCiv())
+				{
+					// Minor at permanent war with this player
+					if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
+						return false;
+
+					// Minor's ally at war with this player?
+					else if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+					{
+						// If the ally is us, don't block peace here
+						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
+							return false;
+					}
+				}
+				// Major civ
+				else
+				{
+					//Can't make peace yet?
+					if(GET_TEAM(pFromPlayer->getTeam()).GetNumTurnsLockedIntoWar(pOtherPlayer->getTeam()) > 0)
+						return false;
+
+					//Can't make peace yet?
+					if(!pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pOtherPlayer->GetID()))
+						return false;
+				}
+			}
+		}
+#else
 		CvPlayer* pOtherPlayer = &GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID());
+
 		// Minor civ
 		if(pOtherPlayer->isMinorCiv())
 		{
@@ -863,87 +922,126 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		else
 		{
 			// Can't ask them to make peace with a human, because we have no way of knowing if the human wants peace
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if(MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				//Unless that human is a vassal of war party
-				if(pOtherPlayer->isHuman() && (!GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eFromTeam) || !GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eToTeam)))
-				{
-					return false;
-				}
-			}
-			else
-			{
-#endif
 			if(pOtherPlayer->isHuman())
 				return false;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			}
-#endif
 
 			// Player does not want peace with eOtherPlayer
 			if(pFromPlayer->isHuman() || pFromPlayer->GetDiplomacyAI()->GetWarGoal(pOtherPlayer->GetID()) < WAR_GOAL_DAMAGE)
 				return false;
 
 			// Other player does not want peace with eToPlayer
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if(MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				//Only if players is NOT a vassal.
-				if(!GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eFromTeam) && !GET_TEAM(pOtherPlayer->getTeam()).IsVassal(eToTeam))
-				{
-					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
-						return false;
-				}
-			}
-			else
-			{
-#endif
 			if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
 				return false;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			}
-#endif
 		}
+#endif
 	}
 	// Third Party War
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_WAR)
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
 #if defined(MOD_BALANCE_CORE)
-		if(eThirdTeam == NULL)
-			return false;
-
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!GET_TEAM(pFromPlayer->getTeam()).HasEmbassyAtTeam(pToPlayer->getTeam()) || !GET_TEAM(pToPlayer->getTeam()).HasEmbassyAtTeam(pFromPlayer->getTeam())))
-			return false;
-
-		// If eThirdTeam is an AI then they have to want peace with ToTeam
-		CvPlayer* pOtherPlayer = &GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID());
-		// Major civ
-		if(pOtherPlayer->isMajorCiv())
-		{
-			// Can't ask friends to backstab each other
-			if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
-				return false;
-
-			// Can't ask friends to backstab each other
-			if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
-				return false;
-
-			// Can't ask DPs to DOW on each other
-			if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eFromTeam))
-				return false;
-
-			if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eToTeam))
-				return false;
-		}
 		//Can't already be offering this
 		if (!bFinalizing && IsThirdPartyWarTrade( ePlayer, eThirdTeam))
 			return false;
+
+		// Can't be the same team
+		if(eFromTeam == eThirdTeam)
+			return false;
+
+		//Need embassy.
+		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+			return false;
+
+		//Not allowed in peace deals.
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+			return false;
+
+		// Can't ask teammates
+		if(eToTeam == eFromTeam)
+			return false;
+
+		//Can't ask for yourself
+		if(eToTeam == eThirdTeam)
+			return false;
+
+		// Must be alive
+		if(!GET_TEAM(eThirdTeam).isAlive())
+			return false;
+
+		// Player that would go to war hasn't yet met the 3rd Team
+		if(!pToTeam->isHasMet(eThirdTeam))
+			return false;
+		// Player that wants war not met this team
+		if(!pFromTeam->isHasMet(eThirdTeam))
+			return false;
+
+		// Player that would go to war is already at war with the 3rd Team
+		if(pFromTeam->isAtWar(eThirdTeam))
+			return false;
+
+		// Can't ask DPs to DOW on each other
+		if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eFromTeam))
+			return false;
+
+		if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eToTeam))
+			return false;
+
+		if(!bHumanToHuman)
+		{
+			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			{
+				if(this->GetSurrenderingPlayer() != ePlayer)
+				{
+					return false;
+				}
+			}
+		}
+
+		// Can this player actually declare war?
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if(!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
+#else
+		if(!pFromTeam->canDeclareWar(eThirdTeam))
 #endif
+			return false;
+
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			{
+				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
+
+				if(!pOtherPlayer)
+					continue;
+				
+				// Major civ
+				if(pOtherPlayer->isMajorCiv())
+				{
+					// Can't ask friends to backstab each other
+					if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+						return false;
+
+					// Can't ask friends to backstab each other
+					if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
+						return false;			
+				}
+				else
+				{
+					// Can't ask a player to declare war on their ally
+					if(pOtherPlayer->GetMinorCivAI()->GetAlly() == ePlayer)
+						return false;
+					//Can't offer an attack like that either
+					if(pOtherPlayer->GetMinorCivAI()->GetAlly() == eToPlayer)
+						return false;
+				}
+			}
+		}	
+#else
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
 			return false;
@@ -968,11 +1066,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// Can this player actually declare war?
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if(!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
-#else
 		if(!pFromTeam->canDeclareWar(eThirdTeam))
-#endif
 			return false;
 
 		// Can't already have this in the deal
@@ -984,22 +1078,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if(GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->GetAlly() == ePlayer)
 				return false;
-#if defined(MOD_BALANCE_CORE)
-			//Can't offer an attack like that either
-			if(GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->GetAlly() == eToPlayer)
-				return false;
-#endif
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
 		}
 #endif
 	}
@@ -1122,7 +1200,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// We don't have an embassy established
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
+		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
 			return false;
 
 		// We don't own this tech
@@ -4139,7 +4217,10 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			if(pDeal->GetSurrenderingPlayer() != NO_PLAYER)
 			{
 				playerName = GET_PLAYER(pDeal->GetSurrenderingPlayer()).getCivilizationShortDescription();
-				strOutBuf += ", " + playerName + " is giving up!";
+				int iWarScore = GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetWarScore(eToPlayer);
+				CvString strWarscore;
+				strWarscore.Format("%d", iWarScore);
+				strOutBuf += ", " + playerName + " is giving up" + " at a Warscore of: " + strWarscore;
 			}
 			// White Peace
 			else if(pDeal->GetPeaceTreatyType() == PEACE_TREATY_WHITE_PEACE)
