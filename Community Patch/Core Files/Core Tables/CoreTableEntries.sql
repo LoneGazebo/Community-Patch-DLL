@@ -445,6 +445,9 @@ ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 
+-- Define a policy as a dummy policy - won't count towards policy total -- 
+ALTER TABLE Policies ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
+
 -- Allows you to increase razing speed from policies
 ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 

@@ -11154,28 +11154,28 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iFlavorDiplo =  GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
 			//If FLAVOR_DIPLOMACY is 6+...
-			if((iFlavorDiplo - 5) > 0)
+			if((iFlavorDiplo - 6) > 0)
 			{
-				iScore += 100 * (iFlavorDiplo - 5);
+				iScore += 20 * (iVotes);
 			}
 			if(iNeededVotes > 0)
 			{
 				iVoteRatio = (iVotes * 100) / iNeededVotes;
 				if(iVoteRatio < 25)
 				{
-					iScore += -1000;
+					iScore += -500;
 				}
 				if(iVoteRatio < 50)
 				{
-					iScore += -500;
+					iScore += -250;
 				}
 				if(iVoteRatio >= 50)
 				{
-					iScore += 500;
+					iScore += 250;
 				}
 				if(iVoteRatio >= 75)
 				{
-					iScore += 1000;
+					iScore += 500;
 				}
 			}
 			else
@@ -12534,6 +12534,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 			{
 				iScore += 20;
+			}
+			if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer)
+			{
+				iScore += 1000;
 			}
 		}
 	}

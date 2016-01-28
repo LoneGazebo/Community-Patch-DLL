@@ -637,7 +637,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					{
 						if(pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
 						{
-							iBonus += (pEntry->GetFaithFromKills() / 5);
+							iBonus += (pEntry->GetFaithFromKills() / 15);
 						}
 						if(pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 						{
@@ -662,7 +662,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							{
 								if(pEntry->GetYieldFromKills(eYield) > 0)
 								{
-									iBonus += (pEntry->GetYieldFromKills(eYield) / 5);
+									iBonus += (pEntry->GetYieldFromKills(eYield) / 10);
 								}
 							}
 						}
@@ -678,8 +678,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	if(pkUnitEntry->IsTrade())
 	{
-		//Or if we're small.
-		if(m_pCity->getPopulation() <= 5)
+		//No if we're small.
+		if(m_pCity->getPopulation() <= 4)
 		{
 			return 0;
 		}
@@ -687,14 +687,22 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_GOLD))
 			{
-				iBonus += 50;
+				iBonus += 75;
+			}
+			else
+			{
+				iBonus += 25;
 			}
 		}
 		if(m_pCity->isCapital())
 		{
 			if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_GOLD))
 			{
-				iBonus += 100;
+				iBonus += 150;
+			}
+			else
+			{
+				iBonus += 50;
 			}
 		}
 	}
@@ -722,7 +730,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.getNumCities() <= 1)
 		{
-			iBonus += 300;
+			iBonus += 350;
 		}
 		else
 		{
@@ -748,21 +756,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 				{
-					iBonus += 100;
+					iBonus += 150;
 				}
 			}
 			else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
 				{
-					iBonus += 200;
+					iBonus += 250;
 				}
 			}
 			if(eFeederCity != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
 				{
-					iBonus += 150;
+					iBonus += 200;
 				}
 			}
 			
@@ -789,7 +797,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (200 * max(2, iNumAreas));
+				iBonus += (300 * max(2, iNumAreas));
 			}
 		}
 	}
@@ -810,10 +818,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += 100;
+				iBonus += 200;
 				if(kPlayer.GetArchaeologicalDigTourism() > 0)
 				{
-					iBonus += 200;
+					iBonus += 300;
 				}
 			}
 		}
@@ -1056,10 +1064,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	///WEIGHT
 	//////
 	//Debt is worth considering.
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && !pkUnitEntry->IsNoMaintenance())
+	if(pkUnitEntry->GetCombat() > 0)
 	{
-		iTempWeight /= 100;
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && !pkUnitEntry->IsNoMaintenance())
+		{
+			iTempWeight /= 100;
+		}
 	}
 
 	return iTempWeight;

@@ -18,6 +18,7 @@
 #if defined(MOD_BALANCE_CORE_MILITARY)
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
+#include "CvVotingClasses.h"
 #endif
 
 // must be included after all other headers
@@ -1619,7 +1620,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 0;
+	int iItemValue = 10;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1648,8 +1649,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			if(bFromMe)
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 5 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 5;
+				//Every 6 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 6;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1662,8 +1663,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			else
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 10;
+				//Every 6 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 6;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1900,7 +1901,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);
+				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -1919,25 +1920,25 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					//This would give us a mild excess.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 					{
-						iItemValue *= (125 + iNumTurns);
+						iItemValue *= (150 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us a little extra
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 					{
-						iItemValue *= (150 + iNumTurns);
+						iItemValue *= (200 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 					{
-						iItemValue *= (175 + iNumTurns);
+						iItemValue *= (250 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us almost enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 					{
-						iItemValue *= (200 + iNumTurns);
+						iItemValue *= (300 + iNumTurns);
 						iItemValue /= 100;
 					}
 				}
@@ -1956,19 +1957,19 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//We don't have any, trade or not, and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (100 + iNumTurns);
+					iItemValue *= (150 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We don't have any at home and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (100 + iNumTurns);
+					iItemValue *= (150 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//Unaccounted for situation?
 				else
 				{
-					iItemValue *= (75 + iNumTurns);
+					iItemValue *= (100 + iNumTurns);
 					iItemValue /= 100;
 				}
 				// Opinion also matters
@@ -2076,20 +2077,20 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 40 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
 				//We have it (domestic and/or trade) and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 				{
 					//We would still have a huge domestic excess after losing this.
 					if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 4))
 					{
-						iItemValue *= (75 + iNumTurns);
+						iItemValue *= (50 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would still have a huge domestic excess after losing this.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 					{
-						iItemValue *= (100 + iNumTurns);
+						iItemValue *= (75 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would only have a mild domestic reserve after losing this
@@ -2107,26 +2108,26 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					//We would be under our need that we can provide for ourselves, which is really bad.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 					{
-						iItemValue *= (300 + iNumTurns);
+						iItemValue *= (400 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would be way under our need that we can provide for ourselves, which is terrible
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 					{
-						iItemValue *= (500 + iNumTurns);
+						iItemValue *= (600 + iNumTurns);
 						iItemValue /= 100;
 					}
 				}
 				//We have it, via trade or domestic, but we aren't using it (be careful about trading this, as we don't want to wind up with nothing).
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 				{
-					iItemValue *= (100 + iNumTurns);
+					iItemValue *= (150 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We have it domestically, but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 				{
-					iItemValue *= (75 + iNumTurns);
+					iItemValue *= (150 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//Unaccounted for situation? Flat value.
@@ -3508,7 +3509,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 100; //just some base value
+	int iItemValue = 300; //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3533,6 +3534,82 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Don't evaluate barbarians
+	if(GET_PLAYER(eWithPlayer).isBarbarian())
+	{
+		return MAX_INT;
+	}
+	//not alive?
+	if(!GET_PLAYER(eOtherPlayer).isAlive())
+	{
+		return MAX_INT;
+	}
+	//same team as asked?
+	if(GET_PLAYER(eWithPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+	{
+		return MAX_INT;
+	}
+	// same team as asker?
+	if(GET_PLAYER(eWithPlayer).getTeam() == m_pPlayer->getTeam())
+	{
+		return MAX_INT;
+	}
+	// asker has met?
+	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
+	{
+		return MAX_INT;
+	}
+	// asked has met?
+	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return MAX_INT;
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Asking about a vassal? Abort!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return MAX_INT;
+	}
+#endif
+	//Is he not at war with the team? Don't do it!
+	if(!GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		return MAX_INT;
+	}
+	//Are we at war with the team? Don't do it!
+	if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		return MAX_INT;
+	}
+	//Things blocking their peace?
+	if(!bFromMe)
+	{
+		//Minor civ? Permawar?
+		if(GET_PLAYER(eWithPlayer).isMinorCiv() && (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPeaceBlocked(GET_PLAYER(eOtherPlayer).getTeam()) || GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eOtherPlayer).getTeam())))
+		{
+			return MAX_INT;
+		}
+		//Can they make peace?
+		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eOtherPlayer).getTeam()) > 0)
+		{
+			return MAX_INT;
+		}
+	}
+	if(bFromMe)
+	{
+		//Minor civ? Permawar?
+		if(GET_PLAYER(eWithPlayer).isMinorCiv() && (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()) || GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam())))
+		{
+			return MAX_INT;
+		}
+		//Can they make peace?
+		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 0)
+		{
+			return MAX_INT;
+		}
+	}
+#endif
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
 
@@ -3754,7 +3831,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 200; //just some base value
+	int iItemValue = 500; //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3782,6 +3859,92 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
+
+	// Don't evaluate barbarians
+	if(GET_PLAYER(eWithPlayer).isBarbarian())
+	{
+		return INT_MAX;
+	}
+	//Minor Civ? Only if not allies. Applies to both parties.
+	if(GET_PLAYER(eWithPlayer).isMinorCiv() && (GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()) || GET_PLAYER(eWithPlayer).GetMinorCivAI()->IsAllies(eOtherPlayer)))
+	{
+		return INT_MAX;
+	}
+	//Minor civ? Only if we're out for conquest ourselves
+	if(GET_PLAYER(eWithPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eWithPlayer) != MINOR_CIV_APPROACH_CONQUEST)))
+	{
+		return INT_MAX;
+	}
+	//same team as asked?
+	if(GET_PLAYER(eWithPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+	{
+		return INT_MAX;
+	}
+	// same team as asker?
+	if(GET_PLAYER(eWithPlayer).getTeam() == m_pPlayer->getTeam())
+	{
+		return INT_MAX;
+	}
+	// asker has met?
+	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
+	{
+		return INT_MAX;
+	}
+	// asked has met?
+	if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return INT_MAX;
+	}
+	//defensive pact with us?
+	if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
+	{
+		return INT_MAX;
+	}
+	//defensive pact with asked?
+	if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return INT_MAX;
+	}
+	//Are we already at war with the team? Don't do it!
+	if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eWithTeam))
+	{
+		return INT_MAX;
+	}
+	//Can we declare war?
+	if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		return INT_MAX;
+	}
+	if(GET_PLAYER(eWithPlayer).getCapitalCity() != NULL && !GET_PLAYER(eWithPlayer).getCapitalCity()->plot()->isRevealed(GetPlayer()->getTeam()))
+	{
+		return INT_MAX;
+	}
+	//Are we in a DOF with the player? Don't do it!
+	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
+	{
+		return INT_MAX;
+	}
+	//Are the asked in a DOF with the player? Don't do it!
+	if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
+	{
+		return INT_MAX;
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Asking about a vassal? Abort!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return INT_MAX;
+	}
+	//No vassal/master war requests, please.
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return INT_MAX;
+	}
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(GetPlayer()->GetID()).getTeam()))
+	{
+		return INT_MAX;
+	}
+#endif
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
@@ -3799,15 +3962,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(!bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eOtherPlayer))
 	{
 		iItemValue *= 2;
-	}
-	if(GET_PLAYER(eWithPlayer).getCapitalCity() != NULL && !GET_PLAYER(eWithPlayer).getCapitalCity()->plot()->isRevealed(GetPlayer()->getTeam()))
-	{
-		return INT_MAX;
-	}
-	//Let's not evaluate friends here.
-	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer))
-	{
-		return INT_MAX;
 	}
 #endif
 	WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWithPlayer);
@@ -4259,23 +4413,23 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 /// What is the value of trading a vote commitment?
 int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue)
 {
-#if defined(MOD_BALANCE_CORE_DEALS)
-	int iValue = 25;
-#else
-	int iValue = 0;
-#endif
+	int iValue = 300;
+
+	if(iNumVotes == 0)
+		return MAX_INT;
 
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
 #if defined(MOD_BALANCE_CORE_DEALS)
-		//If the votes we'd give would secure passage of this vote, let's see if we like them enough to do it.
+		//Alright, so vote logic. We're giving them votes, so let's only vote on things we like.
+		//Also, make sure that whatever we vote on can't be screwed over. Ask for more if they have lots of votes.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		int iTheirVotes = 0;
-		int iVotesNeeded = 0;
-		if (MOD_BALANCE_CORE_DEALS_ADVANCED && pLeague != NULL)
+		if(pLeague)
 		{
-			iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			int iVotesNeeded = 0;
+			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -4285,36 +4439,33 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
 				}
 			}
-		}
-		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-		if(MOD_BALANCE_CORE_DEALS && (pLeague != NULL) && ((iNumVotes + iTheirVotes) > (iVotesNeeded / 3)))
-		{
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 			switch(eDesire)
 			{
-			case CvLeagueAI::DESIRE_NEVER:
-			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-				iValue += 1000;
-				break;
-			case CvLeagueAI::DESIRE_DISLIKE:
-				iValue += 500;
-				break;
-			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-				iValue += 350;
-				break;
-			case CvLeagueAI::DESIRE_NEUTRAL:
-			case CvLeagueAI::DESIRE_WEAK_LIKE:
-			case CvLeagueAI::DESIRE_LIKE:
-				iValue += 250;
-				break;
-			case CvLeagueAI::DESIRE_STRONG_LIKE:
-			case CvLeagueAI::DESIRE_ALWAYS:
-				iValue += 100;
-				break;
-			default:
-				iValue += 2000;
-				break;
+				case CvLeagueAI::DESIRE_NEVER:
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				case CvLeagueAI::DESIRE_DISLIKE:
+					return MAX_INT;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+					iValue += 500 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+					iValue += 300 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+				case CvLeagueAI::DESIRE_LIKE:
+					iValue += 200 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+					iValue += 100 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_ALWAYS:
+					iValue += 50 * iNumVotes;
+					break;
+				default:
+					iValue += 200 * iNumVotes;
+					break;
 			}
 			CvAssert(eOtherPlayer != NO_PLAYER);
 			if (eOtherPlayer != NO_PLAYER)
@@ -4324,29 +4475,29 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				{
 				case CvLeagueAI::ALIGNMENT_LIBERATOR:
 				case CvLeagueAI::ALIGNMENT_LEADER:
-					iValue += -25;
+					iValue += -200;
 					break;
 				case CvLeagueAI::ALIGNMENT_SELF:
 					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
 					break;
 				case CvLeagueAI::ALIGNMENT_ALLY:
-					iValue += -15;
+					iValue += -100;
 					break;
 				case CvLeagueAI::ALIGNMENT_CONFIDANT:
 				case CvLeagueAI::ALIGNMENT_FRIEND:
-					iValue += -5;
+					iValue += -50;
 					break;
 				case CvLeagueAI::ALIGNMENT_NEUTRAL:
 					break;
 				case CvLeagueAI::ALIGNMENT_RIVAL:
-					iValue += 50;
+					iValue += 500;
 					break;
 				case CvLeagueAI::ALIGNMENT_HATRED:
-					iValue += 200;
+					iValue += 1000;
 					break;
 				case CvLeagueAI::ALIGNMENT_ENEMY:
 				case CvLeagueAI::ALIGNMENT_WAR:
-					iValue += 2000;
+					iValue += 5000;
 					break;
 				default:
 					break;
@@ -4357,82 +4508,28 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue += 500;
 				}
 			}
-		}
-		else
-		{
-#endif
-		// Adjust based on LeagueAI
-		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
-		switch(eDesire)
-		{
-		case CvLeagueAI::DESIRE_NEVER:
-		case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-			iValue += 2000;
-			break;
-		case CvLeagueAI::DESIRE_DISLIKE:
-			iValue += 300;
-			break;
-		case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-			iValue += 200;
-			break;
-		case CvLeagueAI::DESIRE_NEUTRAL:
-		case CvLeagueAI::DESIRE_WEAK_LIKE:
-		case CvLeagueAI::DESIRE_LIKE:
-			iValue += 150;
-			break;
-		case CvLeagueAI::DESIRE_STRONG_LIKE:
-		case CvLeagueAI::DESIRE_ALWAYS:
-			iValue += 50;
-			break;
-		default:
-			iValue += 5000;
-			break;
-		}
-
-		// Adjust based on relationship
-		CvAssert(eOtherPlayer != NO_PLAYER);
-		if (eOtherPlayer != NO_PLAYER)
-		{
-			CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
-			switch (eAlignment)
+			//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+			if((iNumVotes + iTheirVotes) > (iVotesNeeded / 3))
 			{
-			case CvLeagueAI::ALIGNMENT_LIBERATOR:
-			case CvLeagueAI::ALIGNMENT_LEADER:
-				iValue += -50;
-				break;
-			case CvLeagueAI::ALIGNMENT_SELF:
-				CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
-				break;
-			case CvLeagueAI::ALIGNMENT_ALLY:
-				iValue += -35;
-				break;
-			case CvLeagueAI::ALIGNMENT_CONFIDANT:
-			case CvLeagueAI::ALIGNMENT_FRIEND:
-				iValue += -25;
-				break;
-			case CvLeagueAI::ALIGNMENT_NEUTRAL:
-				break;
-			case CvLeagueAI::ALIGNMENT_RIVAL:
-				iValue += 25;
-				break;
-			case CvLeagueAI::ALIGNMENT_HATRED:
-				iValue += 50;
-				break;
-			case CvLeagueAI::ALIGNMENT_ENEMY:
-			case CvLeagueAI::ALIGNMENT_WAR:
-				iValue += 1000;
-				break;
-			default:
-				break;
+				iValue /= 2;
 			}
-
-			MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
-			if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
+			// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
+			float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			if (fVotesRatio > 0.5f)
 			{
-				return MAX_INT;
+				// More than half their votes...they probably aren't going to screw us
+				iValue /= 2;
 			}
-		}
-#if defined(MOD_BALANCE_CORE_DEALS)
+			else if (fVotesRatio > 0.25f)
+			{
+				// They have a lot of remaining votes
+				iValue *= 2;
+			}
+			else
+			{
+				// They have a hoard of votes
+				iValue *= 4;
+			}
 		}
 #endif
 	}
@@ -4440,13 +4537,14 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	else
 	{
 #if defined(MOD_BALANCE_CORE_DEALS)
-		//If the votes we'd give would secure passage of this vote, these votes are worth a bit more.
+		//They're offering us a vote...but on what? If we like it, it's worth more. If we don't, it's worth less.
+		//Also, if they have tons of extra votes, it's worth less (cuz they'll screw us, probably).
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		int iOurVotes = 0;
-		int iVotesNeeded = 0;
-		if (MOD_BALANCE_CORE_DEALS_ADVANCED && pLeague != NULL)
+		if(pLeague)
 		{
-			iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			int iVotesNeeded = 0;
+			int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -4456,117 +4554,97 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
 				}
 			}
-		}
-		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-		if(MOD_BALANCE_CORE_DEALS && (pLeague != NULL) && ((iNumVotes + iOurVotes) > (iVotesNeeded / 3)))
-		{
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 			switch(eDesire)
 			{
-			case CvLeagueAI::DESIRE_NEVER:
-			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-			case CvLeagueAI::DESIRE_NEUTRAL:
-				iValue += -1000;
-				break;
-			case CvLeagueAI::DESIRE_WEAK_LIKE:
-				iValue += 100;
-				break;
-			case CvLeagueAI::DESIRE_LIKE:
-				iValue += 200;
-				break;
-			case CvLeagueAI::DESIRE_STRONG_LIKE:
-				iValue += 300;
-				break;
-			case CvLeagueAI::DESIRE_ALWAYS:
-				iValue += 400;
-				break;
-			default:
-				iValue += -5000;
-				break;
+				case CvLeagueAI::DESIRE_NEVER:
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				case CvLeagueAI::DESIRE_DISLIKE:
+					return MAX_INT;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+					iValue += 50 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+					iValue += 75 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+				case CvLeagueAI::DESIRE_LIKE:
+					iValue += 150 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+					iValue += 300 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_ALWAYS:
+					iValue += 500 * iNumVotes;
+					break;
+				default:
+					iValue += 300 * iNumVotes;
+					break;
 			}
-		}
-		else
-		{
-			// Adjust based on LeagueAI
-			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
-			switch(eDesire)
+			CvAssert(eOtherPlayer != NO_PLAYER);
+			if (eOtherPlayer != NO_PLAYER)
 			{
-			case CvLeagueAI::DESIRE_NEVER:
-			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-			case CvLeagueAI::DESIRE_NEUTRAL:
-				iValue += -1000;
-				break;
-			case CvLeagueAI::DESIRE_WEAK_LIKE:
-				iValue += 50;
-				break;
-			case CvLeagueAI::DESIRE_LIKE:
-				iValue += 100;
-				break;
-			case CvLeagueAI::DESIRE_STRONG_LIKE:
-				iValue += 150;
-				break;
-			case CvLeagueAI::DESIRE_ALWAYS:
-				iValue += 200;
-				break;
-			default:
-				iValue += -5000;
-				break;
+				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
+				switch (eAlignment)
+				{
+				case CvLeagueAI::ALIGNMENT_LIBERATOR:
+				case CvLeagueAI::ALIGNMENT_LEADER:
+					iValue += 500;
+					break;
+				case CvLeagueAI::ALIGNMENT_SELF:
+					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
+					break;
+				case CvLeagueAI::ALIGNMENT_ALLY:
+					iValue += 400;
+					break;
+				case CvLeagueAI::ALIGNMENT_CONFIDANT:
+				case CvLeagueAI::ALIGNMENT_FRIEND:
+					iValue += 200;
+					break;
+				case CvLeagueAI::ALIGNMENT_NEUTRAL:
+					break;
+				case CvLeagueAI::ALIGNMENT_RIVAL:
+					iValue += -300;
+					break;
+				case CvLeagueAI::ALIGNMENT_HATRED:
+					iValue += -600;
+					break;
+				case CvLeagueAI::ALIGNMENT_ENEMY:
+				case CvLeagueAI::ALIGNMENT_WAR:
+					iValue += -1000;
+					break;
+				default:
+					break;
+				}
+				MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+				if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
+				{
+					iValue += -500;
+				}
 			}
-#else
-		// Adjust based on LeagueAI
-		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
-		switch(eDesire)
-		{
-		case CvLeagueAI::DESIRE_NEVER:
-		case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-		case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-		case CvLeagueAI::DESIRE_NEUTRAL:
-			iValue += -100000;
-			break;
-		case CvLeagueAI::DESIRE_WEAK_LIKE:
-			iValue += 50;
-			break;
-		case CvLeagueAI::DESIRE_LIKE:
-			iValue += 100;
-			break;
-		case CvLeagueAI::DESIRE_STRONG_LIKE:
-			iValue += 150;
-			break;
-		case CvLeagueAI::DESIRE_ALWAYS:
-			iValue += 200;
-			break;
-		default:
-			iValue += -100000;
-			break;
-		}
-#endif
-		// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
-		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
-		{
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague)
+			//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+			if((iNumVotes + iOurVotes) > (iVotesNeeded / 3))
 			{
-				float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-				if (fVotesRatio > 0.5f)
-				{
-					// More than half their votes...they probably aren't going to screw us
-				}
-				else if (fVotesRatio > 0.25f)
-				{
-					// They have a lot of remaining votes
-					iValue += -200;
-				}
-				else
-				{
-					// They have a hoard of votes
-					iValue += -400;
-				}
+				iValue *= 2;
 			}
-		}
-#if defined(MOD_BALANCE_CORE_DEALS)
+			// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
+			float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			if (fVotesRatio > 0.5f)
+			{
+				// More than half their votes...they probably aren't going to screw us
+				iValue *= 2;
+			}
+			else if (fVotesRatio > 0.25f)
+			{
+				// They have a lot of remaining votes
+				iValue /= 2;
+			}
+			else
+			{
+				// They have a hoard of votes
+				iValue /= 4;
+			}
 		}
 #endif
 	}
@@ -4871,9 +4949,9 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-				if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if(eLoopPlayer != NO_PLAYER && eLoopPlayer != eThem && eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();
+					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();				
 					// Can't already be a Trade Commitment in the Deal
 					if(!pDeal->IsThirdPartyWarTrade(eThem, eOtherTeam) && !pDeal->IsThirdPartyWarTrade(eMyPlayer, eOtherTeam))
 					{
@@ -7238,6 +7316,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
 			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			iRand /= 2;
 			if(iRand <= 0)
 			{
 				iRand = 1;
@@ -7616,6 +7695,11 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
+	if(eOtherPlayer == NO_PLAYER)
+	{
+		return false;
+	}
+
 	// Don't ask for a war if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
@@ -7624,21 +7708,17 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	}
 
 	// Don't ask for war if we don't like them
-	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) < MAJOR_CIV_OPINION_COMPETITOR)
+	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
 	{
 		return false;
 	}
 	// Don't ask for war if they are weaker than us
-	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
+	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_POOR)
 	{
 		return false;
 	}
 	// Don't ask for war if we are in a DoF (we'll do the 'free' method instead)
 	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
-	{
-		return false;
-	}
-	if(eOtherPlayer == NO_PLAYER)
 	{
 		return false;
 	}
@@ -7657,7 +7737,6 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 
 	int iWarValue = 0;
 	int iBestValue = 0;
-	TeamTypes eWithTeam = GET_PLAYER(eOtherPlayer).getTeam();
 	TeamTypes eBestTeam = NO_TEAM;
 
 	// find the first player associated with the team
@@ -7668,94 +7747,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		{
 			continue;
 		}
-		// Don't evaluate barbarians
-		if(GET_PLAYER(eAgainstPlayer).isBarbarian())
-		{
-			continue;
-		}
-		//Minor Civ? Only if not allies. Applies to both parties.
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()) || GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(eOtherPlayer)))
-		{
-			continue;
-		}
-		//Minor civ? Only if we're out for conquest ourselves
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_CONQUEST)))
-		{
-			continue;
-		}
-		//not alive?
-		if(!GET_PLAYER(eAgainstPlayer).isAlive())
-		{
-			continue;
-		}
-		//same team as asked?
-		if(GET_PLAYER(eAgainstPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			continue;
-		}
-		// same team as asker?
-		if(GET_PLAYER(eAgainstPlayer).getTeam() == m_pPlayer->getTeam())
-		{
-			continue;
-		}
-		// asker has met?
-		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
-		{
-			continue;
-		}
-		// asked has met?
-		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
-		{
-			continue;
-		}
-		//defensive pact with us?
-		if(GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
-		{
-			continue;
-		}
-		//defensive pact with asked?
-		if(GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Is he already at war with the team? Don't do it!
-		if(GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Can they declare war?
-		if(!GET_TEAM(eWithTeam).canDeclareWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		//Asking about a vassal? Abort!
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassalOfSomeone())
-		{
-			continue;
-		}
-		//No vassal/master war requests, please.
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
-		{
-			continue;
-		}
-#endif
 		//Is our opinion of the player good? Don't do it!
 		if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAgainstPlayer) >= MAJOR_CIV_OPINION_NEUTRAL)
-		{
-			continue;
-		}
-		//Are we in a DOF with the player? Don't do it!
-		if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAgainstPlayer) || GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
-		{
-			continue;
-		}
-		//Are the asked in a DOF with the player? Don't do it!
-		if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eAgainstPlayer) || GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
 		{
 			continue;
 		}
@@ -7806,7 +7799,11 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
-
+	
+	if(eOtherPlayer == NO_PLAYER)
+	{
+		return false;
+	}
 	//Friends? We overlook friendly wars.
 	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
 	{
@@ -7817,13 +7814,15 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 	{
 		return false;
 	}
-	if(eOtherPlayer == NO_PLAYER)
-	{
-		return false;
-	}
+	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	//Asking a vassal? Abort!
 	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return false;
+	}
+	//Vassals asking? Nope!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 	{
 		return false;
 	}
@@ -7831,7 +7830,6 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 
 	int iWarValue = 0;
 	int iBestValue = 0;
-	TeamTypes eWithTeam = GET_PLAYER(eOtherPlayer).getTeam();
 	TeamTypes eBestTeam = NO_TEAM;
 
 	// find the first player associated with the team
@@ -7842,13 +7840,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
-		// Don't evaluate barbarians
-		if(GET_PLAYER(eAgainstPlayer).isBarbarian())
-		{
-			continue;
-		}
-		//Minor Civ? Only if allies. 
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && !GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()))
+		//Minor Civ? Only if allies or protective
+		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (!GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()) || (GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_PROTECTIVE)))
 		{
 			continue;
 		}
@@ -7857,55 +7850,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		{
 			continue;
 		}
-		//not alive?
-		if(!GET_PLAYER(eAgainstPlayer).isAlive())
-		{
-			continue;
-		}
-		//same team as asked?
-		if(GET_PLAYER(eAgainstPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			continue;
-		}
-		// same team as asker?
-		if(GET_PLAYER(eAgainstPlayer).getTeam() == m_pPlayer->getTeam())
-		{
-			continue;
-		}
-		// asker has met?
-		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(m_pPlayer->getTeam()))
-		{
-			continue;
-		}
-		// asked has met?
-		if(!GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
-		{
-			continue;
-		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		//Asking about a vassal? Abort!
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eAgainstPlayer).getTeam()).IsVassalOfSomeone())
-		{
-			continue;
-		}
-#endif
-		//Is he not at war with the team? Don't do it!
-		if(!GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Are we at war with the team? Don't do it!
-		if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eAgainstPlayer).getTeam()))
-		{
-			continue;
-		}
-		//Can they make peace?
-		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam()) > 0)
-		{
-			continue;
-		}
-		//Is our opinion of the player bad? Don't do it!
-		if(!GET_PLAYER(eAgainstPlayer).isMinorCiv() && GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAgainstPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+		//Is our opinion of the player we're asking about bad? Don't do it!
+		if(!GET_PLAYER(eAgainstPlayer).isMinorCiv() && GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAgainstPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			continue;
 		}

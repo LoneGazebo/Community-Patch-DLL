@@ -326,7 +326,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(pkBuildingInfo->GetNukeModifier() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetNukeModifier() / 5);
+			iBonus += (pkBuildingInfo->GetNukeModifier() / 2);
 		}
 		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 		{
@@ -338,24 +338,24 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
+			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 2);
 		}
 		if(m_pCity->plot()->isCoastalLand())
 		{
 			if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 		else
 		{
 			if(pkBuildingInfo->GetBorderObstacleCity() > 0)
 			{
-				iBonus += 33;
+				iBonus += 50;
 			}
 			if(pkBuildingInfo->IsBorderObstacle())
 			{
-				iBonus += 33;
+				iBonus += 100;
 			}
 		}
 	}

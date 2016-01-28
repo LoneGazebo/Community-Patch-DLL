@@ -179,6 +179,7 @@ public:
 	CvString GetLogFileName(CvString& playerName, CvString& cityName) const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetProductionLogFileName(CvString& playerName, CvString& cityName) const;
+	CvString GetHurryLogFileName(CvString& playerName, CvString& cityName) const;
 #endif
 
 	bool IsYieldDeficient(YieldTypes yieldType);
@@ -217,6 +218,8 @@ private:
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	void LogPossibleBuilds();
 #if defined(MOD_BALANCE_CORE)
+	void LogPossibleHurries();
+	void LogPossibleHurriesPostCheck();
 	void LogPossibleBuildsPostCheck();
 #endif
 	void LogSpecializationChange(CitySpecializationTypes eSpecialization);

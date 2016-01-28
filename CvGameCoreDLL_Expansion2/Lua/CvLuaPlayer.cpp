@@ -5744,8 +5744,8 @@ int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
 	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }

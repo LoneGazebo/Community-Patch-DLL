@@ -275,9 +275,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if (pRewardInfo->GetBuilding() != NO_BUILDING)
 					{
 						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
-						if(pBuildingInfo && kPlayer.GetWonderProductionAI()->IsWonder(*pBuildingInfo))
+						if(pBuildingInfo)
 						{
-							iModifier += kPlayer.GetWonderProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							int iValue = 1000;
+							if(kPlayer.getCapitalCity() != NULL)
+							{
+								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5);
+							}
+							iModifier += iValue;
 						}
 						else
 						{
@@ -312,7 +317,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 50;
+							iModifier += 100;
 						}
 					}
 
@@ -348,7 +353,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iModifier += 50;
 						}
 					}
-					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
 					
 					// Free unit class
 					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
@@ -359,16 +363,16 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 							if(pkUnitInfo)
 							{
-								if(pkUnitInfo->GetCombat() > 0)
+								int iValue = 500;
+								if(kPlayer.getCapitalCity() != NULL)
 								{
-									if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
-									{
-										iModifier += 50;
-									}
+									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue);
 								}
+								iModifier += iValue;
 							}
 						}
 					}
+					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
 		
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
