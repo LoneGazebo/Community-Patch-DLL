@@ -360,9 +360,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 				pRouteInfo->m_cPassEval = iPass + 1;
 				if(iPass == 0 || iPass == 2)  // check land route
 				{
-					// if either city is blockaded, don't consider a water connection
+					// if either city is blockaded on land, don't consider a connection
 					if(pFirstCity->IsBlockaded(false) || pSecondCity->IsBlockaded(false))
 					{
+						CvString msg = CvString::format("No connection between %s and %s because of land blockade",pFirstCity->getName().c_str(),pSecondCity->getName().c_str());
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 						continue;
 					}
 
@@ -400,9 +402,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 				}
 				else if(iPass == 1)  // check water route
 				{
-					// if either city is blockaded, don't consider a connection
+					// if either city is blockaded on water, don't consider a connection
 					if(pFirstCity->IsBlockaded(true) || pSecondCity->IsBlockaded(true))
 					{
+						CvString msg = CvString::format("No connection between %s and %s because of sea blockade",pFirstCity->getName().c_str(),pSecondCity->getName().c_str());
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 						continue;
 					}
 

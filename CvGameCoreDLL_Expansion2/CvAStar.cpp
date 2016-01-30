@@ -1170,7 +1170,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
 		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
 		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
-		//to all moves, not only turn start moves, favors embarking on turn start.
+		//to all moves, not only turn start moves, favors embarking on turn start, so we don't do it
 		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
 		{
 			iBaseMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);

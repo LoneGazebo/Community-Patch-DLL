@@ -1109,7 +1109,7 @@ public:
 
 	int getDamage() const;
 	void setDamage(int iValue, bool noMessage=false);
-	void changeDamage(int iChange, CvUnit* pAttacker);
+	void changeDamage(int iChange);
 
 	bool isMadeAttack() const;
 	void setMadeAttack(bool bNewValue);

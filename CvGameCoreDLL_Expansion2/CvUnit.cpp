@@ -7325,6 +7325,10 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 #endif
 
+	//no healing on mountains outside of cities (inca)
+	if (pPlot->isMountain() && !pPlot->isCity())
+		return 0;
+
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
 
@@ -7581,7 +7585,12 @@ void CvUnit::doHeal()
 			}
 		}
 #endif
-		changeDamage( -healRate(plot()) );
+
+		int iHealRate = healRate(plot());
+		if (iHealRate==0)
+			return;
+
+		changeDamage( -iHealRate );
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
