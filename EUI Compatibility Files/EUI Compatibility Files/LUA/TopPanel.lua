@@ -1053,11 +1053,12 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Total gold
 -- CBP
 		-- Gold gained from happiness
+	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
 	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
 	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors + iInternalRouteGold -- C4DF
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1101,6 +1102,8 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold / 100)
 -- END
+--CBP
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )

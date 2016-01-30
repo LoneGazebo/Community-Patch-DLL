@@ -7,11 +7,13 @@
 			<Description>TXT_KEY_POLICY_FIRST_ON_MOON</Description>
 			<IncludesOneShotFreeUnits>true</IncludesOneShotFreeUnits>
 			<GoldenAgeTurns>10</GoldenAgeTurns>
+			<IsDummy>true</IsDummy>
 		</Row>
 		<Row>
 			<Type>POLICY_MANHATTAN_PROJECT</Type>
 			<Description>TXT_KEY_POLICY_MANHATTAN_PROJECT</Description>
 			<IncludesOneShotFreeUnits>true</IncludesOneShotFreeUnits>
+			<IsDummy>true</IsDummy>
 		</Row>
 	</Policies>
 	<Policy_FreeUnitClasses>

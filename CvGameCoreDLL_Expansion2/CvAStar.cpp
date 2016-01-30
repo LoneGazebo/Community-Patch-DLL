@@ -23,15 +23,14 @@
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
 
-//PATH_BASE_COST is defined in AStar.h, value 100
 #define PATH_RIVER_WEIGHT										(100)	//per percent river crossing penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
-#define PATH_TERRITORY_WEIGHT									(PATH_BASE_COST)	//per turn end plot outside of our territory
-#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path
+#define PATH_TERRITORY_WEIGHT									(50)	//per turn end plot outside of our territory
+#define PATH_STEP_WEIGHT										(50)	//per plot in path
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*60)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*40)
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*90)
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
@@ -299,18 +298,18 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	while(1)
 	{
 		m_iRounds++;
-
 		m_pBest = GetBest();
+		
 		if (m_pBest==NULL)
 			break;
 
-		CvAStarNode* pRet = CreateChildren(m_pBest);
-		if (pRet)
+		if(IsPathDest(m_pBest->m_iX, m_pBest->m_iY))
 		{
-			m_pBest = pRet;
 			bSuccess = true;
 			break;
 		}
+
+		CreateChildren(m_pBest);
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
@@ -424,22 +423,15 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Creates children for the node
-CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
+void CvAStar::CreateChildren(CvAStarNode* node)
 {
-	CvAStarNode* finalNode = NULL;
-
-	//catch the odd case where start and destination are equal
-	if (IsPathDest(node->m_iX, node->m_iY))
-		return node;
-
-
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
 	if (MOD_BALANCE_CORE_DEBUGGING)
 		newNodes.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
-	for(int i = 0; i < 6 && finalNode==NULL; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
 		if (!check)
@@ -465,14 +457,7 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 				result = LinkChild(node, check);
 			
 				if (result==NS_VALID)
-				{
 					m_iProcessedNodes++;
-
-					//we have found our destination! there is a small chance that we could find a better way 
-					//if we continue searching, but in the interest of speed, let's not do it
-					if (IsPathDest(check->m_iX, check->m_iY))
-						finalNode = check;
-				}
 			}
 		}
 
@@ -485,7 +470,7 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 	if(udNumExtraChildrenFunc && udGetExtraChildFunc)
 	{
 		int iExtraChildren = udNumExtraChildrenFunc(node, this);
-		for(int i = 0; i < iExtraChildren && finalNode==NULL; i++)
+		for(int i = 0; i < iExtraChildren; i++)
 		{
 			int x, y;
 			udGetExtraChildFunc(node, i, x, y, this);
@@ -503,12 +488,7 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 					result = LinkChild(node, check);
 			
 					if (result==NS_VALID)
-					{
 						m_iProcessedNodes++;
-
-						if (IsPathDest(check->m_iX, check->m_iY))
-							finalNode = check;
-					}
 				}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
@@ -524,8 +504,6 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 	if (MOD_BALANCE_CORE_DEBUGGING && newNodes.size()>1)
 		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
 #endif
-
-	return finalNode;
 }
 
 //	--------------------------------------------------------------------------------
@@ -894,6 +872,7 @@ struct UnitPathCacheData
 	CvUnit* pUnit;
 
 	int m_aBaseMoves[NUM_DOMAIN_TYPES];
+	int m_iMaxMoves;
 	PlayerTypes m_ePlayerID;
 	TeamTypes m_eTeamID;
 	DomainTypes m_eDomainType;
@@ -908,6 +887,7 @@ struct UnitPathCacheData
 
 	inline bool DoDanger() const { return m_bDoDanger; }
 	inline int baseMoves(DomainTypes eType) const { return m_aBaseMoves[eType]; }
+	inline int maxMoves() const { return m_iMaxMoves; }
 	inline PlayerTypes getOwner() const { return m_ePlayerID; }
 	inline TeamTypes getTeam() const { return m_eTeamID; }
 	inline DomainTypes getDomainType() const { return m_eDomainType; }
@@ -931,6 +911,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	for (int i = 0; i < NUM_DOMAIN_TYPES; ++i)
 		pCacheData->m_aBaseMoves[i] = pUnit->baseMoves((DomainTypes)i);
 
+	pCacheData->m_iMaxMoves = pUnit->maxMoves();
 	pCacheData->m_ePlayerID = pUnit->getOwner();
 	pCacheData->m_eTeamID = pUnit->getTeam();
 	pCacheData->m_eDomainType = pUnit->getDomainType();
@@ -1155,35 +1136,36 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	//this is quite tricky with passable ice plots which can be either water or land
 	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	int iBaseMovesInCurrentDomain = pCacheData->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
-	int iBaseMovesInNewDomain = pCacheData->baseMoves(bToPlotIsWater?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 
 	//if we would have to start a new turn
-	int iBaseMoves = iBaseMovesInNewDomain;
 	if (iStartMoves==0)
 	{
 		// inconspicuous but important
 		iTurns++;
 
-		iStartMoves = iBaseMovesInNewDomain;
-
-		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
-		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
-		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
-		//to all moves, not only turn start moves, favors embarking on turn start.
-		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
+		if (CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot) || (bWithZOC && CvUnitMovement::IsSlowedByZOC(pUnit, pFromPlot, pToPlot)))
 		{
-			iBaseMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
-			iStartMoves = iBaseMoves;
+			// The movement would consume all moves, get the moves we will forfeit based on the source plot, rather than
+			// the destination plot.  This fixes issues where a land unit that has more movement points on water than on land
+			// would have a very high cost to move onto water if their first move of the turn was at the edge of the water.
+			iStartMoves = pCacheData->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 		}
+		else
+			iStartMoves = pCacheData->baseMoves(bToPlotIsWater?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 	}
 
-	// do not pass in the remaining moves, we want to see the true cost!
+	// Get the cost of moving to the new plot, passing in our max moves or the moves we have left, in case the movementCost 
+	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
+	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
+	// of the path segment is different from the destination plot.
+	DomainTypes eDomain = (bToPlotIsWater || pCacheData->isEmbarked()) ? DOMAIN_SEA : eUnitDomain;
 	int iMovementCost = 0;
+	
+	// do not pass in the remaining moves, we want to see the true cost!
 	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves);
+		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves(eDomain), pCacheData->maxMoves());
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves);
+		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves(eDomain), pCacheData->maxMoves());
 
 	// Is the cost greater than our max?
 	int iMovesLeft = iStartMoves - iMovementCost;
@@ -1274,9 +1256,11 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 			}
 		}
 
-		// If we are a land unit and we are ending the turn on water, make the cost a little higher 
-		// so that we favor staying on land or getting back to land as quickly as possible
-		if(eUnitDomain == DOMAIN_LAND && bToPlotIsWater)
+		// If we are a land unit and we are ending the turn on water, make the cost a little higher so that
+		// we favor staying on land or getting back to land as quickly as possible because it is dangerous to
+		// be on the water.  Don't add this penalty if the unit is human controlled however, we will assume they want
+		// the best path, rather than the safest.
+		if(eUnitDomain == DOMAIN_LAND && bToPlotIsWater && pCacheData->isAIControl())
 		{
 			iCost += PATH_END_TURN_WATER;
 		}
@@ -1295,7 +1279,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
 				else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT;
-				else if (iPlotDanger > 0 )
+				else
 					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
 			}
 			else //civilian
@@ -1303,7 +1287,7 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 				//danger usually means capture (INT_MAX), unless embarked
 				if (iPlotDanger > pUnit->GetCurrHitPoints())
 					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4;
-				else if (iPlotDanger > 0)
+				else
 					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
 			}
 		}

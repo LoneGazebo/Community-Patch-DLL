@@ -1135,7 +1135,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// This player must be allowed to
-		if(!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
+		if(!bFinalizing && !pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
 #if defined(MOD_BALANCE_CORE)
 		if(!bHumanToHuman)

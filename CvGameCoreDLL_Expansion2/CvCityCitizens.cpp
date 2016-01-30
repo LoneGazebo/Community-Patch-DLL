@@ -631,44 +631,26 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
 			{
-				iValue *= 3;
+				iValue *= 2;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if(eYield == YIELD_FOOD)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
-				if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-				{
-					iYield *= 5;
-				}
-				else if(eFocus == NO_CITY_AI_FOCUS_TYPE)
-				{
-					iYield *= 3;
-				}
-				else if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-				{
-					iYield *= 4;
-				}
-				else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iYield *= 4;
-				}
 				//Food is unique, so let's separate it out for now.
-				int iFood = iYield;
 				bool bAvoidGrowth = IsAvoidGrowth();
 
 				// Food can be worth less if we don't want to grow
 				if(bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
 				{
 					// If we at least have enough Food to feed everyone, zero out the value of additional food
-					iFood = 0;
+					iYield = 0;
 				}
 				// If our surplus is not at least 2, really emphasize food plots
 				else if(!bAvoidGrowth)
 				{
 					if(iExcessFoodTimes100 <= 200)
 					{
-						iFood *= 10;
+						iYield *= 10;
 					}
 					else
 					{
@@ -677,27 +659,38 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 						iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 8), 1));
 						if(eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 						{
-							iFood *= max(1, iRemainder);
+							iYield *= max(1, iRemainder);
 						}
 						else
 						{
-							iFood *= max(1, (iRemainder / 4));
+							iYield *= max(1, (iRemainder / 4));
 						}
 					}
 				}
-							
-				iYield += iFood;
+				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
+				if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
+				{
+					iYield *= 5;
+				}
+				else if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+				{
+					iYield *= 4;
+				}
+				else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				{
+					iYield *= 4;
+				}			
 			}
 			else if(eYield == YIELD_PRODUCTION)
 			{
 				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
 				if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				{
-					iYield *= 4;
+					iYield *= 5;
 				}
 				if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
 				{
-					iYield *= 3;
+					iYield *= 4;
 				}
 			}
 			else if(eYield == YIELD_GOLD)
@@ -705,7 +698,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
 				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 				{
-					iYield *= 4;
+					iYield *= 5;
 				}
 				if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
@@ -717,7 +710,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
 				if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 				{
-					iYield *= 4;
+					iYield *= 5;
 				}			
 			}
 			else if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
@@ -725,7 +718,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
 				if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 				{
-					iYield *= 4;
+					iYield *= 5;
 				}
 			}
 			else if(eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
@@ -733,7 +726,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
 				if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 				{
-					iYield *= 4;
+					iYield *= 5;
 				}
 			}
 			else
@@ -1315,14 +1308,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
 			{
-				if(eFocus == NO_CITY_AI_FOCUS_TYPE)
-				{
-					iValue *= 4;
-				}
-				else
-				{
-					iValue *= 3;
-				}
+				iValue *= 2;
 			}
 			if(eYield == YIELD_FOOD)
 			{

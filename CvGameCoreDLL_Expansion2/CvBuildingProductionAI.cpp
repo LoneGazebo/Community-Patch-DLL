@@ -252,14 +252,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(iValue == 0)
 		return 0;
 
-	//Bring things down a bit.
-	iValue /= 10;
-
-	if(iValue <= 0)
-	{
-		iValue = 1;
-	}
-
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 	//Skip if null
@@ -287,6 +279,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else if(m_pCity->IsPuppet() && bIsVenice)
 	{
 		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo))
+		{
+			return 0;
+		}
+	}
+	if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+	{
+		//Should never be in first 3 things built.
+		if(m_pCity->GetCityBuildings()->GetNumBuildings() <= 3)
 		{
 			return 0;
 		}
@@ -322,43 +322,50 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	//Defense Needs
-	if(m_pCity->IsBastion())
+	int iDefense = 0;
+	if(pkBuildingInfo->GetNukeModifier() > 0)
 	{
-		if(pkBuildingInfo->GetNukeModifier() > 0)
+		iDefense += (pkBuildingInfo->GetNukeModifier() / 2);
+	}
+	if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->GetGlobalDefenseModifier();
+	}
+	if(pkBuildingInfo->GetDefenseModifier() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 5);
+	}
+	if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 2);
+	}
+	if(m_pCity->plot()->isCoastalLand())
+	{
+		if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetNukeModifier() / 2);
-		}
-		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
-		{
-			iBonus += pkBuildingInfo->GetGlobalDefenseModifier();
-		}
-		if(pkBuildingInfo->GetDefenseModifier() > 0)
-		{
-			iBonus += (pkBuildingInfo->GetDefenseModifier() / 5);
-		}
-		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
-		{
-			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 2);
-		}
-		if(m_pCity->plot()->isCoastalLand())
-		{
-			if(pkBuildingInfo->GetBorderObstacleWater() > 0)
-			{
-				iBonus += 50;
-			}
-		}
-		else
-		{
-			if(pkBuildingInfo->GetBorderObstacleCity() > 0)
-			{
-				iBonus += 50;
-			}
-			if(pkBuildingInfo->IsBorderObstacle())
-			{
-				iBonus += 100;
-			}
+			iDefense += 50;
 		}
 	}
+	else
+	{
+		if(pkBuildingInfo->GetBorderObstacleCity() > 0)
+		{
+			iDefense += 50;
+		}
+		if(pkBuildingInfo->IsBorderObstacle())
+		{
+			iDefense += 100;
+		}
+	}
+	if(m_pCity->IsBastion())
+	{
+		iDefense *= 3;
+	}
+	else
+	{
+		iDefense /= 3;
+	}
+	iBonus += iDefense;
 
 	//No Land trade connections?
 	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
@@ -743,46 +750,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//WAR
 	///////
 	//Fewer buildings while at war.
-	int iSneakies = 0;
-	if(!kPlayer.isMinorCiv())
+	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
-				{
-					iSneakies++;
-				}
-				if(kPlayer.GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
-				{
-					iSneakies++;
-					if(kPlayer.GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
-					{
-						iSneakies++;
-					}
-				}
-				if(kPlayer.GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) < MAJOR_CIV_APPROACH_AFRAID)
-				{
-					iSneakies++;
-					if(kPlayer.GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
-					{
-						iSneakies++;
-					}
-				}
-			}
-		}
-		if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
-		{
-			iSneakies += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 10);
-		}
-		if(iSneakies > 0)
-		{
-			iBonus -= (iSneakies * 5);
-		}
+		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 15);
 	}
 	
 	iValue *= (iBonus + 100);

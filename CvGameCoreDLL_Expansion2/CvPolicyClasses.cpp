@@ -3512,7 +3512,7 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	{
 		// Do we have this policy?
 #if defined(MOD_BALANCE_CORE)
-		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsDummy() && (m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE))
+		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
 #else
 		if(m_pabHasPolicy[i])
 #endif

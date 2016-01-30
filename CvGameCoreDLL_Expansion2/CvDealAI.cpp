@@ -3571,17 +3571,11 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	{
 		return MAX_INT;
 	}
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return MAX_INT;
+	}
 #endif
-	//Is he not at war with the team? Don't do it!
-	if(!GET_TEAM(eWithTeam).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-	{
-		return MAX_INT;
-	}
-	//Are we at war with the team? Don't do it!
-	if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-	{
-		return MAX_INT;
-	}
 	//Things blocking their peace?
 	if(!bFromMe)
 	{
@@ -3591,7 +3585,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return MAX_INT;
 		}
 		//Can they make peace?
-		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eOtherPlayer).getTeam()) > 0)
+		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eOtherPlayer).getTeam()) > 0)
 		{
 			return MAX_INT;
 		}
@@ -3604,7 +3598,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return MAX_INT;
 		}
 		//Can they make peace?
-		if(GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 0)
+		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 0)
 		{
 			return MAX_INT;
 		}
@@ -3870,11 +3864,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
-	//Minor civ? Only if we're out for conquest ourselves
-	if(GET_PLAYER(eWithPlayer).isMinorCiv() && ((GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eWithPlayer) != MINOR_CIV_APPROACH_CONQUEST)))
-	{
-		return INT_MAX;
-	}
 	//same team as asked?
 	if(GET_PLAYER(eWithPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 	{
@@ -3902,20 +3891,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 	//defensive pact with asked?
 	if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
-	{
-		return INT_MAX;
-	}
-	//Are we already at war with the team? Don't do it!
-	if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eWithTeam))
-	{
-		return INT_MAX;
-	}
-	//Can we declare war?
-	if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
-	{
-		return INT_MAX;
-	}
-	if(GET_PLAYER(eWithPlayer).getCapitalCity() != NULL && !GET_PLAYER(eWithPlayer).getCapitalCity()->plot()->isRevealed(GetPlayer()->getTeam()))
 	{
 		return INT_MAX;
 	}
@@ -3953,7 +3928,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 	if(!bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
 	{
-		iItemValue *= 2;
+		iItemValue += 1000;
 	}
 	if(bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eOtherPlayer))
 	{
@@ -3961,7 +3936,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 	if(!bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eOtherPlayer))
 	{
-		iItemValue *= 2;
+		iItemValue += 1000;
 	}
 #endif
 	WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWithPlayer);
@@ -3996,6 +3971,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
+		//Are we already at war with the team? Don't do it!
+		if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eWithTeam))
+		{
+			return INT_MAX;
+		}
+		//Can we declare war?
+		if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			return INT_MAX;
+		}
 		if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			return INT_MAX;
@@ -4080,9 +4065,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				return INT_MAX;
 			}
 		}
+		//Already planning war? Less valuable.
 		if(pDiploAI->GetWarGoal(eWithPlayer) == WAR_GOAL_CONQUEST)
 		{
-			iItemValue *= 500;
+			iItemValue *= 50;
 			iItemValue /= 100;
 		}
 #endif
@@ -4114,7 +4100,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 95;
 			iItemValue /= 100;
 		}
-		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_FAVORABLE)
+		else if(eOpinionTowardsAskingPlayer == MAJOR_CIV_OPINION_NEUTRAL)
+		{
+			iItemValue *= 150;
+			iItemValue /= 100;
+		}
+		else if(eOpinionTowardsAskingPlayer < MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			return INT_MAX;
 		}
@@ -4137,7 +4128,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue *= 5;
+								iItemValue *= 3;
 							}
 						}
 					}
@@ -4249,6 +4240,26 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
+		//Are we already at war with the team? Don't do it!
+		if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(eWithTeam))
+		{
+			return INT_MAX;
+		}
+		//Can we declare war?
+		if(!GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			return INT_MAX;
+		}
+
+		//Are we already at war with the player? Let's lower our standards a bit.
+		if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			if(eOpinionTowardsAskingPlayer <= MAJOR_CIV_OPINION_ENEMY)
+			{
+				return INT_MAX;
+			}
+		}
+
 		if(eOpinionTowardsAskingPlayer <= MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			return INT_MAX;
@@ -4298,35 +4309,39 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		// Major
 		else
 		{
-			// Modify for our feelings towards the player they would go to war with
-			if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
+			//Are we already at war with the player? Let's lower our standards a bit.
+			if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 			{
-				iItemValue *= 300;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
-			{
-				iItemValue *= 200;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_COMPETITOR)
-			{
-				iItemValue *= 75;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
-			{
-				iItemValue *= 25;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer > MAJOR_CIV_OPINION_NEUTRAL)
-			{
-				return INT_MAX;
+				// Modify for our feelings towards the player they would go to war with
+				if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
+				{
+					iItemValue *= 300;
+					iItemValue /= 100;
+				}
+				else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
+				{
+					iItemValue *= 200;
+					iItemValue /= 100;
+				}
+				else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_COMPETITOR)
+				{
+					iItemValue *= 75;
+					iItemValue /= 100;
+				}
+				else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					iItemValue *= 25;
+					iItemValue /= 100;
+				}
+				else if(eOpinionTowardsWarPlayer > MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					return INT_MAX;
+				}
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Approach Vector, Sir!
-		if(!bMinor)
+		if(!bMinor && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			if((eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_FRIENDLY) || (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_AFRAID))
 			{
@@ -4363,6 +4378,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			{
 				WarStateTypes eWarState = pDiploAI->GetWarState(eWithPlayer);
 				if(eWarState < WAR_STATE_CALM)
+				{
+					iItemValue *= 4;
+				}
+				else
 				{
 					iItemValue *= 2;
 				}
@@ -4561,14 +4580,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				case CvLeagueAI::DESIRE_NEVER:
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
 				case CvLeagueAI::DESIRE_DISLIKE:
-					return MAX_INT;
-				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					iValue += 50 * iNumVotes;
-					break;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:	
 				case CvLeagueAI::DESIRE_NEUTRAL:
+					return MAX_INT;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
 					iValue += 75 * iNumVotes;
 					break;
-				case CvLeagueAI::DESIRE_WEAK_LIKE:
 				case CvLeagueAI::DESIRE_LIKE:
 					iValue += 150 * iNumVotes;
 					break;
@@ -7841,7 +7858,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 			continue;
 		}
 		//Minor Civ? Only if allies or protective
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (!GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()) || (GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(eAgainstPlayer) != MINOR_CIV_APPROACH_PROTECTIVE)))
+		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (!GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID())))
 		{
 			continue;
 		}
@@ -7892,6 +7909,91 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 
 	return bDealAcceptable;
 }
+/// A good time to make an offer for a Peace Deal?
+bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	CvAssert(eOtherPlayer >= 0);
+	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if(!pLeague)
+	{
+		return false;
+	}
+	
+	if(eOtherPlayer == NO_PLAYER)
+	{
+		return false;
+	}
+	//Friends?
+	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+	{
+		return false;
+	}
+	
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Asking a vassal? Abort!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
+	{
+		return false;
+	}
+	//Vassals asking? Nope!
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+	{
+		return false;
+	}
+#endif
+	int iBestValue = 0;
+	int iBestProposal = -1;
+	int iProposalID = -1;
+	int iVoteChoice = -1;
+	int iNumVotes = -1;
+	bool bRepeal = false;
+	CvLeagueAI::VoteCommitmentList vDesiredCommitments = GetPlayer()->GetLeagueAI()->GetDesiredVoteCommitments(eOtherPlayer);
+	for (CvLeagueAI::VoteCommitmentList::iterator it = vDesiredCommitments.begin(); it != vDesiredCommitments.end(); ++it)
+	{
+		iProposalID = it->iResolutionID;
+		iVoteChoice = it->iVoteChoice;
+		iNumVotes = it->iNumVotes;
+		bRepeal = !it->bEnact;
+
+		if (iProposalID != -1 && pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VOTE_COMMITMENT, iProposalID, iVoteChoice, iNumVotes, bRepeal))
+		{
+			int iItemValue = GetTradeItemValue(TRADE_ITEM_VOTE_COMMITMENT, /*bFromMe*/ false, eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal, -1, false);
+			if(iItemValue!=INT_MAX && iItemValue > iBestValue)
+			{
+				iBestProposal = iProposalID;
+				iBestValue = iItemValue;
+			}
+		}
+	}
+
+	if(iBestProposal == -1)
+	{
+		return false;
+	}
+	else
+	{
+		pDeal->AddVoteCommitment(eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal);
+	}
+
+	bool bDealAcceptable = false;
+
+	// AI evaluation
+	if(!GET_PLAYER(eOtherPlayer).isHuman())
+	{
+		bDealAcceptable = DoEqualizeDealWithAI(pDeal, eOtherPlayer);	// Change the deal as necessary to make it work
+	}
+	else
+	{
+		bool bUselessReferenceVariable;
+		bool bCantMatchOffer;
+		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+	}
+
+	return bDealAcceptable;
+}
+
 #endif
 /// This function called when human player enters diplomacy
 void CvDealAI::DoTradeScreenOpened()

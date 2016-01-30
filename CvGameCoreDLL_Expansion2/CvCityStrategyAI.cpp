@@ -2476,6 +2476,31 @@ void CvCityStrategyAI::LogPossibleBuildsPostCheck()
 		}
 	}
 }
+void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp, szTemp2;
+		CvString playerName;
+		CvString cityName;
+
+		// Find the name of this civ and city
+		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		cityName = m_pCity->getName();
+
+		// Open the log file
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", " + cityName + ", ";
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
 #endif
 void CvCityStrategyAI::LogPossibleBuilds()
 {
@@ -4494,7 +4519,26 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		return iYieldValue;
 	}
 
-		//Deficient Yield?
+	int iYieldPolicyBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+	if(iYieldPolicyBonus > 0)
+	{
+		iYieldValue += 25;
+	}
+	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+	if(iYieldPolicyModBonus > 0)
+	{
+		iYieldValue += iYieldPolicyModBonus;
+	}
+	if(pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetReligionInMostCities())
+	{
+		int iReligionPolicyBonus = kPlayer.GetPlayerPolicies()->GetReligionBuildingClassYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+		if(iReligionPolicyBonus > 0)
+		{
+			iYieldValue += 25;
+		}
+	}
+
+	//Deficient Yield?
 	if(pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 	{
 		iYieldValue *= 2;
@@ -5047,6 +5091,22 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 		}
 	}
+	int iProductionBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassProductionModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	if(iProductionBonus > 0)
+	{
+		iValue += (iProductionBonus / 2);
+	}
+	int iHappinessnBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	if(iHappinessnBonus > 0)
+	{
+		iValue += 25;
+	}
+	int iTourism = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+	if(iTourism > 0)
+	{
+		iValue += 25;
+	}
+
 	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() > 0 || pkBuildingInfo->GetGlobalEspionageModifier() > 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
 		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + pkBuildingInfo->GetEspionageModifier() > 0 + pkBuildingInfo->GetGlobalEspionageModifier() + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 10));
@@ -5112,6 +5172,14 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->IsAllowsPuppetPurchase() && pCity->IsPuppet())
 	{
 		iValue += 25;
+	}
+	if(kPlayer.GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding) > 0)
+	{
+		iValue += kPlayer.GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding);
+	}
+	if(pCity->isCapital() && kPlayer.GetPlayerTraits()->GetCapitalBuildingModifier() > 0)
+	{
+		iValue += kPlayer.GetPlayerTraits()->GetCapitalBuildingModifier();
 	}
 	if(pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
 	{

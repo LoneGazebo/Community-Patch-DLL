@@ -172,6 +172,11 @@
 			<Response>TXT_KEY_THIRD_PARTY_PEACE_OFFER%</Response>
 		</Row>
 
+		<!-- 3rd Party Peace-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_VOTE_COMMITMENT_REQUEST</ResponseType>
+			<Response>TXT_KEY_VOTE_COMMITMENT_REQUEST%</Response>
+		</Row>
 
 		<!-- DOF Friend Levels -->
 		<Row LeaderType="GENERIC">
@@ -500,6 +505,18 @@
 			<Text>Too many have died in your current conflict. Is it not time to end this war?</Text>
 		</Row>
 		
+		<!-- Votes -->
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_1">
+			<Text>My advisors have informed me that you are not yet committed to a vote for the upcoming World Congress session. What do you think of this proposition?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_2">
+			<Text>The upcoming World Congress session is very important to me. I would like to see this resolution passed, and I need your help. Does this offer seem suitable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_3">
+			<Text>Your vote on this World Congress resolution is very valuable to me. I hope that this offer reflects that. If not, mind telling me what it would take to earn your vote?</Text>
+		</Row>
+		
+
 		<!-- Embark String for Less/No City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
 			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>

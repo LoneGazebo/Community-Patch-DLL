@@ -442,11 +442,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	if(pCity ~= nil) then
-		local iCorpGPChange = pCity:GetCorporationGPChange();
-		if iCorpGPChange ~=0 then
-			table.insert(lines, "TXT_KEY_PEDIA_CORP_GP_CHANGE " .. iCorpGPChange); 
-		end
+	local iCorpGPChange = pBuildingInfo.CorporationGPChange;
+	if iCorpGPChange ~=0 then
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
+		table.insert(lines, localizedText);
 	end
 -- END
 	local iNumGreatWorks = pBuildingInfo.GreatWorkCount;

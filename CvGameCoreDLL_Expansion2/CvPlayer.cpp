@@ -22245,8 +22245,8 @@ bool CvPlayer::HasGovernment()
 
 void CvPlayer::ChangeReformCooldown(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), iValue);
 	m_iJFDReformCooldown += iValue;
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), GetReformCooldown());
 }
 int CvPlayer::GetReformCooldown() const
 {
@@ -22254,11 +22254,11 @@ int CvPlayer::GetReformCooldown() const
 }
 void CvPlayer::SetReformCooldown(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), iValue);
 	if(m_iJFDReformCooldown != iValue)
 	{
 		m_iJFDReformCooldown = iValue;
 	}
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), GetReformCooldown());
 }
 
 void CvPlayer::ChangeReformCooldownRate(int iValue)
@@ -22281,8 +22281,8 @@ void CvPlayer::SetReformCooldownRate(int iValue)
 
 void CvPlayer::ChangeGovernmentCooldown(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), iValue);
 	m_iJFDGovernmentCooldown += iValue;
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), GetGovernmentCooldown());
 }
 int CvPlayer::GetGovernmentCooldown() const
 {
@@ -22290,11 +22290,11 @@ int CvPlayer::GetGovernmentCooldown() const
 }
 void CvPlayer::SetGovernmentCooldown(int iValue)
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), iValue);
 	if(m_iJFDGovernmentCooldown != iValue)
 	{
 		m_iJFDGovernmentCooldown = iValue;
 	}
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), GetGovernmentCooldown());
 }
 
 void CvPlayer::ChangeGovernmentCooldownRate(int iValue)
@@ -22687,7 +22687,7 @@ void CvPlayer::DoFreedomCorp()
 		}
 		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
 		{
-			int iSpreadChance = GC.getGame().getJonRandNum((1200 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
+			int iSpreadChance = GC.getGame().getJonRandNum((1500 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
 			if(iSpreadChance <= iBestScore)
 			{
 				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)

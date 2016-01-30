@@ -3313,13 +3313,13 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), iMovesRemaining);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------

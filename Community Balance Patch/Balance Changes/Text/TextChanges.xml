@@ -126,6 +126,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
 			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
+			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes (Autarky).</Text>
+		</Row>
 <!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
 			<Text>[COLOR_POSITIVE_TEXT]MARRIED[ENDCOLOR]</Text>
@@ -618,6 +621,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_GOLDEN_AGE">
 			<Text>+{1_Num}% {2_IconString} from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		
+		<!-- Civilopedia -->
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BUILDING_NAME">
+			<Text>Leads to Building Name</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BLDG_LABEL">
+			<Text>Leads to Buildings:</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

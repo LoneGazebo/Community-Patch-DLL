@@ -195,4 +195,62 @@
 			<Text>A tribe that gives you land around your nearest City.</Text>
 		</Row>
 	</Language_en_US>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_ANCIENT_RUINS_BENEFITS_GOLDEN_AGE</Type>
+			<Topic>TXT_KEY_TOPIC_BARBARIAN</Topic>
+			<Description>TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE</Description>
+			<Summary>TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_BARBARIAN_GOLDEN_AGE_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_RUBARB</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_ANCIENT_RUINS_BENEFITS_PRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_BARBARIAN</Topic>
+			<Description>TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_TITLE</Description>
+			<Summary>TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_BARBARIAN_PRODUCTION_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_RUBARB</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_ANCIENT_RUINS_BENEFITS_TILES</Type>
+			<Topic>TXT_KEY_TOPIC_BARBARIAN</Topic>
+			<Description>TXT_KEY_BARBARIAN_TILES_HEADING4_TITLE</Description>
+			<Summary>TXT_KEY_BARBARIAN_TILES_HEADING4_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_BARBARIAN_TILES_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_RUBARB</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE">
+			<Text>Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_BODY">
+			<Text>The ruin contains relics, that grant Golden Age Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_ADV_QUEST">
+			<Text>Golden Age Points?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_TITLE">
+			<Text>Production</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_BODY">
+			<Text>The ruin contains supplies, that grant Production to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_ADV_QUEST">
+			<Text>Production?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_TITLE">
+			<Text>Tiles</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_BODY">
+			<Text>The ruin contains settlers, that grant free Tiles to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_ADV_QUEST">
+			<Text>Tiles?</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

@@ -10167,6 +10167,12 @@ void CvCity::CheckForOperationUnits()
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
+	//Don't if we're in debt.
+	if(kPlayer.GetTreasury()->AverageIncome(10) <= 0)
+	{
+		return;
+	}
+
 	//Do we already have a military unit in the queue? If so, let's not flood the queue.
 	bool bAlreadyUnderConstruction = false;
 	const OrderData* pOrderNode = headOrderQueueNode();
@@ -10241,7 +10247,7 @@ void CvCity::CheckForOperationUnits()
 							CvString strLogString;
 							strLogString.Format("MOD - Buying unit for active operation from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
 								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+							GetCityStrategyAI()->LogHurryMessage(strLogString);
 
 							//take the money...
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
@@ -10279,7 +10285,7 @@ void CvCity::CheckForOperationUnits()
 									CvString strLogString;
 									strLogString.Format("MOD - Building unit for active operation from City root function: %s in %s. Turns: %d",
 										pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
-									kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+									GetCityStrategyAI()->LogHurryMessage(strLogString);
 								}
 							}
 							return;
@@ -10297,6 +10303,7 @@ void CvCity::CheckForOperationUnits()
 			return;
 		}
 	}
+	bool bTarget = false;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -10305,55 +10312,60 @@ void CvCity::CheckForOperationUnits()
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner())
 		{
 			if(kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
-			{			
-				if(eBestUnit != NO_UNIT)
+			{
+				bTarget = true;
+				break;
+			}
+		}
+	}
+	if(bTarget)
+	{
+		if(eBestUnit != NO_UNIT)
+		{
+			int iGoldCost = GetPurchaseCost(eBestUnit);
+			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+			if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+			{	
+				//Log it
+				CvString strLogString;
+				strLogString.Format("MOD - Buying unit for sneak attack (or at war) from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+					pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+				kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+
+				//take the money...
+				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
+				//and train it!
+				UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+				int iResult = CreateUnit(eBestUnit, eUnitAI, false);
+				CvAssertMsg(iResult != -1, "Unable to create unit");
+				if (iResult != -1)
 				{
-					int iGoldCost = GetPurchaseCost(eBestUnit);
-					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-					if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-					{	
-						//Log it
-						CvString strLogString;
-						strLogString.Format("MOD - Buying unit for sneak attack (or at war) from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-							pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-
-						//take the money...
-						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
-
-						//and train it!
-						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eBestUnit, eUnitAI, false);
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-						if (iResult != -1)
-						{
-							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-							{
-								pUnit->setMoves(0);
-							}
-							CleanUpQueue();
-						}
-						return;
-					}
-					else
+					CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+					if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 					{
-						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
-						if(pkUnitEntry)
-						{
-							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
-									pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
-								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-							}
-						}
-						return;
+						pUnit->setMoves(0);
+					}
+					CleanUpQueue();
+				}
+				return;
+			}
+			else
+			{
+				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);					
+				if(pkUnitEntry)
+				{
+					UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
+							pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
+						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
+				return;
 			}
 		}
 	}	
@@ -19554,12 +19566,7 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	CvPlot* pPickedPlot = NULL;
 	if(iListLength > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		//pick from the top half
-		int iPickedIndex = GC.getGame().getJonRandNum(iListLength/2+1, "GetNextBuyablePlot picker");
-#else
 		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
-#endif
 		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 	}
 
