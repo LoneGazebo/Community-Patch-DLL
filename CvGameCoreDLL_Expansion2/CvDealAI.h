@@ -148,6 +148,7 @@ public:
 	bool IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 #endif
 
 	// Called when the human opens or closes the Trade Screen

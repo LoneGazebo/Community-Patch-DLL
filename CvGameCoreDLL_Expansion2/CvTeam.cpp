@@ -4165,7 +4165,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 									GET_PLAYER(eTheirPlayer).DoUpdateProximityToPlayer(eMyPlayer);
 
 									// First contact Diplo changes (no Minors)
+#if defined(MOD_BALANCE_CORE)
+									if(!isMinorCiv() && !isBarbarian() && !isObserver())
+#else
 									if(!isMinorCiv())
+#endif
 									{
 										GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
 									}

@@ -195,6 +195,7 @@ public:
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
 #if defined(MOD_BALANCE_CORE)
 	CvCityBuildable ChooseHurry();
+	void LogHurryMessage(CvString& strMsg);
 #endif
 	void DoTurn();
 

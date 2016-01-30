@@ -223,6 +223,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldPerTurnFromTraits);
 
 #if defined(MOD_BALANCE_CORE)
+	Method(GetInternalTradeRouteGoldBonus);
 	//GAP
 	Method(GetGAPFromReligion);
 	Method(GetGAPFromCities);
@@ -2619,6 +2620,14 @@ int CvLuaPlayer::lGetGoldPerTurnFromTraits(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetInternalTradeRouteGoldBonus();
+int CvLuaPlayer::lGetInternalTradeRouteGoldBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetInternalTradeRouteGoldBonus());
+	return 1;
+}
 //------------------------------------------------------------------------------
 //int GetGAPFromReligion();
 int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
@@ -5744,8 +5753,8 @@ int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
 
+	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

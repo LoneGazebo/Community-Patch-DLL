@@ -215,6 +215,7 @@ protected:
 	static int lGetGoldPerTurnFromTradeRoutesTimes100(lua_State* L);
 	static int lGetGoldPerTurnFromTraits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetInternalTradeRouteGoldBonus(lua_State* L);
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);

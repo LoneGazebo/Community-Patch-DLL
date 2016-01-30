@@ -152,7 +152,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 				pkDamageEntry->SetDamage(iGarrisonShare);
 				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
 				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pGarrison->setCombatUnit(&kAttacker);
 				pkCombatInfo->setDamageMemberCount(iDamageMembers);
 			}
 		}
@@ -691,7 +690,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 				pkDamageEntry->SetDamage(iGarrisonShare);
 				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
 				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pGarrison->setCombatUnit(&kAttacker);
 				pkCombatInfo->setDamageMemberCount(iDamageMembers);
 			}
 		}
@@ -1466,7 +1464,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 				pkDamageEntry->SetDamage(iGarrisonShare);
 				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
 				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pGarrison->setCombatUnit(&kAttacker);
 				pkCombatInfo->setDamageMemberCount(iDamageMembers);
 			}
 		}

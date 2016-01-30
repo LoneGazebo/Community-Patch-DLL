@@ -19,3 +19,8 @@ UPDATE Technologies SET Cost =   8800 WHERE GridX = 15; --7700
 UPDATE Technologies SET Cost =   9500 WHERE GridX = 16; --8800
 UPDATE Technologies SET Cost =  10000 WHERE GridX = 17; --9500
 UPDATE Technologies SET Cost =  11000 WHERE GridX = 18; --NEW!
+
+
+-- Speed Change
+UPDATE GameSpeeds SET ResearchPercent = 350 WHERE Type = 'GAMESPEED_MARATHON';
+UPDATE GameSpeeds SET ResearchPercent = 200 WHERE Type = 'GAMESPEED_EPIC';

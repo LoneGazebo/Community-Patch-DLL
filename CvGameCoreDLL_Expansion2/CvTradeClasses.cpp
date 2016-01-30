@@ -4247,6 +4247,12 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			}
 			gDLL->TradeVisuals_NewRoute(iRouteIndex, m_pPlayer->GetID(),pTrade->GetTradeConnection(iRouteIndex).m_eConnectionType, nPlots, plotsX, plotsY);
 			gDLL->TradeVisuals_UpdateRouteDirection(iRouteIndex, pTrade->GetTradeConnection(iRouteIndex).m_bTradeUnitMovingForward);
+#if defined(MOD_BALANCE_CORE)
+			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
+			{
+				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
+			}
+#endif
 		}
 	}
 

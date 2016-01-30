@@ -1121,6 +1121,11 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 -- CBP -- Global Average Modifiers
 	if(tips and Game and buildingID) then
+		local iCorpGPChange = building.CorporationGPChange;
+		if iCorpGPChange ~=0 then
+			tips:insert( L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange))
+		end
+		
 		local iGetPovertyHappinessChangeBuilding = Game.GetPovertyHappinessChangeBuilding( buildingID)
 		if (iGetPovertyHappinessChangeBuilding ~= 0) then
 			tips:insert( L( "TXT_KEY_BUILDING_POVERTY_AVERAGE_MODIFIER", iGetPovertyHappinessChangeBuilding))
@@ -1203,7 +1208,7 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	-- Specialists
 	local specialistType = building.SpecialistType
 	local specialist = specialistType and GameInfo.Specialists[ specialistType ]
-	if specialist then
+	if specialist and city then
 		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i[ICON_GREAT_PEOPLE]", L( specialist.GreatPeopleTitle or "???" ), building.GreatPeopleRateChange) )
 		if (building.SpecialistCount or 0) ~= 0 then
 			if civ5_mode then
@@ -1217,14 +1222,6 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			end
 		end
 	end
--- CBP
-	if city then
-		local iCorpGPChange = city:GetCorporationGPChange();
-		if iCorpGPChange ~=0 then
-			tip = tip .. " " .. L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange )
-		end
-	end
--- END
 	if civ5bnw_mode then
 		-- Great Work Slots
 		local greatWorkType = (building.GreatWorkCount or 0) > 0 and building.GreatWorkSlotType and GameInfo.GreatWorkSlots[building.GreatWorkSlotType]

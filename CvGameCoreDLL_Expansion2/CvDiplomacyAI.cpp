@@ -11083,6 +11083,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+
 	if(GetPlayer()->getCapitalCity() == NULL)
 		return;
 
@@ -11095,6 +11097,61 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	{
 		return;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//Let's get our imperial center of mass.
+	CvPlot* pOurCenterPlot = NULL;
+	if(GetPlayer()->getNumCities() > 1)
+	{
+		pOurCenterPlot = GetCenterOfMassEmpire(true, true);
+	}
+	else
+	{
+		pOurCenterPlot = GetPlayer()->getCapitalCity()->plot();
+	}
+
+	if(pOurCenterPlot == NULL)
+		return;
+
+	AggressivePostureTypes eAggressivePosture;
+
+	int iDistanceUsToThem;
+
+	// If they have no capital then, uh... just stop I guess
+	if(GET_PLAYER(ePlayer).getCapitalCity() == NULL)
+		return;
+
+	//and now theirs.
+	CvPlot* pTheirCenterPlot = NULL;
+	if(GET_PLAYER(ePlayer).getNumCities() > 1)
+	{
+		pTheirCenterPlot = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCenterOfMassEmpire(true, true);
+	}
+	else
+	{
+		pTheirCenterPlot = GET_PLAYER(ePlayer).getCapitalCity()->plot();
+	}
+
+	if(pTheirCenterPlot == NULL)
+		return;
+
+	eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+
+	// First calculate distances
+	iDistanceUsToThem = plotDistance(pTheirCenterPlot->getX(), pTheirCenterPlot->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
+
+	//Boldness should matter a little.
+	iDistanceUsToThem -= (GetBoldness() / 4);
+
+	if(iDistanceUsToThem <= /*3*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH())
+		eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
+	else if(iDistanceUsToThem <= /*5*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM())
+		eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
+	else if(iDistanceUsToThem <= /*9*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW())
+		eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+
+	SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
+#else
 
 	int iMyCapitalX = GetPlayer()->getCapitalCity()->getX();
 	int iMyCapitalY = GetPlayer()->getCapitalCity()->getY();
@@ -11210,6 +11267,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	}
 
 	SetExpansionAggressivePosture(ePlayer, eMostAggressiveCityPosture);
+#endif
 }
 
 
@@ -13893,7 +13951,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
-	// We'd like a defense pact
+	// We'd like a peace trade
 	else if(eStatement == DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST)
 	{
 		// Active human
@@ -13916,6 +13974,30 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
+	// We'd like a vote trade
+	else if(eStatement == DIPLO_STATEMENT_VOTE_REQUEST)
+	{
+		// Active human
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		if(bHuman)
+#else
+		if(bShouldShowLeaderScene)
+#endif
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_VOTE_OFFER);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
+	
 	// We'd like to trade cities
 	else if(eStatement == DIPLO_STATEMENT_TRADE_CITIES_REQUEST)
 	{
@@ -16057,6 +16139,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoCityExchange(ePlayer, eStatement, pDeal);
 			DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
 			DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
+			DoVoteTrade(ePlayer, eStatement, pDeal);
 		}
 #endif
 		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
@@ -18524,7 +18607,7 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 		}
 	}
 }
-/// Possible Contact Statement - Luxury Trade
+/// Possible Contact Statement - Peace Trade
 void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -18547,6 +18630,30 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 		}
 	}
 }
+/// Possible Contact Statement - Vote Trade
+void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	{
+		if(GetPlayer()->GetDealAI()->IsMakeOfferForVote(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		{
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_VOTE_REQUEST;
+			int iTurnsBetweenStatements = 30;
+
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				eStatement = eTempStatement;
+		}
+		else
+		{
+			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+			pDeal->ClearItems();
+		}
+	}
+}
+
 #endif
 
 // Possible Contact Statement - Renew Recently Expired Deal
@@ -21406,6 +21513,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_THIRDPARTY_WAR_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_THIRD_PARTY_WAR_REQUEST");
 		break;
+
+		// third party war
+	case DIPLO_MESSAGE_VOTE_OFFER:
+		strText = GetDiploTextFromTag("RESPONSE_VOTE_COMMITMENT_REQUEST");
+		break;
+		
 #endif
 
 		//////////////////////////////////////////////////////////////
@@ -26530,7 +26643,84 @@ int CvDiplomacyAI::GetNumDefensePacts()
 	return iRtnValue;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvDiplomacyAI::GetCenterOfMassEmpire(bool bIgnorePuppets, bool bIgnoreConquest)
+{
+	CvPlot* pRtnValue = NULL;
+	int iTotalX = 0;
+	int iTotalY = 0;
+	int iNumCities = 0;
+
+	int iLoop;
+	CvCity* pCity = GetPlayer()->firstCity(&iLoop);
+
+	if (!pCity)
+		return NULL;
+
+	int iTotalX2 = 0;
+	int iTotalY2 = 0;
+	int iWorldWidth = GC.getMap().getGridWidth();
+	int iWorldHeight = GC.getMap().getGridHeight();
+
+	//the first unit is our reference ...
+	int iRefX = pCity->getX();
+	int iRefY = pCity->getY();
+	iNumCities++;
+	pCity = GetPlayer()->nextCity(&iLoop);
+
+	while(pCity)
+	{
+		if(bIgnorePuppets && pCity->IsPuppet())
+		{
+			pCity = GetPlayer()->nextCity(&iLoop);
+			continue;
+		}
+		// Don't look at Cities they've captured
+		if(bIgnoreConquest && pCity->getOriginalOwner() != pCity->getOwner())
+		{
+			pCity = GetPlayer()->nextCity(&iLoop);
+			continue;	
+		}
+
+		int iDX = pCity->getX() - iRefX;
+		int iDY = pCity->getY() - iRefY;
+
+		if (GC.getMap().isWrapX())
+		{
+			if( iDX > +(iWorldWidth / 2))
+				iDX -= iWorldWidth;
+			if( iDX < -(iWorldWidth / 2))
+				iDX += iWorldWidth;
+		}
+		if (GC.getMap().isWrapY())
+		{
+			if( iDY > +(iWorldHeight / 2))
+				iDY -= iWorldHeight;
+			if( iDY < -(iWorldHeight / 2))
+				iDY += iWorldHeight;
+		}
+
+		iTotalX += iDX;
+		iTotalY += iDY;
+		iTotalX2 += iDX*iDX;
+		iTotalY2 += iDY*iDY;
+		iNumCities++;
+
+		pCity = GetPlayer()->nextCity(&iLoop);
+	}
+
+	if (iNumCities==0)
+		return NULL;
+
+	//finally, compute average (with rounding)
+	int iAvgX = (iTotalX + (iNumCities / 2)) / iNumCities + iRefX;
+	int iAvgY = (iTotalY + (iNumCities / 2)) / iNumCities + iRefY;
+
+	//this handles wrapped coordinates
+	pRtnValue = GC.getMap().plot(iAvgX, iAvgY);
+
+	return pRtnValue;
+}
 int CvDiplomacyAI::GetNumDenouncements()
 {
 	//Let's get the total number of denouncements this player has made.
@@ -34617,6 +34807,10 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 
 		case DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST:
 			strTemp.Format("3rd Party WAR Offer");
+			break;
+
+		case DIPLO_STATEMENT_VOTE_REQUEST:
+			strTemp.Format("Vote Buy Offer");
 			break;
 
 		case DIPLO_STATEMENT_EMBASSY_EXCHANGE:

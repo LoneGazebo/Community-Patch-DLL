@@ -28,6 +28,9 @@ CvTreasury::CvTreasury():
 	m_iBaseBuildingGoldMaintenance(0),
 	m_iBaseImprovementGoldMaintenance(0),
 	m_iLifetimeGrossGoldIncome(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iInternalTradeGoldBonus(0),
+#endif
 	m_pPlayer(NULL)
 {
 
@@ -53,6 +56,9 @@ void CvTreasury::Init(CvPlayer* pPlayer)
 	m_iBaseBuildingGoldMaintenance = 0;
 	m_iBaseImprovementGoldMaintenance = 0;
 	m_iLifetimeGrossGoldIncome = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iInternalTradeGoldBonus = 0;
+#endif
 
 	m_GoldBalanceForTurnTimes100.clear();
 	m_GoldBalanceForTurnTimes100.reserve(750);
@@ -287,20 +293,31 @@ void CvTreasury::DoUpdateCityConnectionGold()
 			}
 		}
 	}
+
+	m_iCityConnectionGoldTimes100 = iNumGold;
+}
 #if defined(MOD_BALANCE_CORE_POLICIES)
+/// How much of a percent bonus do we get for Trade Routes
+int CvTreasury::GetInternalTradeRouteGoldBonus() const
+{
+	return m_iInternalTradeGoldBonus;
+}
+/// How much of a percent bonus do we get for Trade Routes
+void CvTreasury::DoInternalTradeRouteGoldBonus()
+{
+	int iGold = 0;
 	//Bonus for Internal Trade Routes Gold Policy added in here (for LUA simplicity)
 	if(m_pPlayer->IsGoldInternalTrade())
 	{
 		int iInternalTradeRoutes = m_pPlayer->GetTrade()->GetNumberOfInternalTradeRoutes();
 		if(iInternalTradeRoutes > 0)
 		{
-			iNumGold += ((iInternalTradeRoutes * /*10*/ m_pPlayer->GetGoldInternalTrade()) * 100);
+			iGold += (iInternalTradeRoutes * /*10*/ m_pPlayer->GetGoldInternalTrade());
 		}
 	}
-#endif
-
-	m_iCityConnectionGoldTimes100 = iNumGold;
+	m_iInternalTradeGoldBonus = iGold;
 }
+#endif
 
 
 /// How much of a percent bonus do we get for Trade Routes
@@ -498,6 +515,10 @@ int CvTreasury::CalculateGrossGoldTimes100()
 
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
+
+#if defined(MOD_BALANCE_CORE)
+	iNetGold += GetInternalTradeRouteGoldBonus() * 100;
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
@@ -1112,6 +1133,9 @@ void CvTreasury::Read(FDataStream& kStream)
 	kStream >> m_GoldBalanceForTurnTimes100;
 	kStream >> m_GoldChangeForTurnTimes100;
 	kStream >> m_iLifetimeGrossGoldIncome;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iInternalTradeGoldBonus;
+#endif
 }
 
 /// Serialization write
@@ -1134,6 +1158,9 @@ void CvTreasury::Write(FDataStream& kStream)
 	kStream << m_GoldBalanceForTurnTimes100;
 	kStream << m_GoldChangeForTurnTimes100;
 	kStream << m_iLifetimeGrossGoldIncome;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iInternalTradeGoldBonus;
+#endif
 }
 
 void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue)
