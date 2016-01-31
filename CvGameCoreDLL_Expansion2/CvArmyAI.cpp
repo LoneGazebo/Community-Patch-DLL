@@ -972,7 +972,6 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 				pEnemyPlot = pCity->plot();
 		}
 
-		GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage("Premature termination because of contact with enemy");
 		return pEnemyPlot;
 	}
 

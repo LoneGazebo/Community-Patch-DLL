@@ -10030,26 +10030,16 @@ bool CvCity::isCoastal(int iMinWaterSize) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isAddsFreshWater() const {
 	VALIDATE_OBJECT
-#if !defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++) {
-		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0) {
-			if (GC.getBuildingInfo((BuildingTypes)iI)->IsAddsFreshWater()) {
-				return true;
-			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	//ideally this should be cached and changed when a building is added/removed ...
-	const CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetBuildings();
-	const int nBuildings = GetCityBuildings()->GetBuildings()->GetNumBuildings();
-	for(int iBuilding = 0; iBuilding < nBuildings; iBuilding++)
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	for(size_t iBuilding = 0; iBuilding < vBuildings.size(); iBuilding++)
 	{
-		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
+		CvBuildingEntry* pInfo = GC.getBuildingInfo(vBuildings[iBuilding]);
 		if (pInfo && pInfo->IsAddsFreshWater())
 			return true;
 	}
-#endif
+
 	return false;
 }
 #endif
@@ -18534,8 +18524,8 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 
 	int iXP = 0;
 
-	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetBuildings();
-	for(int iBuilding = 0; iBuilding < GetCityBuildings()->GetBuildings()->GetNumBuildings(); iBuilding++)
+	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetPossibleBuildings();
+	for(int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
 	{
 		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
 		if(pInfo)

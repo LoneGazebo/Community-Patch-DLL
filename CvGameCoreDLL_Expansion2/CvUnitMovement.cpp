@@ -376,7 +376,7 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 //	--------------------------------------------------------------------------------
 bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
-	if (pUnit->IsIgnoreZOC() || CostsOnlyOne(pUnit, pFromPlot, pToPlot))
+	if (pUnit->IsIgnoreZOC())
 	{
 		return false;
 	}
