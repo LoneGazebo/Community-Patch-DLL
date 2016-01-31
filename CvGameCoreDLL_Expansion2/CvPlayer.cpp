@@ -4599,7 +4599,8 @@ int CvPlayer::getWorkPlotDistance() const
 #endif
 #if defined(MOD_TECHS_CITY_WORKING)
 	// Change distance based on techs, etc
-	iDistance += GET_TEAM(getTeam()).GetCityWorkingChange();
+	if (getTeam()!=NO_TEAM)
+		iDistance += GET_TEAM(getTeam()).GetCityWorkingChange();
 #endif
 	
 	iDistance = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));

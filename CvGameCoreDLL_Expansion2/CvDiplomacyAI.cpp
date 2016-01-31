@@ -8034,9 +8034,13 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				else
 				{
 					// If we're about to cause some mayhem then hold off on the peace stuff for a bit - not against Minors though
-					if(!bIsMinor && GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON && GetStateAllWars() != STATE_ALL_WARS_LOSING)
+					if(!bIsMinor && GetStateAllWars() != STATE_ALL_WARS_LOSING)
 					{
-						eWarGoal = WAR_GOAL_DAMAGE;
+						//why make peace when we're winning?
+						if (GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+							eWarGoal = WAR_GOAL_CONQUEST;
+						else
+							eWarGoal = WAR_GOAL_DAMAGE;
 					}
 					// War isn't decisively in our favor, so we'll make peace if possible
 					else

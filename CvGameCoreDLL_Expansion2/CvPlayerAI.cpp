@@ -55,6 +55,12 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
+	if (ePlayer==NO_PLAYER)
+	{
+		OutputDebugString("Warning: Invalid argument for getPlayer()!\n");
+		return m_aPlayers[BARBARIAN_PLAYER];
+	}
+
 	return m_aPlayers[ePlayer];
 }
 

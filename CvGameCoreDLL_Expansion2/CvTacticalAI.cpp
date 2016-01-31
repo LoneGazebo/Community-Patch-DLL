@@ -1271,7 +1271,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		else
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		break;
 	}
@@ -1843,7 +1843,7 @@ void CvTacticalAI::FindTacticalTargets()
 						m_pPlayer->GetPlotDanger(*pLoopPlot) > 0)
 				{
 					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
-					if(pDefenseCity || pLoopPlot->IsChokePoint())
+					if(pDefenseCity || pLoopPlot->IsChokePoint() || pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true)>=50)
 #else
 				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 0 &&
@@ -10675,9 +10675,22 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 					if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer()) > pUnit->GetCurrHitPoints())
 						continue;
 
+					//check if we can close our formation
+					int iNeighborCount = 0;
+					for(int iJ = RING0_PLOTS; iJ < RING1_PLOTS; iJ++)
+					{
+						CvPlot* pNeighborPlot = iterateRingPlots(pLoopPlot->getX(), pLoopPlot->getY(), iJ);
+						if (pNeighborPlot)
+						{
+							UnitHandle pDefender = pNeighborPlot->getBestDefender(pUnit->getOwner());
+							if (pDefender && pDefender->TurnProcessed())
+								iNeighborCount++;
+						}
+					}
+					
 					//we check all plots ... don't just use the first one
 					int iTurns = pUnit->TurnsToReachTarget(pLoopPlot,false,false,iBestTurns);
-					int iScore = iTurns + iDistanceToTarget;
+					int iScore = iTurns + iDistanceToTarget - iNeighborCount;
 					if ( iScore < iBestScore )
 					{
 						iBestTurns = iTurns;
