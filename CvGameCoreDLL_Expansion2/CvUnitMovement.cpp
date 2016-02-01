@@ -13,16 +13,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	bool bFasterAlongRiver = pTraits->IsFasterAlongRiver();
 	bool bFasterInHills = pTraits->IsFasterInHills();
 	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
-#if defined(MOD_BALANCE_CORE)
-	bool bAmphibious = false;
-	bool bSuperAmphibious = false;
-	if(pUnit != NULL)
-	{
-		bSuperAmphibious = pUnit->isRiverCrossingNoPenalty() && pTraits->IsFasterAlongRiver();
-		bAmphibious = pUnit->isRiverCrossingNoPenalty();
-	}
-#endif
-	//int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
+
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
@@ -32,7 +24,23 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	TerrainTypes eTerrain = pToPlot->getTerrainType();
 	CvTerrainInfo* pTerrainInfo = (eTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eTerrain) : 0;
 
-	if(bIgnoreTerrainCost || (bFasterAlongRiver && pToPlot->isRiver()) || (bFasterInHills && pToPlot->isHills()))
+	//ideally there'd be a check of the river direction to make sure it's the same river
+	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
+	if (bFasterAlongRiver && bMovingAlongRiver)
+		bIgnoreTerrainCost = true;
+
+	if (bFasterInHills && pToPlot->isHills())
+		bIgnoreTerrainCost = true;
+
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+		bIgnoreTerrainCost = true;
+
+	if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
+		bIgnoreTerrainCost = true;
+#endif
+
+	if(bIgnoreTerrainCost)
 	{
 		iRegularCost = 1;
 	}
@@ -47,9 +55,14 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
 
 		// Hill cost, except for when a City is present here, then it just counts as flat land
-		if(pToPlot->isHills() || pToPlot->isMountain() && !pToPlot->isCity())
+		if((pToPlot->isHills() || pToPlot->isMountain()) && !pToPlot->isCity())
 		{
 			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
+		}
+
+		if(bRiverCrossing && !bIgnoreTerrainCost && !bAmphibious)
+		{
+			iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
 		}
 
 		if(iRegularCost > 0)
@@ -63,14 +76,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	{
 		iRegularCost = INT_MAX;
 	}
-
 	else
 	{
-		if(!(bIgnoreTerrainCost || bFasterAlongRiver) && bRiverCrossing)
-		{
-			iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
-		}
-
 		iRegularCost *= iMoveDenominator;
 
 		if(pToPlot->isHills() && pUnit->isHillsDoubleMove())
@@ -92,11 +99,8 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	}
 
 	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
-#if defined(MOD_BALANCE_CORE)
-	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && (kUnitTeam.isBridgeBuilding() || bAmphibious || !bRiverCrossing))
-#else
-	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))))
-#endif
+
+	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious))
 	{
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(pFromPlot->getRouteType());
 		CvAssert(pFromRouteInfo != NULL);
@@ -119,26 +123,6 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRouteCost = pRoadInfo->getMovementCost();
 		iRouteFlatCost = pRoadInfo->getFlatMovementCost() * iBaseMoves;
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(MOD_BALANCE_CORE && bSuperAmphibious && bRiverCrossing)
-	{
-		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost();
-		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves);
-	}
-	else if(MOD_BALANCE_CORE && bAmphibious && !bSuperAmphibious && bRiverCrossing)
-	{
-		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost() * 2;
-		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 2;
-	}
-	else if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
-	{
-		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost() * 2;
-		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 2;
-	}
-#endif
 	else
 	{
 		iRouteCost = INT_MAX;

@@ -11830,6 +11830,8 @@ bool CvUnit::DoCultureBomb()
 }
 
 //	--------------------------------------------------------------------------------
+//		this is for tile stealing, nowadays performed with citadels. doesn't have anything to do with culture anymore
+//	--------------------------------------------------------------------------------
 void CvUnit::PerformCultureBomb(int iRadius)
 {
 	CvPlot* pThisPlot = plot();

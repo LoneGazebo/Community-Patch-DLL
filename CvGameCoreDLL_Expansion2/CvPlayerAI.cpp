@@ -1370,7 +1370,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	return eDirective;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	//if he has a directive, don't change it
@@ -1389,7 +1388,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	}
 
 	if(bWar)
-
 	{
 		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
 		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
@@ -1404,7 +1402,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			iGreatGeneralCount++;
 
 	int iDummy = 0;
-	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iDummy);
+	std::vector<CvPlot*> vDummy;
+	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, vDummy, iDummy);
 	//keep at least one general around
 	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
 	{
@@ -1414,41 +1413,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
-
-#else
-
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
-{
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-
-	int iGreatGeneralCount = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
-		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
-		{
-			continue;
-		}
-
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE)
-		{
-			iGreatGeneralCount++;
-		}
-	}
-
-	if( iGreatGeneralCount > 2 && pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner() )
-	{
-		// we're using a power at this point because constructing the improvement goes through different code
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
-	return eDirective;
-}
-
-#endif
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 {
@@ -2438,7 +2402,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	return NULL;
 }
 
-CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResultScore)
+CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::vector<CvPlot*>& vPlotsToAvoid, int& iResultScore)
 {
 	iResultScore = 0;
 	if(!pGeneral)
@@ -2477,6 +2441,14 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(pPlot->GetDefenseBuildValue(GetID()) <= 0)
 			continue;
 
+		//don't consider plots we already targeted
+		bool bTooClose = false;
+		for (size_t i=0; i<vPlotsToAvoid.size(); i++)
+			if (plotDistance(*vPlotsToAvoid[i],*pPlot)<3)
+				bTooClose = true;
+		if (bTooClose)
+			continue;
+		
 		bool bGoodCandidate = true;
 		std::vector<int> vPossibleCitadelTiles;
 
@@ -2601,11 +2573,6 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 						// grabbing tiles away from minors is nice
 						iWeightFactor += 3;
 					}
-					//Do we get a bonus for citadels? Do it!
-					if(IsCitadelBoost())
-					{
-						iWeightFactor += 3;
-					}
 				}
 				else
 				{
@@ -2625,14 +2592,15 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 						// grabbing tiles away from majors is really nice
 						iWeightFactor += 4;
 					}
-					//Do we get a bonus for citadels? Do it!
-					if(IsCitadelBoost())
-					{
-						iWeightFactor += 3;
-					}
+				}
+
+				//Do we get a bonus for citadels? Do it!
+				if(IsCitadelBoost())
+				{
+					iWeightFactor += 3;
 				}
 			}
-	
+
 			// score resource
 			ResourceTypes eResource = pAdjacentPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
@@ -2648,6 +2616,18 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			//Defense build yield.
 			iScore += iDefenseScore * 2;
+
+			//danger is bad
+			int iDanger = GetPlotDanger(*pAdjacentPlot,pGeneral);
+			if (iDanger == INT_MAX)
+			{
+				iScore = 0;
+				break;
+			}
+			else
+			{
+				iScore -= iDanger;
+			}
 		}
 
 		//require a certain minimum score ...
