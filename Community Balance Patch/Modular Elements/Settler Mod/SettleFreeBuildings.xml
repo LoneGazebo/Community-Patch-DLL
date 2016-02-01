@@ -37,10 +37,6 @@
 		</Row>
 		<Row>
 			<UnitType>UNIT_PIONEER</UnitType>
-			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_PIONEER</UnitType>
 			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
 		</Row>
 		<Row>
@@ -86,11 +82,11 @@
 		</Row>
 		<Row>
 			<UnitType>UNIT_SPANISH_CONQUISTADOR</UnitType>
-			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
 		</Row>
 		<Row>
 			<UnitType>UNIT_SPANISH_CONQUISTADOR</UnitType>
-			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 		</Row>
 		<Row>
 			<UnitType>UNIT_SPANISH_CONQUISTADOR</UnitType>

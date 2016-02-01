@@ -80,7 +80,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_bAdoptionFreeTech(false),
 	m_bGPWLTKD(false),
 	m_bTradeRouteOnly(false),
-	m_iTerrainClaimBoost(NO_TERRAIN),
 	m_bKeepConqueredBuildings(false),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
@@ -89,6 +88,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
 	m_bNoNaturalReligionSpread(false),
+	m_iTourismToGAP(0),
+	m_iEventTourismBoost(0),
+	m_iEventGP(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -174,6 +176,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
 	m_piYieldFromRouteMovement(NULL),
@@ -195,6 +198,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_piCityYieldChanges(NULL),
 	m_piCoastalCityYieldChanges(NULL),
 	m_piGreatWorkYieldChanges(NULL),
+	m_piArtifactYieldChanges(NULL),
+	m_piArtYieldChanges(NULL),
+	m_piLitYieldChanges(NULL),
+	m_piMusicYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
 	m_ppiTerrainYieldChanges(NULL),
@@ -590,6 +597,18 @@ int CvTraitEntry::GetTourismGABonus() const
 {
 	return m_iTourismGABonus;
 }
+int CvTraitEntry::GetTourismToGAP() const
+{
+	return m_iTourismToGAP;
+}
+int CvTraitEntry::GetEventTourismBoost() const
+{
+	return m_iEventTourismBoost;
+}
+int CvTraitEntry::GetEventGP() const
+{
+	return m_iEventGP;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvTraitEntry::GetInvestmentModifier() const
@@ -744,6 +763,10 @@ int CvTraitEntry::YieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon ? m_piYieldFromOwnPantheon[i] : -1;
 }
+int CvTraitEntry::YieldFromHistoricEvent(int i) const
+{
+	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
+}
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 {
@@ -781,10 +804,6 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
 {
 	return m_eFreeCapitalBuilding;
-}
-int CvTraitEntry::GetTerrainClaimBoost() const
-{
-	return m_iTerrainClaimBoost;
 }
 #endif
 /// Accessor: free building in each city conquered
@@ -1057,6 +1076,10 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
+{
+	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
+}
 int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
@@ -1131,7 +1154,22 @@ int CvTraitEntry::GetGreatWorkYieldChanges(int i) const
 {
 	return m_piGreatWorkYieldChanges ? m_piGreatWorkYieldChanges[i] : -1;
 }
-
+int CvTraitEntry::GetArtifactYieldChanges(int i) const
+{
+	return m_piArtifactYieldChanges ? m_piArtifactYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetArtYieldChanges(int i) const
+{
+	return m_piArtYieldChanges ? m_piArtYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetLitYieldChanges(int i) const
+{
+	return m_piLitYieldChanges ? m_piLitYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetMusicYieldChanges(int i) const
+{
+	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : -1;
+}
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -1401,6 +1439,19 @@ bool CvTraitEntry::NoTrain(UnitClassTypes eUnitClass)
 		return false;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
+{
+	if (eTerrain != NO_TERRAIN)
+	{
+		return m_abTerrainClaimBoost[eTerrain];
+	}
+	else
+	{
+		return false;
+	}
+}
+#endif
 
 /// Load XML data
 bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -1476,6 +1527,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bMountainPass							= kResults.GetBool("MountainPass");
 	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
+	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
+	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
+	m_iEventGP								= kResults.GetInt("EventGP");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1535,11 +1589,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	if(szTextVal)
 	{
 		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
-	}
-	szTextVal = kResults.GetText("TerrainClaimBoost");
-	if(szTextVal)
-	{
-		m_iTerrainClaimBoost = GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
@@ -1864,6 +1913,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
 	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteStartYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
@@ -1909,6 +1959,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piCityYieldChanges, "Trait_CityYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piCoastalCityYieldChanges, "Trait_CoastalCityYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piGreatWorkYieldChanges, "Trait_GreatWorkYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piArtifactYieldChanges, "Trait_ArtifactYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piArtYieldChanges, "Trait_ArtYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	if (MOD_API_UNIFIED_YIELDS)
@@ -2103,6 +2157,29 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiCityYieldFromUnimprovedFeature[FeatureID][YieldID] = yield;
 		}
 	}
+	// TerrainClaimBoost
+	{
+		int iTerrainLoop;
+		for (iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
+		{
+			m_abTerrainClaimBoost.push_back(false);
+		}
+
+		std::string strKey("Trait_TerrainClaimBoost");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "SELECT Traits.ID, Terrains.ID FROM Trait_TerrainClaimBoost inner join Traits on Trait_TerrainClaimBoost.TraitType = Traits.Type inner join Terrains on Trait_TerrainClaimBoost.TerrainType = Terrains.Type where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iTerrainType = pResults->GetInt(1);
+			m_abTerrainClaimBoost[iTerrainType] = true;
+		}
+	}
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -2281,7 +2358,7 @@ void CvPlayerTraits::InitPlayerTraits()
 		if (m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
 		{
 			m_vLeaderHasTrait[iI] = true;
-			m_vLeaderTraits.push_back( (TraitTypes)iI );
+			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
 		}
 
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
@@ -2370,10 +2447,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bTradeRouteOnly = true;
 			}
-			if((TerrainTypes) trait->GetTerrainClaimBoost() != NO_TERRAIN)
-			{
-				m_iTerrainClaimBoost = (TerrainTypes) trait->GetTerrainClaimBoost();
-			}
 			if(trait->IsKeepConqueredBuildings())
 			{
 				m_bKeepConqueredBuildings = true;
@@ -2390,10 +2463,13 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoNaturalReligionSpread = true;
 			}
+			m_iTourismToGAP += trait->GetTourismToGAP();
+			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
 			m_iTourismGABonus += trait->GetTourismGABonus();
+			m_iEventGP += trait->GetEventGP();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2602,6 +2678,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
+				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
 				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
@@ -2642,6 +2719,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iCityYieldChanges[iYield] = trait->GetCityYieldChanges(iYield);
 				m_iCoastalCityYieldChanges[iYield] = trait->GetCoastalCityYieldChanges(iYield);
 				m_iGreatWorkYieldChanges[iYield] = trait->GetGreatWorkYieldChanges(iYield);
+				m_iArtifactYieldChanges[iYield] = trait->GetArtifactYieldChanges(iYield);
+				m_iArtYieldChanges[iYield] = trait->GetArtYieldChanges(iYield);
+				m_iLitYieldChanges[iYield] = trait->GetLitYieldChanges(iYield);
+				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -2736,6 +2817,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 			{
 				m_iStrategicResourceQuantityModifier[iTerrain] = trait->GetStrategicResourceQuantityModifier(iTerrain);
+#if defined(MOD_BALANCE_CORE)
+				m_abTerrainClaimBoost[iTerrain] = trait->TerrainClaimBoost((TerrainTypes)iTerrain);			
+#endif
 			}
 
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
@@ -2791,6 +2875,7 @@ void CvPlayerTraits::Uninit()
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
 #if defined(MOD_BALANCE_CORE)
+	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -2822,7 +2907,7 @@ void CvPlayerTraits::Reset()
 	Uninit();
 
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
-	m_vLeaderTraits.clear();
+	m_vPotentiallyActiveLeaderTraits.clear();
 
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
@@ -2883,13 +2968,15 @@ void CvPlayerTraits::Reset()
 	m_iAllianceCSDefense = 0;
 	m_iAllianceCSStrength = 0;
 	m_iTourismGABonus = 0;
+	m_iEventGP = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
-	m_iTerrainClaimBoost = NO_TERRAIN;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
+	m_iTourismToGAP = 0;
+	m_iEventTourismBoost = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3024,6 +3111,7 @@ void CvPlayerTraits::Reset()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
 		m_iTradeRouteStartYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
@@ -3048,6 +3136,10 @@ void CvPlayerTraits::Reset()
 		m_iCityYieldChanges[iYield] = 0;
 		m_iCoastalCityYieldChanges[iYield] = 0;
 		m_iGreatWorkYieldChanges[iYield] = 0;
+		m_iArtifactYieldChanges[iYield] = 0;
+		m_iArtYieldChanges[iYield] = 0;
+		m_iLitYieldChanges[iYield] = 0;
+		m_iMusicYieldChanges[iYield] = 0;
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
 			m_ppiFeatureYieldChange[iFeature] = yield;
@@ -3095,11 +3187,16 @@ void CvPlayerTraits::Reset()
 	{
 		m_piGoldenAgeGreatPersonRateModifier[iGreatPerson] = 0;
 	}
+	m_abTerrainClaimBoost.clear();
+	m_abTerrainClaimBoost.resize(GC.getNumTerrainInfos());
 #endif
 
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
 		m_iStrategicResourceQuantityModifier[iTerrain] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_abTerrainClaimBoost[iTerrain] = false;
+#endif
 	}
 
 	m_aiResourceQuantityModifier.clear();
@@ -3433,10 +3530,10 @@ int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yield
 bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitCombat(promotionID, unitCombatID))
 			{
@@ -3452,10 +3549,10 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
 	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
 			{
@@ -3470,10 +3567,10 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
 {
 	CvAssertMsg((buildID >= 0), "buildID is less than zero");
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->UnitClassCanBuild(buildID, unitClassID))
 			{
@@ -3489,10 +3586,10 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuilding()!=NO_BUILDING)
 			{
@@ -3507,10 +3604,10 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 /// Does the capital get a free building?
 BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeCapitalBuilding()!=NO_BUILDING)
 			{
@@ -3526,10 +3623,10 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo)
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
 		{
 			if(pkTraitInfo->GetFreeBuildingOnConquest()!=NO_BUILDING)
 			{
@@ -3579,13 +3676,10 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			int iNumResourceGiven = 0;
 			int iNumResourceTotal = iNumResource;
 			CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-			for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 			{
-				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
 					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 				{
@@ -3604,13 +3698,10 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			}
 			if(iNumResourceGiven < iNumResourceTotal)
 			{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-				for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
 				{
-					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+					pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 					{
@@ -3730,7 +3821,11 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 }
 
 /// Does a unit entering this tile cause a barbarian to convert to the player?
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+bool CvPlayerTraits::CheckForBarbarianConversion(CvUnit* pByUnit, CvPlot* pPlot)
+#else
 bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
+#endif
 {
 	// Loop through all adjacent plots
 	CvPlot* pAdjacentPlot;
@@ -3750,7 +3845,11 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 					UnitHandle pNavalUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 					if(pNavalUnit)
 					{
-						if(ConvertBarbarianNavalUnit(pNavalUnit))
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+						if (ConvertBarbarianNavalUnit(pByUnit, pNavalUnit))
+#else
+						if (ConvertBarbarianNavalUnit(pNavalUnit))
+#endif
 						{
 							bRtnValue = true;
 						}
@@ -3763,7 +3862,11 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 	else if(GetLandBarbarianConversionPercent() > 0 && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() &&
 	        m_eCampGuardType != NO_UNIT)
 	{
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		bRtnValue = ConvertBarbarianCamp(pByUnit, pPlot);
+#else
 		bRtnValue = ConvertBarbarianCamp(pPlot);
+#endif
 	}
 
 	return bRtnValue;
@@ -3790,10 +3893,10 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #if defined(MOD_BALANCE_CORE)
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetFreeBuildingPrereqTech())
 			return pkTraitInfo->GetFreeBuildingPrereqTech();
 	}
 
@@ -3802,10 +3905,10 @@ TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 
 TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
 			return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
 	}
 
@@ -3890,6 +3993,19 @@ bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 		return false;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayerTraits::TerrainClaimBoost(TerrainTypes eTerrain)
+{
+	if (eTerrain != NO_TERRAIN)
+	{
+		return m_abTerrainClaimBoost[eTerrain];
+	}
+	else
+	{
+		return false;
+	}
+}
+#endif
 
 
 // MAYA TRAIT SPECIAL METHODS
@@ -3904,10 +4020,10 @@ const float DAYS_IN_YEAR = 365.242199f;
 /// Is the Maya calendar active for this player?
 bool CvPlayerTraits::IsUsingMayaCalendar() const
 {
-	for(size_t iI = 0; iI < m_vLeaderTraits.size(); iI++)
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vLeaderTraits[iI]);
-		if(pkTraitInfo && pkTraitInfo->IsMayaCalendarBonuses())
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]) && pkTraitInfo->IsMayaCalendarBonuses())
 			return true;
 	}
 	return false;
@@ -4268,7 +4384,7 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 		{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
 			{
 				return 1;
 			}
@@ -4444,7 +4560,6 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bTradeRouteOnly, false);
-	MOD_SERIALIZE_READ(66, kStream, m_iTerrainClaimBoost, NO_TERRAIN);
 	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
@@ -4453,6 +4568,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4737,7 +4855,16 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	for (int iI = 0; iI < iNumEntries; iI++)
 	{
 		kStream >> m_paiMovesChangeUnitClass[iI];
-	}	
+	}
+
+	kStream >> iNumEntries;
+	m_abTerrainClaimBoost.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		bool bValue;
+		kStream >> bValue;
+		m_abTerrainClaimBoost.push_back(bValue);
+	}
 #endif
 
 	kStream >> iNumEntries;
@@ -4767,6 +4894,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<int> kYieldFromHistoricEventWrapper(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
+	kStream >> kYieldFromHistoricEventWrapper;
 	ArrayWrapper<int> kYieldFromOwnPantheonWrapper(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream >> kYieldFromOwnPantheonWrapper;
 	ArrayWrapper<int> kTradeRouteStartYieldWrapper(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
@@ -4806,6 +4935,18 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> kGreatWorkYieldChangesWrapper(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
 	kStream >> kGreatWorkYieldChangesWrapper;
+
+	ArrayWrapper<int> kArtifactYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
+	kStream >> kArtifactYieldChangesWrapper;
+
+	ArrayWrapper<int> kArtYieldChangesWrapper(NUM_YIELD_TYPES, m_iArtYieldChanges);
+	kStream >> kArtYieldChangesWrapper;
+
+	ArrayWrapper<int> kLitYieldChangesWrapper(NUM_YIELD_TYPES, m_iLitYieldChanges);
+	kStream >> kLitYieldChangesWrapper;
+
+	ArrayWrapper<int> kMusicYieldChangesWrapper(NUM_YIELD_TYPES, m_iMusicYieldChanges);
+	kStream >> kMusicYieldChangesWrapper;
 
 	kStream >> m_ppiFeatureYieldChange;
 	kStream >> m_ppiResourceYieldChange;
@@ -4921,7 +5062,6 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
 	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
 	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteOnly);
-	MOD_SERIALIZE_WRITE(kStream, m_iTerrainClaimBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
@@ -4930,6 +5070,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
+	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
+	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
+	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -5046,6 +5189,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	{
 		kStream << m_paiMovesChangeUnitClass[ui];
 	}
+	kStream << m_abTerrainClaimBoost.size();
+	for (uint ui = 0; ui < m_abTerrainClaimBoost.size(); ui++)
+	{
+		kStream << m_abTerrainClaimBoost[ui];
+	}
 #endif
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
 	kStream << 	iNumUnitCombatClassInfos;
@@ -5063,6 +5211,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
@@ -5085,6 +5234,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;
@@ -5113,7 +5266,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 // PRIVATE METHODS
 
 /// Is there an adjacent barbarian camp that could be converted?
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
+#else
 bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
+#endif
 {
 	UnitHandle pGiftUnit;
 
@@ -5140,7 +5297,16 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		if (!pGiftUnit->jumpToNearestValidPlot())
 			pGiftUnit->kill(false);
 		else
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		{
+			if (MOD_EVENTS_UNIT_CAPTURE) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
+			}
+#endif
 			pGiftUnit->finishMoves();
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		}
+#endif
 
 		// Convert any extra units
 		for(int iI = 0; iI < m_iLandBarbarianConversionExtraUnits; iI++)
@@ -5149,7 +5315,16 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 			if (!pGiftUnit->jumpToNearestValidPlot())
 				pGiftUnit->kill(false);
 			else
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		{
+				if (MOD_EVENTS_UNIT_CAPTURE) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
+				}
+#endif
 				pGiftUnit->finishMoves();
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		}
+#endif
 		}
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -5182,7 +5357,11 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 }
 
 /// Is there an adjacent barbarian naval unit that could be converted?
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, UnitHandle pUnit)
+#else
 bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
+#endif
 {
 	UnitHandle pGiftUnit;
 
@@ -5197,6 +5376,12 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
 	{
 		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);
+
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+		if (MOD_EVENTS_UNIT_CAPTURE) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 3);
+		}
+#endif
 
 		// Convert the barbarian into our unit
 		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);

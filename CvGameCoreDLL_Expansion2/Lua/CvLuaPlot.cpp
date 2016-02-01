@@ -36,7 +36,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 #endif
 	Method(IsRiver);
 	Method(IsWater);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsBlockaded);
 #endif
 	Method(SetFeatureType);
@@ -445,7 +445,7 @@ int CvLuaPlot::lIsWater(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsBlockaded(lua_State* L)
 {
@@ -1043,7 +1043,7 @@ int CvLuaPlot::lIsTradeRoute(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, -1);
-	bool bResult = pkPlot->IsTradeRoute(ePlayer);
+	bool bResult = pkPlot->IsCityConnection(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

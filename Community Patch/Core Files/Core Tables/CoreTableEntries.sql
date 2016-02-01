@@ -94,6 +94,18 @@ ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
 
+-- Adds a trait that converts x% of tourism to GAP, where x is the integer below.
+
+ALTER TABLE Traits ADD COLUMN 'TourismToGAP' INTEGER DEFAULT 0;
+
+-- Adds a trait that boosts the value of historic event tourism. 1 = 10%, 2 = 20%, etc.
+
+ALTER TABLE Traits ADD COLUMN 'EventTourismBoost' INTEGER DEFAULT 0;
+
+-- Adds x# of GP Points to Capital (scaling with era) when you complete a Historic Event.
+
+ALTER TABLE Traits ADD COLUMN 'EventGP' INTEGER DEFAULT 0;
+
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
@@ -146,11 +158,19 @@ ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
 -- Adds minimum local population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'LocalPopRequired' INTEGER DEFAULT 0;
 
--- Movement speed penalty (like Great Wall) for plots worked by a City.
+-- Movement speed penalty (like Great Wall) for land plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
+
+-- Movement speed penalty (like Great Wall) for water plots worked by a City.
+ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 
 -- Adds abiility for units to upgrade in allied CS lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
+
+-- Adds event tourism from digging up sites.
+ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' BOOLEAN DEFAULT 0;
+-- Adds event tourism from golden ages starting.
+ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' BOOLEAN DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 
@@ -392,9 +412,6 @@ ALTER TABLE Buildings ADD COLUMN 'SingleLeagueVotes' INTEGER DEFAULT 0;
 -- Allows for All Units/Buildings to be purchased in puppet city
 ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT 0;
 
--- Temporary value that spawns a missionary of your national or founded religion
-ALTER TABLE Buildings ADD COLUMN 'NationalMissionaries' BOOLEAN DEFAULT 0;
-
 -- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
 ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT 0;
 
@@ -427,6 +444,9 @@ ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
 
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
+
+-- Define a policy as a dummy policy - won't count towards policy total -- 
+ALTER TABLE Policies ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
 -- Allows you to increase razing speed from policies
 ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
@@ -466,6 +486,11 @@ ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
 
 --Units
 ALTER TABLE Units ADD 'NumFreeLux' INTEGER DEFAULT 0;
+
+-- GP tabling - use this to define up to 5 GP types with indpendent meters (will not affect rates of other GPs)
+-- GPs that you assign the same number to will affect each other, so make sure no other mods are using these!
+ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
+-- Example: <GPExtra>1</GPExtra> in a unit's XML table will put all of its GPP into a unique meter and a faith buy track.
 
 -- Promotions
 
@@ -544,6 +569,9 @@ ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER
 
 ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 
+-- Projects
+ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;
+ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
 
 -- Advanced Action Spy Stuff (for CBP)
 
@@ -601,5 +629,3 @@ ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
-
-

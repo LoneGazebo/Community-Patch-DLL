@@ -223,6 +223,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldPerTurnFromTraits);
 
 #if defined(MOD_BALANCE_CORE)
+	Method(GetInternalTradeRouteGoldBonus);
 	//GAP
 	Method(GetGAPFromReligion);
 	Method(GetGAPFromCities);
@@ -895,7 +896,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBuyPlotCost);
 	Method(GetPlotDanger);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS) 
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 #endif
@@ -2620,6 +2621,14 @@ int CvLuaPlayer::lGetGoldPerTurnFromTraits(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+//int GetInternalTradeRouteGoldBonus();
+int CvLuaPlayer::lGetInternalTradeRouteGoldBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetInternalTradeRouteGoldBonus());
+	return 1;
+}
+//------------------------------------------------------------------------------
 //int GetGAPFromReligion();
 int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
 {
@@ -3527,8 +3536,11 @@ int CvLuaPlayer::lGetUnhappinessForecast(lua_State* L)
 	CvCity* pkAssumeCityAnnexed = CvLuaCity::GetInstance(L, 2, false);
 	CvCity* pkAssumeCityPuppeted = CvLuaCity::GetInstance(L, 3, false);
 
-	const int iUnhappiness = pkPlayer->GetUnhappiness(pkAssumeCityAnnexed, pkAssumeCityPuppeted);
+	int iPrevUnhappiness = pkPlayer->GetUnhappiness();
+	const int iUnhappiness = pkPlayer->DoUpdateTotalUnhappiness(pkAssumeCityAnnexed, pkAssumeCityPuppeted);
 	lua_pushinteger(L, iUnhappiness);
+
+	pkPlayer->SetUnhappiness(iPrevUnhappiness);
 	return 1;
 }
 
@@ -3798,7 +3810,7 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinationsFrom(lua_State*
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2, false);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);;
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 
 	return GetPotentialInternationalTradeRouteDestinationsHelper(L, pkPlayer, pkUnit, pkCity->plot());
 }
@@ -8912,7 +8924,7 @@ int CvLuaPlayer::lGetPlotDanger(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetPlotDanger(*pkPlot));
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int getBuyPlotDistance();
 int CvLuaPlayer::lGetBuyPlotDistance(lua_State* L)
@@ -12416,6 +12428,10 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 	if(iResult < 0)
 	{
 		iResult *= -1;
+	}
+	if(iResult == MAX_INT)
+	{
+		iResult = -1;
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

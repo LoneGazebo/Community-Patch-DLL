@@ -53,7 +53,7 @@ SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
 
 -- Philanthropy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Philanthropy[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). The Printing Press boosts City [ICON_CULTURE] Culture by +10.'
+SET Text = '[COLOR_POSITIVE_TEXT]Informants[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). The Printing Press boosts City [ICON_CULTURE] Culture by +10.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 -- Cultural Diplomacy
@@ -77,7 +77,7 @@ SET Cost = '150'
 WHERE Type = 'BUILDING_COURT_SCRIBE';
 
 UPDATE Buildings
-SET Cost = '250'
+SET Cost = '275'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
@@ -85,7 +85,7 @@ SET GoldMaintenance = '2'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET Cost = '700'
+SET Cost = '1000'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings
@@ -260,7 +260,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 -- Grand Temple Help Text
 
 UPDATE Language_en_US
-SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
 
 -- Merchant Mission
@@ -358,3 +358,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP';
 UPDATE Language_en_US
 SET Text = '+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 8 cities following your Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists increase a city''s cultural output and speed the creation of Great Artists.[NEWLINE][NEWLINE]Merchants increase a city''s gold output and speed the creation of Great Merchants.[NEWLINE][NEWLINE]Scientists increase a city''s science output and speed the creation of Great Scientists.[NEWLINE][NEWLINE]Engineers increase a city''s production output and speed the creation of Great Engineers.[NEWLINE][NEWLINE]Civil Servants provide a small amount of many yields and speed the creation of Great Diplomats.'
+WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';

@@ -41,7 +41,7 @@
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 		</Row>
 	</Resource_TerrainBooleans>
-	
+
 	<Resource_FeatureBooleans>
 		<Row>
 			<ResourceType>RESOURCE_NUTMEG</ResourceType>

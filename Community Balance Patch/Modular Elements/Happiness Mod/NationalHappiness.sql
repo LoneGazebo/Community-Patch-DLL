@@ -216,6 +216,11 @@
 	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from your [ICON_GOLDEN_AGE] Golden Age.'
 	WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
+-- Rebels!
+	UPDATE Language_en_US
+	SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, an uprising has occurred in our territory!'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 -- Update Text for Very Unhappy and Super Unhappy
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.

@@ -573,7 +573,11 @@ void CvBarbarians::DoCamps()
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
 						if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType()))) {
 #endif
+#if defined(MOD_BALANCE_CORE)
+						if(!pLoopPlot->isOwned() && !pLoopPlot->isVisibleToCivTeam(true))
+#else
 						if(!pLoopPlot->isOwned() && !pLoopPlot->isVisibleToCivTeam())
+#endif
 						{
 							// JON: NO RESOURCES FOR NOW, MAY REPLACE WITH SOMETHING COOLER
 							if(pLoopPlot->getResourceType() == NO_RESOURCE)
@@ -956,8 +960,8 @@ void CvBarbarians::DoUnits()
 
 						if(iTheft > 0)
 						{
-							pCity->changeDamage((iTheft / 8));
-							pUnit->changeDamage((iTheft / 8));
+							pCity->changeDamage(iTheft / 8);
+							pUnit->changeDamage(iTheft / 8);
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else
@@ -1124,12 +1128,30 @@ void CvBarbarians::DoUnits()
 
 					GET_PLAYER(eOtherMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
 
+					bool bQuick = false;
+					if(GC.getGame().getGameSpeedInfo().getGreatPeoplePercent() < 100)
+					{
+						bQuick = true;
+					}
+
 					//Rebel Spawn - once every 4 turns (on default speed)
-					if ((iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
-					|| (iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
-					|| (iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
-					|| (iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
-					|| (iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100))
+					if (iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(!bQuick && iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100)
 					{
 						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
 					}

@@ -103,11 +103,9 @@ public:
 
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance(int iChange = 0) const;
 	int GetNumWorkablePlots(int iChange = 0) const;
-#endif
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, bool bPotential = false) const;
@@ -164,6 +162,15 @@ public:
 	void ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange);
 	int GetNumTerrainWorked(TerrainTypes eTerrain);
 
+	void ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange);
+	int GetNumFeatureWorked(FeatureTypes eFeature);
+
+	void ChangeNumResourceWorked(ResourceTypes eResource, int iChange);
+	int GetNumResourceWorked(ResourceTypes eResource);
+
+	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
+	int GetNumImprovementWorked(ImprovementTypes eImprovement);
+
 	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 
@@ -188,7 +195,7 @@ public:
 #endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int GetNumResourceLocal(ResourceTypes eResource);
+	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false);
 #endif
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 
@@ -406,7 +413,7 @@ public:
 	CvArea* area() const;
 	CvArea* waterArea() const;
 
-	void SetGarrison(const CvUnit* pUnit);
+	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
 
@@ -423,7 +430,11 @@ public:
 	void setGameTurnLastExpanded(int iNewValue);
 
 	int getPopulation() const;
+#if defined(MOD_BALANCE_CORE)
+	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
+#else
 	void setPopulation(int iNewValue, bool bReassignPop = true);
+#endif
 	void changePopulation(int iChange, bool bReassignPop = true);
 
 	long getRealPopulation() const;
@@ -471,6 +482,9 @@ public:
 	int GetJONSCulturePerTurnFromGreatWorks() const;
 
 	int GetJONSCulturePerTurnFromTraits() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
+#endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -638,25 +652,34 @@ public:
 	int getThresholdAdditions() const;
 	int getUnhappyCitizenCount() const;
 	void setUnhappyCitizenCount(int iNewValue);
-	void changeUnhappyCitizenCount(int iChange) const;
+	void changeUnhappyCitizenCount(int iChange);
 
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
+	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromCulture() const;
 	int getUnhappinessFromScienceYield() const;
 	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
+	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromScience() const;
 	int getUnhappinessFromDefenseYield() const;
 	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
+	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromDefense() const;
 	int getUnhappinessFromGoldYield() const;
 	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
+	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromGold() const;
+	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromConnection() const;
+	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromPillaged() const;
+	int getUnhappinessFromStarvingRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromStarving() const;
-	int getUnhappinessFromMinority() const;
-	bool IsConnectedToTradeNetwork() const;
+	int getUnhappinessFromReligionRaw(int iLimit = INT_MAX) const;
+	int getUnhappinessFromReligion() const;
+
+	int getUnhappinessAggregated() const;
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
@@ -691,14 +714,13 @@ public:
 	void SetOwedFoodBuilding(bool bNewValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void ChangeNationalMissionaries(int iNewValue);
-	int GetNationalMissionaries() const;
-	void SetNationalMissionaries(int iValue);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
 	int GetBorderObstacleCity() const;
 	void SetBorderObstacleCity(int iValue);
+
+	void ChangeBorderObstacleWater(int iNewValue);
+	int GetBorderObstacleWater() const;
+	void SetBorderObstacleWater(int iValue);
 
 	void ChangeNearbyMountains(int iNewValue);
 	int GetNearbyMountains() const;
@@ -709,10 +731,11 @@ public:
 	void SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue);
 #endif
 
-	bool IsBlockaded() const;
-#if defined(MOD_BALANCE_CORE)
-	bool IsBlockadedTest() const;
-#endif
+	//check both water and land
+	bool IsBlockadedWaterAndLand() const;
+	//check water or land
+	bool IsBlockaded(bool bWater) const;
+
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
 	void ChangeWeLoveTheKingDayCounter(int iChange);
@@ -931,6 +954,10 @@ public:
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);
+
+	bool IsBastion() const;
+	void SetBastion(bool bValue);
+	void TestBastion();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1098,7 +1125,7 @@ public:
 
 	bool canRangeStrikeAt(int iX, int iY) const;
 	CityTaskResult rangeStrike(int iX, int iY);
-	CvUnit* rangedStrikeTarget(CvPlot* pPlot);
+	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -1253,8 +1280,8 @@ public:
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
 	bool HasTerrain(TerrainTypes iTerrainType) const;
 	bool HasWorkedTerrain(TerrainTypes iTerrainType) const;
-	bool HasAnyDomesticTradeRoute() const;
-	bool HasAnyInternationalTradeRoute() const;
+	bool HasAnyDomesticTradeRoute(bool bOutgoing = true) const;
+	bool HasAnyInternationalTradeRoute(bool bOutgoing = true) const;
 	bool HasTradeRouteToAnyCity() const;
 	bool HasTradeRouteTo(CvCity* pCity) const;
 	bool HasTradeRouteFromAnyCity() const;
@@ -1280,6 +1307,10 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
+	int CountNumWorkedFeature(FeatureTypes eFeature);
+	int CountNumWorkedImprovement(ImprovementTypes eImprovement);
+	int CountNumWorkedResource(ResourceTypes eResource);
+	int CountNumImprovement(ImprovementTypes eImprovement);
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1441,8 +1472,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
-	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
+	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;
@@ -1483,6 +1514,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
+	FAutoVariable<bool, CvCity> m_bIsBastion;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -1502,6 +1534,9 @@ protected:
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeatureWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourceWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumImprovementWorked;
 #endif
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
 
@@ -1539,14 +1574,15 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;
 	FAutoVariable<int, CvCity> m_iUnmoddedHappinessFromBuildings;
 
-	bool m_bRouteToCapitalConnectedLastTurn;
-	bool m_bRouteToCapitalConnectedThisTurn;
-	CvString m_strName;
+	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedLastTurn;
+	FAutoVariable<bool, CvCity> m_bRouteToCapitalConnectedThisTurn;
 
-	bool m_bOwedCultureBuilding;
+	FAutoVariable<CvString, CvCity> m_strName;
+
+	FAutoVariable<bool, CvCity> m_bOwedCultureBuilding;
 
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-	bool m_bOwedFoodBuilding;
+	FAutoVariable<bool, CvCity> m_bOwedFoodBuilding;
 #endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
@@ -1582,8 +1618,8 @@ protected:
 	mutable int m_bombardCheckTurn;
 
 	// CACHE: cache frequently used values
-	mutable int	m_iPopulationRank;
-	mutable bool m_bPopulationRankValid;
+	FAutoVariable<int, CvCity> m_iPopulationRank;
+	FAutoVariable<bool, CvCity> m_bPopulationRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRank;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBaseYieldRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRank;

@@ -177,6 +177,10 @@ public:
 	CvProjectProductionAI* GetProjectProductionAI();
 	CvProcessProductionAI* GetProcessProductionAI();
 	CvString GetLogFileName(CvString& playerName, CvString& cityName) const;
+#if defined(MOD_BALANCE_CORE)
+	CvString GetProductionLogFileName(CvString& playerName, CvString& cityName) const;
+	CvString GetHurryLogFileName(CvString& playerName, CvString& cityName) const;
+#endif
 
 	bool IsYieldDeficient(YieldTypes yieldType);
 	YieldTypes GetDeficientYield(void);  // returns if any yield is deficient, starting with food, then production. Returns NO_YIELD if the city is fine
@@ -189,8 +193,9 @@ public:
 
 	// City AI methods
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	CvCityBuildable ChooseHurry();
+	void LogHurryMessage(CvString& strMsg);
 #endif
 	void DoTurn();
 
@@ -208,11 +213,19 @@ public:
 private:
 
 	void ReweightByCost();
+#if defined(MOD_BALANCE_CORE)
+	void ReweightPreCheckByCost();
+#endif
 
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	void LogPossibleBuilds();
+#if defined(MOD_BALANCE_CORE)
+	void LogPossibleHurries();
+	void LogPossibleHurriesPostCheck();
+	void LogPossibleBuildsPostCheck();
+#endif
 	void LogSpecializationChange(CitySpecializationTypes eSpecialization);
 
 	CvCity* m_pCity;
@@ -232,12 +245,12 @@ private:
 	CvProcessProductionAI* m_pProcessProductionAI;
 
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
-
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS];
-#else
-	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS];
+#if defined(MOD_BALANCE_CORE)
+	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_BuildablesPrecheck;
 #endif
+
+
+	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS];
 	unsigned short m_asBestYieldAverageTimes100[NUM_YIELD_TYPES];
 	short m_asYieldDeltaTimes100[NUM_YIELD_TYPES];
 	YieldTypes m_eFocusYield;
@@ -317,6 +330,11 @@ bool IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
+int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield);
+int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
+int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
+int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
+int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding);
 #endif
 }
 

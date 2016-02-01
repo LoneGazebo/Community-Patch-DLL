@@ -49,7 +49,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
-	m_iNationalMissionaries(0),
 	m_iGetCooldown(0),
 	m_iFreeBuildingTradeTargetCity(NO_BUILDINGCLASS),
 	m_iCorporationID(0),
@@ -233,6 +232,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity(-1),
+	m_iBorderObstacleWater(-1),
 	m_iWLTKDTurns(-1),
 	m_iEventTourism(0),
 	m_iLandTourism(0),
@@ -520,6 +520,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
+	m_iBorderObstacleWater = kResults.GetInt("BorderObstacleWater");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
@@ -759,7 +760,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
-	m_iNationalMissionaries = kResults.GetInt("NationalMissionaries");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
@@ -1299,11 +1299,6 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
-}
-/// Dpes this building grant national missionaries?
-int CvBuildingEntry::GetNationalMissionaries() const
-{
-	return m_iNationalMissionaries;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -2122,6 +2117,11 @@ bool CvBuildingEntry::IsBorderObstacle() const
 int CvBuildingEntry::GetBorderObstacleCity() const
 {
 	return m_iBorderObstacleCity;
+}
+//Is this an obstacle for the water tiles around your city?
+int CvBuildingEntry::GetBorderObstacleWater() const
+{
+	return m_iBorderObstacleWater;
 }
 int CvBuildingEntry::GetWLTKDTurns() const
 {
@@ -3306,7 +3306,7 @@ CvCityBuildings::CvCityBuildings():
 	m_iLandmarksTourismPercent(0),
 	m_iGreatWorksTourismModifier(0),
 	m_bSoldBuildingThisTurn(false),
-	m_pBuildings(NULL),
+	m_pPossibleBuildings(NULL),
 	m_pCity(NULL)
 {
 }
@@ -3317,15 +3317,15 @@ CvCityBuildings::~CvCityBuildings(void)
 }
 
 /// Initialize
-void CvCityBuildings::Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity)
+void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity)
 {
 	// Store off the pointers to objects we'll need later
-	m_pBuildings = pBuildings;
+	m_pPossibleBuildings = pPossibleBuildings;
 	m_pCity = pCity;
 
 	// Initialize status arrays
 
-	int iNumBuildings = m_pBuildings->GetNumBuildings();
+	int iNumBuildings = pPossibleBuildings->GetNumBuildings();
 
 	CvAssertMsg((0 < iNumBuildings),  "m_pBuildings->GetNumBuildings() is not greater than zero but an array is being allocated in CvCityBuildings::Init");
 
@@ -3388,7 +3388,7 @@ void CvCityBuildings::Reset()
 
 	m_bSoldBuildingThisTurn = false;
 
-	for(iI = 0; iI < m_pBuildings->GetNumBuildings(); iI++)
+	for(iI = 0; iI < m_pPossibleBuildings->GetNumBuildings(); iI++)
 	{
 		m_paiBuildingProduction[iI] = 0;
 		m_paiBuildingProductionTime[iI] = 0;
@@ -3441,7 +3441,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	kStream >> m_aBuildingGreatWork;
 
 #if defined(MOD_BALANCE_CORE)
-	for (int i=0; i<m_pBuildings->GetNumBuildings(); i++)
+	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
 			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
 #endif
@@ -3471,7 +3471,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 #pragma warning ( push )
 #pragma warning ( disable : 6011 ) // if m_pBuildings is NULL during load, we're screwed. Redesign the class or the loader code.
 #endif//_MSC_VER
-	int iNumBuildings = m_pBuildings->GetNumBuildings();
+	int iNumBuildings = m_pPossibleBuildings->GetNumBuildings();
 #ifdef _MSC_VER
 #pragma warning ( pop )
 #endif//_MSC_VER
@@ -3491,9 +3491,9 @@ void CvCityBuildings::Write(FDataStream& kStream)
 }
 
 /// Accessor: Get full array of all building XML data
-CvBuildingXMLEntries* CvCityBuildings::GetBuildings() const
+CvBuildingXMLEntries* CvCityBuildings::GetPossibleBuildings() const
 {
-	return m_pBuildings;
+	return m_pPossibleBuildings;
 }
 
 /// Accessor: Total number of buildings in the city
@@ -4539,6 +4539,57 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			if (iValue > 0)
 			{
 				iRtnValue += pkInfo->GetThemingYieldBonus(eYield);
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	if (pkCivInfo)
+	{
+		for(std::vector<BuildingGreatWork>::const_iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
+		{
+			BuildingClassTypes eBldgClass = (*it).eBuildingClass;
+			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
+			if (pkClassInfo)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
+				if (pkInfo)
+				{
+					int iNumSlots = pkInfo->GetGreatWorkCount();
+					for (int iI = 0; iI < iNumSlots; iI++)
+					{
+						int iGreatWorkIndex = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
+						if (iGreatWorkIndex != -1)
+						{
+							GreatWorkType eGreatWorkType = GC.getGame().GetGameCulture()->GetGreatWorkType(iGreatWorkIndex);
+							if(eGreatWorkType != NO_GREAT_WORK)
+							{
+								GreatWorkClass eGWClass = CultureHelpers::GetGreatWorkClass(eGreatWorkType);
+								if(eGWClass == eWritingClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield);
+								}
+								if(eGWClass == eArtClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield);
+								}
+								if(eGWClass == eArtifactsClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+								}
+								if(eGWClass == eMusicClass)
+								{
+									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

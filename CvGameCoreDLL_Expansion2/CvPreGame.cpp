@@ -2551,12 +2551,8 @@ void setGameType(GameTypes g, GameStartTypes eStartType)
 void setGameType(GameTypes g)
 {
 	s_gameType = g;
-#if defined(MOD_BUGFIX_MINOR)
-	s_isInternetGame = (s_gameType == GAME_NETWORK_MULTIPLAYER);
-#else
 	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
 		s_isInternetGame = false;
-#endif
 }
 
 void setGameType(const CvString& g)

@@ -235,6 +235,7 @@ public:
 	bool isScoreDirty() const;
 	void setScoreDirty(bool bNewValue);
 
+	TechTypes getOceanPassableTech() const;
 	bool isCircumnavigated() const;
 	void makeCircumnavigated();
 	bool circumnavigationAvailable() const;
@@ -444,6 +445,7 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void CorpCheck();
 	void getGlobalAverage() const;
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);
@@ -502,7 +504,7 @@ public:
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips);
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false);
 #else
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 #endif
@@ -712,6 +714,7 @@ protected:
 	bool m_bTunerEverConnected;
 	bool m_bDynamicTurnsSimultMode;		//if playing dynamic turn mode, are we currently running simultaneous turns?
 	PlayerTypes m_eWaitDiploPlayer;
+	TechTypes m_eTechAstronomy;
 
 	bool m_bFOW;
 

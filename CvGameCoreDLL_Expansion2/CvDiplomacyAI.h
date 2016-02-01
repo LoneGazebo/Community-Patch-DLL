@@ -59,6 +59,7 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	enum DiplomacyPlayerType
 	{
 	    DIPLO_FIRST_PLAYER		=  0,
@@ -66,6 +67,7 @@ public:
 	    DIPLO_AI_PLAYERS		= -2,
 	    DIPLO_HUMAN_PLAYERS		= -3
 	};
+#endif
 
 	struct MinorGoldGiftInfo
 	{
@@ -241,7 +243,7 @@ public:
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
 #if defined(MOD_BALANCE_CORE)
-	int GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops = false, bool bDebug=false);
+	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug=false);
 #else
 	int GetWarScore(PlayerTypes ePlayer);
 #endif
@@ -666,6 +668,7 @@ public:
 	void DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 #endif
 	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	//void DoResearchAgreementPlan(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
@@ -840,6 +843,7 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumDenouncements();
 	int GetNumDenouncementsOfPlayer();
+	CvPlot* GetCenterOfMassEmpire(bool bIgnorePuppets, bool bIgnoreConquest);
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
@@ -1343,7 +1347,9 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
+#endif
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);

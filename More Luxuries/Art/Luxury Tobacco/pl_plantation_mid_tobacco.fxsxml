@@ -1,0 +1,19 @@
+<Asset>
+  <Mesh file="PL_Plantation_MID_Tobacco.gr2" source="Max" />
+  <Texture file="Crop_Ground_H.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="PL_Crop_Ground_D.dds" source="Max" />
+  <Texture file="PL_Plantation_MID_DIFF.dds" source="Max" />
+  <Texture file="PL_Plantation_MID_Ground_D.dds" source="Max" />
+  <Texture file="PL_Tobacco_DIFF.dds" source="Max" />
+  <Texture file="PL_Sub_MID_Farm_Grnd_D.dds" source="Max" />
+  <Texture file="Plantation_MID_Ground_H.dds" source="Max" />
+  <Texture file="Plantation_MID_SREF.dds" source="Max" />
+  <Texture file="Tobacco_SREF.dds" source="Max" />
+  <Texture file="Sub_MID_Farm_Grnd_H.dds" source="Max" />
+  <BoneUsage>
+    <Bone name="FX_PillagedSmoke" />
+  </BoneUsage>
+  <TimedTrigger file="FX_Triggers_PL_Plantation_MID_Spice.ftsxml" source="Tool" model="Spice_group_07" state="0,1,2,3" />
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>

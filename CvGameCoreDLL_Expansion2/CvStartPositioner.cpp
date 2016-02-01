@@ -812,11 +812,8 @@ int CvStartPositioner::StartingPlotRange() const
 
 	// Adjust range compared to how many plots we have per city
 	iRange *= GC.getMap().getLandPlots();
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	iRange /= (AVG_CITY_PLOTS / 2); // Use the average number of plots per city (this is the default 3-ring value)
-#else
-	iRange /= (NUM_CITY_PLOTS / 2); // NUM_CITY_PLOTS; -- I am assuming that some tiles will be watter or unused
-#endif
 	iRange /= iExpectedCities;
 
 	// Used to be a Python hook (minStartingDistanceModifier) here

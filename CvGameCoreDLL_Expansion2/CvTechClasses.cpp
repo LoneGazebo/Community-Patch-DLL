@@ -673,6 +673,9 @@ CvPlayerTechs::CvPlayerTechs():
 	m_pabResearchingTech(NULL),
 	m_piCivTechPriority(NULL),
 	m_piLocaleTechPriority(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piGSTechPriority(NULL),
+#endif
 	m_peLocaleTechResources(NULL),
 	m_peCivTechUniqueBuildings(NULL),
 	m_peCivTechUniqueUnits(NULL),
@@ -708,6 +711,10 @@ void CvPlayerTechs::Init(CvTechXMLEntries* pTechs, CvPlayer* pPlayer, bool bIsCi
 	m_piCivTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_piLocaleTechPriority==NULL, "about to leak memory, CvPlayerTechs::m_piLocaleTechPriority");
 	m_piLocaleTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(m_piGSTechPriority==NULL, "about to leak memory, CvPlayerTechs::m_piGSTechPriority");
+	m_piGSTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
+#endif
 	CvAssertMsg(m_peLocaleTechResources==NULL, "about to leak memory, CvPlayerTechs::m_peLocaleTechResources");
 	m_peLocaleTechResources = FNEW(ResourceTypes[iNumTechs], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_peCivTechUniqueUnits==NULL, "about to leak memory, CvPlayerTechs::m_peCivTechUniqueUnits");
@@ -732,6 +739,9 @@ void CvPlayerTechs::Uninit()
 	SAFE_DELETE_ARRAY(m_pabResearchingTech);
 	SAFE_DELETE_ARRAY(m_piCivTechPriority);
 	SAFE_DELETE_ARRAY(m_piLocaleTechPriority);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piGSTechPriority );
+#endif
 	SAFE_DELETE_ARRAY(m_peLocaleTechResources);
 	SAFE_DELETE_ARRAY(m_peCivTechUniqueBuildings);
 	SAFE_DELETE_ARRAY(m_peCivTechUniqueUnits);
@@ -750,6 +760,9 @@ void CvPlayerTechs::Reset()
 		m_pabResearchingTech[iI] = false;
 		m_piCivTechPriority[iI] = 1;
 		m_piLocaleTechPriority[iI] = 1;
+#if defined(MOD_BALANCE_CORE)
+		m_piGSTechPriority[iI] = 1;
+#endif
 		m_peLocaleTechResources[iI] = NO_RESOURCE;
 		m_peCivTechUniqueUnits[iI] = NO_UNIT;
 		m_peCivTechUniqueBuildings[iI] = NO_BUILDING;
@@ -901,6 +914,9 @@ void CvPlayerTechs::Read(FDataStream& kStream)
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabResearchingTech, iNumTechs);
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piCivTechPriority, iNumTechs);
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piLocaleTechPriority, iNumTechs);
+#if defined(MOD_BALANCE_CORE)
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_piGSTechPriority, iNumTechs);
+#endif
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peLocaleTechResources, iNumTechs);
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peCivTechUniqueUnits, iNumTechs);
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_peCivTechUniqueBuildings, iNumTechs);
@@ -936,6 +952,9 @@ void CvPlayerTechs::Write(FDataStream& kStream)
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, bool>(kStream, m_pabResearchingTech, iNumTechs);
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piCivTechPriority, iNumTechs);
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piLocaleTechPriority, iNumTechs);
+#if defined(MOD_BALANCE_CORE)
+		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, int>(kStream, m_piGSTechPriority, iNumTechs);
+#endif
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, ResourceTypes>(kStream, m_peLocaleTechResources, iNumTechs);
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, UnitTypes>(kStream, m_peCivTechUniqueUnits, iNumTechs);
 		CvInfosSerializationHelper::WriteHashedDataArray<TechTypes, BuildingTypes>(kStream, m_peCivTechUniqueBuildings, iNumTechs);
@@ -954,6 +973,9 @@ void CvPlayerTechs::Write(FDataStream& kStream)
 void CvPlayerTechs::FlavorUpdate()
 {
 	SetLocalePriorities();
+#if defined(MOD_BALANCE_CORE)
+	SetGSPriorities();
+#endif
 	AddFlavorAsStrategies(GC.getTECH_WEIGHT_PROPAGATION_PERCENT());
 }
 
@@ -1022,7 +1044,23 @@ int CvPlayerTechs::GetLocaleTechPriority(TechTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piLocaleTechPriority[eIndex];
 }
+#if defined(MOD_BALANCE_CORE)
+/// Accessor: get GC priority multiplier for researching techs
+int CvPlayerTechs::GetGSTechPriority(TechTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piGSTechPriority[eIndex];
+}
+/// Accessor: set locale priority multiplier for researching techs
+void CvPlayerTechs::SetGSTechPriority(TechTypes eIndex, int iNewValue)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	m_piGSTechPriority[eIndex] = iNewValue;
+}
+#endif
 ResourceTypes CvPlayerTechs::GetLocaleTechResource(TechTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -1072,13 +1110,10 @@ void CvPlayerTechs::SetLocalePriorities()
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		// Look at all Tiles this City could potentially work to see if there are any non-water resources that could be improved
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 0; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
-			CvPlot* pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
+			CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
 
 			if(pLoopPlot != NULL)
 			{
@@ -1144,8 +1179,76 @@ void CvPlayerTechs::SetLocalePriorities()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayerTechs::SetGSPriorities()
+{
+	for(int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
+	{
+		m_piGSTechPriority[iI] = 1;
+	}
+	// == Grand Strategy ==
+	AIGrandStrategyTypes eGrandStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+	bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
+	{
+		TechTypes eTech = (TechTypes)iTechLoop;
+		if(eTech == NO_TECH)
+			continue;
 
+		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+		if(pkTechInfo == NULL)
+			continue;
 
+		for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+		{
+			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+			if(eFlavor == NO_FLAVOR)
+				continue;
+
+			if(pkTechInfo->GetFlavorValue(eFlavor) > 0)
+			{
+				if(bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"))
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
+				if(bSeekingConquestVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING"))
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
+				if(bSeekingCultureVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
+				if(bSeekingScienceVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
+			}
+		}
+		//Let's look at grandstrategy values for buildings as well and add those in to techs.
+		for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+			if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() == iTechLoop)
+			{
+				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
+				iTechGSValue /= 10;
+				
+				if(iTechGSValue > 0)
+				{
+					m_piGSTechPriority[iTechLoop] += iTechGSValue;
+				}
+
+			}
+		}
+	}
+}
+#endif
 
 /// Accessor: Can we start research?
 bool CvPlayerTechs::IsResearch() const
@@ -1763,92 +1866,6 @@ void CvTeamTechs::Reset()
 		m_paiTechCount[iI] = 0;
 	}
 }
-
-// WARNING: Expansion only and only so some pre-release saves can be loaded
-const char* ms_V0ExpansionTechTags[81] =
-{
-	"TECH_AGRICULTURE",
-	"TECH_POTTERY",
-	"TECH_ANIMAL_HUSBANDRY",
-	"TECH_ARCHERY",
-	"TECH_MINING",
-	"TECH_SAILING",
-	"TECH_CALENDAR",
-	"TECH_WRITING",
-	"TECH_TRAPPING",
-	"TECH_THE_WHEEL",
-	"TECH_MASONRY",
-	"TECH_BRONZE_WORKING",
-	"TECH_OPTICS",
-	"TECH_HORSEBACK_RIDING",
-	"TECH_MATHEMATICS",
-	"TECH_CONSTRUCTION",
-	"TECH_PHILOSOPHY",
-	"TECH_DRAMA",
-	"TECH_CURRENCY",
-	"TECH_ENGINEERING",
-	"TECH_IRON_WORKING",
-	"TECH_THEOLOGY",
-	"TECH_CIVIL_SERVICE",
-	"TECH_GUILDS",
-	"TECH_METAL_CASTING",
-	"TECH_COMPASS",
-	"TECH_EDUCATION",
-	"TECH_CHIVALRY",
-	"TECH_MACHINERY",
-	"TECH_PHYSICS",
-	"TECH_STEEL",
-	"TECH_ASTRONOMY",
-	"TECH_ACOUSTICS",
-	"TECH_BANKING",
-	"TECH_PRINTING_PRESS",
-	"TECH_GUNPOWDER",
-	"TECH_NAVIGATION",
-	"TECH_ARCHITECTURE",
-	"TECH_ECONOMICS",
-	"TECH_METALLURGY",
-	"TECH_CHEMISTRY",
-	"TECH_ARCHAEOLOGY",
-	"TECH_SCIENTIFIC_THEORY",
-	"TECH_INDUSTRIALIZATION",
-	"TECH_MILITARY_SCIENCE",
-	"TECH_RIFLING",
-	"TECH_FERTILIZER",
-	"TECH_BIOLOGY",
-	"TECH_STEAM_POWER",
-	"TECH_DYNAMITE",
-	"TECH_ELECTRICITY",
-	"TECH_REPLACEABLE_PARTS",
-	"TECH_RAILROAD",
-	"TECH_REFRIGERATION",
-	"TECH_HYDROELECTRICS",
-	"TECH_RADIO",
-	"TECH_FLIGHT",
-	"TECH_BALLISTICS",
-	"TECH_COMBUSTION",
-	"TECH_PLASTIC",
-	"TECH_PENICILIN",
-	"TECH_ELECTRONICS",
-	"TECH_RADAR",
-	"TECH_COMBINED_ARMS",
-	"TECH_ATOMIC_THEORY",
-	"TECH_ECOLOGY",
-	"TECH_COMPUTERS",
-	"TECH_TELECOM",
-	"TECH_ROCKETRY",
-	"TECH_NUCLEAR_FISSION",
-	"TECH_GLOBALIZATION",
-	"TECH_ROBOTICS",
-	"TECH_SATELLITES",
-	"TECH_STEALTH",
-	"TECH_MOBILE_TACTICS",
-	"TECH_LASERS",
-	"TECH_ADVANCED_BALLISTICS",
-	"TECH_PARTICLE_PHYSICS",
-	"TECH_NANOTECHNOLOGY",
-	"TECH_NUCLEAR_FUSION",
-	"TECH_FUTURE_TECH"
-};
 
 //	---------------------------------------------------------------------------
 /// Serialization read

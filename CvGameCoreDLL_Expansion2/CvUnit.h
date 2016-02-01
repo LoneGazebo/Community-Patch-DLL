@@ -198,7 +198,11 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
+#if defined(MOD_BALANCE_CORE)
+	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity = NULL) const;
+#else
 	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
+#endif
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
@@ -473,7 +477,10 @@ public:
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
 	DomainTypes getDomainType() const;
+	//check if plot type matches the (primary) domain type
 	bool isNativeDomain(const CvPlot* pPlot) const;
+	//similar to native domain, but consider embarked state for land units
+	bool isMatchingDomain(const CvPlot* pPlot) const;
 
 	int flavorValue(FlavorTypes eFlavor) const;
 
@@ -875,7 +882,10 @@ public:
 	void setCombatFirstStrikes(int iNewValue);
 	void changeCombatFirstStrikes(int iChange);
 
+	int GetMapLayer() const;
+	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
+	void SetGarrisonedCity(int iCityID);
 	CvCity* GetGarrisonedCity();
 	int getFortifyTurns() const;
 	void setFortifyTurns(int iNewValue);
@@ -1228,6 +1238,14 @@ public:
 	void SetGreatWork(GreatWorkType eGreatWork);
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetScienceBlastStrength() const;
+	void SetScienceBlastStrength(int iValue);
+
+	int GetCultureBlastStrength() const;
+	void SetCultureBlastStrength(int iValue);
+#endif
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -1680,7 +1698,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	int m_iNumTilesRevealedThisTurn;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;
@@ -1702,7 +1720,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGoldenAgeValueFromKills;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
-	FAutoVariable<int, CvUnit> m_iGarrisonCityID;   // unused
+	FAutoVariable<int, CvUnit> m_iGarrisonCityID;
 	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
@@ -1732,7 +1750,6 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
-
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
 	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
@@ -1815,6 +1832,10 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
+	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
+#endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	CvString m_strUnitName;

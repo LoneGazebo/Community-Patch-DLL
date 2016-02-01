@@ -50,6 +50,18 @@
 			<PortraitIndex>5</PortraitIndex>
 		</Row>
 	</Units>
+	<UnitGameplay2DScripts>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<SelectionSound>AS2D_SELECT_SETTLER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<SelectionSound>AS2D_SELECT_SETTLER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
+		</Row>
+	</UnitGameplay2DScripts>
 	<Unit_AITypes>
 		<Row>
 			<UnitType>UNIT_PIONEER</UnitType>

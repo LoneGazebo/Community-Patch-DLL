@@ -25,6 +25,9 @@
 #include "CvAchievementUnlocker.h"
 #include "CvUnitCycler.h"
 #include "TContainer.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMinorCivAI.h"
+#endif
 
 class CvPlayerPolicies;
 class CvEconomicAI;
@@ -113,11 +116,9 @@ public:
 	void getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCivilization) const;
 	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true) const;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance() const;
 	int GetNumWorkablePlots() const;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
@@ -534,15 +535,14 @@ public:
 	void ChangeFaithEverGenerated(int iChange);
 
 	// Happiness
-
-	void DoUpdateHappiness();
+	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
+	void DoUpdateTotalHappiness();
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void SetUnhappiness(int iNewValue);
-	int GetSetUnhappiness() const;
-	void CalculateHappiness();
-#endif
+	int GetUnhappiness() const;
+	void CalculateNetHappiness();
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//LUA Functions
 	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
@@ -585,6 +585,7 @@ public:
 	int GetHappinessFromReligion();
 	int GetHappinessFromNaturalWonders() const;
 
+	int GetHappinessFromLuxury(ResourceTypes eResource) const;
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -600,12 +601,7 @@ public:
 	int getCurrentTotalPop() const;
 #endif
 
-	int GetHappinessFromLuxury(ResourceTypes eResource) const;
-
-	int GetUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
-
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
-
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -622,6 +618,7 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappinessFromCitizenNeeds() const;
 	int getUnhappinessFromCityCulture() const;
 	int getUnhappinessFromCityScience() const;
 	int getUnhappinessFromCityDefense() const;
@@ -879,6 +876,22 @@ public:
 	int getGreatDiplomatsCreated(bool bExcludeFree) const;
 	void incrementGreatDiplomatsCreated(bool bIsFree);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1Created(bool bExcludeFree) const;
+	void incrementGPExtra1Created(bool bIsFree);
+	
+	int getGPExtra2Created(bool bExcludeFree) const;
+	void incrementGPExtra2Created(bool bIsFree);
+
+	int getGPExtra3Created(bool bExcludeFree) const;
+	void incrementGPExtra3Created(bool bIsFree);
+
+	int getGPExtra4Created(bool bExcludeFree) const;
+	void incrementGPExtra4Created(bool bIsFree);
+
+	int getGPExtra5Created(bool bExcludeFree) const;
+	void incrementGPExtra5Created(bool bIsFree);
+#endif
 #else
 	int getGreatPeopleCreated() const;
 	void incrementGreatPeopleCreated();
@@ -905,6 +918,22 @@ public:
 	int getGreatDiplomatsCreated() const;
 	void incrementGreatDiplomatsCreated();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1Created() const;
+	void incrementGPExtra1Created();
+	
+	int getGPExtra2Created() const;
+	void incrementGPExtra2Created();
+
+	int getGPExtra3Created() const;
+	void incrementGPExtra3Created();
+
+	int getGPExtra4Created() const;
+	void incrementGPExtra4Created();
+
+	int getGPExtra5Created() const;
+	void incrementGPExtra5Created();
+#endif
 #endif
 
 	int getMerchantsFromFaith() const;
@@ -926,6 +955,18 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getDiplomatsFromFaith() const;
 	void incrementDiplomatsFromFaith();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int getGPExtra1FromFaith() const;
+	void incrementGPExtra1FromFaith();
+	int getGPExtra2FromFaith() const;
+	void incrementGPExtra2FromFaith();
+	int getGPExtra3FromFaith() const;
+	void incrementGPExtra3FromFaith();
+	int getGPExtra4FromFaith() const;
+	void incrementGPExtra4FromFaith();
+	int getGPExtra5FromFaith() const;
+	void incrementGPExtra5FromFaith();
 #endif
 
 	int getGreatPeopleThresholdModifier() const;
@@ -1220,11 +1261,11 @@ public:
 	bool HasGovernment();
 
 	int GetReformCooldown() const;
-	void SetReformCooldown(int iValue);
+	void SetReformCooldown(int iValue, bool bNoEvent = false);
 	void ChangeReformCooldown(int iValue);
 
 	int GetGovernmentCooldown() const;
-	void SetGovernmentCooldown(int iValue);
+	void SetGovernmentCooldown(int iValue, bool bNoEvent = false);
 	void ChangeGovernmentCooldown(int iValue);
 
 	int GetReformCooldownRate() const;
@@ -1259,6 +1300,16 @@ public:
 	CvString GetCurrencyName() const;
 
 	//DONE
+	void DoArmyDiversity();
+	int GetArmyDiversity() const;
+
+	bool CanArchaeologicalDigTourism() const;
+	void ChangeArchaeologicalDigTourism(int iChange);
+	int GetArchaeologicalDigTourism() const;
+
+	bool CanGoldenAgeTourism() const;
+	void ChangeGoldenAgeTourism(int iChange);
+	int GetGoldenAgeTourism() const;
 
 	bool CanUpgradeCSTerritory() const;
 	void ChangeUpgradeCSTerritory(int iChange);
@@ -1312,9 +1363,16 @@ public:
 	int GetEventTourism() const;
 	void SetEventTourism(int iValue);
 
+	int GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const;
+	void SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue);
+
 	void ChangeEventTourismCS(int iValue);
 	int GetEventTourismCS() const;
 	void SetEventTourismCS(int iValue);
+
+	void ChangeNumHistoricEvents(int iValue);
+	int GetNumHistoricEvents() const;
+	void SetNumHistoricEvents(int iValue);
 
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;
@@ -1664,6 +1722,9 @@ public:
 	bool IsCannotFailSpies() const;
 	int GetCannotFailSpies() const;
 	void changeCannotFailSpies(int iChange);
+
+	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -2062,6 +2123,7 @@ public:
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
 	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	bool IsKnownAttacker(const CvUnit* pAttacker) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
 
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
@@ -2520,6 +2582,18 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	FAutoVariable<int, CvPlayer> m_iFreeGreatDiplomatsCreated;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iGPExtra1Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra2Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra3Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra4Created;
+	FAutoVariable<int, CvPlayer> m_iGPExtra5Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra1Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra2Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra3Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra4Created;
+	FAutoVariable<int, CvPlayer> m_iFreeGPExtra5Created;
+#endif
 #endif
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsCreated;
@@ -2535,6 +2609,13 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	FAutoVariable<int, CvPlayer> m_iGreatDiplomatsCreated;
 	FAutoVariable<int, CvPlayer> m_iDiplomatsFromFaith;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iGPExtra1FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra2FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra3FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra4FromFaith;
+	FAutoVariable<int, CvPlayer> m_iGPExtra5FromFaith;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMerchantsFromFaith;
 	FAutoVariable<int, CvPlayer> m_iScientistsFromFaith;
@@ -2700,6 +2781,9 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
+	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
+	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
+	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
@@ -2713,7 +2797,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiGlobalTourismAlreadyReceived;
 	FAutoVariable<int, CvPlayer> m_iEventTourismCS;
+	FAutoVariable<int, CvPlayer> m_iNumHistoricEvent;
 	FAutoVariable<int, CvPlayer> m_iSingleVotes;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
@@ -2892,6 +2978,7 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiImprovementYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;

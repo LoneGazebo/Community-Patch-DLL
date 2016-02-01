@@ -5,6 +5,8 @@
 -- and minimize notification clutter
 -- code is common using gk_mode and bnw_mode switches
 -------------------------------------------------
+include( "EUI_tooltips" )
+
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI notification panel...",os.clock(),[[ 
  _   _       _   _  __ _           _   _             ____                  _ 
@@ -14,7 +16,7 @@ print("Loading EUI notification panel...",os.clock(),[[
 |_| \_|\___/ \__|_|_| |_|\___\__,_|\__|_|\___/|_| |_|_|   \__,_|_| |_|\___|_|
 ]])
 
-include( "EUI_utilities" )
+--EUI_utilities
 local IconLookup = EUI.IconLookup
 local IconHookup = EUI.IconHookup
 local CivIconHookup = EUI.CivIconHookup
@@ -24,19 +26,22 @@ local PopScratchDeal = EUI.PopScratchDeal
 local table = EUI.table
 local Color = EUI.Color
 local PrimaryColors = EUI.PrimaryColors
+local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+
 include( "CityStateStatusHelper" )
 local UpdateCityStateStatusIconBG = UpdateCityStateStatusIconBG
 local GetCityStateStatusToolTip = GetCityStateStatusToolTip
 local GetAllyToolTip = GetAllyToolTip
 local GetActiveQuestText = GetActiveQuestText
 local GetActiveQuestToolTip = GetActiveQuestToolTip
-include( "EUI_tooltips" )
-local GetMoodInfo = GetMoodInfo
+
+--EUI_tooltips
+local GetMoodInfo = EUI.GetMoodInfo
 
 -------------------------------------------------
 -- Minor lua optimizations
 -------------------------------------------------
-local math = math
+
 --local os = os
 local pairs = pairs
 --local ipairs = ipairs
@@ -49,6 +54,25 @@ local pairs = pairs
 --local tostring = tostring
 --local type = type
 --local unpack = unpack
+--local table = table
+local table_insert = table.insert
+local table_remove = table.remove
+local table_concat = table.concat
+--local os = os
+--local os_time = os.time
+--local os_date = os.date
+--local math = math
+local math_floor = math.floor
+--local math_ceil = math.ceil
+local math_min = math.min
+--local math_max = math.max
+--local math_abs = math.abs
+--local math_modf = math.modf
+--local math_sqrt = math.sqrt
+--local math_pi = math.pi
+--local math_sin = math.sin
+--local math_cos = math.cos
+local math_huge = math.huge
 
 local UI = UI
 --local UIManager = UIManager
@@ -56,7 +80,7 @@ local Controls = Controls
 local ContextPtr = ContextPtr
 local Players = Players
 local Teams = Teams
-local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+--local GameInfo = GameInfo
 --local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 local GameDefines = GameDefines
@@ -382,14 +406,14 @@ local function ProcessStackSizes( resetCivPanelElevator )
 		Controls.MinorStack:CalculateSize()
 		Controls.MajorStack:CalculateSize()
 		Controls.CivStack:CalculateSize()
-		local halfTotalStackHeight = math.floor(maxTotalStackHeight / 2)
+		local halfTotalStackHeight = math_floor(maxTotalStackHeight / 2)
 		local civStackHeight = Controls.CivStack:GetSizeY()
 
 		if smallStackHeight + civStackHeight <= maxTotalStackHeight then
-			civStackHeight = false
+			halfTotalStackHeight = false
 		elseif civStackHeight <= halfTotalStackHeight then
 			smallStackHeight = maxTotalStackHeight - civStackHeight
-			civStackHeight = false
+			halfTotalStackHeight = false
 		elseif smallStackHeight <= halfTotalStackHeight then
 			civStackHeight = maxTotalStackHeight - smallStackHeight
 		else
@@ -397,8 +421,8 @@ local function ProcessStackSizes( resetCivPanelElevator )
 			smallStackHeight = halfTotalStackHeight
 		end
 
-		Controls.CivScrollPanel:SetHide( not civStackHeight )
-		if civStackHeight then
+		Controls.CivScrollPanel:SetHide( not halfTotalStackHeight )
+		if halfTotalStackHeight then
 			Controls.CivStack:ChangeParent( Controls.CivScrollPanel )
 			Controls.CivScrollPanel:SetSizeY( civStackHeight )
 			Controls.CivScrollPanel:CalculateInternalSize()
@@ -409,8 +433,9 @@ local function ProcessStackSizes( resetCivPanelElevator )
 			Controls.CivStack:ChangeParent( Controls.CivPanel )
 		end
 		Controls.CivPanel:ReprocessAnchoring()
+--		Controls.CivPanel:SetSizeY( civStackHeight )
 	else
-		smallStackHeight = math.min( smallStackHeight, maxTotalStackHeight )
+		smallStackHeight = math_min( smallStackHeight, maxTotalStackHeight )
 	end
 
 	if not g_leaderMode then
@@ -662,7 +687,7 @@ function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, pl
 			end
 		end
 		if bundled then
-			table.insert( instance, { Id, type, ... } )
+			table_insert( instance, { Id, type, ... } )
 		end
 		SetupNotification( instance, #instance, Id, type, ... )
 
@@ -682,7 +707,7 @@ local function RemoveNotificationID( Id )
 	if instance then
 		for i = 1, #instance do
 			if instance[i][ 1 ] == Id then
-				table.remove( instance, i )
+				table_remove( instance, i )
 				break
 			end
 		end
@@ -1341,7 +1366,7 @@ local function UpdateCivListNow()
 							and not g_activeTeam:IsAtWar( player:GetTeam() )
 							and g_deal:IsPossibleToTradeItem( g_activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 )
 						then
-							table.insert( ourTradeItems, resource.IconString )
+							table_insert( ourTradeItems, resource.IconString )
 							break
 						end
 					end
@@ -1373,7 +1398,7 @@ local function UpdateCivListNow()
 							and player:GetNumResourceAvailable( resourceID, true ) > 1 -- single resources (including imports) are too expensive (3x)
 							and g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) 
 						then
-							table.insert( theirTradeItems, resource.IconString )
+							table_insert( theirTradeItems, resource.IconString )
 							minKeepLuxuries = 0	-- if they have luxes to trade, we can trade even our last one
 						end
 					end
@@ -1395,27 +1420,27 @@ local function UpdateCivListNow()
 								and player:GetNumResourceAvailable( resourceID, true ) == 0 -- they do not already have or import
 							then
 								if g_activePlayer:GetNumResourceAvailable( resourceID, true ) > 1 then
-									table.insert( ourTradeItems, 1, resource.IconString )
+									table_insert( ourTradeItems, 1, resource.IconString )
 								elseif happyWithoutLux then
-									table.insert( ourTradeItems, resource.IconString )
+									table_insert( ourTradeItems, resource.IconString )
 								end
 							elseif usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
 								and canPayForStrat
 								and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() -- game limit on AI trading
 								and (not resource.AIStopTradingEra or player:GetCurrentEra() < GameInfoTypes[resource.AIStopTradingEra]) -- not obsolete
 							then
-								table.insert( ourTradeItems, resource.IconString )
+								table_insert( ourTradeItems, resource.IconString )
 							end
 						end
 					end
 				end
 			end
-			instance.TheirTradeItems:SetText( table.concat( theirTradeItems ) )
+			instance.TheirTradeItems:SetText( table_concat( theirTradeItems ) )
 			if #ourTradeItems < 4 then
-				instance.OurTradeItems:SetText( table.concat( ourTradeItems ) )
+				instance.OurTradeItems:SetText( table_concat( ourTradeItems ) )
 			else
 				ourTradeItems[4] = "..." --"[ICON_PLUS]"
-				instance.OurTradeItems:SetText( table.concat( ourTradeItems, nil, 1, 4 ) )
+				instance.OurTradeItems:SetText( table_concat( ourTradeItems, nil, 1, 4 ) )
 			end
 
 			-- disable the button if we have a pending deal with this player
@@ -1472,7 +1497,7 @@ local function UpdateCivListNow()
 			end
 			instance[3] = minorPlayer:GetMinorCivFriendshipWithMajor( g_activePlayerID )
 			local minorCapital = minorPlayer:GetCapitalCity()
-			instance[2] = -(capital and minorCapital and Map.PlotDistance( capital:GetX(), capital:GetY(), minorCapital:GetX(), minorCapital:GetY() ) or math.huge)
+			instance[2] = -(capital and minorCapital and Map.PlotDistance( capital:GetX(), capital:GetY(), minorCapital:GetX(), minorCapital:GetY() ) or math_huge)
 		else
 			instance.Button:SetHide( true )
 		end
@@ -1531,7 +1556,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 
 			-- Setup icons
 			instance.StatusIcon:SetTexture(GameInfo.MinorCivTraits[GameInfo.MinorCivilizations[player:GetMinorCivType()].MinorCivTrait].TraitIcon)
---			instance.StatusIcon:SetColor( PrimaryColors[playerID] )
+			instance.StatusIcon:SetColor( PrimaryColors[playerID] )
 		else
 
 			-- Create instance

@@ -360,6 +360,14 @@ void CvCityConnections::UpdateRouteInfo(void)
 				pRouteInfo->m_cPassEval = iPass + 1;
 				if(iPass == 0 || iPass == 2)  // check land route
 				{
+					// if either city is blockaded on land, don't consider a connection
+					if(pFirstCity->IsBlockaded(false) || pSecondCity->IsBlockaded(false))
+					{
+						CvString msg = CvString::format("No connection between %s and %s because of land blockade",pFirstCity->getName().c_str(),pSecondCity->getName().c_str());
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+						continue;
+					}
+
 					SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_ROUTE_LAND, ROUTE_ANY);
 					bool bAnyLandRouteFound = GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
 
@@ -394,9 +402,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 				}
 				else if(iPass == 1)  // check water route
 				{
-					// if either city is blockaded, don't consider a water connection
-					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
+					// if either city is blockaded on water, don't consider a connection
+					if(pFirstCity->IsBlockaded(true) || pSecondCity->IsBlockaded(true))
 					{
+						CvString msg = CvString::format("No connection between %s and %s because of sea blockade",pFirstCity->getName().c_str(),pSecondCity->getName().c_str());
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 						continue;
 					}
 
@@ -615,7 +625,7 @@ void CvCityConnections::BroadcastPlotRouteStateChanges(void)
 			{
 				// indicate removed route
 				CvPlot* pPlot = GC.getMap().plotByIndex(m_aPlotRouteInfos[ui].m_iPlotIndex);
-				pPlot->SetTradeRoute(m_pPlayer->GetID(), false);
+				pPlot->SetCityConnection(m_pPlayer->GetID(), false);
 			}
 		}
 		else
@@ -624,7 +634,7 @@ void CvCityConnections::BroadcastPlotRouteStateChanges(void)
 			{
 				// broadcast new connected trade route
 				CvPlot* pPlot = GC.getMap().plotByIndex(m_aPlotRouteInfos[ui].m_iPlotIndex);
-				pPlot->SetTradeRoute(m_pPlayer->GetID(), true);
+				pPlot->SetCityConnection(m_pPlayer->GetID(), true);
 			}
 		}
 	}

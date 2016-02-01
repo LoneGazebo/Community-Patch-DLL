@@ -886,7 +886,7 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_CAPITAL_NEED_SETTLER</AICityStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>300</Flavor>
+			<Flavor>100</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 	<AIEconomicStrategy_Player_Flavors>
@@ -989,10 +989,4 @@
 			<Yield>200</Yield>
 		</Row>
 	</AIGrandStrategy_Yields>
-	<Belief_SpecificFaithUnitPurchase>
-		<Row>
-			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
-			<UnitType>UNIT_SPEARMAN</UnitType>
-		</Row>
-	</Belief_SpecificFaithUnitPurchase>
 </GameData>

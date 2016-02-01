@@ -375,7 +375,7 @@ public:
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
-void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
+	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
 #else
 	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);
 #endif
@@ -690,7 +690,7 @@ protected:
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
 #else
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
 #endif

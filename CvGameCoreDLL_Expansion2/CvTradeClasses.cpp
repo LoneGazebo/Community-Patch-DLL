@@ -364,7 +364,7 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 
 			// We need the wonder resource at pOriginCity AND not at pDestCity
 			if (eWonderResource != NO_RESOURCE) {
-				bAllowsWonderResourceConnection	= (pOriginCity->IsHasResourceLocal(eWonderResource, true) && !pDestCity->IsHasResourceLocal(eWonderResource, true));
+				bAllowsWonderResourceConnection	= (pOriginCity->GetNumResourceLocal(eWonderResource, true) > 0 && !pDestCity->IsHasResourceLocal(eWonderResource, true));
 			}
 
 			if (bAllowsWonderResourceConnection) {
@@ -738,6 +738,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			}
 		}
 	}
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	if(pTrade)
+	{
+		pTrade->UpdateTradePlots();
+	}
 #endif
 	
 
@@ -749,6 +754,9 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 {
 	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+
+	//important. see which trade paths are valid
+	UpdateTradePathCache(eOriginPlayer);
 
 	SPath path;
 	//if we did not get an external pointer, make up our own
@@ -1115,12 +1123,45 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
+#if defined(MOD_BALANCE_CORE)
+	UpdateTradePlots();
+#endif
 	return true;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvGameTrade::UpdateTradePlots()
+{
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if(pLoopPlot == NULL)
+			continue;
 
+		pLoopPlot->SetTradeUnitRoute(false);
+	}
+
+	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
+	{
+		if (IsTradeRouteIndexEmpty(ui))
+			continue;
+
+		for (uint uiPlot = 0; uiPlot < m_aTradeConnections[ui].m_aPlotList.size(); uiPlot++)
+		{
+			CvPlot *pPlot = GC.getMap().plot( m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iX, m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iY );
+			if (pPlot)
+				pPlot->SetTradeUnitRoute(true);
+		}
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Called when a city changes hands
+#if defined(MOD_BUGFIX_MINOR)
+void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits)
+#else
 void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
+#endif
 {
 	CvAssert(pPlot != NULL);
 
@@ -1158,6 +1199,21 @@ void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
 
 				EmptyTradeRoute(ui);
 			}		
+			
+#if defined(MOD_BUGFIX_MINOR)
+			// If we have any water routes transiting via this city, we need to cancel them
+			if (bIncludeTransits && m_aTradeConnections[ui].m_eDomain == DOMAIN_SEA) {
+				TradeConnectionPlotList aPlotList = m_aTradeConnections[ui].m_aPlotList;
+
+				for (uint uiPlotIndex = 0; uiPlotIndex < aPlotList.size(); uiPlotIndex++) {
+					if (aPlotList[uiPlotIndex].m_iX == iX && aPlotList[uiPlotIndex].m_iY == iY) {
+						CUSTOMLOG("Cancelling water trade route in plot (%i, %i) as city destroyed", iX, iY);
+						m_aTradeConnections[ui].m_iCircuitsCompleted = m_aTradeConnections[ui].m_iCircuitsToComplete;
+						break;
+					}
+				}
+			}
+#endif
 		}
 	}
 }
@@ -1440,31 +1496,6 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 			}
 		}
 	}
-}
-
-//	--------------------------------------------------------------------------------
-int CvGameTrade::GetNumTradeRoutesInPlot (CvPlot* pPlot)
-{
-	int iResult = 0;
-	int iX = pPlot->getX();
-	int iY = pPlot->getY();
-	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
-	{
-		if (IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-
-		for (uint uiPlot = 0; uiPlot < m_aTradeConnections[ui].m_aPlotList.size(); uiPlot++)
-		{
-			if (m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iX == iX && m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iY == iY)
-			{
-				iResult++;
-			}
-		}
-	}
-
-	return iResult;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4101,9 +4132,6 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	//important. see which trade paths are valid
-	pTrade->UpdateTradePathCache(m_pPlayer->GetID());
-
 	// if you can't see the plot, you're not allowed to connect it
 	if (!pDestCity->plot()->isRevealed(m_pPlayer->getTeam(), false))
 	{
@@ -4219,6 +4247,12 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			}
 			gDLL->TradeVisuals_NewRoute(iRouteIndex, m_pPlayer->GetID(),pTrade->GetTradeConnection(iRouteIndex).m_eConnectionType, nPlots, plotsX, plotsY);
 			gDLL->TradeVisuals_UpdateRouteDirection(iRouteIndex, pTrade->GetTradeConnection(iRouteIndex).m_bTradeUnitMovingForward);
+#if defined(MOD_BALANCE_CORE)
+			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
+			{
+				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
+			}
+#endif
 		}
 	}
 
@@ -4860,10 +4894,27 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eConnectionType, eDomain);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	 if(pTradeConnection->m_aPlotList.size() > 0)
+	 {
+		for (uint ui = 0; ui < pTradeConnection->m_aPlotList.size(); ui++)
+		{
+			int iPlotX = pTradeConnection->m_aPlotList[ui].m_iX;
+			int iPlotY = pTradeConnection->m_aPlotList[ui].m_iY;
+			if(iPlotX != NULL && iPlotY != NULL)
+			{
+				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+				if(pPlot != NULL)
+				{
+					pPlot->updateYield();
+				}
+			}
+		}
+	}
+#endif
 
 	return true;
 }
-
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {

@@ -168,13 +168,12 @@ public:
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
-	UnitHandle getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false);
-	const UnitHandle getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
-	const CvUnit* getSelectedUnit() const;
-	CvUnit* getSelectedUnit();
+	UnitHandle getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
+	UnitHandle getBestGarrison(PlayerTypes eOwner) const;
+	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
-	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp = false) const;
+	int defenseModifier(TeamTypes eDefender, bool bIgnored, bool bHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -203,8 +202,7 @@ public:
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
-	CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1);
-	const CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
+	CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
 
 	bool isOwned() const;
 	bool isBarbarian() const;
@@ -239,7 +237,11 @@ public:
 
 	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
+#if defined(MOD_BALANCE_CORE)
+	bool isVisibleToCivTeam(bool bNoObserver = false) const;
+#else
 	bool isVisibleToCivTeam() const;
+#endif
 	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
@@ -297,14 +299,8 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true, bool bNavalUnitsOnly=false) const;
-#else
-	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
-#endif
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	bool IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
-#endif
+	//units which can cause or lift a blockade
+	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
 
 	int getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
 
@@ -317,8 +313,13 @@ public:
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
 
-	void SetTradeRoute(PlayerTypes ePlayer, bool bActive);
-	bool IsTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
+	void SetCityConnection(PlayerTypes ePlayer, bool bActive);
+	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER) const;
+
+#if defined(MOD_BALANCE_CORE)
+	void SetTradeUnitRoute(bool bActive);
+	bool IsTradeUnitRoute() const;
+#endif
 
 	bool isValidDomainForLocation(const CvUnit& unit) const;
 	bool isValidDomainForAction(const CvUnit& unit) const;
@@ -462,9 +463,7 @@ public:
 	//can a generic unit move through this plot (disregarding promotions, combat/civilian etc)
 	bool isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory=true) const;
 
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	bool isBlockaded(PlayerTypes ePlayer);
-#endif
 
 	TerrainTypes getTerrainType() const
 	{
@@ -525,7 +524,7 @@ public:
 
 	bool isImpassable(TeamTypes eTeam = NO_TEAM) const;
 	bool IsAllowsWalkWater() const;
-	bool needsEmbarkation() const;
+	bool needsEmbarkation(const CvUnit* pUnit) const;
 
 	bool isRoughGround() const
 	{
@@ -989,6 +988,7 @@ protected:
 	bool* m_abResourceForceReveal;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abIsImpassable;
+	bool m_bIsTradeUnitRoute;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1028,8 +1028,7 @@ protected:
 
 	short m_iCulture;
 
-	uint m_uiTradeRouteBitFlags;
-
+	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;

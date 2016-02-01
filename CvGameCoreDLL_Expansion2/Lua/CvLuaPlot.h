@@ -51,7 +51,7 @@ protected:
 	//! (LUA) CvPlot::IsWater.
 	static int lIsWater(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsBlockaded, bool, iPlayer);
 #endif
 

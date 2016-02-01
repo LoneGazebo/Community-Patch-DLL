@@ -29,11 +29,7 @@
 #include "CvDLLUtilDefines.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvBarbarians.h"
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
 #include "CvDiplomacyAI.h"
-#endif
-
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 #include "CvUnitMovement.h"
@@ -93,7 +89,7 @@ void ClearPlotDeltas()
 	std::set<int>::iterator i;
 	for(i = plotsToCheck.begin(); i != plotsToCheck.end(); ++i)
 	{
-		CvPlot* plot = GC.getMap().plotByIndexUnchecked(*i);
+		CvPlot* plot = GC.getMap().plotByIndex(*i);
 
 		if(plot)
 		{
@@ -240,7 +236,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iResourceNum = 0;
 	m_cContinentType = 0;
 
-	m_uiTradeRouteBitFlags = 0;
+	m_uiCityConnectionBitFlags = 0;
 
 	m_bStartingPlot = false;
 	m_bHills = false;
@@ -330,6 +326,9 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	}
 
 	m_kArchaeologyData.Reset();
+#if defined(MOD_BALANCE_CORE)
+	m_bIsTradeUnitRoute = false;
+#endif
 }
 
 //////////////////////////////////////
@@ -737,6 +736,14 @@ void CvPlot::verifyUnitValidPlot()
 	}
 
 	int iUnitListSize = (int) oldUnitList.size();
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	// Bail out early if no units on the plot
+	if (iUnitListSize == 0)
+	{
+		return;
+	}
+#endif
+
 	for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
 	{
 		pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
@@ -810,6 +817,62 @@ void CvPlot::verifyUnitValidPlot()
 			}
 		}
 	}
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	else
+	{
+		if (iUnitListSize > 1)
+		{
+			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+			{
+				pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+				if(pLoopUnit != NULL)
+				{
+					if(!pLoopUnit->isDelayedDeath())
+					{
+						if(pLoopUnit->atPlot(*this))  // it may have jumped
+						{
+							if(!(pLoopUnit->isInCombat()))
+							{
+								for(int iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < (int) iUnitListSize; ++iVectorLoop2)
+								{
+									CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
+									if(pLoopUnit2 != NULL)
+									{
+										if(!pLoopUnit2->isDelayedDeath())
+										{
+											if(pLoopUnit2->atPlot(*this))  // it may have jumped
+											{
+												if(!(pLoopUnit2->isInCombat()))
+												{
+													if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
+													{
+														// We have to evict the weaker of pLoopUnit and pLoopUnit2
+														if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
+														{
+															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
+															if (!pLoopUnit->jumpToNearestValidPlot())
+																pLoopUnit->kill(false);
+														}
+														else
+														{
+															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
+															if (!pLoopUnit2->jumpToNearestValidPlot())
+																pLoopUnit2->kill(false);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2452,6 +2515,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Can't repair outside of owned territory.
+		if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+		{
+			return false;
+		}
+#endif
 		if(IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;
@@ -2657,11 +2727,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										{
 											if(pLoopCity != NULL)
 											{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 												for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-												for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 												{
 													CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2683,11 +2750,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 										CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
 										if(pCity != NULL)
 										{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 											for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-											for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 											{
 												CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -3012,20 +3076,35 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed)
+UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 {
-	// accesses another internal method, user code sees this (mutable) method and const guarantees are maintained
-	return (const_cast<const CvPlot*>(this)->getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestAtWar, bTestPotentialEnemy, bTestCanMove, bNoncombatAllowed));
+	const IDInfo* pUnitNode = headUnitNode();
+	UnitHandle pLoopUnit;
+	UnitHandle pBestUnit;
+
+	while(pUnitNode != NULL)
+	{
+		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison())
+		{
+			if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(),NULL))
+			{
+				pBestUnit = pLoopUnit;
+			}
+		}
+	}
+
+	return pBestUnit;
 }
 
 //	--------------------------------------------------------------------------------
-const UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
+UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
 {
-	const IDInfo* pUnitNode;
-	const UnitHandle pLoopUnit;
-	const UnitHandle pBestUnit;
-
-	pUnitNode = headUnitNode();
+	const IDInfo* pUnitNode = headUnitNode();
+	UnitHandle pLoopUnit;
+	UnitHandle pBestUnit;
 
 	while(pUnitNode != NULL)
 	{
@@ -3063,18 +3142,10 @@ const UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttack
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getSelectedUnit()
+CvUnit* CvPlot::getSelectedUnit() const
 {
-	return const_cast<CvUnit*>(const_cast<const CvPlot*>(this)->getSelectedUnit());
-}
-
-//	--------------------------------------------------------------------------------
-const CvUnit* CvPlot::getSelectedUnit() const
-{
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	pUnitNode = headUnitNode();
+	const IDInfo* pUnitNode = headUnitNode();
+	CvUnit* pLoopUnit;
 
 	while(pUnitNode != NULL)
 	{
@@ -3242,13 +3313,15 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3264,9 +3337,20 @@ bool CvPlot::IsAllowsWalkWater() const
 	return false;
 }
 
-bool CvPlot::needsEmbarkation() const
+bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-	return isWater() && !isIce() && !IsAllowsWalkWater();
+	if (pUnit==NULL)
+		return isWater() && !isIce() && !IsAllowsWalkWater();
+	else
+	{
+		//only land units need to embark
+		if (pUnit->getDomainType()==DOMAIN_LAND)
+		{
+			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
+		}
+		else
+			return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -3701,20 +3785,11 @@ int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerT
 	return iCount;
 }
 
-
 //	--------------------------------------------------------------------------------
-const CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
-	return const_cast<CvPlot*>(this)->plotCheck(funcA, iData1A, iData2A, eOwner, eTeam, funcB, iData1B, iData2B);
-}
-
-//	--------------------------------------------------------------------------------
-CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B)
-{
-	IDInfo* pUnitNode;
+	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit;
-
-	pUnitNode = headUnitNode();
 
 	while(pUnitNode != NULL)
 	{
@@ -3789,12 +3864,23 @@ bool CvPlot::isActiveVisible() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::isVisibleToCivTeam(bool bNoObserver) const
+#else
 bool CvPlot::isVisibleToCivTeam() const
+#endif
 {
 	int iI;
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Skip observer here.
+		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		{
+			continue;
+		}
+#endif
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -3806,7 +3892,6 @@ bool CvPlot::isVisibleToCivTeam() const
 
 	return false;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
@@ -3974,9 +4059,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-		{
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->m_bExplorationPlotsDirty = true;
-		}
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
 	}
 }
 
@@ -4393,12 +4476,8 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Is there an enemy Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly, bool bNavalUnitsOnly) const
-#else
-bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-#endif
+// does not check visibility!
+bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam& kTeam = GET_TEAM(eTeam);
@@ -4408,18 +4487,39 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
 		if(pkUnit)
 		{
-			if(kTeam.isAtWar(pkUnit->getTeam()))
+			bool bCorrectOwner = false;
+			if (bFriendly)
 			{
-				if(!bCombatUnitsOnly || pkUnit->IsCombatUnit())
+				if ( pkUnit->getTeam()==eTeam )
 				{
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-					if (!bNavalUnitsOnly || pkUnit->getDomainType() == DOMAIN_SEA)
+					bCorrectOwner = true;
+				}
+				else 
+				{
+					CvPlayer& kOwner = GET_PLAYER(pkUnit->getOwner());
+					// Is it an allied minor or DoF major?
+					if ( (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) ||
+						 (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) )
 					{
-#endif
-						return true;
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
+						bCorrectOwner = true;
 					}
-#endif
+				}
+			}
+			else
+			{
+				bCorrectOwner = kTeam.isAtWar(pkUnit->getTeam());
+			}
+
+			if (bCorrectOwner)
+			{
+				//exclude civilians
+				if(pkUnit->IsCombatUnit())
+				{
+					//exclude embarked units, ships in port etc
+					if (pkUnit->isNativeDomain(this))
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -4427,37 +4527,6 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 
 	return false;
 }
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-//	--------------------------------------------------------------------------------
-/// Is there an allied Unit on this Plot?  (Don't care if we can actually see it or not, so be careful with this)
-bool CvPlot::IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
-{
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-
-	for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++) {
-		CvUnit* pkUnit = getUnitByIndex(iUnitLoop);
-		if (pkUnit) {
-			PlayerTypes eOwner = ((PlayerTypes) pkUnit->getOwner());
-			CvPlayer& kOwner = GET_PLAYER(eOwner);
-			
-			if (ePlayer == eOwner || kPlayer.getTeam() == kOwner.getTeam()) {
-				// It's our unit (or a team member's)
-				return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-			} else {
-				// Is it an allied minor or DoF major?
-				if (kOwner.isMinorCiv() && kOwner.GetMinorCivAI()->GetAlly() == ePlayer) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				} else if (!kOwner.isBarbarian() && kOwner.GetDiplomacyAI()->IsDoFAccepted(ePlayer)) {
-					return (!bCombatUnitsOnly || pkUnit->IsCombatUnit());
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 // Used to restrict number of units allowed on a plot at one time
@@ -4677,21 +4746,21 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
+void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 {
-	bool bWasTradeRoute = IsTradeRoute();
+	bool bWasConnection = IsCityConnection();
 
 	uint uiNewBitValue = (1 << ePlayer);
 	if(bActive)
 	{
-		m_uiTradeRouteBitFlags |= uiNewBitValue;
+		m_uiCityConnectionBitFlags |= uiNewBitValue;
 	}
 	else
 	{
-		m_uiTradeRouteBitFlags &= ~uiNewBitValue;
+		m_uiCityConnectionBitFlags &= ~uiNewBitValue;
 	}
 
-	if(IsTradeRoute() != bWasTradeRoute)
+	if(IsCityConnection() != bWasConnection)
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -4707,16 +4776,19 @@ void CvPlot::SetTradeRoute(PlayerTypes ePlayer, bool bActive)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		updateYield();
+#endif
 	}
 }
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
+bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
 {
 	if(ePlayer == NO_PLAYER)
 	{
-		if(m_uiTradeRouteBitFlags > 0)
+		if(m_uiCityConnectionBitFlags > 0)
 		{
 			return true;
 		}
@@ -4724,7 +4796,7 @@ bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
 	else
 	{
 		uint uiNewBitValue = (1 << ePlayer);
-		if(m_uiTradeRouteBitFlags & uiNewBitValue)
+		if(m_uiCityConnectionBitFlags & uiNewBitValue)
 		{
 			return true;
 		}
@@ -4737,7 +4809,20 @@ bool CvPlot::IsTradeRoute(PlayerTypes ePlayer) const
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvPlot::SetTradeUnitRoute(bool bActive)
+{
+	m_bIsTradeUnitRoute = bActive;
+}
 
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsTradeUnitRoute() const
+{
+	return m_bIsTradeUnitRoute;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 {
@@ -5071,7 +5156,7 @@ int CvPlot::getUpgradeTimeLeft(ImprovementTypes eImprovement, PlayerTypes ePlaye
 	int iUpgradeRate;
 	int iTurnsLeft;
 
-	iUpgradeLeft = ((100 * GC.getGame().getImprovementUpgradeTime(eImprovement, const_cast<CvPlot*>(this))) - ((getImprovementType() == eImprovement) ? getUpgradeProgress() : 0));
+	iUpgradeLeft = ((100 * GC.getGame().getImprovementUpgradeTime(eImprovement, this)) - ((getImprovementType() == eImprovement) ? getUpgradeProgress() : 0));
 	iUpgradeLeft /= 100;
 
 	if(ePlayer == NO_PLAYER)
@@ -5521,13 +5606,10 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 	CvPlot* pLoopPlot;
 	int iI;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -5554,13 +5636,10 @@ void CvPlot::updatePotentialCityWork()
 
 	bValid = false;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -6115,21 +6194,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 				if(bShouldUpdateHappiness)
 				{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-					if(MOD_BALANCE_CORE_HAPPINESS)
-					{
-						if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
-						{
-							GET_PLAYER(getOwner()).CalculateHappiness();
-						}
-					}
-					else
-					{
-#endif
-					GET_PLAYER(getOwner()).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-					}
-#endif
+					GET_PLAYER(getOwner()).CalculateNetHappiness();
 				}
 			}
 
@@ -6208,78 +6273,61 @@ bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 	return false;
 }
 
-#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 {
-	if (!isWater()) {
+	if (isCity())
 		return false;
-	}
 
-	// An enemy ship on the plot trumps all
-	if (getVisibleEnemyDefender(ePlayer)) {
+	// An enemy unit on the plot trumps all
+	if (IsBlockadeUnit(ePlayer,false))
 		return true;
-	}
 
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship on the plot secures the plot
-		if (IsActualAlliedUnit(ePlayer)) {
-			return false;
+	// An allied unit on the plot secures the plot
+	if (IsBlockadeUnit(ePlayer,true))
+		return false;
+
+	//ships have additional range
+	if (isWater()) 
+	{
+		// An enemy unit adjacent to the plot blockades it
+		for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop)
+		{
+			CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
+
+			if (pEnemyPlot && pEnemyPlot->isWater()==isWater() && pEnemyPlot->IsBlockadeUnit(ePlayer,false))
+				return true;
 		}
-	}
-#endif
 
-	// An enemy ship adjacent to the plot blockades it
-	for (int iEnemyLoop = 0; iEnemyLoop < NUM_DIRECTION_TYPES; ++iEnemyLoop) {
-		CvPlot* pEnemyPlot = plotDirection(getX(), getY(), ((DirectionTypes)iEnemyLoop));
-
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-		if (pEnemyPlot && (pEnemyPlot->isWater() || pEnemyPlot->isCity()) && pEnemyPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
-			return true;
-		}
-	}
-
-#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
-	if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES) {
-		// An allied ship adjacent to the plot secures it
-		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop) {
+		// An allied unit adjacent to the plot secures it
+		for (int iAlliedLoop = 0; iAlliedLoop < NUM_DIRECTION_TYPES; ++iAlliedLoop)
+		{
 			CvPlot* pAlliedPlot = plotDirection(getX(), getY(), ((DirectionTypes)iAlliedLoop));
 
-			if (pAlliedPlot && (pAlliedPlot->isWater() || pAlliedPlot->isCity()) && pAlliedPlot->IsActualAlliedUnit(ePlayer)) {
+			if (pAlliedPlot && pAlliedPlot->isWater()==isWater() && pAlliedPlot->IsBlockadeUnit(ePlayer,true))
 				return false;
-			}
 		}
-	}
-#endif
 
-	// An enemy ship 2 tiles away blockades it
-	int iRange = 2;
-	CvPlot* pLoopPlot = NULL;
+		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
+		if (iRange>1)
+		{
+			for (int iDX = -iRange; iDX <= iRange; iDX++)
+			{
+				for (int iDY = -iRange; iDY <= iRange; iDY++)
+				{
+					CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
+						continue;
 
-	for (int iDX = -iRange; iDX <= iRange; iDX++) {
-		for (int iDY = -iRange; iDY <= iRange; iDY++) {
-			pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-			if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) != iRange) {
-				continue;
-			}
-
-#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer, true, true)) {
-#else
-			if (pLoopPlot->isWater() && pLoopPlot->IsActualEnemyUnit(ePlayer)) {
-#endif
-				return true;
+					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+						return true;
+				}
 			}
 		}
 	}
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFlatlands() const
@@ -6398,13 +6446,10 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -7005,10 +7050,6 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 
 		if(pImprovementInfo->IsWater() != isWater())
 			continue;
-#if defined(MOD_BALANCE_CORE)
-		if(!pImprovementInfo->IsAdjacentCity())
-			continue;
-#endif
 
 		eImprovementNeeded = eImprovement;
 	}
@@ -7038,6 +7079,56 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
+
+#if defined(MOD_BUGFIX_MINOR)
+			DomainTypes eTradeRouteDomain = NO_DOMAIN;
+			if (oldImprovementEntry.IsAllowsWalkWater()) {
+				eTradeRouteDomain = DOMAIN_LAND;
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+			}
+			else if (oldImprovementEntry.IsMakesPassable()) {
+				eTradeRouteDomain = DOMAIN_SEA;
+#endif
+			}
+#endif
+
+
+#if defined(MOD_BUGFIX_MINOR)
+			if (eTradeRouteDomain != NO_DOMAIN) {
+				// Take away any trade routes of this domain that pass through the plot
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				int iPlotX = getX();
+				int iPlotY = getY();
+
+				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+				{
+					CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+					for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+					{
+						const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
+						if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+						{
+							continue;
+						}
+						for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+						{
+							if (pConnection->m_eDomain == eTradeRouteDomain) {
+								TradeConnectionPlotList aPlotList = pConnection->m_aPlotList;
+
+								for (uint uiPlotIndex = 0; uiPlotIndex < aPlotList.size(); uiPlotIndex++) {
+									if (aPlotList[uiPlotIndex].m_iX == iPlotX && aPlotList[uiPlotIndex].m_iY == iPlotY) 
+									{
+										CUSTOMLOG("Cancelling trade route for domain %i in plot (%i, %i) as enabling improvement destroyed", eTradeRouteDomain, iPlotX, iPlotY);
+										pTrade->EndTradeRoute(pConnection->m_iID);
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 
 			// If this improvement can add culture to nearby improvements, update them as well
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -7404,21 +7495,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							if(MOD_BALANCE_CORE_HAPPINESS)
+							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 							{
-								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-								{
-									owningPlayer.CalculateHappiness();
-								}
+								owningPlayer.CalculateNetHappiness();
 							}
-							else
-							{
-#endif
-							owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							}
-#endif
 						}
 					}
 				}
@@ -7528,21 +7608,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							if(MOD_BALANCE_CORE_HAPPINESS)
+							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
 							{
-								if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
-								{
-									owningPlayer.CalculateHappiness();
-								}
+								owningPlayer.CalculateNetHappiness();
 							}
-							else
-							{
-#endif
-							owningPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-							}	
-#endif
 						}
 					}
 				}
@@ -8027,14 +8096,14 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 
 	m_bRoutePillaged = bPillaged;
 
-	if(bPillaged && IsTradeRoute(NO_PLAYER))
+	if(bPillaged && IsCityConnection(NO_PLAYER))
 	{
 		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)i;
 			if(GET_PLAYER(ePlayer).isAlive())
 			{
-				if(IsTradeRoute(ePlayer))
+				if(IsCityConnection(ePlayer))
 				{
 					GET_PLAYER(ePlayer).GetCityConnections()->Update();
 				}
@@ -8215,14 +8284,11 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 
 	// Loop through nearby plots to find the closest city to link to
 	CvPlot* pLoopPlot;
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iJ = 0; iJ < MAX_CITY_PLOTS; iJ++)
-#else
-	for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 	{
 		// We're not actually looking around a City but Resources have to be within the RANGE of a City, so we can still use this
-		pLoopPlot = plotCity(getX(), getY(), iJ);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -8301,13 +8367,10 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 				}
 			}
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8336,13 +8399,10 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 
 		if(isCity())
 		{
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 			for(iI = 0; iI < getPlotCity()->GetNumWorkablePlots(); ++iI)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 			{
-				pLoopPlot = plotCity(getX(), getY(), iI);
+				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -8396,13 +8456,10 @@ void CvPlot::updateWorkingCity()
 	{
 		iBestPlot = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-#else
-		for(iI = 0; iI < NUM_CITY_PLOTS; ++iI)
-#endif
 		{
-			pLoopPlot = plotCity(getX(), getY(), iI);
+			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -9088,31 +9145,29 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		{
 			eRouteType = getRouteType();
 		}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+		if(ePlayer != NO_PLAYER)
+		{
+			if(IsTradeUnitRoute())
+			{
+				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+				}
+				else
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+				}
+			}
+		}
+#else
+#endif
 		if(eRouteType != NO_ROUTE)
 		{
 #if defined(MOD_BALANCE_CORE_YIELDS)
 			if(ePlayer != NO_PLAYER)
 			{
-				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-				{
-					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-					{
-						continue;
-					}
-					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-					{
-						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-						{
-							bTrade = true;
-							break;
-						}
-					}
-				}
-				if(IsTradeRoute(ePlayer))
+				if(IsCityConnection(ePlayer) && MOD_BALANCE_YIELD_SCALE_ERA)
 				{
 					if(IsRouteRailroad())
 					{
@@ -9123,21 +9178,21 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 					}
 				}
-				if(bTrade)
+				else
 				{
-					if(IsRouteRailroad())
-					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-					}
-					else if(IsRouteRoad())
-					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					}
-#else
-			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
-#endif
+					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 				}
 			}
+			else
+			{
+#endif
+			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			}
+#else
+				}
+			}
+#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -9345,32 +9400,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				if(iBonus > 0)
 				{
-					bool bTrade = false;
-					if(IsTradeRoute())
-					{
-						bTrade = true;
-					}
-					if(!bTrade)
-					{
-						CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-						for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-						{
-							const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-							if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-							{
-								continue;
-							}
-							for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-							{
-								if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-								{
-									bTrade = true;
-									break;
-								}
-							}
-						}
-					}
-					if(bTrade)
+					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 					{
 						int iScale = 0;
 						int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -9534,11 +9564,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Extra yield for improvements
-		if(getImprovementType() != NO_FEATURE)
+		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			if(pWorkingCity != NULL)
+			if(pWorkingCity != NULL && pWorkingCity->getOwner() != NO_PLAYER)
 			{
 				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				iYield += GET_PLAYER(pWorkingCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
 			}
 		}
 #endif
@@ -9605,8 +9636,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 #endif
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pCity->plot() == this)
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+		if(MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
 		{
 			//Non-hill, non-freshwater city plots should make one extra gold
 			if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
@@ -9915,12 +9946,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					{
 						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
 						if(playerI.isAlive())
-						{
 							if(playerI.getTeam() == eTeam)
-							{
-								playerI.GetEconomicAI()->m_bExplorationPlotsDirty = true;
-							}
-						}
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
@@ -10361,21 +10388,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-								if(MOD_BALANCE_CORE_HAPPINESS)
+								if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
 								{
-									if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
-									{
-										playerI.CalculateHappiness();
-									}
+									playerI.CalculateNetHappiness();
 								}
-								else
-								{
-#endif
-								playerI.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-								}
-#endif
 
 								// Add World Anchor
 								if(eTeam == eActiveTeam)
@@ -11730,7 +11746,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_sBuilderAIScratchPadValue;
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
-	kStream >> m_uiTradeRouteBitFlags;
+	kStream >> m_uiCityConnectionBitFlags;
 
 #if defined(MOD_BALANCE_CORE)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
@@ -11906,6 +11922,9 @@ void CvPlot::read(FDataStream& kStream)
 
 	kStream >> m_cContinentType;
 	kStream >> m_kArchaeologyData;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bIsTradeUnitRoute;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -11938,7 +11957,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_sBuilderAIScratchPadValue;
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
-	kStream << m_uiTradeRouteBitFlags;
+	kStream << m_uiCityConnectionBitFlags;
 
 	kStream << m_bStartingPlot;
 	kStream << m_bHills;
@@ -12054,6 +12073,9 @@ void CvPlot::write(FDataStream& kStream) const
 
 	kStream << m_cContinentType;
 	kStream << m_kArchaeologyData;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bIsTradeUnitRoute;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -12148,7 +12170,7 @@ void CvPlot::updateLayout(bool bDebug)
 			{
 				eRoadTypeValue = ROAD_PILLAGED;
 			}
-			else if(IsTradeRoute())
+			else if(IsCityConnection())
 			{
 				eRoadTypeValue = ROAD_TRADE_ROUTE;
 			}
@@ -12162,7 +12184,7 @@ void CvPlot::updateLayout(bool bDebug)
 			{
 				eRoadTypeValue = RR_PILLAGED;
 			}
-			else if(IsTradeRoute())
+			else if(IsCityConnection())
 			{
 				eRoadTypeValue = RR_TRADE_ROUTE;
 			}
@@ -12426,89 +12448,59 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			if(ePlayer != NO_PLAYER)
 			{
 				int iRouteYield = 0;
-				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-				bool bTrade = false;
-				for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-				{
-					const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-					{
-						continue;
-					}
-					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-					{
-						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
-						{
-							bTrade = true;
-							break;
-						}
-					}
-				}
-				if(IsTradeRoute(ePlayer))
+				if(IsCityConnection(ePlayer))
 				{
 					if(IsRouteRailroad())
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
 					}
 					else if(IsRouteRoad())
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
 					}
 				}
-				if(bTrade)
+				if(IsTradeUnitRoute())
 				{
-					if(IsRouteRailroad())
+					if( GET_PLAYER(ePlayer).GetCurrentEra()>=4 )
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
 					}
-					else if(IsRouteRoad())
+					else
 					{
 						iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						if(getRouteType() != NO_ROUTE)
-						{
-							iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
 					}
 				}
 				if(iRouteYield > 0)
 				{
 					iYield += iRouteYield;
 				}
+
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsTradeRouteOnly())
 				{
-					if((IsTradeRoute(ePlayer) || bTrade) && (getFeatureType() == NO_FEATURE) && (getOwner() == GET_PLAYER(ePlayer).GetID()))
+					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 					{
-						int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-						if(iBonus > 0)
+						if (getFeatureType() == NO_FEATURE && getOwner() == GET_PLAYER(ePlayer).GetID())
 						{
-							int iScale = 0;
-							int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
-
-							iScale = ((iBonus * iEra) / 4);
-
-							if(iScale <= 0)
+							int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+							if(iBonus > 0)
 							{
-								iScale = 1;
+								int iScale = 0;
+								int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+								iScale = ((iBonus * iEra) / 4);
+
+								if(iScale <= 0)
+								{
+									iScale = 1;
+								}
+								iYield += iScale;
 							}
-							iYield += iScale;
 						}
 					}
 				}
 				else
 				{
-					GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+					iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 			}
 #else
@@ -12604,10 +12596,13 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(getImprovementType() != NO_FEATURE)
+		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			if(pWorkingCity != NULL)
+			if(pWorkingCity != NULL && pWorkingCity->getOwner() != NO_PLAYER)
+			{
 				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				iYield += GET_PLAYER(pWorkingCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
+			}
 		}
 #endif
 
@@ -13320,7 +13315,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	if (!isValidMovePlot(ePlayer))
 		return false;
 
-	if (getOwner()!=NO_PLAYER)
+	if (getOwner()!=NO_PLAYER && ePlayer!=NO_PLAYER)
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();
@@ -14432,35 +14427,15 @@ void CvPlot::UpdatePlotsWithLOS()
 	}
 }
 
-//void checkNeighborOffset(CvPlot* pPlot, int iRange)
-//{
-//	CvString res = CvString::format("Plot %d,%d: Range %d\n",pPlot->getX(),pPlot->getY(),iRange);
-//	OutputDebugString(res.c_str());
-//	for (int iDX = -iRange; iDX <= iRange; iDX++)
-//		for (int iDY = -iRange; iDY <= iRange; iDY++)
-//		{
-//			CvPlot *pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-//			if (pLoopPlot && plotDistance(*pPlot,*pLoopPlot)==iRange)
-//			{
-//				CvString res = CvString::format("\t%d,%d\n",iDX,iDY);
-//				OutputDebugString(res.c_str());
-//			}
-//		}
-//}
-
-int g_ciNumNeighborsRange2 = 12;
-int g_ciNumNeighborsRange3 = 18;
-int g_aiOffsetXRange2[] = {-2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2};
-int g_aiOffsetYRange2[] = {0, 1, 2, -1, 2, -2, 2, -2, 1, -2, -1, 0};
-int g_aiOffsetXRange3[] = {-3, -3, -3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
-int g_aiOffsetYRange3[] = {0, 1, 2, 3, -1, 3, -2, 3, -3, 3, -3, 2, -3, 1, -3, -2, -1, 0};
-
 bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
 {
 	vResult.clear();
 
 	//for now, we can only do up to range 3
-	//TODO: on the fly lookup for range 4 etc
+	if (iRange<1 || iRange>3)
+		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
+
+	iRange = max(1,iRange);
 	iRange = min(3,iRange);
 
 	if (bWithLOS)
@@ -14496,19 +14471,19 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 				return true;
 			}
 		case 2:
-			vResult.reserve(g_ciNumNeighborsRange2);
-			for (int i=0; i<g_ciNumNeighborsRange2; i++)
+			vResult.reserve( RING2_PLOTS-RING1_PLOTS );
+			for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange2[i], getY()+g_aiOffsetYRange2[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
 			return true;
 		case 3:
-			vResult.reserve(g_ciNumNeighborsRange3);
-			for (int i=0; i<g_ciNumNeighborsRange3; i++)
+			vResult.reserve( RING3_PLOTS-RING2_PLOTS );
+			for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
 			{
-				CvPlot* pCandidate = GC.getMap().plot( getX()+g_aiOffsetXRange3[i], getY()+g_aiOffsetYRange3[i] );
+				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
 				if (pCandidate)
 					vResult.push_back(pCandidate);
 			}
@@ -14516,8 +14491,6 @@ bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::ve
 		}
 	}
 
-	//todo: compute plots on the fly?
-	OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 	return false;
 }
 

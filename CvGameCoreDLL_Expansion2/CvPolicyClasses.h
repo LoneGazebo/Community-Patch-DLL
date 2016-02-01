@@ -98,6 +98,8 @@ public:
 	bool IsAutocracyCorp() const;
 	bool IsFreedomCorp() const;
 	bool IsUpgradeCSTerritory() const;
+	bool IsArchaeologicalDigTourism() const;
+	bool IsGoldenAgeTourism() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -184,6 +186,7 @@ public:
 	int GetEventTourismCS() const;
 	int GetMonopolyModFlat() const;
 	int GetMonopolyModPercent() const;
+	bool IsDummy() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -492,6 +495,7 @@ private:
 	int m_iEventTourismCS;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
+	bool m_bDummy;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
@@ -592,6 +596,8 @@ private:
 	bool m_bAutocracyCorporation;
 	bool m_bFreedomCorporation;
 	bool m_bUpgradeCSTerritory;
+	bool m_bArchaeologicalDigTourism;
+	bool m_bGoldenAgeTourism;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;

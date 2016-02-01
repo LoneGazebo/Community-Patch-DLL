@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 10/28/2014 1:01:30 PM -->
 <GameData>
-	<!-- Arabia -->
+	<!--
 	<UnitPromotions>
-		<!--Arabia Promotion-->
 		<Row>
 			<Type>PROMOTION_DESERT_SHIPS</Type>
 			<Description>TXT_KEY_PROMOTION_DESERT_SHIPS</Description>
@@ -79,56 +78,26 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitClass>
-	<Trait_TerrainYieldChanges>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_DESERT</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Trait_TerrainYieldChanges>
 	<UnitPromotions_Terrains>
 		<Row>
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 			<DoubleMove>true</DoubleMove>
 		</Row>
-		<Row>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<DoubleHeal>true</DoubleHeal>
-		</Row>
 	</UnitPromotions_Terrains>
+	-->
+	<Trait_YieldFromHistoricEvent>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_YieldFromHistoricEvent>
 	<!-- Aztec -->
 	<Building_RiverPlotYieldChanges>
 		<Row>
@@ -153,8 +122,14 @@
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
-			<ResourceType>RESOURCE_SALT</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<ResourceType>RESOURCE_STONE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_MARBLE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -165,7 +140,13 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
-			<ResourceType>RESOURCE_STONE</ResourceType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -203,7 +184,7 @@
 			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
 		</Row>
 	</Language_en_US>
-	<Trait_FreePromotionUnitCombats>
+	<!--<Trait_FreePromotionUnitCombats>
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
@@ -240,13 +221,51 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+	-->
 
 	<!-- Egypt -->
+	<Trait_ArtifactYieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_ArtifactYieldChanges>
+	<Trait_ImprovementYieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Trait_ImprovementYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_ResourceYieldChanges>
@@ -254,18 +273,12 @@
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
-			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -291,7 +304,7 @@
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldFromVictory>
@@ -478,6 +491,20 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_BuildingClassLocalYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>4</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>4</YieldChange>
+		</Row>
+	</Building_BuildingClassLocalYieldChanges>
 	<Building_FeatureYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
@@ -509,28 +536,14 @@
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
-	<Building_YieldChanges>
-		<Row>
-			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>4</Yield>
-		</Row>
-	</Building_YieldChanges>
-	<Building_Flavors>
-		<Row>
-			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>50</Flavor>
-		</Row>
-	</Building_Flavors>
 	<Building_ClassesNeededInCity>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
 	<Trait_GreatPersonBornYield>
@@ -597,6 +610,13 @@
 			<Yield>20</Yield>
 		</Row>
 	</Trait_YieldFromTilePurchase>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Building_ImprovementYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_KREPOST</BuildingType>

@@ -393,12 +393,24 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained in Capital based on # of historic events you have completed. -->
+	<Table name="Trait_YieldFromHistoricEvent">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained when you conquer a city for the first time. -->
 	<Table name="Trait_YieldFromConquest">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- TRAIT: Allows you to define a terrain type that is gained when you acquire a tile naturally. -->
+	<Table name="Trait_TerrainClaimBoost">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 	</Table>
 
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
@@ -573,6 +585,14 @@
 			<ID>14</ID>
 			<Type>YIELD_JFD_CRIME</Type>
 			<Description>TXT_KEY_YIELD_JFD_CRIME</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
+		<Row>
+			<ID>15</ID>
+			<Type>YIELD_JFD_LOYALTY</Type>
+			<Description>TXT_KEY_YIELD_JFD_LOYALTY</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>

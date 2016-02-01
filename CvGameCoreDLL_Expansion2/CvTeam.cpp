@@ -42,6 +42,12 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
 
+	if (eTeam==NO_TEAM)
+	{
+		OutputDebugString("Warning: Invalid argument for getTeam()!\n");
+		return m_aTeams[BARBARIAN_TEAM];
+	}
+
 	return m_aTeams[eTeam];
 }
 
@@ -1200,7 +1206,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 //	-----------------------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #else
 void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #endif
@@ -1222,6 +1228,172 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	{
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
+	if(!isBarbarian())
+	{
+		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
+		CloseEmbassyAtTeam(eTeam);
+		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+		CancelResearchAgreement(eTeam);
+		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
+		EvacuateDiplomatsAtTeam(eTeam);
+		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
+		//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
+		if(!bDefensivePact && bAggressor)
+		{
+			cancelDefensivePacts();
+			// If we've made a peace treaty before, this is bad news (no minors though)
+			if(!GET_TEAM(eTeam).isMinorCiv())
+			{
+				int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
+				if(iPeaceTreatyTurn != -1)
+				{
+					int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+					{
+						SetHasBrokenPeaceTreaty(true);
+					}
+				}
+			}
+		}
+		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
+		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
+			// We declared war on our vassal!
+			if(GET_TEAM(eTeam).GetMaster() == GetID())
+			{
+				// this guy is no longer our vassal
+				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
+			}
+		}
+#endif	
+		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+		{
+			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+			if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+			{
+				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+				{
+					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
+					{
+						// Forget any of that liberation crud!
+						int iNumCitiesLiberated = kDefendingPlayer.GetDiplomacyAI()->GetNumCitiesLiberated(eAttackingPlayer);
+						kDefendingPlayer.GetDiplomacyAI()->ChangeNumCitiesLiberated(eAttackingPlayer, -iNumCitiesLiberated);
+
+						//Update Diplo.
+						kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
+#if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
+						if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
+						{
+							CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
+
+							if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) 
+							{
+								pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
+							}
+						}
+#endif
+					}
+				}
+			}
+		}
+
+		//Secondary major declarations
+		for(iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			if(GET_TEAM((TeamTypes)iI).isAlive())
+			{
+				//Defensive pacts only trigger on the 'first' major declaration - no chain declarations.
+				if(bAggressor && !bDefensivePact)
+				{
+					//Do we have a defensive pact with the target team?
+					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					//Are we a vassal of the player DOW'd on?
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					//Are we the master of eTeam (should never happen, actually)?
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					//Are we a vassal of the player DOW'ing player?
+					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, eTeam, /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ true);
+#endif
+					}
+#endif
+				}
+			}
+		}
+	}
+
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
+	setAtWar(eTeam, true);
+	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (MOD_EVENTS_WAR_AND_PEACE) 
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} 
+	else 
+	{
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	}
+#endif
+
+	// One shot things
+	DoNowAtWarOrPeace(eTeam, true);
+	GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), true);
+
+	// Meet the team if we haven't already
+	meet(eTeam, false);
+#else
 
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
@@ -1301,7 +1473,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, !bAggressor, GetID(), /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
 					GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
@@ -1313,22 +1485,26 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			TeamTypes eHisMaster = GET_TEAM(eTeam).GetMaster();
-
-			// If this guy has a master and it's not us, we declare war on his master
-			if(eHisMaster != NO_TEAM)
+		if (!bDefensivePact && MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
+			for(iI = 0; iI < MAX_TEAMS; iI++)
 			{
-				// Don't declare war if we're not alive!
-				if(isAlive())
+				if(GET_TEAM((TeamTypes)iI).isAlive())
 				{
-					//important, check if we're already at war, otherwise recursion!
-					if(eHisMaster != GetID() && !isAtWar(eHisMaster) )
+					if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), bAggressor, eHisMaster, false);
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
-						GET_TEAM(GetID()).DoDeclareWar(eHisMaster, false);
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+#endif
+					}
+					else if(GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+#else
+						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
 					}
 				}
@@ -1336,7 +1512,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 #endif
 	}
-
 	// Cancel Trade Deals, RAs, diplomats
 	if(!isBarbarian())
 	{
@@ -1349,8 +1524,10 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
 	}
 
+#if !defined(MOD_GLOBAL_STACKING_RULES)
 	// Bump Units out of places they shouldn't be
 	GC.getMap().verifyUnitValidPlot();
+#endif
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
@@ -1359,31 +1536,31 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	setAtWar(eTeam, true);
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
 #endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (MOD_EVENTS_WAR_AND_PEACE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
-	} else {
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
 #endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
-		CvLuaArgsHandle args;
-		args->Push(GetID());
-		args->Push(eTeam);
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
-	}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	}
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} 
+	else 
+	{
 #endif
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
 		{
-			GET_TEAM((TeamTypes)iI).DoUpdateVassalWarPeaceRelationships();
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
 		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
 #endif
 
@@ -1418,7 +1595,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			}
 		}
 	}
-
+#endif
 	// Update interface stuff
 	if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
 	{
@@ -1737,21 +1914,54 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
 #endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if (MOD_EVENTS_WAR_AND_PEACE) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
-		} else {
-#endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
 		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(eTeam);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+			//Secondary major declarations
+			for(int iI = 0; iI < MAX_TEAMS; iI++)
+			{
+				if(GET_TEAM((TeamTypes)iI).isAlive())
+				{
+					//Are we a vassal of the from player?
+					if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, eTeam, true, false);
+#else
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eTeam, true, false);
+#endif
+					}
+					//Are we a vassal of the to player?
+					else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+					{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, GetID(), true, false);
+#else
+						GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
+#endif
+					}
+				}
+			}
 		}
+#endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (MOD_EVENTS_WAR_AND_PEACE) 
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+		} 
+		else 
+		{
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(eTeam);
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+			}
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
@@ -1759,6 +1969,12 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		// One shot things
 		DoNowAtWarOrPeace(eTeam, false);
 		GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), false);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			DoUpdateVassalWarPeaceRelationships();
+		}
+#endif
 
 		// Move Units that shouldn't be in each others' territory any more
 		if(bBumpUnits)
@@ -3452,7 +3668,7 @@ void CvTeam::changeCityWorkingChange(int iChange)
 						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
 			
 						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-							CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+							CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
 							if (pLoopPlot) {
 								pLoopPlot->changeCityRadiusCount(iChange);
@@ -3955,7 +4171,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 									GET_PLAYER(eTheirPlayer).DoUpdateProximityToPlayer(eMyPlayer);
 
 									// First contact Diplo changes (no Minors)
+#if defined(MOD_BALANCE_CORE)
+									if(!isMinorCiv() && !isBarbarian() && !isObserver())
+#else
 									if(!isMinorCiv())
+#endif
 									{
 										GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
 									}
@@ -4985,6 +5205,71 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			{
 				GC.getGame().makeNukesValid(true);
 			}
+#if defined(MOD_BALANCE_CORE)
+			bool bFirst = true;
+			for(int iK = 0; iK < MAX_TEAMS; iK++)
+			{
+				const TeamTypes eLoopTeam = static_cast<TeamTypes>(iK);
+				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+				if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
+				{
+					if(eLoopTeam != GetID())
+					{
+						if(kLoopTeam.getProjectCount(eIndex) > 0)
+						{
+							bFirst = false;
+							break;
+						}
+					}
+				}
+			}
+			if(bFirst)
+			{
+				BuildingClassTypes eBuildingClass = pkProject->GetFreeBuilding();
+				if(eBuildingClass != NO_BUILDINGCLASS)
+				{
+					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+					if(pkBuildingClassInfo)
+					{
+						for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+						{
+							if(GET_PLAYER((PlayerTypes)iJ).isAlive())
+							{
+								if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
+								{
+									const BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+									CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+									if(pBuildingEntry == NULL)
+										continue;
+
+									CvCity* pCapital = GET_PLAYER((PlayerTypes)iJ).getCapitalCity();
+
+									if(pCapital == NULL)
+										continue;
+
+									pCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+									pCapital->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+								}
+							}
+						}
+					}
+				}
+				PolicyTypes ePolicy = pkProject->GetFreePolicy();
+				if(ePolicy != NO_POLICY)
+				{
+					for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+					{
+						if(GET_PLAYER((PlayerTypes)iJ).isAlive())
+						{
+							if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
+							{
+								GET_PLAYER((PlayerTypes)iJ).setHasPolicy(ePolicy, true);
+							}
+						}
+					}
+				}	
+			}
+#endif
 
 			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
@@ -5017,6 +5302,50 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 
 			if(GC.getGame().isFinalInitialized())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(bFirst)
+				{
+					CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT_FIRST", getName().GetCString(), pkProject->GetTextKey());
+					CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST", getName().GetCString(), pkProject->GetTextKey());
+					CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST", pkProject->GetTextKey());
+
+					const PlayerTypes eTeamLeader = getLeaderID();
+					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
+					CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
+					CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
+
+
+					for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+					{
+						const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
+						CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+						if(kPlayer.isAlive())
+						{
+							if(isHasMet(kPlayer.getTeam()))
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
+							}
+							else
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
+							}
+						}
+					}
+				}
+				else
+				{
+#endif
 				CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
 				CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
 				CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
@@ -5055,6 +5384,9 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						}
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}
@@ -6035,6 +6367,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
 							int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 							// Culture boost based on previous turns
 							int iPreviousTurnsToCount = 10;
 							// Calculate boost
@@ -6088,34 +6421,100 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
 								if(pReligion)
 								{
+									int iLoop;
+									CvCity* pHolyCity = NULL;
+									for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop)) 
+									{
+										if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligionFounded)) 
+										{
+											pHolyCity = pLoopCity;
+											break;
+										}
+									}
+									float fDelay = 3.0;
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
 									{
-										kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.ChangeFaith(iValue);
+										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
+											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
 									{
-										kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.GetTreasury()->ChangeGold(iValue);
+										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
+											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
 									{
-										kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.changeJONSCulture(iValue);
+										if(kPlayer.getCapitalCity() != NULL)
+										{
+											kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+										}
+										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
+											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+										}
 									}
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
 									{
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
 										TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 										if(eCurrentTech == NO_TECH)
 										{
-											kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+											kPlayer.changeOverflowResearch(iValue);
 										}
 										else
 										{
-											GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+											GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
+										}
+										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 									{
-										kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
+										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iValue /= 100;
+										kPlayer.ChangeGoldenAgeProgressMeter(iValue);
+										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
+											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+										}
+
 									}
 #endif
 								}
@@ -6255,6 +6654,50 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(pkEraInfo != NULL)
 						{
 							SetCurrentEra(nextEra);
+#if defined(MOD_BALANCE_CORE)
+							if(!bNoBonus)
+							{
+								for(int iI = 0; iI < MAX_PLAYERS; iI++)
+								{
+									const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
+									{
+										int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
+										// Culture boost based on previous turns
+										int iPreviousTurnsToCount = 10;
+										// Calculate boost
+										iTourism *= GET_PLAYER(eLoopPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+										iTourism /= 100;
+										if(iTourism > 0)
+										{
+											GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+											if(eLoopPlayer == GC.getGame().getActivePlayer())
+											{
+												CvCity* pCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
+												if(pCity != NULL)
+												{
+													char text[256] = {0};
+													float fDelay = 0.5f;
+													sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+													DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+													CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+													if(pNotification)
+													{
+														CvString strMessage;
+														CvString strSummary;
+														strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ERA", iTourism);
+														strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+														pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eLoopPlayer);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 							if(!bNoBonus)
 							{
@@ -6288,47 +6731,63 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												float fDelay = 3.0;
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
 												{
-													kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.ChangeFaith(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+														sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
 												{
-													kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.GetTreasury()->ChangeGold(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
 												{
-													kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.changeJONSCulture(iValue);
+													if(kPlayer.getCapitalCity() != NULL)
+													{
+														kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+													}
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+														sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
 												{
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
 													TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 													if(eCurrentTech == NO_TECH)
 													{
-														kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+														kPlayer.changeOverflowResearch(iValue);
 													}
 													else
 													{
-														GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+														GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
 													}
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
@@ -6341,12 +6800,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 												{
-													kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
+													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+													iValue /= 100;
+													kPlayer.ChangeGoldenAgeProgressMeter(iValue);
 													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
-														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+														sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iValue);
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 
@@ -6739,21 +7201,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-					}
+					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -8264,6 +8715,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						kPlayer.GetTreasury()->ChangeGold(iHandicap);
 						kPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
 						kPlayer.changeJONSCulture(iHandicap / 3);
+						if(kPlayer.getCapitalCity() != NULL)
+					{
+						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+					}
 
 						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 						
@@ -9121,21 +9576,10 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-					}
+					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -9243,7 +9687,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
-				DoDeclareWar(getLeaderID(), GET_TEAM(eMaster).isAggressor(eTeam), eTeam, false, false, true);
+				DoDeclareWar(getLeaderID(), false, eTeam, true);
 			}
 #else
 				DoDeclareWar(eTeam, false, false, true);
@@ -9447,21 +9891,10 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	{
 		if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 		{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
+			if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
 			{
-				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes) iPlayerLoop).GetID() == GC.getGame().getActivePlayer())
-				{
-					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
-				}
+				GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 			}
-			else
-			{
-#endif
-				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			}
-#endif
 		}
 	}
 

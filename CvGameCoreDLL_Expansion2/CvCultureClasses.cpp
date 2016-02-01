@@ -220,6 +220,28 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
 		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+#if defined(MOD_BALANCE_CORE)
+		GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+		GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+		if(pWork->m_eClassType == eWritingClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eArtClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eArtifactsClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+		}
+		if(pWork->m_eClassType == eMusicClass)
+		{
+			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+		}
+#endif
 
 		CvCity* pCity = GetGreatWorkCity(iIndex);
 		if (pCity) {
@@ -3077,7 +3099,12 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				iValue /= 100;
 
 				m_pPlayer->changeJONSCulture(iValue);
-
+#if defined(MOD_BALANCE_CORE)
+				if(pPlot->getWorkingCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+				{
+					pPlot->getWorkingCity()->ChangeJONSCultureStored(iValue);
+				}
+#endif
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
@@ -3089,6 +3116,38 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
 		m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
+#if defined(MOD_BALANCE_CORE)
+		if(m_pPlayer->CanArchaeologicalDigTourism())
+		{
+			int iTourism = m_pPlayer->GetEventTourism();
+			m_pPlayer->ChangeNumHistoricEvents(1);
+			// Culture boost based on previous turns
+			int iPreviousTurnsToCount = 10;
+			// Calculate boost
+			iTourism *= m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iTourism /= 100;
+			m_pPlayer->GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(iTourism > 0)
+			{
+				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					float fDelay = 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+					DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+					CvNotifications* pNotification = m_pPlayer->GetNotifications();
+					if(pNotification)
+					{
+						CvString strMessage;
+						CvString strSummary;
+						strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY", iTourism);
+						strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+						pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pPlot->getX(), pPlot->getY(), m_pPlayer->GetID());
+					}
+				}
+			}
+		}
+#endif
 	}
 }
 
@@ -3260,229 +3319,209 @@ void CvPlayerCulture::DoTurn()
 #if defined(MOD_BALANCE_CORE)
 	//Tourism Update
 	strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SUMMARY");
-	int iTurns = 25;
-	iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iTurns /= 100;
-	int iEra = m_pPlayer->GetCurrentEra();
-	if(iEra <= 0)
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		iEra = 1;
-	}
-	iTurns /= iEra;
-	if(iTurns <= 5)
-	{
-		iTurns = 5;
-	}
-
-	if((GC.getGame().getGameTurn() - GetLastUpdate()) >= iTurns)
-	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		CvString strOurInfluenceInfo = "";
+		CvString strOurInfluenceInfoBad = "";
+		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		if(ePlayer == NO_PLAYER)
 		{
-			CvString strOurInfluenceInfo = "";
-			CvString strOurInfluenceInfoBad = "";
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer == NO_PLAYER)
-			{
-				continue;
-			}
-			if(ePlayer == m_pPlayer->GetID())
-			{
-				continue;
-			}
-			CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
-			CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
-			if(!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
-			if(kOtherTeam.GetID() == m_pPlayer->getTeam())
-			{
-				continue;
-			}
-			if(kOtherPlayer.isMinorCiv())
-			{
-				continue;
-			}
-			if(!kOtherPlayer.isAlive())
-			{
-				continue;
-			}
+			continue;
+		}
+		if(ePlayer == m_pPlayer->GetID())
+		{
+			continue;
+		}
+		CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
+		CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
+		if(!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
+		{
+			continue;
+		}
+		if(kOtherTeam.GetID() == m_pPlayer->getTeam())
+		{
+			continue;
+		}
+		if(kOtherPlayer.isMinorCiv())
+		{
+			continue;
+		}
+		if(!kOtherPlayer.isAlive())
+		{
+			continue;
+		}
 		
-			int iInfluenceOn = GetInfluenceOn(ePlayer);
-			int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
-			int iPercent = 0;
+		int iInfluenceOn = GetInfluenceOn(ePlayer);
+		int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+		int iPercent = 0;
 
-			if (iLifetimeCulture > 0)
-			{
-				iPercent = iInfluenceOn * 100 / iLifetimeCulture;
-			}
+		if (iLifetimeCulture > 0)
+		{
+			iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+		}
 
-			int iInfluenceOnLastTurn = GetLastTurnInfluenceOn(ePlayer);
-			int iLifetimeCultureLastTurn = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
-			int iPercentLastTurn = 0;
+		int iInfluenceOnLastTurn = GetLastTurnInfluenceOn(ePlayer);
+		int iLifetimeCultureLastTurn = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
+		int iPercentLastTurn = 0;
 
-			if (iLifetimeCultureLastTurn > 0)
-			{
-				iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
-			}
-			//Are we influential this turn, but weren't last turn? Notification!
-			if (iPercent >= GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn < GC.getCULTURE_LEVEL_DOMINANT())
-			{
-				strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn < GC.getCULTURE_LEVEL_INFLUENTIAL())
-			{
-				strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_POPULAR())
-			{
-				strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_3", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_FAMILIAR())
-			{
-				strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_2", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn < GC.getCULTURE_LEVEL_EXOTIC())
-			{
-				strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			if(strOurInfluenceInfo != "")
-			{
-				SetLastUpdate(GC.getGame().getGameTurn());
-				m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strOurInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
-			}
+		if (iLifetimeCultureLastTurn > 0)
+		{
+			iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
+		}
+		//Are we influential this turn, but weren't last turn? Notification!
+		if (iPercent >= GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn < GC.getCULTURE_LEVEL_DOMINANT())
+		{
+			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn < GC.getCULTURE_LEVEL_INFLUENTIAL())
+		{
+			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_POPULAR())
+		{
+			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_3", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_FAMILIAR())
+		{
+			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_2", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn < GC.getCULTURE_LEVEL_EXOTIC())
+		{
+			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		if(strOurInfluenceInfo != "")
+		{
+			SetLastUpdate(GC.getGame().getGameTurn());
+			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strOurInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
+		}
 
-			//Were we influential last turn, but now we aren't? Notification!
-			if (iPercent < GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn >= GC.getCULTURE_LEVEL_DOMINANT())
-			{
-				strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn >= GC.getCULTURE_LEVEL_INFLUENTIAL())
-			{
-				strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_POPULAR())
-			{
-				strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_3_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_FAMILIAR())
-			{
-				strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_2_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn >= GC.getCULTURE_LEVEL_EXOTIC())
-			{
-				strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
-			}
-			if(strOurInfluenceInfoBad != "")
-			{
-				SetLastUpdate(GC.getGame().getGameTurn());
-				m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strOurInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
-			}
+		//Were we influential last turn, but now we aren't? Notification!
+		if (iPercent < GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn >= GC.getCULTURE_LEVEL_DOMINANT())
+		{
+			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn >= GC.getCULTURE_LEVEL_INFLUENTIAL())
+		{
+			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_POPULAR())
+		{
+			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_3_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_FAMILIAR())
+		{
+			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_2_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn >= GC.getCULTURE_LEVEL_EXOTIC())
+		{
+			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
+		}
+		if(strOurInfluenceInfoBad != "")
+		{
+			SetLastUpdate(GC.getGame().getGameTurn());
+			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strOurInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
 		}
 	}
-	if((GC.getGame().getGameTurn() - GetLastThemUpdate()) >= iTurns)
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		CvString strTheirInfluenceInfo = "";
+		CvString strTheirInfluenceInfoBad = "";
+		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		if(ePlayer == NO_PLAYER)
 		{
-			CvString strTheirInfluenceInfo = "";
-			CvString strTheirInfluenceInfoBad = "";
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer == NO_PLAYER)
-			{
-				continue;
-			}
-			if(ePlayer == m_pPlayer->GetID())
-			{
-				continue;
-			}
-			CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
-			CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
-			if(!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
-			if(kOtherTeam.GetID() == m_pPlayer->getTeam())
-			{
-				continue;
-			}
-			if(kOtherPlayer.isMinorCiv())
-			{
-				continue;
-			}
-			if(!kOtherPlayer.isAlive())
-			{
-				continue;
-			}
+			continue;
+		}
+		if(ePlayer == m_pPlayer->GetID())
+		{
+			continue;
+		}
+		CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
+		CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
+		if(!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
+		{
+			continue;
+		}
+		if(kOtherTeam.GetID() == m_pPlayer->getTeam())
+		{
+			continue;
+		}
+		if(kOtherPlayer.isMinorCiv())
+		{
+			continue;
+		}
+		if(!kOtherPlayer.isAlive())
+		{
+			continue;
+		}
 		
-			int iInfluenceOn = kOtherPlayer.GetCulture()->GetInfluenceOn(m_pPlayer->GetID());
-			int iLifetimeCulture = m_pPlayer->GetJONSCultureEverGenerated();
-			int iPercent = 0;
+		int iInfluenceOn = kOtherPlayer.GetCulture()->GetInfluenceOn(m_pPlayer->GetID());
+		int iLifetimeCulture = m_pPlayer->GetJONSCultureEverGenerated();
+		int iPercent = 0;
 
-			if (iLifetimeCulture > 0)
-			{
-				iPercent = iInfluenceOn * 100 / iLifetimeCulture;
-			}
+		if (iLifetimeCulture > 0)
+		{
+			iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+		}
 
-			int iInfluenceOnLastTurn = kOtherPlayer.GetCulture()->GetLastTurnInfluenceOn(m_pPlayer->GetID());
-			int iLifetimeCultureLastTurn = m_pPlayer->GetCulture()->GetLastTurnLifetimeCulture();
-			int iPercentLastTurn = 0;
+		int iInfluenceOnLastTurn = kOtherPlayer.GetCulture()->GetLastTurnInfluenceOn(m_pPlayer->GetID());
+		int iLifetimeCultureLastTurn = m_pPlayer->GetCulture()->GetLastTurnLifetimeCulture();
+		int iPercentLastTurn = 0;
 
-			if (iLifetimeCultureLastTurn > 0)
-			{
-				iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
-			}
-			//Are they influential this turn, but weren't last turn? Notification!
-			if (iPercent >= GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn < GC.getCULTURE_LEVEL_DOMINANT())
-			{
-				strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn < GC.getCULTURE_LEVEL_INFLUENTIAL())
-			{
-				strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_POPULAR())
-			{
-				strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_3", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_FAMILIAR())
-			{
-				strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_2", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent >= GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn < GC.getCULTURE_LEVEL_EXOTIC())
-			{
-				strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			if(strTheirInfluenceInfo != "")
-			{
-				SetLastThemUpdate(GC.getGame().getGameTurn());
-				m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strTheirInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
-			}
-			//Were they influential last turn, but now they aren't? Notification!
-			if (iPercent < GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn >= GC.getCULTURE_LEVEL_DOMINANT())
-			{
-				strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn >= GC.getCULTURE_LEVEL_INFLUENTIAL())
-			{
-				strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_POPULAR())
-			{
-				strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_3_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_FAMILIAR())
-			{
-				strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_2_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			else if (iPercent < GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn >= GC.getCULTURE_LEVEL_EXOTIC())
-			{
-				strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
-			}
-			if(strTheirInfluenceInfoBad != "")
-			{
-				SetLastThemUpdate(GC.getGame().getGameTurn());
-				m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strTheirInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
-			}
+		if (iLifetimeCultureLastTurn > 0)
+		{
+			iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
+		}
+		//Are they influential this turn, but weren't last turn? Notification!
+		if (iPercent >= GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn < GC.getCULTURE_LEVEL_DOMINANT())
+		{
+			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn < GC.getCULTURE_LEVEL_INFLUENTIAL())
+		{
+			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_POPULAR())
+		{
+			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_3", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn < GC.getCULTURE_LEVEL_FAMILIAR())
+		{
+			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_2", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent >= GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn < GC.getCULTURE_LEVEL_EXOTIC())
+		{
+			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		if(strTheirInfluenceInfo != "")
+		{
+			SetLastThemUpdate(GC.getGame().getGameTurn());
+			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strTheirInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
+		}
+		//Were they influential last turn, but now they aren't? Notification!
+		if (iPercent < GC.getCULTURE_LEVEL_DOMINANT() && iPercentLastTurn >= GC.getCULTURE_LEVEL_DOMINANT())
+		{
+			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_INFLUENTIAL() && iPercentLastTurn >= GC.getCULTURE_LEVEL_INFLUENTIAL())
+		{
+			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_POPULAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_POPULAR())
+		{
+			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_3_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_FAMILIAR() && iPercentLastTurn >= GC.getCULTURE_LEVEL_FAMILIAR())
+		{
+			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_2_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		else if (iPercent < GC.getCULTURE_LEVEL_EXOTIC() && iPercentLastTurn >= GC.getCULTURE_LEVEL_EXOTIC())
+		{
+			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
+		}
+		if(strTheirInfluenceInfoBad != "")
+		{
+			SetLastThemUpdate(GC.getGame().getGameTurn());
+			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strTheirInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
 		}
 	}
 #endif
@@ -6319,9 +6358,16 @@ int CvCityCulture::GetBaseTourism()
 int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const
 {
 	int iMultiplier = 0;
+	if(ePlayer == NO_PLAYER || m_pCity->getOwner() == NO_PLAYER)
+		return 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if(kCityPlayer.isMinorCiv())
+		return 0;
+
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -6418,7 +6464,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	{
-		if (kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
+		if (kCityPlayer.GetEspionage() && kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 		}
@@ -6495,6 +6541,14 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_THEMING_BONUSES", iThemingBonuses);
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iTraitBonuses = m_pCity->GetYieldPerTurnFromTraits(YIELD_TOURISM);
+	if (iTraitBonuses > 0)
+	{
+		szRtnValue += "[NEWLINE][NEWLINE]";
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES", iTraitBonuses);
+	}
+#endif
 
 	// Landmarks, Wonders, Natural Wonders, Improvements
 	int iTileTourism = 0;
@@ -6638,7 +6692,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	if((m_pCity->getYieldRate(YIELD_TOURISM, false) - iTourismFromWW) > 0)
+	if((m_pCity->getYieldRate(YIELD_TOURISM, false) - iTourismFromWW - iTraitBonuses) > 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
@@ -7129,7 +7183,6 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 	int iRtnValue = 0;
 
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
 	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
 	{
@@ -7139,32 +7192,6 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 			iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
 		}
 	}
-#else
-	CvPlot* pLoopPlot;
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-	{
-		if(iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = m_pCity->GetCityCitizens()->GetCityPlotFromIndex(iPlotLoop);
-
-			if(pLoopPlot != NULL)
-			{
-				// Is this a Plot this City controls?
-				if(pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == m_pCity->GetID())
-				{
-					// Working the Plot?
-					if (m_pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-					{
-						if(pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsNaturalWonder())
-						{
-							iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return iRtnValue;
 }
 
@@ -7178,7 +7205,6 @@ int CvCityCulture::GetCultureFromImprovements() const
 	int iRtnValue = 0;
 	
 	// Look at all workable Plots
-#if defined(MOD_GLOBAL_CITY_WORKING)
 	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
 	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
 	{
@@ -7207,51 +7233,7 @@ int CvCityCulture::GetCultureFromImprovements() const
 			}
 		}
 	}
-#else
-	CvPlot* pLoopPlot;
-	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-	{
-		if(iPlotLoop != CITY_HOME_PLOT)
-		{
-			pLoopPlot = m_pCity->GetCityCitizens()->GetCityPlotFromIndex(iPlotLoop);
 
-			if(pLoopPlot != NULL)
-			{
-				// Is this a Plot this City controls?
-				if(pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == m_pCity->GetID())
-				{
-					// Working the Plot?
-					if (m_pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
-					{
-						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-						if (eImprovement != NO_IMPROVEMENT)
-						{
-							iRtnValue += pLoopPlot->calculateYield(eYield);
-
-							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-							if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
-							{
-#if defined(MOD_API_UNIFIED_YIELDS)
-								int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-#else
-								int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-#endif
-								if(iAdjacentCulture > 0)
-								{
-#if defined(MOD_API_UNIFIED_YIELDS)
-									iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-#else
-									iRtnValue += pLoopPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-#endif
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return iRtnValue;
 }
 

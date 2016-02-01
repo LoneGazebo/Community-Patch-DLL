@@ -51,7 +51,7 @@ public:
 	// Logging
 	void LogPossibleBuilds();
 #if defined(MOD_BALANCE_CORE)
-	int CheckBuildingBuildSanity(CvCity* pCity, BuildingTypes eBuilding, int iValue);
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection = 0, int iNumSeaConnection = 0);
 #endif
 private:
 

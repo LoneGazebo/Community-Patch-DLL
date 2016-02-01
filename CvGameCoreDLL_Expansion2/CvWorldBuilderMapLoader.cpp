@@ -571,21 +571,7 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 			kPlayer.GetCityConnections()->Update();
 			kPlayer.GetTreasury()->DoUpdateCityConnectionGold();
 			kPlayer.GetTreasury()->DoGold();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
-			{
-				if(kPlayer.isHuman() && kPlayer.GetID() == GC.getGame().getActivePlayer())
-				{
-					kPlayer.CalculateHappiness();
-				}
-			}
-			else
-			{
-#endif
-			kPlayer.DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			}
-#endif
+			kPlayer.CalculateNetHappiness();
 		}
 	}
 

@@ -171,10 +171,55 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 			iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
 #if defined(MOD_BALANCE_CORE)
+			//Grand Strategy Considerations - if valid, it doubles our initial weighting.
+			// == Grand Strategy ==
+			AIGrandStrategyTypes eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+			bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+			bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+			bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo((PolicyTypes) iPolicyLoop);
+			if(pkPolicyInfo)
+			{
+				for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+				{
+					FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+					if(eFlavor == NO_FLAVOR)
+						continue;
+
+					if(pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
+					{
+						if(bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingConquestVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingCultureVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+						if(bSeekingScienceVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+						{
+							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+						}
+					}
+				}
+			}
 			//If this is an ideology policy, let's snap those up.
 			if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
 			{
 				iWeight *= (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() + 1);
+			}
+			if(pPlayer->GetCorporateFounderID() == -1)
+			{
+				//Corporate-specific policies should only be taken if you have a corporation.
+				if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsOrderCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsFreedomCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsAutocracyCorp())
+				{
+					iWeight = 0;
+				}
 			}
 			//Older branches should be slowly phased out.
 			PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType();
@@ -747,13 +792,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	int iCurrentHappiness = pPlayer->GetExcessHappiness();
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
-#if !defined(MOD_BALANCE_CORE)
 	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-#endif
 #if !defined(NO_ACHIEVEMENTS)
 	PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
-#else
-	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)

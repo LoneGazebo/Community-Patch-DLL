@@ -35,6 +35,24 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>3</YieldChange>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_WRITERS_GUILD</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_ARTISTS_GUILD</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSICIANS_GUILD</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_GreatWorkYieldChanges>
 		<Row>
@@ -42,12 +60,27 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Policy_GreatWorkYieldChanges>
 	<!-- Fine Art -->
 	<Policy_BuildingClassHappiness>
 		<Row>
 			<PolicyType>POLICY_FINE_ARTS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_WRITERS_GUILD</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_ARTISTS_GUILD</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSICIANS_GUILD</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>
 	</Policy_BuildingClassHappiness>
@@ -56,27 +89,27 @@
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 	</Policy_ImprovementCultureChanges>
 	<Policy_YieldChangeWorldWonder>

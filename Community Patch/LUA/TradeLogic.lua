@@ -647,6 +647,9 @@ function DoUpdateButtons()
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
 				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
+				if(iMax == -1) then
+					Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				end
 				local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_TT");
 				local MaxstrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR_TT");
 				Controls.PeaceValue:SetText(Valuestr);
@@ -3289,7 +3292,7 @@ function ShowOtherPlayerChooser( isUs, type )
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
 
 					-- DP You
-					elseif (not g_pUsTeam:canDeclareWar(iLoopTeam, iFromPlayer)) then
+					elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
 
 -- END

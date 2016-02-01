@@ -148,8 +148,9 @@ public:
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
-	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);
-	void AddKnownUnit(PlayerTypes eOwner, int iUnitID);
+	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember);
+	bool IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const;
+	void AddKnownAttacker(PlayerTypes eOwner, int iUnitID);
 
 	void SetDirty();
 	bool IsDirty() const

@@ -37,7 +37,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS' AND EXISTS (SELECT * FROM COMMUNI
 -- Futurism
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE]Amount of Empire-wide [ICON_CULTURE] Culture used for [ICON_TOURISM] Tourism boost from [ICON_CAPITAL] Palace increased by 20%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE][ICON_TOURISM] Tourism bonus from Historic Events increased by 20%.'
 WHERE Tag = 'TXT_KEY_POLICY_FUTURISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Industrial Espionage (now Lebensraum)
@@ -104,7 +104,7 @@ WHERE Tag = 'TXT_KEY_POLICY_TOTAL_WAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY 
 -- United Front
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR][NEWLINE]Militaristic City-States grant units 200% more quickly while at war with a common foe. +30 [ICON_INFLUENCE] Influence from Military Unit gifts to City-States.'
+SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR][NEWLINE]+200% to Militaristic City-States unit gift rate during wars with common foes. +30 [ICON_INFLUENCE] Influence from unit gifts to City-States.'
 WHERE Tag = 'TXT_KEY_POLICY_UNITED_FRONT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Autarky

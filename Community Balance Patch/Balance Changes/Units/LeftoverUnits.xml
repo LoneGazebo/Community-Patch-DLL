@@ -218,7 +218,7 @@
 		<Row>
 			<Class>UNITCLASS_SIPAHI</Class>
 			<Type>UNIT_OTTOMAN_SIPAHI</Type>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
 			<Combat>32</Combat>
 			<Cost>-1</Cost>
 			<Moves>5</Moves>
@@ -311,7 +311,7 @@
 		<Row>
 			<Class>UNITCLASS_HAKKAPELIITTA</Class>
 			<Type>UNIT_SWEDISH_HAKKAPELIITTA</Type>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
 			<Combat>32</Combat>
 			<Cost>-1</Cost>
 			<Moves>4</Moves>

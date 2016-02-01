@@ -37,6 +37,11 @@
 			<DefaultBuilding>BUILDING_HERBALIST</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_HERBALIST</Description>
 		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_MINEFIELD</Type>
+			<DefaultBuilding>BUILDING_MINEFIELD</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MINEFIELD</Description>
+		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<Row>
@@ -167,6 +172,27 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>17</PortraitIndex>
 		</Row>
+		<Row>
+			<Type>BUILDING_MINEFIELD</Type>
+			<BuildingClass>BUILDINGCLASS_MINEFIELD</BuildingClass>
+			<Cost>1000</Cost>
+			<GoldMaintenance>5</GoldMaintenance>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<Description>TXT_KEY_BUILDING_MINEFIELD</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_MINEFIELD_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_MINEFIELD_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>10</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<Water>true</Water>
+			<Defense>800</Defense>
+			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<BorderObstacleCity>1</BorderObstacleCity>
+			<HurryCostModifier>0</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
+		</Row>
 	</Buildings>
 	<Building_ResourceQuantityRequirements>
 		<Row>
@@ -251,6 +277,11 @@
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MINEFIELD</BuildingType>
+			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
 	</Building_Flavors>
 	<Building_ClassesNeededInCity>
 		<Row>
@@ -269,19 +300,35 @@
 			<BuildingType>BUILDING_COAL_PLANT</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MINEFIELD</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+		</Row>
 	</Building_ClassesNeededInCity>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<ResourceType>RESOURCE_CITRUS</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<ResourceType>RESOURCE_COCOA</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_YieldChangesPerPop>
@@ -362,13 +409,13 @@
 			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
 			<TerrainType>TERRAIN_GRASS</TerrainType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_TerrainYieldChanges>
 	<Building_YieldModifiers>
@@ -420,6 +467,11 @@
 			<ResourceType>RESOURCE_COAL</ResourceType>
 			<Cost>2</Cost>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MINEFIELD</BuildingType>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<Cost>1</Cost>
+		</Row>
 	</Building_ResourceQuantityRequirements>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_BATH">
@@ -439,6 +491,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT">
 			<Text>Coal Plant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD">
+			<Text>Mine Field</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river. Requires an Aqueduct in order to be constructed.</Text>
@@ -461,6 +516,9 @@
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
 			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
+			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. The Minefield increases coastal city defense by +8, hit points by 50, and reduces the movement of enemy naval units and embarked units by 1.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
@@ -468,19 +526,22 @@
 			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a workable Forest or Jungle tile in its borders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
+			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+15% [ICON_FOOD] Food. Each source of [ICON_RES_WHEAT] Wheat [ICON_RES_BANANA] Bananas, [ICON_RES_DEER] Deer, and [ICON_RES_BISON] Bison worked by this City produces +1 [ICON_FOOD] Food. [NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City. Requires a Factory in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
+			<Text>Requires 1 [ICON_RES_IRON] Iron. Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
@@ -502,6 +563,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT">
 			<Text>A fossil fuel power station burns fossil fuels such as coal, natural gas or petroleum (oil) to produce electricity. Central station fossil-fuel power plants are designed on a large scale for continuous operation. In many countries, such plants provide most of the electrical energy used. Fossil-fuel power stations have machinery to convert the heat energy of combustion into mechanical energy, which then operates an electrical generator. The prime mover may be a steam turbine, a gas turbine or, in small plants, a reciprocating internal combustion engine. All plants use the energy extracted from expanding gas, either steam or combustion gases. Very few MHD generators have been built which directly convert the energy of moving hot gas into electricity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT">
+			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

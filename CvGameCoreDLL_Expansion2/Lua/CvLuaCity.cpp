@@ -259,6 +259,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeJONSCulturePerTurnFromSpecialists);
 	Method(GetJONSCulturePerTurnFromGreatWorks);
 	Method(GetJONSCulturePerTurnFromTraits);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetYieldPerTurnFromTraits);
+#endif
 	Method(GetJONSCulturePerTurnFromReligion);
 	Method(GetJONSCulturePerTurnFromLeagues);
 
@@ -318,7 +321,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetLocalResourceWonderProductionMod);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 #endif
@@ -642,6 +645,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsOnTerrain);
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
+	Method(CountNumWorkedFeature);
+	Method(CountNumWorkedImprovement);
+	Method(CountNumWorkedResource);
+	Method(CountNumImprovement);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -711,7 +718,7 @@ int CvLuaCity::lChooseProduction(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getCityPlotIndex(CyPlot* pPlot);
+//int getCityPlotIndex(CvPlot* pPlot);
 int CvLuaCity::lGetCityPlotIndex(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -733,7 +740,7 @@ int CvLuaCity::lGetCityIndexPlot(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canWork(CyPlot* pPlot);
+//bool canWork(CvPlot* pPlot);
 int CvLuaCity::lCanWork(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -744,23 +751,23 @@ int CvLuaCity::lCanWork(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool IsBlockaded(CyPlot* pPlot);
+//bool IsBlockaded(CvPlot* pPlot);
 int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkCity->GetCityCitizens()->IsPlotBlockaded(pkPlot);
+	const bool bResult = pkPlot->isBlockaded(pkCity->getOwner());
 
 	lua_pushboolean(L, bResult);
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
-//bool IsBlockadedTest(CyPlot* pPlot);
+//bool IsBlockadedTest(CvPlot* pPlot);
 int CvLuaCity::lIsBlockadedTest(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const bool bResult = pkCity->IsBlockadedTest();
+	const bool bResult = pkCity->IsBlockadedWaterAndLand();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2536,6 +2543,14 @@ int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromTraits);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetYieldPerTurnFromTraits() const;
+int CvLuaCity::lGetYieldPerTurnFromTraits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetYieldPerTurnFromTraits);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromReligion() const;
 int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
@@ -3038,7 +3053,7 @@ int CvLuaCity::lGetLocalResourceWonderProductionMod(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetLocalResourceWonderProductionMod);
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int GetBuyPlotDistance();
 int CvLuaCity::lGetBuyPlotDistance(lua_State* L)
@@ -3326,7 +3341,7 @@ int CvLuaCity::lGetUnhappinessFromStarving(lua_State* L)
 int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromMinority());
+	lua_pushinteger(L, pkCity->getUnhappinessFromReligion());
 	return 1;
 }
 #endif
@@ -3600,7 +3615,7 @@ int CvLuaCity::lSetDrafted(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lIsBlockaded(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::IsBlockaded);
+	return BasicLuaMethod(L, &CvCity::IsBlockadedWaterAndLand);
 }
 
 //------------------------------------------------------------------------------
@@ -4889,20 +4904,20 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int eYield = lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = pkCity->getOwner();
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-	if(eFoundedReligion != NO_RELIGION)
+	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
-		if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+		if(eFoundedReligion != NO_RELIGION)
 		{
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
 				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield);
 			}
 		}
+		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	}
-	iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
 	lua_pushinteger(L, iRtnValue);
 
 	return 1;
@@ -5044,7 +5059,7 @@ int CvLuaCity::lSetBuildingYieldChange(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetNumCityPlots(lua_State* L)
 {
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->GetNumWorkablePlots());
 #else
@@ -5118,6 +5133,50 @@ int CvLuaCity::lAddMessage(lua_State* L)
 
 	SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage);
 	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedFeature(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const FeatureTypes eFeature = (FeatureTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedFeature(eFeature);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedImprovement(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedImprovement(eImprovement);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedResource(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumWorkedResource(eResource);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumImprovement(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const int iValue = pkCity->CountNumImprovement(eImprovement);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
 }
 #endif
 

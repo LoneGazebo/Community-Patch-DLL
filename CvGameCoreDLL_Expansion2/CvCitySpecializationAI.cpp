@@ -773,7 +773,10 @@ void CvCitySpecializationAI::AssignSpecializations()
 					}
 					cityData.m_iWeight[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
 #if defined(MOD_BALANCE_CORE)
-					cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+					}
 #endif
 					if(cityData.m_iWeight[iI] < 0)
 					{
@@ -1358,7 +1361,7 @@ int CvCitySpecializationAI::PlotValueForSpecificYield(CvPlot* pPlot, YieldTypes 
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				iPotentialYield = pLoopPlot->getYield(eYield);
@@ -1410,7 +1413,7 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything
@@ -1458,7 +1461,7 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				if(pLoopPlot->getResourceType() == NO_RESOURCE)
@@ -1528,7 +1531,7 @@ int CvCitySpecializationAI::PlotValueForCulture(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything
@@ -1587,7 +1590,7 @@ int CvCitySpecializationAI::PlotValueForFaith(CvPlot* pPlot)
 	{
 		if(iI != CITY_HOME_PLOT)
 		{
-			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
 			if(pLoopPlot != NULL)
 			{
 				// If owned by someone else, not worth anything
@@ -1675,7 +1678,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	else if(eYield == YIELD_FAITH)
 	{
-		int iValue = (pCity->getUnhappinessFromMinority() * 10);
+		int iValue = (pCity->getUnhappinessFromReligion() * 10);
 		if(iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;

@@ -120,7 +120,6 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
-	int GetNationalMissionaries() const;
 	int GetFreeBuildingTradeTargetCity() const;
 	int GetCorporationID() const;
 	int GetCorporationHQID() const;
@@ -315,6 +314,7 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBorderObstacleCity() const;
+	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
 	int GetLandTourismEnd() const;
@@ -514,7 +514,6 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
-	int m_iNationalMissionaries;
 	int m_iGetCooldown;
 	int m_iFreeBuildingTradeTargetCity;
 	int m_iCorporationID;
@@ -713,6 +712,7 @@ private:
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
 	int m_iBorderObstacleCity;
+	int m_iBorderObstacleWater;
 	int m_iWLTKDTurns;
 	int m_iEventTourism;
 	int m_iLandTourism;
@@ -887,18 +887,17 @@ class CvCityBuildings
 public:
 	CvCityBuildings(void);
 	~CvCityBuildings(void);
-	void Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity);
+	void Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity);
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
 	// Accessor functions
-	CvBuildingXMLEntries* GetBuildings() const;
+	CvBuildingXMLEntries* GetPossibleBuildings() const;
 
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
-
 	int GetNumBuilding(BuildingTypes eIndex) const;
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
@@ -1031,7 +1030,7 @@ private:
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;
 
-	CvBuildingXMLEntries* m_pBuildings;
+	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
 };
 

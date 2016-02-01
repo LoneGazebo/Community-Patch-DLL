@@ -22,17 +22,20 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v68 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 68)
+#define MOD_DLL_NAME "Community Patch v72 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 72)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
 
+//MULTIPLAYER INSTRUCTIONS:
+
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
+// UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
+//#define MOD_ACTIVE_DIPLOMACY
 
-//JDH Active Diplo
-#define MOD_ACTIVE_DIPLOMACY
+//END MULTIPLAYER INSTRUCTIONS
 
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
@@ -253,8 +256,8 @@
 #define MOD_GLOBAL_ANYTIME_GOODY_GOLD               gCustomMods.isGLOBAL_ANYTIME_GOODY_GOLD()
 // Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker
 #define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
-// Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space
-#define MOD_GLOBAL_CITY_WORKING                     gCustomMods.isGLOBAL_CITY_WORKING()
+// Give initial production boost for cities founded on jungle, as if the jungle had been chopped down by a worker (v72)
+#define MOD_GLOBAL_CITY_JUNGLE_BONUS                gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
 // Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
 #define MOD_GLOBAL_ALPINE_PASSES                    gCustomMods.isGLOBAL_ALPINE_PASSES()
 // Permits City States to gift ships
@@ -281,17 +284,6 @@
 #define MOD_GLOBAL_NO_OCEAN_PLUNDERING              gCustomMods.isGLOBAL_NO_OCEAN_PLUNDERING()
 // Remove assembled spaceship parts from conquered capitals
 #define MOD_GLOBAL_NO_CONQUERED_SPACESHIPS          gCustomMods.isGLOBAL_NO_CONQUERED_SPACESHIPS()
-// Modified blockade logic (v52)
-// The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded"
-// HOWEVER - this includes the situations where
-//   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port)
-//   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port)
-// What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself
-#define MOD_GLOBAL_ADJACENT_BLOCKADES               gCustomMods.isGLOBAL_ADJACENT_BLOCKADES()
-// Adjacent allied ships block blockades by enemy ships 2 or more tiles away
-#define MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES           gCustomMods.isGLOBAL_ALLIES_BLOCK_BLOCKADES()
-// Embarked combat units only blockade adjacent tiles
-#define MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES         gCustomMods.isGLOBAL_SHORT_EMBARKED_BLOCKADES()
 // Other player's settlers captured from Barbarians will sometimes remain as settlers
 #define MOD_GLOBAL_GRATEFUL_SETTLERS                gCustomMods.isGLOBAL_GRATEFUL_SETTLERS()
 // Units that can found a city take their religion with them (v34)
@@ -634,6 +626,8 @@
 #define MOD_EVENTS_UNIT_PREKILL                     gCustomMods.isEVENTS_UNIT_PREKILL()
 
 // Event sent as a unit is captured (v46)
+//   GameEvents.UnitCaptured.Add(function(iByPlayer, iByUnit, iCapturedPlayer, iCapturedUnit, bWillBeKilled, iReason) end) (v69)
+//   iReason - 0=Move, 1=Combat, 2=Trait (barb land), 3=Trait (barb naval), 4=Belief (barb)
 //   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end)
 #define MOD_EVENTS_UNIT_CAPTURE                     gCustomMods.isEVENTS_UNIT_CAPTURE()
 
@@ -1073,6 +1067,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitCanHaveName				"UnitCanHaveName",				"iii"
 #define GAMEEVENT_UnitCanHavePromotion			"UnitCanHavePromotion",			"iii"
 #define GAMEEVENT_UnitCanHaveUpgrade			"UnitCanHaveUpgrade",			"iiii"
+#define GAMEEVENT_UnitCaptured					"UnitCaptured",					"iiiibi"
 #define GAMEEVENT_UnitCaptureType				"UnitCaptureType",				"iiii"
 #define GAMEEVENT_UnitCityFounded				"UnitCityFounded",				"iiiii"
 #define GAMEEVENT_UnitCreated					"UnitCreated",					"iiiii"
@@ -1091,8 +1086,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
-
-
+#define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
+#define GAMEEVENT_CityRazed					"CityRazed", "iii"
 
 
 // Serialization wrappers
@@ -1188,6 +1183,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_PASSABLE_FORTS_ANY);
 	MOD_OPT_DECL(GLOBAL_ANYTIME_GOODY_GOLD);
 	MOD_OPT_DECL(GLOBAL_CITY_FOREST_BONUS);
+	MOD_OPT_DECL(GLOBAL_CITY_JUNGLE_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_WORKING);
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);
@@ -1202,9 +1198,6 @@ public:
 	MOD_OPT_DECL(GLOBAL_CAPTURE_AFTER_ATTACKING);
 	MOD_OPT_DECL(GLOBAL_NO_OCEAN_PLUNDERING);
 	MOD_OPT_DECL(GLOBAL_NO_CONQUERED_SPACESHIPS);
-	MOD_OPT_DECL(GLOBAL_ADJACENT_BLOCKADES);
-	MOD_OPT_DECL(GLOBAL_ALLIES_BLOCK_BLOCKADES);
-	MOD_OPT_DECL(GLOBAL_SHORT_EMBARKED_BLOCKADES);
 	MOD_OPT_DECL(GLOBAL_GRATEFUL_SETTLERS);
 	MOD_OPT_DECL(GLOBAL_RELIGIOUS_SETTLERS);
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES);

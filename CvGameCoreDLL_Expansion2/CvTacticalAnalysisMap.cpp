@@ -101,7 +101,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
 	m_iZoneValue = 0;
-	m_iRangeClosestEnemyUnit = MAX_INT;
+	m_iRangeClosestEnemyUnit = -1;
 	m_bIsWater = false;
 	m_bIsNavalInvasion = false;
 	m_pTempZoneCenter = NULL;
@@ -1188,9 +1188,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 												}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-												//melee strength counts only if we're in the same domain
-												if ( (pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
-													 (pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()) )
+												if(pLoopUnit->getDomainType() == DOMAIN_AIR ||
+														//ranged power is cross-domain!
+														//melee strength counts only if we're in the same domain
+														pLoopUnit->isRanged() ||
+														(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
+														(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()))
 													pZone->AddEnemyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
 #else
 												pZone->AddEnemyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
@@ -1204,27 +1207,26 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 												pZone->AddEnemyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
 
-												if(bVisible)
+												//more book-keeping
+												pZone->AddEnemyUnitCount(1);
+												if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
 												{
-													pZone->AddEnemyUnitCount(1);
-													if(iDistance < pZone->GetRangeClosestEnemyUnit())
-													{
-														pZone->SetRangeClosestEnemyUnit(iDistance);
-													}
-													if(pLoopUnit->isRanged())
-													{
-														pZone->AddEnemyRangedUnitCount(1);
-													}
+													pZone->SetRangeClosestEnemyUnit(iDistance);
+												}
+
+												if(pLoopUnit->isRanged())
+												{
+													pZone->AddEnemyRangedUnitCount(1);
+												}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-													else if(!pLoopUnit->isRanged())
-													{
-														pZone->AddEnemyMeleeUnitCount(1);
-													}
+												else if(!pLoopUnit->isRanged())
+												{
+													pZone->AddEnemyMeleeUnitCount(1);
+												}
 #endif
-													if(pLoopUnit->getDomainType() == DOMAIN_SEA)
-													{
-														pZone->AddEnemyNavalUnitCount(1);
-													}
+												if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+												{
+													pZone->AddEnemyNavalUnitCount(1);
 												}
 											}
 										}
@@ -1416,6 +1418,10 @@ void CvTacticalAnalysisMap::LogZones()
 		{
 			pZone = &m_DominanceZones[iI];
 
+			//don't blow up the logs for empty zones
+			if ( pZone->GetFriendlyStrength()==0 &&  pZone->GetEnemyStrength()==0)
+				continue;
+
 			szLogMsg.Format("Zone ID: %d, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (%d), ENEMY Str: %d (%d), Ranged: %d (%d), Closest Enemy: %d",
 			                pZone->GetDominanceZoneID(), pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 			                pZone->GetFriendlyStrength(), pZone->GetFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyRangedUnitCount(),
@@ -1452,7 +1458,6 @@ void CvTacticalAnalysisMap::LogZones()
 			}
 			else if(pZone->GetZoneCity())
 			{
-				szLogMsg += ", " + pZone->GetZoneCity()->getName();
 				if (m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pZone->GetZoneCity()))
 				{
 					szLogMsg += " (Temp)";

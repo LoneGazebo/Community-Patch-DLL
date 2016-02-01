@@ -56,6 +56,10 @@ public:
 	void DoUpdateCityConnectionGold();
 
 	// City Connection Route Modifiers
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetInternalTradeRouteGoldBonus() const;
+	void DoInternalTradeRouteGoldBonus();
+#endif
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
 	int GetCityConnectionTradeRouteGoldChange() const;
@@ -124,6 +128,9 @@ protected:
 	int m_iExpensePerTurnUnitMaintenance;
 	int m_iExpensePerTurnUnitSupply;
 	int m_iCityConnectionGoldTimes100;
+#if defined(MOD_BALANCE_CORE)
+	int m_iInternalTradeGoldBonus;
+#endif
 	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iCityConnectionTradeRouteGoldChange;
 

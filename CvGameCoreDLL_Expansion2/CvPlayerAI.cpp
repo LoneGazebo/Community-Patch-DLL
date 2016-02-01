@@ -55,6 +55,12 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
+	if (ePlayer==NO_PLAYER)
+	{
+		OutputDebugString("Warning: Invalid argument for getPlayer()!\n");
+		return m_aPlayers[BARBARIAN_PLAYER];
+	}
+
 	return m_aPlayers[ePlayer];
 }
 
@@ -277,11 +283,11 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			}
 			if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
 			{
-				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 				{
 					bLiberate = true;
 				}
-				if(GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) > MAJOR_CIV_OPINION_NEUTRAL)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_NEUTRAL && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_NEUTRAL)
 				{
 					bLiberate = true;
 				}
@@ -304,7 +310,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
 		bool bUnhappy = IsEmpireVeryUnhappy();
-		if (bUnhappy || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
+		if (bUnhappy || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -317,7 +323,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(canRaze(pCity) && IsEmpireUnhappy())
 	{
 		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-		if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
@@ -343,7 +349,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
+		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Let's make sure we annex.
+	else if(pCity->getOriginalOwner() == GetID())
+	{
+		pCity->DoAnnex();
+	}
+#endif
 }
 
 bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)
@@ -762,14 +776,14 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation())
+			if(pThisOperation->IsNavalOperation())
 			{
 				CvArea* pArea = GC.getMap().getArea(iAreaID);
 				if(pArea && !pArea->isWater())
 				{
 					if(pCity && pCity->isCoastal())
 					{
-						CvPlot* pPlot = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							iAreaID = pPlot->getArea();
@@ -804,7 +818,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 #if defined(MOD_BALANCE_CORE)
 	CvAIOperation* pBestOperation = NULL;
 	int iBestScore = -1;
-	int iBestArea = -1;
 #endif
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
@@ -813,48 +826,37 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(iAreaID == -1)
 			{
 				iAreaID = pCity->getArea();
 			}
 
-			int iArea = pThisOperation->GetDefaultArea();
 			int iScore = 0;
-			if(iArea == -1 && pThisOperation->GetMusterPlot() != NULL)
+			int iArea = -1;
+			int iDistance = 0;
+			if(pThisOperation->GetMusterPlot() != NULL)
 			{
 				iArea = pThisOperation->GetMusterPlot()->getArea();
+				iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
 			}
+			else
+				continue;
 
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation()) 
+			//for naval ops, check if we're on the correct water body
+			if(pThisOperation->IsNavalOperation()) 
 			{
-				if(!pCity->isCoastal())
+				if(!pCity->isCoastal() || pCity->waterArea()->GetID()!=iArea)
 				{
 					continue;
 				}
-				CvPlot* pCoastal = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
-				if(pCoastal != NULL)
-				{
-					if(iAreaID != -1 && (iArea != pCoastal->getArea()))
-					{
-						continue;
-					}
-					else
-					{
-						iBestArea = pCoastal->getArea();
-					}
-				}
-			}
-			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
-			{
-				iScore = 100;
 			}
 
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+			iScore += range( 10-iDistance, 0, 10 );
 
-			if(!pThisOperation->IsAllNavalOperation() && !pThisOperation->IsMixedLandNavalOperation() && (iAreaID != -1) && (iArea != iAreaID))
+			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
 			{
-				iScore /= 2;
+				iScore *= 2;
 			}
 
 			if(iScore > iBestScore)
@@ -871,14 +873,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		{
 			return thisSlot;
 		}
-#else
-			thisSlot = pThisOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
-			if(thisSlot.IsValid())
-			{
-				break;
-			}
-		}
-#endif
 	}
 
 	return thisSlot;
@@ -1162,44 +1156,41 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusician)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
 	// If headed on a concert tour, keep going
 	if (pGreatMusician->getArmyID() != -1)
 	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
 
 	// If closing in on a Culture win, go for the Concert Tour
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
+	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
 	{		
 		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 		if(pTarget)
 		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
-
-	// Create Great Work if there is a slot
-	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
-#else
 	else
-#endif
 	{
-		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
-		if(pTarget)
+		// Create Great Work if there is a slot
+		GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
+		if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
 		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+
+		if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+		{
+			CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+			if(pTarget)
+			{
+				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			}
 		}
 	}
 
-	return eDirective;
+	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEngineer)
@@ -1897,11 +1888,8 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	// Do we already have an embassy here?
 	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
 	// Iterate all plots owned by a city
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-#else
-	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
 	{
 		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -1988,6 +1976,10 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		return 0;
 	}
 	if(pMinorCivAI->GetPermanentAlly() == GetID())
+	{
+		return 0;
+	}
+	if(pMinorCivAI->GetPermanentAlly() != GetID() && pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 	{
 		return 0;
 	}
@@ -2411,7 +2403,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
 	{
 		int iPathTurns;
-		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,INT_MAX,&iPathTurns))
+		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,iBestTurnsToReach,&iPathTurns))
 		{
 			if(iPathTurns < iBestTurnsToReach)
 			{
@@ -2427,13 +2419,10 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 		int iBestDistance = INT_MAX;
 		CvPlot* pBestPlot = NULL;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
-#else
-		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
-#endif
 		{
-			CvPlot *pLoopPlot = plotCity(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
+			CvPlot *pLoopPlot = iterateRingPlots(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
 			if(pLoopPlot != NULL)
 			{
 				// Make sure this is still owned by target and is revealed to us

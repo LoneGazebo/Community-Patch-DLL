@@ -8,6 +8,11 @@ UPDATE Language_en_US
 SET Text = '+{1_Num}% Bonus for Open Borders from:[NEWLINE]   '
 WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- Citadel Text
+UPDATE Language_en_US
+SET Text = 'A Citadel is a mighty fortification that can only be constructed by a Great General. You can construct a Citadel anywhere within your territory.[NEWLINE][NEWLINE]Upon constructing the Citadel, your Culture borders will also expand to surround the Citadel on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Any unit stationed within a Citadel receives a 100% defensive strength bonus. Additionally, any enemy unit which ends its turn next to a Citadel takes 30 damage (damage does not stack with other Citadels).[NEWLINE][NEWLINE] The Acropolis in Athens, Greece, is an example of an early powerful Citadel. Such structures were almost impossible to take by direct attack, and they were capable of withstanding protracted sieges before they fell.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- CS Stuff
 UPDATE Language_en_US
 SET Text = 'You received tribute very recently'
@@ -16,6 +21,20 @@ WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY' AND EXISTS (
 UPDATE Language_en_US
 SET Text = 'You received tribute recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Razing
+UPDATE Language_en_US	
+SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also greatly increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
+WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
+
+-- LUA
+UPDATE Language_en_US	
+SET Text = 'Base Yield:'
+WHERE Tag = 'TXT_KEY_PEDIA_YIELD_LABEL';
+
+UPDATE Language_en_US	
+SET Text = 'Connected By:'
+WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENTS_LABEL';
 
 -- Fixed diacritics for spy names.
 
@@ -154,3 +173,354 @@ WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLA
 UPDATE Language_en_US
 SET Text = 'The other leader has not met any third party players, or you do not have an Embassy with this player.'
 WHERE Tag = 'TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+-- Civilopedia Refresh
+UPDATE Language_en_US
+SET Text = 'Only one combat unit may occupy a city at a time. That military unit is said to "Garrison" the city, and it adds a significant defensive bonus to the city. If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)'
+WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Only one combat unit may occupy a city at a time. That military unit is said to "Garrison" the city, and it adds a significant defensive bonus to the city. If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)'
+WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. The garrisoned will divert part of the all damage to a city when the city is attacked. This can destroy the garrison, so be careful! If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE]A unit stationed in the city may attack surrounding enemy units, but if it does so the city loses its garrison bonus, and, if it is a melee attack, the unit may take damage during the combat as normal.'
+WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'At the end of melee combat, one or both units may have sustained damage and lost "hit points." If a unit''s hit points are reduced to 0, that unit is destroyed. If after melee combat the defending unit has been destroyed and the attacker survives, the attacking unit moves into the defender''s hex [COLOR_POSITIVE_TEXT]unless[ENDCOLOR] defending a Citadel, Fort, or City, at which point the melee unit remains in place. If it moves, the winner will capture any non-military units in that hex. If the defending unit survives, it retains possession of its hex and any other units in the hex.[NEWLINE][NEWLINE]Most units use up all of their movement when attacking. Some however have the ability to move after combat - if they survive the battle and have movement points left to expend.[NEWLINE][NEWLINE]Any surviving units involved in the combat will receive "experience points" (XPs), which may be expended to give the unit promotions.'
+WHERE Tag = 'TXT_KEY_COMBAT_MELEERESULTS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 20% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
+WHERE Tag = 'TXT_KEY_COMBAT_GREATGENERALS_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 20% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
+WHERE Tag = 'TXT_KEY_COMBAT_GREATGENERALS_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'War Score'
+WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'War Score is ever-shifting status of a war between players. War Score can fluctuate from 100 to -100, where 100 is a total victory for you, and -100 a total victory for your opponent. War Score will also gradually decay over time, to highlight the declining value of past actions in a long, drawn-out conflict.[NEWLINE][NEWLINE]When declared, War Score starts at zero for both players. As you (or your opponent) destroy units, pillage tiles/trade units, capture civilians and take cities, your warscore will go up. The value of these actions varies based on the overall size of your opponent.[NEWLINE][NEWLINE]When it comes time to make peace, the War Score value gives you a good idea of what you should expect to gain from your opponent, or what they will ask of you. In the trade screen, the War Score value will be translated into a ''Max Peace'' value, which shows you exactly what you can take from your opponent (or vice-versa). When peace is concluded, the War Score returns to zero.'
+WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'The ruin provides a map of the nearest unrevealed City (lifting the fog of war from a number of tiles).'
+WHERE Tag = 'TXT_KEY_BARBARIAN_MAP_HEADING4_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired 45 XPs (or has exchanged that many for promotions) no longer gains XPs from fighting barbarians.'
+WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Each civilization in Civilization V has one or more special "national units." These units are unique to that civilization, and they are in some way superior to the standard version of that unit. The American civilization, for example, has a Minuteman unit, which is superior to the standard Musketman available to other civs. The Greek civ has the Hoplite unit, which replaces the Spearman.[NEWLINE][NEWLINE]See each civilization''s Civilopedia entry to discover its special unit.'
+WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+UPDATE Concepts
+SET InsertAfter = 'CONCEPT_SOCIAL_POLICY_GAINING'
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_IDEOLOGY';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_COAST';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_COAST';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_COAST';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_DESERT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_DESERT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_DESERT';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_GRASSLAND';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_GRASSLAND';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_GRASSLAND';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_HILLS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_HILLS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_HILLS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_MOUNTAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_MOUNTAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_MOUNTAINS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_OCEANS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_OCEANS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_OCEANS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_PLAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_PLAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_PLAINS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_SNOW';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_SNOW';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_SNOW';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_TUNDRA';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_TUNDRA';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_TUNDRA';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_FALLOUT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_FALLOUT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_FALLOUT';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_FLOOD_PLAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_FLOOD_PLAINS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_FLOOD_PLAINS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_FORESTS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_FORESTS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_FORESTS';
+
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_ICE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_ICE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_ICE';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_JUNGLE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_JUNGLE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_JUNGLE';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_MARSH';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_MARSH';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_MARSH';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_OASIS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_OASIS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_OASIS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_FEATURE_NATURAL_WONDER';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_FEATURE_NATURAL_WONDER';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_FEATURE_NATURAL_WONDER';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_RIVERS_YIELD';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_RIVERS_YIELD';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_RIVERS_YIELD';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_TERRAIN_RIVERS_COMBAT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_TERRAIN_RIVERS_COMBAT';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_TERRAIN_RIVERS_COMBAT';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_WORKERS_IMPROVEMENTS_FARM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_WORKERS_IMPROVEMENTS_FARM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_WORKERS_IMPROVEMENTS_FARM';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_WORKERS_IMPROVEMENTS_MINE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_WORKERS_IMPROVEMENTS_MINE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_WORKERS_IMPROVEMENTS_MINE';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_WORKERS_CLEARINGLAND_TIME';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_WORKERS_CLEARINGLAND_TIME';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_WORKERS_CLEARINGLAND_TIME';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCHES';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCHES';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCHES';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_TRADITION';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_TRADITION';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_TRADITION';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_LIBERTY';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_LIBERTY';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_LIBERTY';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_HONOR';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_HONOR';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_HONOR';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_PIETY';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_PIETY';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_PIETY';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_PATRONAGE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_PATRONAGE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_PATRONAGE';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_COMMERCE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_COMMERCE';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_COMMERCE';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_RATIONALISM';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_AESTHETICS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_AESTHETICS';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_AESTHETICS';
+
+DELETE FROM Concepts
+WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
+
+DELETE FROM Concepts_RelatedConcept
+WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
+
+
+
+

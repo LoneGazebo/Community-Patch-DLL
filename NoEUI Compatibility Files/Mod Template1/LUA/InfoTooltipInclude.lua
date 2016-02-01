@@ -442,11 +442,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	if(pCity ~= nil) then
-		local iCorpGPChange = pCity:GetCorporationGPChange();
-		if iCorpGPChange ~=0 then
-			table.insert(lines, "TXT_KEY_PEDIA_CORP_GP_CHANGE " .. iCorpGPChange); 
-		end
+	local iCorpGPChange = pBuildingInfo.CorporationGPChange;
+	if iCorpGPChange ~=0 then
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
+		table.insert(lines, localizedText);
 	end
 -- END
 	local iNumGreatWorks = pBuildingInfo.GreatWorkCount;
@@ -878,6 +877,7 @@ function GetCultureTooltip(pCity)
 
 		-- Culture from Traits
 		local iCultureFromTraits = pCity:GetJONSCulturePerTurnFromTraits();
+		iCultureFromTraits = (iCultureFromTraits + pCity:GetYieldPerTurnFromTraits(YieldTypes.YIELD_CULTURE));
 		if (iCultureFromTraits ~= 0) then
 			
 			-- Spacing
@@ -1028,6 +1028,7 @@ function GetFaithTooltip(pCity)
 -- END
 		-- Faith from Traits
 		local iFaithFromTraits = pCity:GetFaithPerTurnFromTraits();
+		iFaithFromTraits = (iFaithFromTraits + pCity:GetYieldPerTurnFromTraits(YieldTypes.YIELD_FAITH));
 		if (iFaithFromTraits ~= 0) then
 				
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_TRAITS", iFaithFromTraits));
@@ -1442,6 +1443,14 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
 		if (iYieldFromGreatWorks ~= 0) then
 			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iYieldFromGreatWorks, strIconString);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+		end
+	end
+
+	if (iYieldType ~= YieldTypes.YIELD_CULTURE) then
+		local iYieldFromTraits = pCity:GetYieldPerTurnFromTraits(iYieldType);
+		if (iYieldFromTraits ~= 0) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_TRAIT_BONUS", iYieldFromTraits, strIconString);
 			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 		end
 	end

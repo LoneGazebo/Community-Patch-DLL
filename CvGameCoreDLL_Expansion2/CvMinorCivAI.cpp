@@ -1877,9 +1877,19 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iInfluence /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Already got our global bonus from a global quest this round?
+	if(bGlobal && GET_PLAYER(m_eAssignedPlayer).GlobalTourismAlreadyReceived(m_eType))
+	{
+		bGlobal = false;
+	}
+	else if(bGlobal)
+	{
+		GET_PLAYER(m_eAssignedPlayer).SetGlobalTourismAlreadyReceived(m_eType, true);
+	}
 	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
 	{
 		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
+		GET_PLAYER(m_eAssignedPlayer).ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		int iPreviousTurnsToCount = 10;
 		// Calculate boost
@@ -3008,7 +3018,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		{
 			if(GetPlayer()->getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 			{
-				if((GC.getMap().GetAIMapHint() & 4) || (GC.getMap().GetAIMapHint() & 1))
+				if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
 					bCoastal = true;
 				}
@@ -6826,11 +6836,8 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 				int iImpassable = 0;
 
 				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-				for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 				{
 					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -7056,11 +7063,8 @@ void CvMinorCivAI::DoRebellion()
 		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
 
 		// Start at 1, since ID 0 is the city plot itself
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-		for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 		{
 			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -7541,6 +7545,25 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 			continue;
 
 		if(!GET_PLAYER(eTarget).isMinorCiv())
+			continue;
+
+		if(GET_PLAYER(eTarget).GetCapitalConqueror() == GetPlayer()->GetID())
+			continue;
+
+		int iLoopCity;
+		bool bCapital = false;
+		for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity))
+		{
+			if(pLoopCity != NULL)
+			{
+				if(pLoopCity->getX() == GET_PLAYER(eTarget).GetOriginalCapitalX() && pLoopCity->getY() == GET_PLAYER(eTarget).GetOriginalCapitalY())
+				{
+					bCapital = true;
+					break;
+				}
+			}
+		}
+		if(bCapital)
 			continue;
 
 		if(GetPlayer()->GetProximityToPlayer(eTarget) > eClosestProximity)
@@ -9171,21 +9194,11 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		//human player wants to see the effect at once, otherwise update at next turn start is good enough
+		if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 		{
-			if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(ePlayer).CalculateHappiness();
-			}
+			GET_PLAYER(ePlayer).CalculateNetHappiness();
 		}
-		else
-		{
-#endif
-		GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		}
-#endif
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -9500,11 +9513,8 @@ void CvMinorCivAI::DoDefection()
 	CvCity* pCity = GetPlayer()->getCapitalCity();
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 	//Let's kill off any barbs remaining.
-#if defined(MOD_GLOBAL_CITY_WORKING)
+
 	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-#else
-	for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
-#endif
 	{
 		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
@@ -9995,21 +10005,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				//human player wants to see the effect at once, otherwise update at next turn start is good enough
+				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER(ePlayer).CalculateHappiness();
-					}
+					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 
@@ -10024,21 +10024,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
+				//human player wants to see the effect at once, otherwise update at next turn start is good enough
+				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 				{
-					if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
-					{
-						GET_PLAYER(ePlayer).CalculateHappiness();
-					}
+					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
-				else
-				{
-#endif
-				GET_PLAYER(ePlayer).DoUpdateHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				}
-#endif
 			}
 		}
 	}
@@ -11968,25 +11958,6 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		if(GC.getGame().getGameTurn() >  30)
-		{
-			int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-			if(iDuration > 0)
-			{
-				int iLimit = 30;
-				iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iLimit /= 100;
-				if(iDuration <= iLimit)
-				{
-					iBaseReluctanceScore *= 5;
-				}
-			}
-		}
-	}
-#endif	
 	if (sTooltipSink)
 	{
 		Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
@@ -12043,26 +12014,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -300 ~ -0
 	// **************************
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-		{
-			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-			if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && eMinorLoop != GetPlayer()->GetID())
-			{
-				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
-				{
-					int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
-					if(iOtherLastBullyTurn >= iLastBullyTurn)
-					{
-						iLastBullyTurn = iOtherLastBullyTurn;
-					}
-				}
-			}
-		}
-	}
-#endif
+
 	if(iLastBullyTurn >= 0)
 	{
 		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
@@ -12090,6 +12042,29 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(GC.getGame().getGameTurn() >  30)
+	{
+		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+		if(iDuration > 0)
+		{
+			int iLimit = 30;
+			iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iLimit /= 100;
+			if(iDuration <= iLimit)
+			{
+				int iBulliedRecentlyScore = -1000;
+				if (sTooltipSink)
+				{
+					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+					strNegativeFactor << iBulliedRecentlyScore;
+					strNegativeFactor << "TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED";
+					sFactors += strNegativeFactor.toUTF8();
+				}
+			}
+		}
+	}
+#endif	
 
 	// **************************
 	// Tribute type
@@ -12402,8 +12377,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	{
 		if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex() && !GET_PLAYER(eBully).isHuman())
 		{
-			int iBullyMetric2 = CalculateBullyMetric(eBully, /*bForUnit*/true);
-			if(CanMajorBullyUnit(eBully, iBullyMetric2))
+			if(CanMajorBullyUnit(eBully))
 			{
 				DoMajorBullyUnit(eBully, NO_UNIT);
 				return;
@@ -12454,6 +12428,10 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 					if(iYield > 0)
 					{
 						GET_PLAYER(eBully).changeJONSCulture(iYield);
+						if(pCapital != NULL)
+						{
+							pCapital->ChangeJONSCultureStored(iYield);
+						}
 						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
 						{
 							char text[256] = {0};
@@ -12650,6 +12628,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					if(iYield > 0)
 					{
 						GET_PLAYER(eBully).changeJONSCulture(iYield);
+						if(pCapital != NULL)
+						{
+							pCapital->ChangeJONSCultureStored(iYield);
+						}
 						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
 						{
 							char text[256] = {0};

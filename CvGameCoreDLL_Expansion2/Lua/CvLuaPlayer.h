@@ -215,6 +215,7 @@ protected:
 	static int lGetGoldPerTurnFromTradeRoutesTimes100(lua_State* L);
 	static int lGetGoldPerTurnFromTraits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetInternalTradeRouteGoldBonus(lua_State* L);
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
@@ -943,7 +944,7 @@ protected:
 	static int lGetBuyPlotCost(lua_State* L);
 	static int lGetPlotDanger(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
 #endif

@@ -422,6 +422,17 @@
 			<Yield>200</Yield>
 		</Row>
 	</Trait_YieldFromSettle>
+	<!-- Hunnic Tile Grab -->
+	<Trait_TerrainClaimBoost>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+	</Trait_TerrainClaimBoost>
 	<!-- Make Hunnic Archer a Classical Unit -->
 	<UnitClasses>
 		<Row>
@@ -491,5 +502,18 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_GoldenAgeYieldMod>
-
+	<!-- Austria-->
+	<Building_YieldFromGPExpend>
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldFromGPExpend>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 </GameData>

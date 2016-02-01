@@ -44,6 +44,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(GetPathEndTurnPlot);
 	Method(GeneratePath);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetActivePath);
+#endif
 
 	Method(CanEnterTerritory);
 	Method(GetDeclareWarRangeStrike);
@@ -742,6 +745,48 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 	return 1;*/
 	return 0;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetActivePath(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	CvPlot* pDestPlot = pkUnit->LastMissionPlot();
+	if (pDestPlot) {
+		pkUnit->GeneratePath(pDestPlot);
+
+		const CvPathNodeArray& kPathNodeArray = pkUnit->GetPathNodeArray();
+
+		for (int i = ((int)kPathNodeArray.size())-1; i >=0 ; --i)
+		{
+			const CvPathNode& kNode = kPathNodeArray[i];
+
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, kNode.m_iX);
+			lua_setfield(L, t, "X");
+			lua_pushinteger(L, kNode.m_iY);
+			lua_setfield(L, t, "Y");
+			lua_pushinteger(L, kNode.m_iMoves);
+			lua_setfield(L, t, "RemainingMovement");
+			lua_pushinteger(L, kNode.m_iTurns);
+			lua_setfield(L, t, "Turn");
+			lua_pushinteger(L, kNode.m_iFlags);
+			lua_setfield(L, t, "Flags");
+			lua_pushboolean(L, kNode.GetFlag(CvPathNode::PLOT_INVISIBLE));
+			lua_setfield(L, t, "Invisible");
+			lua_pushboolean(L, kNode.GetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE));
+			lua_setfield(L, t, "AdjInvisible");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool canEnterTerritory(int /*TeamTypes*/ eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false);
 int CvLuaUnit::lCanEnterTerritory(lua_State* L)
@@ -839,8 +884,12 @@ int CvLuaUnit::lGetCombatDamage(lua_State* L)
 	const bool bIncludeRand = lua_toboolean(L, 5);
 	const bool bAttackerIsCity = lua_toboolean(L, 6);
 	const bool bDefenderIsCity = lua_toboolean(L, 7);
-
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 8, false);
+	const int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity, pkCity);
+#else
 	const int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
+#endif
 	lua_pushinteger(L, iResult);
 
 	return 1;
@@ -1570,8 +1619,11 @@ int CvLuaUnit::lCanDiscover(lua_State* L)
 int CvLuaUnit::lGetDiscoverAmount(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
+#if defined(MOD_BALANCE_CORE)
+	const int iResult = pkUnit->GetScienceBlastStrength();
+#else
 	const int iResult = pkUnit->getDiscoverAmount();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1695,8 +1747,11 @@ int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
+#if defined(MOD_BALANCE_CORE)
+	const int iResult = pkUnit->GetCultureBlastStrength();
+#else
 	const int iResult = pkUnit->getGivePoliciesCulture();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -92,6 +92,9 @@ protected:
 	static int lGetTurnYear(lua_State* L);
 	static int lGetGameTurnYear(lua_State* L);
 	static int lGetTurnString(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetDateString, char*, iTurn);
+#endif
 
 	static int lGetElapsedGameTurns(lua_State* L);
 	static int lGetMaxTurns(lua_State* L);

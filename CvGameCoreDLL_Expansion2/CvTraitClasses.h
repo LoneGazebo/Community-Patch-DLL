@@ -10,6 +10,8 @@
 #ifndef CIV5_TRAIT_CLASSES_H
 #define CIV5_TRAIT_CLASSES_H
 
+#include "CustomMods.h"
+
 struct FreeResourceXCities
 {
 	FreeResourceXCities():
@@ -111,7 +113,6 @@ public:
 	bool IsAdoptionFreeTech() const;
 	bool IsGPWLTKD() const;
 	bool IsTradeRouteOnly() const;
-	int GetTerrainClaimBoost() const;
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
@@ -120,6 +121,9 @@ public:
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
 	int GetTourismGABonus() const;
+	int GetTourismToGAP() const;
+	int GetEventTourismBoost() const;
+	int GetEventGP() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -157,6 +161,7 @@ public:
 	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
+	int YieldFromHistoricEvent(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -230,6 +235,7 @@ public:
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
 	int GetTradeRouteStartYield(int i) const;
 	int GetYieldFromRouteMovement(int i) const;
@@ -251,6 +257,10 @@ public:
 	int GetCityYieldChanges(int i) const;
 	int GetCoastalCityYieldChanges(int i) const;
 	int GetGreatWorkYieldChanges(int i) const;
+	int GetArtifactYieldChanges(int i) const;
+	int GetArtYieldChanges(int i) const;
+	int GetLitYieldChanges(int i) const;
+	int GetMusicYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -274,6 +284,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
+	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -351,6 +362,9 @@ protected:
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
 	bool m_bNoNaturalReligionSpread;
+	int m_iTourismToGAP;
+	int m_iEventTourismBoost;
+	int m_iEventGP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -392,7 +406,6 @@ protected:
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
-	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -456,6 +469,7 @@ protected:
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
 	int* m_piTradeRouteStartYield;
 	int* m_piYieldFromRouteMovement;
@@ -477,6 +491,10 @@ protected:
 	int* m_piCityYieldChanges;
 	int* m_piCoastalCityYieldChanges;
 	int* m_piGreatWorkYieldChanges;
+	int* m_piArtifactYieldChanges;
+	int* m_piArtYieldChanges;
+	int* m_piLitYieldChanges;
+	int* m_piMusicYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
 	int** m_ppiTerrainYieldChanges;
@@ -499,6 +517,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	std::multimap<int, int> m_FreePromotionUnitClass;
 	std::multimap<int, int> m_BuildsUnitClasses;
+	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -816,6 +835,18 @@ public:
 	{
 		return m_iTourismGABonus;
 	};
+	int GetTourismToGAP() const
+	{
+		return m_iTourismToGAP;
+	};
+	int GetEventTourismBoost() const
+	{
+		return m_iEventTourismBoost;
+	};
+	int GetEventGP() const
+	{
+		return m_iEventGP;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1098,6 +1129,10 @@ public:
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromHistoricEvent(YieldTypes eYield) const
+	{
+		return m_iYieldFromHistoricEvent[(int)eYield];
+	};
 	int GetYieldFromOwnPantheon(YieldTypes eYield) const
 	{
 		return m_iYieldFromOwnPantheon[(int)eYield];
@@ -1173,6 +1208,23 @@ public:
 	{
 		return m_iGreatWorkYieldChanges[(int)eYield];
 	};
+	int GetArtifactYieldChanges(YieldTypes eYield) const
+	{
+		return m_iArtifactYieldChanges[(int)eYield];
+	};
+	int GetArtYieldChanges(YieldTypes eYield) const
+	{
+		return m_iArtYieldChanges[(int)eYield];
+	};
+	int GetLitYieldChanges(YieldTypes eYield) const
+	{
+		return m_iLitYieldChanges[(int)eYield];
+	};
+	int GetMusicYieldChanges(YieldTypes eYield) const
+	{
+		return m_iMusicYieldChanges[(int)eYield];
+	};
+
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
@@ -1209,7 +1261,11 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource);
 #endif
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	bool CheckForBarbarianConversion(CvUnit* pByUnit, CvPlot* pPlot);
+#else
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
+#endif
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
 #if defined(MOD_BALANCE_CORE)
 	TechTypes GetFreeBuildingPrereqTech() const;
@@ -1218,10 +1274,6 @@ public:
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
-	int GetTerrainClaimBoost() const
-	{
-		return m_iTerrainClaimBoost;
-	};
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
@@ -1247,6 +1299,7 @@ public:
 
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;
+	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
@@ -1266,14 +1319,21 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
+	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
+
 private:
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
+	bool ConvertBarbarianNavalUnit(CvUnit* pByUnit, UnitHandle pUnit);
+#else
 	bool ConvertBarbarianCamp(CvPlot* pPlot);
 	bool ConvertBarbarianNavalUnit(UnitHandle pUnit);
+#endif
 
 	CvTraitXMLEntries* m_pTraits;
 	CvPlayer* m_pPlayer;
 	std::vector<bool> m_vLeaderHasTrait;
-	std::vector<TraitTypes> m_vLeaderTraits;
+	std::vector<TraitTypes> m_vPotentiallyActiveLeaderTraits;
 
 	// Cached data about this player's traits
 	int m_iGreatPeopleRateModifier;
@@ -1337,10 +1397,13 @@ private:
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	bool m_bNoNaturalReligionSpread;
+	int m_iTourismToGAP;
+	int m_iEventTourismBoost;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
+	int m_iEventGP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1420,11 +1483,11 @@ private:
 	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
-	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
@@ -1459,6 +1522,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
@@ -1480,6 +1544,10 @@ private:
 	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
 	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];
+	int m_iArtifactYieldChanges[NUM_YIELD_TYPES];
+	int m_iArtYieldChanges[NUM_YIELD_TYPES];
+	int m_iLitYieldChanges[NUM_YIELD_TYPES];
+	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;

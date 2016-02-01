@@ -11,7 +11,7 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>6</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
