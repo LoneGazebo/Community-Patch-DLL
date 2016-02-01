@@ -213,6 +213,9 @@ public:
 private:
 
 	void ReweightByCost();
+#if defined(MOD_BALANCE_CORE)
+	void ReweightPreCheckByCost();
+#endif
 
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);

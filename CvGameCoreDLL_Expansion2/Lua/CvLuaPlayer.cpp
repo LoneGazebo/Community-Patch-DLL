@@ -3810,7 +3810,7 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinationsFrom(lua_State*
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2, false);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);;
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 
 	return GetPotentialInternationalTradeRouteDestinationsHelper(L, pkPlayer, pkUnit, pkCity->plot());
 }
@@ -12428,6 +12428,10 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 	if(iResult < 0)
 	{
 		iResult *= -1;
+	}
+	if(iResult == MAX_INT)
+	{
+		iResult = -1;
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

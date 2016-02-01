@@ -11328,11 +11328,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else if (eWarmongerThreat >= THREAT_SEVERE)
 			{
-				iScore += 40;
+				iScore += 35;
 			}
 			else if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 			{
-				iScore += 50;
+				iScore += 40;
 			}
 			else if (eOpinion < MAJOR_CIV_OPINION_ALLY)
 			{
@@ -11350,25 +11350,22 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				PolicyBranchTypes eSanctionIdeology = GET_PLAYER(eTargetPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 				if(ePlayerIdeology != eSanctionIdeology)
 				{
-					iScore += 100;
+					iScore += 90;
 				}
 				if(bSeekingConquestVictory)
 				{
-					iScore += 100;
+					iScore += 50;
 				}
 				if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eTargetPlayer))
 				{
 					iScore += 500;
 				}
-
-				int iWarScore = GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetWarScore(eTargetPlayer);
-				iScore += iWarScore;
 			}
 #endif
 			// Trade connections
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer))
 			{
-				int iFactor = -10;
+				int iFactor = -20;
 				iScore += MAX(-40, GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer) * iFactor);
 			}
 
@@ -11378,7 +11375,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				YieldTypes e = (YieldTypes) i;
 				if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
 				{
-					iScore += -20;
+					iScore += -50;
 					break;
 				}
 			}
@@ -11386,7 +11383,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			// Player Trait gives us extra routes, embargoes are bad for business (Venice)
 			if (GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0)
 			{
-				iScore += -20;
+				iScore += -50;
 			}
 		}
 	}
@@ -12582,28 +12579,42 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (pPlayerTeam->isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 					{
-						iScore += 200;
+						iScore += 150;
 					}
 					if (eDispute >= DISPUTE_LEVEL_STRONG)
 					{
-						iScore += 50 * eDispute;
+						if(iAllies > 0)
+						{
+							iScore += (iAllies * 50);
+						}
+						else
+						{
+							iScore += 50 * eDispute;
+						}
 					}
 					if (eBlock >= BLOCK_LEVEL_STRONG)
 					{
-						iScore += 50 * eBlock;
+						if(iAllies > 0)
+						{
+							iScore += (iAllies * 25);
+						}
+						else
+						{
+							iScore += 25 * eBlock;
+						}
 					}
 					if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 					{			
 						if(iAllies > 0)
 						{
-							iScore += (iAllies * 66);
+							iScore += (iAllies * 25);
 						}
 					}
 					else
 					{
 						if(iAllies > 0)
 						{
-							iScore -= (iAllies * 33);
+							iScore -= (iAllies * 25);
 						}
 					}
 				}
@@ -12993,12 +13004,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					//People we don't like like this? We should not do this to spite them!
 					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
 					{
-						iScore -= 20;
+						iScore -= 30;
 					}
 					//People we like like this? We should do it!
 					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
 					{
-						iScore += 20;
+						iScore += 30;
 					}
 				}
 			}
@@ -13013,12 +13024,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					//People we don't like? We should do this to spite them!
 					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
 					{
-						iScore += 20;
+						iScore += 30;
 					}
 					//People we like? We should reconsider...
 					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
 					{
-						iScore -= 20;
+						iScore -= 30;
 					}
 				}	
 			}

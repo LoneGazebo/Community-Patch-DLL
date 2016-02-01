@@ -7,8 +7,10 @@
 -- todo: resources hookup, maintenance cost & health, terraform
 -- todo BE: don't show quest artifacts if there's already a (quest) improvement here
 -------------------------------
+include( "EUI_utilities" )
+
 Events.SequenceGameInitComplete.Add(function()
-print("Loading EUI plot help...",os.clock(),[[ 
+print("Loading EUI plot help",ContextPtr,os.clock(),[[ 
  ____  _       _   _   _      _       __  __                                   
 |  _ \| | ___ | |_| | | | ___| |_ __ |  \/  | __ _ _ __   __ _  __ _  ___ _ __ 
 | |_) | |/ _ \| __| |_| |/ _ \ | '_ \| |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|
@@ -19,36 +21,61 @@ print("Loading EUI plot help...",os.clock(),[[
 
 include( "ResourceTooltipGenerator" )
 local GenerateResourceToolTip = GenerateResourceToolTip
-include( "EUI_utilities" )
-local EUI = EUI
+--EUI_utilities
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
+local CountHexPlots = EUI.CountHexPlots
+local IndexPlot = EUI.IndexPlot
+local GameInfo = EUI.GameInfoCache -- warning! booleans are true, not 1, and use iterator ONLY with table field conditions, NOT string SQL query
 
 -------------------------------
 -- minor lua optimizations
 -------------------------------
 
-local math = math
---local os = os
+--local next = next
 local pairs = pairs
 local ipairs = ipairs
 --local pcall = pcall
 --local print = print
 --local select = select
+--local setmetatable = setmetatable
 --local string = string
---local table = table
 local tonumber = tonumber
 local tostring = tostring
 --local type = type
 --local unpack = unpack
+--local table = table
+--local table_insert = table.insert
+--local table_remove = table.remove
+--local table_concat = table.concat
+--local os = os
+--local os_time = os.time
+--local os_date = os.date
+--local math = math
+local math_floor = math.floor
+local math_ceil = math.ceil
+--local math_min = math.min
+local math_max = math.max
+--local math_abs = math.abs
+--local math_modf = math.modf
+--local math_sqrt = math.sqrt
+--local math_pi = math.pi
+--local math_sin = math.sin
+--local math_cos = math.cos
+--local math_huge = math.huge
 
-local UI = UI
+--local UI = UI
+local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
+local UI_GetMouseOverHex = UI.GetMouseOverHex
 local UIManager = UIManager
+local ToHexFromGrid = ToHexFromGrid
+local IsGameCoreBusy = IsGameCoreBusy
+
 --local Controls = Controls
 local ContextPtr = ContextPtr
 local Players = Players
 local Teams = Teams
-local GameInfo = EUI.GameInfoCache -- warning! booleans are true, not 1, and use iterator ONLY with table field conditions, NOT string SQL query
+--local GameInfo = GameInfo
 --local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 local GameDefines = GameDefines
@@ -105,9 +132,13 @@ local MinorCivQuestTypes = MinorCivQuestTypes
 
 local PreGame = PreGame
 local Game = Game
-local Map = Map
+--local Map = Map
+local Map_GetPlot = Map.GetPlot
 local OptionsManager = OptionsManager
 local Events = Events
+local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
+local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
+local Events_RequestYieldDisplay = Events.RequestYieldDisplay
 --local Mouse = Mouse
 --local MouseEvents = MouseEvents
 local MouseOverStrategicViewResource = MouseOverStrategicViewResource
@@ -126,9 +157,11 @@ local GameInfoBeliefs = GameInfo.Beliefs
 local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
 local gk_mode = type( Game.GetReligionName ) == "function"
 local bnw_mode = type( Game.GetActiveLeague ) == "function"
-local csd_mode = civ5_mode and type( Map.GetPlot(0,0).GetPlayerThatBuiltImprovement ) == "function"	-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
+local csd_mode = civ5_mode and type( Map_GetPlot(0,0).GetPlayerThatBuiltImprovement ) == "function"	-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
 local civ5_bnw_mode = bnw_mode and civ5_mode
 local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
+
+local g_isGameDebugMode = Game.IsDebugMode()
 
 local g_domainTypeAir = DomainTypes.DOMAIN_AIR
 local g_mouseEventsMouseMove = MouseEvents.MouseMove
@@ -161,7 +194,7 @@ local g_cityWorkingRadius = GameDefines.CITY_PLOTS_RADIUS
 local g_moveDenominator = GameDefines.MOVE_DENOMINATOR
 local g_defaultWorkRate
 for row in GameInfo.Units() do
-	g_defaultWorkRate = math.max( g_defaultWorkRate or 0, row.WorkRate )
+	g_defaultWorkRate = math_max( g_defaultWorkRate or 0, row.WorkRate )
 end
 print("found default work rate", g_defaultWorkRate)
 g_defaultWorkRate = g_defaultWorkRate or 100
@@ -175,11 +208,11 @@ local function ClearOverlays()
 	end
 	if g_isCityLimits then
 		g_isCityLimits = false
-		Events.ClearHexHighlightStyle( "CityLimits" )
-		Events.ClearHexHighlightStyle( "OwnedFill" )
-		Events.ClearHexHighlightStyle( "OwnedOutline" )
+		Events_ClearHexHighlightStyle( "CityLimits" )
+		Events_ClearHexHighlightStyle( "OwnedFill" )
+		Events_ClearHexHighlightStyle( "OwnedOutline" )
 		if g_isCivilianYields then
-			Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
+			Events_RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
 		end
 	end
 end
@@ -220,43 +253,8 @@ end
 -- Plot Tool Tip
 -------------------------------
 
-local function UpdatePlotHelp( timeChange )
-	if g_tipLevel > 1 then
-		return
-	else
-		g_tipTimer = g_tipTimer + timeChange
-		if IsGameCoreBusy() then
-			return
-		elseif g_tipTimer >= g_tipTimerThreshold2 then
-			g_tipLevel = 2
-		elseif g_tipTimer >= g_tipTimerThreshold1 then
-			g_tipLevel = 1
-		else
-			return
-		end
-	end
-	local plot = Map.GetPlot( UI.GetMouseOverHex() )
-	local plotTips
-	if plot == g_lastPlot then
-		plotTips = g_lastTips[ g_tipLevel ]
-	else
-		g_lastTips = { false, false, false }
-		g_lastPlot = plot
-	end
-	if civ5_mode and MouseOverStrategicViewResource() then
-		-- Resource Tool Tip
-		plotTips = g_lastTips[ 3 ]
-		if not plotTips then
-			plotTips = plot and plot:IsRevealed( Game.GetActiveTeam(), false ) and GenerateResourceToolTip(plot)
-			g_lastTips[ 3 ] = plotTips
-		end
-		return ShowPlotTips( plotTips )
-	elseif plotTips then
-		-- Previous Tool Tip
-		return ShowPlotTips( plotTips )
-	end
+local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	-- New Plot Tool Tip
-	ClearOverlays()
 	local activeTeamID = Game.GetActiveTeam()
 	local activePlayerID = Game.GetActivePlayer()
 	local activePlayer = Players[activePlayerID]
@@ -270,9 +268,6 @@ local function UpdatePlotHelp( timeChange )
 	local plotTechs = activeTeamTechs
 	local plotBeliefs = {}
 
-	local isExtraTips = g_tipLevel > 1
-	local isNoob = g_isNoob
-	local isGameDebugMode = Game.IsDebugMode()
 	local tips = table()
 
 	if g_isReligionEnabled then
@@ -305,7 +300,7 @@ local function UpdatePlotHelp( timeChange )
 	end
 	if civ5_bnw_mode and g_isPoliciesEnabled then
 		local activePlayerIdeologyID = activePlayer:GetLateGamePolicyTree()
-		local activePlayerIdeology = activePlayerIdeologyID and GameInfo.PolicyBranchTypes[ activePlayerIdeologyID ]
+		local activePlayerIdeology = GameInfo.PolicyBranchTypes[ activePlayerIdeologyID or -1 ]
 		activePlayerIdeologyType = activePlayerIdeology and activePlayerIdeology.Type
 	end
 
@@ -328,7 +323,7 @@ local function UpdatePlotHelp( timeChange )
 	-- Belief Filter
 	local function BeliefFilter(row)
 
-		return row and not plotBeliefs[row.ID] and availableBeliefs[row.ID]
+		return row and not plotBeliefs[ row.ID ] and availableBeliefs[ row.ID ]
 	end
 
 	------------------
@@ -463,7 +458,7 @@ local function UpdatePlotHelp( timeChange )
 							-- does it have a policy branch requirement ?
 							elseif k == "PolicyBranchType" and info ~= GameInfoPolicies then
 								policy = (GameInfo.PolicyBranchTypes[v] or {}).FreePolicy
-								policy = policy and GameInfoPolicies[ policy ]
+								policy = GameInfoPolicies[ policy or -1 ]
 								if policy then
 									alreadyHave = activePlayer:HasPolicy( policy.ID )
 									canHave = (alreadyHave or g_isPoliciesEnabled)
@@ -552,11 +547,11 @@ local function UpdatePlotHelp( timeChange )
 	-- Plot Help
 	-------------------------------------------------
 
-	if plot and plot:IsRevealed( activeTeamID, isGameDebugMode ) then
+	if plot and plot:IsRevealed( activeTeamID, g_isGameDebugMode ) then
 
-		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, isGameDebugMode )
+		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, g_isGameDebugMode )
 		plotOwner = plotOwnerID and Players[plotOwnerID]
-		local plotTeamID = plot:GetRevealedTeam( activeTeamID, isGameDebugMode )
+		local plotTeamID = plot:GetRevealedTeam( activeTeamID, g_isGameDebugMode )
 		local plotTeam = plotTeamID and Teams[plotTeamID]
 		if plotTeam then
 			plotTechs = plotTeam:GetTeamTechs()
@@ -588,10 +583,10 @@ local function UpdatePlotHelp( timeChange )
 				end
 			end
 		end
-		local workRate = math.max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
+		local workRate = math_max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
 		--------
 		-- Units
-		if plot:IsVisible( activeTeamID, isGameDebugMode ) then
+		if plot:IsVisible( activeTeamID, g_isGameDebugMode ) then
 
 			local units = {}
 			-- Loop through all units in plot
@@ -607,7 +602,7 @@ local function UpdatePlotHelp( timeChange )
 			end
 			for i=1, #units do
 				local unit = units[i]
-				if unit and not unit:IsInvisible( activeTeamID, isGameDebugMode ) then
+				if unit and not unit:IsInvisible( activeTeamID, g_isGameDebugMode ) then
 
 					local unitOwnerID = unit:GetOwner()
 					local unitOwner = Players[unitOwnerID]
@@ -685,7 +680,7 @@ local function UpdatePlotHelp( timeChange )
 
 						-- Strength
 						if unitStrength > 0 then
-							local adjustedUnitStrength = (math.max(100 + unit:GetStrategicResourceCombatPenalty(), 10) * unitStrength) / 100
+							local adjustedUnitStrength = (math_max(100 + unit:GetStrategicResourceCombatPenalty(), 10) * unitStrength) / 100
 							--todo other modifiers eg unhappy...
 							if adjustedUnitStrength < unitStrength then
 								adjustedUnitStrength = S(" [COLOR_NEGATIVE_TEXT]%.3g[ENDCOLOR]", adjustedUnitStrength )
@@ -721,16 +716,6 @@ local function UpdatePlotHelp( timeChange )
 					end
 
 					tips:insert( unitTip )
-
---CBP
-					--if isNoob then
-					--	tips:insert( S("Unit %d - ", L(unit:GetID())))
-					--	tips:insert( S("Danger: %d", L(unit:GetDanger())))
-					--	tips:insert( L(unit:GetAIOperationInfo()) )
-					--	tips:insert( L(unit:GetMissionInfo()) )
-					--end
--- END CBP
-
 					-- Can build something?
 					if unitOwnerID == activePlayerID then
 						local unitWorkRate = unit:WorkRate( true )
@@ -762,25 +747,25 @@ local function UpdatePlotHelp( timeChange )
 --]]
 		end
 
-		local selectedUnit = UI.GetHeadSelectedUnit()
+		local selectedUnit = UI_GetHeadSelectedUnit()
 		local isCombatUnitSelected
 		if selectedUnit then
 			isCombatUnitSelected = selectedUnit:IsCombatUnit()
 			if selectedUnit:CanFound( plot ) then
 				g_isCityLimits = true
 				if g_isCivilianYields then
-					Events.RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
+					Events_RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
 				end
-				for i=1, EUI.CountHexPlots( g_cityWorkingRadius ) do
-					local p = EUI.IndexPlot( plot, i )
+				for i=1, CountHexPlots( g_cityWorkingRadius ) do
+					local p = IndexPlot( plot, i )
 					if p then
 						local hex = ToHexFromGrid{ x=p:GetX(), y=p:GetY() }
-						Events.SerialEventHexHighlight( hex, true, nil, "CityLimits" )
+						Events_SerialEventHexHighlight( hex, true, nil, "CityLimits" )
 						local ownerID = p:GetOwner()
 						if ownerID >= 0 and ownerID ~= activePlayerID or p:IsPlayerCityRadius( activePlayerID ) then
 --						if p:GetCityRadiusCount() > 0 then
-							Events.SerialEventHexHighlight( hex, true, nil, "OwnedFill" )
-							Events.SerialEventHexHighlight( hex, true, nil, "OwnedOutline" )
+							Events_SerialEventHexHighlight( hex, true, nil, "OwnedFill" )
+							Events_SerialEventHexHighlight( hex, true, nil, "OwnedOutline" )
 						end
 					end
 				end
@@ -804,9 +789,9 @@ local function UpdatePlotHelp( timeChange )
 					strOwner = "[COLOR_YELLOW]"
 				end
 				-- Known city plot ?
-				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, isGameDebugMode ) then
+				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, g_isGameDebugMode ) then
 					strOwner = strOwner .. owningCity:GetName() .. "[ENDCOLOR]"
-					if isNoob then
+					if g_isNoob then
 						strOwner = L( "TXT_KEY_CITY_OF", plotOwner:IsMinorCiv() and "" or plotOwner:GetCivilizationAdjectiveKey(), strOwner )
 					end
 				-- No city, plot is just owned
@@ -829,7 +814,7 @@ local function UpdatePlotHelp( timeChange )
 		local resourceID = plot:GetResourceType( activeTeamID )
 		local resource, numResource, isResourceConnected, isResourceUsefull, resourceUsageType
 		local isPillaged = plot:IsImprovementPillaged()
-		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, isGameDebugMode )
+		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, g_isGameDebugMode )
 		local actualImprovementID = plot:GetImprovementType()
 		local revealedImprovement
 
@@ -855,14 +840,14 @@ local function UpdatePlotHelp( timeChange )
 
 				local techName = GameInfoTechnologies[resourceEnablerTechID]
 				techName = techName and techName.Description or "<unknown tech>"
-				if isNoob then
+				if g_isNoob then
 					resourceTip = resourceTip .. " " .. L( "TXT_KEY_PLOTROLL_REQUIRES_TECH_TO_USE", techName )
 				else
 					resourceTip = resourceTip .. " " .. L( "TXT_KEY_PLOTROLL_REQUIRES_TECH", techName )
 				end
 			end
 			if #resourceTip > 0 then
-				if isNoob then
+				if g_isNoob then
 					tips:insert( L"TXT_KEY_RESOURCE" .. ": " .. resourceTip )
 				else
 					tips:insert( resourceTip )
@@ -877,8 +862,9 @@ local function UpdatePlotHelp( timeChange )
 		local terrain = GameInfo.Terrains[ plot:GetTerrainType() ]
 		local featureTips = table()
 
-		-- Some features are handled in a special manner, since they always have the same terrain type under it
-		local isSpecialFeature = g_specialFeatures[ featureID ]
+		local isLakePlot = plot:IsLake()
+		local isWaterPlot = plot:IsWater()
+		local isSpecialFeature = g_specialFeatures[ featureID ] -- Some features are handled in a special manner, since they always have the same terrain type under it
 
 		-- Miasma CIV BE only
 		if not civ5_mode and plot:HasMiasma() then
@@ -908,7 +894,7 @@ local function UpdatePlotHelp( timeChange )
 		-- Terrain
 		if not isSpecialFeature then
 			-- Lake
-			if plot:IsLake() then
+			if isLakePlot then
 				featureTips:insert( L"TXT_KEY_PLOTROLL_LAKE" )
 			else
 				featureTips:insert( L( terrain.Description ) )
@@ -926,19 +912,9 @@ local function UpdatePlotHelp( timeChange )
 		elseif plot:IsFreshWater() then
 			featureTips:insert( L"TXT_KEY_PLOTROLL_FRESH_WATER" )
 		end
--- CBP
-		--if isNoob then
-		--	local plotX = plot:GetX();
-		--	local plotY = plot:GetY();
-		--	local danger = activePlayer:GetPlotDanger(plot);
-		--	if(plotX ~= -1 and plotY ~= -1) then
-		--		featureTips:insert( L("TXT_KEY_DEBUG_X_Y" , plotX, plotY, danger) )
-		--	end
-		--end
--- END
 
 		if #featureTips > 0 then
-			if false and isNoob and not ( feature and feature.NaturalWonder ) then
+			if false and g_isNoob and not ( feature and feature.NaturalWonder ) then
 				tips:insert( L"TXT_KEY_PEDIA_TERRAIN_LABEL" .. ": " .. featureTips:concat( ", " ) )
 			else
 				tips:insert( featureTips:concat( ", " ) )
@@ -968,7 +944,7 @@ local function UpdatePlotHelp( timeChange )
 			-- Happiness (should probably be calculated in CvPlayer)
 			if feature and g_isHappinessEnabled then
 				yieldChange = feature.InBorderHappiness
-				yieldChange = math.floor( yieldChange * ( 100 + activePlayer:GetNaturalWonderYieldModifier() ) / 100 )
+				yieldChange = math_floor( yieldChange * ( 100 + activePlayer:GetNaturalWonderYieldModifier() ) / 100 )
 
 				if yieldChange ~= 0 then
 					yieldTips:insert( yieldChange .. "[ICON_HAPPINESS_1]" )
@@ -979,7 +955,7 @@ local function UpdatePlotHelp( timeChange )
 			-- Only fudge in the additional culture if the owner is NOT the active player.
 			if plotOwnerID ~= activePlayerID then
 				if feature and feature.NaturalWonder then
-					yieldChange = yieldChange + math.floor(feature.Culture * (100 + activePlayer:GetNaturalWonderYieldModifier()) / 100)
+					yieldChange = yieldChange + math_floor(feature.Culture * (100 + activePlayer:GetNaturalWonderYieldModifier()) / 100)
 				end
 			end
 			if yieldChange ~= 0 then
@@ -993,7 +969,7 @@ local function UpdatePlotHelp( timeChange )
 		-- Defense
 		local defenseModifier = plot:DefenseModifier( activeTeamID, false, false )
 		if defenseModifier ~= 0 then
-			if isNoob then
+			if g_isNoob then
 				tips:insert( L"TXT_KEY_PEDIA_DEFENSE_LABEL" .. S(" %+i%%[ICON_STRENGTH]", defenseModifier) )
 			else
 				yieldTips:insert( S("%+i%%[ICON_STRENGTH]", defenseModifier) )
@@ -1001,8 +977,8 @@ local function UpdatePlotHelp( timeChange )
 		end
 -- todo: moves required
 
-		if #yieldTips > 0  then -- and (isExtraTips or isNoob or not isCombatUnitSelected) then
-			if isNoob then
+		if #yieldTips > 0  then -- and (isExtraTips or g_isNoob or not isCombatUnitSelected) then
+			if g_isNoob then
 				tips:insert( L"TXT_KEY_OUTPUT" .. ": " .. yieldTips:concat( " " ) )
 			else
 				tips:insert( yieldTips:concat( " " ) )
@@ -1015,7 +991,7 @@ local function UpdatePlotHelp( timeChange )
 		local improvementTips = table()
 
 		local function checkPillaged( row, flag )
-			if row and row.Description ~= nil then
+			if row then
 				local txt = L( row.Description )
 				-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
 				if csd_mode and row.Type == "IMPROVEMENT_EMBASSY" then
@@ -1039,17 +1015,17 @@ local function UpdatePlotHelp( timeChange )
 			improvementTips:insert( "[COLOR_POSITIVE_TEXT]" .. checkPillaged( revealedImprovement, isPillaged ) .. "[ENDCOLOR]" )
 		end
 
-		local routeID = plot:GetRevealedRouteType( activeTeamID, isGameDebugMode )
+		local routeID = plot:GetRevealedRouteType( activeTeamID, g_isGameDebugMode )
 		if routeID >= 0 then
 			improvementTips:insert( checkPillaged(GameInfo.Routes[routeID], plot:IsRoutePillaged()) )
 		end
 
-		if isNoob and isExtraTips and plot:IsTradeRoute() then
+		if g_isNoob and isExtraTips and plot:IsTradeRoute() then
 			improvementTips:insert( L"TXT_KEY_PLOTROLL_TRADE_ROUTE" )
 		end
 
 		if #improvementTips > 0 then
-			if isNoob then
+			if g_isNoob then
 				tips:insert( L"TXT_KEY_IMPROVEMENT" .. ": " .. improvementTips:concat(", ") )
 			else
 				tips:insert( improvementTips:concat(", ") )
@@ -1069,8 +1045,7 @@ local function UpdatePlotHelp( timeChange )
 				insertImprovementYieldChanges( tips, revealedImprovement, "[ICON_BULLET]" )
 			end
 			if not plotCity then
-				local isLakePlot = plot:IsLake()
-				local isSeaPlot = plot:IsWater() and not isLakePlot
+				local isSeaPlot = isWaterPlot and not isLakePlot
 				insertYieldChanges(tips, "[ICON_BULLET]", "[COLOR_YIELD_FOOD]", "BuildingType", BuildingFilter, GameInfo.Buildings,
 --TODO modifiers	GameInfo.Building_AreaYieldModifiers(),
 --TODO modifiers	resource and GameInfo.Building_ResourceYieldModifiers{ ResourceType = resource.Type },
@@ -1119,9 +1094,9 @@ local function UpdatePlotHelp( timeChange )
 				local buildID = build.ID
 				local buildTip = L(build.Description)
 
-				local canBuild = plot:CanBuild( buildID, activePlayerID ) and not(civ5_bnw_mode and build.ShowInPedia == false) -- filter duplicates
+				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia ~= false and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
 				local isBasicBuild = true
-				local buildImprovement = build.ImprovementType and GameInfo.Improvements[ build.ImprovementType ]
+				local buildImprovement = GameInfo.Improvements[ build.ImprovementType or -1 ]
 
 				local buildInProgress = buildsInProgress[ buildID ]
 
@@ -1148,11 +1123,11 @@ local function UpdatePlotHelp( timeChange )
 				end
 
 				-- does build have a tech requirement ?
-				local tech1 = build.PrereqTech and GameInfoTechnologies[ build.PrereqTech ]
+				local tech1 = GameInfoTechnologies[ build.PrereqTech or -1 ]
 				if tech1 and not activeTeamTechs:HasTech( tech1.ID ) then
 					buildTip = "[COLOR_CYAN]" .. L(tech1.Description) .. "[ENDCOLOR] ".. buildTip
 					canBuild = canBuild and g_isScienceEnabled
-					isBasicBuild = isBasicBuild and (isNoob or isExtraTips)
+					isBasicBuild = isBasicBuild and (g_isNoob or isExtraTips)
 				end
 
 				-- does build remove a feature, and require a tech for doing so ?
@@ -1163,18 +1138,18 @@ local function UpdatePlotHelp( timeChange )
 					else
 						row = GameInfo.BuildsOnFeatures{ BuildType = build.Type, FeatureType = feature.Type, Remove = true }() -- stupid table rename by Firaxis
 					end
-					local tech2 = row and row.PrereqTech and GameInfoTechnologies[ row.PrereqTech ]
+					local tech2 = GameInfoTechnologies[ row and row.PrereqTech or -1 ]
 					if tech2 and tech1 ~= tech2 and not activeTeamTechs:HasTech( tech2.ID ) then
 						buildTip = "[COLOR_CYAN]" .. L(tech2.Description) .. "[ENDCOLOR] ".. buildTip
 						canBuild = canBuild and g_isScienceEnabled
-						isBasicBuild = isBasicBuild and (isNoob or isExtraTips)
+						isBasicBuild = isBasicBuild and (g_isNoob or isExtraTips)
 					end
 				end
 
 				-- does build require time to build ?
 				if plot:GetBuildTime(buildID) > 0 then
-					local turnsRemaining = buildInProgress or math.ceil( ( plot:GetBuildTime( buildID, g_activePlayerID ) - math.max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
-					if isNoob then
+					local turnsRemaining = buildInProgress or math_ceil( ( plot:GetBuildTime( buildID, g_activePlayerID ) - math_max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
+					if g_isNoob then
 						buildTip = buildTip .. " (" .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ) .. ")"
 					else
 						buildTip = buildTip .. " (" .. turnsRemaining .. ")"
@@ -1247,7 +1222,7 @@ local function UpdatePlotHelp( timeChange )
 					end
 				end
 
-				if buildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
+				if buildInProgress or (canBuild and (isBasicBuild or (g_isNoob and isExtraTips))) then
 					tips:insert( buildTip )
 				end
 			end
@@ -1262,9 +1237,7 @@ local function UpdatePlotHelp( timeChange )
 		end
 
 	end
-	plotTips = tips:concat( "[NEWLINE]" )
-	g_lastTips[ g_tipLevel ] = plotTips
-	return ShowPlotTips( plotTips )
+	return tips:concat( "[NEWLINE]" )
 end
 
 -------------------------------------------------
@@ -1331,6 +1304,44 @@ if civ5_mode then
 end
 Events.SerialEventUnitInfoDirty.Add( DirtyAll )
 Events.WorldMouseOver( true )
-ContextPtr:SetUpdate( UpdatePlotHelp )
+ContextPtr:SetUpdate(
+function( timeChange )
+	if g_tipLevel > 1 then
+		return
+	else
+		g_tipTimer = g_tipTimer + timeChange
+		if IsGameCoreBusy() then
+			return
+		elseif g_tipTimer >= g_tipTimerThreshold2 then
+			g_tipLevel = 2
+		elseif g_tipTimer >= g_tipTimerThreshold1 then
+			g_tipLevel = 1
+		else
+			return
+		end
+	end
+	local plot = Map_GetPlot( UI_GetMouseOverHex() )
+	local plotTips
+	if plot == g_lastPlot then
+		plotTips = g_lastTips[ g_tipLevel ]
+	else
+		g_lastTips = { false, false, false }
+		g_lastPlot = plot
+	end
+	if civ5_mode and MouseOverStrategicViewResource() then
+		-- Resource Tool Tip
+		plotTips = g_lastTips[ 3 ]
+		if not plotTips then
+			plotTips = plot and plot:IsRevealed( Game.GetActiveTeam(), false ) and GenerateResourceToolTip( plot )
+			g_lastTips[ 3 ] = plotTips
+		end
+	elseif not plotTips then
+		ClearOverlays()
+		plotTips = PlotToolTips( plot, g_tipLevel > 1 )
+		g_lastTips[ g_tipLevel ] = plotTips
+	end
+	return ShowPlotTips( plotTips )
+end)
+
 print("Finished loading EUI plot help",os.clock())
 end)

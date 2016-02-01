@@ -3313,13 +3313,15 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3862,12 +3864,23 @@ bool CvPlot::isActiveVisible() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::isVisibleToCivTeam(bool bNoObserver) const
+#else
 bool CvPlot::isVisibleToCivTeam() const
+#endif
 {
 	int iI;
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Skip observer here.
+		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		{
+			continue;
+		}
+#endif
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -3879,7 +3892,6 @@ bool CvPlot::isVisibleToCivTeam() const
 
 	return false;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const

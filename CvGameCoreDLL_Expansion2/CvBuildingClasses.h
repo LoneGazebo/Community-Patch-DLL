@@ -887,18 +887,17 @@ class CvCityBuildings
 public:
 	CvCityBuildings(void);
 	~CvCityBuildings(void);
-	void Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity);
+	void Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity);
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
 	// Accessor functions
-	CvBuildingXMLEntries* GetBuildings() const;
+	CvBuildingXMLEntries* GetPossibleBuildings() const;
 
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
-
 	int GetNumBuilding(BuildingTypes eIndex) const;
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
@@ -1031,7 +1030,7 @@ private:
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;
 
-	CvBuildingXMLEntries* m_pBuildings;
+	CvBuildingXMLEntries* m_pPossibleBuildings;
 	CvCity* m_pCity;
 };
 

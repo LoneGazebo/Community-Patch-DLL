@@ -4981,7 +4981,11 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity) const
+#else
 int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
+#endif
 {
 	VALIDATE_OBJECT
 	// The roll will vary damage between 40 and 60 (out of 100) for two units of identical strength
@@ -5066,6 +5070,18 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		iDamage *= /*100*/ GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
 		iDamage /= 100;
+#if defined(MOD_BALANCE_CORE)
+		if(pCity)
+		{
+			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+			if(pGarrison)
+			{
+				//make sure there are no rounding errors
+				int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+				iDamage -= iGarrisonShare;
+			}
+		}
+#endif
 	}
 
 	// Bring it back out of hundreds
@@ -7325,6 +7341,10 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 #endif
 
+	//no healing on mountains outside of cities (inca)
+	if (pPlot->isMountain() && !pPlot->isCity())
+		return 0;
+
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
 
@@ -7581,7 +7601,12 @@ void CvUnit::doHeal()
 			}
 		}
 #endif
-		changeDamage( -healRate(plot()) );
+
+		int iHealRate = healRate(plot());
+		if (iHealRate==0)
+			return;
+
+		changeDamage( -iHealRate );
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{

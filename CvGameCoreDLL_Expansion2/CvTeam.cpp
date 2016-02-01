@@ -42,6 +42,12 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
 
+	if (eTeam==NO_TEAM)
+	{
+		OutputDebugString("Warning: Invalid argument for getTeam()!\n");
+		return m_aTeams[BARBARIAN_TEAM];
+	}
+
 	return m_aTeams[eTeam];
 }
 

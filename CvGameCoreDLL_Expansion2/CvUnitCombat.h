@@ -70,6 +70,7 @@ protected:
 public:
 	static void ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser);
 	static void ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefender, int iAttackerDamageInflicted);
+	static void ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo& kCombatInfo, uint uiParentEventID);
 };
 
 #endif // CVUNITCOMBAT_H

@@ -6324,9 +6324,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 {
 	PeaceTreatyTypes eTreatyWillingToOffer, eTreatyWillingToAccept;
 	int iWillingToOfferScore, iWillingToAcceptScore;
-#if !defined(MOD_BALANCE_CORE)
-	WarProjectionTypes eWarProjection;
-#endif
 
 	// Loop through all (known) Players
 	PlayerTypes eLoopPlayer;
@@ -6365,11 +6362,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST)
 #endif
 				{
-#if defined(MOD_BALANCE_CORE)
-#else
-					eWarProjection = GetWarProjection(eLoopPlayer);
-#endif
-
 					// What we're willing to give up.  The higher the number the more we're willing to part with
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if(MOD_BALANCE_CORE_HAPPINESS && (GetPlayer()->GetCulture()->GetWarWeariness() > 0))
@@ -6378,7 +6370,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						iWillingToAcceptScore -= GetPlayer()->GetCulture()->GetWarWeariness();
 					}
 #endif
-#if defined(MOD_BALANCE_CORE)
 					int iWarScore = GetWarScore(eLoopPlayer,false,true);
 
 					//Negative Warscore? Offer more.
@@ -6390,158 +6381,28 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					else
 					{
 						iWillingToAcceptScore += iWarScore;
-					}			
-#else
-					{
-//					if (IsWantsPeaceWithPlayer(eLoopPlayer))
-					
-						// How is the war going?
-						switch(eWarProjection)
-						{
-						case WAR_PROJECTION_DESTRUCTION:
-							iWillingToOfferScore += /*100*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_DESTRUCTION();
-							break;
-						case WAR_PROJECTION_DEFEAT:
-							iWillingToOfferScore += /*60*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_DEFEAT();
-							break;
-						case WAR_PROJECTION_STALEMATE:
-							iWillingToOfferScore += /*20*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_STALEMATE();
-							break;
-						case WAR_PROJECTION_UNKNOWN:
-							iWillingToOfferScore += /*0*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_UNKNOWN();
-							break;
-						case WAR_PROJECTION_GOOD:
-							iWillingToOfferScore += /*-20*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_GOOD();
-							break;
-						case WAR_PROJECTION_VERY_GOOD:
-							iWillingToOfferScore += /*-50*/ GC.getPEACE_WILLINGNESS_OFFER_PROJECTION_VERY_GOOD();
-							break;
-						default:
-							break;
-						}
-#endif
-#if defined(MOD_BALANCE_CORE)
-#else
-						// How much damage have we taken?
-						switch(GetWarDamageLevel(eLoopPlayer))
-						{
-						case WAR_DAMAGE_LEVEL_NONE:
-							iWillingToOfferScore += /*0*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_NONE();
-							break;
-						case WAR_DAMAGE_LEVEL_MINOR:
-							iWillingToOfferScore += /*10*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_MINOR();
-							break;
-						case WAR_DAMAGE_LEVEL_MAJOR:
-							iWillingToOfferScore += /*20*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_MAJOR();
-							break;
-						case WAR_DAMAGE_LEVEL_SERIOUS:
-							iWillingToOfferScore += /*50*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_SERIOUS();
-							break;
-						case WAR_DAMAGE_LEVEL_CRIPPLED:
-							iWillingToOfferScore += /*80*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_CRIPPLED();
-							break;
-						default:
-							break;
-						}
-
-						// How much damage have we dished out?
-						switch(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageLevel(GetPlayer()->GetID()))
-						{
-						case WAR_DAMAGE_LEVEL_NONE:
-							iWillingToOfferScore -= /*0*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_NONE();
-							break;
-						case WAR_DAMAGE_LEVEL_MINOR:
-							iWillingToOfferScore -= /*10*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_MINOR();
-							break;
-						case WAR_DAMAGE_LEVEL_MAJOR:
-							iWillingToOfferScore -= /*20*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_MAJOR();
-							break;
-						case WAR_DAMAGE_LEVEL_SERIOUS:
-							iWillingToOfferScore -= /*50*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_SERIOUS();
-							break;
-						case WAR_DAMAGE_LEVEL_CRIPPLED:
-							iWillingToOfferScore -= /*80*/ GC.getPEACE_WILLINGNESS_OFFER_WAR_DAMAGE_CRIPPLED();
-							break;
-						default:
-							break;
-						}
-#endif
-						// Do the final assessment
-						if(iWillingToOfferScore >= /*180*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
-							eTreatyWillingToOffer = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
-						else if(iWillingToOfferScore >= /*150*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
-							eTreatyWillingToOffer = PEACE_TREATY_CAPITULATION;
-						else if(iWillingToOfferScore >= /*120*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
-							eTreatyWillingToOffer = PEACE_TREATY_CESSION;
-						else if(iWillingToOfferScore >= /*95*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
-							eTreatyWillingToOffer = PEACE_TREATY_SURRENDER;
-						else if(iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
-							eTreatyWillingToOffer = PEACE_TREATY_SUBMISSION;
-						else if(iWillingToOfferScore >= /*55*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
-							eTreatyWillingToOffer = PEACE_TREATY_BACKDOWN;
-						else if(iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
-							eTreatyWillingToOffer = PEACE_TREATY_SETTLEMENT;
-						else if(iWillingToOfferScore >= /*20*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
-							eTreatyWillingToOffer = PEACE_TREATY_ARMISTICE;
-						else	// War Score could be negative here, but we're already assuming this player wants peace.  But he's not willing to give up anything for it
-							eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
-#if defined(MOD_BALANCE_CORE)
-#else
-						// If they've broken a peace deal before then we're not going to give them anything
-						if(GET_TEAM(eLoopTeam).IsHasBrokenPeaceTreaty())
-						{
-							if(eTreatyWillingToOffer > PEACE_TREATY_WHITE_PEACE)
-								eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
-						}
 					}
 
-					// What we're willing to accept from eLoopPlayer.  The higher the number the more we want
-					// How is the war going?
-					switch(eWarProjection)
-					{
-					case WAR_PROJECTION_DESTRUCTION:
-						iWillingToAcceptScore += /*-50*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_DESTRUCTION();
-						break;
-					case WAR_PROJECTION_DEFEAT:
-						iWillingToAcceptScore += /*-20*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_DEFEAT();
-						break;
-					case WAR_PROJECTION_STALEMATE:
-						iWillingToAcceptScore += /*-10*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_STALEMATE();
-						break;
-					case WAR_PROJECTION_UNKNOWN:
-						iWillingToAcceptScore += /*0*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_UNKNOWN();
-						break;
-					case WAR_PROJECTION_GOOD:
-						iWillingToAcceptScore += /*50*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_GOOD();
-						break;
-					case WAR_PROJECTION_VERY_GOOD:
-						iWillingToAcceptScore += /*100*/ GC.getPEACE_WILLINGNESS_ACCEPT_PROJECTION_VERY_GOOD();
-						break;
-					default:
-						break;
-					}
-					// How easy would it be for us to squash them?
-					switch(GetPlayerTargetValue(eLoopPlayer))
-					{
-					case TARGET_VALUE_IMPOSSIBLE:
-						iWillingToAcceptScore += /*-50*/ GC.getPEACE_WILLINGNESS_ACCEPT_TARGET_IMPOSSIBLE();
-						break;
-					case TARGET_VALUE_BAD:
-						iWillingToAcceptScore += /*-20*/ GC.getPEACE_WILLINGNESS_ACCEPT_TARGET_BAD();
-						break;
-					case TARGET_VALUE_AVERAGE:
-						iWillingToAcceptScore += /*0*/ GC.getPEACE_WILLINGNESS_ACCEPT_TARGET_AVERAGE();
-						break;
-					case TARGET_VALUE_FAVORABLE:
-						iWillingToAcceptScore += /*20*/ GC.getPEACE_WILLINGNESS_ACCEPT_TARGET_FAVORABLE();
-						break;
-					case TARGET_VALUE_SOFT:
-						iWillingToAcceptScore += /*50*/ GC.getPEACE_WILLINGNESS_ACCEPT_TARGET_SOFT();
-						break;
-					default:
-						break;
-					}
-#endif
+					// Do the final assessment
+					if(iWillingToOfferScore >= /*180*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
+						eTreatyWillingToOffer = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
+					else if(iWillingToOfferScore >= /*150*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
+						eTreatyWillingToOffer = PEACE_TREATY_CAPITULATION;
+					else if(iWillingToOfferScore >= /*120*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
+						eTreatyWillingToOffer = PEACE_TREATY_CESSION;
+					else if(iWillingToOfferScore >= /*95*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
+						eTreatyWillingToOffer = PEACE_TREATY_SURRENDER;
+					else if(iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
+						eTreatyWillingToOffer = PEACE_TREATY_SUBMISSION;
+					else if(iWillingToOfferScore >= /*55*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
+						eTreatyWillingToOffer = PEACE_TREATY_BACKDOWN;
+					else if(iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
+						eTreatyWillingToOffer = PEACE_TREATY_SETTLEMENT;
+					else if(iWillingToOfferScore >= /*20*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
+						eTreatyWillingToOffer = PEACE_TREATY_ARMISTICE;
+					else	// War Score could be negative here, but we're already assuming this player wants peace.  But he's not willing to give up anything for it
+						eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
+
 					// Do the final assessment
 					if(iWillingToAcceptScore >= /*150*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER())
 						eTreatyWillingToAccept = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
@@ -7597,7 +7458,7 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 
 /// What is the integer value of how well we think the war with ePlayer is going?
 #if defined(MOD_BALANCE_CORE)
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops, bool bDebug)
+int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation, bool bDebug)
 #else
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 #endif
@@ -7610,7 +7471,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 	int iAverageScore = 0;
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
-	if(bIgnoreLoops)
+	if(bUsePeacetimeCalculation)
 	{
 		// Their Military Strength compared to us
 		switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
@@ -8034,9 +7895,13 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				else
 				{
 					// If we're about to cause some mayhem then hold off on the peace stuff for a bit - not against Minors though
-					if(!bIsMinor && GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON && GetStateAllWars() != STATE_ALL_WARS_LOSING)
+					if(!bIsMinor && GetStateAllWars() != STATE_ALL_WARS_LOSING)
 					{
-						eWarGoal = WAR_GOAL_DAMAGE;
+						//why make peace when we're winning?
+						if (GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+							eWarGoal = WAR_GOAL_CONQUEST;
+						else
+							eWarGoal = WAR_GOAL_DAMAGE;
 					}
 					// War isn't decisively in our favor, so we'll make peace if possible
 					else
@@ -14238,7 +14103,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 100);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 500);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
 			SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
@@ -14425,14 +14290,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					{
 						if(GetLoyalty() >= 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
 						{
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -100);
+							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 						}
 						else if(GetDiploBalance() > 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_NEUTRAL)
 						{
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -100);
+							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
@@ -18707,6 +18572,18 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				{
 					continue;
 				}
+#if defined(MOD_BALANCE_CORE)
+				int iValueImOffering, iValueTheyreOffering;
+				if(!GET_PLAYER(pCurrentDeal->m_eFromPlayer).isHuman())
+				{
+					//If the deal is a gift (i.e. they offer nothing, we offer more), don't renew.
+					GET_PLAYER(pCurrentDeal->m_eFromPlayer).GetDealAI()->GetDealValue(pCurrentDeal, iValueImOffering, iValueTheyreOffering, false);
+					if(iValueImOffering > 0 && iValueTheyreOffering <= 0)
+					{
+						continue;
+					}
+				}
+#endif
 
 				// if the deal can be renewed (no peace treaties, etc)
 				if(!pCurrentDeal->IsPotentiallyRenewable())
@@ -22597,7 +22474,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		//If player is offended, AI should take note as penalty to assistance.
 		CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 		int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 25));
+		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 50));
 #else
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
 #endif
@@ -23048,7 +22925,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetDoFAccepted(eFromPlayer, false);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 
-			ChangeRecentAssistValue(eFromPlayer, 100);
+			ChangeRecentAssistValue(eFromPlayer, 300);
 
 			SetDoFType(eFromPlayer, DOF_TYPE_UNTRUSTWORTHY);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
@@ -23132,7 +23009,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					//If player is offended, AI should take note as penalty to assistance.
 					CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 					int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
+					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 50));
 				}
 				if(bDeclareWar)
 				{
@@ -23284,7 +23161,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #if defined(MOD_BALANCE_CORE)
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -100);
+					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -200);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
@@ -23325,11 +23202,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			//If player is offended, AI should take note as penalty to assistance.
 			if(iArg1 == 2)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 200);
+				ChangeRecentAssistValue(eFromPlayer, 300);
 				ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -100);
+					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -200);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
@@ -23337,7 +23214,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			if(iArg1 == 1)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 100);
+				ChangeRecentAssistValue(eFromPlayer, 200);
 				ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
 			}
 #endif
@@ -30530,6 +30407,12 @@ bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 	{
 		bLiberate = true;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+	{
+		bLiberate = false;
+	}
+#endif
 
 	if(bLiberate)
 	{

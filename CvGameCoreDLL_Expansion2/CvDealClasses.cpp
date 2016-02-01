@@ -832,6 +832,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
 					return false;
 		}
+
 #endif
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
@@ -887,16 +888,35 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 							return false;
 					}
 				}
+
 				// Major civ
 				else
 				{
 					//Can't make peace yet?
-					if(GET_TEAM(pFromPlayer->getTeam()).GetNumTurnsLockedIntoWar(pOtherPlayer->getTeam()) > 0)
+					if(pFromTeam->GetNumTurnsLockedIntoWar(pOtherPlayer->getTeam()) > 0)
 						return false;
 
 					//Can't make peace yet?
+					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsLockedIntoWar(pFromPlayer->getTeam()) > 0)
+						return false;
+
+					//Either side can't make peace yet?
 					if(!pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pOtherPlayer->GetID()))
 						return false;
+
+					//Either side can't make peace yet?
+					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
+						return false;
+				
+					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+					{
+						//Can't force third party peace with a loser. Has to be a sizeable difference
+						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
+						int iOtherWarScore = pOtherPlayer->GetDiplomacyAI()->GetWarScore(pFromPlayer->GetID());
+
+						if((iFromWarScore + 10) <= iOtherWarScore)
+							return false;
+					}
 				}
 			}
 		}
@@ -3056,7 +3076,37 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
 
 					if(bTargetTeamIsMinor)
+					{
 						veNowAtPeacePairs.push_back(eTargetTeam, eFromTeam); //eFromTeam is second so we can take advantage of CvWeightedVector's sort by weights
+					}
+#if defined(MOD_BALANCE_CORE)
+					PlayerTypes eLoopPlayer;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+						{
+							//If human was target, let human know.
+							if(GET_PLAYER(eLoopPlayer).isHuman())
+							{
+								CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+								if(pNotifications)
+								{
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME");
+									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME_S");
+									strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+									pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								}
+							}
+							//If AI, improve opinion of broker a bit.
+							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -400);
+							}
+						}
+					}
+#endif
 				}
 				// Third Party War
 				else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
@@ -3067,28 +3117,37 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #else
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
-#if defined(MOD_BALANCE_CORE)
-					if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
+#if defined(MOD_BALANCE_CORE)				
+					PlayerTypes eLoopPlayer;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer;
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+							//AI go to war now.
+							if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 							{
 								GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
+								GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
 							}
-						}
-					}
-					if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
-					{
-						PlayerTypes eLoopPlayer;
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+
+							//If human attacked, send notification with info.
+							if(GET_PLAYER(eLoopPlayer).isHuman())
 							{
-								GET_PLAYER(eAcceptedToPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+								CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+								if(pNotifications)
+								{
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+									strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+									pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								}
+							}
+							//If AI, bump down their opinion of the broker a bit.
+							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
 							}
 						}
 					}

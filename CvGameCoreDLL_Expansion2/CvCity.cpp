@@ -2454,7 +2454,7 @@ void CvCity::doTurn()
 			iHitsHealed *= 2;
 		}
 #endif
-		changeDamage(-iHitsHealed,NULL);
+		changeDamage(-iHitsHealed);
 	}
 	if(getDamage() < 0)
 	{
@@ -10030,26 +10030,16 @@ bool CvCity::isCoastal(int iMinWaterSize) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isAddsFreshWater() const {
 	VALIDATE_OBJECT
-#if !defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++) {
-		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0) {
-			if (GC.getBuildingInfo((BuildingTypes)iI)->IsAddsFreshWater()) {
-				return true;
-			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	//ideally this should be cached and changed when a building is added/removed ...
-	const CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetBuildings();
-	const int nBuildings = GetCityBuildings()->GetBuildings()->GetNumBuildings();
-	for(int iBuilding = 0; iBuilding < nBuildings; iBuilding++)
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	for(size_t iBuilding = 0; iBuilding < vBuildings.size(); iBuilding++)
 	{
-		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
+		CvBuildingEntry* pInfo = GC.getBuildingInfo(vBuildings[iBuilding]);
 		if (pInfo && pInfo->IsAddsFreshWater())
 			return true;
 	}
-#endif
+
 	return false;
 }
 #endif
@@ -18534,8 +18524,8 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 
 	int iXP = 0;
 
-	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetBuildings();
-	for(int iBuilding = 0; iBuilding < GetCityBuildings()->GetBuildings()->GetNumBuildings(); iBuilding++)
+	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetPossibleBuildings();
+	for(int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
 	{
 		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
 		if(pInfo)
@@ -19292,64 +19282,11 @@ void CvCity::setDamage(int iValue, bool noMessage)
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeDamage(int iChange, CvUnit* pkAttacker)
+void CvCity::changeDamage(int iChange)
 {
 	VALIDATE_OBJECT
 	if(0 != iChange)
 	{
-		//if there is a garrison, the units absorbs part of the damage!
-		UnitHandle pGarrison = plot()->getBestDefender(getOwner());
-		if(pGarrison && pGarrison->getDomainType() == DOMAIN_LAND && iChange>1)
-		{
-			//make sure there are no rounding errors
-			int iUnitShare = (iChange*2*pGarrison->GetMaxHitPoints()) / (GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iChange -= iUnitShare;
-
-			pGarrison->changeDamage( iUnitShare, pkAttacker ? pkAttacker->getOwner() : NO_PLAYER );
-			bool bGarrisonDead = (pGarrison->getDamage() >= GC.getMAX_HIT_POINTS());
-
-			if (bGarrisonDead && pkAttacker)
-			{
-				//hack: create notifications etc. copied from CvUnitCombat. maybe better to fake a CvCombatInfo struct and call ResolveCombat?
-				CvString strBuffer;
-				int iActivePlayerID = GC.getGame().getActivePlayer();
-				int uiParentEventID = 0;
-				CvUnit* pkDefender = pGarrison.pointer();
-
-				auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
-				gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
-
-				if(iActivePlayerID == pkAttacker->getOwner())
-				{
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", pkAttacker->getNameKey(), iUnitShare, pkDefender->getNameKey());
-					GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
-				}
-
-				if(pkAttacker->getVisualOwner(pkDefender->getTeam()) != pkAttacker->getOwner())
-				{
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN", pkDefender->getNameKey(), pkAttacker->getNameKey(), iUnitShare);
-				}
-				else
-				{
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED", pkDefender->getNameKey(), pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()), iUnitShare);
-				}
-				if(iActivePlayerID == pkDefender->getOwner())
-				{
-					GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
-				}
-				CvNotifications* pNotification = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
-				if(pNotification)
-				{
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
-					pNotification->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int) pkDefender->getUnitType(), pkDefender->getOwner());
-				}
-
-				pkAttacker->testPromotionReady();
-
-				CvUnitCombat::ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
-			}
-		}
-
 		setDamage(getDamage() + iChange);
 	}
 }
