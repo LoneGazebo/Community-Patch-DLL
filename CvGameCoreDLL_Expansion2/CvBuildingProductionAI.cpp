@@ -258,15 +258,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo == NULL)
 		return 0;
 
-	if(m_pCity->IsPuppet())
-	{
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
-		{
-			return 0;
-		}
-	}
-
 	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 	if(m_pCity->IsPuppet() && !bIsVenice)
@@ -752,12 +743,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Fewer buildings while at war.
 	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
-		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 15);
+		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
 	}
-	
-	iValue *= (iBonus + 100);
-	iValue /= 100;
-
 	/////
 	///WEIGHT
 	//////
@@ -765,8 +752,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		iBonus /= 100;
+		if(m_pCity->IsPuppet())
+		{
+			iBonus -= (66 * pkBuildingInfo->GetGoldMaintenance());
+		}
+		else
+		{
+			iBonus -= (50 * pkBuildingInfo->GetGoldMaintenance());
+		}
 	}
+	
+	iValue *= (iBonus + 100);
+	iValue /= 100;
 
 	return iValue;
 }

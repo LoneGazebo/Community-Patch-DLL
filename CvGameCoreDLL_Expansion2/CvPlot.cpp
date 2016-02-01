@@ -3864,12 +3864,23 @@ bool CvPlot::isActiveVisible() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::isVisibleToCivTeam(bool bNoObserver) const
+#else
 bool CvPlot::isVisibleToCivTeam() const
+#endif
 {
 	int iI;
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Skip observer here.
+		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		{
+			continue;
+		}
+#endif
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -3881,7 +3892,6 @@ bool CvPlot::isVisibleToCivTeam() const
 
 	return false;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const

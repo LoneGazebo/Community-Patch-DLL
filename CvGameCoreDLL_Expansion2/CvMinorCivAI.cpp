@@ -11958,25 +11958,6 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		if(GC.getGame().getGameTurn() >  30)
-		{
-			int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-			if(iDuration > 0)
-			{
-				int iLimit = 30;
-				iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iLimit /= 100;
-				if(iDuration <= iLimit)
-				{
-					iBaseReluctanceScore *= 5;
-				}
-			}
-		}
-	}
-#endif	
 	if (sTooltipSink)
 	{
 		Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
@@ -12033,26 +12014,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -300 ~ -0
 	// **************************
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-		{
-			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-			if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && eMinorLoop != GetPlayer()->GetID())
-			{
-				if(GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsRecentlyBulliedByMajor(eBullyPlayer))
-				{
-					int iOtherLastBullyTurn = GET_PLAYER(eMinorLoop).GetMinorCivAI()->GetTurnLastBulliedByMajor(eBullyPlayer);
-					if(iOtherLastBullyTurn >= iLastBullyTurn)
-					{
-						iLastBullyTurn = iOtherLastBullyTurn;
-					}
-				}
-			}
-		}
-	}
-#endif
+
 	if(iLastBullyTurn >= 0)
 	{
 		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
@@ -12080,6 +12042,29 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(GC.getGame().getGameTurn() >  30)
+	{
+		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+		if(iDuration > 0)
+		{
+			int iLimit = 30;
+			iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iLimit /= 100;
+			if(iDuration <= iLimit)
+			{
+				int iBulliedRecentlyScore = -1000;
+				if (sTooltipSink)
+				{
+					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+					strNegativeFactor << iBulliedRecentlyScore;
+					strNegativeFactor << "TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED";
+					sFactors += strNegativeFactor.toUTF8();
+				}
+			}
+		}
+	}
+#endif	
 
 	// **************************
 	// Tribute type
@@ -12392,8 +12377,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	{
 		if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex() && !GET_PLAYER(eBully).isHuman())
 		{
-			int iBullyMetric2 = CalculateBullyMetric(eBully, /*bForUnit*/true);
-			if(CanMajorBullyUnit(eBully, iBullyMetric2))
+			if(CanMajorBullyUnit(eBully))
 			{
 				DoMajorBullyUnit(eBully, NO_UNIT);
 				return;

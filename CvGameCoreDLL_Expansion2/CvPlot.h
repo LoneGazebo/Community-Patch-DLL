@@ -237,7 +237,11 @@ public:
 
 	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
+#if defined(MOD_BALANCE_CORE)
+	bool isVisibleToCivTeam(bool bNoObserver = false) const;
+#else
 	bool isVisibleToCivTeam() const;
+#endif
 	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;

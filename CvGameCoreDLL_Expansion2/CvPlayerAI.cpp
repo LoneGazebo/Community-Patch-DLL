@@ -283,11 +283,11 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			}
 			if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
 			{
-				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 				{
 					bLiberate = true;
 				}
-				if(GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) > MAJOR_CIV_OPINION_NEUTRAL)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_NEUTRAL && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_NEUTRAL)
 				{
 					bLiberate = true;
 				}
@@ -323,7 +323,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(canRaze(pCity) && IsEmpireUnhappy())
 	{
 		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-		if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
@@ -349,7 +349,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
+		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Let's make sure we annex.
+	else if(pCity->getOriginalOwner() == GetID())
+	{
+		pCity->DoAnnex();
+	}
+#endif
 }
 
 bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)

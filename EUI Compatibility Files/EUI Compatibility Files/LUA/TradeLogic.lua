@@ -5,13 +5,18 @@ print("This is the modded TradeLogic from CBP- C4DF")
 -- code is common using gk_mode and bnw_mode switches
 -- show missing cash for trade agreements
 
-local gk_mode = Game.GetReligionName ~= nil;
-local bnw_mode = Game.GetActiveLeague ~= nil;
+local civ5_mode = InStrategicView ~= nil
+local bnw_mode = not civ5_mode or Game.GetActiveLeague ~= nil
+local gk_mode = bnw_mode or Game.GetReligionName ~= nil
+if not civ5_mode then --no glass panel in civBE
+	Controls.UsGlass = Controls.UsPanel
+	Controls.ThemGlass = Controls.ThemPanel
+end
 ----------------------------------------------------------------
 ----------------------------------------------------------------
-include( "IconSupport" ); local IconHookup = IconHookup; local CivIconHookup = CivIconHookup
-include( "InstanceManager" ); local GenerationalInstanceManager = GenerationalInstanceManager
-include( "SupportFunctions" ); local TruncateString = TruncateString
+include( "IconSupport" ) local IconHookup = IconHookup local CivIconHookup = CivIconHookup
+include( "InstanceManager" ) local GenerationalInstanceManager = GenerationalInstanceManager
+include( "SupportFunctions" ) local TruncateString = TruncateString
 
 local g_UsTableCitiesIM		= GenerationalInstanceManager:new( "CityInstance", "Button", Controls.UsTableCitiesStack );
 local g_UsPocketCitiesIM	= GenerationalInstanceManager:new( "CityInstance", "Button", Controls.UsPocketCitiesStack );
@@ -623,8 +628,8 @@ function DoUpdateButtons()
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
 		end
 --END
 		Controls.MainStack:CalculateSize();
@@ -1132,8 +1137,8 @@ function ResetDisplay()
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
 		end
 --END
 	end

@@ -22253,13 +22253,16 @@ int CvPlayer::GetReformCooldown() const
 {
 	return m_iJFDReformCooldown;
 }
-void CvPlayer::SetReformCooldown(int iValue)
+void CvPlayer::SetReformCooldown(int iValue, bool bNoEvent)
 {
 	if(m_iJFDReformCooldown != iValue)
 	{
 		m_iJFDReformCooldown = iValue;
 	}
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), GetReformCooldown());
+	if(!bNoEvent)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), GetReformCooldown());
+	}
 }
 
 void CvPlayer::ChangeReformCooldownRate(int iValue)
@@ -22289,13 +22292,16 @@ int CvPlayer::GetGovernmentCooldown() const
 {
 	return m_iJFDGovernmentCooldown;
 }
-void CvPlayer::SetGovernmentCooldown(int iValue)
+void CvPlayer::SetGovernmentCooldown(int iValue, bool bNoEvent)
 {
 	if(m_iJFDGovernmentCooldown != iValue)
 	{
 		m_iJFDGovernmentCooldown = iValue;
 	}
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), GetGovernmentCooldown());
+	if(!bNoEvent)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), GetGovernmentCooldown());
+	}
 }
 
 void CvPlayer::ChangeGovernmentCooldownRate(int iValue)
@@ -22364,7 +22370,7 @@ void CvPlayer::DoGovernmentCooldown()
 		ChangeGovernmentCooldown(-iRate);
 		if(GetGovernmentCooldown() <= 0)
 		{
-			SetGovernmentCooldown(0);
+			SetGovernmentCooldown(0, true);
 		}
 	}
 }
@@ -22380,7 +22386,7 @@ void CvPlayer::DoReformCooldown()
 		ChangeReformCooldown(-iRate);
 		if(GetReformCooldown() <= 0)
 		{
-			SetReformCooldown(0);
+			SetReformCooldown(0, true);
 		}
 	}
 }

@@ -927,7 +927,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 
-	ReweightByCost();
+	ReweightPreCheckByCost();
 
 	m_BuildablesPrecheck.SortItems();
 
@@ -1008,7 +1008,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1018,7 +1018,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_PROCESS:
 				{
 					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					if(m_BuildablesPrecheck.size() > 0)
+					if(m_Buildables.size() > 0)
 					{
 						int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
 						if(iNewWeight > 0)
@@ -1294,7 +1294,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -2104,6 +2104,22 @@ void CvCityStrategyAI::ReweightByCost()
 		m_Buildables.SetWeight(iI, iNewWeight);
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Recompute weights taking into account Production cost
+void CvCityStrategyAI::ReweightPreCheckByCost()
+{
+	CvCityBuildable buildable;
+
+	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
+	{
+		buildable = m_BuildablesPrecheck.GetElement(iI);
+
+		// Compute the new weight and change it
+		int iNewWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
+		m_BuildablesPrecheck.SetWeight(iI, iNewWeight);
+	}
+}
+#endif
 
 /// Log new flavor settings
 void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
