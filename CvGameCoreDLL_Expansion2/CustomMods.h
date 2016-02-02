@@ -497,6 +497,25 @@
 #define MOD_AI_SMART_RANGED_UNITS                   (MOD_AI_SMART && gCustomMods.isAI_SMART_RANGED_UNITS())
 // AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby (v50)
 #define MOD_AI_SMART_AIR_TACTICS                    (MOD_AI_SMART && gCustomMods.isAI_SMART_AIR_TACTICS())
+// Quickens how fast the AI will critically ask for settler based also on difficulty and game speed properties.
+#define MOD_AI_SMART_FASTER_CAPITAL_SETTLER_NEED_BY_DIFFICULTY_SPEED gCustomMods.isAI_SMART()
+// Also check for water and non luxury resources for the locale tech multiplier, luxuries get double value.
+#define MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES gCustomMods.isAI_SMART()
+// Tech is calculated with flavors from current needs vs grand strategy player flavor, based on this.
+// As difficulty is not taken into account, for standard speed will use a base of 500 turns even for 
+// a deity AI player. The value even out at turn 250, witch is stupid due to AI bonuses the game could
+// be near finished (if not finished) by then.
+#define MOD_AI_SMART_TECH_GAME_PROGRESS_UPDATED_WITH_DIFFICULTY gCustomMods.isAI_SMART()
+// As how tech flavor works and is calculated, it is easily zeroed specially at the beginning.
+// Zeroed values will not make further calculations with resources and player priorities...
+// So let's rescale them on a 2 to 10 range.
+#define MOD_AI_SMART_TECH_FLAVOR_MINIMUM_VALUES     gCustomMods.isAI_SMART()
+// When recursively propagating, use NUM_AND_TECH_PREREQS (6) instead of NUM_OR_TECH_PREREQS (3), while in 
+// practice only Agriculture uses 4 and prereqs, could have unexpected flavors with a custom tech tree.
+#define MOD_AI_SMART_TECH_FLAVOR_PROPAGATION_BUGFIX gCustomMods.isAI_SMART()
+// Minor adjustement to avoid further calculations if flavor value is zero.
+#define MOD_AI_SMART_OPTIMIZE_FLAVOR_WEIGHT_ROUNDTRIPS gCustomMods.isAI_SMART()
+
 #endif
 
 // Events sent when terraforming occurs (v33)
