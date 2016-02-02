@@ -3465,12 +3465,24 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 				int iWeightThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 130
 
 				int iGameTurn = GC.getGame().getGameTurn();
+#if defined (MOD_AI_SMART_FASTER_CAPITAL_SETTLER_NEED_BY_DIFFICULTY_SPEED)
+				int iDifficultyBonus = 4 * (200 - ((GC.getGame().getHandicapInfo().getAIGrowthPercent() + GC.getGame().getHandicapInfo().getAITrainPercent()) / 2));
+				iDifficultyBonus = (iDifficultyBonus * 100) / ((GC.getGame().getGameSpeedInfo().getGrowthPercent() + GC.getGame().getGameSpeedInfo().getTrainPercent()) / 2);
+				if((iCitiesPlusSettlers == 1 && ((iGameTurn * iDifficultyBonus) / 100) > iWeightThreshold) ||
+					(iCitiesPlusSettlers == 2 && ((iGameTurn * iDifficultyBonus) / 200) > iWeightThreshold) || 
+					(iCitiesPlusSettlers == 3 && ((iGameTurn * iDifficultyBonus) / 400) > iWeightThreshold)
+#if defined(MOD_BALANCE_CORE)
+					|| (iCitiesPlusSettlers == 4 && ((iGameTurn * iDifficultyBonus) / 800) > iWeightThreshold) 
+					|| (iCitiesPlusSettlers == 5 && ((iGameTurn * iDifficultyBonus) / 1600) > iWeightThreshold) 
+#endif
+#else
 				if((iCitiesPlusSettlers == 1 && (iGameTurn * 4) > iWeightThreshold) ||
 					(iCitiesPlusSettlers == 2 && (iGameTurn * 2) > iWeightThreshold) || 
 					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) 
 #if defined(MOD_BALANCE_CORE)
 					|| (iCitiesPlusSettlers == 4 && (iGameTurn / 2) > iWeightThreshold) 
 					|| (iCitiesPlusSettlers == 5 && (iGameTurn / 4) > iWeightThreshold) 
+#endif
 #endif
 					)
 				{
