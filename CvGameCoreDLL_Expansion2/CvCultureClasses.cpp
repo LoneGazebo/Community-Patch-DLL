@@ -2715,14 +2715,22 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 	if (pkToEntry && pkFromEntry)
 	{
 		CvCity *pToCity = m_pPlayer->getCity(iCityID);
-		BuildingClassTypes eToBuildingClass = (BuildingClassTypes)pkToEntry->GetBuildingClassType();
-
-		int iFromWork = pToCity->GetCityBuildings()->GetBuildingGreatWork(eToBuildingClass, iSlot);
-		CvCity *pFromCity = m_pPlayer->getCity(iFromCityID);
-		BuildingClassTypes eFromBuildingClass = (BuildingClassTypes)pkFromEntry->GetBuildingClassType();
-
-		pToCity->GetCityBuildings()->SetBuildingGreatWork(eToBuildingClass, iSlot, kWork.m_iGreatWorkIndex);
-		pFromCity->GetCityBuildings()->SetBuildingGreatWork(eFromBuildingClass, iFromSlot, iFromWork);
+	
+		if(pToCity)
+		{
+			BuildingClassTypes eToBuildingClass = (BuildingClassTypes)pkToEntry->GetBuildingClassType();
+			if(eToBuildingClass != NO_BUILDINGCLASS)
+			{
+				int iFromWork = pToCity->GetCityBuildings()->GetBuildingGreatWork(eToBuildingClass, iSlot);
+				CvCity *pFromCity = m_pPlayer->getCity(iFromCityID);
+				BuildingClassTypes eFromBuildingClass = (BuildingClassTypes)pkFromEntry->GetBuildingClassType();
+				if(pFromCity && eFromBuildingClass != NO_BUILDINGCLASS)
+				{
+					pToCity->GetCityBuildings()->SetBuildingGreatWork(eToBuildingClass, iSlot, kWork.m_iGreatWorkIndex);
+					pFromCity->GetCityBuildings()->SetBuildingGreatWork(eFromBuildingClass, iFromSlot, iFromWork);
+				}
+			}
+		}
 	}
 }
 

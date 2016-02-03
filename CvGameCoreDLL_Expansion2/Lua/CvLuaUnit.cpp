@@ -481,6 +481,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetReverseGreatGeneralModifier);
 	Method(GetGreatGeneralCombatModifier);
 	Method(IsNearSapper);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsHalfNearSapper);
+#endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
 	Method(GetNumEnemyUnitsAdjacent);
@@ -4626,6 +4629,19 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool IsHalfNearSapper(CvCity* pTargetCity);
+int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+
+	const bool bResult = pkUnit->IsHalfNearSapper(pkCity);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool GetNearbyImprovementModifier();
 int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)

@@ -604,6 +604,7 @@ function UpdateScreen()
 	
 	-- Public Opinion
 	local iUnhappinessPublicOpinion =  pPlayer:GetUnhappinessFromPublicOpinion();
+	iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + pPlayer:GetUnhappinessFromWarWeariness();
 	if (iUnhappinessPublicOpinion ~= 0) then
 		Controls.PoblicOpinionUnhappinessValue:SetText(iUnhappinessPublicOpinion);
 		Controls.PoblicOpinionUnhappinessValue:LocalizeAndSetToolTip("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);

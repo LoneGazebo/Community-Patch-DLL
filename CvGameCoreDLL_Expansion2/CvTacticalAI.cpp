@@ -494,14 +494,14 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
-		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() )
+		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() && !pLoopUnit->IsCityAttackOnly())
 		{
 			continue;
 		}
 		else
 		{
 			 //if it's a general or admiral and not a field commander, we don't want it
-			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() )
+			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackOnly())
 			{
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
 				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
@@ -2788,7 +2788,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 #if defined(MOD_BALANCE_CORE)
 					//GGs and GAs need to stay in the DANGER ZONE, but only if there are units near it to support it.
 					int iUnits = 0;
-					if(pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral())
+					if(pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral() || pUnit->IsCityAttackOnly())
 					{
 						if(pUnit->plot()->isCity())
 						{
@@ -2861,7 +2861,7 @@ void CvTacticalAI::PlotRepositionMoves()
 				continue;
 
 			// Never use this (default) move for Great Admirals or Generals
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 			{
 				continue;
 			}
@@ -4706,7 +4706,7 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 					if(pUnit && !pUnit->TurnProcessed())
 					{
 						// Great general?
-						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 						{
 							if(pUnit->getMoves() > 0)
 							{
@@ -4796,7 +4796,7 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 				if(pUnit && !pUnit->TurnProcessed())
 				{
 					// Great general or admiral?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 					{
 						if(pUnit->getMoves() > 0)
 						{
@@ -4856,7 +4856,7 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 				if(pUnit && !pUnit->TurnProcessed())
 				{
 					// Great general?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 					{
 						if(pUnit->getMoves() > 0)
 						{
@@ -4911,7 +4911,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
 			if(pUnit && !pUnit->TurnProcessed())
 			{
-				if(!pCivilian && pUnit->IsCivilianUnit() && !pUnit->IsGreatAdmiral() && !pUnit->IsGreatGeneral())
+				if(!pCivilian && pUnit->IsCivilianUnit() && !pUnit->IsGreatAdmiral() && !pUnit->IsGreatGeneral() && !pUnit->IsCityAttackOnly())
 				{
 					pCivilian = m_pPlayer->getUnit(pUnit->GetID());
 					continue;
@@ -5132,7 +5132,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 						if(pUnit && !pUnit->TurnProcessed())
 						{
 							// Great general?
-							if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+							if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 							{
 								if(pUnit->getMoves() > 0)
 								{
@@ -5193,7 +5193,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 					if(pUnit && !pUnit->TurnProcessed())
 					{
 						// Great general?
-						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 						{
 							if(pUnit->getMoves() > 0)
 							{
@@ -5586,7 +5586,7 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperatio
 				if(pUnit && !pUnit->TurnProcessed())
 				{
 					// Great general or admiral?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 					{
 						if(pUnit->getMoves() > 0)
 						{
@@ -5649,7 +5649,7 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperatio
 				if(pUnit && !pUnit->TurnProcessed())
 				{
 					// Great general?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 					{
 						if(pUnit->getMoves() > 0)
 						{
@@ -9084,7 +9084,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 						m_OperationUnits.push_back(unit);
 
 					}
-					else if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					else if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 					{
 						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
 						iGenerals++;
@@ -11848,13 +11848,23 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				if (!pEvalPlot)
 					continue;
 
-				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot);	
+				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot);
 
-				if (pArmyCOM && iScore>0)
+				if (pArmyCOM && iScore>0 && !pGeneral->IsCityAttackOnly())
 				{
 					//try to stay with the army center
 					int iDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyCOM->getX(), pArmyCOM->getY());
 					iScore *= MapToPercent(iDistance,6,0);
+				}
+				//Is this plot closer to our target? Let's do it.
+				int iClosestPlot = MAX_INT;
+				if(pArmyAI && pArmyAI->GetGoalPlot() != NULL)
+				{
+					int iGoalDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyAI->GetGoalPlot()->getX(), pArmyAI->GetGoalPlot()->getY());
+					if(iGoalDistance < iClosestPlot)
+					{
+						iScore *= 2;
+					}
 				}
 
 				if(iScore > iBestScore)
@@ -12475,7 +12485,10 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 	if(!pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_SEA)
 		return 0;
 
-	if(pGeneral->IsNearGreatGeneral(pLoopPlot, pGeneral.pointer())) //near another general
+	if(!pGeneral->IsCityAttackOnly() && pGeneral->IsNearGreatGeneral(pLoopPlot, pGeneral.pointer())) //near another general
+		return 0;
+
+	if(pGeneral->IsCityAttackOnly() && pGeneral->IsNearCityAttackOnly(pLoopPlot, pGeneral.pointer())) // Near another sapper
 		return 0;
 
 	const UnitHandle pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
@@ -12484,8 +12497,11 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 
 	//avoid the front line
 	int iBaseMultiplier = 3;
-	if(pLoopPlot->GetNumEnemyUnitsAdjacent(pGeneral->getTeam(),pGeneral->getDomainType()) > 0 && !pLoopPlot->isCity() )
-		iBaseMultiplier = 1;
+	if(!pGeneral->IsCityAttackOnly())
+	{
+		if(pLoopPlot->GetNumEnemyUnitsAdjacent(pGeneral->getTeam(),pGeneral->getDomainType()) > 0 && !pLoopPlot->isCity() )
+			iBaseMultiplier = 1;
+	}
 
 	int iTotalScore = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pLoopPlot);
@@ -12500,26 +12516,82 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 		int iMultiplier = iBaseMultiplier;
 		if (pSupportedUnit && (pSupportedUnit->getDomainType() == pGeneral->getDomainType()))
 		{
-			//if enemies are nearby the general is more useful
-			if(pSupportedUnit->GetNumEnemyUnitsAdjacent() > 0)
-				iMultiplier++;
-			if(pSupportedUnit->IsEnemyCityAdjacent())
-				iMultiplier++;
-			//recent operation
-			if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-				iMultiplier++;
-			//many friendly units around
-			if(pSupportedUnit->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer())>2)
-				iMultiplier++;
+			CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pSupportedUnit->plot()->GetPlotIndex() );
+			bool bTempZone = false;
+			if(pCell)
+			{
+				CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
+				
+				if (pZone && pZone->GetZoneCity()!= NULL && pZone->GetOwner() != m_pPlayer->GetID())
+				{
+					CvCity *pClosestCity = pZone->GetZoneCity();
+
+					// Always push again for a few turns after each operation reaches destination
+					if (pClosestCity)
+					{
+						bTempZone = m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pClosestCity);
+					}
+				}
+			}
+			if(pGeneral->IsCityAttackOnly())
+			{
+				if(pSupportedUnit->IsEnemyCityAdjacent())
+				{
+					iMultiplier *= 10;
+				}
+				if(!pSupportedUnit->isRanged())
+				{
+					iMultiplier *= 5;
+				}
+				//recent operation
+				if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					iMultiplier++;
+
+				//many friendly units around
+				if(pSupportedUnit->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer())>1)
+					iMultiplier++;
+			}
+			else
+			{
+				//if enemies are nearby the general is more useful
+				if(pSupportedUnit->GetNumEnemyUnitsAdjacent() > 0)
+					iMultiplier++;
+				if(pSupportedUnit->IsEnemyCityAdjacent())
+					iMultiplier++;
+				//recent operation
+				if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+					iMultiplier++;
+				//many friendly units around
+				if(pSupportedUnit->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer())>2)
+					iMultiplier++;
+			}
+			if(bTempZone)
+			{
+				iMultiplier *= 10;
+			}
 
 			iTotalScore += iMultiplier*pSupportedUnit->GetPower();
+			//Same army? Emphasize.
+			if(pGeneral->getArmyID() != -1)
+			{
+				if(pSupportedUnit->getArmyID() == pGeneral->getArmyID())
+				{
+					iTotalScore *= 10;
+				}
+				else
+				{
+					iTotalScore /= 5;
+				}
+			}
 		}
 	}
-
-	int iDefenderPower = pDefender->GetPower();
-	if(pLoopPlot->isCity())
-		iDefenderPower *= 2;
-	iTotalScore += iDefenderPower;
+	if(!pGeneral->IsCityAttackOnly())
+	{
+		int iDefenderPower = pDefender->GetPower();
+		if(pLoopPlot->isCity())
+			iDefenderPower *= 2;
+		iTotalScore += iDefenderPower;
+	}
 
 	return iTotalScore;
 }
@@ -12583,7 +12655,7 @@ bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	if(pUnit)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackOnly())
 #else
 		if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL || pUnit->AI_getUnitAIType() == UNITAI_ADMIRAL)
 #endif

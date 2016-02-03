@@ -10114,7 +10114,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				return;
 			}
-
+			if(GET_PLAYER(ePlayer).getNumCities() <= 1)
+			{
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				return;
+			}
 #endif
 
 			iLandDisputeWeight = 0;

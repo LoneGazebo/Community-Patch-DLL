@@ -387,6 +387,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	///////////////
 	//UNIT TYPE CHECKS
 	//////////////////////
+	
+	//Sanity check for buildable support units.
+	if(pkUnitEntry->IsCityAttackOnly())
+	{
+		int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_SPECIAL, true, true);
+		if(iNum == 0)
+		{
+			return (iTempWeight * 10);
+		}
+		else
+		{
+			iBonus += 100;
+		}
+	}
 
 	//Carriers? Only if we need them.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
@@ -529,17 +543,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	//Sanity check for city-attack only units.
-	if(pkUnitEntry->IsCityAttackOnly())
-	{
-		if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
-		{
-			if(!pArmy->GetGoalPlot()->isCity() || ((pArmy->GetGoalPlot()->getOwner() != m_pCity->getOwner()) && (pArmy->GetGoalPlot()->getOwner() != NO_PLAYER)))
-			{
-				return 0;
-			}
-		}
-	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES && (pkUnitEntry->GetUnitAIType(UNITAI_MESSENGER) || pkUnitEntry->GetUnitAIType(UNITAI_DIPLOMAT)))
 	{
@@ -976,7 +979,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 	
 	//Uniques? They're generally good enough to spam.
-	if((UnitTypes)kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(eUnit) && !pkUnitEntry->IsCityAttackOnly())
+	if((UnitTypes)kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(eUnit))
 	{
 		iBonus += 50;
 	}

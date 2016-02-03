@@ -146,7 +146,7 @@
 			<Description>TXT_KEY_PROMOTION_ATLATL_ATTACK</Description>
 			<Help>TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<ExtraAttacks>1</ExtraAttacks>
+			<AttackWoundedMod>50</AttackWoundedMod>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -400,7 +400,7 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>May attack twice, though second attack expends all Movement</Text>
+			<Text>+50% Ranged [ICON_RANGED_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Difficult Target</Text>

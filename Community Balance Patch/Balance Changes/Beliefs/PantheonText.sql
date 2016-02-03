@@ -130,7 +130,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Sacred Path (Now Goddess of Renewal)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture for every 3 Jungle or 3 Forest tiles within 3 tiles of a City. +2 [ICON_PEACE] Faith from Herbalists'
+SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture for every 4 Jungle or 4 Forest tiles within 3 tiles of a City. +2 [ICON_PEACE] Faith from Herbalists'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

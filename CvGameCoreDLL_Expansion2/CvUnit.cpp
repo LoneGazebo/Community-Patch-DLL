@@ -6332,6 +6332,12 @@ void CvUnit::ChangeRangeAttackIgnoreLOSCount(int iChange)
 bool CvUnit::IsCityAttackOnly() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE)
+	if(getUnitInfo().IsCityAttackOnly())
+	{
+		return true;
+	}
+#endif
 	return m_iCityAttackOnlyCount > 0;
 }
 
@@ -14896,6 +14902,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Nearby unit sapping this city
+			else if(IsHalfNearSapper(pToPlot->getPlotCity()))
+			{
+				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
+				iModifier += iTempModifier;
+			}
+#endif
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
@@ -15204,7 +15218,15 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
 	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 	{
-		return GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2;
+		int iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
+
+		if(GET_PLAYER(pOtherUnit->getOwner()).isHuman())
+		{
+			int iMod = (GC.getGame().getHandicapInfo().getAIDifficultyBonus() / 2);
+			iResistance *= (100 + iMod);
+			iResistance /= 100;
+		}
+		return iResistance;
 	}
 
 	return 0;
@@ -15686,7 +15708,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 			iModifier += iTempModifier;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		// Nearby unit sapping this city
+		else if(IsHalfNearSapper(pCity))
+		{
+			iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
+			iModifier += iTempModifier;
+		}
+#endif
 		// Bonus against city states?
 		if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
@@ -21582,7 +21611,38 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
+bool CvUnit::IsNearCityAttackOnly(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+{
+	VALIDATE_OBJECT
 
+	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
+
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return false;
+	}
+
+	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	{
+		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+
+		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackOnly())
+		{
+			// Same domain
+			if(pUnit->getDomainType() == getDomainType())
+			{
+				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iSapperRange)
+					return true;
+			}
+		}
+
+	}
+
+	return false;
+}
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 {
 	VALIDATE_OBJECT
@@ -21601,7 +21661,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
-		if (pUnit && pUnit != pIgnoreThisGeneral)
+		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackOnly())
 		{
 			// Same domain
 			if(pUnit->getDomainType() == getDomainType())
@@ -22257,7 +22317,40 @@ bool CvUnit::IsSappingCity(const CvCity* pTargetCity) const
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Is a particular city being sapped by us?
+bool CvUnit::IsHalfSappingCity(const CvCity* pTargetCity) const
+{
+	CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+	if (!pTargetCity)
+	{
+		return false;
+	}
 
+	if (IsSapper())
+	{
+		int iSapperRange = 2;
+
+		CvPlot* pLoopPlot;
+
+		// Look around this Unit to see if there's a Sapper nearby
+		for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+		{
+			for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
+			{
+				pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
+
+				if(pLoopPlot != NULL && pLoopPlot->isEnemyCity(*this))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Are we near a friendly unit that is sapping this city?
 bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
@@ -22286,8 +22379,15 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 			if(pLoopPlot != NULL)
 			{
 				// Units in our plot do not count
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
 				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
 					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 
 				// If there are Units here, loop through them
 				if(pLoopPlot->getNumUnits() > 0)
@@ -22320,6 +22420,77 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Are we near a friendly unit that is sapping this city?
+bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
+{
+	VALIDATE_OBJECT
+
+	CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+	if (!pTargetCity)
+	{
+		return false;
+	}
+
+	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
+
+	CvPlot* pLoopPlot;
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+	// Look around this Unit to see if there's a Sapper nearby
+	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	{
+		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
+
+			if(pLoopPlot != NULL)
+			{
+				// Units in our plot do not count
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
+				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
+					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
+
+				// If there are Units here, loop through them
+				if(pLoopPlot->getNumUnits() > 0)
+				{
+					pUnitNode = pLoopPlot->headUnitNode();
+
+					while(pUnitNode != NULL)
+					{
+						pLoopUnit = ::getUnit(*pUnitNode);
+						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+						// Owned by us
+						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
+						{
+							// Sapper unit
+							if(pLoopUnit->IsHalfSappingCity(pTargetCity))
+							{
+								// Must be same domain
+								if(pLoopUnit->getDomainType() == getDomainType())
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsCanHeavyCharge() const
