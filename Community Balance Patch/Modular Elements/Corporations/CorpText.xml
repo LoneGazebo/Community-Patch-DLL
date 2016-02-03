@@ -41,6 +41,12 @@
 	</Concepts>
 	<Language_en_US>
 		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL">
+			<Text>Monopoly Required (Any)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESOURCE_NAME">
+			<Text>Monopoly Resource</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
 			<Text>Corporations and Monopolies</Text>
 		</Row>

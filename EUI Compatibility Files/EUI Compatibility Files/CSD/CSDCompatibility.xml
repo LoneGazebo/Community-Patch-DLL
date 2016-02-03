@@ -379,6 +379,12 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Defense Pacts</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GP_DIPLOMAT_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Great Diplomats</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GP_DIPLOMAT_DETAILS">
+			<Text>[ICON_PLUS] Great Diplomats</Text>
+		</Row>
 	</Language_en_US>
 	<Improvement_Yields>
 		<Row>

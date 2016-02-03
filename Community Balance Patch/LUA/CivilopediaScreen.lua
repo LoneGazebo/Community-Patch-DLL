@@ -92,6 +92,10 @@ local g_UnlockedProjectsManager = InstanceManager:new( "UnlockedProjectInstance"
 local g_PromotionsManager = InstanceManager:new( "PromotionInstance", "PromotionButton", Controls.FreePromotionsInnerFrame );
 local g_SpecialistsManager = InstanceManager:new( "SpecialistInstance", "SpecialistButton", Controls.SpecialistsInnerFrame );
 local g_RequiredBuildingsManager = InstanceManager:new( "RequiredBuildingInstance", "RequiredBuildingButton", Controls.RequiredBuildingsInnerFrame );
+--CBP
+local g_LeadsToBuildingsManager = InstanceManager:new( "LeadsToBuildingInstance", "LeadsToBuildingButton", Controls.LeadsToBuildingsInnerFrame );
+local g_MonopolyResourcesManager = InstanceManager:new( "MonopolyResourceInstance", "MonopolyResourceButton", Controls.MonopolyResourcesInnerFrame );
+--END
 local g_LocalResourcesManager = InstanceManager:new( "LocalResourceInstance", "LocalResourceButton", Controls.LocalResourcesInnerFrame );
 local g_RequiredPromotionsManager = InstanceManager:new( "RequiredPromotionInstance", "RequiredPromotionButton", Controls.RequiredPromotionsInnerFrame );
 local g_RequiredPoliciesManager = InstanceManager:new( "RequiredPolicyInstance", "RequiredPolicyButton", Controls.RequiredPoliciesInnerFrame );
@@ -3325,7 +3329,40 @@ function SelectBuildingOrWonderArticle( buildingID )
 			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
-
+		
+		-- CBP
+		local condition = "BuildingClassType = '" .. thisBuilding.BuildingClass .. "'";
+		-- Leads to Building
+		g_LeadsToBuildingsManager:ResetInstances();
+		buttonAdded = 0;
+		for row in GameInfo.Building_ClassesNeededInCity( condition ) do
+			local thisBuildingInfo = GameInfo.Buildings[row.BuildingType];
+			if(thisBuildingInfo) then
+				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
+				if thisBuildingInstance then
+					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
+						thisBuildingInstance.LeadsToBuildingImage:SetTexture( defaultErrorTextureSheet );
+						thisBuildingInstance.LeadsToBuildingImage:SetTextureOffset( nullOffset );
+					end
+					
+					--move this button
+					thisBuildingInstance.LeadsToBuildingButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+					
+					thisBuildingInstance.LeadsToBuildingButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
+					thisBuildingInstance.LeadsToBuildingButton:SetVoids( thisBuildingInfo.ID, addToList );
+					local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
+					if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and thisBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+					else
+						thisBuildingInstance.LeadsToBuildingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryBuildings].SelectArticle );
+					end
+					buttonAdded = buttonAdded + 1;
+				end
+			end
+		end
+		UpdateButtonFrame( buttonAdded, Controls.LeadsToBuildingsInnerFrame, Controls.LeadsToBuildingsFrame );
+		-- END
+		local condition = "BuildingType = '" .. thisBuilding.Type .. "'";
 		-- needed local resources
 		g_LocalResourcesManager:ResetInstances();
 		buttonAdded = 0;
@@ -3346,6 +3383,29 @@ function SelectBuildingOrWonderArticle( buildingID )
 			end		
 		end
 		UpdateButtonFrame( buttonAdded, Controls.LocalResourcesInnerFrame, Controls.LocalResourcesFrame );
+		
+		-- CBP
+		g_MonopolyResourcesManager:ResetInstances();
+		buttonAdded = 0;
+
+		for row in GameInfo.Building_ResourceMonopolyOrs( condition ) do
+			local requiredResource = GameInfo.Resources[row.ResourceType];
+			if requiredResource then
+				local thisLocalResourceInstance = g_MonopolyResourcesManager:GetInstance();
+				if thisLocalResourceInstance then
+					local textureOffset, textureSheet = IconLookup( requiredResource.PortraitIndex, buttonSize, requiredResource.IconAtlas );				
+					if textureOffset == nil then
+						textureSheet = defaultErrorTextureSheet;
+						textureOffset = nullOffset;
+					end				
+					UpdateSmallButton( buttonAdded, thisLocalResourceInstance.MonopolyResourceImage, thisLocalResourceInstance.MonopolyResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( requiredResource.Description ), requiredResource.ID );
+					buttonAdded = buttonAdded + 1;
+				end
+			end		
+		end
+		UpdateButtonFrame( buttonAdded, Controls.MonopolyResourcesInnerFrame, Controls.MonopolyResourcesFrame );
+	
+		--END
 		
 		-- update the required resources
 		Controls.RequiredResourcesLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_PEDIA_REQ_RESRC_LABEL" ) );
@@ -7137,6 +7197,10 @@ function ClearArticle()
 	Controls.UnlockedUnitsFrame:SetHide( true );
 	Controls.UnlockedBuildingsFrame:SetHide( true );
 	Controls.RequiredBuildingsFrame:SetHide( true );
+	-- CBP
+	Controls.LeadsToBuildingsFrame:SetHide( true );	
+	Controls.MonopolyResourcesFrame:SetHide( true );
+	-- End
 	Controls.RevealedResourcesFrame:SetHide( true );
 	Controls.RequiredResourcesFrame:SetHide( true );
 	Controls.RequiredPromotionsFrame:SetHide( true );

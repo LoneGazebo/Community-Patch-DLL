@@ -19,6 +19,8 @@ local g_ListMode_Culture = 4;
 local g_ListMode_Happiness = 5;
 local g_ListMode_Wonders = 6;
 local g_ListMode_Power = 7;
+local g_ListMode_Cultural_Influence = 8;
+local g_ListMode_Tourist_Cities = 9;
 
 local g_tListModeText = {};
 g_tListModeText[g_ListMode_Food] = "TXT_KEY_PROGRESS_SCREEN_FOOD";
@@ -29,6 +31,8 @@ g_tListModeText[g_ListMode_Culture] = "TXT_KEY_PROGRESS_SCREEN_CULTURE";
 g_tListModeText[g_ListMode_Happiness] = "TXT_KEY_PROGRESS_SCREEN_HAPPINESS";
 g_tListModeText[g_ListMode_Wonders] = "TXT_KEY_PROGRESS_SCREEN_WONDERS";
 g_tListModeText[g_ListMode_Power] = "TXT_KEY_PROGRESS_SCREEN_POWER";
+g_tListModeText[g_ListMode_Cultural_Influence] = "TXT_KEY_PROGRESS_SCREEN_CULTURAL_INFLUENCE";
+g_tListModeText[g_ListMode_Tourist_Cities] = "TXT_KEY_PROGRESS_SCREEN_CITY_TOURISM";
 
 local g_tListOfDudes = {
 									"TXT_KEY_DUDE_1",
@@ -79,6 +83,7 @@ function OnPopup( popupInfo )
 	local iOtherTeam;
 	
 	local tPlayers = {};
+	local tCities = {};
 	
 	-- Pick a random dude's name
 	
@@ -122,31 +127,64 @@ function OnPopup( popupInfo )
 	local strToolTip = g_tListModeText[g_iListMode] .. "_TT";	-- Sorta hardcoded, but convenient
 	Controls.PresentsLabel:SetToolTipString(Locale.ConvertTextKey(strToolTip));
 	Controls.ListNameLabel:SetToolTipString(Locale.ConvertTextKey(strToolTip));
+
+	-- Special case for list of cities	
+	if (g_iListMode == g_ListMode_Tourist_Cities) then
 	
-	-- Loop through all the civs the active player knows
-	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-		
-		pOtherPlayer = Players[iPlayerLoop];
-		iOtherTeam = pOtherPlayer:GetTeam();
-		
-		-- Player has to be alive to be in the list
-		if (pOtherPlayer:IsAlive()) then
-
-			table.insert(tPlayers, {iPlayerLoop, GetScoreFromMode(iPlayerLoop, g_iListMode)});
-
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pOtherPlayer = Players[iPlayerLoop];
+			
+			-- Player has to be alive to be in the list
+			if (pOtherPlayer:IsAlive()) then
+			
+				for cityIndex = 0, pOtherPlayer:GetNumCities() - 1, 1 do
+    				local pCity = pOtherPlayer:GetCityByID(cityIndex);
+    				if (pCity ~= nil) then
+						table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism()});
+					end
+				end
+			end
 		end
-	end
-	
-	-- Sort our list of players
-	local f = function(a, b)
-		return a[2] > b[2];
-	end
-	
-	table.sort(tPlayers, f);
-	
-	-- Display sorted list
-	for i, v in ipairs(tPlayers) do
-		AddPlayerEntry(v[1], v[2], i);		-- PlayerID, Score, Rank
+		
+		-- Sort our list of cities
+		local f = function(a, b)
+			return a[3] > b[3];
+		end
+		
+		table.sort(tCities, f);
+		
+		local iCount = 0;
+		for i, v in ipairs(tCities) do
+			if (iCount < 10 and v[3] > 0) then
+				AddCityEntry(v[1], v[2], v[3], i);		-- PlayerID, City ID, Score, Rank
+				iCount = iCount + 1;
+			end
+		end
+		
+	-- Normal case (list of players)
+	else
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			
+			pOtherPlayer = Players[iPlayerLoop];
+			iOtherTeam = pOtherPlayer:GetTeam();
+			
+			-- Player has to be alive to be in the list
+			if (pOtherPlayer:IsAlive()) then
+				table.insert(tPlayers, {iPlayerLoop, GetScoreFromMode(iPlayerLoop, g_iListMode)});
+			end
+		end
+		
+		-- Sort our list of players
+		local f = function(a, b)
+			return a[2] > b[2];
+		end
+		
+		table.sort(tPlayers, f);
+		
+		-- Display sorted list
+		for i, v in ipairs(tPlayers) do
+			AddPlayerEntry(v[1], v[2], i);		-- PlayerID, Score, Rank
+		end
 	end
 	
 	Controls.PlayerListStack:CalculateSize();
@@ -177,7 +215,86 @@ function IsListModeAllowed(iMode)
 			end
 		end
 		
+		-- Anyone in the Industrial Era?
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pLoopPlayer = Players[iPlayerLoop];
+			if (pLoopPlayer:IsAlive()) then
+				if (pLoopPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
+					print("Progress Screen: Can't display Culture Mode because we've reached the Industrial Era!");
+					return false;
+				end
+			end
+		end
+
+    -- Cultural Influence restrictions
+    elseif (iMode == g_ListMode_Cultural_Influence) then
+    
+		local bUse = false;
 		
+		-- Does anyone have influence over another civ?
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pLoopPlayer = Players[iPlayerLoop];
+			if (pLoopPlayer:IsAlive()) then
+				if (pLoopPlayer:GetNumCivsInfluentialOn() > 0) then
+					bUse = true;			
+				end
+			end
+		end
+		if (not bUse) then
+			print("Progress Screen: Can't display Cultural Influence because no player has influence over another!");
+			return false;
+		end			
+		
+    -- Tourism restrictions
+    elseif (iMode == g_ListMode_Tourist_Cities) then
+		
+		local bNoTourism = true;
+		
+		-- Need someone generating tourism
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pLoopPlayer = Players[iPlayerLoop];
+			if (pLoopPlayer:IsAlive()) then
+				if (pLoopPlayer:GetTourism() > 0) then
+					bNoTourism = false;
+				end
+			end
+		end
+		
+		if (bNoTourism) then
+			print("Progress Screen: Can't display Tourism because no players are generating any!");
+			return false;
+		else
+			print("Progress Screen: Found someone generating tourism!");	
+		end
+		
+    -- Food Mode restrictions
+    elseif (iMode == g_ListMode_Food) then
+		
+		-- Anyone in the Industrial Era?
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pLoopPlayer = Players[iPlayerLoop];
+			if (pLoopPlayer:IsAlive()) then
+				if (pLoopPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
+					print("Progress Screen: Can't display Food Mode because we've reached the Industrial Era!");
+					return false;
+				end
+			end
+		end
+			
+    -- Production Mode restrictions
+    elseif (iMode == g_ListMode_Production) then
+		
+		-- Anyone in the Industrial Era?
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			pLoopPlayer = Players[iPlayerLoop];
+			if (pLoopPlayer:IsAlive()) then
+				if (pLoopPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
+					print("Progress Screen: Can't display Production Mode because we've reached the Industrial Era!");
+					return false;
+				end
+			end
+		end
+
     -- Wonder Mode restrictions
     elseif (iMode == g_ListMode_Wonders) then
 		if (Game.GetNumWorldWonders() < 2) then
@@ -191,7 +308,14 @@ function IsListModeAllowed(iMode)
 			print("Progress Screen: Can't display Happiness because the system is off!");
 			return false;
 		end
-	end
+		
+	-- Science restrictions
+	elseif (iMode == g_ListMode_Science) then
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
+			print("Progress Screen: Can't display Science because the system is off!");
+			return false;		
+		end
+    end
 		 
     return true;
     
@@ -203,7 +327,7 @@ function GetScoreFromMode(iPlayer, iMode)
     
     local pPlayer = Players[iPlayer];
     
-    -- Food Mode
+        -- Food Mode
 	if (iMode == g_ListMode_Food) then
 		local iTotalFoodSurplus = 0;
 		local iTotalCities = 0;
@@ -263,6 +387,10 @@ function GetScoreFromMode(iPlayer, iMode)
 	elseif (iMode == g_ListMode_Power) then
 		return pPlayer:GetMilitaryMight();
 		
+	-- Cultural Influence
+	elseif (iMode == g_ListMode_Cultural_Influence) then
+	    return pPlayer:GetNumCivsInfluentialOn();
+	    
     end
     
     return 0;
@@ -316,6 +444,47 @@ function AddPlayerEntry (iPlayerID, iScore, iRank)
 	
 end
 
+-------------------------------------------------
+-- AddCityEntry
+-------------------------------------------------
+function AddCityEntry (iPlayerID, iCityID, iScore, iRank)
+
+	local pPlayer = Players[iPlayerID];
+	local iTeam = pPlayer:GetTeam();
+	local pTeam = Teams[iTeam];
+	local pCity = pPlayer:GetCityByID(iCityID);
+
+	local controlTable = g_PlayerListInstanceManager:GetInstance();
+
+    -- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
+    local leader = GameInfo.Leaders[pPlayer:GetLeaderType()];
+    local leaderDescription = leader.Description;
+        
+	local strName = Locale.ConvertTextKey("TXT_KEY_PROGRESS_SCREEN_NUMBERING", iRank);
+	
+	-- Haven't yet met this player
+	if (not pTeam:IsHasMet(Game.GetActiveTeam())) then
+		strName = strName .. " " .. Locale.ConvertTextKey( "TXT_KEY_POP_VOTE_RESULTS_UNMET_PLAYER" );
+		CivIconHookup( -1, 32, controlTable.Icon, controlTable.CivIconBG, controlTable.CivIconShadow, false, true);
+        IconHookup( 22, 64, "LEADER_ATLAS", controlTable.Portrait );
+	-- Met players
+	else
+		strName = strName .. " " .. Locale.ConvertTextKey(pCity:GetNameKey());
+		CivIconHookup( iPlayerID, 32, controlTable.Icon, controlTable.CivIconBG, controlTable.CivIconShadow, false, true);  
+		IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, controlTable.Portrait );
+	end    
+	
+	controlTable.PlayerNameText:SetText(strName);
+	
+	-- Formats the # and reduces it to X.XX
+	local strPoints = Locale.ConvertTextKey("TXT_KEY_FORMAT_NUMBER", iScore);
+	controlTable.ScoreText:SetText(strPoints);
+	
+	-- Tooltip
+	local strToolTip = g_tListModeText[g_iListMode] .. "_TT";	-- Sorta hardcoded, but convenient
+	controlTable.PlayerEntryBox:SetToolTipString(Locale.ConvertTextKey(strToolTip));
+	
+end
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

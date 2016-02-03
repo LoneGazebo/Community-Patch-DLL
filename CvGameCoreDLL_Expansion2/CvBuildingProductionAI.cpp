@@ -42,7 +42,7 @@ void CvBuildingProductionAI::Reset()
 	// Loop through reading each one and add an entry with 0 weight to our vector
 	if(m_pCityBuildings)
 	{
-		for(int i = 0; i < m_pCityBuildings->GetBuildings()->GetNumBuildings(); i++)
+		for(int i = 0; i < m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings(); i++)
 		{
 			m_BuildingAIWeights.push_back(i, 0);
 		}
@@ -63,7 +63,7 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 	// Loop through reading each one and adding it to our vector
 	if(m_pCityBuildings)
 	{
-		for(int i = 0; i < m_pCityBuildings->GetBuildings()->GetNumBuildings(); i++)
+		for(int i = 0; i < m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings(); i++)
 		{
 			m_BuildingAIWeights.push_back(i, 0);
 		}
@@ -114,7 +114,7 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 
 	if(m_pCityBuildings)
 	{
-		int iNumBuildings = m_pCityBuildings->GetBuildings()->GetNumBuildings();
+		int iNumBuildings = m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings();
 		kStream << iNumBuildings;
 
 		// Loop through writing each entry
@@ -141,10 +141,10 @@ void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
-	CvBuildingXMLEntries* pkBuildings = m_pCityBuildings->GetBuildings();
+	CvBuildingXMLEntries* pkBuildings = m_pCityBuildings->GetPossibleBuildings();
 
 	// Loop through all buildings
-	for(int iBuilding = 0; iBuilding < m_pCityBuildings->GetBuildings()->GetNumBuildings(); iBuilding++)
+	for(int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
 	{
 		CvBuildingEntry* entry = pkBuildings->GetEntry(iBuilding);
 		if(entry)
@@ -258,15 +258,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo == NULL)
 		return 0;
 
-	if(m_pCity->IsPuppet())
-	{
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
-		{
-			return 0;
-		}
-	}
-
 	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 	if(m_pCity->IsPuppet() && !bIsVenice)
@@ -279,6 +270,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else if(m_pCity->IsPuppet() && bIsVenice)
 	{
 		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo))
+		{
+			return 0;
+		}
+	}
+	if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+	{
+		//Should never be in first 3 things built.
+		if(m_pCity->GetCityBuildings()->GetNumBuildings() <= 3)
 		{
 			return 0;
 		}
@@ -314,43 +313,50 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	//Defense Needs
-	if(m_pCity->IsBastion())
+	int iDefense = 0;
+	if(pkBuildingInfo->GetNukeModifier() > 0)
 	{
-		if(pkBuildingInfo->GetNukeModifier() > 0)
+		iDefense += (pkBuildingInfo->GetNukeModifier() / 2);
+	}
+	if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->GetGlobalDefenseModifier();
+	}
+	if(pkBuildingInfo->GetDefenseModifier() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 5);
+	}
+	if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 2);
+	}
+	if(m_pCity->plot()->isCoastalLand())
+	{
+		if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 		{
-			iBonus += (pkBuildingInfo->GetNukeModifier() / 5);
-		}
-		if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
-		{
-			iBonus += pkBuildingInfo->GetGlobalDefenseModifier();
-		}
-		if(pkBuildingInfo->GetDefenseModifier() > 0)
-		{
-			iBonus += (pkBuildingInfo->GetDefenseModifier() / 5);
-		}
-		if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
-		{
-			iBonus += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
-		}
-		if(m_pCity->plot()->isCoastalLand())
-		{
-			if(pkBuildingInfo->GetBorderObstacleWater() > 0)
-			{
-				iBonus += 25;
-			}
-		}
-		else
-		{
-			if(pkBuildingInfo->GetBorderObstacleCity() > 0)
-			{
-				iBonus += 33;
-			}
-			if(pkBuildingInfo->IsBorderObstacle())
-			{
-				iBonus += 33;
-			}
+			iDefense += 50;
 		}
 	}
+	else
+	{
+		if(pkBuildingInfo->GetBorderObstacleCity() > 0)
+		{
+			iDefense += 50;
+		}
+		if(pkBuildingInfo->IsBorderObstacle())
+		{
+			iDefense += 100;
+		}
+	}
+	if(m_pCity->IsBastion())
+	{
+		iDefense *= 3;
+	}
+	else
+	{
+		iDefense /= 3;
+	}
+	iBonus += iDefense;
 
 	//No Land trade connections?
 	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
@@ -400,7 +406,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	
 	if(isWorldWonderClass(kBuildingClassInfo))
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+		if(m_pCity->getPopulation() <= 8 && !m_pCity->isCapital())
+		{
+			iBonus -= 100;
+		}
+		else
+		{
+			iBonus += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+		}
 	}
 
 	if(pkBuildingInfo->IsExtraLuxuries())
@@ -541,15 +554,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += 100;
 		}
 	}
-	//Courthouse? Let's get it.
+#endif
+	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
-			iBonus += 50;
+			iBonus += 500;
 		}
 	}
-#endif
 
 	///////////////////
 	//Military Stuff
@@ -646,17 +659,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding);
 
-		//JFD CRIME NEGATIVE OVERRIDE
-		if(MOD_BALANCE_CORE_JFD && eYield == YIELD_JFD_CRIME)
-		{
-			iBonus -= iYieldValue;
-			iBonus -= iYieldTrait;
-		}
-		else
-		{
-			iBonus += iYieldValue;
-			iBonus += iYieldTrait;
-		}
+		iBonus += iYieldValue;
+		iBonus += iYieldTrait;
 	}
 
 	//////////////
@@ -739,12 +743,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Fewer buildings while at war.
 	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
-		iBonus /= max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 5);
+		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
 	}
-	
-	iValue *= (iBonus + 100);
-	iValue /= 100;
-
 	/////
 	///WEIGHT
 	//////
@@ -752,8 +752,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		iBonus /= 100;
+		if(m_pCity->IsPuppet())
+		{
+			iBonus -= (66 * pkBuildingInfo->GetGoldMaintenance());
+		}
+		else
+		{
+			iBonus -= (50 * pkBuildingInfo->GetGoldMaintenance());
+		}
 	}
+	
+	iValue *= (iBonus + 100);
+	iValue /= 100;
 
 	return iValue;
 }

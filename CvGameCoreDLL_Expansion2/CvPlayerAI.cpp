@@ -55,6 +55,12 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
+	if (ePlayer==NO_PLAYER)
+	{
+		OutputDebugString("Warning: Invalid argument for getPlayer()!\n");
+		return m_aPlayers[BARBARIAN_PLAYER];
+	}
+
 	return m_aPlayers[ePlayer];
 }
 
@@ -277,11 +283,11 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			}
 			if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
 			{
-				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 				{
 					bLiberate = true;
 				}
-				if(GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) > MAJOR_CIV_OPINION_NEUTRAL)
+				if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_NEUTRAL && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_NEUTRAL)
 				{
 					bLiberate = true;
 				}
@@ -317,7 +323,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(canRaze(pCity) && IsEmpireUnhappy())
 	{
 		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-		if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
@@ -343,7 +349,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
+		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Let's make sure we annex.
+	else if(pCity->getOriginalOwner() == GetID())
+	{
+		pCity->DoAnnex();
+	}
+#endif
 }
 
 bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)
@@ -762,14 +776,14 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation())
+			if(pThisOperation->IsNavalOperation())
 			{
 				CvArea* pArea = GC.getMap().getArea(iAreaID);
 				if(pArea && !pArea->isWater())
 				{
 					if(pCity && pCity->isCoastal())
 					{
-						CvPlot* pPlot = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							iAreaID = pPlot->getArea();
@@ -804,7 +818,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 #if defined(MOD_BALANCE_CORE)
 	CvAIOperation* pBestOperation = NULL;
 	int iBestScore = -1;
-	int iBestArea = -1;
 #endif
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
@@ -813,48 +826,37 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(iAreaID == -1)
 			{
 				iAreaID = pCity->getArea();
 			}
 
-			int iArea = pThisOperation->GetDefaultArea();
 			int iScore = 0;
-			if(iArea == -1 && pThisOperation->GetMusterPlot() != NULL)
+			int iArea = -1;
+			int iDistance = 0;
+			if(pThisOperation->GetMusterPlot() != NULL)
 			{
 				iArea = pThisOperation->GetMusterPlot()->getArea();
+				iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
 			}
+			else
+				continue;
 
-			if(pThisOperation->IsAllNavalOperation() || pThisOperation->IsMixedLandNavalOperation()) 
+			//for naval ops, check if we're on the correct water body
+			if(pThisOperation->IsNavalOperation()) 
 			{
-				if(!pCity->isCoastal())
+				if(!pCity->isCoastal() || pCity->waterArea()->GetID()!=iArea)
 				{
 					continue;
 				}
-				CvPlot* pCoastal = GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
-				if(pCoastal != NULL)
-				{
-					if(iAreaID != -1 && (iArea != pCoastal->getArea()))
-					{
-						continue;
-					}
-					else
-					{
-						iBestArea = pCoastal->getArea();
-					}
-				}
-			}
-			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
-			{
-				iScore = 100;
 			}
 
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+			iScore += range( 10-iDistance, 0, 10 );
 
-			if(!pThisOperation->IsAllNavalOperation() && !pThisOperation->IsMixedLandNavalOperation() && (iAreaID != -1) && (iArea != iAreaID))
+			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
 			{
-				iScore /= 2;
+				iScore *= 2;
 			}
 
 			if(iScore > iBestScore)
@@ -871,14 +873,6 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		{
 			return thisSlot;
 		}
-#else
-			thisSlot = pThisOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
-			if(thisSlot.IsValid())
-			{
-				break;
-			}
-		}
-#endif
 	}
 
 	return thisSlot;
@@ -935,6 +929,14 @@ void CvPlayerAI::ProcessGreatPeople(void)
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopUnit->IsCityAttackOnly())
+		{
+			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
+			continue;
+		}
+		else
+#endif
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
 		{
 			continue;
@@ -1384,7 +1386,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	return eDirective;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	//if he has a directive, don't change it
@@ -1403,7 +1404,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	}
 
 	if(bWar)
-
 	{
 		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
 		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
@@ -1418,7 +1418,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			iGreatGeneralCount++;
 
 	int iDummy = 0;
-	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iDummy);
+	std::vector<CvPlot*> vDummy;
+	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, vDummy, iDummy);
 	//keep at least one general around
 	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
 	{
@@ -1428,41 +1429,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
-
-#else
-
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
-{
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-
-	int iGreatGeneralCount = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
-		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
-		{
-			continue;
-		}
-
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE)
-		{
-			iGreatGeneralCount++;
-		}
-	}
-
-	if( iGreatGeneralCount > 2 && pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner() )
-	{
-		// we're using a power at this point because constructing the improvement goes through different code
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
-	return eDirective;
-}
-
-#endif
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 {
@@ -2452,7 +2418,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	return NULL;
 }
 
-CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResultScore)
+CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::vector<CvPlot*>& vPlotsToAvoid, int& iResultScore)
 {
 	iResultScore = 0;
 	if(!pGeneral)
@@ -2491,6 +2457,14 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(pPlot->GetDefenseBuildValue(GetID()) <= 0)
 			continue;
 
+		//don't consider plots we already targeted
+		bool bTooClose = false;
+		for (size_t i=0; i<vPlotsToAvoid.size(); i++)
+			if (plotDistance(*vPlotsToAvoid[i],*pPlot)<3)
+				bTooClose = true;
+		if (bTooClose)
+			continue;
+		
 		bool bGoodCandidate = true;
 		std::vector<int> vPossibleCitadelTiles;
 
@@ -2615,11 +2589,6 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 						// grabbing tiles away from minors is nice
 						iWeightFactor += 3;
 					}
-					//Do we get a bonus for citadels? Do it!
-					if(IsCitadelBoost())
-					{
-						iWeightFactor += 3;
-					}
 				}
 				else
 				{
@@ -2639,14 +2608,15 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 						// grabbing tiles away from majors is really nice
 						iWeightFactor += 4;
 					}
-					//Do we get a bonus for citadels? Do it!
-					if(IsCitadelBoost())
-					{
-						iWeightFactor += 3;
-					}
+				}
+
+				//Do we get a bonus for citadels? Do it!
+				if(IsCitadelBoost())
+				{
+					iWeightFactor += 3;
 				}
 			}
-	
+
 			// score resource
 			ResourceTypes eResource = pAdjacentPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
@@ -2662,6 +2632,18 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 			//Defense build yield.
 			iScore += iDefenseScore * 2;
+
+			//danger is bad
+			int iDanger = GetPlotDanger(*pAdjacentPlot,pGeneral);
+			if (iDanger == INT_MAX)
+			{
+				iScore = 0;
+				break;
+			}
+			else
+			{
+				iScore -= iDanger;
+			}
 		}
 
 		//require a certain minimum score ...

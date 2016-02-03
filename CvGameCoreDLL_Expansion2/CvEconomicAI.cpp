@@ -590,6 +590,45 @@ void CvEconomicAI::SetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy, int
 	}
 }
 
+/// Build log filename
+CvString CvEconomicAI::GetLogFileName(CvString& playerName) const
+{
+	CvString strLogName;
+
+	// Open the log file
+	if(GC.getPlayerAndCityAILogSplit())
+	{
+		strLogName = "PlayerEconomyAILog_" + playerName + ".csv";
+	}
+	else
+	{
+		strLogName = "PlayerEconomyAILog.csv";
+	}
+
+	return strLogName;
+}
+
+void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp, szTemp2;
+		CvString strPlayerName;
+		FILogFile* pLog;
+
+		strPlayerName = m_pPlayer->getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += strPlayerName + ", ";
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
+
 // Do Turn & Strategy Trigger Functions beneath this line
 
 /// Called every turn to see what Strategies this player should using (or not)
@@ -612,6 +651,7 @@ void CvEconomicAI::DoTurn()
 	{
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) iStrategiesLoop;
 		CvEconomicAIStrategyXMLEntry* pStrategy = GetEconomicAIStrategies()->GetEntry(iStrategiesLoop);
+		CvString strStrategyName = (CvString) pStrategy->GetType();
 
 		// Minor Civs can't run some Strategies
 		if(m_pPlayer->isMinorCiv() && pStrategy->IsNoMinorCivs())
@@ -671,6 +711,12 @@ void CvEconomicAI::DoTurn()
 			}
 		}
 
+		CvString shortName = strStrategyName.substr(19);
+		if (IsUsingStrategy(eStrategy))
+			LogEconomyMessage(CvString::format("%s active, check for %s", shortName.c_str(), bTestStrategyEnd ? "end" : "nothing" ));
+		else
+			LogEconomyMessage(CvString::format("%s inactive, check for %s", shortName.c_str(), bTestStrategyStart ? "start" : "nothing" ));
+
 		// Check Strategy Triggers
 		// Functionality and existence of specific Strategies is hardcoded here, but data is stored in XML so it's easier to modify
 
@@ -686,8 +732,6 @@ void CvEconomicAI::DoTurn()
 			// Strategy isn't obsolete, so test triggers as normal
 			else
 			{
-				CvString strStrategyName = (CvString) pStrategy->GetType();
-
 				// Check all of the Strategy Triggers
 				if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(m_pPlayer);
@@ -981,7 +1025,6 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += str;
 }
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
 	if(m_bExplorationPlotsDirty)
@@ -991,77 +1034,6 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
-#else
-FFastVector<int>& CvEconomicAI::GetExplorationPlots()
-{
-	if(m_bExplorationPlotsDirty)
-	{
-		UpdatePlots();
-	}
-
-	return m_aiExplorationPlots;
-}
-
-FFastVector<int>& CvEconomicAI::GetExplorationPlotRatings()
-{
-	if(m_bExplorationPlotsDirty)
-	{
-		UpdatePlots();
-	}
-
-	return m_aiExplorationPlotRatings;
-}
-
-FFastVector<int>& CvEconomicAI::GetGoodyHutPlots()
-{
-	if(m_bExplorationPlotsDirty)
-	{
-		UpdatePlots();
-	}
-
-	return m_aiGoodyHutPlots;
-}
-
-//	---------------------------------------------------------------------------
-CvPlot* CvEconomicAI::GetUnitTargetGoodyPlot(CvUnit* pUnit, CvPlot** ppkStepPlot /*= NULL */)
-{
-	if(m_bExplorationPlotsDirty)
-	{
-		UpdatePlots();
-	}
-
-	int iUnitID = pUnit->GetID();
-	for(uint ui = 0; ui < m_aiGoodyHutUnitAssignments.size(); ui++)
-	{
-		if(iUnitID == m_aiGoodyHutUnitAssignments[ui].m_iUnitID)
-		{
-			if (ppkStepPlot)
-			{
-				int iStepPlotID = m_aiGoodyHutUnitAssignments[ui].m_iStepPlotID;
-				*ppkStepPlot = (iStepPlotID != -1)?GC.getMap().plotByIndex(iStepPlotID):NULL;
-			}
-			return GC.getMap().plotByIndex(m_aiGoodyHutPlots[ui]);
-		}
-	}
-
-	return NULL;
-}
-
-//	---------------------------------------------------------------------------
-//	Clear the calculated step plot for the unit.  This should be called after
-//	the unit had been given and order to move to the plot.
-void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
-{
-	int iUnitID = pUnit->GetID();
-	for(uint ui = 0; ui < m_aiGoodyHutUnitAssignments.size(); ui++)
-	{
-		if(iUnitID == m_aiGoodyHutUnitAssignments[ui].m_iUnitID)
-		{
-			m_aiGoodyHutUnitAssignments[ui].m_iStepPlotID = -1;
-		}
-	}
-}
-#endif
 
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
@@ -1815,8 +1787,8 @@ void CvEconomicAI::DoHurry()
 {
 	int iLoop = 0;
 
-#if defined(MOD_BALANCE_CORE)
-  if (MOD_BALANCE_CORE) 
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
+  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) 
   {
 	//Let's give the AI a treasury cushion ...
 	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
@@ -2305,20 +2277,6 @@ void CvEconomicAI::DoPlotPurchases()
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
-#if defined(MOD_BALANCE_CORE)
-		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			const YieldTypes eYield = static_cast<YieldTypes>(iI);
-			if(eYield == NO_YIELD)
-				continue;
-
-			if(m_pPlayer->GetPlayerTraits()->GetYieldFromTilePurchase(eYield) > 0)
-			{
-				iDiscountPercent *= 3;
-				iDiscountPercent /= 2;
-			}
-		}
-#endif
 		iBestScore = iBestScore - (iBestScore * iDiscountPercent / 100);
 
 		// Find the best city to buy a plot
@@ -4028,14 +3986,14 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 						// CASE 1: we can go offshore
 						if (bCanEmbark)
 						{				
-							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, bIsSafe);
+							CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, bIsSafe);
 
-							if(bBestSettle == NULL)
+							if(pBestSettle == NULL)
 							{
 								//second chance
-								bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
+								pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
 
-								if(bBestSettle == NULL)
+								if(pBestSettle == NULL)
 								{
 									if(GC.getLogging() && GC.getAILogging())
 									{
@@ -4055,8 +4013,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 								iFinalArea = iBestArea;
 							}
 
-							if(bBestSettle != NULL && iFinalArea != -1)
+							if(pBestSettle != NULL && iFinalArea != -1)
 							{
+								CvString msg = CvString::format("Best settle plot (with embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
+								pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+
 								CvArea* pArea = GC.getMap().getArea(iFinalArea);
 								if(pArea != NULL)
 								{
@@ -4083,8 +4044,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 						}
 						else // we can't embark yet
 						{
-							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, bIsSafe);
-							if(bBestSettle == NULL)
+							CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, bIsSafe);
+							if(pBestSettle == NULL)
 							{
 								if(GC.getLogging() && GC.getAILogging())
 								{
@@ -4096,6 +4057,9 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 							}
 							else
 							{
+								CvString msg = CvString::format("Best settle plot (no embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
+								pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+
 								if (bIsSafe)
 									pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iInitialSettlerArea);
 								else
@@ -4471,9 +4435,12 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 	int iPaidUnits;
 	int iBaseUnitCost;
 	int iExtraCost;
-	if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
+	if(pPlayer->GetTreasury()->AverageIncome(15) <= -15)
 	{
-		return true;
+		if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
+		{
+			return true;
+		}
 	}
 #endif
 	return (pPlayer->GetUnitProductionMaintenanceMod()) != 0;
@@ -4740,7 +4707,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 		return false;
 	}
 
-	if (!pPlayer->IsEmpireUnhappy())
+	if (pPlayer->IsEmpireUnhappy())
 	{
 		return false;
 	}

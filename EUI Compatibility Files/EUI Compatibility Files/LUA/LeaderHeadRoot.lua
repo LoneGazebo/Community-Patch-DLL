@@ -9,11 +9,15 @@ local bnw_mode = Game.GetActiveLeague ~= nil
 local civ5_mode = InStrategicView ~= nil
 local civBE_mode = not civ5_mode
 
-----------------------------------------------------------------
-----------------------------------------------------------------
+include( "InstanceManager" )
+include( "GameplayUtilities" )
+local GameplayUtilities = GameplayUtilities
 
-include( "GameplayUtilities" ); local GameplayUtilities = GameplayUtilities
-include( "EUI_tooltips" ); local IconHookup = EUI.IconHookup; local CivIconHookup = EUI.CivIconHookup; local GetMoodInfo = GetMoodInfo
+include( "EUI_utilities" )
+local IconHookup = EUI.IconHookup
+local CivIconHookup = EUI.CivIconHookup
+--include( "EUI_tooltips" )
+local GetMoodInfo = EUI.GetMoodInfo
 
 local g_iAIPlayer = -1;
 local g_iAITeam = -1;

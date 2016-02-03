@@ -243,7 +243,7 @@ public:
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
 #if defined(MOD_BALANCE_CORE)
-	int GetWarScore(PlayerTypes ePlayer, bool bIgnoreLoops = false, bool bDebug=false);
+	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug=false);
 #else
 	int GetWarScore(PlayerTypes ePlayer);
 #endif
@@ -668,6 +668,7 @@ public:
 	void DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 #endif
 	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	//void DoResearchAgreementPlan(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
@@ -842,6 +843,7 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumDenouncements();
 	int GetNumDenouncementsOfPlayer();
+	CvPlot* GetCenterOfMassEmpire(bool bIgnorePuppets, bool bIgnoreConquest);
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 

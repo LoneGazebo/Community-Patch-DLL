@@ -597,8 +597,8 @@ function DoUpdateButtons()
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
 		end
 --END        
         Controls.MainStack:CalculateSize();
@@ -1096,8 +1096,8 @@ function ResetDisplay()
 		Controls.DenounceButton:SetHide(true);
 		if(not g_pUs:IsDenouncedPlayer(g_iThem) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
 		end
 --END    
     end
@@ -3322,7 +3322,7 @@ function ShowOtherPlayerChooser( isUs, type )
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
 
 					-- DP You
-					elseif (not g_pUsTeam:canDeclareWar(iLoopTeam, iFromPlayer)) then
+					elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
 
 -- END

@@ -449,6 +449,11 @@
 			<BuildingClassType>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClassType>
 			<BuildingType/>
 		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_MINOR</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_BLETCHLEY_PARK</BuildingClassType>
+			<BuildingType/>
+		</Row>
 	</Civilization_BuildingClassOverrides>
 	<Civilization_BuildingClassOverrides>
 		<Row>
@@ -469,6 +474,11 @@
 		<Row>
 			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
 			<BuildingClassType>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClassType>
+			<BuildingType/>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_BLETCHLEY_PARK</BuildingClassType>
 			<BuildingType/>
 		</Row>
 	</Civilization_BuildingClassOverrides>

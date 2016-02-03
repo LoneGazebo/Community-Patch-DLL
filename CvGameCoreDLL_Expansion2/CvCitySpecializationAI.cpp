@@ -773,7 +773,10 @@ void CvCitySpecializationAI::AssignSpecializations()
 					}
 					cityData.m_iWeight[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
 #if defined(MOD_BALANCE_CORE)
-					cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+					}
 #endif
 					if(cityData.m_iWeight[iI] < 0)
 					{

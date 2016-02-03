@@ -2549,7 +2549,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			if(pUnit->IsGreatGeneral())
+			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackOnly())
 #else
 			if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL)
 #endif
@@ -2782,7 +2782,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 #if defined(MOD_BALANCE_CORE)
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-				if(!pUnit->isEmbarked())
+				if(!pUnit->isEmbarked() && pUnit->plot()->getOwner()==pUnit->getOwner())
 				{
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
@@ -2890,7 +2890,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					int iLoop;
 					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = m_pPlayer->GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTestCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTestCity->plot(), NULL);
 						if(pPlot != NULL)
 						{
 							if(pPlot->getArea() != pUnit->getArea())
@@ -3162,7 +3162,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("UnitID: %s used Sell Exotic Goods, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s used Sell Exotic Goods, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
@@ -3376,7 +3376,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("UnitID: %s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 				pUnit->SetAutomateType(NO_AUTOMATE);
@@ -3390,7 +3390,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("UnitID: %s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -4932,6 +4932,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 	}
 #endif
 
+	std::vector<CvPlot*> vPlotsToAvoid;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4949,11 +4950,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			int iValue = 0;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit.pointer(), iValue);
-#else
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestArtistTargetPlot(pUnit.pointer(), iValue);
-#endif
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit.pointer(), vPlotsToAvoid, iValue);
 			if(pTargetPlot)
 			{
 				if(pUnit->plot() == pTargetPlot)
@@ -5002,8 +4999,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					//continue moving to target
 					if (MoveToUsingSafeEmbark(pUnit, pTargetPlot, true))
 					{
+						vPlotsToAvoid.push_back(pTargetPlot);
 						pUnit->finishMoves();
 						UnitProcessed(pUnit->GetID());
+
+						//just for debugging
+						pUnit->SetMissionAI(MISSIONAI_BUILD,pTargetPlot,NULL);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -5034,7 +5035,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && !pUnit->IsCityAttackOnly())
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
@@ -5098,13 +5099,13 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->IsCityAttackOnly() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())))
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
 			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
+				if (pLoopUnit != NULL && (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsCityAttackOnly()))
 				{
 					iTotalGenerals++;
 				}
@@ -7304,8 +7305,6 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	return pBestTarget;
 }
 
-/// Find the plot where we want to pillage
-/// Log current status of the operation
 void CvHomelandAI::LogHomelandMessage(CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())

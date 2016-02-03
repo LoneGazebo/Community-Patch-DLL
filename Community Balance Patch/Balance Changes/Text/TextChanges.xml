@@ -12,6 +12,24 @@
 			<Advisor>ECONOMIC</Advisor>
 			<CivilopediaHeaderType>HEADER_CULTURE</CivilopediaHeaderType>
 		</Row>
+		<Row>
+			<Type>CONCEPT_RESISTANCE</Type>
+			<Topic>TXT_KEY_TOPIC_COMBAT</Topic>
+			<Description>TXT_KEY_CONCEPT_RESISTANCE</Description>
+			<Summary>TXT_KEY_CONCEPT_RESISTANCE_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_RESISTANCE_QUEST</AdvisorQuestion>
+			<Advisor>MILITARY</Advisor>
+			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_PARTISANS</Type>
+			<Topic>TXT_KEY_TOPIC_COMBAT</Topic>
+			<Description>TXT_KEY_CONCEPT_PARTISANS</Description>
+			<Summary>TXT_KEY_CONCEPT_PARTISANS_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_PARTISANS_QUEST</AdvisorQuestion>
+			<Advisor>MILITARY</Advisor>
+			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
+		</Row>
 	</Concepts>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
@@ -22,6 +40,25 @@
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE">
+			<Text>Resistance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_BODY">
+			<Text>Resistance is a mechanic through which Civilizations that have conquered one or more Capitals will find it increasingly difficult to capture additional Capitals. During combat, you may see the modifier [COLOR_POSITIVE_TEXT]Resistance (Domination)[ENDCOLOR] appear for you (a bonus) or for the enemy (a penalty). This modifier only appears after either you or your opponent have captured an enemy Capital. The modifier changes based on the number of foreign (non-City-State) Capitals owned and the number of foreign Capitals in total. The more Capitals captured by one player, the higher this penalty becomes!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_QUEST">
+			<Text>What is Resistance?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS">
+			<Text>Partisans</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_BODY">
+			<Text>If you choose to raze a City, there is a chance each turn that the City will spawn Partisans loyal to the Civilization you conquered this City from. These units will only spawn if you are still at war with the Civilization. If you are no longer at war, any spawned Partisans will be considered Barbarians. Be careful with aggressively razing enemy Cities, as the sudden appearance of Partisans could turn the tide against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_QUEST">
+			<Text>What are Partisans?</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Added to Who's Winning Popup -->
@@ -126,6 +163,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
 			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
+			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes (Autarky).</Text>
+		</Row>
 <!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
 			<Text>[COLOR_POSITIVE_TEXT]MARRIED[ENDCOLOR]</Text>
@@ -135,6 +175,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
 			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] While at peace with this City-State, your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +10% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
+		</Row>
+		<!-- America! -->
+		<Row Tag="TXT_KEY_NOTIFICATION_UA_STOLE_PLOT">
+			<Text>{1_CivName:textkey} bought some of your land!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_UA_STOLE_PLOT">
+			<Text>{1_CivName:textkey} decrees Manifest Destiny!</Text>
 		</Row>
 <!-- Text for GPs -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT">
@@ -618,6 +665,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_GOLDEN_AGE">
 			<Text>+{1_Num}% {2_IconString} from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		
+		<!-- Civilopedia -->
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BUILDING_NAME">
+			<Text>Leads to Building Name</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BLDG_LABEL">
+			<Text>Leads to Buildings:</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -10,13 +10,14 @@ SimpleCivIconHookup = EUI.SimpleCivIconHookup
 local IconHookup = EUI.IconHookup
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
-include( "EUI_tooltips" )
-local GetHelpTextForUnit = GetHelpTextForUnit
-local GetHelpTextForBuilding = GetHelpTextForBuilding
-local GetHelpTextForImprovement = GetHelpTextForImprovement
-local GetHelpTextForProject = GetHelpTextForProject
-local GetHelpTextForPlayerPerk = GetHelpTextForPlayerPerk -- BE only
+local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 
+include( "EUI_tooltips" )
+local GetHelpTextForUnit = EUI.GetHelpTextForUnit
+local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
+local GetHelpTextForImprovement = EUI.GetHelpTextForImprovement
+local GetHelpTextForProject = EUI.GetHelpTextForProject
+local GetHelpTextForPlayerPerk = EUI.GetHelpTextForPlayerPerk -- BE only
 
 local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
 local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
@@ -48,7 +49,7 @@ local UI = UI
 --local ContextPtr = ContextPtr
 --local Players = Players
 --local Teams = Teams
-local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+--local GameInfo = GameInfo
 --local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 --local GameDefines = GameDefines
@@ -114,7 +115,6 @@ local Mouse = Mouse
 local Locale = Locale
 local L = Locale.ConvertTextKey
 --getmetatable("").__index.L = L
-
 
 techPediaSearchStrings = {}	-- needs to be GLOBAL
 g_searchTable = {}		-- GLOBAL Holds mapping of searchable words to techs for Civ BE (unused in this script)

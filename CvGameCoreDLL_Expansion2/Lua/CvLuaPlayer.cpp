@@ -223,6 +223,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldPerTurnFromTraits);
 
 #if defined(MOD_BALANCE_CORE)
+	Method(GetInternalTradeRouteGoldBonus);
 	//GAP
 	Method(GetGAPFromReligion);
 	Method(GetGAPFromCities);
@@ -2620,6 +2621,14 @@ int CvLuaPlayer::lGetGoldPerTurnFromTraits(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+//int GetInternalTradeRouteGoldBonus();
+int CvLuaPlayer::lGetInternalTradeRouteGoldBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetInternalTradeRouteGoldBonus());
+	return 1;
+}
+//------------------------------------------------------------------------------
 //int GetGAPFromReligion();
 int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
 {
@@ -3801,7 +3810,7 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinationsFrom(lua_State*
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2, false);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);;
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 
 	return GetPotentialInternationalTradeRouteDestinationsHelper(L, pkPlayer, pkUnit, pkCity->plot());
 }
@@ -12419,6 +12428,10 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 	if(iResult < 0)
 	{
 		iResult *= -1;
+	}
+	if(iResult == MAX_INT)
+	{
+		iResult = -1;
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

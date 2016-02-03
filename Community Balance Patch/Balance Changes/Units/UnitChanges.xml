@@ -62,10 +62,6 @@
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
 		<Row>
-			<UnitType>UNIT_BARBARIAN_AXMAN</UnitType>
-			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
-		</Row>
-		<Row>
 			<UnitType>UNIT_MAYAN_ATLATLIST</UnitType>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>

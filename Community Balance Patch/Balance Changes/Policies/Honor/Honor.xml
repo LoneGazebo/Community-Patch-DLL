@@ -109,7 +109,7 @@
 			<Text>Soldiers in private military companies (PMCs) are the contemporary strand of the mercenary trade, providing logistics, soldiers, military training, and other services. Thus, PMC contractors are civilians (in governmental, international, and civil organizations) authorized to accompany an army to the field; hence, the term civilian contractor. Nevertheless, PMCs may use armed force, hence defined as: "legally established enterprises that make a profit, by either providing services involving the potential exercise of [armed] force in a systematic way and by military means, and/or by the transfer of that potential to clients through training and other practices, such as logistics support, equipment procurement, and intelligence gathering."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GUERILLA_STRATEGY">
-			<Text>Use Mercenaries as a cheap, if slightly less effective means of defending your land from invaders, or as the flanks of a precision attack. Mercenaries receive a large bonus for flanking, so deploy them wisely! Only available if you have unlocked the Mercenary Army policy in the Commerce branch. Can only be obtained via a [ICON_GOLD] Gold purchase.</Text>
+			<Text>Use Mercenaries as a cheap, if slightly less effective means of defending your land from invaders, or as the flanks of a precision attack. Mercenaries receive a large bonus for flanking, so deploy them wisely! Only available if you have unlocked the Finisher policy of the Authority Branch. Can only be obtained via a [ICON_GOLD] Gold purchase.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_GUERILLA">
 			<Text>Flank attack bonus increased, and receives bonuses when embarked or attacking over rivers.</Text>

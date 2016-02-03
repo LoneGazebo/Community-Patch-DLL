@@ -755,6 +755,9 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 
+	//important. see which trade paths are valid
+	UpdateTradePathCache(eOriginPlayer);
+
 	SPath path;
 	//if we did not get an external pointer, make up our own
 	if (!pPath)
@@ -4129,9 +4132,6 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
-	//important. see which trade paths are valid
-	pTrade->UpdateTradePathCache(m_pPlayer->GetID());
-
 	// if you can't see the plot, you're not allowed to connect it
 	if (!pDestCity->plot()->isRevealed(m_pPlayer->getTeam(), false))
 	{
@@ -4247,6 +4247,12 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			}
 			gDLL->TradeVisuals_NewRoute(iRouteIndex, m_pPlayer->GetID(),pTrade->GetTradeConnection(iRouteIndex).m_eConnectionType, nPlots, plotsX, plotsY);
 			gDLL->TradeVisuals_UpdateRouteDirection(iRouteIndex, pTrade->GetTradeConnection(iRouteIndex).m_bTradeUnitMovingForward);
+#if defined(MOD_BALANCE_CORE)
+			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
+			{
+				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
+			}
+#endif
 		}
 	}
 
