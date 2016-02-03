@@ -615,7 +615,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				vQualifiersPositive.push_back("(C) some forest");
 			}
 		}
-		else if (pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+		else if (pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
 			iCivModifier += iIroquoisForestCount * 10;	
 			vQualifiersPositive.push_back("(C) forested");

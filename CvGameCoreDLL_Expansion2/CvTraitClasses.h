@@ -175,8 +175,8 @@ public:
 	bool IsBullyAnnex() const;
 #endif
 	bool IsFightWellDamaged() const;
-	bool IsMoveFriendlyWoodsAsRoad() const;
-	bool IsFasterAlongRiver() const;
+	bool IsWoodlandMovementBonus() const;
+	bool IsRiverMovementBonus() const;
 	bool IsFasterInHills() const;
 	bool IsEmbarkedAllWater() const;
 	bool IsEmbarkedToLandFlatCost() const;
@@ -412,8 +412,8 @@ protected:
 	bool m_bBullyAnnex;
 #endif
 	bool m_bFightWellDamaged;
-	bool m_bMoveFriendlyWoodsAsRoad;
-	bool m_bFasterAlongRiver;
+	bool m_bWoodlandMovementBonus;
+	bool m_bRiverMovementBonus;
 	bool m_bFasterInHills;
 	bool m_bEmbarkedAllWater;
 	bool m_bEmbarkedToLandFlatCost;
@@ -963,13 +963,13 @@ public:
 	{
 		return m_bFightWellDamaged;
 	};
-	bool IsMoveFriendlyWoodsAsRoad() const
+	bool IsWoodlandMovementBonus() const
 	{
-		return m_bMoveFriendlyWoodsAsRoad;
+		return m_bWoodlandMovementBonus;
 	};
-	bool IsFasterAlongRiver() const
+	bool IsRiverMovementBonus() const
 	{
-		return m_bFasterAlongRiver;
+		return m_bRiverMovementBonus;
 	};
 	bool IsFasterInHills() const
 	{
@@ -1292,9 +1292,7 @@ public:
 	{
 		return m_eCombatBonusImprovement;
 	};
-#if defined(MOD_BALANCE_CORE)
-	bool IsAbleToCrossMountainsWithRoad() const;
-#endif
+
 	bool IsAbleToCrossMountainsWithGreatGeneral() const;
 
 #if defined(MOD_TRAITS_CROSSES_ICE)
@@ -1441,8 +1439,8 @@ private:
 	// Saved
 
 	bool m_bFightWellDamaged;
-	bool m_bMoveFriendlyWoodsAsRoad;
-	bool m_bFasterAlongRiver;
+	bool m_bWoodlandMovementBonus;
+	bool m_bRiverMovementBonus;
 	bool m_bFasterInHills;
 	bool m_bEmbarkedAllWater;
 	bool m_bEmbarkedToLandFlatCost;

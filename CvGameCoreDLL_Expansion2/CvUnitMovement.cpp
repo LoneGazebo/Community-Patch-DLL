@@ -10,7 +10,7 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
-	bool bFasterAlongRiver = pTraits->IsFasterAlongRiver();
+	bool bFasterAlongRiver = pTraits->IsRiverMovementBonus();
 	bool bFasterInHills = pTraits->IsFasterInHills();
 	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
 	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
@@ -30,6 +30,9 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		bIgnoreTerrainCost = true;
 
 	if (bFasterInHills && pToPlot->isHills())
+		bIgnoreTerrainCost = true;
+
+	if((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pTraits->IsWoodlandMovementBonus())
 		bIgnoreTerrainCost = true;
 
 #if defined(MOD_BALANCE_CORE)
@@ -116,12 +119,6 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 
 		iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
 		iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iFlatMovementCost * iBaseMoves);
-	}
-	else if(pUnit->getOwner() == pToPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pTraits->IsMoveFriendlyWoodsAsRoad())
-	{
-		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost();
-		iRouteFlatCost = pRoadInfo->getFlatMovementCost() * iBaseMoves;
 	}
 	else
 	{

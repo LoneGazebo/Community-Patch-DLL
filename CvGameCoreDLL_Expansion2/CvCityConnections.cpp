@@ -360,6 +360,10 @@ void CvCityConnections::UpdateRouteInfo(void)
 				pRouteInfo->m_cPassEval = iPass + 1;
 				if(iPass == 0 || iPass == 2)  // check land route
 				{
+					//no point checking land connection for island cities
+					if(pFirstCity->area()->getNumTiles()<3 || pSecondCity->area()->getNumTiles()<3)
+						continue;
+
 					// if either city is blockaded on land, don't consider a connection
 					if(pFirstCity->IsBlockaded(false) || pSecondCity->IsBlockaded(false))
 					{
@@ -402,6 +406,10 @@ void CvCityConnections::UpdateRouteInfo(void)
 				}
 				else if(iPass == 1)  // check water route
 				{
+					//no point checking water connection for landlocked cities
+					if(!pFirstCity->isCoastal() || !pSecondCity->isCoastal())
+						continue;
+
 					// if either city is blockaded on water, don't consider a connection
 					if(pFirstCity->IsBlockaded(true) || pSecondCity->IsBlockaded(true))
 					{

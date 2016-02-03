@@ -1881,11 +1881,10 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 			if(pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
 		}
-		if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
-			if(pNewPlot->getOwner() == ePlayer)
-				if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
-					ePlotRoute = ROUTE_ROAD;
+			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+				ePlotRoute = ROUTE_ROAD;
 		}
 	}
 
@@ -2798,14 +2797,14 @@ struct TradePathCacheData
 	bool m_bCanCrossOcean:1;
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
-	bool m_bIsMoveFriendlyWoodsAsRoad:1;
+	bool m_bIsWoodlandMovementBonus:1;
 
 	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
 	inline bool CanCrossOcean() const { return m_bCanCrossOcean; }
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
-	inline bool IsMoveFriendlyWoodsAsRoad() const { return m_bIsMoveFriendlyWoodsAsRoad; }
+	inline bool IsWoodlandMovementBonus() const { return m_bIsWoodlandMovementBonus; }
 };
 
 //	--------------------------------------------------------------------------------
@@ -2825,12 +2824,12 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		if (pPlayerTraits)
 		{
 			pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
-			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+			pCacheData->m_bIsWoodlandMovementBonus = pPlayerTraits->IsWoodlandMovementBonus();
 		}
 		else
 		{
 			pCacheData->m_bIsRiverTradeRoad = false;
-			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+			pCacheData->m_bIsWoodlandMovementBonus = false;
 		}
 	}
 	else
@@ -2840,7 +2839,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossOcean = false;
 		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
-		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+		pCacheData->m_bIsWoodlandMovementBonus = false;
 	}
 
 }
@@ -2878,7 +2877,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
 	// Iroquios ability
-	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())
+	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus())
 		iRouteFactor = 2;
 
 	// apply route discount
