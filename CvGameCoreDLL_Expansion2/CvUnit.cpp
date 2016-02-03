@@ -28676,3 +28676,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	writeTo.read(loadFrom);
 	return loadFrom;
 }
+//	--------------------------------------------------------------------------------
+#if defined(MOD_GLOBAL_STACKING_RULES)
+int CvUnit::getNumberStackingUnits() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().GetNumberStackingUnits();
+}
+#endif
