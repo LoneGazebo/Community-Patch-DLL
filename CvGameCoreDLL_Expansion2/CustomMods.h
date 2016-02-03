@@ -388,7 +388,8 @@
 
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
-
+// Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
+#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS
 // Permits land units to cross ice - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TRAITS_CROSSES_ICE                      gCustomMods.isTRAITS_CROSSES_ICE()
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
@@ -1293,7 +1294,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
-
+	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
 	MOD_OPT_DECL(TRAITS_ANY_BELIEF);

@@ -167,6 +167,11 @@ public:
 
 	const char* GetUnitNames(int i) const;
 	GreatWorkType GetGreatWorks(int i) const;
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int GetNumberStackingUnits() const;
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	EraTypes GetGreatPersonEra(int i) const;
 	int GetResourceType() const;
@@ -337,6 +342,10 @@ private:
 	int m_iLeaderPromotion;
 	bool m_bTrade;
 	int m_iNumExoticGoods;
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int m_iNumberStackingUnits;
+#endif
 
 	// This is not loaded from XML, but cached so we don't have to recalculate every time
 	int m_iCachedPower;

@@ -179,7 +179,7 @@ public:
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
-		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
 	}
 #endif
 
@@ -381,6 +381,7 @@ public:
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int getAdditionalUnitsFromImprovement() const;
 	void calculateAdditionalUnitsFromImprovement();
+	int getStackingUnits() const;
 #endif
 
 	int getNumMajorCivsRevealed() const;

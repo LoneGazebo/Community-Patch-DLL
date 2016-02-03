@@ -4547,6 +4547,13 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 		bCombat = true;
 	}
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	if (pUnit->getNumberStackingUnits() == -1)
+	{
+		return 0;
+	}
+#endif
+
 	bool bPretendEmbarked = false;
 
 	bool bIsEmbarkedHere = pUnit->isEmbarked() && pUnit->plot()==this;
@@ -4580,17 +4587,40 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			{
 				// Units of the same type OR Units belonging to different civs
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #else
-				if(pUnit->getOwner() != pLoopUnit->getOwner() || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #endif
 				{
+#if defined(MOD_GLOBAL_STACKING_RULES)
+					if (pLoopUnit->getNumberStackingUnits() == 0)
+					{
+						iNumUnitsOfSameType;
+					}
+					if ((pUnit->getNumberStackingUnits() == 0) && (pLoopUnit->getNumberStackingUnits() == 0))
+					{
+						iNumUnitsOfSameType++;
+					}
+					if (pLoopUnit->getNumberStackingUnits() > 0)
+					{
+						iNumUnitsOfSameType++;
+						if (pUnit->getNumberStackingUnits() > 0)
+						{
+							iNumUnitsOfSameType = getUnitLimit();
+						}
+					}
+					if(pLoopUnit->isCargo())
+					{
+						iNumUnitsOfSameType = 0;
+					}
+#else
 					// We should allow as many cargo units as we want
 					if(!pLoopUnit->isCargo())
 					{
 						// Unit is the same domain & combat type, not allowed more than the limit
 						iNumUnitsOfSameType++;
 					}
+#endif
 				}
 
 				// Does the calling function want us to break out? (saves processing time)
@@ -5252,8 +5282,25 @@ int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovem
 	return iRtnValue;
 }
 #endif
-
+//	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
+int CvPlot::getStackingUnits() const
+{
+    const IDInfo* pUnitNode = headUnitNode();
+    CvUnit* pLoopUnit;
+
+    while(pUnitNode != NULL)
+    {
+      pLoopUnit = GetPlayerUnit(*pUnitNode);
+      pUnitNode = nextUnitNode(pUnitNode);
+
+      if(pLoopUnit && pLoopUnit->getNumberStackingUnits() > 0)
+      {
+        return pLoopUnit->getNumberStackingUnits();
+      }
+    }
+    return 0;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::getAdditionalUnitsFromImprovement() const
 {

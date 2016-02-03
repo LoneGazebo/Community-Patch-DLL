@@ -1338,6 +1338,10 @@ public:
 #endif
 	bool canRangeStrikeAt(int iX, int iY, bool bNeedWar = true, bool bNoncombatAllowed = true) const;
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int getNumberStackingUnits() const;
+#endif
+
 	bool IsAirSweepCapable() const;
 	int GetAirSweepCapableCount() const;
 	void ChangeAirSweepCapableCount(int iChange);
