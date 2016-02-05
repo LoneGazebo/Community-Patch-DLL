@@ -43,14 +43,7 @@
 			<Text>+2 [ICON_MOVES] Movement, and ignores Zone of Control</Text>
 		</Row>
 	</Language_en_US>
-	<UnitClasses>
-		<Row>
-			<Type>UNITCLASS_MOUNTED_BOWMAN</Type>
-			<Description>TXT_KEY_UNIT_MONGOLIAN_KESHIK</Description>
-			<DefaultUnit>UNIT_MONGOLIAN_KESHIK</DefaultUnit>
-		</Row>
-	</UnitClasses>
-	<!-- Mongols get faster Mounted Units -->
+	<!-- Mongols get faster Ranged Mounted Units -->
 	<Trait_FreePromotionUnitClass>
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
@@ -65,6 +58,11 @@
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
 			<UnitClassType>UNITCLASS_MOUNTED_BOWMAN</UnitClassType>
+			<PromotionType>PROMOTION_MONGOL_TERROR</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
 			<PromotionType>PROMOTION_MONGOL_TERROR</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitClass>

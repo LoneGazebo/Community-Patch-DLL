@@ -102,6 +102,14 @@
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
 		<Row>
+			<UnitType>UNIT_MOUNTED_BOWMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CUIRASSIER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
 			<UnitType>UNIT_COMPOSITE_BOWMAN</UnitType>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>

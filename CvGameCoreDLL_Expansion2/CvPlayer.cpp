@@ -1031,6 +1031,7 @@ void CvPlayer::init(PlayerTypes eID)
 		setAdvancedActionWonder(6);
 		setAdvancedActionBuilding(6);
 	}
+	SetBaseLuxuryHappiness(0);
 #endif
 
 	m_aiPlots.clear();

@@ -239,6 +239,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
 #if defined(MOD_BALANCE_CORE)
+	if(isHuman())
+	{
+		return;
+	}
 	//Don't burn down gifts, that makes you look ungrateful.
 	if(!bGift)
 	{

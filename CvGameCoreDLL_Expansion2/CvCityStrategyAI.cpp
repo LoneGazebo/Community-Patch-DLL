@@ -1018,13 +1018,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_PROCESS:
 				{
 					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					if(m_Buildables.size() > 0)
+					if(m_BuildablesPrecheck.size() > 1)
 					{
 						int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-						if(iNewWeight > 0)
-						{
-							m_Buildables.push_back(selection, iNewWeight);
-						}
+						m_Buildables.push_back(selection, iNewWeight);
 					}
 					else
 					{
