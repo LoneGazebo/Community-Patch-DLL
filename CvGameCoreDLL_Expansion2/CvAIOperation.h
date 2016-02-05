@@ -155,7 +155,7 @@ public:
 	// simple factory method to create new subclassed operations - use it instead of the constructor, please (I'm not going to force the issue as this is a very simple facotry)
 	static CvAIOperation* CreateOperation(AIOperationTypes eAIOperationType, PlayerTypes ePlayer);
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Uninit();
 	virtual void Reset();
 
@@ -186,6 +186,11 @@ public:
 	virtual bool Move()
 	{
 		return false;
+	}
+
+	virtual int GetDeployRange() const
+	{
+		return 0;
 	}
 
 	int GetLastTurnMoved() const
@@ -222,13 +227,7 @@ public:
 	PlayerTypes GetEnemy() const;
 	void SetEnemy(PlayerTypes eEnemy);
 
-	int GetDefaultArea() const;
-	void SetDefaultArea(int iDefaultArea);
-	virtual bool IsAllNavalOperation() const
-	{
-		return false;
-	};
-	virtual bool IsMixedLandNavalOperation() const
+	virtual bool IsNavalOperation() const
 	{
 		return false;
 	};
@@ -307,12 +306,7 @@ protected:
 	CvPlot* GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const;
 	int GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrentPosition, CvPlot* pTarget) const;
 
-	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
-#if defined(MOD_BALANCE_CORE)
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
-#else
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
-#endif
 
 	std::vector<int> m_viArmyIDs;
 	std::deque<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
@@ -321,7 +315,6 @@ protected:
 	int m_iID;
 	AIOperationState m_eCurrentState;
 	AIOperationAbortReason m_eAbortReason;
-	int m_iDefaultArea;
 	int m_iLastTurnMoved;
 	int m_iTurnStarted;
 
@@ -364,7 +357,7 @@ public:
 	CvAIOperationEnemyTerritory();
 	virtual ~CvAIOperationEnemyTerritory();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetDeployRange() const;
 	virtual int GetMaximumRecruitTurns() const;
@@ -372,8 +365,8 @@ public:
 	//virtual bool Move();
 
 protected:
+	virtual bool SetMusterPlotAndGoalPlotForArmy(CvArmyAI* pThisArmy);
 	virtual CvPlot* FindBestTarget() = 0;
-	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -387,7 +380,7 @@ public:
 	CvAIOperationBasicCityAttack();
 	virtual ~CvAIOperationBasicCityAttack();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -512,10 +505,7 @@ public:
 
 	virtual bool ShouldAbort();
 
-#if defined(MOD_BALANCE_CORE)
-	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
-#endif
-
+	virtual bool SetMusterPlotAndGoalPlotForArmy(CvArmyAI* pThisArmy);
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
 protected:
@@ -570,7 +560,7 @@ public:
 	CvAIOperationEscorted();
 	virtual ~CvAIOperationEscorted();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -608,7 +598,7 @@ public:
 	CvAIOperationFoundCity();
 	virtual ~CvAIOperationFoundCity();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -643,7 +633,7 @@ public:
 
 	CvAIOperationQuickColonize();
 	virtual ~CvAIOperationQuickColonize();
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -657,12 +647,6 @@ public:
 	{
 		return MUFORMATION_QUICK_COLONY_SETTLER;
 	}
-#if defined(MOD_BALANCE_CORE)
-	virtual bool IsMixedLandNavalOperation() const
-	{
-		return true;
-	};
-#endif
 	virtual CvUnit* FindBestCivilian();
 
 private:
@@ -741,7 +725,7 @@ public:
 	CvAIOperationAllyDefense();
 	virtual ~CvAIOperationAllyDefense();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
@@ -813,7 +797,7 @@ public:
 	}
 	virtual bool ShouldAbort();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL) = 0;
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL) = 0;
 
 	virtual MultiunitFormationTypes GetFormation() const
 	{
@@ -821,7 +805,7 @@ public:
 	}
 	virtual int GetDeployRange() const;
 	virtual CvCity* GetOperationStartCity() const;
-	virtual bool IsAllNavalOperation() const
+	virtual bool IsNavalOperation() const
 	{
 		return true;
 	};
@@ -829,7 +813,6 @@ public:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:
-	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
 	virtual CvUnit* FindInitialUnit();
 	virtual CvPlot* FindBestTarget() = 0;
 };
@@ -845,7 +828,7 @@ public:
 	CvAIOperationNavalBombardment();
 	virtual ~CvAIOperationNavalBombardment();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual MultiunitFormationTypes GetFormation() const
 	{
@@ -877,7 +860,7 @@ public:
 	CvAIOperationNavalSuperiority();
 	virtual ~CvAIOperationNavalSuperiority();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -909,17 +892,17 @@ protected:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationPureNavalCityAttack
+//  CLASS:      CvAIOperationNavalOnlyCityAttack
 //!  \brief		Try to take out an enemy city from the sea
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationPureNavalCityAttack : public CvAIOperationNaval
+class CvAIOperationNavalOnlyCityAttack : public CvAIOperationNaval
 {
 public:
 
-	CvAIOperationPureNavalCityAttack();
-	virtual ~CvAIOperationPureNavalCityAttack();
+	CvAIOperationNavalOnlyCityAttack();
+	virtual ~CvAIOperationNavalOnlyCityAttack();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual MultiunitFormationTypes GetFormation() const
 	{
@@ -960,7 +943,7 @@ public:
 	CvAIOperationCityCloseDefense();
 	virtual ~CvAIOperationCityCloseDefense();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -991,7 +974,7 @@ public:
 	CvAIOperationCityCloseDefensePeace();
 	virtual ~CvAIOperationCityCloseDefensePeace();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -1026,7 +1009,7 @@ public:
 	CvAIOperationRapidResponse();
 	virtual ~CvAIOperationRapidResponse();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -1059,7 +1042,7 @@ public:
 	CvAIOperationNavalEscorted();
 	virtual ~CvAIOperationNavalEscorted();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -1067,7 +1050,7 @@ public:
 	virtual CvString GetOperationName() const = 0;
 	virtual MultiunitFormationTypes GetFormation() const = 0;
 
-	virtual bool IsMixedLandNavalOperation() const
+	virtual bool IsNavalOperation() const
 	{
 		return true;
 	};
@@ -1087,7 +1070,7 @@ public:
 	CvAIOperationNavalAttack();
 	virtual ~CvAIOperationNavalAttack();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -1117,7 +1100,7 @@ public:
 	CvAIOperationNavalColonization();
 	virtual ~CvAIOperationNavalColonization();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -1160,7 +1143,7 @@ public:
 	CvAIOperationNavalSneakAttack();
 	virtual ~CvAIOperationNavalSneakAttack();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -1190,7 +1173,7 @@ public:
 	CvAIOperationNavalCityStateAttack();
 	virtual ~CvAIOperationNavalCityStateAttack();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -1216,7 +1199,7 @@ public:
 
 	CvAIOperationNukeAttack();
 	virtual ~CvAIOperationNukeAttack();
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
@@ -1241,11 +1224,7 @@ public:
 	{
 		return 10;
 	}
-#if defined(MOD_BALANCE_CORE)
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
-#else
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool* bRequired);
-#endif
 
 	virtual CvCity* GetOperationStartCity() const;
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);

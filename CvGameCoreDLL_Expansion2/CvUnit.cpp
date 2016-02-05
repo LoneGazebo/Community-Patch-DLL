@@ -352,9 +352,6 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	, m_iCanCrossIceCount("CvUnit::m_iCanCrossIceCount", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE)
-	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
-#endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	, m_iEmbarkedDeepWaterCount("CvUnit::m_iEmbarkedDeepWaterCount", m_syncArchive)
 #endif
@@ -1717,32 +1714,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvCity *pPlotCity = plot()->getPlotCity();
 		if (pPlotCity)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pPlotCity->GetNationalMissionaries() > 0)
-			{
-				//Only fires once.
-				ReligionTypes eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
-				if(eNationalReligion == NO_RELIGION)
-				{
-					eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionInMostCities();
-				}
-				if (eNationalReligion != NO_RELIGION)
-				{
-					GetReligionData()->SetReligion(eNationalReligion);
-					GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
-					GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
-				}
-				else
-				{
-					kill(true);
-					pPlotCity->SetNationalMissionaries(0);
-					return;
-				}
-				pPlotCity->SetNationalMissionaries(0);
-			}
-			else
-			{
-#endif
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
 			if (eReligion > RELIGION_PANTHEON)
 			{
@@ -1750,9 +1721,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
 				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	}
@@ -3644,14 +3612,50 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						{
 							// If the unit originally belonged to us, we've already done what we needed to do
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
+#if defined(MOD_BALANCE_CORE)
+								if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+								{
+									if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+									{
+										kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+									}
+									else
+									{
+										kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+									}
+								}
+								else
+								{
+#endif
+
 								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+								}
+#endif
 						}
 						// if Venice
 						else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 						{
-							// If the unit originally belonged to us, we've already done what we needed to do
-							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
-								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+							if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+							{
+								if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+								{
+									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+								else
+								{
+									kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+							}
+							else
+							{
+#endif
+
+							kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+#if defined(MOD_BALANCE_CORE)
+							}
+#endif
 						}
 					}
 					else
@@ -4977,7 +4981,11 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity) const
+#else
 int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
+#endif
 {
 	VALIDATE_OBJECT
 	// The roll will vary damage between 40 and 60 (out of 100) for two units of identical strength
@@ -5062,6 +5070,18 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		iDamage *= /*100*/ GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
 		iDamage /= 100;
+#if defined(MOD_BALANCE_CORE)
+		if(pCity)
+		{
+			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+			if(pGarrison)
+			{
+				//make sure there are no rounding errors
+				int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+				iDamage -= iGarrisonShare;
+			}
+		}
+#endif
 	}
 
 	// Bring it back out of hundreds
@@ -6312,6 +6332,12 @@ void CvUnit::ChangeRangeAttackIgnoreLOSCount(int iChange)
 bool CvUnit::IsCityAttackOnly() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE)
+	if(getUnitInfo().IsCityAttackOnly())
+	{
+		return true;
+	}
+#endif
 	return m_iCityAttackOnlyCount > 0;
 }
 
@@ -7321,6 +7347,10 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 #endif
 
+	//no healing on mountains outside of cities (inca)
+	if (pPlot->isMountain() && !pPlot->isCity())
+		return 0;
+
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
 
@@ -7577,7 +7607,12 @@ void CvUnit::doHeal()
 			}
 		}
 #endif
-		changeDamage( -healRate(plot()) );
+
+		int iHealRate = healRate(plot());
+		if (iHealRate==0)
+			return;
+
+		changeDamage( -iHealRate );
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
@@ -14867,6 +14902,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Nearby unit sapping this city
+			else if(IsHalfNearSapper(pToPlot->getPlotCity()))
+			{
+				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
+				iModifier += iTempModifier;
+			}
+#endif
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
@@ -15175,7 +15218,15 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
 	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 	{
-		return GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2;
+		int iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
+
+		if(GET_PLAYER(pOtherUnit->getOwner()).isHuman())
+		{
+			int iMod = (GC.getGame().getHandicapInfo().getAIDifficultyBonus() / 2);
+			iResistance *= (100 + iMod);
+			iResistance /= 100;
+		}
+		return iResistance;
 	}
 
 	return 0;
@@ -15657,7 +15708,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 			iModifier += iTempModifier;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		// Nearby unit sapping this city
+		else if(IsHalfNearSapper(pCity))
+		{
+			iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
+			iModifier += iTempModifier;
+		}
+#endif
 		// Bonus against city states?
 		if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
@@ -17990,8 +18048,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	CvCity* pNewCity = 0;
 	CvUnit* pTransportUnit = 0;
 	CvUnit* pLoopUnit = 0;
-	CvPlot* pOldPlot = 0;
-	CvPlot* pNewPlot = 0;
 	FStaticVector<IDInfo, 10, true, c_eCiv5GameplayDLL, 0> oldUnitList;
 	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
@@ -18025,7 +18081,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	int iMapLayer = m_iMapLayer;
 
-	pNewPlot = GC.getMap().plot(iX, iY);
+	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 
 	//sanity check - may interfere with carriers for land units, so don't fix it
 	/*
@@ -18226,7 +18282,8 @@ if (!bDoEvade)
 		}
 	}
 
-	pOldPlot = plot();
+	CvPlot* pOldPlot = plot();
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 
 	if(pOldPlot != NULL)
 	{
@@ -19584,7 +19641,6 @@ if (!bDoEvade)
 		DLLUI->SetDontShowPopups(false);
 
 	// update garrison status for old and new city, if applicable
-	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
@@ -20515,12 +20571,6 @@ int CvUnit::GetMapLayer() const
 bool CvUnit::IsGarrisoned(void) const
 {
 	VALIDATE_OBJECT
-
-	if (plot())
-	{
-		if (!plot()->isCity() && m_iGarrisonCityID>0)
-			OutputDebugString("bam!\n");
-	}
 
 	return (m_iGarrisonCityID != -1);
 }
@@ -21561,7 +21611,38 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
+bool CvUnit::IsNearCityAttackOnly(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+{
+	VALIDATE_OBJECT
 
+	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
+
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return false;
+	}
+
+	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	{
+		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+
+		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackOnly())
+		{
+			// Same domain
+			if(pUnit->getDomainType() == getDomainType())
+			{
+				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iSapperRange)
+					return true;
+			}
+		}
+
+	}
+
+	return false;
+}
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 {
 	VALIDATE_OBJECT
@@ -21580,7 +21661,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
-		if (pUnit && pUnit != pIgnoreThisGeneral)
+		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackOnly())
 		{
 			// Same domain
 			if(pUnit->getDomainType() == getDomainType())
@@ -22236,7 +22317,40 @@ bool CvUnit::IsSappingCity(const CvCity* pTargetCity) const
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Is a particular city being sapped by us?
+bool CvUnit::IsHalfSappingCity(const CvCity* pTargetCity) const
+{
+	CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+	if (!pTargetCity)
+	{
+		return false;
+	}
 
+	if (IsSapper())
+	{
+		int iSapperRange = 2;
+
+		CvPlot* pLoopPlot;
+
+		// Look around this Unit to see if there's a Sapper nearby
+		for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+		{
+			for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
+			{
+				pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
+
+				if(pLoopPlot != NULL && pLoopPlot->isEnemyCity(*this))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Are we near a friendly unit that is sapping this city?
 bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
@@ -22265,8 +22379,15 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 			if(pLoopPlot != NULL)
 			{
 				// Units in our plot do not count
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
 				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
 					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 
 				// If there are Units here, loop through them
 				if(pLoopPlot->getNumUnits() > 0)
@@ -22299,6 +22420,77 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Are we near a friendly unit that is sapping this city?
+bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
+{
+	VALIDATE_OBJECT
+
+	CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+	if (!pTargetCity)
+	{
+		return false;
+	}
+
+	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
+
+	CvPlot* pLoopPlot;
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+	// Look around this Unit to see if there's a Sapper nearby
+	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	{
+		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
+
+			if(pLoopPlot != NULL)
+			{
+				// Units in our plot do not count
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
+				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
+					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
+
+				// If there are Units here, loop through them
+				if(pLoopPlot->getNumUnits() > 0)
+				{
+					pUnitNode = pLoopPlot->headUnitNode();
+
+					while(pUnitNode != NULL)
+					{
+						pLoopUnit = ::getUnit(*pUnitNode);
+						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+						// Owned by us
+						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
+						{
+							// Sapper unit
+							if(pLoopUnit->IsHalfSappingCity(pTargetCity))
+							{
+								// Must be same domain
+								if(pLoopUnit->getDomainType() == getDomainType())
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsCanHeavyCharge() const
@@ -25363,7 +25555,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		SetActivityType(ACTIVITY_AWAKE);
 		if(eOldAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 
 		// if canceling automation, cancel on cargo as well
@@ -25389,7 +25581,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		}
 		else if(m_eAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->m_bExplorationPlotsDirty = true; // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
 		}
 	}
 }
@@ -28484,3 +28676,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	writeTo.read(loadFrom);
 	return loadFrom;
 }
+//	--------------------------------------------------------------------------------
+#if defined(MOD_GLOBAL_STACKING_RULES)
+int CvUnit::getNumberStackingUnits() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().GetNumberStackingUnits();
+}
+#endif

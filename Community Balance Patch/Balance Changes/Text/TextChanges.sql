@@ -56,6 +56,14 @@
 	SET Text = 'The Mightiest Rulers in History'
 	WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_POWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+	UPDATE Language_en_US
+	SET Text = 'The Most Influential Nations'
+	WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_CULTURAL_INFLUENCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = 'The Most Dazzling Cities'
+	WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_CITY_TOURISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 -- Text Changes for Spies in Cities
 	UPDATE Language_en_US
 	SET Text = 'Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and gold output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station. Potential may increase when using a higher ranking spy to steal technologies from the city.[NEWLINE][NEWLINE]Click to sort cities by their potential.'
@@ -232,7 +240,7 @@
 	SET Text = 'As a [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State, they will regularly give you military Units. (+{1_Science} [ICON_RESEARCH] Science)'
 	WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );		
 
-	-- WC Stiff	
+	-- WC Stuff	
 	UPDATE Language_en_US
 	SET Text = '[ICON_TOURISM] Tourism increases by 50% for 20 Turns.  Free Social Policy.'
 	WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
@@ -240,3 +248,29 @@
 	UPDATE Language_en_US
 	SET Text = '[ICON_CULTURE] Culture increases by 33% for 20 Turns.'
 	WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	--Civilopedia
+
+	UPDATE Language_en_US
+	SET Text = 'A city has a Ranged Combat Strength equal to its full Strength at the start of combat, and it has a range of 1. This range increases as the game progresses based on researched technologies (look for the "ranged strike" icon in the tech tree for these technologies). It may attack any one enemy unit within that range. Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.'
+	WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'A unit gains XPs for surviving a round of combat (or, if a scout, from exploration). The unit doesn''t have to win the combat or destroy the enemy to get the experience; it accrues each round that the unit lives through.[NEWLINE][NEWLINE]The amount of XPs the unit gets depends upon the circumstances of the combat. Generally, units get more XPs for attacking than defending, and more for engaging in melee combat than for other types. Here are some numbers (see the Charts and Tables section for a complete list):[NEWLINE]An Attacking Melee Unit: 5 XPs[NEWLINE]Defending Against a Melee Attack: 4 XPs[NEWLINE]An Attacking Ranged Unit: 2 XPs[NEWLINE]Being Attacked by a Ranged Unit: 2 XPs[NEWLINE]Barbarian Limitations: Once a unit has gotten 45 XPs, it no longer gets any additional XPs for fighting Barbarians.'
+	WHERE Tag = 'TXT_KEY_COMBAT_ACQUIRINGXP_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Once their civilization has learned certain technologies (see tech tree), workers can remove forests, jungles, and marshes from tiles. Once these features are removed, they are gone forever.'
+	WHERE Tag = 'TXT_KEY_WORKERS_CLEARINGLAND_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Once their civilization has learned certain technologies (see tech tree), workers can remove forests, jungles, and marshes from tiles. Once these features are removed, they are gone forever.'
+	WHERE Tag = 'TXT_KEY_WORKERS_CLEARINGLAND_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'If your civilization is unhappy, then the city will produce less food. The city will produce enough food to feed its citizens, but there is a decrease in growth locally, and a reduction in national yields like gold, faith, or science.'
+	WHERE Tag = 'TXT_KEY_FOOD_UNHAPPINESS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'If your civilization is unhappy, then the city will produce less food. The city will produce enough food to feed its citizens, but there is a decrease in growth locally, and a reduction in national yields like gold, faith, or science.'
+	WHERE Tag = 'TXT_KEY_FOOD_UNHAPPINESS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

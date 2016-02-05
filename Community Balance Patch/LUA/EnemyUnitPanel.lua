@@ -340,8 +340,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 					iTheirFireSupportCombatDamage = pFireSupportUnit:GetRangeCombatDamage(pMyUnit, nil, false);
 				end
 				
-				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, true);
-				iTheirDamageInflicted = pMyUnit:GetCombatDamage(iTheirStrength, iMyStrength, pCity:GetDamage(), false, true, false);
+				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, true, pCity);
+				iTheirDamageInflicted = pMyUnit:GetCombatDamage(iTheirStrength, iMyStrength, pCity:GetDamage(), false, true, false, NULL);
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 				
 			end
@@ -467,6 +467,15 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 
 			-- CBP 
+			-- Half Sapper unit modifier
+			if (pMyUnit:IsHalfNearSapper(pCity)) then
+				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+				iModifier = (iModifier / 2);
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+
 			-- Blockaded
 			if (pCity:IsBlockadedTest()) then
 				iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
@@ -720,8 +729,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					iTheirFireSupportCombatDamage = pFireSupportUnit:GetRangeCombatDamage(pMyUnit, nil, false);
 				end
 				
-				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
-				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false);
+				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false, NULL);
+				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 				
 			end
@@ -2184,6 +2193,14 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		end
 
 		-- CBP 
+		-- Half Sapper unit modifier
+		if (theirUnit:IsHalfNearSapper(myCity)) then
+			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+			iModifier = (iModifier / 2);
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
 		-- Blockaded
 		if (myCity:IsBlockadedTest()) then
 			iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);

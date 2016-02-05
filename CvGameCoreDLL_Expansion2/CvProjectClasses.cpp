@@ -17,6 +17,10 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryThreshold(NULL),
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_eFreeBuilding(NO_BUILDINGCLASS),
+	m_eFreePolicy(NO_POLICY),
+#endif
 	m_piFlavorValue(NULL)
 {
 }
@@ -45,6 +49,19 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_bSpaceship = kResults.GetBool("Spaceship");
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
+
+#if defined(MOD_BALANCE_CORE)
+	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
+	if(szFreeBuilding)
+	{
+		m_eFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szFreeBuilding, true);
+	}
+	const char* szFreePolicy = kResults.GetText("FreePolicyIfFirst");
+	if(szFreePolicy)
+	{
+		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
+	}
+#endif
 
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
 
@@ -196,6 +213,17 @@ bool CvProjectEntry::IsAllowsNukes() const
 {
 	return m_bAllowsNukes;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Free building if first
+BuildingClassTypes CvProjectEntry::GetFreeBuilding() const
+{
+	return m_eFreeBuilding;
+}
+PolicyTypes CvProjectEntry::GetFreePolicy() const
+{
+	return m_eFreePolicy;
+}
+#endif
 
 /// Retrieve movie file name
 const char* CvProjectEntry::GetMovieArtDef() const

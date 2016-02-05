@@ -622,6 +622,7 @@ function GoldTipHandler( control )
 	--local fInternationalTradeRouteGold = pPlayer:GetGoldPerTurnFromTradeRoutesTimes100() / 100;
 	local fTraitGold = pPlayer:GetGoldPerTurnFromTraits();
 	-- CBP
+	local iInternalRouteGold = pPlayer:GetInternalTradeRouteGoldBonus();
 	local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
 	local iMinorGold = pPlayer:GetGoldPerTurnFromMinorCivs();
 	-- END
@@ -629,7 +630,7 @@ function GoldTipHandler( control )
 	-- Gold from Vassals
 	local iGoldFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
 -- END
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iGoldFromVassals + iMinorGold + iGoldChange;
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iGoldFromVassals + iMinorGold + iGoldChange + iInternalRouteGold;
 	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
@@ -648,6 +649,10 @@ function GoldTipHandler( control )
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ITR", math.floor(fTradeRouteGold));
 	if (math.floor(fTraitGold) > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_TRAITS", math.floor(fTraitGold));
+	end
+	--CBP
+	if (iInternalRouteGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", iInternalRouteGold);
 	end
 	if (iGoldPerTurnFromOtherPlayers > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_OTHERS", iGoldPerTurnFromOtherPlayers);
@@ -1080,7 +1085,7 @@ function GoldenAgeTipHandler( control )
 			local iGAPCities = pPlayer:GetGAPFromCities();
 			if (iGAPCities > 0) then
 				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAITTXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
 			end
 			-- END
 		end

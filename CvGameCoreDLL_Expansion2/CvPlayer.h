@@ -1261,11 +1261,11 @@ public:
 	bool HasGovernment();
 
 	int GetReformCooldown() const;
-	void SetReformCooldown(int iValue);
+	void SetReformCooldown(int iValue, bool bNoEvent = false);
 	void ChangeReformCooldown(int iValue);
 
 	int GetGovernmentCooldown() const;
-	void SetGovernmentCooldown(int iValue);
+	void SetGovernmentCooldown(int iValue, bool bNoEvent = false);
 	void ChangeGovernmentCooldown(int iValue);
 
 	int GetReformCooldownRate() const;

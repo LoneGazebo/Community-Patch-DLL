@@ -4973,6 +4973,8 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 			}
 		
 			int iScienceBonus = pNewReligion->m_Beliefs.GetYieldFromConversion(YIELD_SCIENCE) * iEra;
+			iScienceBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+			iScienceBonus /= 100;
 			if(iScienceBonus > 0)
 			{
 				TechTypes eCurrentTech = GET_PLAYER(m_pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
@@ -7034,38 +7036,40 @@ void CvReligionAI::DoFaithPurchases()
 			{
 				int iProphetCost = pCapital->GetFaithPurchaseCost(eProphetType, true /*bIncludeBeliefDiscounts*/);
 				CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eProphetType, eReligion);
-				if ((iProphetCost <= kPlayer.GetFaith()) && pBestCity)
+				if(pBestCity)
 				{
-					BuyGreatPerson(eProphetType);
-					if(GC.getLogging())
+					if (iProphetCost <= kPlayer.GetFaith())
 					{
-						strLogMsg += ", Bought a Prophet for religion enhancement.";
-						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						BuyGreatPerson(eProphetType);
+						if(GC.getLogging())
+						{
+							strLogMsg += ", Bought a Prophet for religion enhancement.";
+							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						}
+						if(GC.getLogging())
+						{
+							CvString strFaith;
+							strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+							strLogMsg += strFaith;
+							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						}
 					}
-					if(GC.getLogging())
+					else
 					{
-						CvString strFaith;
-						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-						strLogMsg += strFaith;
-						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						if(GC.getLogging())
+						{
+							strLogMsg += ", Saving up for a Prophet for religion enhancement.";
+							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						}
+						if(GC.getLogging())
+						{
+							CvString strFaith;
+							strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+							strLogMsg += strFaith;
+							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						}
+						return;
 					}
-					return;
-				}
-				else
-				{
-					if(GC.getLogging())
-					{
-						strLogMsg += ", Saving up for a Prophet for religion enhancement.";
-						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-					}
-					if(GC.getLogging())
-					{
-						CvString strFaith;
-						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-						strLogMsg += strFaith;
-						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-					}
-					return;
 				}
 			}
 		}
@@ -7082,38 +7086,40 @@ void CvReligionAI::DoFaithPurchases()
 					{
 						int iGPCost = pCapital->GetFaithPurchaseCost(eGPType, true /*bIncludeBeliefDiscounts*/);
 						CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eGPType, NO_RELIGION);
-						if ((iGPCost <= kPlayer.GetFaith()) && pBestCity)
+						if(pBestCity)
 						{
-							BuyGreatPerson(eGPType);
-							if(GC.getLogging())
+							if (iGPCost <= kPlayer.GetFaith())
 							{
-								strLogMsg += ", Bought a Great Person, as we're in the Industrial age, we've reformed, and all our cities are converted.";
-								strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+								BuyGreatPerson(eGPType);
+								if(GC.getLogging())
+								{
+									strLogMsg += ", Bought a Great Person, as we're in the Industrial age, we've reformed, and all our cities are converted.";
+									strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+								}
+								if(GC.getLogging())
+								{
+									CvString strFaith;
+									strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+									strLogMsg += strFaith;
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
 							}
-							if(GC.getLogging())
+							else
 							{
-								CvString strFaith;
-								strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-								strLogMsg += strFaith;
-								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								if(GC.getLogging())
+								{
+									strLogMsg += ", Saving up for a Great Person, as we're in the Industrial age, we've reformed, and all our cities are converted.";
+									strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+								}
+								if(GC.getLogging())
+								{
+									CvString strFaith;
+									strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+									strLogMsg += strFaith;
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
+								return;
 							}
-							return;
-						}
-						else
-						{
-							if(GC.getLogging())
-							{
-								strLogMsg += ", Saving up for a Great Person, as we're in the Industrial age, we've reformed, and all our cities are converted.";
-								strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-							}
-							if(GC.getLogging())
-							{
-								CvString strFaith;
-								strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-								strLogMsg += strFaith;
-								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-							}
-							return;
 						}
 					}
 				}
@@ -7125,40 +7131,42 @@ void CvReligionAI::DoFaithPurchases()
 				{
 					int iGPCost = pCapital->GetFaithPurchaseCost(eGPType, true /*bIncludeBeliefDiscounts*/);
 					CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eGPType, NO_RELIGION);
-					if ((iGPCost <= kPlayer.GetFaith()) && pBestCity)
+					if(pBestCity)
 					{
-						BuyGreatPerson(eGPType);
-						if(GC.getLogging())
+						if (iGPCost <= kPlayer.GetFaith())
 						{
-							strLogMsg += ", Bought a Great Person, as we don't have a faith and it is the Industrial age.";
-							strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							BuyGreatPerson(eGPType);
+							if(GC.getLogging())
+							{
+								strLogMsg += ", Bought a Great Person, as we don't have a faith and it is the Industrial age.";
+								strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							}
+							if(GC.getLogging())
+							{
+								CvString strFaith;
+								strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+								strLogMsg += strFaith;
+								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							}
 						}
-						if(GC.getLogging())
+						else
 						{
-							CvString strFaith;
-							strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-							strLogMsg += strFaith;
-							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							if(GC.getLogging())
+							{
+								strLogMsg += ", Saving up for a Great Person, as we don't have a faith and it is the Industrial age.";
+								strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							}
+							if(GC.getLogging())
+							{
+								CvString strFaith;
+								strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+								strLogMsg += strFaith;
+								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+							}
+							return;
 						}
-						return;
-					}
-					else
-					{
-						if(GC.getLogging())
-						{
-							strLogMsg += ", Saving up for a Great Person, as we don't have a faith and it is the Industrial age.";
-							strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-						}
-						if(GC.getLogging())
-						{
-							CvString strFaith;
-							strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-							strLogMsg += strFaith;
-							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-						}
-						return;
 					}
 				}
 			}
@@ -7187,7 +7195,6 @@ void CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return;
 			}
 			else if (iCost <= kPlayer.GetFaith() && pBestMissionaryCity && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
@@ -7205,7 +7212,6 @@ void CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return;
 			}
 			else
 			{
@@ -7246,7 +7252,6 @@ void CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return;
 			}
 			else
 			{
@@ -7386,6 +7391,7 @@ void CvReligionAI::DoFaithPurchases()
 		}
 		return;
 	}
+	return;
 }
 #else
 	// Save for another prophet if haven't enhanced religion yet
@@ -8964,6 +8970,14 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	if(MOD_BALANCE_CORE_HAPPINESS && pCity->getOwner() == m_pPlayer->GetID())
+	{
+		int iUnhappy = pCity->getUnhappinessFromReligion();
+		if(iUnhappy > 0)
+		{
+			iScore *= (pCity->getUnhappinessFromReligion() + 1);
+		}
+	}
 	//if a CS, and we have a bonus for that, emphasize.
 	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 	{

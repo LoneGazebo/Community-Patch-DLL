@@ -143,6 +143,14 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
+CvPlot* iterateRingPlots(const CvPlot* pCenter, int iIndex)
+{
+	if (pCenter)
+		return iterateRingPlots(pCenter->getX(),pCenter->getY(),iIndex);
+
+	return NULL;
+}
+
 CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 {
 	int iDeltaHexX = 0;

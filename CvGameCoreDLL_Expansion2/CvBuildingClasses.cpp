@@ -49,7 +49,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
-	m_iNationalMissionaries(0),
 	m_iGetCooldown(0),
 	m_iFreeBuildingTradeTargetCity(NO_BUILDINGCLASS),
 	m_iCorporationID(0),
@@ -761,7 +760,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
-	m_iNationalMissionaries = kResults.GetInt("NationalMissionaries");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
@@ -1301,11 +1299,6 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
-}
-/// Dpes this building grant national missionaries?
-int CvBuildingEntry::GetNationalMissionaries() const
-{
-	return m_iNationalMissionaries;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -3313,7 +3306,7 @@ CvCityBuildings::CvCityBuildings():
 	m_iLandmarksTourismPercent(0),
 	m_iGreatWorksTourismModifier(0),
 	m_bSoldBuildingThisTurn(false),
-	m_pBuildings(NULL),
+	m_pPossibleBuildings(NULL),
 	m_pCity(NULL)
 {
 }
@@ -3324,15 +3317,15 @@ CvCityBuildings::~CvCityBuildings(void)
 }
 
 /// Initialize
-void CvCityBuildings::Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity)
+void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCity)
 {
 	// Store off the pointers to objects we'll need later
-	m_pBuildings = pBuildings;
+	m_pPossibleBuildings = pPossibleBuildings;
 	m_pCity = pCity;
 
 	// Initialize status arrays
 
-	int iNumBuildings = m_pBuildings->GetNumBuildings();
+	int iNumBuildings = pPossibleBuildings->GetNumBuildings();
 
 	CvAssertMsg((0 < iNumBuildings),  "m_pBuildings->GetNumBuildings() is not greater than zero but an array is being allocated in CvCityBuildings::Init");
 
@@ -3395,7 +3388,7 @@ void CvCityBuildings::Reset()
 
 	m_bSoldBuildingThisTurn = false;
 
-	for(iI = 0; iI < m_pBuildings->GetNumBuildings(); iI++)
+	for(iI = 0; iI < m_pPossibleBuildings->GetNumBuildings(); iI++)
 	{
 		m_paiBuildingProduction[iI] = 0;
 		m_paiBuildingProductionTime[iI] = 0;
@@ -3448,7 +3441,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	kStream >> m_aBuildingGreatWork;
 
 #if defined(MOD_BALANCE_CORE)
-	for (int i=0; i<m_pBuildings->GetNumBuildings(); i++)
+	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
 			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
 #endif
@@ -3478,7 +3471,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 #pragma warning ( push )
 #pragma warning ( disable : 6011 ) // if m_pBuildings is NULL during load, we're screwed. Redesign the class or the loader code.
 #endif//_MSC_VER
-	int iNumBuildings = m_pBuildings->GetNumBuildings();
+	int iNumBuildings = m_pPossibleBuildings->GetNumBuildings();
 #ifdef _MSC_VER
 #pragma warning ( pop )
 #endif//_MSC_VER
@@ -3498,9 +3491,9 @@ void CvCityBuildings::Write(FDataStream& kStream)
 }
 
 /// Accessor: Get full array of all building XML data
-CvBuildingXMLEntries* CvCityBuildings::GetBuildings() const
+CvBuildingXMLEntries* CvCityBuildings::GetPossibleBuildings() const
 {
-	return m_pBuildings;
+	return m_pPossibleBuildings;
 }
 
 /// Accessor: Total number of buildings in the city

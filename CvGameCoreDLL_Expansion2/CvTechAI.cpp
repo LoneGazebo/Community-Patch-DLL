@@ -114,9 +114,16 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
 		if(entry)
 		{
+#if defined(MOD_AI_SMART_OPTIMIZE_FLAVOR_WEIGHT_ROUNDTRIPS)
+			paiTempWeights[iTech] = entry->GetFlavorValue(eFlavor) * iWeight;
+			if (paiTempWeights[iTech] == 0)
+			{
+				continue;
+			}
+#else
 			// Set its weight by looking at tech's weight for this flavor and using iWeight multiplier passed in
 			paiTempWeights[iTech] = entry->GetFlavorValue(eFlavor) * iWeight;
-
+#endif
 			// Multiply the weight by any special player-specific weighting (i.e. to prioritize civ unique bonuses)
 			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech);
 
@@ -137,7 +144,11 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 	for(int iTech = 0; iTech < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTech++)
 	{
 		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
+#if defined(MOD_AI_SMART_OPTIMIZE_FLAVOR_WEIGHT_ROUNDTRIPS)
+		if(entry && (paiTempWeights[iTech] != 0))
+#else
 		if(entry)
+#endif
 		{
 			m_TechAIWeights.IncreaseWeight(iTech, paiTempWeights[iTech]);
 		}
@@ -330,7 +341,11 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 			int iPropagatedWeight = iWeight * iPropagationPercent / 100;
 
 			// Loop through all prerequisites
+#if defined (MOD_AI_SMART_TECH_FLAVOR_PROPAGATION_BUGFIX)
+			for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+#else
 			for(int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
+#endif
 			{
 				// Did we find a prereq?
 				int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);

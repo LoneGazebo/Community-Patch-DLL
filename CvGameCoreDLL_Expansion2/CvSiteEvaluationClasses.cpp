@@ -110,6 +110,17 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	if(pPlot->IsNaturalWonder())
 		return false;
 
+	//need at least one conventionally accessible plot around the city
+	bool bAccessible = false;
+	for (int i = 0; i < RING1_PLOTS; i++)
+	{
+		CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
+		if (pNeighbor && !pNeighbor->isImpassable(BARBARIAN_TEAM))
+			bAccessible = true;
+	}
+	if (!bAccessible)
+		return false;
+
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
 		if(GC.getFeatureInfo(pPlot->getFeatureType())->isNoCity())
@@ -482,7 +493,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 					// for the central plot
 					if (iDistance==0)
-						vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
+						vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
 
 					if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 						bIsAlmostCoast = true;

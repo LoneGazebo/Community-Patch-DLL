@@ -954,7 +954,7 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 {
 	//check if we're at the target
 	CvPlot *pTargetPlot = GetGoalPlot();
-	CvPlot *pCenterOfMass = GetCenterOfMass(DOMAIN_LAND);
+	CvPlot *pCenterOfMass = GetCenterOfMass(NO_DOMAIN);
 	if(pCenterOfMass && pTargetPlot && plotDistance(*pCenterOfMass,*pTargetPlot) <= iMaxDistance)
 		return pTargetPlot;
 

@@ -172,6 +172,11 @@
 			<Response>TXT_KEY_THIRD_PARTY_PEACE_OFFER%</Response>
 		</Row>
 
+		<!-- 3rd Party Peace-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_VOTE_COMMITMENT_REQUEST</ResponseType>
+			<Response>TXT_KEY_VOTE_COMMITMENT_REQUEST%</Response>
+		</Row>
 
 		<!-- DOF Friend Levels -->
 		<Row LeaderType="GENERIC">
@@ -285,7 +290,18 @@
 			<Response>TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST%</Response>
 		</Row>
 	</Diplomacy_Responses>
-	<Language_en_US>	
+	<Language_en_US>
+		<!-- Project First Finishers-->
+		<Row Tag="TXT_KEY_MISC_COMPLETES_PROJECT_FIRST">
+			<Text>{1_PlyrName} is the first to complete {@2_PrjctName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST">
+			<Text>{1_PlyrName} first to complete {@2_PrjctName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_UNKNOWN_FIRST">
+			<Text>{@1_PrjctName} was completed first in a far away land!</Text>
+		</Row>
+		
 		<!-- Promise Duration -->
 		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
 			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Turns. If you violate this Promise during this time, this player will feel betrayed!</Text>
@@ -489,6 +505,18 @@
 			<Text>Too many have died in your current conflict. Is it not time to end this war?</Text>
 		</Row>
 		
+		<!-- Votes -->
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_1">
+			<Text>My advisors have informed me that you are not yet committed to a vote for the upcoming World Congress session. What do you think of this proposition?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_2">
+			<Text>The upcoming World Congress session is very important to me. I would like to see this resolution passed, and I need your help. Does this offer seem suitable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_3">
+			<Text>Your vote on this World Congress resolution is very valuable to me. I hope that this offer reflects that. If not, mind telling me what it would take to earn your vote?</Text>
+		</Row>
+		
+
 		<!-- Embark String for Less/No City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
 			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>
@@ -3285,12 +3313,20 @@
 			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
 		</Row>
 		
-		<!-- MP Razing -->
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN">
+		<!-- MP Denounce -->
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN">
 			<Text>Denounce</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN_TT">
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
+		</Row>
+		
+		<!--AI Return Unit Text -->
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI">
+			<Text>{1_Player:textkey} returned your captured {@2_UnitName} to you. How nice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI_SUMMARY">
+			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
 		</Row>
 
 		<!-- Razing -->
@@ -3346,28 +3382,28 @@
 		
 		<!-- Arabia -->
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS">
-			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST">
-			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER">
-			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
+			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST">
-			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
+			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN">
-			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
+			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT">
-			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER">
-			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT">
-			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +3 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
+			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS">
@@ -3565,6 +3601,25 @@
 		</Row>
 		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
 			<Text>Allied with the {1_Player}.</Text>
+		</Row>
+		
+		<!-- Text for 3rd Party Brokering -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME">
+			<Text>Your diplomats have learned that {1_CivName:textkey} bribed {2_CivName:textkey} to go to war with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S">
+			<Text>{1_CivName:textkey} brokered war against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_PEACE_BROKER_NAME">
+			<Text>Your diplomats have learned that {1_CivName:textkey} paid {2_CivName:textkey} to make peace with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_PEACE_BROKER_NAME_S">
+			<Text>{1_CivName:textkey} brokered peace on your behalf!</Text>
+		</Row>
+		
+		<!-- CS -->
+		<Row Tag="TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED">
+			<Text>Recently liberated</Text>
 		</Row>
 
 		<!-- LUA for Warscore -->

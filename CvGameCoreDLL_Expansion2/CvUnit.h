@@ -198,7 +198,11 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
+#if defined(MOD_BALANCE_CORE)
+	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity = NULL) const;
+#else
 	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
+#endif
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
@@ -1058,6 +1062,7 @@ public:
 	// Great General Stuff
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #ifdef AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
+	bool IsNearCityAttackOnly(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 #else
@@ -1114,6 +1119,10 @@ public:
 	void ChangeSapperCount(int iChange);
 	bool IsSappingCity(const CvCity* pTargetCity) const;
 	bool IsNearSapper(const CvCity* pTargetCity) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
+	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
+#endif
 
 	bool IsCanHeavyCharge() const;
 	void ChangeCanHeavyChargeCount(int iChange);
@@ -1328,6 +1337,10 @@ public:
 	bool canEverRangeStrikeAt(int iX, int iY) const;
 #endif
 	bool canRangeStrikeAt(int iX, int iY, bool bNeedWar = true, bool bNoncombatAllowed = true) const;
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int getNumberStackingUnits() const;
+#endif
 
 	bool IsAirSweepCapable() const;
 	int GetAirSweepCapableCount() const;
@@ -1694,7 +1707,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanCrossIceCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	int m_iNumTilesRevealedThisTurn;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;

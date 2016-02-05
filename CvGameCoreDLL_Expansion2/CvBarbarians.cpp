@@ -492,7 +492,11 @@ void CvBarbarians::DoCamps()
 
 			if(!pLoopPlot->isWater())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(!pLoopPlot->isVisibleToCivTeam(true))
+#else
 				if(!pLoopPlot->isVisibleToCivTeam())
+#endif
 				{
 					iNumNotVisiblePlots++;
 				}
@@ -573,7 +577,11 @@ void CvBarbarians::DoCamps()
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
 						if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType()))) {
 #endif
+#if defined(MOD_BALANCE_CORE)
+						if(!pLoopPlot->isOwned() && !pLoopPlot->isVisibleToCivTeam(true))
+#else
 						if(!pLoopPlot->isOwned() && !pLoopPlot->isVisibleToCivTeam())
+#endif
 						{
 							// JON: NO RESOURCES FOR NOW, MAY REPLACE WITH SOMETHING COOLER
 							if(pLoopPlot->getResourceType() == NO_RESOURCE)
@@ -956,8 +964,8 @@ void CvBarbarians::DoUnits()
 
 						if(iTheft > 0)
 						{
-							pCity->changeDamage((iTheft / 8));
-							pUnit->changeDamage((iTheft / 8));
+							pCity->changeDamage(iTheft / 8);
+							pUnit->changeDamage(iTheft / 8);
 #ifdef AUI_BINOM_RNG
 							int iYield = GC.getGame().getJonRandNumBinom(10, "Barbarian Theft Value");
 #else

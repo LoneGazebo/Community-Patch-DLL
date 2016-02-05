@@ -1,3 +1,21 @@
+--Diplo Distances
+--3
+UPDATE Defines
+SET Value = '7'
+WHERE Name = 'EXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+--5
+UPDATE Defines
+SET Value = '11'
+WHERE Name = 'EXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+--9
+UPDATE Defines
+SET Value = '17'
+WHERE Name = 'EXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+
+
 -- Settler stuff
 
 INSERT INTO Defines (
@@ -374,3 +392,14 @@ WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRA
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '-20'
 WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+------------------------------
+-- GameOptions
+------------------------------
+INSERT INTO GameOptions
+			(Type,								Description,								Help,											"Default")
+VALUES		('GAMEOPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	0);
+
+INSERT INTO Language_en_US
+			(Tag,											Text)
+VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
+			('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');

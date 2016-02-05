@@ -42,6 +42,10 @@ public:
 	int GetFlavorValue(int i) const;
 	bool IsSpaceship() const;
 	bool IsAllowsNukes() const;
+#if defined(MOD_BALANCE_CORE)
+	PolicyTypes GetFreePolicy() const;
+	BuildingClassTypes  GetFreeBuilding() const;
+#endif
 	const char* GetMovieArtDef() const;
 
 	const char* GetCreateSound() const;
@@ -68,6 +72,10 @@ protected:
 
 	bool m_bSpaceship;
 	bool m_bAllowsNukes;
+#if defined(MOD_BALANCE_CORE)
+	BuildingClassTypes m_eFreeBuilding;
+	PolicyTypes m_eFreePolicy;
+#endif
 
 	CvString m_strCreateSound;
 	CvString m_strMovieArtDef;

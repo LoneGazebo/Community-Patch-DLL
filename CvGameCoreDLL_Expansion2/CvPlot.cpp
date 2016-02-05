@@ -2515,6 +2515,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Can't repair outside of owned territory.
+		if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+		{
+			return false;
+		}
+#endif
 		if(IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;
@@ -3306,13 +3313,15 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
+	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3855,12 +3864,23 @@ bool CvPlot::isActiveVisible() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::isVisibleToCivTeam(bool bNoObserver) const
+#else
 bool CvPlot::isVisibleToCivTeam() const
+#endif
 {
 	int iI;
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Skip observer here.
+		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		{
+			continue;
+		}
+#endif
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -3872,7 +3892,6 @@ bool CvPlot::isVisibleToCivTeam() const
 
 	return false;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
@@ -4040,9 +4059,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-		{
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->m_bExplorationPlotsDirty = true;
-		}
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
 	}
 }
 
@@ -4530,6 +4547,13 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 		bCombat = true;
 	}
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	if (pUnit->getNumberStackingUnits() == -1)
+	{
+		return 0;
+	}
+#endif
+
 	bool bPretendEmbarked = false;
 
 	bool bIsEmbarkedHere = pUnit->isEmbarked() && pUnit->plot()==this;
@@ -4563,17 +4587,40 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			{
 				// Units of the same type OR Units belonging to different civs
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #else
-				if(pUnit->getOwner() != pLoopUnit->getOwner() || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #endif
 				{
+#if defined(MOD_GLOBAL_STACKING_RULES)
+					if (pLoopUnit->getNumberStackingUnits() == 0)
+					{
+						iNumUnitsOfSameType;
+					}
+					if ((pUnit->getNumberStackingUnits() == 0) && (pLoopUnit->getNumberStackingUnits() == 0))
+					{
+						iNumUnitsOfSameType++;
+					}
+					if (pLoopUnit->getNumberStackingUnits() > 0)
+					{
+						iNumUnitsOfSameType++;
+						if (pUnit->getNumberStackingUnits() > 0)
+						{
+							iNumUnitsOfSameType = getUnitLimit();
+						}
+					}
+					if(pLoopUnit->isCargo())
+					{
+						iNumUnitsOfSameType = 0;
+					}
+#else
 					// We should allow as many cargo units as we want
 					if(!pLoopUnit->isCargo())
 					{
 						// Unit is the same domain & combat type, not allowed more than the limit
 						iNumUnitsOfSameType++;
 					}
+#endif
 				}
 
 				// Does the calling function want us to break out? (saves processing time)
@@ -5235,8 +5282,25 @@ int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovem
 	return iRtnValue;
 }
 #endif
-
+//	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
+int CvPlot::getStackingUnits() const
+{
+    const IDInfo* pUnitNode = headUnitNode();
+    CvUnit* pLoopUnit;
+
+    while(pUnitNode != NULL)
+    {
+      pLoopUnit = GetPlayerUnit(*pUnitNode);
+      pUnitNode = nextUnitNode(pUnitNode);
+
+      if(pLoopUnit && pLoopUnit->getNumberStackingUnits() > 0)
+      {
+        return pLoopUnit->getNumberStackingUnits();
+      }
+    }
+    return 0;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::getAdditionalUnitsFromImprovement() const
 {
@@ -6302,7 +6366,7 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
 						continue;
 
-					if (pLoopPlot->isWater()==isWater() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
 						return true;
 				}
 			}
@@ -9929,12 +9993,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					{
 						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
 						if(playerI.isAlive())
-						{
 							if(playerI.getTeam() == eTeam)
-							{
-								playerI.GetEconomicAI()->m_bExplorationPlotsDirty = true;
-							}
-						}
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
@@ -13302,7 +13362,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	if (!isValidMovePlot(ePlayer))
 		return false;
 
-	if (getOwner()!=NO_PLAYER)
+	if (getOwner()!=NO_PLAYER && ePlayer!=NO_PLAYER)
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();

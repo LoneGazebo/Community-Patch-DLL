@@ -173,13 +173,13 @@ public:
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
-	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp = false) const;
+	int defenseModifier(TeamTypes eDefender, bool bIgnored, bool bHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
-		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
 	}
 #endif
 
@@ -237,7 +237,11 @@ public:
 
 	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
+#if defined(MOD_BALANCE_CORE)
+	bool isVisibleToCivTeam(bool bNoObserver = false) const;
+#else
 	bool isVisibleToCivTeam() const;
+#endif
 	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
@@ -377,6 +381,7 @@ public:
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int getAdditionalUnitsFromImprovement() const;
 	void calculateAdditionalUnitsFromImprovement();
+	int getStackingUnits() const;
 #endif
 
 	int getNumMajorCivsRevealed() const;

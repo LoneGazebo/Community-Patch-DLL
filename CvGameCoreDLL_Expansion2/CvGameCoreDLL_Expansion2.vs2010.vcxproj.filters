@@ -41,9 +41,6 @@
     <ClCompile Include="CvArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CvArmyAI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CvAStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -517,6 +514,9 @@
     </ClCompile>
     <ClCompile Include="stackwalker\StackWalker.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvArmyAI.cpp">
+      <Filter>Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4365,15 +4365,7 @@ bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncl
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	CvEspionageSpy* pSpy = &(m_aSpyList[iSpyIndex]);
-	if(!pSpy || pSpy == NULL)
-		return false;
-
-	if(pSpy->m_bIsDiplomat)
-#else
 	if (!m_aSpyList[iSpyIndex].m_bIsDiplomat)
-#endif
 	{
 		return false;
 	}

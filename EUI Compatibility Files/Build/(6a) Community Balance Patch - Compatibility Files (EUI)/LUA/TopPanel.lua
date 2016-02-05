@@ -5,8 +5,10 @@
 -- compatible with Putmalk's Civ IV Diplomacy Features Mod v10
 -- compatible with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v 23
 -------------------------------
+include( "EUI_utilities" )
+
 Events.SequenceGameInitComplete.Add(function()
-print( "Loading EUI top panel...", os.clock(), [[ 
+print( "Loading EUI top panel",ContextPtr,os.clock(), [[ 
  _____           ____                  _
 |_   _|__  _ __ |  _ \ __ _ _ __   ___| |
   | |/ _ \| '_ \| |_) / _` | '_ \ / _ \ |
@@ -14,10 +16,13 @@ print( "Loading EUI top panel...", os.clock(), [[
   |_|\___/| .__/|_|   \__,_|_| |_|\___|_|
           |_|
 ]])
+local civ5_mode = InStrategicView ~= nil
+local civBE_mode = not civ5_mode
+local gk_mode = Game.GetReligionName ~= nil
+local bnw_mode = Game.GetActiveLeague ~= nil
+local civ5bnw_mode = civ5_mode and bnw_mode
 
-include( "EUI_utilities" )
-include( "EUI_tooltips" )
-local GetHelpTextForAffinity = GetHelpTextForAffinity
+--EUI_utilities
 local IconHookup = EUI.IconHookup
 local CityPlots = EUI.CityPlots
 local PopScratchDeal = EUI.PopScratchDeal
@@ -25,37 +30,59 @@ local PushScratchDeal = EUI.PushScratchDeal
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
+local GreatPeopleIcon = EUI.GreatPeopleIcon
+local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 
-for i,v in pairs( Modding.GetActivatedMods() ) do
-	print("Active Mod", Modding.GetModProperty(v.ID, v.Version, "Name"), "ID", v.ID, "Version", v.Version )
-	EUI.deluxe_scenario = EUI.deluxe_scenario or v.ID == "34fb6c19-10dd-4b65-b143-fd00b2c0826f"
+if civBE_mode then
+	include( "EUI_tooltips" )
+	local GetHelpTextForAffinity = EUI.GetHelpTextForAffinity
 end
 
 -------------------------------
 -- minor lua optimizations
 -------------------------------
 
-local math = math
-local os = os
+--local next = next
 local pairs = pairs
 local ipairs = ipairs
 --local pcall = pcall
 --local print = print
 --local select = select
+--local setmetatable = setmetatable
 local string = string
---local table = table
 local tonumber = tonumber
 --local tostring = tostring
 --local type = type
 --local unpack = unpack
+--local table = table
+--local table_insert = table.insert
+--local table_remove = table.remove
+--local table_concat = table.concat
+--local os = os
+local os_time = os.time
+local os_date = os.date
+--local math = math
+local math_floor = math.floor
+local math_ceil = math.ceil
+local math_min = math.min
+local math_max = math.max
+--local math_abs = math.abs
+--local math_modf = math.modf
+--local math_sqrt = math.sqrt
+local math_pi = math.pi
+local math_sin = math.sin
+local math_cos = math.cos
+--local math_huge = math.huge
 
 local UI = UI
 --local UIManager = UIManager
+--local ToHexFromGrid = ToHexFromGrid
+
 local Controls = Controls
 local ContextPtr = ContextPtr
 local Players = Players
 local Teams = Teams
-local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+--local GameInfo = GameInfo
 --local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 local GameDefines = GameDefines
@@ -125,11 +152,6 @@ local S = string.format
 -------------------------------
 -- Globals
 -------------------------------
-local civ5_mode = InStrategicView ~= nil
-local civBE_mode = not civ5_mode
-local gk_mode = Game.GetReligionName ~= nil
-local bnw_mode = Game.GetActiveLeague ~= nil
-local civ5bnw_mode = civ5_mode and bnw_mode
 
 local g_activePlayerID, g_activePlayer, g_activeTeamID, g_activeTeam, g_activeCivilizationID, g_activeCivilization, g_activeTeamTechs
 
@@ -310,7 +332,7 @@ local function ScanGP( player )
 				gpChange = gpChange * (1 + (gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod) / 100)
 
 				if gpChange > 0 then
-					local gpTurns = math.ceil( (gpThreshold - gpProgress) / gpChange )
+					local gpTurns = math_ceil( (gpThreshold - gpProgress) / gpChange )
 					if not gp or gpTurns < gp.Turns then
 						gp = {
 							Turns = gpTurns,
@@ -467,8 +489,8 @@ local function UpdateTopPanelNow()
 			Controls.HappinessString:SetText(happinessText)
 
 			--if bnw_mode and excessHappiness < 0 then
-				--unhappyProductionModifier = math.max( -excessHappiness * GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_PRODUCTION_PENALTY )
-				--unhappyGoldModifier = math.max( -excessHappiness * GameDefines.VERY_UNHAPPY_GOLD_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_GOLD_PENALTY )
+				--unhappyProductionModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_PRODUCTION_PENALTY )
+				--unhappyGoldModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_GOLD_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_GOLD_PENALTY )
 			--end
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
@@ -491,7 +513,7 @@ local function UpdateTopPanelNow()
 					Controls.HappyBar:SetPercent( happyProgress / happyNeeded )
 					Controls.HappyBarShadow:SetPercent( happyProgressNext / happyNeeded )
 					if excessHappiness > 0 then
-						turnsRemaining = math.ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
+						turnsRemaining = math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
 					end
 					Controls.HappyBox:SetHide(false)
 				else
@@ -551,7 +573,7 @@ local function UpdateTopPanelNow()
 				Controls.FaithBar:SetPercent( faithProgress / faithNeeded )
 				Controls.FaithBarShadow:SetPercent( faithProgressNext / faithNeeded )
 				if faithPerTurn > 0 then
-					turnsRemaining = math.ceil((faithNeeded - faithProgress) / faithPerTurn )
+					turnsRemaining = math_ceil((faithNeeded - faithProgress) / faithPerTurn )
 				end
 				Controls.FaithBox:SetHide(false)
 				Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
@@ -660,21 +682,21 @@ local function UpdateTopPanelNow()
 		if g_activePlayer:GetAffinityPercentTowardsMaxLevel( GameInfoTypes.AFFINITY_TYPE_PURITY ) >= 100 then
 			percentToNextPurityLevel = 100
 		end
-		Controls.PurityProgressBar:Resize(5,math.floor((percentToNextPurityLevel/100)*30))
+		Controls.PurityProgressBar:Resize(5, math_floor((percentToNextPurityLevel/100)*30))
 
 		Controls.Harmony:LocalizeAndSetText( "TXT_KEY_AFFINITY_STATUS", GameInfo.Affinity_Types.AFFINITY_TYPE_HARMONY.IconString, g_activePlayer:GetAffinityLevel( GameInfoTypes.AFFINITY_TYPE_HARMONY ) )
 		local percentToNextHarmonyLevel = g_activePlayer:GetAffinityPercentTowardsNextLevel( GameInfoTypes.AFFINITY_TYPE_HARMONY )
 		if g_activePlayer:GetAffinityPercentTowardsMaxLevel( GameInfoTypes.AFFINITY_TYPE_HARMONY ) >= 100 then
 			percentToNextHarmonyLevel = 100
 		end
-		Controls.HarmonyProgressBar:Resize(5,math.floor((percentToNextHarmonyLevel/100)*30))
+		Controls.HarmonyProgressBar:Resize(5, math_floor((percentToNextHarmonyLevel/100)*30))
 
 		Controls.Supremacy:LocalizeAndSetText( "TXT_KEY_AFFINITY_STATUS", GameInfo.Affinity_Types.AFFINITY_TYPE_SUPREMACY.IconString, g_activePlayer:GetAffinityLevel( GameInfoTypes.AFFINITY_TYPE_SUPREMACY ) )
 		local percentToNextSupremacyLevel = g_activePlayer:GetAffinityPercentTowardsNextLevel( GameInfoTypes.AFFINITY_TYPE_SUPREMACY )
 		if g_activePlayer:GetAffinityPercentTowardsMaxLevel( GameInfoTypes.AFFINITY_TYPE_SUPREMACY ) >= 100 then
 			percentToNextSupremacyLevel = 100
 		end
-		Controls.SupremacyProgressBar:Resize(5,math.floor((percentToNextSupremacyLevel/100)*30))
+		Controls.SupremacyProgressBar:Resize(5, math_floor((percentToNextSupremacyLevel/100)*30))
 
 		-----------------------------
 		-- Update energy stats
@@ -714,7 +736,7 @@ local function UpdateTopPanelNow()
 			Controls.CultureBar:SetPercent( cultureProgress / cultureTheshold )
 			Controls.CultureBarShadow:SetPercent( cultureProgressNext / cultureTheshold )
 			if culturePerTurn > 0 then
-				turnsRemaining = math.ceil((cultureTheshold - cultureProgress) / culturePerTurn )
+				turnsRemaining = math_ceil((cultureTheshold - cultureProgress) / culturePerTurn )
 			end
 			Controls.CultureBox:SetHide(false)
 		else
@@ -729,8 +751,6 @@ local function UpdateTopPanelNow()
 	Controls.TopPanelDiploStack:CalculateSize()
 	Controls.TopPanelInfoStack:ReprocessAnchoring()
 	Controls.TopPanelDiploStack:ReprocessAnchoring()
-	Controls.TopPanelInfoStack:CalculateSize()
-	Controls.TopPanelDiploStack:CalculateSize()
 	Controls.TopPanelBarL:SetSizeX( Controls.TopPanelInfoStack:GetSizeX() + 15 )
 	Controls.TopPanelBarR:SetSizeX( Controls.TopPanelDiploStack:GetSizeX() + 15 )
 end
@@ -763,9 +783,9 @@ local function SetMark( line, size, percent, label, text )
 	local r0 = size/2
 	local r1 = size * 0.43
 	local r2 = size * 0.47
-	local angle = percent * math.pi * 2
-	local x = math.sin( percent * math.pi * 2 )
-	local y = -math.cos( percent * math.pi * 2 )
+	local angle = percent * math_pi * 2
+	local x = math_sin( percent * math_pi * 2 )
+	local y = -math_cos( percent * math_pi * 2 )
 	line:SetEndVal( r1 * x + r0, r1 * y + r0 )
 	label:SetOffsetVal( r2 * x, r2 * y )
 	label:SetText( text )
@@ -827,7 +847,7 @@ g_toolTipHandler.SciencePerTurn = function( control )
 					showProgressMeter = true
 				end
 			else
-				tipControls.ProgressMeter:SetPercents( math.min(1, progress / cost), progressNext / cost )
+				tipControls.ProgressMeter:SetPercents( math_min(1, progress / cost), progressNext / cost )
 				showProgressMeter = true
 			end
 
@@ -835,8 +855,8 @@ g_toolTipHandler.SciencePerTurn = function( control )
 			if loss < 0 then
 				showLossMeter = true
 				showBlankMeter = true
-				tipControls.BlankMeter:SetPercents( math.min(1, progressNext / cost ), 0 )
-				tipControls.LossMeter:SetPercents( math.min(1, ( progressNext - loss ) / cost ), 0 )
+				tipControls.BlankMeter:SetPercents( math_min(1, progressNext / cost ), 0 )
+				tipControls.LossMeter:SetPercents( math_min(1, ( progressNext - loss ) / cost ), 0 )
 			end
 
 			if change ~= 0 then
@@ -1020,8 +1040,8 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	local tips = table()
 
 	local goldPerTurnFromDiplomacy = g_activePlayer:GetGoldPerTurnFromDiplomacy()
-	local goldPerTurnFromOtherPlayers = math.max(0,goldPerTurnFromDiplomacy) * 100
-	local goldPerTurnToOtherPlayers = -math.min(0,goldPerTurnFromDiplomacy)
+	local goldPerTurnFromOtherPlayers = math_max(0,goldPerTurnFromDiplomacy) * 100
+	local goldPerTurnToOtherPlayers = -math_min(0,goldPerTurnFromDiplomacy)
 
 	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() * 100 or 0
 	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
@@ -1053,11 +1073,12 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Total gold
 -- CBP
 		-- Gold gained from happiness
+	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
 	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
 	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors + iInternalRouteGold -- C4DF
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1101,6 +1122,8 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold / 100)
 -- END
+--CBP
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
@@ -1192,9 +1215,10 @@ if civ5_mode then
 		local tipText = ""
 		local gp = ScanGP( Players[Game.GetActivePlayer()] )
 		if gp then
+			local icon = GreatPeopleIcon( gp.Class.Type )
 			tipText = L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( gp.Class.Description ) .. "[ENDCOLOR]" )
-				.. " " .. gp.Progress .. "[ICON_GREAT_PEOPLE]/ " .. gp.Threshold .. "[ICON_GREAT_PEOPLE][NEWLINE]"
-				.. gp.City:GetName() .. S( " %+g", gp.Change ) .. "[ICON_GREAT_PEOPLE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE"
+				.. " " .. gp.Progress .. icon .. " / " .. gp.Threshold .. icon .. "[NEWLINE]"
+				.. gp.City:GetName() .. S( " %+g", gp.Change ) .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE"
 				.. " [COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gp.Turns ) ) .. "[ENDCOLOR]"
 		else
 			tipText = "No GP..."
@@ -1338,7 +1362,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math.min(policiesHappiness,0) )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_min(policiesHappiness,0) )
 			
 -- COMMUNITY PATCH CHANGES BELOW
 			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
@@ -1368,7 +1392,7 @@ if civ5_mode then
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
 			tips:insert( L("TXT_KEY_TP_HAPPINESS_SOURCES", totalHappiness ) )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicapHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math.max(policiesHappiness,0) )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_max(policiesHappiness,0) )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_BUILDINGS", buildingHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITIES", cityHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_GARRISONED_UNITS", garrisonedUnitsHappiness )
@@ -1631,20 +1655,7 @@ if civ5_mode then
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-			-- CBP
-			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
-			if (iGAPReligion > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
-			end
-			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-			if (iGAPTrait > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
-			end
-			local iGAPCities = g_activePlayer:GetGAPFromCities();
-			if (iGAPCities > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
-			end
-			-- END
+			
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( Locale.ToUpper"TXT_KEY_UNIQUE_GOLDEN_AGE_ANNOUNCE" )
@@ -1659,13 +1670,26 @@ if civ5_mode then
 					.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
 				if excessHappiness > 0 then
 					tips:insert( L("TXT_KEY_MISSION_START_GOLDENAGE") .. ": [COLOR_YELLOW]"
-						.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math.ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)) ) )
+						.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)) ) )
 						.. "[ENDCOLOR]"	.. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", excessHappiness) )
 				elseif excessHappiness < 0 then
 					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
 				end
 			end
-
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+			end
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			if (iGAPTrait > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+			end
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			if (iGAPCities > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+			end
+			-- END
 			if g_isBasicHelp then
 				tips:insert( "" )
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then
@@ -1925,7 +1949,7 @@ g_toolTipHandler.CultureString = function( control )
 		local cultureTheshold = g_activePlayer:GetNextPolicyCost()
 		if cultureTheshold > cultureProgress then
 			if culturePerTurn > 0 then
-				turnsRemaining = math.ceil( (cultureTheshold - cultureProgress) / culturePerTurn)
+				turnsRemaining = math_ceil( (cultureTheshold - cultureProgress) / culturePerTurn)
 			else
 				turnsRemaining = "?"
 			end
@@ -2087,7 +2111,7 @@ if civ5_mode and gk_mode then
 				end
 
 				tips:insert( "" )
-				tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math.max( Game.GetNumReligionsStillToFound(), 0 ) ) )
+				tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math_max( Game.GetNumReligionsStillToFound(), 0 ) ) )
 
 				if g_activePlayer:GetCurrentEra() >= GameInfoTypes.ERA_INDUSTRIAL then
 					tips:insert( "" )
@@ -2595,16 +2619,16 @@ function()
 		return
 	end
 
-	if g_alarmTime and os.time() >= g_alarmTime then
+	if g_alarmTime and os_time() >= g_alarmTime then
 		g_alarmTime = nil
 		UI.AddPopup{ Type = ButtonPopupTypes.BUTTONPOPUP_TEXT,
 			Data1 = 800,	-- WrapWidth
 			Option1 = true, -- show TopImage
-			Text = os.date( g_clockFormat ) }
+			Text = os_date( g_clockFormat ) }
 	end
 
 	if g_clockFormat then
-		Controls.CurrentTime:SetText( os.date( g_clockFormat ) )
+		Controls.CurrentTime:SetText( os_date( g_clockFormat ) )
 	end
 
 	if g_isPopupUp ~= UI.IsPopupUp() then
@@ -2641,7 +2665,7 @@ for clockFormatIndex, clockFormat in ipairs( g_clockFormats ) do
 	local instance = {}
 	ContextPtr:BuildInstanceForControl( "ClockOptionInstance", instance, Controls.ClockOptions )
 	instance = instance.ClockOption
-	instance:GetTextButton():SetText( os.date( clockFormat ) )
+	instance:GetTextButton():SetText( os_date( clockFormat ) )
 	instance:SetCheck( g_clockFormat == clockFormat )
 	instance:RegisterCheckHandler(
 	function( isChecked )
@@ -2654,11 +2678,11 @@ end
 local function GetAlarmOptions()
 	g_alarmTime = nil
 	local time = tonumber( g_options.GetValue( "AlarmTime" ) ) or 0
-	local t = os.date( "*t", time )
+	local t = os_date( "*t", time )
 	if t then
 		Controls.AlarmHours:SetText( S( "%2d", t.hour ) )
 		Controls.AlarmMinutes:SetText( S( "%2d", t.min ) )
-		if time > os.time() + 1 then
+		if time > os_time() + 1 then
 
 			g_alarmTime = g_options.GetValue( "AlarmIsOn" ) == 1 and time
 		end
@@ -2680,12 +2704,12 @@ function()
 end)
 
 local function SetAlarmOptions()
-	local t = os.date("*t")
+	local t = os_date("*t")
 	t.hour = tonumber( Controls.AlarmHours:GetText() ) or 0
 	t.min = tonumber( Controls.AlarmMinutes:GetText() ) or 0
-	local time = os.time(t)
+	local time = os_time(t)
 
-	if time < os.time()+2 then
+	if time < os_time()+2 then
 		time = time + 86400	-- 1 day in seconds
 	end
 	g_options.SetValue( "AlarmTime", time )

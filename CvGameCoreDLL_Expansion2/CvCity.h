@@ -714,11 +714,6 @@ public:
 	void SetOwedFoodBuilding(bool bNewValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void ChangeNationalMissionaries(int iNewValue);
-	int GetNationalMissionaries() const;
-	void SetNationalMissionaries(int iValue);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
 	int GetBorderObstacleCity() const;
 	void SetBorderObstacleCity(int iValue);
@@ -1477,7 +1472,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
-	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;

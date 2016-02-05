@@ -68,15 +68,15 @@
 -- Replace Accuracy with +10% Ranged Combat Strength and damage versus cities.
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Barrage with +5% Ranged Combat Strength and damage versus wounded units.

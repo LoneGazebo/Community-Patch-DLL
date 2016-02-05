@@ -234,9 +234,13 @@ public:
 	};
 #endif
 	void UpdatePlots();
-	bool m_bExplorationPlotsDirty;
+	void SetExplorationPlotsDirty() { m_bExplorationPlotsDirty = true; }
+
+	void LogEconomyMessage(const CvString& strMsg);
 
 private:
+
+	CvString GetLogFileName(CvString& playerName) const;
 
 	// DoTurn() sub-functions
 	void DoHurry();
@@ -284,6 +288,7 @@ private:
 
 	// Cached AI parameters
 	int m_iMinimumSettleFertility;
+	bool m_bExplorationPlotsDirty;
 
 	// used for the log monitor
 	FFastVector<uint> m_auiYields;
