@@ -56,6 +56,12 @@
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CITY_SPECIAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_SPECIAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_SMALL_CITY_ATTACK_FORCE"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
@@ -115,6 +121,12 @@
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_GENERAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CITY_SPECIAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_SPECIAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_BASIC_CITY_ATTACK_FORCE"/>
@@ -183,6 +195,12 @@
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_GENERAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CITY_SPECIAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_SPECIAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_BIGGER_CITY_ATTACK_FORCE"/>
@@ -260,6 +278,12 @@
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BIGGER_CITY_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CITY_SPECIAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_SPECIAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_CITY_STATE_ATTACK_FORCE"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
@@ -321,7 +345,12 @@
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
-
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CITY_SPECIAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_SPECIAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
 		<!-- By default, this formation could allow for slow movers... which kind of kills the "fast" part of "fast pillagers" -->
 		<Delete MultiUnitFormationType="MUFORMATION_FAST_PILLAGERS"/>
 		<Row>

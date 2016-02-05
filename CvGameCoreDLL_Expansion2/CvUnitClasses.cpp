@@ -158,6 +158,9 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_paeGreatPersonEra(NULL),
 #endif
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	m_iNumberStackingUnits(0),
+#endif
 	m_bUnitArtInfoEraVariation(false),
 	m_bUnitArtInfoCulturalVariation(false),
 	m_iUnitFlagIconOffset(0),
@@ -309,6 +312,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_strUnitArtInfoTag = kResults.GetText("UnitArtInfo");
 	m_bUnitArtInfoCulturalVariation = kResults.GetBool("UnitArtInfoCulturalVariation");
 	m_bUnitArtInfoEraVariation = kResults.GetBool("UnitArtInfoEraVariation");
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	m_iNumberStackingUnits = kResults.GetInt("NumberStackingUnits");
+#endif
 
 	//References
 	const char* szTextVal = NULL;
@@ -1154,6 +1161,14 @@ void CvUnitEntry::SetCommandType(int iNewType)
 {
 	m_iCommandType = iNewType;
 }
+
+/// Set unit's ability to stack with another combat unit
+#if defined(MOD_GLOBAL_STACKING_RULES)
+int CvUnitEntry::GetNumberStackingUnits() const
+{
+	return m_iNumberStackingUnits;
+}
+#endif
 
 // ARRAYS
 

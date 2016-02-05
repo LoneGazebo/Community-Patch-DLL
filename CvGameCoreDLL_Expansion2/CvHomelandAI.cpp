@@ -2549,7 +2549,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			if(pUnit->IsGreatGeneral())
+			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackOnly())
 #else
 			if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL)
 #endif
@@ -5035,7 +5035,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && !pUnit->IsCityAttackOnly())
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
@@ -5099,13 +5099,13 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->IsCityAttackOnly() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())))
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
 			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if (pLoopUnit != NULL && pLoopUnit->IsGreatGeneral())
+				if (pLoopUnit != NULL && (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsCityAttackOnly()))
 				{
 					iTotalGenerals++;
 				}

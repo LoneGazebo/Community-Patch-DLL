@@ -929,6 +929,14 @@ void CvPlayerAI::ProcessGreatPeople(void)
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopUnit->IsCityAttackOnly())
+		{
+			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
+			continue;
+		}
+		else
+#endif
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
 		{
 			continue;

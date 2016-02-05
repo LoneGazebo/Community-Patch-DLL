@@ -1655,20 +1655,7 @@ if civ5_mode then
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-			-- CBP
-			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
-			if (iGAPReligion > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
-			end
-			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-			if (iGAPTrait > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
-			end
-			local iGAPCities = g_activePlayer:GetGAPFromCities();
-			if (iGAPCities > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
-			end
-			-- END
+			
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( Locale.ToUpper"TXT_KEY_UNIQUE_GOLDEN_AGE_ANNOUNCE" )
@@ -1689,7 +1676,20 @@ if civ5_mode then
 					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
 				end
 			end
-
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+			end
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			if (iGAPTrait > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+			end
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			if (iGAPCities > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+			end
+			-- END
 			if g_isBasicHelp then
 				tips:insert( "" )
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then

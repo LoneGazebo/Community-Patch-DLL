@@ -492,7 +492,11 @@ void CvBarbarians::DoCamps()
 
 			if(!pLoopPlot->isWater())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(!pLoopPlot->isVisibleToCivTeam(true))
+#else
 				if(!pLoopPlot->isVisibleToCivTeam())
+#endif
 				{
 					iNumNotVisiblePlots++;
 				}

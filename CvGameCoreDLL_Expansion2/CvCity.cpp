@@ -14420,15 +14420,11 @@ bool CvCity::DoRazingTurn()
 			{
 				return false;
 			}
-			//Not at war? No partisans!
-			if(!GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
-			{
-				return false;
-			}
+
 			// In hundreds
 			CvGame& theGame = GC.getGame();
-			int iNumRebels = (getPopulation() * 7); //Based on city size.
-			int iExtraRoll = (theGame.getCurrentEra() * 7 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			int iNumRebels = (getPopulation() * 8); //Based on city size.
+			int iExtraRoll = (theGame.getCurrentEra() * 8 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
 			iNumRebels += theGame.getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
@@ -14501,106 +14497,232 @@ bool CvCity::DoRazingTurn()
 					iBestPlot = iPlotLoop;
 				}
 			}
-
-			// Found valid plot
-			if(iBestPlot != -1)
+			//Not at war? Barb partisans!
+			if(GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
 			{
-				pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
+				// Found valid plot
+				if(iBestPlot != -1)
+				{
+					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
-				// Pick a unit type - should give us more melee than ranged
-				UnitTypes eUnit = NO_UNIT;
-				if(isCoastal())
-				{
-					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
-				}
-				else
-				{
-					eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-				}
-				UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-				if(eUnit == NO_UNIT || emUnit == NO_UNIT)
-				{
-					return false;
-				}
-				// Init unit
-				GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-				// Loop until all rebels are placed
-				do
-				{
-					iNumRebels--;
-
-					// Init unit
-					CvUnit* pmUnit = GET_PLAYER(eFormerOwner).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pmUnit);
-					if (pmUnit)
+					// Pick a unit type - should give us more melee than ranged
+					UnitTypes eUnit = NO_UNIT;
+					if(isCoastal())
 					{
-						if (!pmUnit->jumpToNearestValidPlotWithinRange(4))
+						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
+					}
+					else
+					{
+						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
+					}
+					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
+					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
+					{
+						return false;
+					}
+					// Init unit
+					CvUnit* pFirstUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+					CvAssert(pFirstUnit);
+					if (pFirstUnit)
+					{
+						if (!pFirstUnit->jumpToNearestValidPlotWithinRange(5))
 						{
-							pmUnit->kill(false);		// Could not find a spot!
+							pFirstUnit->kill(false);		// Could not find a spot!
 						}
 						else
 						{
 							bNotification = true;
-							pmUnit->setMoves(1);
-							pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							pFirstUnit->setMoves(1);
+							pFirstUnit->setDamage(theGame.getJonRandNum(60, "damage"));
 						}
 					}
+					iNumRebels--;	// Reduce the count since we just added the seed rebel
 
-					iNumRebels--;
-
-					// Init unit
-					CvUnit* pUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pUnit);
-					if (pUnit)
+					// Loop until all rebels are placed
+					do
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(4))
+						iNumRebels--;
+
+						// Init unit
+						CvUnit* pmUnit = GET_PLAYER(eFormerOwner).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+						CvAssert(pmUnit);
+						if (pmUnit)
 						{
-							pUnit->kill(false);		// Could not find a spot!
+							if (!pmUnit->jumpToNearestValidPlotWithinRange(5))
+							{
+								pmUnit->kill(false);		// Could not find a spot!
+							}
+							else
+							{
+								bNotification = true;
+								pmUnit->setMoves(1);
+								pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							}
 						}
-						else
+
+						iNumRebels--;
+
+						// Init unit
+						CvUnit* pUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+						CvAssert(pUnit);
+						if (pUnit)
 						{
-							bNotification = true;
-							pUnit->setMoves(1);
-							pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+							{
+								pUnit->kill(false);		// Could not find a spot!
+							}
+							else
+							{
+								bNotification = true;
+								pUnit->setMoves(1);
+								pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							}
 						}
+					}
+					while(iNumRebels > 0);
+				}
+				if(bNotification)
+				{
+					if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
+					{
+						CvTemporaryZone zone;
+						zone.SetX(getX());
+						zone.SetY(getY());
+						zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+						GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(zone);
+					}
+					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+					if(pNotifications)
+					{
+						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+
+						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+						pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					}
+					CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
+					if(pNotifications2)
+					{
+						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+
+						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+						pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					}
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iStatic);
+						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				while(iNumRebels > 0);
 			}
-			if(bNotification)
+			else
 			{
-				if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
+				// Found valid plot
+				if(iBestPlot != -1)
 				{
-					CvTemporaryZone zone;
-					zone.SetX(getX());
-					zone.SetY(getY());
-					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-					GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(zone);
-				}
-				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-				if(pNotifications)
-				{
-					Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
-					Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
-					pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-				}
-				CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
-				if(pNotifications2)
-				{
-					Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+					// Pick a unit type - should give us more melee than ranged
+					UnitTypes eUnit = NO_UNIT;
+					if(isCoastal())
+					{
+						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
+					}
+					else
+					{
+						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
+					}
+					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
+					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
+					{
+						return false;
+					}
+					// Init unit
+					CvUnit* pFirstUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+					CvAssert(pFirstUnit);
+					if (pFirstUnit)
+					{
+						if (!pFirstUnit->jumpToNearestValidPlotWithinRange(5))
+						{
+							pFirstUnit->kill(false);		// Could not find a spot!
+						}
+						else
+						{
+							bNotification = true;
+							pFirstUnit->setMoves(1);
+							pFirstUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+						}
+					}
+					iNumRebels--;	// Reduce the count since we just added the seed rebel
 
-					Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
-					pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					// Loop until all rebels are placed
+					do
+					{
+						iNumRebels--;
+
+						// Init unit
+						CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+						CvAssert(pmUnit);
+						if (pmUnit)
+						{
+							if (!pmUnit->jumpToNearestValidPlotWithinRange(5))
+							{
+								pmUnit->kill(false);		// Could not find a spot!
+							}
+							else
+							{
+								bNotification = true;
+								pmUnit->setMoves(1);
+								pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							}
+						}
+
+						iNumRebels--;
+
+						// Init unit
+						CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+						CvAssert(pUnit);
+						if (pUnit)
+						{
+							if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+							{
+								pUnit->kill(false);		// Could not find a spot!
+							}
+							else
+							{
+								bNotification = true;
+								pUnit->setMoves(1);
+								pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							}
+						}
+					}
+					while(iNumRebels > 0);
 				}
-				if(GC.getLogging() && GC.getAILogging())
+				if(bNotification)
 				{
-					CvString strLogString;
-					strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iStatic);
-					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+					if(pNotifications)
+					{
+						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+
+						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+						pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					}
+					CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
+					if(pNotifications2)
+					{
+						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+
+						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+						pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					}
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iStatic);
+						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}
@@ -20144,6 +20266,18 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	}
 
 	GET_PLAYER(getOwner()).AddAPlot(pPlot);
+#if defined(MOD_BALANCE_CORE)
+	if(pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isHuman())
+	{
+		CvNotifications* pNotifications = GET_PLAYER(pPlot->getOwner()).GetNotifications();
+		if(pNotifications)
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+		}
+	}
+#endif
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 
 	DoUpdateCheapestPlotInfluence();

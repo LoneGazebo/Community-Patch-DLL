@@ -1281,6 +1281,11 @@ enum GameOptionTypes
 // ---------------
 #endif
 
+#if defined(MOD_BARBARIAN_GG_GA_POINTS)
+// Iamblichos
+#define GAMEOPTION_BARB_GG_GA_POINTS	"GAMEOPTION_BARB_GG_GA_POINTS"
+#endif
+
 enum MultiplayerOptionTypes		
 {
 	NO_MPOPTION = -1,

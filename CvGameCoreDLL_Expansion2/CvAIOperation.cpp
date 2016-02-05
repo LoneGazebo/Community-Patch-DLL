@@ -7810,20 +7810,6 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		return false;
 	}
 
-	//Sanity checks
-	if (pLoopUnit->IsCityAttackOnly() && pTargetPlot->getPlotCity() == NULL)
-	{
-		/*
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strMsg;
-			strMsg.Format("Cannot recruit unit %s: No City Attack.", pLoopUnit->getName().GetCString());
-			LogOperationSpecialMessage(strMsg);
-		}
-		*/
-		return false;
-	}
-
 	if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 	{
 		if (bMustNaval && !pLoopUnit->CanEverEmbark())
