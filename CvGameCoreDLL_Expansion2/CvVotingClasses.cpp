@@ -4800,6 +4800,7 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 						if(pkTechInfo->GetEra() < GC.getGame().getCurrentEra())
 						{
 							int iEraDiff = (GC.getGame().getCurrentEra() - pkTechInfo->GetEra());
+							iEraDiff += 1;
 							if(iEraDiff <= 0)
 							{
 								iEraDiff = 1;
@@ -4910,10 +4911,11 @@ int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLea
 
 void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue)
 {
+#if !defined(MOD_BALANCE_CORE)
 	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
 	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
 	if (!bCanContribute) return;
-
+#endif
 	int iMatches = 0;
 	for (ProjectList::iterator it = m_vProjects.begin(); it != m_vProjects.end(); it++)
 	{
@@ -4928,9 +4930,11 @@ void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLe
 
 void CvLeague::ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange)
 {
+#if !defined(MOD_BALANCE_CORE)
 	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
 	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
 	if (!bCanContribute) return;
+#endif
 
 	SetMemberContribution(ePlayer, eLeagueProject, GetMemberContribution(ePlayer, eLeagueProject) + iChange);
 }
@@ -8955,7 +8959,9 @@ void CvGameLeagues::DoLeagueProjectContribution(PlayerTypes ePlayer, LeagueProje
 	int iMatches = 0;
 	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
 	{
+#if !defined(MOD_BALANCE_CORE)
 		if (it->CanMemberContribute(ePlayer, eLeagueProject))
+#endif
 		{
 			iMatches++;
 			it->ChangeMemberContribution(ePlayer, eLeagueProject, iValue);

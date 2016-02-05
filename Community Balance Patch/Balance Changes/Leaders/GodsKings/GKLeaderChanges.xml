@@ -438,7 +438,7 @@
 		<Row>
 			<Type>UNITCLASS_HORSE_ARCHER</Type>
 			<Description>TXT_KEY_UNIT_HUN_HORSE_ARCHER</Description>
-			<DefaultUnit>UNIT_HUN_HORSE_ARCHER</DefaultUnit>
+			<DefaultUnit>UNIT_MONGOLIAN_KESHIK</DefaultUnit>
 		</Row>
 	</UnitClasses>
 	<!-- Mounted Units stronger for Attila -->
@@ -516,7 +516,7 @@
 			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
-	<!-- Hunnic Axman -->
+	<!--
 	<Units>
 		<Row>
 			<Class>UNITCLASS_COMPOSITE_BOWMAN</Class>
@@ -606,4 +606,5 @@
 			<Text>Powerful ranged unit, unique to the Huns. Is much more powerful than the Composite Bowman that it replaces, however it has reduced range. Ignores terrain penalties when moving.</Text>
 		</Row>
 	</Language_en_US>
+	-->
 </GameData>

@@ -1961,6 +1961,11 @@ void CvHomelandAI::PlotUpgradeMoves()
 							iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
 						}
 
+#if defined(MOD_BALANCE_CORE)
+						//Add in experience - we should promote veterans.
+						iPriority += pUnit->getExperience();
+#endif
+
 						unit.SetAuxIntData(iPriority);
 						m_CurrentMoveUnits.push_back(unit);
 					}

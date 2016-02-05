@@ -194,7 +194,7 @@
 			<Class>UNITCLASS_COMPANIONCAVALRY</Class>
 			<Type>UNIT_GREEK_COMPANIONCAVALRY</Type>
 			<PrereqTech>TECH_ARCHERY</PrereqTech>
-			<Combat>14</Combat>
+			<Combat>16</Combat>
 			<Cost>-1</Cost>
 			<Moves>5</Moves>
 			<HurryCostModifier>20</HurryCostModifier>
@@ -287,7 +287,7 @@
 			<Class>UNITCLASS_TERCIO</Class>
 			<Type>UNIT_SPANISH_TERCIO</Type>
 			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-			<Combat>24</Combat>
+			<Combat>26</Combat>
 			<Cost>-1</Cost>
 			<Moves>2</Moves>
 			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
@@ -379,7 +379,7 @@
 			<Type>UNIT_HUN_BATTERING_RAM</Type>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<Combat>14</Combat>
-			<Cost>75</Cost>
+			<Cost>-1</Cost>
 			<MinorCivGift>true</MinorCivGift>
 			<FaithCost>150</FaithCost>
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>

@@ -10968,15 +10968,18 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).isMinorCiv())
+		return;
+
 	//Let's get our imperial center of mass.
 	CvPlot* pOurCenterPlot = NULL;
-	if(GetPlayer()->getNumCities() > 1)
+	if(GetPlayer()->getNumCities() <= 1)
 	{
-		pOurCenterPlot = GetCenterOfMassEmpire(true, true);
+		return;
 	}
 	else
 	{
-		pOurCenterPlot = GetPlayer()->getCapitalCity()->plot();
+		pOurCenterPlot = GetCenterOfMassEmpire(true, true);
 	}
 
 	if(pOurCenterPlot == NULL)
@@ -10992,13 +10995,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 	//and now theirs.
 	CvPlot* pTheirCenterPlot = NULL;
-	if(GET_PLAYER(ePlayer).getNumCities() > 1)
+	if(GET_PLAYER(ePlayer).getNumCities() <= 1)
 	{
-		pTheirCenterPlot = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCenterOfMassEmpire(true, true);
+		return;
 	}
 	else
 	{
-		pTheirCenterPlot = GET_PLAYER(ePlayer).getCapitalCity()->plot();
+		pTheirCenterPlot = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCenterOfMassEmpire(true, true);
 	}
 
 	if(pTheirCenterPlot == NULL)
@@ -11730,17 +11733,169 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 			for(iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
 				eMinor = (PlayerTypes) iMinorCivLoop;
-
+#if !defined(MOD_BALANCE_CORE)
 				// We have a PtP with this minor
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 				{
 					// Player is Allies with this minor
 					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 						iMinorCivDisputeWeight += iPersonalityMod* /*10*/ GC.getMINOR_CIV_DISPUTE_ALLIES_WEIGHT();
+
 					// Player is Friends with this minor
-					else if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+					else if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
 						iMinorCivDisputeWeight += iPersonalityMod* /*5*/ GC.getMINOR_CIV_DISPUTE_FRIENDS_WEIGHT();
 				}
+#endif
+#if defined(MOD_BALANCE_CORE)
+				// We have a PtP with this minor
+				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
+				{
+					// Player is Allies with this minor
+					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+					{
+						iMinorCivDisputeWeight += iPersonalityMod* /*5*/ GC.getMINOR_CIV_DISPUTE_ALLIES_WEIGHT();
+					}
+					// Player is Friends with this minor
+					else if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
+					{
+						iMinorCivDisputeWeight += iPersonalityMod * /*2*/ GC.getMINOR_CIV_DISPUTE_FRIENDS_WEIGHT();
+					}
+					if(iMinorCivDisputeWeight > 0)
+					{
+						//Let's look at influence.
+						int iOurInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetPlayer()->GetID());
+						int iTheirInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
+
+						//Add in our influence.
+						iMinorCivDisputeWeight += (iOurInfluence / 5);
+
+						if(iTheirInfluence > iOurInfluence)
+						{
+							int iInfluenceStart = (iPersonalityMod * /*2*/ GC.getMINOR_CIV_DISPUTE_FRIENDS_WEIGHT());
+							//Are our influences within 20 of each other?
+							if((iTheirInfluence - iOurInfluence) <= 20)
+							{
+								iInfluenceStart *= 35;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 40 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 40) 
+							{
+								iInfluenceStart *= 25;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 60 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 60)
+							{
+								iInfluenceStart *= 15;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 80 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 80)
+							{
+								iInfluenceStart *= 12;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 100 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 100) 
+							{
+								iInfluenceStart *= 9;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 120 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 120)
+							{
+								iInfluenceStart *= 7;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 150 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 150)
+							{
+								iInfluenceStart *= 5;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 200 of each other?
+							else if((iTheirInfluence - iOurInfluence) <= 200)
+							{
+								iInfluenceStart *= 3;
+								iInfluenceStart /= 10;
+							}
+							// We have a PtP with this minor - bump it up a little bit.
+							if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
+							{
+								iInfluenceStart *= 13;
+								iInfluenceStart /= 10;
+							}
+							iMinorCivDisputeWeight += iInfluenceStart;
+						}
+						else if(iOurInfluence > iTheirInfluence )
+						{
+							int iInfluenceStart = (iPersonalityMod * /*2*/ GC.getMINOR_CIV_DISPUTE_ALLIES_WEIGHT());
+
+							//Are our influences within 20 of each other?
+							if((iOurInfluence - iTheirInfluence) <= 20)
+							{
+								iInfluenceStart *= 50;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 40 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 40) 
+							{
+								iInfluenceStart *= 40;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 60 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 60)
+							{
+								iInfluenceStart *= 30;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 80 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 80)
+							{
+								iInfluenceStart *= 20;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 100 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 100) 
+							{
+								iInfluenceStart *= 15;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 120 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 120)
+							{
+								iInfluenceStart *= 12;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 150 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 150)
+							{
+								iInfluenceStart *= 8;
+								iInfluenceStart /= 10;
+							}
+							//Are our influences within 200 of each other?
+							else if((iOurInfluence - iTheirInfluence) <= 200)
+							{
+								iInfluenceStart *= 6;
+								iInfluenceStart /= 10;
+							}
+							// We have a PtP with this minor - bump it up a little bit.
+							if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
+							{
+								iInfluenceStart *= 13;
+								iInfluenceStart /= 10;
+							}
+							iMinorCivDisputeWeight += iInfluenceStart;
+						}
+						//Tied? Ramp it up!
+						else if(iOurInfluence == iTheirInfluence )
+						{
+							iMinorCivDisputeWeight += iOurInfluence;
+						}
+					}
+				}
+#endif
 			}
 
 			// Now See what our new Dispute Level should be

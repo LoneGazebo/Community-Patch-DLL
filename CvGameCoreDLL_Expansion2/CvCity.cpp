@@ -2649,7 +2649,8 @@ void CvCity::doTurn()
 
 		bool bAllowNoProduction = !doCheckProduction();
 #if defined(MOD_BALANCE_CORE)
-		if(isFoodProduction())
+		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumption() * 100);
+		if(isFoodProduction() || getFoodTimes100() <= 0 || iDifference <= 0)
 		{
 			doGrowth();
 		}
@@ -19696,7 +19697,27 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					}
 #endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Let's rule out getting plots for which we lack an adjacent owned plot.
+				bool bNoNeighbor = true;
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)iI));
 
+					if (pAdjacentPlot != NULL)
+					{
+						if(pAdjacentPlot->getOwner() == getOwner())
+						{
+							bNoNeighbor = false;
+							break;
+						}
+					}
+				}
+				if(bNoNeighbor)
+				{
+					continue;
+				}
+#endif
 #if defined(MOD_EVENTS_CITY_BORDERS)
 				// This can be used to implement a 12-mile limit
 				if (MOD_EVENTS_CITY_BORDERS) {

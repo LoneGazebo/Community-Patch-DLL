@@ -1019,12 +1019,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 	//Debt is worth considering.
-	if(pkUnitEntry->GetCombat() > 0)
+	if(pkUnitEntry->GetCombat() > 0 && !pkUnitEntry->IsNoMaintenance())
 	{
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && !pkUnitEntry->IsNoMaintenance())
+		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
+		if(iGPT < 0)
 		{
-			iBonus -= 200;
+			//Every -1 GPT = -10% bonus
+			iBonus += (iGPT * 10);
 		}
 	}
 	
