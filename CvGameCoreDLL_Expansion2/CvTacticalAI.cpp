@@ -394,13 +394,12 @@ void CvTacticalAI::Write(FDataStream& kStream)
 /// Mark all the units that will be under tactical AI control this turn
 void CvTacticalAI::CommandeerUnits()
 {
-	UnitHandle pLoopUnit;
 	int iLoop;
 
 	m_CurrentTurnUnits.clear();
 
 	// Loop through our units
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -408,6 +407,7 @@ void CvTacticalAI::CommandeerUnits()
 		{
 			continue;
 		}
+
 		//make sure there are no stale armies ...
 		int iArmyID = pLoopUnit->getArmyID();
 		if (iArmyID!=-1)
@@ -484,7 +484,7 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// We want ALL the barbarians and air units (that are combat ready)
-		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit.pointer())))
+		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))
 		{
 			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
 			{
@@ -519,7 +519,7 @@ void CvTacticalAI::CommandeerUnits()
 			else
 			{
 				// Non-zero danger value or near enemy, or deploying out of an operation?
-				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()),pLoopUnit.pointer());
+				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()),pLoopUnit);
 				if ((iDanger > 0 || NearVisibleEnemy(pLoopUnit, GetRecruitRange())) ||
 				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 				{
@@ -7889,7 +7889,7 @@ void CvTacticalAI::ExecuteHeals()
 	std::vector<int> killedUnits;
 	for (std::set<int>::iterator it=m_HealingUnits.begin(); it!=m_HealingUnits.end(); ++it)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit( *it );
+		CvUnit* pUnit = m_pPlayer->getUnit( *it );
 		CvPlot* pBetterPlot = NULL;
 		if(pUnit)
 		{
@@ -7897,7 +7897,7 @@ void CvTacticalAI::ExecuteHeals()
 			if (pUnit->getDomainType()==DOMAIN_LAND)
 			{
 				//land unit on land should move away from danger
-				if (m_pPlayer->GetPlotDanger(*pUnit->plot(),pUnit.pointer())>0 && !pUnit->isEmbarked())
+				if (m_pPlayer->GetPlotDanger(*pUnit->plot(),pUnit)>0 && !pUnit->isEmbarked())
 				{
 					//unless we can eliminate the danger!
 					bool bFlee = true;
@@ -7905,7 +7905,7 @@ void CvTacticalAI::ExecuteHeals()
 					if (vAttackers.size()==1)
 					{
 						//try to turn the tables on him
-						if (TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(), vAttackers[0]))
+						if (TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
 						{
 							bFlee = false;
 							if(GC.getLogging() && GC.getAILogging())
@@ -7920,7 +7920,7 @@ void CvTacticalAI::ExecuteHeals()
 
 					if (bFlee)
 					{
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),false);
+						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
 						if (pBetterPlot)
 							ExecuteMoveToPlotIgnoreDanger( pUnit, pBetterPlot );
 					}
@@ -7928,9 +7928,9 @@ void CvTacticalAI::ExecuteHeals()
 				else if (pUnit->isEmbarked())
 				{
 					//need to find land to heal
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit.pointer(),false);
+					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,false);
 					if (!pBetterPlot)
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),false);
+						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
 					if (!pBetterPlot || pBetterPlot==pUnit->plot())
 					{
 						if (pUnit->canHeal(pUnit->plot()))
@@ -7958,12 +7958,12 @@ void CvTacticalAI::ExecuteHeals()
 			}
 			else if (pUnit->getDomainType()==DOMAIN_SEA)
 			{
-				if (m_pPlayer->GetPlotDanger(*pUnit->plot(),pUnit.pointer())>0 || !pUnit->canHeal(pUnit->plot()))
+				if (m_pPlayer->GetPlotDanger(*pUnit->plot(),pUnit)>0 || !pUnit->canHeal(pUnit->plot()))
 				{
 					//find a friendly sea tile
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit.pointer(),true);
+					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,true);
 					if (!pBetterPlot)
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),false);
+						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
 					if (!pBetterPlot || pBetterPlot==pUnit->plot())
 					{
 						if (pUnit->canHeal(pUnit->plot()))
@@ -12950,7 +12950,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 					continue;
 
 				//would it mean embarkation?
-				if (!bAllowEmbark && bIsLandUnit && pAdjacentPlot->isWater())
+				if (!bAllowEmbark && bIsLandUnit && pAdjacentPlot->needsEmbarkation(pUnit))
 					continue;
 
 				//check territory on request
@@ -13263,7 +13263,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	CvWeightedVector<CvPlot*, 8, true> aDangerList;
 
 	TacticalAIHelpers::ReachablePlotSet eligiblePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pUnit->plot(), eligiblePlots, true, true);
+	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pUnit->plot(), eligiblePlots, true, true, true);
 
 	for (TacticalAIHelpers::ReachablePlotSet::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
@@ -13285,8 +13285,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 
-		bool bWrongDomain = (pUnit->getDomainType() == DOMAIN_LAND) && pPlot->isWater();
-		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
+		bool bWrongDomain = (pUnit->getDomainType() == DOMAIN_LAND) && pPlot->needsEmbarkation(pUnit);
+		bool bWouldEmbark = pPlot->needsEmbarkation(pUnit) && !pUnit->isEmbarked();
 
 		//avoid overflow further down and useful handling for civilians
 		if (iDanger==INT_MAX)
@@ -13370,47 +13370,19 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(const CvUnit* pUnit, bo
 	if (!pUnit)
 		return NULL;
 
-	std::vector<unsigned char> checkedPlots( GC.getMap().numPlots(), 0 );
-
-	std::vector<SPlotWithScore> thisRing( 1, SPlotWithScore(pUnit->plot(),0) );
-	std::vector<SPlotWithScore> nextRing;
+	int aiRingPlots[] = { RING0_PLOTS, RING1_PLOTS, RING2_PLOTS, RING3_PLOTS, RING4_PLOTS, RING5_PLOTS };
 
 	//work outwards in rings
-	for (int iD=0; iD<iMaxDistance; iD++)
+	for (int iRing=0; iRing<min(iMaxDistance,5); iRing++)
 	{
+		std::vector<SPlotWithScore> vCandidates;
+
 		//check all neighbors which haven't been checked before
-		for (std::vector<SPlotWithScore>::iterator it = thisRing.begin(); it!=thisRing.end(); ++it)
+		for (int iI=aiRingPlots[iRing]; iI<aiRingPlots[iRing+1]; iI++)
 		{
-			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(it->pPlot);
-			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-			{
-				CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-				if (!pAdjacentPlot)
-					continue;
-
-				//see if we've seen this plot before
-				if ( checkedPlots[ GC.getMap().plotNum(pAdjacentPlot->getX(),pAdjacentPlot->getY()) ] != 0 )
-					continue;
-
-				//new candidate: remember it
-				nextRing.push_back( SPlotWithScore( pAdjacentPlot, GET_PLAYER(pUnit->getOwner()).GetCityDistance(pAdjacentPlot) ) );
-
-				//and mark it
-				checkedPlots[ GC.getMap().plotNum(pAdjacentPlot->getX(),pAdjacentPlot->getY()) ] = 1;
-			}
-		}
-
-		//search exhausted?
-		if (nextRing.empty())
-			break;
-
-		//start with the plot that is closest to one of our cities
-		std::stable_sort( nextRing.begin(), nextRing.end() );
-
-		//see if one candidate from this ring is good
-		for (std::vector<SPlotWithScore>::iterator it = nextRing.begin(); it!=nextRing.end(); ++it)
-		{
-			CvPlot* pPlot = it->pPlot;
+			CvPlot* pPlot = iterateRingPlots(pUnit->getX(),pUnit->getY(),iI);
+			if (!pPlot)
+				continue;
 
 			//can we go there?
 			if (!pUnit->canEnterTerrain(*pPlot))
@@ -13429,16 +13401,22 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(const CvUnit* pUnit, bo
 
 			if (pPlot->GetNumCombatUnits()>0)
 				continue;
+
 			if ( GET_PLAYER( pUnit->getOwner() ).GetPlotDanger(*pPlot,pUnit) > 0)
 				continue;
 
-			if (pUnit->GeneratePath(pPlot))
-				return pPlot;
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistance(pPlot);
+			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 
-		//prepare for next iteration
-		thisRing = nextRing;
-		nextRing.clear();
+		//start with the plot that is closest to one of our cities
+		std::stable_sort( vCandidates.begin(), vCandidates.end() );
+
+		for (size_t iI=0; iI<vCandidates.size(); iI++)
+		{
+			if (pUnit->GeneratePath( vCandidates[iI].pPlot ))
+				return vCandidates[iI].pPlot;
+		}
 	}
 
 	return NULL;

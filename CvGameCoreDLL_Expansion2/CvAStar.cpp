@@ -1160,30 +1160,30 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 
 	//if we would have to start a new turn
 	int iBaseMoves = iBaseMovesInNewDomain;
+	int iMaxMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
+
 	if (iStartMoves==0)
 	{
 		// inconspicuous but important
 		iTurns++;
-
-		iStartMoves = iBaseMovesInNewDomain * GC.getMOVE_DENOMINATOR();
 
 		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
 		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
 		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
 		//to all moves, not only turn start moves, favors embarking on turn start, so we don't do it
 		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-		{
-			iBaseMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
-			iStartMoves = iBaseMoves * GC.getMOVE_DENOMINATOR();
-		}
+			iBaseMoves = iMaxMoves;
+
+		//hand out new moves
+		iStartMoves = iBaseMoves*GC.getMOVE_DENOMINATOR();
 	}
 
 	// do not pass in the remaining moves, we want to see the true cost!
 	int iMovementCost = 0;
 	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iBaseMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iBaseMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
 
 	// Is the cost greater than our max?
 	int iMovesLeft = iStartMoves - iMovementCost;

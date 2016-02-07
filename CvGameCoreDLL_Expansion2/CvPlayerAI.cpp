@@ -937,7 +937,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		}
 		else
 #endif
-		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
+		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson || pLoopUnit->getArmyID()!=-1)
 		{
 			continue;
 		}
