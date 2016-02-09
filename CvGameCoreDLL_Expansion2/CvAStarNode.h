@@ -84,45 +84,14 @@ struct CvPathNodeCacheData
 class CvAStarNode
 {
 public:
-	CvAStarNode()
-	{
-		m_iX = -1;
-		m_iY = -1;
-		m_iTotalCost = 0;
-		m_iKnownCost = 0;
-		m_iHeuristicCost = 0;
-		m_iMoves = 0;
-		m_iTurns = 0;
+	CvAStarNode();
+	void clear();
 
-		m_bOnStack = false;
+	void setPrev(CvAStarNode* p);
+	void setNext(CvAStarNode* p);
 
-		m_eCvAStarListType = NO_CVASTARLIST;
-
-		m_pParent = NULL;
-		m_pNext = NULL;
-		m_pPrev = NULL;
-		m_pStack = NULL;
-	}
-
-	void clear()
-	{
-		m_iTotalCost = 0;
-		m_iKnownCost = 0;
-		m_iHeuristicCost = 0;
-		m_iMoves = 0;
-		m_iTurns = 0;
-
-		m_pParent = NULL;
-		m_pNext = NULL;
-		m_pPrev = NULL;
-		m_eCvAStarListType = NO_CVASTARLIST;
-
-		m_pStack = NULL;
-		m_bOnStack = false;
-
-		m_apChildren.clear();
-		m_kCostCacheData.clear();
-	}
+	CvAStarNode* getPrev() const;
+	CvAStarNode* getNext() const;
 
 	short m_iX, m_iY;	  // Coordinate position - persistent
 
@@ -134,8 +103,6 @@ public:
 	int m_iTurns;		//unit-specific, how many turns does it take to get here. if no unit given: equal to number of plots in path up to here
 
 	CvAStarNode* m_pParent;					// Parent in current path
-	CvAStarNode* m_pNext;					// For Open and Closed lists
-	CvAStarNode* m_pPrev;					// For Open and Closed lists
 	CvAStarListType m_eCvAStarListType;
 
 	CvAStarNode* m_pStack;					// For Push/Pop Stack
@@ -148,6 +115,10 @@ public:
 	CvAStarNode** m_apNeighbors;
 
 	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
+
+protected:
+	CvAStarNode* m_pNext;					// For Open and Closed lists
+	CvAStarNode* m_pPrev;					// For Open and Closed lists
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -393,6 +393,9 @@
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
 			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
+			<Text>Cannot add to non-surrendering party in Peace Deal</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
 			<Text>A diplomatic situation prevents war.</Text>
@@ -3319,6 +3322,51 @@
 		</Row>
 		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
+		</Row>
+		
+		<!-- Warmonger Strings-->
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_HEADER">
+			<Text>Repercussions from [COLOR_NEGATIVE_TEXT]conquering[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_HEADER">
+			<Text>Bonuses from [COLOR_POSITIVE_TEXT]liberating[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be greatly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be somewhat upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be very grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be a little grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
 		</Row>
 		
 		<!--AI Return Unit Text -->

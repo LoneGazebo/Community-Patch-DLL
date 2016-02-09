@@ -219,6 +219,10 @@ UPDATE Language_en_US
 SET Text = 'Each civilization in Civilization V has one or more special "national units." These units are unique to that civilization, and they are in some way superior to the standard version of that unit. The American civilization, for example, has a Minuteman unit, which is superior to the standard Musketman available to other civs. The Greek civ has the Hoplite unit, which replaces the Spearman.[NEWLINE][NEWLINE]See each civilization''s Civilopedia entry to discover its special unit.'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'If another civ has captured a City-State and you capture it from them, you have the option to "liberate" that city-state. If you do so, you will receive a large amount of [ICON_INFLUENCE] Influence from the City-State, usually enough to make you [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with it.'
+WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 UPDATE Concepts
 SET InsertAfter = 'CONCEPT_SOCIAL_POLICY_GAINING'
 WHERE Type = 'CONCEPT_SOCIAL_POLICY_BRANCH_IDEOLOGY';

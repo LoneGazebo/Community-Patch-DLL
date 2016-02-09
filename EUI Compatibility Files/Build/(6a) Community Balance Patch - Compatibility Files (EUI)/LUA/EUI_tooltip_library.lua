@@ -2216,82 +2216,6 @@ local function GetCultureTooltip( city )
 	return tips:concat( "[NEWLINE]" )
 end
 
---------
--- FAITH
---------
-local function GetFaithTooltip( city )
-
-	if g_isReligionEnabled then
-		local tips = table()
-
-		if civBE_mode or not OptionsManager.IsNoBasicHelp() then
-			tips:insertLocalized( "TXT_KEY_FAITH_HELP_INFO" )
-			tips:insert( "" )
-		end
-
-		-- Faith from Buildings
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_BUILDINGS", city:GetFaithPerTurnFromBuildings() )
-
-		-- Faith from Traits
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", city:GetFaithPerTurnFromTraits() )
-
-		-- Faith from Terrain
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TERRAIN", city:GetBaseYieldRateFromTerrain( YieldTypes.YIELD_FAITH ) )
-
-		-- Faith from Policies
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POLICIES", city:GetFaithPerTurnFromPolicies() )
-
-		-- Faith from Religion
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
-
--- CBP
-		-- Faith from Pop
-		local iYieldPerPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPop ~= 0) then
-			iYieldPerPop = iYieldPerPop * city:GetPopulation();
-			iYieldPerPop = iYieldPerPop / 100;
-		end
-
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POP", iYieldPerPop)
-
-		-- Faith from Specialists
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
-		
-		-- Faith from Traits (EDITED BY CBP)
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", (city:GetFaithPerTurnFromTraits() + city:GetYieldPerTurnFromTraits( YieldTypes.YIELD_FAITH )))
-
-		-- Yield Increase from Piety
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))
-	
-		-- Yield Increase from CS Alliance
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
-	
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
-				
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
-	
-		-- Yield from Great Works
-		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))
-
--- END CBP
--- CBP -- Resource Monopoly
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
--- END
-		-- Puppet modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
-
-		-- Citizens breakdown
-		tips:insert( "----------------")
-		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", city:GetFaithPerTurn(), "[ICON_PEACE]" )
-		tips:insert( "" )
-		tips:insert( GetReligionTooltip( city ) )
-
-		return tips:concat( "[NEWLINE]" )
-	else
-		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
-	end
-end
-
 -- TOURISM
 local function GetTourismTooltip(city)
 	return city:GetTourismTooltip()
@@ -3114,7 +3038,76 @@ local function GetReligionTooltip(city)
 	end
 end
 
+--------
+-- FAITH
+--------
+local function GetFaithTooltip( city )
 
+	if g_isReligionEnabled then
+		local tips = table()
+
+		if civBE_mode or not OptionsManager.IsNoBasicHelp() then
+			tips:insertLocalized( "TXT_KEY_FAITH_HELP_INFO" )
+			tips:insert( "" )
+		end
+
+		-- Faith from Buildings
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_BUILDINGS", city:GetFaithPerTurnFromBuildings() )
+
+		-- Faith from Terrain
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TERRAIN", city:GetBaseYieldRateFromTerrain( YieldTypes.YIELD_FAITH ) )
+
+		-- Faith from Policies
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POLICIES", city:GetFaithPerTurnFromPolicies() )
+
+		-- Faith from Religion
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
+
+-- CBP
+		-- Faith from Pop
+		local iYieldPerPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
+		if (iYieldPerPop ~= 0) then
+			iYieldPerPop = iYieldPerPop * city:GetPopulation();
+			iYieldPerPop = iYieldPerPop / 100;
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POP", iYieldPerPop)
+		end
+
+		-- Faith from Specialists
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
+		
+		-- Faith from Traits (EDITED BY CBP)
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", (city:GetFaithPerTurnFromTraits() + city:GetYieldPerTurnFromTraits( YieldTypes.YIELD_FAITH )))
+
+		-- Yield Increase from Piety
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))
+	
+		-- Yield Increase from CS Alliance
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
+	
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
+				
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
+	
+		-- Yield from Great Works
+		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
+-- END
+
+		-- Puppet modifier
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+
+		-- Citizens breakdown
+		tips:insert( "----------------")
+		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", city:GetFaithPerTurn(), "[ICON_PEACE]" )
+		tips:insert( "" )
+		tips:insert( GetReligionTooltip( city ) )
+
+		return tips:concat( "[NEWLINE]" )
+	else
+		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
+	end
+end
 -------------------------------------------------
 -- Expose functions
 -------------------------------------------------
@@ -3139,12 +3132,12 @@ function TT.GetEnergyTooltip( ... ) return select(2, pcall( GetEnergyTooltip, ..
 function TT.GetScienceTooltip( ... ) return select(2, pcall( GetScienceTooltip, ... ) ) end
 function TT.GetProductionTooltip( ... ) return select(2, pcall( GetProductionTooltip, ... ) ) end
 function TT.GetCultureTooltip( ... ) return select(2, pcall( GetCultureTooltip, ... ) ) end
+function TT.GetReligionTooltip( ... ) return select(2, pcall( GetReligionTooltip, ... ) ) end
 function TT.GetFaithTooltip( ... ) return select(2, pcall( GetFaithTooltip, ... ) ) end
 function TT.GetTourismTooltip( ... ) return select(2, pcall( GetTourismTooltip, ... ) ) end
 function TT.GetYieldTooltipHelper( ... ) return select(2, pcall( GetYieldTooltipHelper, ... ) ) end
 function TT.GetYieldTooltip( ... ) return select(2, pcall( GetYieldTooltip, ... ) ) end
 function TT.GetMoodInfo( ... ) return select(2, pcall( GetMoodInfo, ... ) ) end
-function TT.GetReligionTooltip( ... ) return select(2, pcall( GetReligionTooltip, ... ) ) end
 --CBP
 function TT.GetCityHappinessTooltip( ... ) return select(2, pcall( GetCityHappinessTooltip, ... ) ) end
 --END

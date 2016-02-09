@@ -249,7 +249,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	{
 		while(m_pOpen)
 		{
-			temp = m_pOpen->m_pNext;
+			temp = m_pOpen->getNext();
 			m_pOpen->clear();
 			m_pOpen = temp;
 		}
@@ -259,7 +259,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	{
 		while(m_pClosed)
 		{
-			temp = m_pClosed->m_pNext;
+			temp = m_pClosed->getNext();
 			m_pClosed->clear();
 			m_pClosed = temp;
 		}
@@ -370,10 +370,10 @@ CvAStarNode* CvAStar::GetBest()
 
 	temp = m_pOpen;
 
-	m_pOpen = temp->m_pNext;
+	m_pOpen = temp->getNext();
 	if(m_pOpen != NULL)
 	{
-		m_pOpen->m_pPrev = NULL;
+		m_pOpen->setPrev(NULL);
 	}
 	else
 	{
@@ -384,10 +384,10 @@ CvAStarNode* CvAStar::GetBest()
 
 	temp->m_eCvAStarListType = CVASTARLIST_CLOSED;
 
-	temp->m_pNext = m_pClosed;
+	temp->setNext(m_pClosed);
 	if(m_pClosed != NULL)
 	{
-		m_pClosed->m_pPrev = temp;
+		m_pClosed->setPrev(temp);
 	}
 	m_pClosed = temp;
 
@@ -627,8 +627,8 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 	{
 		m_pOpen = addnode;
 		m_pOpenTail = addnode;
-		m_pOpen->m_pNext = NULL;
-		m_pOpen->m_pPrev = NULL;
+		m_pOpen->setNext(NULL);
+		m_pOpen->setPrev(NULL);
 
 		udFunc(udNotifyList, NULL, addnode, ASNL_STARTOPEN, m_sData);
 
@@ -637,19 +637,19 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 
 	if(addnode->m_iTotalCost <= m_pOpen->m_iTotalCost)
 	{
-		addnode->m_pNext = m_pOpen;
-		m_pOpen->m_pPrev = addnode;
+		addnode->setNext(m_pOpen);
+		m_pOpen->setPrev(addnode);
 		m_pOpen = addnode;
 
-		udFunc(udNotifyList, m_pOpen->m_pNext, m_pOpen, ASNL_STARTOPEN, m_sData);
+		udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
 	}
 	else if(addnode->m_iTotalCost >= m_pOpenTail->m_iTotalCost)
 	{
-		addnode->m_pPrev = m_pOpenTail;
-		m_pOpenTail->m_pNext = addnode;
+		addnode->setPrev(m_pOpenTail);
+		m_pOpenTail->setNext(addnode);
 		m_pOpenTail = addnode;
 
-		udFunc(udNotifyList, addnode->m_pPrev, addnode, ASNL_ADDOPEN, m_sData);
+		udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
 	}
 	else if(abs(addnode->m_iTotalCost-m_pOpenTail->m_iTotalCost) < abs(addnode->m_iTotalCost-m_pOpen->m_iTotalCost))  //(addnode->m_iTotalCost > m_iOpenListAverage) // let's start at the end and work forwards
 	{
@@ -661,31 +661,35 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		{
 			if(addnode->m_iTotalCost < node->m_iTotalCost)
 			{
+				//should not happen ...
+				if (node == node->getPrev())
+					break;
+
 				next = node;
-				node = node->m_pPrev;
+				node = node->getPrev();
 			}
 			else
 			{
 				if(next)
 				{
-					next->m_pPrev = addnode;
-					addnode->m_pNext = next;
-					addnode->m_pPrev = node;
-					node->m_pNext = addnode;
-					if(node->m_pNext == NULL)
+					next->setPrev(addnode);
+					addnode->setNext(next);
+					addnode->setPrev(node);
+					node->setNext(addnode);
+					if(node->getNext() == NULL)
 					{
 						m_pOpenTail = node;
 					}
 
-					udFunc(udNotifyList, addnode->m_pPrev, addnode, ASNL_ADDOPEN, m_sData);
+					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
 				}
 				else // we should just add it to the end of the list
 				{
-					addnode->m_pPrev = m_pOpenTail;
-					m_pOpenTail->m_pNext = addnode;
+					addnode->setPrev(m_pOpenTail);
+					m_pOpenTail->setNext(addnode);
 					m_pOpenTail = addnode;
 
-					udFunc(udNotifyList, addnode->m_pPrev, addnode, ASNL_ADDOPEN, m_sData);
+					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
 				}
 
 				return;
@@ -695,11 +699,11 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		// we made it to the start of this list - insert it at the beginning - we shouldn't ever get here, but...
 		if (next)
 		{
-			next->m_pPrev = addnode;
-			addnode->m_pNext = next;
+			next->setPrev(addnode);
+			addnode->setNext(next);
 			m_pOpen = addnode;
 
-			udFunc(udNotifyList, m_pOpen->m_pNext, m_pOpen, ASNL_STARTOPEN, m_sData);
+			udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
 		}
 	}
 	else // let's start at the beginning as it should be closer
@@ -712,18 +716,22 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		{
 			if(addnode->m_iTotalCost > node->m_iTotalCost)
 			{
+				//should not happen ...
+				if (node == node->getNext())
+					break;
+
 				prev = node;
-				node = node->m_pNext;
+				node = node->getNext();
 			}
 			else
 			{
 				if(prev)
 				{
-					prev->m_pNext = addnode;
-					addnode->m_pPrev = prev;
-					addnode->m_pNext = node;
-					node->m_pPrev = addnode;
-					if(node->m_pNext == NULL)
+					prev->setNext(addnode);
+					addnode->setPrev(prev);
+					addnode->setNext(node);
+					node->setPrev(addnode);
+					if(node->getNext() == NULL)
 					{
 						m_pOpenTail = node;
 					}
@@ -732,11 +740,11 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 				}
 				else
 				{
-					addnode->m_pNext = m_pOpen;
-					m_pOpen->m_pPrev = addnode;
+					addnode->setNext(m_pOpen);
+					m_pOpen->setPrev(addnode);
 					m_pOpen = addnode;
 
-					udFunc(udNotifyList, m_pOpen->m_pNext, m_pOpen, ASNL_STARTOPEN, m_sData);
+					udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
 				}
 
 				return;
@@ -744,8 +752,8 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		}
 
 		// we made it to the end of this list - insert it at the end - we shouldn't ever get here, but...
-		prev->m_pNext = addnode;
-		addnode->m_pPrev = prev;
+		prev->setNext(addnode);
+		addnode->setPrev(prev);
 		m_pOpenTail = addnode;
 
 		udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
@@ -760,42 +768,42 @@ void CvAStar::UpdateOpenNode(CvAStarNode* node)
 
 	FAssert(node->m_eCvAStarListType == CVASTARLIST_OPEN);
 
-	if((node->m_pPrev != NULL) && (node->m_iTotalCost < node->m_pPrev->m_iTotalCost))
+	if((node->getPrev() != NULL) && (node->m_iTotalCost < node->getPrev()->m_iTotalCost))
 	{
 		// have node free float for now
-		node->m_pPrev->m_pNext = node->m_pNext;
-		if(node->m_pNext)
+		node->getPrev()->setNext(node->getNext());
+		if(node->getNext())
 		{
-			node->m_pNext->m_pPrev = node->m_pPrev;
+			node->getNext()->setPrev(node->getPrev());
 		}
 		else
 		{
-			m_pOpenTail = node->m_pPrev;
+			m_pOpenTail = node->getPrev();
 		}
 		// scoot down the list till we find where node goes (without connecting up as we go)
-		temp = node->m_pPrev;
+		temp = node->getPrev();
 		while((temp != NULL) && (node->m_iTotalCost < temp->m_iTotalCost))
 		{
-			temp = temp->m_pPrev;
+			temp = temp->getPrev();
 		}
 		// connect node up
 		if(temp != NULL)
 		{
-			node->m_pNext = temp->m_pNext;
-			node->m_pPrev = temp;
-			if(temp->m_pNext)
+			node->setNext(temp->getNext());
+			node->setPrev(temp);
+			if(temp->getNext())
 			{
-				temp->m_pNext->m_pPrev = node;
+				temp->getNext()->setPrev(node);
 			}
-			temp->m_pNext = node;
+			temp->setNext(node);
 		}
 		else
 		{
-			node->m_pNext = m_pOpen;
-			node->m_pPrev = NULL;
-			if(node->m_pNext)
+			node->setNext(m_pOpen);
+			node->setPrev(NULL);
+			if(node->getNext())
 			{
-				node->m_pNext->m_pPrev = node;
+				node->getNext()->setPrev(node);
 			}
 			m_pOpen = node;
 		}
@@ -1124,7 +1132,7 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, co
 int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
 	//a normal move is 60 times the base cost
-	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*40; 
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*20; 
 }
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a path
@@ -1160,30 +1168,30 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 
 	//if we would have to start a new turn
 	int iBaseMoves = iBaseMovesInNewDomain;
+	int iMaxMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
+
 	if (iStartMoves==0)
 	{
 		// inconspicuous but important
 		iTurns++;
-
-		iStartMoves = iBaseMovesInNewDomain * GC.getMOVE_DENOMINATOR();
 
 		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
 		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
 		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
 		//to all moves, not only turn start moves, favors embarking on turn start, so we don't do it
 		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-		{
-			iBaseMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
-			iStartMoves = iBaseMoves * GC.getMOVE_DENOMINATOR();
-		}
+			iBaseMoves = iMaxMoves;
+
+		//hand out new moves
+		iStartMoves = iBaseMoves*GC.getMOVE_DENOMINATOR();
 	}
 
 	// do not pass in the remaining moves, we want to see the true cost!
 	int iMovementCost = 0;
 	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iBaseMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iBaseMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
 
 	// Is the cost greater than our max?
 	int iMovesLeft = iStartMoves - iMovementCost;
@@ -1881,11 +1889,10 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 			if(pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
 		}
-		if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
-			if(pNewPlot->getOwner() == ePlayer)
-				if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
-					ePlotRoute = ROUTE_ROAD;
+			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+				ePlotRoute = ROUTE_ROAD;
 		}
 	}
 
@@ -2798,14 +2805,14 @@ struct TradePathCacheData
 	bool m_bCanCrossOcean:1;
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
-	bool m_bIsMoveFriendlyWoodsAsRoad:1;
+	bool m_bIsWoodlandMovementBonus:1;
 
 	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
 	inline bool CanCrossOcean() const { return m_bCanCrossOcean; }
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
-	inline bool IsMoveFriendlyWoodsAsRoad() const { return m_bIsMoveFriendlyWoodsAsRoad; }
+	inline bool IsWoodlandMovementBonus() const { return m_bIsWoodlandMovementBonus; }
 };
 
 //	--------------------------------------------------------------------------------
@@ -2825,12 +2832,12 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		if (pPlayerTraits)
 		{
 			pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
-			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+			pCacheData->m_bIsWoodlandMovementBonus = pPlayerTraits->IsWoodlandMovementBonus();
 		}
 		else
 		{
 			pCacheData->m_bIsRiverTradeRoad = false;
-			pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+			pCacheData->m_bIsWoodlandMovementBonus = false;
 		}
 	}
 	else
@@ -2840,7 +2847,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossOcean = false;
 		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
-		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+		pCacheData->m_bIsWoodlandMovementBonus = false;
 	}
 
 }
@@ -2878,7 +2885,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, co
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
 	// Iroquios ability
-	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsMoveFriendlyWoodsAsRoad())
+	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus())
 		iRouteFactor = 2;
 
 	// apply route discount

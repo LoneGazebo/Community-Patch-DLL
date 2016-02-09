@@ -3202,7 +3202,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			if (bDoWarmonger)
 			{
-				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity->isCapital());
+				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity->isCapital(), pOldCity);
 #if defined(MOD_BALANCE_CORE)
 				pOldCity->SetNoWarmonger(false);
 #endif
@@ -4974,14 +4974,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 			if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 			{
 #if defined(MOD_CONFIG_AI_IN_XML)
-				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(ePlayer, pNewCity->isCapital(), pNewCity, GetID());
-				//Sanity check - should be positive!
-				if(iWarmongerOffset < 0)
-				{
-					iWarmongerOffset *= -1;
-				}
-				int iWarmongerModifier = 100;
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset * iWarmongerModifier);
+				int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital(), pNewCity, GetID(), true);
+				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 #else
 				int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
 				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities, GET_PLAYER(ePlayer).isMinorCiv());
@@ -7613,7 +7607,7 @@ void CvPlayer::raze(CvCity* pCity)
 		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
 		if(eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity->IsOriginalMajorCapital());
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity->IsOriginalMajorCapital(), pCity);
 			pCity->SetNoWarmonger(false);
 		}
 	}
@@ -22877,8 +22871,7 @@ void CvPlayer::SetCorporateFranchisesWorldwide(int iChange)
 int CvPlayer::GetMaxFranchises()
 {
 	int iBase = GetTrade()->GetNumTradeRoutesPossible();
-	iBase *= 3;
-	iBase /= 2;
+	iBase *= 2;
 	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
 	iMax /= 100;
 	if(iMax > iBase)
@@ -36091,7 +36084,7 @@ bool CvPlayer::CanCrossOcean() const
 }
 bool CvPlayer::CanCrossMountain() const
 {
-	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsAbleToCrossMountainsWithRoad();
+	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsMountainPass();
 }
 bool CvPlayer::CanCrossIce() const
 {

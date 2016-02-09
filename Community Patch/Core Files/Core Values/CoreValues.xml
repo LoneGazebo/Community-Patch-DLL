@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 6/29/2015 4:25:27 PM -->
 <GameData>
+	<TacticalMoves>
+		<Row>
+			<Type>TACTICAL_PARTHIAN_MOVE</Type>
+			<OffenseFlavorWeight>33</OffenseFlavorWeight>
+			<DefenseFlavorWeight>33</DefenseFlavorWeight>
+			<Priority>20</Priority>
+		</Row>
+	</TacticalMoves>
 	<CitySpecializations>
 		<Delete Type="CITYSPECIALIZATION_GENERAL_ECONOMIC"/>
 		<Row>
