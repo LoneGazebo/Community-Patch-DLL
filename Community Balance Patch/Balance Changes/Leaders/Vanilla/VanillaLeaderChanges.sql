@@ -19,6 +19,10 @@ UPDATE Language_en_US
 SET Text = 'All land military units have +1 sight. 50% discount when purchasing tiles. Can Purchase tiles already owned by other Civilizations, though at a much higher [ICON_GOLD] Gold cost than normal.'
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'The Minuteman is the American unique unit, replacing the Musketman. The Minuteman can move through difficult terrain as though it were clear (all tiles cost 1mp per hex).'
+WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_MINUTEMAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Fixed to make sense with ability.
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You stole their territory![ENDCOLOR]'
@@ -389,7 +393,7 @@ SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the sea
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHIPOFTHELINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate. The Ship of the Line has a slightly lower Ranged Combat strength than the Frigate, and it''s slightly cheaper to produce. It can, however see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean, and it can attack twice in one turn.'
+SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate. The Ship of the Line has a slightly lower Ranged Combat strength than the Frigate. It can, however see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean, and it can attack twice in one turn.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Extra Spies
@@ -537,11 +541,11 @@ SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has a higher [ICON_STRENGTH] Combat and Ranged Strength than the Horse Archer, which it replaces, but a lower Movement speed. Does not require [ICON_RES_HORSE] Horses.'
+SET Text = 'A ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has a higher [ICON_STRENGTH] Combat and Ranged Strength than the Cuirassier, which it replaces, but a lower Movement speed. Does not require [ICON_RES_HORSE] Horses, and is available earlier than the Cuirassier.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Naga-Malla (Fighting Elephant) is the Indian unique unit, replacing the Horse Archer. It is more powerful (if slower) than the Horse Archer and can move through any terrain without penalty. Does not require Horses. A mounted unit, the Naga-Malla is quite vulnerable to the Spearman.'
+SET Text = 'The Naga-Malla (Fighting Elephant) is the Indian unique unit, replacing the Cuirassier. It is more powerful (if slower) than the Cuirassier. Does not require Horses, and is available earlier than the Cuirassier. A mounted unit, the Naga-Malla is quite vulnerable to the Pikeman.'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Iroquois -- All units receive Woodsman promotion
@@ -664,6 +668,10 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
 SELECT 'UNIT_FRENCH_MUSKETEER' , 'PROMOTION_LIGHTNING_WARFARE'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'The Musketeer is the French unique unit, replacing the Musketman. The Musketeer is significantly more powerful than the Musketman, making it one of the most powerful foot soldiers of the Renaissance.'
+WHERE Tag = 'TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Units
 SET ObsoleteTech = 'TECH_REPLACEABLE_PARTS'
 WHERE Type = 'UNIT_FRENCH_MUSKETEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -707,11 +715,14 @@ UPDATE Units
 SET ObsoleteTech = 'TECH_REPLACEABLE_PARTS'
 WHERE Type = 'UNIT_OTTOMAN_JANISSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'The Janissary is an Ottoman unique unit, replacing the Musketman. The Janissary receives a significant combat bonus when on the attack. In addition, the Janissary unit automatically heals 50 damage when it destroys a non-Barbarian unit. This can give a Janissary army a crushing advantage against an enemy force on the defensive.'
+WHERE Tag = 'TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Rome -- Unique Monument (Flavian Amphitheater) -- Receive Culture boost when you conquer a City.
+
 DELETE FROM Units
 WHERE Type = 'UNIT_ROMAN_BALLISTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-
 
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_ROMAN_BALLISTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

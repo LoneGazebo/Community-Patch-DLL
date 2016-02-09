@@ -749,16 +749,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	///WEIGHT
 	//////
 	//Let's reduce the value by turns to build (to keep us from taking dozens of turn on high-value things).
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && pkBuildingInfo->GetGoldMaintenance() > 0)
+	if(pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		if(m_pCity->IsPuppet())
+		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
+		if(iGPT < 0)
 		{
-			iBonus -= (66 * pkBuildingInfo->GetGoldMaintenance());
-		}
-		else
-		{
-			iBonus -= (50 * pkBuildingInfo->GetGoldMaintenance());
+			//Every -1 GPT = -10% bonus
+			iBonus += (iGPT * 10);
 		}
 	}
 	

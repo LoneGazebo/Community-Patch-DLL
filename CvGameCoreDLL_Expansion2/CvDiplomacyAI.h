@@ -844,6 +844,8 @@ public:
 	int GetNumDenouncements();
 	int GetNumDenouncementsOfPlayer();
 	CvPlot* GetCenterOfMassEmpire(bool bIgnorePuppets, bool bIgnoreConquest);
+	void SetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer, int iPlotIndex);
+	int GetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer);
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
@@ -1500,6 +1502,7 @@ private:
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
+		short m_aiPromisePlot[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1806,6 +1809,7 @@ private:
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
 	short* m_paiNumTimesCoopWarDenied;
+	short* m_paiPromisePlot;
 #endif
 	short* m_paiDoFCounter;
 
@@ -1989,9 +1993,10 @@ namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital, CvCity* pCity, PlayerTypes eActivePlayer);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity, PlayerTypes eActivePlayer);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity);
+	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 #else
 	int GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);

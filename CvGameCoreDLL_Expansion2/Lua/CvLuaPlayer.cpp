@@ -1038,7 +1038,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeNumFaithGreatPeople);
 	Method(GetUnitBaktun);
 	Method(IsFreeMayaGreatPersonChoice);
-
+#if defined(MOD_BALANCE_CORE)
+	Method(IsProphetValid);
+#endif
 	Method(GetTraitGoldenAgeCombatModifier);
 	Method(GetTraitCityStateCombatModifier);
 	Method(GetTraitGreatGeneralExtraBonus);
@@ -10686,6 +10688,18 @@ int CvLuaPlayer::lIsFreeMayaGreatPersonChoice(lua_State* L)
 	}
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsProphetValid(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsProphetValid());
+	}
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lHasReceivedNetTurnComplete(lua_State* L)
 {
@@ -13069,8 +13083,10 @@ int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 {
 	const PlayerTypes eOwner = (PlayerTypes) lua_tointeger(L, 2);
 #if defined(MOD_CONFIG_AI_IN_XML)
-	const bool bIsCapital = luaL_optbool(L, 3, false);
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital));
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	const bool bIsCapital = lua_toboolean(L, 4);
+	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 5);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, pkCity, eToPlayer));
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
 #endif
@@ -13081,8 +13097,10 @@ int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 {
 	const PlayerTypes eOriginalOwner = (PlayerTypes) lua_tointeger(L, 2);
 #if defined(MOD_CONFIG_AI_IN_XML)
-	const bool bIsCapital = luaL_optbool(L, 3, false);
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital));
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	const bool bIsCapital = lua_toboolean(L, 4);
+	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 5);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, pkCity, eToPlayer));
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
 #endif

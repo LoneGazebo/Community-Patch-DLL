@@ -24,7 +24,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<AttackFortifiedMod>15</AttackFortifiedMod>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -38,7 +38,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<AttackFortifiedMod>15</AttackFortifiedMod>
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -52,7 +52,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<AttackFortifiedMod>15</AttackFortifiedMod>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -64,7 +64,7 @@
 			<Help>TXT_KEY_PROMOTION_DRILL_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
-			<AttackFortifiedMod>15</AttackFortifiedMod>
+			<FlankAttackModifier>25</FlankAttackModifier>
 			<CityAttack>20</CityAttack>
 			<PortraitIndex>19</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -78,7 +78,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DRILL_1</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
-			<AttackFortifiedMod>15</AttackFortifiedMod>
+			<FlankAttackModifier>25</FlankAttackModifier>
 			<PortraitIndex>20</PortraitIndex>
 			<CityAttack>20</CityAttack>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -92,7 +92,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
-			<AttackFortifiedMod>15</AttackFortifiedMod>
+			<FlankAttackModifier>25</FlankAttackModifier>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>

@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\Downloads\Community-Patch-DLL-fefe (1)\Community-Patch-DLL-fefe\CvGameCoreDLL_Expansion2\CvAStarNode.cpp" />
     <ClCompile Include="CvCityManager.cpp" />
     <ClCompile Include="CvDistanceMap.cpp" />
     <ClCompile Include="CvGreatPersonInfo.cpp" />
@@ -323,6 +324,7 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Downloads\Community-Patch-DLL-fefe (1)\Community-Patch-DLL-fefe\CvGameCoreDLL_Expansion2\CvAStarNode.h" />
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="banned.h" />
     <ClInclude Include="TContainer.h" />

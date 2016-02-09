@@ -6204,11 +6204,36 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					{
 						if(pResourceInfo->getTechCityTrade() == eIndex)
 						{
+								// Appropriate Improvement on this Plot?
+#if defined(MOD_BALANCE_CORE)
+							bool bConnect = false;
+							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							{
+								CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+								if(ImprovementEntry)
+								{
+									if(ImprovementEntry->IsImprovementResourceTrade(eResource))
+									{
+										bConnect = true;
+									}
+									else if(ImprovementEntry->IsCreatedByGreatPerson())
+									{
+										bConnect = true;
+									}
+									else if(ImprovementEntry->IsAdjacentCity())
+									{
+										bConnect = true;
+									}
+								}
+							}
+							if(bConnect)
+							{
+#else
 							if(pLoopPlot->isCity() || pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
-								// Appropriate Improvement on this Plot?
 								if(pLoopPlot->isCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eResource))
 								{
+#endif
 									for(int iI = 0; iI < MAX_PLAYERS; iI++)
 									{
 										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
@@ -6246,7 +6271,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											}
 										}
 									}
+#if !defined(MOD_BALANCE_CORE)
 								}
+#endif
 							}
 						}
 					}

@@ -1312,7 +1312,9 @@ public:
 	int GetUnitBaktun(UnitTypes eUnit) const;
 	void SetUnitBaktun(UnitTypes eUnit);
 	bool IsFreeMayaGreatPersonChoice() const;
-
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+	bool IsProphetValid() const;
+#endif
 	// Serialization
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);

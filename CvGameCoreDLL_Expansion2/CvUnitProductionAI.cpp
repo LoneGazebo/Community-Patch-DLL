@@ -951,28 +951,28 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 33;
+					iBonus += 50;
 				}
 			}
 			if(kPlayer.IsFreePromotion(ePromotion))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 15;
+					iBonus += 20;
 				}
 			}
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 25;
+					iBonus += 50;
 				}
 			}
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 25;
+					iBonus += 33;
 				}
 			}
 		}
@@ -1019,12 +1019,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 	//Debt is worth considering.
-	if(pkUnitEntry->GetCombat() > 0)
+	if(pkUnitEntry->GetCombat() > 0 && !pkUnitEntry->IsNoMaintenance())
 	{
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-		if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney) && !pkUnitEntry->IsNoMaintenance())
+		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
+		if(iGPT < 0)
 		{
-			iBonus -= 200;
+			//Every -1 GPT = -10% bonus
+			iBonus += (iGPT * 10);
 		}
 	}
 	

@@ -163,12 +163,12 @@
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>12</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Belief_YieldChangeTradeRoute>

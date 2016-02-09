@@ -278,6 +278,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumGreatWorks);
 	Method(GetNumGreatWorkSlots);
 	Method(GetBaseTourism);
+#if defined(MOD_BALANCE_CORE)
+	Method(RefreshTourism);
+#endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
 	Method(GetFilledSlotsTooltip);
@@ -485,6 +488,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetSpecialistUpgradeThreshold);
 	Method(GetNumSpecialistsAllowedByBuilding);
 	Method(GetSpecialistCount);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetTotalSpecialistCount);
+#endif
 	Method(GetSpecialistGreatPersonProgress);
 	Method(GetSpecialistGreatPersonProgressTimes100);
 	Method(ChangeSpecialistGreatPersonProgressTimes100);
@@ -2662,6 +2668,15 @@ int CvLuaCity::lGetBaseTourism(lua_State* L)
 #endif
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaCity::lRefreshTourism(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	pkCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	pkCity->GetCityCulture()->CalculateBaseTourism();
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetTourismMultiplier(PlayerTypes ePlayer);
 int CvLuaCity::lGetTourismMultiplier(lua_State* L)
@@ -4160,6 +4175,18 @@ int CvLuaCity::lGetSpecialistCount(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetTotalSpecialistCount();
+int CvLuaCity::lGetTotalSpecialistCount(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->GetCityCitizens()->GetTotalSpecialistCount();
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetSpecialistGreatPersonProgress(SpecialistTypes eIndex);
 int CvLuaCity::lGetSpecialistGreatPersonProgress(lua_State* L)

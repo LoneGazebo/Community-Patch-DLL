@@ -41,7 +41,7 @@ PopulateItems["GreatPeople"] = function(stackControl, playerID)
 
 			local iEarlierBaktun = player:GetUnitBaktun(info.ID);
 -- CBP
-			if(info.ID == GameInfo.Units["UNIT_PROPHET"].ID and not player:HasCreatedReligion()) then
+			if(info.ID == GameInfo.Units["UNIT_PROPHET"].ID and not player:IsProphetValid()) then
 				controlTable.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_INVALID_NO_RELIGION", iEarlierBaktun));
 				controlTable.Button:SetDisabled(true);
 -- CBP

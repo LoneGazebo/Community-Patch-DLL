@@ -757,6 +757,9 @@ enum TacticalAIInfoTypes
 	eMUPOSITION_NAVAL_ESCORT,
 	eMUPOSITION_BOMBARD,
 	eMUPOSITION_FRONT_LINE,
+#if defined(MOD_BALANCE_CORE)
+	eTACTICAL_PARTHIAN_MOVE,
+#endif
 	eNUM_TACTICAL_INFOTYPES
 };
 
@@ -831,6 +834,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsUnitHealing(int iUnitID) const;
 	bool ShouldRebase(CvUnit* pUnit) const;
+	CvCity* GetNearestTargetCity(CvPlot* pPlot);
 #endif
 
 	// Public logging
@@ -891,6 +895,9 @@ private:
 	void PlotEmergencyPurchases();
 	void PlotDefensiveAirlifts();
 	void PlotEscortEmbarkedMoves();
+#if defined(MOD_BALANCE_CORE)
+	void PlotParthianMoves();
+#endif
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions

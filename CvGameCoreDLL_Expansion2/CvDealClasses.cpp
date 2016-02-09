@@ -853,6 +853,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Player that wants Peace hasn't yet met the 3rd Team
 		if(!pToTeam->isHasMet(eThirdTeam))
 			return false;
+
 		// Player that would go to Peace hasn't yet met the 3rd Team
 		if(!pFromTeam->isHasMet(eThirdTeam))
 			return false;
@@ -880,12 +881,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
 						return false;
 
-					// Minor's ally at war with this player?
-					else if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+					// Only matters if this isn't a peace treaty.
+					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
-						// If the ally is us, don't block peace here
-						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
-							return false;
+						// Minor's ally at war with this player?
+						if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+						{
+							// If the ally is us, don't block peace here
+							if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
+								return false;
+						}
 					}
 				}
 
@@ -908,6 +913,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
 						return false;
 				
+					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
 						//Can't force third party peace with a loser. Has to be a sizeable difference

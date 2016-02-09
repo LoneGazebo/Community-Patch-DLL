@@ -4206,6 +4206,23 @@ void CvPlayerTraits::ChooseMayaBoost()
 			}
 		}
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if(MOD_DIPLOMACY_CITYSTATES)
+	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		{
+			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			{
+				eDesiredGreatPerson = ePossibleGreatPerson;
+			}
+		}
+	}
+#endif
 
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -4317,6 +4334,20 @@ void CvPlayerTraits::ChooseMayaBoost()
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
 										}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+										else if(MOD_DIPLOMACY_CITYSTATES)
+										{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+											ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+											if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+											{
+												eDesiredGreatPerson = ePossibleGreatPerson;
+											}
+										}
+#endif
 									}
 								}
 							}
@@ -4379,7 +4410,7 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 		{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 			{
 				return 1;
 			}
@@ -4404,7 +4435,38 @@ void CvPlayerTraits::SetUnitBaktun(UnitTypes eUnit)
 	choice.m_iBaktunJustFinished = m_iBaktun;
 	m_aMayaBonusChoices.push_back(choice);
 }
-
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+/// Have Maya unlocked free choice of Great People?
+bool CvPlayerTraits::IsProphetValid() const
+{
+	//Has religion? Valid.
+	if(m_pPlayer->GetReligions()->HasCreatedReligion())
+	{
+		return true;
+	}
+	//Getting into the upper baktuns? Let's let it happen.
+	if(m_iBaktun > 8)
+	{
+		return true;
+	}
+	//No religion? Let's check pre-medieval.
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	if(m_pPlayer->GetCurrentEra() <= eMedieval)
+	{
+		//Major majority? True.
+		if((m_pPlayer->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (m_pPlayer->GetReligions()->GetReligionInMostCities() > RELIGION_PANTHEON))
+		{
+			return true;
+		}
+	}
+	//Post-medieval? True.
+	else
+	{
+		return true;
+	}
+	return false;
+}
+#endif
 /// Have Maya unlocked free choice of Great People?
 bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 {
@@ -4428,9 +4490,9 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 					{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && m_pPlayer->GetReligions()->HasCreatedReligion(true))
+						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 						{
-							iNumGreatPeopleTypes++;
+							continue;
 						}
 						else
 						{

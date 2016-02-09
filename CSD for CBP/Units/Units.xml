@@ -13,7 +13,6 @@
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_MESSENGER</DefaultUnitAI>
 			<Description>TXT_KEY_UNIT_EMISSARY</Description>
-			<ExtraMaintenanceCost>2</ExtraMaintenanceCost>
 			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_EMISSARY_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_EMISSARY</Help>
@@ -39,7 +38,6 @@
 			<Civilopedia>TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ENVOY_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_ENVOY</Help>
-			<ExtraMaintenanceCost>4</ExtraMaintenanceCost>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
@@ -66,7 +64,6 @@
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
-			<ExtraMaintenanceCost>6</ExtraMaintenanceCost>
 			<BaseGold>1</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_DIPLOMAT</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
@@ -89,7 +86,6 @@
 			<Help>TXT_KEY_UNIT_HELP_AMBASSADOR</Help>
 			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 			<CombatLimit>0</CombatLimit>
-			<ExtraMaintenanceCost>10</ExtraMaintenanceCost>
 			<BaseGold>1</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_AMBASSADOR</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>

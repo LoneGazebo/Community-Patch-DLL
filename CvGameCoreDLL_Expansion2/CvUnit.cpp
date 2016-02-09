@@ -3597,6 +3597,12 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						else if(!GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isHasMet(kCapturingPlayer.getTeam()))
 							bShowingHumanPopup = false;
 
+#if defined(MOD_BALANCE_CORE)
+						// Not human?
+						else if(!GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+							bShowingHumanPopup = false;
+#endif
+
 						// Show the popup
 						if(bShowingHumanPopup && bShowingActivePlayerPopup && pkCapturedUnit)
 						{
@@ -3612,10 +3618,11 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						{
 							// If the unit originally belonged to us, we've already done what we needed to do
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
+							{
 #if defined(MOD_BALANCE_CORE)
 								if(kCaptureDef.eOriginalOwner != NO_PLAYER)
 								{
-									if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+									if(!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 									{
 										kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 									}
@@ -3631,6 +3638,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 #if defined(MOD_BALANCE_CORE)
 								}
+							}
 #endif
 						}
 						// if Venice
@@ -3639,7 +3647,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 							if(kCaptureDef.eOriginalOwner != NO_PLAYER)
 							{
-								if(kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+								if(!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
 								{
 									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 								}
@@ -8671,6 +8679,31 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 
+#if defined(MOD_BALANCE_CORE)
+			bool bGood = false;
+			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+			{
+				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+				if (eTradeUnitOwner == NO_PLAYER)
+				{
+					// invalid TradeUnit
+					continue;
+				}
+				if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+				{
+					continue;
+				}
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+				{
+					bGood = true;
+				}
+			}
+			if(!bGood)
+			{
+				return false;
+			}
+#else
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			if (eTradeUnitOwner == NO_PLAYER)
 			{
@@ -8684,10 +8717,11 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 #if defined(MOD_BALANCE_CORE)
-			if(GET_PLAYER(m_eOwner).AreTradeRoutesInvulnerable())
+			if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
 			{
 				return false;
 			}
+#endif
 #endif
 		}
 
@@ -8718,10 +8752,42 @@ bool CvUnit::plunderTradeRoute()
 	}
 
 	// right now, plunder the first unit
+#if defined(MOD_BALANCE_CORE)
+	//No!
+	bool bGood = false;
+	for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+	{
+		PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+		if (eTradeUnitOwner == NO_PLAYER)
+		{
+			// invalid TradeUnit
+			continue;
+		}
+		if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+		{
+			continue;
+		}
+		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+		{
+#if defined(MOD_API_EXTENSIONS)
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
+#else
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#endif
+			bGood = true;
+		}
+	}
+	if(bGood)
+	{
+		return true;
+	}
+#else
 #if defined(MOD_API_EXTENSIONS)
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
 #else
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#endif
 #endif
 	return true;
 }

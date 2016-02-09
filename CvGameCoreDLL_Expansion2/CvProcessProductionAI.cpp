@@ -125,6 +125,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
+	iTempWeight /= 2;
+
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	if(kPlayer.isMinorCiv())
@@ -237,15 +239,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					}
 					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
 					{
-						iModifier += 25;
+						iModifier += 33;
 					}
 					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
-						iModifier += 25;
+						iModifier += 33;
 					}
 					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
 					{
-						iModifier += 25;
+						iModifier += 33;
 					}
 				}
 				break;
@@ -281,12 +283,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							if(kPlayer.getCapitalCity() != NULL)
 							{
 								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5);
+								iModifier += iValue;
 							}
-							iModifier += iValue;
-						}
-						else
-						{
-							iModifier += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							else
+							{
+								iModifier += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
+							}
 						}
 					}
 
@@ -308,7 +310,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{			
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 100;
+							iModifier += 66;
 						}
 					}
 
@@ -317,7 +319,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 100;
+							iModifier += 66;
 						}
 					}
 
@@ -405,7 +407,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	}
 	if(kPlayer.IsAtWarAnyMajor())
 	{
-		iModifier /= 10;
+		iModifier /= 15;
 	}
 
 	iTempWeight *= (100 + iModifier);

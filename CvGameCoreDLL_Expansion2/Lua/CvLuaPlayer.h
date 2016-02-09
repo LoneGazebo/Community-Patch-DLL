@@ -1093,6 +1093,9 @@ protected:
 	static int lChangeNumFaithGreatPeople(lua_State* L);
 	static int lGetUnitBaktun(lua_State* L);
 	static int lIsFreeMayaGreatPersonChoice(lua_State *L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsProphetValid(lua_State *L);
+#endif
 
 	static int lUnitsAux(lua_State* L);
 	static int lUnits(lua_State* L);
