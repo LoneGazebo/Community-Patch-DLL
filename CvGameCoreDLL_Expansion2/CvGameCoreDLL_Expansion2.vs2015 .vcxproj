@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CvAStarNode.cpp" />
     <ClCompile Include="CvCityManager.cpp" />
     <ClCompile Include="CvDistanceMap.cpp" />
     <ClCompile Include="CvGreatPersonInfo.cpp" />

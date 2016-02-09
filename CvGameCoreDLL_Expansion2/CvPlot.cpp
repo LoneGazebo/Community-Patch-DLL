@@ -8669,7 +8669,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
 	// impassable terrain has no base yield (but do allow coast)
-	if( (!isValidMovePlot(ePlayer) && !isShallowWater()) || getTerrainType()==NO_TERRAIN)
+	// if worked by a city, it should have a yield.
+	if( (!isValidMovePlot(ePlayer) && !pWorkingCity && (!isShallowWater()) || getTerrainType()==NO_TERRAIN))
 	{
 		iYield = 0;
 	} 

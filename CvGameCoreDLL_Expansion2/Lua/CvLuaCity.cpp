@@ -278,6 +278,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumGreatWorks);
 	Method(GetNumGreatWorkSlots);
 	Method(GetBaseTourism);
+#if defined(MOD_BALANCE_CORE)
+	Method(RefreshTourism);
+#endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
 	Method(GetFilledSlotsTooltip);
@@ -2665,6 +2668,15 @@ int CvLuaCity::lGetBaseTourism(lua_State* L)
 #endif
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaCity::lRefreshTourism(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	pkCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	pkCity->GetCityCulture()->CalculateBaseTourism();
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetTourismMultiplier(PlayerTypes ePlayer);
 int CvLuaCity::lGetTourismMultiplier(lua_State* L)

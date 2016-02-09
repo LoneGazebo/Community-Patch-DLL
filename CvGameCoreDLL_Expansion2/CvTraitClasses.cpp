@@ -138,8 +138,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBullyAnnex(false),
 #endif
 	m_bFightWellDamaged(false),
-	m_bMoveFriendlyWoodsAsRoad(false),
-	m_bFasterAlongRiver(false),
+	m_bWoodlandMovementBonus(false),
+	m_bRiverMovementBonus(false),
 	m_bFasterInHills(false),
 	m_bEmbarkedAllWater(false),
 	m_bEmbarkedToLandFlatCost(false),
@@ -824,15 +824,15 @@ bool CvTraitEntry::IsFightWellDamaged() const
 }
 
 /// Accessor:: does this civ move units through forest as if it is road?
-bool CvTraitEntry::IsMoveFriendlyWoodsAsRoad() const
+bool CvTraitEntry::IsWoodlandMovementBonus() const
 {
-	return m_bMoveFriendlyWoodsAsRoad;
+	return m_bWoodlandMovementBonus;
 }
 
 /// Accessor:: does this civ move along rivers like a Scout?
-bool CvTraitEntry::IsFasterAlongRiver() const
+bool CvTraitEntry::IsRiverMovementBonus() const
 {
-	return m_bFasterAlongRiver;
+	return m_bRiverMovementBonus;
 }
 
 /// Accessor:: does this civ move in Hills like a Scout?
@@ -1632,8 +1632,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
 #endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
-	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
-	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
+	m_bWoodlandMovementBonus = kResults.GetBool("MoveFriendlyWoodsAsRoad");
+	m_bRiverMovementBonus = kResults.GetBool("FasterAlongRiver");
 	m_bFasterInHills = kResults.GetBool("FasterInHills");
 	m_bEmbarkedAllWater = kResults.GetBool("EmbarkedAllWater");
 	m_bEmbarkedToLandFlatCost = kResults.GetBool("EmbarkedToLandFlatCost");
@@ -2516,13 +2516,13 @@ void CvPlayerTraits::InitPlayerTraits()
 				int iWoundedUnitDamageMod = /*-50*/ GC.getTRAIT_WOUNDED_DAMAGE_MOD();
 				m_pPlayer->ChangeWoundedUnitDamageMod(iWoundedUnitDamageMod);
 			}
-			if(trait->IsMoveFriendlyWoodsAsRoad())
+			if(trait->IsWoodlandMovementBonus())
 			{
-				m_bMoveFriendlyWoodsAsRoad = true;
+				m_bWoodlandMovementBonus = true;
 			}
-			if(trait->IsFasterAlongRiver())
+			if(trait->IsRiverMovementBonus())
 			{
-				m_bFasterAlongRiver = true;
+				m_bRiverMovementBonus = true;
 			}
 			if(trait->IsFasterInHills())
 			{
@@ -3014,8 +3014,8 @@ void CvPlayerTraits::Reset()
 	m_bBullyAnnex = false;
 #endif
 	m_bFightWellDamaged = false;
-	m_bMoveFriendlyWoodsAsRoad = false;
-	m_bFasterAlongRiver = false;
+	m_bWoodlandMovementBonus = false;
+	m_bRiverMovementBonus = false;
 	m_bFasterInHills = false;
 	m_bEmbarkedAllWater = false;
 	m_bEmbarkedToLandFlatCost = false;
@@ -3958,13 +3958,7 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 {
 	return m_aFreeResourceXCities[(int)eResource];
 }
-#if defined(MOD_BALANCE_CORE)
-/// Is this civ currently able to cross mountains with combat units?
-bool CvPlayerTraits::IsAbleToCrossMountainsWithRoad() const
-{
-	return m_bMountainPass;
-}
-#endif
+
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
@@ -3974,6 +3968,7 @@ bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
 #endif
 }
+
 #if defined(MOD_TRAITS_CROSSES_ICE)
 /// Is this civ currently able to cross ice with combat units?
 bool CvPlayerTraits::IsAbleToCrossIce() const
@@ -4211,6 +4206,23 @@ void CvPlayerTraits::ChooseMayaBoost()
 			}
 		}
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if(MOD_DIPLOMACY_CITYSTATES)
+	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		{
+			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			{
+				eDesiredGreatPerson = ePossibleGreatPerson;
+			}
+		}
+	}
+#endif
 
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -4322,6 +4334,20 @@ void CvPlayerTraits::ChooseMayaBoost()
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
 										}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+										else if(MOD_DIPLOMACY_CITYSTATES)
+										{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+											ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+											if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+											{
+												eDesiredGreatPerson = ePossibleGreatPerson;
+											}
+										}
+#endif
 									}
 								}
 							}
@@ -4384,7 +4410,7 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 		{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 			{
 				return 1;
 			}
@@ -4409,7 +4435,38 @@ void CvPlayerTraits::SetUnitBaktun(UnitTypes eUnit)
 	choice.m_iBaktunJustFinished = m_iBaktun;
 	m_aMayaBonusChoices.push_back(choice);
 }
-
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+/// Have Maya unlocked free choice of Great People?
+bool CvPlayerTraits::IsProphetValid() const
+{
+	//Has religion? Valid.
+	if(m_pPlayer->GetReligions()->HasCreatedReligion())
+	{
+		return true;
+	}
+	//Getting into the upper baktuns? Let's let it happen.
+	if(m_iBaktun > 8)
+	{
+		return true;
+	}
+	//No religion? Let's check pre-medieval.
+	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	if(m_pPlayer->GetCurrentEra() <= eMedieval)
+	{
+		//Major majority? True.
+		if((m_pPlayer->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (m_pPlayer->GetReligions()->GetReligionInMostCities() > RELIGION_PANTHEON))
+		{
+			return true;
+		}
+	}
+	//Post-medieval? True.
+	else
+	{
+		return true;
+	}
+	return false;
+}
+#endif
 /// Have Maya unlocked free choice of Great People?
 bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 {
@@ -4433,9 +4490,9 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 					{
 #if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && m_pPlayer->GetReligions()->HasCreatedReligion(true))
+						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 						{
-							iNumGreatPeopleTypes++;
+							continue;
 						}
 						else
 						{
@@ -4701,8 +4758,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
 #endif
 	kStream >> m_bFightWellDamaged;
-	kStream >> m_bMoveFriendlyWoodsAsRoad;
-	kStream >> m_bFasterAlongRiver;
+	kStream >> m_bWoodlandMovementBonus;
+	kStream >> m_bRiverMovementBonus;
 
 	kStream >> m_bFasterInHills;
 
@@ -5111,8 +5168,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
 #endif
 	kStream << m_bFightWellDamaged;
-	kStream << m_bMoveFriendlyWoodsAsRoad;
-	kStream << m_bFasterAlongRiver;
+	kStream << m_bWoodlandMovementBonus;
+	kStream << m_bRiverMovementBonus;
 	kStream << m_bFasterInHills;
 	kStream << m_bEmbarkedAllWater;
 	kStream << m_bEmbarkedToLandFlatCost;

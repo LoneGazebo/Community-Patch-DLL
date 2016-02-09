@@ -3196,7 +3196,10 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreci
 
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
-
+#if defined(MOD_BALANCE_CORE)
+	int iWonders = getNumWorldWonders() * 50;
+	iYieldValue += iWonders;
+#endif
 	if (ePossibleOwner!=NO_PLAYER)
 	{
 
@@ -7014,7 +7017,8 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
 		iCost /= 2;
-		iCost *= max(1, (GET_PLAYER(getOwner()).getNumCities() / 3));
+		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 10);
+		iCost /= 100;
 	}
 #endif
 
@@ -14780,7 +14784,7 @@ void CvCity::SetPuppet(bool bValue)
 		PlayerTypes eFormerOwner = getPreviousOwner();
 		if(eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital());
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital(), this);
 			SetNoWarmonger(false);
 		}
 	}
@@ -14862,7 +14866,7 @@ void CvCity::DoAnnex()
 		PlayerTypes eFormerOwner = getPreviousOwner();
 		if(eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital());
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, IsOriginalMajorCapital(), this);
 			SetNoWarmonger(false);
 		}
 	}
@@ -19700,6 +19704,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 #if defined(MOD_BALANCE_CORE)
 				//Let's rule out getting plots for which we lack an adjacent owned plot.
 				bool bNoNeighbor = true;
+				bool bPromiseNeighbor = false;
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
 					CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)iI));
@@ -19711,9 +19716,21 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 							bNoNeighbor = false;
 							break;
 						}
+						if(pAdjacentPlot->getOwner() != NO_PLAYER && !GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv())
+						{
+							if(GET_PLAYER(pAdjacentPlot->getOwner()).GetDiplomacyAI()->GetPlayerMadeBorderPromise(getOwner()))
+							{
+								bPromiseNeighbor = true;
+								break;
+							}
+						}
 					}
 				}
 				if(bNoNeighbor)
+				{
+					continue;
+				}
+				if(bPromiseNeighbor)
 				{
 					continue;
 				}

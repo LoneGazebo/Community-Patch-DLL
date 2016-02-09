@@ -467,6 +467,15 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 
 			-- CBP 
+			-- Half Sapper unit modifier
+			if (pMyUnit:IsHalfNearSapper(pCity)) then
+				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+				iModifier = (iModifier / 2);
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+
 			-- Blockaded
 			if (pCity:IsBlockadedTest()) then
 				iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
@@ -1596,25 +1605,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				-- UnitCombatModifier
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
 					iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
--- CBP
-					if(pMyUnit:IsMounted()) then
-						iModifier = (iModifier + pTheirUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
-					end
--- END
+
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
--- CBP
-						if(pMyUnit:IsMounted()) then
-							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
-							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-						else
--- END
-							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
-							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
--- CBP
-						end
--- END
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
 				end
 
@@ -2184,6 +2180,14 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		end
 
 		-- CBP 
+		-- Half Sapper unit modifier
+		if (theirUnit:IsHalfNearSapper(myCity)) then
+			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+			iModifier = (iModifier / 2);
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
 		-- Blockaded
 		if (myCity:IsBlockadedTest()) then
 			iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);

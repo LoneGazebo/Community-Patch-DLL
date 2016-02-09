@@ -215,7 +215,7 @@
 		
 <!-- Maya Prophet Lock -->
 		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
-			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion (or have a majority Religion), or you've reached the Renaissance Era[ENDCOLOR]</Text>
 		</Row>
 <!-- Espionage Overview Screen -->
 		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">

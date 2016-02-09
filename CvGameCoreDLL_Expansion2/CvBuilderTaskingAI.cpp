@@ -751,7 +751,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	{
 		paDirectives[ui].m_eDirective = BuilderDirective::NUM_DIRECTIVES;
 	}
-
 	m_aDirectives.clear();
 
 	// check for no brainer bail-outs
@@ -766,7 +765,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		paDirectives[0].m_eBuild = pUnit->getBuildType();
 		paDirectives[0].m_sX = pUnit->getX();
 		paDirectives[0].m_sY = pUnit->getY();
-		//inDirective.m_sGoldCost = 0;
 		paDirectives[0].m_sMoveTurnsAway = 0;
 		return true;
 	}
@@ -786,7 +784,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		m_aiPlots = m_pPlayer->GetPlots();
 	}
 
-	//keep track of all other workers which would be eligible to work on the same plot
+	//keep track of all other workers which would be eligible to work on the same plot 
+	//note that we use this function for great person improvements as well so they AI type is not always worker!
 	std::vector<CvUnit*> otherWorkers;
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
@@ -794,7 +793,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		if(pLoopUnit != NULL)
 		{
 			//ignore others which are in the same plot! they mess up the alternative worker check below
-			if(pLoopUnit->AI_getUnitAIType()==UNITAI_WORKER && pLoopUnit->plot()!=pUnit->plot())
+			if(pLoopUnit->AI_getUnitAIType()==pUnit->AI_getUnitAIType() && pLoopUnit->plot()!=pUnit->plot())
 			{
 				otherWorkers.push_back(pLoopUnit);
 			}
@@ -859,17 +858,11 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 		UpdateCurrentPlotYields(pPlot);
 
-		//AddRepairDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingResourcesDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddScrubFalloutDirectives(pUnit, pPlot, iMoveTurnsAway);
-		// only AIs have permission to remove roads
-		if(!m_pPlayer->isHuman())
-		{
-			//AddRemoveUselessRoadDirectives(pUnit, pPlot, iMoveTurnsAway);
-		}
 	}
 
 	// we need to evaluate the tiles outside of our territory to build roads
@@ -936,9 +929,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			LogInfo(strLog, m_pPlayer);
 		}
 
-		//AddRepairDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	// we need to evaluate the tiles adjacent to our territory 
 	if(m_bEvaluateAdjacent)
@@ -1002,7 +995,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							continue;
 						}
 
-#if defined(MOD_BALANCE_CORE)
 						//see if another worker would be more suitable
 						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
 
@@ -1016,7 +1008,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							//pretent we would have to move much further, which will reduce the score of the directives for this plot
 							iMoveTurnsAway *= 2;
 						}
-#endif
 
 						if(m_bLogging)
 						{
@@ -1044,17 +1035,12 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		if(!pTarget)
 			continue;
 
-#if 0	// KWG: We are now always doing a raw estimate when gathering the directives
-		int iPlotDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
-		if(iPlotDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
-#endif
+		if(pUnit->TurnsToReachTarget(pTarget,false,false,42) == MAX_INT)
 		{
-			if(pUnit->TurnsToReachTarget(pTarget,false,false,42) == MAX_INT)
-			{
-				// No path, need to pick a new directive
-				continue;
-			}
+			// No path, need to pick a new directive
+			continue;
 		}
+
 		if(iBestWeight == 0)
 		{
 			iBestWeight = m_aDirectives.GetWeight(i);
@@ -1068,6 +1054,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				break;
 			}
 		}
+
 		BuilderDirective directive = m_aDirectives.GetElement(i);
 		paDirectives[iAssignIndex] = directive;
 		iAssignIndex++;
@@ -1080,16 +1067,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	}
 
 	if(m_bLogging)
-	{
-		if(m_aDirectives.size() > 0)
-		{
-			//LogFlavors(NO_FLAVOR);
-		}
-
 		LogDirectives(pUnit);
-	}
 
-	//if (m_aDirectives.size() > 0 && iAssignIndex > 0)
 	if(iAssignIndex > 0)
 	{
 		if(m_bLogging)
@@ -1805,7 +1784,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 #endif
 
-		if(m_pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad() && bWillRemoveForestOrJungle)
+		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
 		{
 			iWeight = iWeight / 4;
 		}
@@ -1908,17 +1887,10 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 		eDirectiveType = BuilderDirective::REPAIR;
 	}
 
-	// int iTurnsAway = FindTurnsAway(pUnit, pPlot);
-#if !defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
-#endif
-
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false, iMoveTurnsAway);
 	iWeight *= pPlot->GetBuilderAIScratchPadValue();
-#if defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
 	iWeight = CorrectWeight(iWeight);
 
 	BuilderDirective directive;
@@ -2109,7 +2081,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 
 	iWeight += iYieldDifferenceWeight;
 
-	if (m_pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
+	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
 		iWeight = iWeight / 4;
 	}
@@ -2152,77 +2124,6 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 			LogInfo("Add chop directives, Weight is zero!", m_pPlayer);
 		}
 	}
-}
-
-void CvBuilderTaskingAI::AddRemoveUselessRoadDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
-{
-	// if it's not within a city radius
-	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
-	{
-		return;
-	}
-
-	// don't try to remove the route under the city
-	if(pPlot->isCity())
-	{
-		return;
-	}
-
-	// nothing here to remove
-	if(pPlot->getRouteType() == NO_ROUTE)
-	{
-		return;
-	}
-
-	// flagged this turn means this is a valid route plot
-	if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == pUnit->getOwner())
-	{
-		return;
-	}
-
-	BuildTypes eRemoveRouteBuild = NO_BUILD;
-	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
-	{
-		BuildTypes eBuild = (BuildTypes)iBuildIndex;
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-		if(NULL != pkBuild && pkBuild->IsRemoveRoute() && pUnit->canBuild(pPlot, eBuild))
-		{
-			eRemoveRouteBuild = eBuild;
-			break;
-		}
-	}
-
-
-	if(eRemoveRouteBuild == NO_BUILD)
-	{
-		return;
-	}
-
-	// evaluate if removing the road helps anything
-	ImprovementTypes eImprovement = pPlot->getImprovementType();
-	BuildTypes eBuild = NO_BUILD;
-	if(eImprovement != NO_IMPROVEMENT)
-	{
-		eBuild = GetBuildTypeFromImprovement(eImprovement);
-	}
-
-	//int iWeight = GetWeightFromPlotYields(m_pPlayer, pPlot, eBuild, NULL, NO_YIELD, 100, NO_ROUTE) - GetWeightFromPlotYields(m_pPlayer, pPlot, eBuild, NULL, NO_YIELD, 10);
-	int iWeight = 0;
-	iWeight = CorrectWeight(iWeight);
-
-	if(iWeight > 0)
-	{
-		BuilderDirective directive;
-		directive.m_eDirective = BuilderDirective::REMOVE_ROAD;
-		directive.m_eBuild = eRemoveRouteBuild;
-		directive.m_eResource = NO_RESOURCE;
-		directive.m_sX = pPlot->getX();
-		directive.m_sY = pPlot->getY();
-		directive.m_sMoveTurnsAway = iMoveTurnsAway;
-
-		m_aDirectives.push_back(directive, iWeight);
-	}
-
 }
 
 // Everything means less than zero, hey

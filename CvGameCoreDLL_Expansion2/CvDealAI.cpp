@@ -2394,7 +2394,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 2000 : 1000;
 
 	//economic value is important
-	iItemValue += pCity->getEconomicValue(buyingPlayer.GetID());
+	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 10);
 
 	//first some amount for the territory
 	int iInternalBorderCount = 0;
@@ -7139,56 +7139,6 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 		}
 #endif
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		PlayerTypes eMajor;
-		CvPlayer* pMajor;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_CIV_PLAYERS; iMajorLoop++)
-		{
-			eMajor = (PlayerTypes) iMajorLoop;
-			pMajor = &GET_PLAYER(eMajor);
-			if(eMajor == NO_PLAYER)
-			{
-				continue;
-			}
-			if(!pMajor->isMinorCiv() && !pMajor->isBarbarian() && GET_TEAM(pMajor->getTeam()).IsVassalOfSomeone())
-			{
-				TeamTypes eMasterTeam = GET_TEAM(pMajor->getTeam()).GetMaster();
-				// master of other player
-				if (eMasterTeam == GET_PLAYER(eToPlayer).getTeam())
-				{
-					// if they are not at war with us, continue
-					if (!GET_TEAM(GetTeam()).isAtWar(pMajor->getTeam()))
-					{
-						continue;
-					}
-					// Add peace with this major to the deal
-					// slewis - if there is not a peace deal with them already on the table and we can trade it
-					if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMajor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMajor->getTeam()))
-					{
-						pDeal->AddThirdPartyPeace(eToPlayer, pMajor->getTeam(), iPeaceDuration);
-					}
-				}
-				else if (eMasterTeam == GetPlayer()->getTeam())
-				{
-					// if they are not at war with the opponent, continue
-					if (!GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).isAtWar(pMajor->getTeam()))
-					{
-						continue;
-					}
-
-					// Add peace with this minor to the deal
-					// slewis - if there is not a peace deal with them already on the table and we can trade it
-					if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMajor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMajor->getTeam()))
-					{
-						pDeal->AddThirdPartyPeace(eToPlayer, pMajor->getTeam(), iPeaceDuration);
-					}
-				}
-			}
-		}
-	}
-#endif
 }
 
 /// AI making a demand of eOtherPlayer
@@ -8103,7 +8053,9 @@ void CvDealAI::DoTradeScreenOpened()
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToOffer, /*bMeSurrendering*/ true);
-
+#if defined(MOD_BALANCE_CORE)
+				DoAddPlayersAlliesToTreaty(eActivePlayer, pDeal);
+#endif
 				// Store the value of the deal with the human so that we have a number to use for renegotiation (if necessary)	
 				int iValueImOffering, iValueTheyreOffering;
 #if defined(MOD_BALANCE_CORE)
@@ -8126,7 +8078,9 @@ void CvDealAI::DoTradeScreenOpened()
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToAccept, /*bMeSurrendering*/ false);
-
+#if defined(MOD_BALANCE_CORE)
+				DoAddPlayersAlliesToTreaty(eActivePlayer, pDeal);
+#endif
 				// Store the value of the deal with the human so that we have a number to use for renegotiation (if necessary)
 				int iValueImOffering, iValueTheyreOffering;
 #if defined(MOD_BALANCE_CORE)

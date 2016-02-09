@@ -1121,7 +1121,9 @@ function ResetDisplay()
 	    Controls.UsPocketGold:SetDisabled(true);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		if not (g_pUs:IsDoF(g_iThem)) then
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		elseif not (g_pUs:IsDoF(g_iThem)) then
 			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
 		else
 			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
@@ -1144,7 +1146,9 @@ function ResetDisplay()
 	    Controls.ThemPocketGold:SetDisabled(true);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		if not (g_pUs:IsDoF(g_iThem)) then
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		elseif not (g_pUs:IsDoF(g_iThem)) then
 			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
 		else
 			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
@@ -1171,7 +1175,11 @@ function ResetDisplay()
 	    Controls.UsPocketGoldPerTurn:SetDisabled(true);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
 --END
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
@@ -1189,7 +1197,11 @@ function ResetDisplay()
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
 --CBP
-		Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
+			Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
+		else
+			Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
 --END
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);

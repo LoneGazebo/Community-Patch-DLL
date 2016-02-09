@@ -276,6 +276,9 @@ protected:
 	static int lGetNumGreatWorks(lua_State* L);
 	static int lGetNumGreatWorkSlots(lua_State* L);
 	static int lGetBaseTourism(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lRefreshTourism(lua_State* L);
+#endif
 	static int lGetTourismMultiplier(lua_State* L);
 	static int lGetTourismTooltip(lua_State* L);
 	static int lGetFilledSlotsTooltip(lua_State* L);

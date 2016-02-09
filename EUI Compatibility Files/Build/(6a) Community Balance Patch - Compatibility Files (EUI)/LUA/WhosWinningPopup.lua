@@ -140,7 +140,10 @@ function OnPopup( popupInfo )
 				for cityIndex = 0, pOtherPlayer:GetNumCities() - 1, 1 do
     				local pCity = pOtherPlayer:GetCityByID(cityIndex);
     				if (pCity ~= nil) then
-						table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism()});
+						pCity:RefreshTourism();
+						if(pCity:GetBaseTourism() > 0) then
+							table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism()});
+						end
 					end
 				end
 			end

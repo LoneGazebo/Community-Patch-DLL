@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 12/29/2014 9:34:24 PM -->
 <GameData>
+	<Diplomacy_Responses>
+		<!-- Generic -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_GENERIC_PEACE_OFFER%</Response>
+		</Row>
+	</Diplomacy_Responses>
 	<!-- Alexander -->
 	<Diplomacy_Responses>
 
@@ -9,7 +16,7 @@
 			<Response>TXT_KEY_LEADER_ALEXANDER_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ALEXANDER">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ALEXANDER_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ALEXANDER">
@@ -108,7 +115,7 @@
 			<Response>TXT_KEY_LEADER_ASKIA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ASKIA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ASKIA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ASKIA">
@@ -207,7 +214,7 @@
 			<Response>TXT_KEY_LEADER_AUGUSTUS_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_AUGUSTUS">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_AUGUSTUS_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_AUGUSTUS">
@@ -306,7 +313,7 @@
 			<Response>TXT_KEY_LEADER_BISMARCK_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_BISMARCK">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_BISMARCK_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_BISMARCK">
@@ -405,7 +412,7 @@
 			<Response>TXT_KEY_LEADER_CATHERINE_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_CATHERINE">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_CATHERINE_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_CATHERINE">
@@ -504,7 +511,7 @@
 			<Response>TXT_KEY_LEADER_DARIUS_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_DARIUS">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_DARIUS_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_DARIUS">
@@ -603,7 +610,7 @@
 			<Response>TXT_KEY_LEADER_ELIZABETH_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ELIZABETH">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ELIZABETH_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ELIZABETH">
@@ -702,7 +709,7 @@
 			<Response>TXT_KEY_LEADER_GANDHI_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GANDHI">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_GANDHI_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GANDHI">
@@ -801,7 +808,7 @@
 			<Response>TXT_KEY_LEADER_HARUN_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HARUN_AL_RASHID">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_HARUN_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HARUN_AL_RASHID">
@@ -900,7 +907,7 @@
 			<Response>TXT_KEY_LEADER_HIAWATHA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HIAWATHA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_HIAWATHA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HIAWATHA">
@@ -999,7 +1006,7 @@
 			<Response>TXT_KEY_LEADER_MONTEZUMA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MONTEZUMA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_MONTEZUMA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MONTEZUMA">
@@ -1098,7 +1105,7 @@
 			<Response>TXT_KEY_LEADER_NAPOLEON_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_NAPOLEON">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_NAPOLEON_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_NAPOLEON">
@@ -1197,7 +1204,7 @@
 			<Response>TXT_KEY_LEADER_ODA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ODA_NOBUNAGA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ODA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ODA_NOBUNAGA">
@@ -1296,7 +1303,7 @@
 			<Response>TXT_KEY_LEADER_RAMESSES_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_RAMESSES">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_RAMESSES_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_RAMESSES">
@@ -1395,7 +1402,7 @@
 			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_RAMKHAMHAENG">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_RAMKHAMHAENG">
@@ -1494,7 +1501,7 @@
 			<Response>TXT_KEY_LEADER_SULEIMAN_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SULEIMAN">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_SULEIMAN_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SULEIMAN">
@@ -1593,7 +1600,7 @@
 			<Response>TXT_KEY_LEADER_WASHINGTON_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WASHINGTON">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_WASHINGTON_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WASHINGTON">
@@ -1692,7 +1699,7 @@
 			<Response>TXT_KEY_LEADER_WUZETIAN_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WU_ZETIAN">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_WUZETIAN_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WU_ZETIAN">
@@ -1791,7 +1798,7 @@
 			<Response>TXT_KEY_LEADER_GENGHIS_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GENGHIS_KHAN">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_GENGHIS_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GENGHIS_KHAN">
@@ -1890,7 +1897,7 @@
 			<Response>TXT_KEY_LEADER_ISABELLA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ISABELLA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ISABELLA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ISABELLA">
@@ -1989,7 +1996,7 @@
 			<Response>TXT_KEY_LEADER_PACHACUTI_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PACHACUTI">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_PACHACUTI_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PACHACUTI">
@@ -2088,7 +2095,7 @@
 			<Response>TXT_KEY_LEADER_KAMEHAMEHA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_KAMEHAMEHA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_KAMEHAMEHA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_KAMEHAMEHA">
@@ -2187,7 +2194,7 @@
 			<Response>TXT_KEY_LEADER_HARALD_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HARALD">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_HARALD_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_HARALD">
@@ -2286,7 +2293,7 @@
 			<Response>TXT_KEY_LEADER_SEJONG_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SEJONG">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_SEJONG_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SEJONG">
@@ -2385,7 +2392,7 @@
 			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
@@ -2484,7 +2491,7 @@
 			<Response>TXT_KEY_LEADER_ATTILA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ATTILA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ATTILA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ATTILA">
@@ -2583,7 +2590,7 @@
 			<Response>TXT_KEY_LEADER_BOUDICCA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_BOUDICCA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_BOUDICCA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_BOUDICCA">
@@ -2682,7 +2689,7 @@
 			<Response>TXT_KEY_LEADER_DIDO_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_DIDO">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_DIDO_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_DIDO">
@@ -2781,7 +2788,7 @@
 			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
@@ -2880,7 +2887,7 @@
 			<Response>TXT_KEY_LEADER_MARIA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MARIA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_MARIA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MARIA">
@@ -2979,7 +2986,7 @@
 			<Response>TXT_KEY_LEADER_PACAL_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PACAL">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_PACAL_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PACAL">
@@ -3078,7 +3085,7 @@
 			<Response>TXT_KEY_LEADER_THEODORA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_THEODORA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_THEODORA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_THEODORA">
@@ -3177,7 +3184,7 @@
 			<Response>TXT_KEY_LEADER_SELASSIE_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SELASSIE">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_SELASSIE_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SELASSIE">
@@ -3276,7 +3283,7 @@
 			<Response>TXT_KEY_LEADER_WILLIAM_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WILLIAM">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_WILLIAM_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_WILLIAM">
@@ -3375,7 +3382,7 @@
 			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
@@ -3474,7 +3481,7 @@
 			<Response>TXT_KEY_LEADER_ASHURBANIPAL_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ASHURBANIPAL">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ASHURBANIPAL_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ASHURBANIPAL">
@@ -3573,7 +3580,7 @@
 			<Response>TXT_KEY_LEADER_CASIMIR_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_CASIMIR">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_CASIMIR_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_CASIMIR">
@@ -3672,7 +3679,7 @@
 			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ENRICO_DANDOLO">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_ENRICO_DANDOLO">
@@ -3771,7 +3778,7 @@
 			<Response>TXT_KEY_LEADER_GAJAH_MADA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GAJAH_MADA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_GAJAH_MADA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_GAJAH_MADA">
@@ -3870,7 +3877,7 @@
 			<Response>TXT_KEY_LEADER_MARIA_I_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MARIA_I">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_MARIA_I_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_MARIA_I">
@@ -3969,7 +3976,7 @@
 			<Response>TXT_KEY_LEADER_PEDRO_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PEDRO">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_PEDRO_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_PEDRO">
@@ -4068,7 +4075,7 @@
 			<Response>TXT_KEY_LEADER_POCATELLO_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_POCATELLO">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_POCATELLO_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_POCATELLO">
@@ -4167,7 +4174,7 @@
 			<Response>TXT_KEY_LEADER_SHAKA_LETSHEARIT%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SHAKA">
-			<ResponseType>RESPONSE_PEACE_OFFER</ResponseType>
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_SHAKA_WINWAR%</Response>
 		</Row>
 		<Row LeaderType="LEADER_SHAKA">

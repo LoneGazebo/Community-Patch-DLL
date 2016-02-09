@@ -5101,6 +5101,91 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 			}
 		}
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->IsCityAttackOnly() && m_pPlayer->IsAtWar())
+		{
+			int iBestScore = 0;
+			CvPlot* pBestPlot = 0;
+
+			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
+			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
+			TacticalAIHelpers::ReachablePlotSet reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
+			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+			{
+
+				int iScore = 0;
+				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
+				//plot needs to have a defender, but no be adjacent to the enemy
+				UnitHandle pDefender = pCandidate->getBestDefender(pUnit->getOwner());
+				if (!pDefender)
+					continue;
+
+				if(pUnit->IsNearCityAttackOnly(pCandidate, pUnit.pointer())) //near another general
+					continue;
+					
+
+				//we want to have many neighboring units in danger, but our plot should be relatively safe
+				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
+				int iGeneralDanger = m_pPlayer->GetPlotDanger(*pCandidate,pDefender.pointer());
+				//careful with overflow, we expect a lot of INT_MAX value here ...
+				iGeneralDanger = min(100000,iGeneralDanger);
+
+				//for each candidate plot, look at the neighbors
+				int iSupportedDanger = iGeneralDanger;
+				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pCandidate);
+				for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+				{
+					CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+					if (!pLoopPlot)
+						continue;
+
+					UnitHandle pSupportedUnit = pLoopPlot->getBestDefender(pUnit->getOwner());
+					if (!pSupportedUnit)
+						continue;
+
+					if(pLoopPlot->isCity())
+					{
+						iScore += 10000;
+					}
+
+					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit.pointer());
+				}
+
+				CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pUnit->plot());
+				if(pClosestEnemyCity != NULL)
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Found a nearby city target for our Siege Tower: X: %d, Y: %d", pClosestEnemyCity->getX(), pClosestEnemyCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+					iScore += (1000 - (plotDistance(pCandidate->getX(), pCandidate->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 5));
+				}
+
+				iScore += (100*iSupportedDanger)/(iGeneralDanger+1);
+				if (iScore>iBestScore && iScore>100)
+				{
+					iBestScore=iScore;
+					pBestPlot=pCandidate;
+				}
+			}
+
+			if (pBestPlot)
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Siege Tower moving towards: X: %d, Y: %d", pBestPlot->getX(), pBestPlot->getY());
+					LogHomelandMessage(strLogString);
+				}
+				//we know we can reach it in one turn
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+				continue;
+			}
+		}
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)

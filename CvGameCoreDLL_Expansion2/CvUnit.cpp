@@ -8679,6 +8679,31 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 
+#if defined(MOD_BALANCE_CORE)
+			bool bGood = false;
+			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+			{
+				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+				if (eTradeUnitOwner == NO_PLAYER)
+				{
+					// invalid TradeUnit
+					continue;
+				}
+				if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+				{
+					continue;
+				}
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+				{
+					bGood = true;
+				}
+			}
+			if(!bGood)
+			{
+				return false;
+			}
+#else
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			if (eTradeUnitOwner == NO_PLAYER)
 			{
@@ -8696,6 +8721,7 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				return false;
 			}
+#endif
 #endif
 		}
 
@@ -8726,10 +8752,42 @@ bool CvUnit::plunderTradeRoute()
 	}
 
 	// right now, plunder the first unit
+#if defined(MOD_BALANCE_CORE)
+	//No!
+	bool bGood = false;
+	for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+	{
+		PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+		if (eTradeUnitOwner == NO_PLAYER)
+		{
+			// invalid TradeUnit
+			continue;
+		}
+		if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+		{
+			continue;
+		}
+		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+		{
+#if defined(MOD_API_EXTENSIONS)
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
+#else
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#endif
+			bGood = true;
+		}
+	}
+	if(bGood)
+	{
+		return true;
+	}
+#else
 #if defined(MOD_API_EXTENSIONS)
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
 #else
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#endif
 #endif
 	return true;
 }
@@ -11859,6 +11917,8 @@ bool CvUnit::DoCultureBomb()
 	return false;
 }
 
+//	--------------------------------------------------------------------------------
+//		this is for tile stealing, nowadays performed with citadels. doesn't have anything to do with culture anymore
 //	--------------------------------------------------------------------------------
 void CvUnit::PerformCultureBomb(int iRadius)
 {

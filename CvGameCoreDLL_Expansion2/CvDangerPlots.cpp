@@ -924,7 +924,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	}
 
 	// Civilians can be captured - unless they would need to be embarked on this plot
-	if (!pUnit->IsCombatUnit() && pUnit->isMatchingDomain(m_pPlot))
+	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
 	{
 		// If plot contains an enemy unit, mark it as max danger
 		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), NULL, true))
