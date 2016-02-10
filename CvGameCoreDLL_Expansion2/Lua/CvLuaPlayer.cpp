@@ -8697,9 +8697,23 @@ int CvLuaPlayer::lGetNumPuppetCities(lua_State* L)
 int CvLuaPlayer::lGetCityByID(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int id = lua_tointeger(L, 2);
+	int id = lua_tointeger(L, 2);
 
 	CvCity* pkCity = pkPlayer->getCity(id);
+
+	//sometimes Lua unit IDs are actually sequential indices
+	//global IDs start at 1000
+	if (!pkCity && id<1000)
+	{
+		if (id>0)
+		{
+			id--;
+			pkCity = pkPlayer->nextCity(&id);
+		}
+		else
+			pkCity = pkPlayer->firstCity(&id);
+	}
+
 	CvLuaCity::Push(L, pkCity);
 	return 1;
 }
@@ -8750,7 +8764,22 @@ int CvLuaPlayer::lGetUnitByID(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int id = lua_tointeger(L, 2);
 
-	CvLuaUnit::Push(L, pkPlayer->getUnit(id));
+	CvUnit* pUnit = pkPlayer->getUnit(id);
+
+	//sometimes Lua unit IDs are actually sequential indices
+	//global IDs start at 1000
+	if (!pUnit && id<1000)
+	{
+		if (id>0)
+		{
+			id--;
+			pUnit = pkPlayer->nextUnit(&id);
+		}
+		else
+			pUnit = pkPlayer->firstUnit(&id);
+	}
+
+	CvLuaUnit::Push(L, pUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
