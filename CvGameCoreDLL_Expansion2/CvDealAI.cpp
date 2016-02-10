@@ -2743,7 +2743,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 100;
+	int iItemValue = 50;
 #else
 	int iItemValue = 35;
 #endif
@@ -7461,6 +7461,14 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//Already allows?
+	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam()))
+	{
+		return false;
+	}
+#endif
 
 	// Do we actually want OB with eOtherPlayer?
 	if(GetPlayer()->GetDiplomacyAI()->IsWantsOpenBordersWithPlayer(eOtherPlayer))

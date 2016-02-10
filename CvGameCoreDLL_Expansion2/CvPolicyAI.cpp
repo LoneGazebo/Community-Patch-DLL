@@ -722,17 +722,10 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-#ifdef AUI_BINOM_RNG
-	// bigger random add-on
-	iFreedomPriority += GC.getGame().getJonRandNumBinom(60, "Freedom random priority bump");
-	iAutocracyPriority += GC.getGame().getJonRandNumBinom(60, "Autocracy random priority bump");
-	iOrderPriority += GC.getGame().getJonRandNumBinom(60, "Order random priority bump");
-#else
 	// bigger random add-on
 	iFreedomPriority += GC.getGame().getJonRandNum(75, "Freedom random priority bump");
 	iAutocracyPriority += GC.getGame().getJonRandNum(75, "Autocracy random priority bump");
 	iOrderPriority += GC.getGame().getJonRandNum(75, "Order random priority bump");
-#endif
 #else
 	// Small random add-on
 	iFreedomPriority += GC.getGame().getJonRandNum(10, "Freedom random priority bump");

@@ -55,7 +55,7 @@ local tostring = tostring
 --local table = table
 local table_insert = table.insert
 local table_remove = table.remove
---local table_concat = table.concat
+local table_concat = table.concat
 --local os = os
 --local os_time = os.time
 --local os_date = os.date
@@ -193,11 +193,6 @@ local g_rebaseRangeMultipler = GameDefines.AIR_UNIT_REBASE_RANGE_MULTIPLIER
 local g_pressureMultiplier = GameDefines.RELIGION_MISSIONARY_PRESSURE_MULTIPLIER or 1
 local g_moveDenominator = GameDefines.MOVE_DENOMINATOR
 
-local g_colorBlack = Color( 0, 0, 0, 1 )
-local g_colorWhite = Color( 1, 1, 1, 1 )
-local g_colorRed = Color( 1, 0, 0, 1 )
-local g_colorYellow = Color( 1, 1, 0.5, 1 )
-local g_colorGreen = Color( 0.5, 1, 0.5, 1 )
 local g_units, g_cities, g_unitTypes
 
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1 )
@@ -220,7 +215,7 @@ end
 -------------------------------------------------
 
 local function ShowSimpleTip( ... )
-	toolTip = ... and table.concat( {...}, "[NEWLINE]----------------[NEWLINE]" )
+	local toolTip = ... and table_concat( {...}, "[NEWLINE]----------------[NEWLINE]" )
 	if toolTip then
 		g_tipControls.Text:SetText( toolTip )
 		g_tipControls.PortraitFrame:SetHide( true )
@@ -568,7 +563,7 @@ local function UnitToolTip( unit, ... )
 		local unitInfo = unitTypeID and GameInfo_Units[unitTypeID]
 
 		-- Unit XML stats
-		local productionCost = g_activePlayer:GetUnitProductionNeeded( unitTypeID )
+--		local productionCost = g_activePlayer:GetUnitProductionNeeded( unitTypeID )
 		local rangedStrength = unit:GetBaseRangedCombatStrength()
 		local unitRange = unit:Range()
 		local combatStrength = unitInfo.Combat or 0
@@ -806,10 +801,9 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 {-- the tooltip function names need to match associated instance control ID defined in xml
 	Button = function( control )
 		local city = FindCity( control )
-		local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas
+		local itemInfo, strToolTip, portraitOffset, portraitAtlas
 		if city then
 			local orderID, itemID = city:GetOrderFromQueue()
-			local cash, icon
 			if orderID == OrderTypes.ORDER_TRAIN then
 				itemInfo = GameInfo.Units
 				portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, g_activePlayerID )
@@ -953,17 +947,6 @@ g_existingBuild.WorkerProgressBar:SetPercent( 1 )
 g_existingBuild.UnitActionButton:SetDisabled( true )
 g_existingBuild.UnitActionButton:SetAlpha( 0.8 )
 
---------------------------------------------------------------------------------
--- this maps from the normal instance names to the build city control names
--- so we can use the same code to set it up
---------------------------------------------------------------------------------
-local g_BuildCityControlMap = {
-	UnitActionButton    = Controls.BuildCityButton,
-	--UnitActionMouseover = Controls.BuildCityMouseover,
-	--UnitActionText      = Controls.BuildCityText,
-	--UnitActionHotKey    = Controls.BuildCityHotKey,
-	--UnitActionHelp      = Controls.BuildCityHelp,
-}
 
 local g_directionTypes = {
 	DirectionTypes.DIRECTION_NORTHEAST,
@@ -1051,7 +1034,7 @@ local function UpdateUnitActions( unit )
 	Controls.BackgroundCivFrame:SetHide( false )
 
 	local hideCityButton = true
-	local currentBuildID = unit:GetBuildType()
+--	local currentBuildID = unit:GetBuildType()
 
 	-- loop over all the game actions
 	local actions = {}
@@ -1075,7 +1058,7 @@ local function UpdateUnitActions( unit )
 				end
 				action.isBuild = isBuild or action.Type == "INTERFACEMODE_ROUTE_TO" or action.Type == "AUTOMATE_BUILD"
 				action.isPromotion = isPromotion
-				table.insert(actions, action)
+				table_insert(actions, action)
 			end
 		end
 	end
@@ -1085,10 +1068,6 @@ local function UpdateUnitActions( unit )
 		local action = actions[i]
 
 		local button
-		local extraXOffset = 0
---		if UI.IsTouchScreenEnabled() then
---			extraXOffset = 44
---		end
 		if action.Type == "MISSION_FOUND" then
 			button = Controls.BuildCityButton
 			hideCityButton = false
@@ -1236,7 +1215,7 @@ local function UpdateUnitPortrait( unit )
 		Controls.XPFrame:SetHide( true )
 	end
 
-	local thisUnitInfo = GameInfo_Units[unit:GetUnitType()]
+--	local thisUnitInfo = GameInfo_Units[unit:GetUnitType()]
 
 	local flagOffset, flagAtlas = UI.GetUnitFlagIcon(unit)
 	local textureOffset, textureAtlas = IconLookup( flagOffset, 32, flagAtlas )
@@ -1485,9 +1464,6 @@ function()
 	Events.SearchForPediaEntry( unit and unit:GetNameKey() )
 end)
 
---------------------------------------------------------------------------------
--- InfoPane is now dirty.
---------------------------------------------------------------------------------
 local function sortUnitsByDistanceToSelectedUnit( instance1, instance2 )
 	local unit1 = g_activePlayer:GetUnitByID( instance1:GetVoid1() )
 	local unit2 = g_activePlayer:GetUnitByID( instance2:GetVoid1() )
@@ -1499,9 +1475,6 @@ local function sortUnitsByDistanceToSelectedUnit( instance1, instance2 )
 	end
 end
 
-local function OnInfoPaneDirty()
-
-end
 -------------------------------------------------
 -- Unit rename
 -------------------------------------------------
@@ -1571,7 +1544,6 @@ function ActionToolTipHandler( control )
 
 	-- Route data
 	local route = build and build.RouteType and build.RouteType ~= "NONE" and GameInfo.Routes[build.RouteType]
-	local routeID = route and route.ID or -1
 
 	local strBuildTurnsString = ""
 	local toolTip = table()
@@ -1793,7 +1765,7 @@ function ActionToolTipHandler( control )
 			if bnw_mode and improvement and improvement.AdjacentLuxury then
 				local bAdjacentLuxury = false
 
-				for loop, direction in ipairs( g_directionTypes ) do
+				for _, direction in ipairs( g_directionTypes ) do
 					local adjacentPlot = Map_PlotDirection(x, y, direction)
 					if adjacentPlot then
 						local eResourceType = adjacentPlot:GetResourceType()
@@ -1816,7 +1788,7 @@ function ActionToolTipHandler( control )
 			if bnw_mode and improvement and improvement.NoTwoAdjacent then
 				local bTwoAdjacent = false
 
-				for loop, direction in ipairs( g_directionTypes ) do
+				for _, direction in ipairs( g_directionTypes ) do
 					local adjacentPlot = Map_PlotDirection(x, y, direction)
 					if adjacentPlot then
 						if adjacentPlot:GetImprovementType() == improvementID or adjacentPlot:GetBuildProgress(buildID) > 0 then
@@ -1934,7 +1906,7 @@ function ActionToolTipHandler( control )
 
 end
 g_existingBuild.UnitActionButton:SetToolTipCallback(
-function( control )
+function()-- control )
 	local unit = UI_GetHeadSelectedUnit()
 	if unit then
 		local plot = unit:GetPlot()
@@ -2155,7 +2127,7 @@ end
 -- Unit Options "Object"
 -------------------------------------------------
 g_unitTypes = g_RibbonManager( "UnitTypeInstance", Controls.UnitTypesStack, Controls.Scrap,
-	function( Create ) -- CREATE ALL
+	function() -- CREATE ALL
 		g_ActivePlayerUnitTypes = {}
 		for unit in g_activePlayer:Units() do
 			addUnitType( unit )

@@ -2354,12 +2354,16 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 void CvPlayerTraits::InitPlayerTraits()
 {
 	// precompute the traits our leader has
+	m_vPotentiallyActiveLeaderTraits.clear();
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
-		if (m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
+	{
+		m_vLeaderHasTrait[iI] = false;
+		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
 		{
 			m_vLeaderHasTrait[iI] = true;
 			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
 		}
+	}
 
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
@@ -4521,6 +4525,20 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
+
+#if defined(MOD_BALANCE_CORE)
+	// precompute the traits our leader has
+	m_vPotentiallyActiveLeaderTraits.clear();
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		m_vLeaderHasTrait[iI] = false;
+		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
+		{
+			m_vLeaderHasTrait[iI] = true;
+			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
+		}
+	}
+#endif
 
 	kStream >> m_iGreatPeopleRateModifier;
 	kStream >> m_iGreatScientistRateModifier;

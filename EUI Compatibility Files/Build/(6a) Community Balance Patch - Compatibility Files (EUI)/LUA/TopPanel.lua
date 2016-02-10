@@ -32,10 +32,10 @@ local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
 local GreatPeopleIcon = EUI.GreatPeopleIcon
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
-
+local GetHelpTextForAffinity
 if civBE_mode then
 	include( "EUI_tooltips" )
-	local GetHelpTextForAffinity = EUI.GetHelpTextForAffinity
+	GetHelpTextForAffinity = EUI.GetHelpTextForAffinity
 end
 
 -------------------------------
@@ -120,7 +120,7 @@ local ResourceUsageTypes = ResourceUsageTypes
 --local MajorCivApproachTypes = MajorCivApproachTypes
 --local MinorCivTraitTypes = MinorCivTraitTypes
 --local MinorCivPersonalityTypes = MinorCivPersonalityTypes
-local MinorCivQuestTypes = MinorCivQuestTypes
+--local MinorCivQuestTypes = MinorCivQuestTypes
 --local CityAIFocusTypes = CityAIFocusTypes
 --local AdvisorTypes = AdvisorTypes
 --local GenericWorldAnchorTypes = GenericWorldAnchorTypes
@@ -143,6 +143,7 @@ local Game = Game
 local OptionsManager = OptionsManager
 local Events = Events
 local Mouse = Mouse
+local IsGameCoreBusy = IsGameCoreBusy
 --local MouseEvents = MouseEvents
 --local MouseOverStrategicViewResource = MouseOverStrategicViewResource
 local Locale = Locale
@@ -466,7 +467,6 @@ local function UpdateTopPanelNow()
 
 			local happinessText
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
-			local happinessTextColor
 			local turnsRemaining = ""
 
 			if not g_activePlayer:IsEmpireUnhappy() then
@@ -784,14 +784,14 @@ local function SetMark( line, size, percent, label, text )
 	local r1 = size * 0.43
 	local r2 = size * 0.47
 	local angle = percent * math_pi * 2
-	local x = math_sin( percent * math_pi * 2 )
-	local y = -math_cos( percent * math_pi * 2 )
+	local x = math_sin( angle )
+	local y = -math_cos( angle )
 	line:SetEndVal( r1 * x + r0, r1 * y + r0 )
 	label:SetOffsetVal( r2 * x, r2 * y )
 	label:SetText( text )
 end
 
-g_toolTipHandler.SciencePerTurn = function( control )
+g_toolTipHandler.SciencePerTurn = function()-- control )
 
 	local tips = table()
 	local tech, showLine1, showLine2, showBlankMeter, showLossMeter, showAnimMeter, showProgressMeter, showPortrait
@@ -1036,7 +1036,7 @@ end
 -------------------------------------------------
 -- Gold Tooltip & Click Actions
 -------------------------------------------------
-g_toolTipHandler.GoldPerTurn = function( control )
+g_toolTipHandler.GoldPerTurn = function()-- control )
 	local tips = table()
 
 	local goldPerTurnFromDiplomacy = g_activePlayer:GetGoldPerTurnFromDiplomacy()
@@ -1047,7 +1047,10 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
 -- C4DF
-	local vassalGold = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) * 100
+	local vassalGold = 0;
+	if g_activePlayer.GetYieldPerTurnFromVassals then
+		vassalGold = (g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) * 100)
+	end
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
 	local goldPerTurnFromPolicies = 0
@@ -1211,7 +1214,7 @@ if civ5_mode then
 			return GamePedia( GameInfo.Units[ gp.Class.DefaultUnit ].Description )
 		end
 	end)
-	g_toolTipHandler.GpIcon = function( control )
+	g_toolTipHandler.GpIcon = function()-- control )
 		local tipText = ""
 		local gp = ScanGP( Players[Game.GetActivePlayer()] )
 		if gp then
@@ -1230,7 +1233,7 @@ if civ5_mode then
 	-------------------------------------------------
 	-- Happiness Tooltip & Click Actions
 	-------------------------------------------------
-	g_toolTipHandler.HappinessString = function( control )
+	g_toolTipHandler.HappinessString = function()-- control )
 
 		if g_isHappinessEnabled then
 			local tips = table()
@@ -1319,7 +1322,7 @@ if civ5_mode then
 			local availableResources = ""
 			local missingResources = ""
 
-			for i, resource in pairs( g_luxuries) do
+			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 
 				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
@@ -1440,7 +1443,7 @@ if civ5_mode then
 			-- Local Resources in Cities
 			----------------------------
 			local tip = ""
-			for i, resource in pairs( g_luxuries) do
+			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
 				if quantity > 0 then
@@ -1467,7 +1470,7 @@ if civ5_mode then
 					end
 				end
 				local tip = ""
-				for i, resource in pairs( g_luxuries) do
+				for _, resource in pairs( g_luxuries) do
 					local resourceID = resource.ID
 					if (numConnectedResource[resourceID] or 0) > 0 then
 						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
@@ -1527,7 +1530,7 @@ if civ5_mode then
 			-- Imports
 			----------------------------
 			local tip = ""
-			for i, resource in pairs( g_luxuries) do
+			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
 				if quantity > 0 then
@@ -1554,7 +1557,7 @@ if civ5_mode then
 					local minor = Players[ minorID ]
 					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
 						local tip = ""
-						for i, resource in pairs( g_luxuries) do
+						for _, resource in pairs( g_luxuries) do
 							local quantity = minor:GetResourceExport(resource.ID)
 							if quantity > 0 then
 								tip = tip .. " " .. quantity .. resource.IconString
@@ -1571,7 +1574,7 @@ if civ5_mode then
 			-- Exports
 			----------------------------
 			local tip = ""
-			for i, resource in pairs( g_luxuries) do
+			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local quantity = g_activePlayer:GetResourceExport( resourceID )
 				if quantity > 0 then
@@ -1605,7 +1608,7 @@ if civ5_mode then
 			----------------------------
 			-- Available for Import
 			----------------------------
-			for i, resource in pairs( g_luxuries) do
+			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
 				local resources = table()
 				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
@@ -1636,7 +1639,7 @@ if civ5_mode then
 
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 		else
-			tips:insert( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
+			return setTextToolTip( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
 		end
 	end
 	Controls.HappinessString:RegisterCallback( Mouse.eLClick, function() GamePopup( ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW, 2 ) end )
@@ -1646,7 +1649,7 @@ if civ5_mode then
 	-------------------------------------------------
 	-- Golden Age Tooltip
 	-------------------------------------------------
-	g_toolTipHandler.GoldenAgeString = function( control )
+	g_toolTipHandler.GoldenAgeString = function()-- control )
 
 		if g_isHappinessEnabled then
 
@@ -1655,7 +1658,20 @@ if civ5_mode then
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-			
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+			end
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			if (iGAPTrait > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+			end
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			if (iGAPCities > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+			end
+			-- END
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( Locale.ToUpper"TXT_KEY_UNIQUE_GOLDEN_AGE_ANNOUNCE" )
@@ -1676,20 +1692,7 @@ if civ5_mode then
 					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
 				end
 			end
-			-- CBP
-			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
-			if (iGAPReligion > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
-			end
-			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-			if (iGAPTrait > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
-			end
-			local iGAPCities = g_activePlayer:GetGAPFromCities();
-			if (iGAPCities > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
-			end
-			-- END
+			
 			if g_isBasicHelp then
 				tips:insert( "" )
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then
@@ -1705,7 +1708,7 @@ if civ5_mode then
 
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 		else
-			tips:insert( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
+			return setTextToolTip( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
 		end
 	end
 	Controls.GoldenAgeString:SetToolTipCallback( requestTextToolTip )
@@ -1714,7 +1717,7 @@ if civ5_mode then
 	-- Tourism Tooltip & Click Actions
 	-------------------------------------------------
 	if bnw_mode then
-		g_toolTipHandler.TourismString = function( control )
+		g_toolTipHandler.TourismString = function()-- control )
 
 			local totalGreatWorks = g_activePlayer:GetNumGreatWorks()
 			local totalSlots = g_activePlayer:GetNumGreatWorkSlots()
@@ -1740,7 +1743,7 @@ if civ5_mode then
 		-------------------------------------------------
 		-- International Trade Routes Tooltip & Click Actions
 		-------------------------------------------------
-		g_toolTipHandler.InternationalTradeRoutes = function( control )
+		g_toolTipHandler.InternationalTradeRoutes = function()-- control )
 
 			local tipText = ""
 
@@ -1791,7 +1794,7 @@ else
 	-- ===========================================================================
 	-- Health Tooltip
 	-- ===========================================================================
-	g_toolTipHandler.HealthString = function( control )
+	g_toolTipHandler.HealthString = function()-- control )
 		if g_isHealthEnabled then
 
 			local excessHealth = g_activePlayer:GetExcessHealth()
@@ -1904,9 +1907,9 @@ else
 	-- Affinity Tooltips
 	-- ===========================================================================
 
-	g_toolTipHandler.Harmony = function( control ) return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_HARMONY, g_activePlayer ) ) end
-	g_toolTipHandler.Purity = function( control ) return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_PURITY, g_activePlayer ) ) end
-	g_toolTipHandler.Supremacy = function( control ) return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_SUPREMACY, g_activePlayer ) ) end
+	g_toolTipHandler.Harmony = function() return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_HARMONY, g_activePlayer ) ) end
+	g_toolTipHandler.Purity = function() return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_PURITY, g_activePlayer ) ) end
+	g_toolTipHandler.Supremacy = function() return setTextToolTip( GetHelpTextForAffinity( GameInfoTypes.AFFINITY_TYPE_SUPREMACY, g_activePlayer ) ) end
 
 	Controls.Harmony:SetToolTipCallback( requestTextToolTip )
 	Controls.Purity:SetToolTipCallback( requestTextToolTip )
@@ -1921,7 +1924,7 @@ end
 -------------------------------------------------
 -- Culture Tooltip & Click Actions
 -------------------------------------------------
-g_toolTipHandler.CultureString = function( control )
+g_toolTipHandler.CultureString = function()-- control )
 
 	local tips = table()
 
@@ -2009,8 +2012,11 @@ g_toolTipHandler.CultureString = function( control )
 
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 -- C4DF
-			local culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
+			local culturePerTurnFromVassals = 0;
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
+			end
 -- END
 			-- Culture from Golden Age
 -- CBP
@@ -2050,7 +2056,7 @@ Controls.CultureString:SetToolTipCallback( requestTextToolTip )
 -- Faith Tooltip & Click Actions
 -------------------------------------------------
 if civ5_mode and gk_mode then
-	g_toolTipHandler.FaithString = function( control )
+	g_toolTipHandler.FaithString = function()-- control )
 
 
 		if g_isReligionEnabled then
@@ -2080,7 +2086,9 @@ if civ5_mode and gk_mode then
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 
 -- C4DF
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+			end
 -- END			
 -- COMMUNITY PATCH CHANGE
 			-- Faith % lost from unhappiness
@@ -2552,7 +2560,7 @@ local function ResourcesTipHandler( control )
 	g_requestToolTipControl = control
 end
 
-local function OnResourceLClick( resourceID )
+local function OnResourceLClick()-- resourceID )
 	return GamePopup( ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW )
 end
 local function OnResourceRClick( resourceID )

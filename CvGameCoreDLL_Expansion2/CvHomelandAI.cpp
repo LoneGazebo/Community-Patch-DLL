@@ -3277,11 +3277,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					}
 				}
 
-#if defined(AUI_BINOM_RNG) 
-				int iRandom = GC.getGame().getJonRandNumBinom(50,"explore target tiebreak");
-#else
 				int iRandom = GC.getGame().getJonRandNum(50,"explore target tiebreak");
-#endif
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 				//careful with plots that are too dangerous

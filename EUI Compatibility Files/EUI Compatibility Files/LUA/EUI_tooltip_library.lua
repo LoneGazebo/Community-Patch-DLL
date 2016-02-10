@@ -122,10 +122,11 @@ end
 local S = string.format
 
 local g_deal = UI.GetScratchDeal()
+local g_dealDuration = Game and Game.GetDealDuration()
 
 local g_isScienceEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)
 local g_isPoliciesEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
-local g_isHappinessEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
+--local g_isHappinessEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 local g_isReligionEnabled = civ5gk_mode and (not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION))
 
 local function GetCivUnit( civilizationType, unitClassType )
@@ -266,7 +267,7 @@ local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgr
 	return math.floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
 end
 
-local function GetHelpTextForUnit( unitID, isIncludeRequirementsInfo )
+local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	local unit = GameInfo.Units[ unitID ]
 	if not unit then
 		return "<Unit undefined in game database>"
@@ -296,7 +297,7 @@ local function GetHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 	-- Player data
 	local activePlayerID = Game and Game.GetActivePlayer()
 	local activePlayer = activePlayerID and Players[ activePlayerID ]
-	local city, activeCivilization, activeCivilizationType
+	local city, activeCivilizationType
 
 	-- BE orbital units
 	local orbitalInfo = civBE_mode and unit.Orbital and GameInfo.OrbitalUnits[ unit.Orbital ]
@@ -310,8 +311,7 @@ local function GetHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 
 	if activePlayer then
 		productionCost = activePlayer:GetUnitProductionNeeded( unitID )
-		activeCivilization = GameInfo.Civilizations[ activePlayer:GetCivilizationType() ]
-		activeCivilizationType = activeCivilization and activeCivilization.Type
+		activeCivilizationType = (GameInfo.Civilizations[ activePlayer:GetCivilizationType() ] or {}).Type
 		city = UI.GetHeadSelectedCity()
 		if city and city:GetOwner() ~= activePlayerID then
 			city = nil
@@ -366,19 +366,18 @@ local function GetHelpTextForUnit( unitID, isIncludeRequirementsInfo )
 
 	-- Great Merchant
 	tips:insertIf( (unit.BaseGold or 0) > 0 and S( "[ICON_BULLET]%s %i%s%+i[ICON_INFLUENCE]", L"TXT_KEY_MISSION_CONDUCT_TRADE_MISSION", unit.BaseGold + ( unit.NumGoldPerEra or 0 ) * ( Game and Teams[Game.GetActiveTeam()]:GetCurrentEra() or PreGame.GetEra() ), g_currencyIcon, GameDefines.MINOR_FRIENDSHIP_FROM_TRADE_MISSION or 0 ) )
-
+	local tipKey, tip
 	-- Other tags
 	for k,v in pairs(unit) do
 		if v and v ~=0 and v~=-1 then
-			local tipKey = "TXT_KEY_EUI_UNIT_" .. k:upper()
-			local tipText = L( tipKey, v )
-			if tipText ~= tipKey then
-				tips:insert( "[ICON_BULLET]" .. tipText )
+			tipKey = "TXT_KEY_EUI_UNIT_" .. k:upper()
+			tip = L( tipKey, v )
+			if tip ~= tipKey then
+				tips:insert( "[ICON_BULLET]" .. tip )
 			end
 		end
 	end
 	-- Technology_DomainExtraMoves
-	local technologyDomainExtraMoves = table()
 	for row in GameInfo.Technology_DomainExtraMoves{ DomainType = unitDomainType } do
 		item = GameInfo.Technologies[ row.TechType ]
 		tips:insertIf( item and (row.Moves or 0)~=0 and S( "[ICON_BULLET]%s %+i[ICON_MOVES]", TechColor( L(item.Description) ), row.Moves ) )
@@ -559,7 +558,6 @@ local function GetSpecialistSlotsTooltip( specialistType, numSlots )
 end
 
 local function GetSpecialistYields( city, specialist )
-	local yieldTips = table()
 	local specialistID = specialist.ID
 	local tip = ""
 	if city then
@@ -616,6 +614,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local activePlayerBeliefs = {}
 	local availableBeliefs = {}
 	local activePerkTypes = {}
+	local activeCivilizationType
 
 	if g_isReligionEnabled and activePlayer then
 		if activePlayer:HasCreatedReligion() then
@@ -668,6 +667,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local enhancedYieldTechName = enhancedYieldTech and TechColor( L(enhancedYieldTech.Description) ) or ""
 
 	if activePlayer then
+		activeCivilizationType = (GameInfo.Civilizations[ activePlayer:GetCivilizationType() ] or {}).Type
 		city = city or UI.GetHeadSelectedCity()
 		city = (city and city:GetOwner() == activePlayerID and city) or activePlayer:GetCapitalCity() or activePlayer:Cities()(activePlayer)
 
@@ -696,7 +696,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
 	end
 
-	local tip, items, item, condition
+	local tip, tipKey, items, item
 	-- Name
 	local tips = table( BuildingColor( Locale.ToUpper( building.Description ) ) )
 -- CBP
@@ -712,10 +712,10 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	-- Other tags
 	for k,v in pairs(building) do
 		if v and v ~=0 and v~=-1 then
-			local tipKey = "TXT_KEY_EUI_BUILDING_" .. k:upper()
-			local tipText = L( tipKey, v )
-			if tipText ~= tipKey then
-				tips:insert( tipText )
+			tipKey = "TXT_KEY_EUI_BUILDING_" .. k:upper()
+			tip = L( tipKey, v )
+			if tip ~= tipKey then
+				tips:insert( tip )
 			end
 		end
 	end
@@ -723,7 +723,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 --local function GetBuildingYields( buildingID, buildingType, buildingClassID, activePlayer )
 	-- Yields
 	local thisBuildingAndYieldTypes = { BuildingType = buildingType }
-	local tip = ""
+	tip = ""
 	for yield in GameInfo.Yields() do
 		local yieldID = yield.ID
 		local yieldChange = 0
@@ -1383,7 +1383,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	tips:insertIf( buildingReplaced and buildingReplaced ~= building and L"TXT_KEY_PEDIA_REPLACES_LABEL".." "..BuildingColor( L(buildingReplaced.Description) ) ) --!!! row
 
 	-- Required Social Policy:
-	local item = building.PolicyBranchType and GameInfo.PolicyBranchTypes[ building.PolicyBranchType ]
+	item = building.PolicyBranchType and GameInfo.PolicyBranchTypes[ building.PolicyBranchType ]
 	tips:insertIf( item and L"TXT_KEY_PEDIA_PREREQ_POLICY_LABEL" .. " " .. PolicyColor( L(item.Description) ) )
 
 	-- Prerequisite Techs:
@@ -1727,8 +1727,8 @@ local function GetHelpTextForProcess( processID )
 	-- Name
 	local tips = table( Locale.ToUpper( process.Description ), "----------------" )
 	for row in GameInfo.Process_ProductionYields{ ProcessType = process.Type } do
-		yield = GameInfo.Yields[ row.YieldType ]
-		percent = yield and tonumber( row.Yield ) or 0
+		local yield = GameInfo.Yields[ row.YieldType ]
+		local percent = yield and tonumber( row.Yield ) or 0
 		if percent == 0 then
 		elseif civBE_mode then
 			tips:insertLocalized( "TXT_KEY_PROCESS_GENERIC_HELP", percent, tostring(yield.IconString), tostring(yield.Description) )
@@ -1780,7 +1780,6 @@ end
 local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconString, strModifiersString )
 
 	yieldIconString = tostring(yieldIconString or YieldIcons[yieldID])
-	local strYieldBreakdown = ""
 	local tips = table()
 
 	-- Base Yield from Terrain
@@ -1855,7 +1854,7 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
 		strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
 	elseif civBE_mode then
-		local yieldFromTrade = city:GetYieldPerTurnFromTrade(iYieldType)
+		local yieldFromTrade = city:GetYieldPerTurnFromTrade( yieldID )
 		if yieldFromTrade ~= 0 then
 			strModifiersString = strModifiersString .. "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_FROM_TRADE", yieldFromTrade, yieldIconString )
 		end
@@ -2031,10 +2030,19 @@ local function GetProductionTooltip( city )
 	end
 	local strModifiersString = city:GetYieldModifierTooltip( YieldTypes.YIELD_PRODUCTION )
 	-- Extra Production from Food (ie. producing Colonists)
-	if yieldID == YieldTypes.YIELD_PRODUCTION and city:IsFoodProduction() then
-		local productionFromFood = city:GetFoodProduction()
+	if city:IsFoodProduction() then
+		local productionFromFood = city:GetYieldRate( YieldTypes.YIELD_FOOD, false ) - city:FoodConsumption( true, 0 )
+		if productionFromFood <= 0 then
+			productionFromFood = 0
+		elseif productionFromFood <= 2 then
+			productionFromFood = productionFromFood * 100
+		elseif productionFromFood <= 4 then
+			productionFromFood = 200 + (productionFromFood - 2) * 50
+		else
+			productionFromFood = 300 + (productionFromFood - 4) * 25
+		end
 		if productionFromFood > 0 then
-			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood )
+			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood / 100 )
 		end
 	end
 	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ), productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
@@ -2433,10 +2441,6 @@ local function GetMoodInfo( playerID )
 	local player = Players[playerID]
 	local teamID = player:GetTeam()
 	local team = Teams[teamID]
-	local civType = player:GetCivilizationType()
-	local civInfo = civType and GameInfo.Civilizations[ civType ]
-	local leaderID = player:GetLeaderType()
-	local leaderInfo = leaderID and GameInfo.Leaders[leaderID]
 
 	-- Player & civ names
 	local strInfo = GetCivName(player) .. " (" .. GetLeaderName(player) .. ") "
@@ -2486,7 +2490,6 @@ local function GetMoodInfo( playerID )
 	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale.ToLower("TXT_KEY_VP_TECH") ) )
 	-- Policies
 	for policyBranch in GameInfo.PolicyBranchTypes() do
-		local policyBranchID = policyBranch.ID
 		local policyCount = 0
 
 		for policy in GameInfo.Policies() do
@@ -2499,7 +2502,7 @@ local function GetMoodInfo( playerID )
 	end
 	-- Religion Founded
 	tips:insertIf( gk_mode and player:HasCreatedReligion() and BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( player:GetReligionCreatedByPlayer() ) ) ) )
-	local tips = table( strInfo, tips:concat(", ") )
+	tips = table( strInfo, tips:concat(", ") )
 
 	-- Wonders
 	local wonders = table()
@@ -2629,7 +2632,7 @@ local function GetMoodInfo( playerID )
 	end
 
 	if bnw_mode then
-		for i,route in ipairs( activePlayer:GetTradeRoutes() ) do
+		for _, route in ipairs( activePlayer:GetTradeRoutes() ) do
 			if isUs or route.ToID == playerID then
 				local tip = "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. " "
 						.. routeBonus( route, "From" )
@@ -2640,7 +2643,7 @@ local function GetMoodInfo( playerID )
 				tradeRoutes:insert( tip .. " ("..(route.TurnsLeft-1)..")" )
 			end
 		end
-		for i,route in ipairs( activePlayer:GetTradeRoutesToYou() ) do
+		for _, route in ipairs( activePlayer:GetTradeRoutesToYou() ) do
 			if isUs or route.FromID == playerID then
 				tradeRoutes:insert( "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. "[ICON_MOVES]" .. route.ToCityName .. " "
 						.. routeBonus( route, "To" )
@@ -2692,8 +2695,8 @@ local function GetMoodInfo( playerID )
 			tips:append( luxuries:concat() .. strategic:concat() )
 
 			-- Resources they would like from us
-			local luxuries = table()
-			local strategic = table()
+			luxuries = table()
+			strategic = table()
 			for resource in GameInfo.Resources() do
 				if g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 ) then	-- 1 here is 1 quantity of the Resource, which is the minimum possible
 					if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
@@ -2715,7 +2718,7 @@ local function GetMoodInfo( playerID )
 			if gk_mode then
 
 				-- Embassy to them
-				isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, tt_iDealDuration )
+				isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_dealDuration )
 				isActiveDeal = team:HasEmbassyAtTeam( activeTeamID )
 
 				if isTradeable or isActiveDeal then
@@ -2726,7 +2729,7 @@ local function GetMoodInfo( playerID )
 				end
 
 				-- Embassy from them
-				isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, tt_iDealDuration )
+				isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_dealDuration )
 				isActiveDeal = activeTeam:HasEmbassyAtTeam( teamID )
 
 				if isTradeable or isActiveDeal then
@@ -2738,7 +2741,7 @@ local function GetMoodInfo( playerID )
 			end
 
 			-- Open Borders to them
-			isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, tt_iDealDuration )
+			isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_dealDuration )
 			isActiveDeal = activeTeam:IsAllowsOpenBordersToTeam(teamID)
 
 			if isTradeable or isActiveDeal then
@@ -2749,7 +2752,7 @@ local function GetMoodInfo( playerID )
 			end
 
 			-- Open Borders from them
-			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, tt_iDealDuration )
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_dealDuration )
 			isActiveDeal = team:IsAllowsOpenBordersToTeam( activeTeamID )
 
 			if isTradeable or isActiveDeal then
@@ -2760,7 +2763,7 @@ local function GetMoodInfo( playerID )
 			end
 
 			-- Declaration of Friendship
-			isTradeable = not gk_mode or g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, tt_iDealDuration )
+			isTradeable = not gk_mode or g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_dealDuration )
 			isActiveDeal = activePlayer:IsDoF(playerID)
 			if isTradeable or isActiveDeal then
 				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_FLOWER]"
@@ -2773,7 +2776,7 @@ local function GetMoodInfo( playerID )
 --			isTradeable = (activeTeam:IsResearchAgreementTradingAllowed() or team:IsResearchAgreementTradingAllowed())
 --				and not activeTeam:GetTeamTechs():HasResearchedAllTechs() and not team:GetTeamTechs():HasResearchedAllTechs()
 --				and not g_isScienceEnabled
-			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, tt_iDealDuration )
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_dealDuration )
 			isActiveDeal = activeTeam:IsHasResearchAgreement(teamID)
 			if isTradeable or isActiveDeal then
 				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_RESEARCH]"
@@ -2783,7 +2786,7 @@ local function GetMoodInfo( playerID )
 			end
 
 			-- Trade Agreement
-			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, tt_iDealDuration )
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_dealDuration )
 			isActiveDeal = activeTeam:IsHasTradeAgreement(teamID)
 			if isTradeable or isActiveDeal then
 				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_RESEARCH]"
@@ -2793,7 +2796,7 @@ local function GetMoodInfo( playerID )
 			end
 
 			-- Defensive Pact
-			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, tt_iDealDuration )
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_dealDuration )
 			isActiveDeal = activeTeam:IsDefensivePact(teamID)
 			if isTradeable or isActiveDeal then
 				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_STRENGTH]"
@@ -3178,8 +3181,8 @@ if civBE_mode then
 		if (player ~= nil) then
 			local allPerks = player:GetPerksForUnit(unit:GetUnitType());
 			local tempPerks = player:GetFreePerksForUnit(unit:GetUnitType());
-			for i,v in ipairs(tempPerks) do
-				table.insert(allPerks, v);
+			for _, perk in ipairs(tempPerks) do
+				table.insert(allPerks, perk);
 			end
 			local ignoreCoreStats = true;
 			temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, "[ICON_BULLET]");
@@ -3227,8 +3230,8 @@ if civBE_mode then
 		if (player ~= nil) then
 			local allPerks = player:GetPerksForUnit(unitType);
 			local tempPerks = player:GetFreePerksForUnit(unitType);
-			for i,v in ipairs(tempPerks) do
-				table.insert(allPerks, v);
+			for _, perk in ipairs(tempPerks) do
+				table.insert(allPerks, perk);
 			end
 			local ignoreCoreStats = true;
 			local temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, nil);
@@ -3374,7 +3377,7 @@ if civBE_mode then
 	local function ComposeUnitPerkNumberHelpText(perkIDTable, textKey, numberKey, firstEntry, prefix)
 		local s = "";
 		local number = 0;
-		for index, perkID in ipairs(perkIDTable) do
+		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
 			if (perkInfo ~= nil and perkInfo[numberKey] ~= nil and perkInfo[numberKey] ~= 0) then
 				number = number + perkInfo[numberKey];
@@ -3397,7 +3400,7 @@ if civBE_mode then
 	local function ComposeUnitPerkFlagHelpText(perkIDTable, textKey, flagKey, firstEntry, prefix)
 		local s = "";
 		local flag = false;
-		for index, perkID in ipairs(perkIDTable) do
+		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
 			if (perkInfo ~= nil and perkInfo[flagKey] ~= nil and perkInfo[flagKey]) then
 				flag = true;
@@ -3422,7 +3425,7 @@ if civBE_mode then
 	local function ComposeUnitPerkDomainCombatModHelpText(perkIDTable, textKey, domainKey, firstEntry, prefix)
 		local s = "";
 		local number = 0;
-		for index, perkID in ipairs(perkIDTable) do
+		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
 			if (perkInfo ~= nil) then
 				for domainCombatInfo in GameInfo.UnitPerks_DomainCombatMods("UnitPerkType = \"" .. perkInfo.Type .. "\" AND DomainType = \"" .. domainKey .. "\"") do
@@ -3451,7 +3454,7 @@ if civBE_mode then
 
 		-- Text key overrides
 		local filteredPerkIDTable = {};
-		for index, perkID in ipairs(perkIDTable) do
+		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
 			if (perkInfo ~= nil) then
 				if (perkInfo.Help ~= nil) then
@@ -3568,7 +3571,7 @@ if civBE_mode then
 	local function ComposeVirtueNumberHelpText(virtueIDTable, textKey, numberKey, firstEntry, postProcessFunction)
 		local s = "";
 		local number = 0;
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil and virtueInfo[numberKey] ~= nil and virtueInfo[numberKey] ~= 0) then
 				number = number + virtueInfo[numberKey];
@@ -3594,7 +3597,7 @@ if civBE_mode then
 	local function ComposeVirtueFlagHelpText(virtueIDTable, textKey, flagKey, firstEntry)
 		local s = "";
 		local flag = false;
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil and virtueInfo[flagKey] ~= nil and virtueInfo[flagKey]) then
 				flag = true;
@@ -3618,7 +3621,7 @@ if civBE_mode then
 	local function ComposeVirtueInterestHelpText(virtueIDTable, textKey, numberKey, firstEntry)
 		local s = "";
 		local interestPercent = 0;
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil and virtueInfo[numberKey] ~= nil and virtueInfo[numberKey] ~= 0) then
 				interestPercent = interestPercent + virtueInfo[numberKey];
@@ -3641,7 +3644,7 @@ if civBE_mode then
 
 	local function ComposeVirtueYieldHelpText(virtueIDTable, textKey, tableKey, firstEntry, postProcessFunction)
 		local s = "";
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil and GameInfo[tableKey] ~= nil) then
 				for tableInfo in GameInfo[tableKey]("PolicyType = \"" .. virtueInfo.Type .. "\"") do
@@ -3669,7 +3672,7 @@ if civBE_mode then
 
 	local function ComposeVirtueResourceClassYieldHelpText(virtueIDTable, textKey, firstEntry)
 		local s = "";
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil) then
 				for tableInfo in GameInfo.Policy_ResourceClassYieldChanges("PolicyType = \"" .. virtueInfo.Type .. "\"") do
@@ -3693,7 +3696,7 @@ if civBE_mode then
 
 	local function ComposeVirtueImprovementYieldHelpText(virtueIDTable, textKey, firstEntry)
 		local s = "";
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil) then
 				for tableInfo in GameInfo.Policy_ImprovementYieldChanges("PolicyType = \"" .. virtueInfo.Type .. "\"") do
@@ -3717,7 +3720,7 @@ if civBE_mode then
 
 	local function ComposeVirtueFreeUnitHelpText(virtueIDTable, textKey, firstEntry)
 		local s = "";
-		for index, virtueID in ipairs(virtueIDTable) do
+		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
 			if (virtueInfo ~= nil) then
 				for tableInfo in GameInfo.Policy_FreeUnitClasses("PolicyType = \"" .. virtueInfo.Type .. "\"") do

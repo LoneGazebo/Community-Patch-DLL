@@ -639,6 +639,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Already has OP
 		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)
 			return false;
+
 		// Same Team
 		if(eFromTeam == eToTeam)
 			return false;
@@ -1383,7 +1384,16 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 	int iNumInRenewDeal = 0;
 	int iNumInExistingDeal = 0;
 
-
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes eOtherPlayer1 = GetOtherPlayer(ePlayer);
+	if (eOtherPlayer1 != NO_PLAYER)
+	{
+		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		{
+			return iNumAvailable;
+		}
+	}
+#endif
 	CvDeal* pRenewDeal = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDealToRenew();
 	if (!pRenewDeal)
 	{

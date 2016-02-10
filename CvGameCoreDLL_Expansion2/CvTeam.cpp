@@ -1355,9 +1355,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 	}
 
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
-
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
@@ -1393,6 +1390,56 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 
 	// Meet the team if we haven't already
 	meet(eTeam, false);
+
+	//Check for bad units, and capture them!
+	CvUnit* pLoopUnit;
+	int iLoop;
+	for(int iPlayers = 0; iPlayers < MAX_CIV_PLAYERS; iPlayers++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayers;
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+		{
+			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if(pLoopUnit != NULL && pLoopUnit->IsCombatUnit() && pLoopUnit->plot()->getNumUnits() > 1)
+				{
+					for(int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
+					{
+						CvUnit* loopUnit = pLoopUnit->plot()->getUnitByIndex(iUnitLoop);
+
+						if(loopUnit != NULL && !loopUnit->IsCombatUnit() && GET_TEAM(loopUnit->getTeam()).isAtWar(GetID()))
+						{
+							CvUnit* pGiftUnit = kPlayer.initUnit(loopUnit->getUnitType(), loopUnit->getX(), loopUnit->getY(), GC.getUnitInfo(loopUnit->getUnitType())->GetDefaultUnitAIType(), NO_DIRECTION, true /*bNoMove*/);
+							if (!pGiftUnit->jumpToNearestValidPlot())
+							{
+								pGiftUnit->kill(false);
+							}
+							else
+							{
+								pGiftUnit->finishMoves();
+							}
+							Localization::String strMessage;
+							Localization::String strSummary;
+							strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_DETAILED");
+							strMessage << loopUnit->getUnitInfo().GetTextKey() << GET_PLAYER(pLoopUnit->getOwner()).getNameKey();
+							strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED");
+							CvNotifications* pNotification = GET_PLAYER(loopUnit->getOwner()).GetNotifications();
+							if(pNotification)
+							{
+								pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
+							}
+
+							loopUnit->kill(false);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
 #else
 
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
