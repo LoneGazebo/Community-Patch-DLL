@@ -34,7 +34,7 @@ local GameInfo = EUI.GameInfoCache -- warning! booleans are true, not 1, and use
 
 --local next = next
 local pairs = pairs
-local ipairs = ipairs
+--local ipairs = ipairs
 --local pcall = pcall
 --local print = print
 --local select = select
@@ -145,6 +145,7 @@ local MouseOverStrategicViewResource = MouseOverStrategicViewResource
 local Locale = Locale
 local L = Locale.ConvertTextKey
 local S = string.format
+local YieldDisplayTypes_AREA = YieldDisplayTypes.AREA
 --getmetatable("").__index.L = L
 
 -------------------------------
@@ -159,21 +160,21 @@ local gk_mode = type( Game.GetReligionName ) == "function"
 local bnw_mode = type( Game.GetActiveLeague ) == "function"
 local csd_mode = civ5_mode and type( Map_GetPlot(0,0).GetPlayerThatBuiltImprovement ) == "function"	-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
 local civ5_bnw_mode = bnw_mode and civ5_mode
-local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
+--local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
 
 local g_isGameDebugMode = Game.IsDebugMode()
 
-local g_domainTypeAir = DomainTypes.DOMAIN_AIR
-local g_mouseEventsMouseMove = MouseEvents.MouseMove
-local g_controlsTheBox = Controls.TheBox
+local DomainTypes_DOMAIN_AIR = DomainTypes.DOMAIN_AIR
+local MouseEvents_MouseMove = MouseEvents.MouseMove
+local Controls_TheBox = Controls.TheBox
 
-local g_maxTipLength = 7 * g_controlsTheBox:GetSizeY()
+--local g_maxTipLength = 7 * Controls_TheBox:GetSizeY()
 local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isOptionDebugMode, g_isNoob, g_isCivilianYields
 
 local g_tipTimer = 0
 local g_tipLevel = 0
 local g_lastPlot = false
-local g_isCityLimits, g_isCityYields
+local g_isCityLimits
 
 local g_specialFeatures = {
 --	[FeatureTypes.FEATURE_JUNGLE or -1] = true,
@@ -212,22 +213,20 @@ local function ClearOverlays()
 		Events_ClearHexHighlightStyle( "OwnedFill" )
 		Events_ClearHexHighlightStyle( "OwnedOutline" )
 		if g_isCivilianYields then
-			Events_RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
+			Events_RequestYieldDisplay( YieldDisplayTypes_AREA, 0 )
 		end
 	end
 end
 
 local function ShowPlotTips( tip )
-	local n = #(tip or "")
-	if n > 0 then
---		if n > g_maxTipLength then tip=tip:sub(1,g_maxTipLength) .. "......." end
+	if #(tip or "") > 0 then
 		if g_lastTip ~= tip then
 			g_lastTip = tip
-			g_controlsTheBox:SetToolTipString( tip )
+			Controls_TheBox:SetToolTipString( tip )
 		end
-		g_controlsTheBox:EnableToolTip( true )
+		Controls_TheBox:EnableToolTip( true )
 	else
-		g_controlsTheBox:EnableToolTip( false )
+		Controls_TheBox:EnableToolTip( false )
 	end
 end
 
@@ -264,7 +263,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	local activeCivilizationType = (GameInfo.Civilizations[ activeCivilizationID ] or {}).Type
 	local availableBeliefs = {}
 	local activePlayerIdeologyType
-	local plotOwner, workingCity, owningCity
+	local plotOwner, plotCity, workingCity, owningCity
 	local plotTechs = activeTeamTechs
 	local plotBeliefs = {}
 
@@ -651,7 +650,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 					-- todo unit:GetMaxDefenseStrength()
 					local rangedStrength = civ5_mode and unit:GetBaseRangedCombatStrength() or unit:GetRangedCombatStrength() --BE stupid function name change
 
-					if unit:GetDomainType() == g_domainTypeAir then
+					if unit:GetDomainType() == DomainTypes_DOMAIN_AIR then
 						unitStrength = rangedStrength
 						rangedStrength = 0
 						unitMoves = unit:Range()
@@ -754,7 +753,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			if selectedUnit:CanFound( plot ) then
 				g_isCityLimits = true
 				if g_isCivilianYields then
-					Events_RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
+					Events_RequestYieldDisplay( YieldDisplayTypes_AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
 				end
 				for i=1, CountHexPlots( g_cityWorkingRadius ) do
 					local p = IndexPlot( plot, i )
@@ -1148,7 +1147,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 
 				-- does build require time to build ?
 				if plot:GetBuildTime(buildID) > 0 then
-					local turnsRemaining = buildInProgress or math_ceil( ( plot:GetBuildTime( buildID, g_activePlayerID ) - math_max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
+					local turnsRemaining = buildInProgress or math_ceil( ( plot:GetBuildTime( buildID, activePlayerID ) - math_max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
 					if g_isNoob then
 						buildTip = buildTip .. " (" .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ) .. ")"
 					else
@@ -1249,7 +1248,7 @@ local function ResetTimer()
 	if g_tipLevel ~= 0 then
 		g_tipLevel = 0
 		if g_tipTimerThreshold1 > 0 then
-			g_controlsTheBox:EnableToolTip( false )
+			Controls_TheBox:EnableToolTip( false )
 			return ClearOverlays()
 		end
 	end
@@ -1287,7 +1286,7 @@ UpdateOptions()
 -------------------------------------------------
 ContextPtr:SetInputHandler(
 function( uiMsg ) --, wParam, lParam )
-	if uiMsg == g_mouseEventsMouseMove then
+	if uiMsg == MouseEvents_MouseMove then
 		local x, y = UIManager:GetMouseDelta()
 		if x ~= 0 or y ~= 0 then
 			return ResetTimer()

@@ -217,13 +217,6 @@
 		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
 			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion (or have a majority Religion), or you've reached the Renaissance Era[ENDCOLOR]</Text>
 		</Row>
-<!-- Espionage Overview Screen -->
-		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">
-			<Text>{1_CityName} is the [ICON_CAPITAL] Capital of {@2_CivShortDesc}. You can send either [ICON_SPY] Spies or [ICON_DIPLOMAT] Diplomats to this City.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YOUR_CAPITAL_CBP_SPY">
-			<Text>{1_CityName} is your [ICON_CAPITAL] Capital. It is a high priority target for enemy [ICON_SPY] Spies.</Text>
-		</Row>
 
 		<!-- Resource Wonder Improvement -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">

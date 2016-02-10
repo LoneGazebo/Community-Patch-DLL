@@ -23,17 +23,17 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 
 include( "CityStateStatusHelper" )
 local GetCityStateStatusRow = GetCityStateStatusRow
-local GetCityStateStatusType = GetCityStateStatusType
-local UpdateCityStateStatusUI = UpdateCityStateStatusUI
+--local GetCityStateStatusType = GetCityStateStatusType
+--local UpdateCityStateStatusUI = UpdateCityStateStatusUI
 local GetCityStateStatusToolTip = GetCityStateStatusToolTip
 local GetAllyToolTip = GetAllyToolTip
 local GetActiveQuestText = GetActiveQuestText
 local GetActiveQuestToolTip = GetActiveQuestToolTip
 
 --EUI_tooltips
-local GetHelpTextForUnit = EUI.GetHelpTextForUnit
-local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
-local GetHelpTextForProject = EUI.GetHelpTextForProject
+--local GetHelpTextForUnit = EUI.GetHelpTextForUnit
+--local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
+--local GetHelpTextForProject = EUI.GetHelpTextForProject
 local GetHelpTextForProcess = EUI.GetHelpTextForProcess
 local GetMoodInfo = EUI.GetMoodInfo
 local GetReligionTooltip = EUI.GetReligionTooltip
@@ -90,7 +90,7 @@ local GameDefines = GameDefines
 --local InterfaceDirtyBits = InterfaceDirtyBits
 local CityUpdateTypes = CityUpdateTypes
 local ButtonPopupTypes = ButtonPopupTypes
-local YieldTypes = YieldTypes
+--local YieldTypes = YieldTypes
 local GameOptionTypes = GameOptionTypes
 --local DomainTypes = DomainTypes
 --local FeatureTypes = FeatureTypes
@@ -138,11 +138,13 @@ local CityAIFocusTypes = CityAIFocusTypes
 --local PublicOpinionTypes = PublicOpinionTypes
 --local ControlTypes = ControlTypes
 
-local PreGame = PreGame
+--local PreGame = PreGame
 local Game = Game
-local Map = Map
+--local Map = Map
 local Map_GetPlotByIndex = Map.GetPlotByIndex
 local Map_GetPlot = Map.GetPlot
+--local Network = Network
+local Network_SendUpdateCityCitizens = Network.SendUpdateCityCitizens
 local OptionsManager = OptionsManager
 local Events = Events
 local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
@@ -156,6 +158,10 @@ local L = Locale.ConvertTextKey
 local S = string.format
 --getmetatable("").__index.L = L
 local InStrategicView = InStrategicView
+local GridToWorld = GridToWorld
+local ToGridFromHex = ToGridFromHex
+local UnitMoving = UnitMoving
+local YieldDisplayTypes = YieldDisplayTypes
 
 -------------------------------
 -- Globals
@@ -163,7 +169,7 @@ local InStrategicView = InStrategicView
 local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
 local civ5_mode = InStrategicView ~= nil
-local civBE_mode = Game.GetAvailableBeliefs ~= nil
+--local civBE_mode = Game.GetAvailableBeliefs ~= nil
 
 local isDebug = Game.IsDebugMode()
 
@@ -173,8 +179,8 @@ local g_activeTeamID = Game.GetActiveTeam()
 local g_activeTeam = Teams[ g_activeTeamID ]
 
 local g_cityBanners = {}
-local g_outpostBanners = {}
-local g_stationBanners = {}
+--local g_outpostBanners = {}
+--local g_stationBanners = {}
 local g_svStrikeButtons = {}
 
 local g_scrapTeamBanners = {}
@@ -184,25 +190,24 @@ local g_scrapSVStrikeButtons = {}
 local g_WorldPositionOffsetZ = civ5_mode and 35 or 55
 
 local BlackFog = 0	-- invisible
-local GreyFog = 1	-- once seen
-local WhiteFog = 2	-- eyes on
+--local GreyFog = 1	-- once seen
+--local WhiteFog = 2	-- eyes on
 
 local g_colorWhite = Color( 1, 1, 1, 1 )
 local g_colorGreen = Color( 0, 1, 0, 1 )
 local g_colorYellow = Color( 1, 1, 0, 1 )
 local g_colorRed = Color( 1, 0, 0, 1 )
 local g_colorCulture = Color( 1, 0, 1, 1 )
-local g_colorShadowBlack = Color( 0, 0, 0, 0.7 )
+--local g_colorShadowBlack = Color( 0, 0, 0, 0.7 )
 local g_primaryColors = EUI.PrimaryColors
 local g_backgroundColors = EUI.BackgroundColors
 
 local g_cityHexHighlight
 
 local g_dirtyCityBanners = {}
-local g_missingCityBanners = {}
 
-local g_CovertOpsBannerContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsBannerContainer" )
-local g_CovertOpsIntelReportContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsIntelReportContainer" )
+--local g_CovertOpsBannerContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsBannerContainer" )
+--local g_CovertOpsIntelReportContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsIntelReportContainer" )
 
 local g_toolTipControls = {}
 TTManager:GetTypeControlTable( "EUI_CityBannerTooltip", g_toolTipControls )
@@ -253,7 +258,7 @@ local g_toolTipHandler = {
 			local cityTeamID = cityOwner:GetTeam()
 
 			-- city resources
-			resources = {}
+			local resources = {}
 			for plot in CityPlots( city ) do
 				if plot	and plot:IsRevealed( g_activeTeamID )
 				then
@@ -300,71 +305,6 @@ local g_toolTipHandler = {
 					turnsRemaining = 99999
 				end
 
---[[ too much stuff ?
-				-- City happiness
-				if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS) then
-					local cityHappiness = city:GetHappiness() + cityOwner:GetExtraHappinessPerCity()
-					if cityOwner:IsCapitalConnectedToCity(city) and not city:IsCapital() then
-						cityHappiness = cityHappiness + cityOwner:GetHappinessPerTradeRoute() / 100	-- workaround vanilla Civ bug: have to divide by 100 (now in gk code)
-					end
-					if gk_mode then
-						cityHappiness = cityHappiness + city:GetLocalHappiness()
-					elseif city:GetGarrisonedUnit() then
-						cityHappiness = cityHappiness + cityOwner:GetHappinessPerGarrisonedUnit()
-					end
-					tipText = tipText .. S(" %g[ICON_HAPPINESS_1] %+g[ICON_HAPPINESS_4]", cityHappiness, -cityOwner:GetUnhappinessFromCityForUI(city) / 100 )
-				end
-
-				-- City Culture
-				tipText = tipText .. "[NEWLINE][NEWLINE][COLOR_MAGENTA]" .. L("TXT_KEY_CITYVIEW_CULTURE_TEXT")
-					.. "[ENDCOLOR] " .. L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", turnsRemaining )
-					.. S("[NEWLINE]%g [COLOR_MAGENTA]%+g[ICON_CULTURE][ENDCOLOR]x%g = %g / %g", cultureStored, culturePerTurn, turnsRemaining, turnsRemaining * culturePerTurn +cultureStored, cultureNeeded)	--:231:0:231:255
-
-				-- City Culture Empire modifier
-				local iAmount = cityOwner:GetCultureCityModifier()
-				if iAmount ~= 0 then
-					tipText = tipText .. "[NEWLINE][ICON_BULLET]" .. L("TXT_KEY_CULTURE_PLAYER_MOD", iAmount)
-				end
-
-				-- City Culture modifier
-				local iAmount = city:GetCultureRateModifier()
-				if iAmount ~= 0 then
-					tipText = tipText .. L("TXT_KEY_PRODMOD_YIELD", iAmount)
-				end
-
-				-- City Culture Wonders modifier
-				if city:GetNumWorldWonders() > 0 then
-					local iAmount = cityOwner:GetCultureWonderMultiplier()
-					if iAmount ~= 0 then
-						tipText = tipText .. "[NEWLINE][ICON_BULLET]" .. L("TXT_KEY_CULTURE_WONDER_BONUS", iAmount)
-					end
-				end
-
-				-- City Gold
-				tipText = tipText .. "[NEWLINE][NEWLINE][COLOR_YIELD_GOLD]" .. L("TXT_KEY_CITYVIEW_GOLD_TEXT")
-					.. S(" %+g[ICON_GOLD][ENDCOLOR]", city:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100) --:231:213:0:255
-				if not city:IsBlockaded() and not city:IsCapital() and cityOwner:IsCapitalConnectedToCity(city) then
-					if cityOwner.GetRouteGoldTimes100 then
-						tipText = tipText .. S(" %+g[ICON_CONNECTED]", cityOwner:GetRouteGoldTimes100( city ) / 100 )
-					elseif cityOwner.GetCityConnectionRouteGoldTimes100 then
-						tipText = tipText .. S(" %+g[ICON_CONNECTED]", cityOwner:GetCityConnectionRouteGoldTimes100( city ) / 100 )
-					end
-				end
-
-				local BuildingCost = city:GetTotalBaseBuildingMaintenance()
-				if BuildingCost ~= 0 then
-					tipText = tipText .. S(" %+g ", - BuildingCost ) .. L("TXT_KEY_REPLAY_DATA_BUILDINGMAINTENANCE")
-				end
-
-				tipText = tipText .. city:GetYieldModifierTooltip(YieldTypes.YIELD_GOLD)
-
-				-- City Science
-				if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
-					tipText = tipText .. "[NEWLINE][NEWLINE][COLOR_CYAN]" .. L("TXT_KEY_CITYVIEW_RESEARCH_TEXT")
-						.. S(" %+g[ICON_RESEARCH][ENDCOLOR]", city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100) --:33:190:247:255
-						.. city:GetYieldModifierTooltip(YieldTypes.YIELD_SCIENCE)
-				end
---]]
 				if gk_mode and city:GetReligiousMajority() < 0 then
 					tipText = tipText .. "[NEWLINE]" .. GetReligionTooltip(city)
 				end
@@ -931,7 +871,7 @@ local function OnBannerMouseEnter( ... )
 	local plot = Map_GetPlotByIndex( (...) )
 	local city = plot and plot:GetPlotCity()
 	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
-		Network.SendUpdateCityCitizens( city:GetID() )
+		Network_SendUpdateCityCitizens( city:GetID() )
 	end
 	g_cityHexHighlight = (...)
 	return RefreshCityBanner( ... )

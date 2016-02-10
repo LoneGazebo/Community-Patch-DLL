@@ -97,7 +97,7 @@ local TradeableItems = TradeableItems
 
 local PreGame = PreGame
 local Game = Game
-local Map = Map
+--local Map = Map
 --local OptionsManager = OptionsManager
 --local Events = Events
 --local Mouse = Mouse
@@ -108,10 +108,15 @@ local L = Locale.ConvertTextKey
 --local S = string.format
 local DB_Query = DB.Query
 
+local ContentManager_IsActive = ContentManager.IsActive
+local ContentType_GAMEPLAY = ContentType.GAMEPLAY
+
 --getmetatable("").__index.L = L
 
 if Game and PreGame then
 
+	local Map_GetPlot = Map.GetPlot
+	local Map_GetPlotXY = Map.GetPlotXY
 	local g_savedDealStack = {}
 	local g_deal = UI.GetScratchDeal()
 
@@ -144,7 +149,7 @@ if Game and PreGame then
 				return g_deal:AddResourceTrade( from, item[4], item[5], item[2] )
 			end,
 			[ TradeableItems.TRADE_ITEM_CITIES or false ] = function( from, item )
-				local plot = Map.GetPlot( item[4], item[5] )
+				local plot = Map_GetPlot( item[4], item[5] )
 				local city = plot and plot:GetPlotCity()
 				if city and city:GetOwner() == from then
 					return g_deal:AddCityTrade( from, city:GetID() )
@@ -265,7 +270,7 @@ if Game and PreGame then
 	local g_maximumAcquirePlotArea = (GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE+1) * GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE * 3
 	local g_maximumAcquirePlotPerimeter = GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE * 6
 
-	if Map.GetPlotByIndex(0).GetCityPurchaseID then
+	if Map_GetPlot(0,0).GetCityPurchaseID then
 		EUI.CityPlots = function( city )
 			local cityID = city:GetID()
 			local cityOwnerID = city:GetOwner()
@@ -309,6 +314,56 @@ if Game and PreGame then
 			end
 		end
 	end
+
+	--usage1: IndexPlot( plot, hexAreaPlotIndex )
+	--OR usage2: IndexPlot( plot, ringPlotIndex, ringDistanceFromPlot )
+	function EUI.IndexPlot( plot, i, r )
+		-- determine if input parameters are valid - you can delete this part for a tiny performance boost
+		if not plot or not i or i<0 or (r and (r<0 or i>6*r)) then
+			return print("IndexPlot error - invalid parameters")
+		end
+		-- area plot index mode ?
+		if not r then
+			-- area plot index 0 is a special case
+			if i == 0 then
+				return plot
+			else
+				-- which ring are we on ?
+
+				r = math_ceil( ( math_sqrt( 12*i + 9 ) - 3 ) / 6 )
+
+				-- determine ring plot index (substract inside area)
+				i = i - ( 3 * (r-1) * r ) - 1
+			end
+		end
+
+		-- determine coordinate offsets corresponding to ring index
+		local dx, dy
+		if i <= 2*r then
+			dx = math_min( i, r )
+		elseif i<= 4*r then
+			dx = 3*r-i
+		else
+			dx = math_max( i-6*r, -r )
+		end
+		if i <= 3*r then
+			dy = math_max( r-i, -r )
+		else
+			dy = math_min( i-4*r, r )
+		end
+
+		-- return plot offset from initial plot
+		return Map_GetPlotXY( plot:GetX(), plot:GetY(), dx, dy )
+	end
+	--usage: returns number of plots in hexagonal area of specified radius, minus center plot
+	function EUI.CountHexPlots( r )
+		return (r+1) * r * 3
+	end
+
+	function EUI.RadiusHexArea( a )
+		return ( math_sqrt( 1 + 4*a/3 ) - 1 ) / 2
+	end
+
 end
 
 local table = {
@@ -373,55 +428,6 @@ EUI.Color = Color
 
 function EUI.Capitalize( s )
 	return  Locale.ToUpper( s:sub(1,1) ) .. Locale.ToLower( s:sub(2) )
-end
-
---usage1: IndexPlot( plot, hexAreaPlotIndex )
---OR usage2: IndexPlot( plot, ringPlotIndex, ringDistanceFromPlot )
-function EUI.IndexPlot( plot, i, r )
-	-- determine if input parameters are valid - you can delete this part for a tiny performance boost
-	if not plot or not i or i<0 or (r and (r<0 or i>6*r)) then
-		return print("IndexPlot error - invalid parameters")
-	end
-	-- area plot index mode ?
-	if not r then
-		-- area plot index 0 is a special case
-		if i == 0 then
-			return plot
-		else
-			-- which ring are we on ?
-
-			r = math_ceil( ( math_sqrt( 12*i + 9 ) - 3 ) / 6 )
-
-			-- determine ring plot index (substract inside area)
-			i = i - ( 3 * (r-1) * r ) - 1
-		end
-	end
-
-	-- determine coordinate offsets corresponding to ring index
-	local dx, dy
-	if i <= 2*r then
-		dx = math_min( i, r )
-	elseif i<= 4*r then
-		dx = 3*r-i
-	else
-		dx = math_max( i-6*r, -r )
-	end
-	if i <= 3*r then
-		dy = math_max( r-i, -r )
-	else
-		dy = math_min( i-4*r, r )
-	end
-
-	-- return plot offset from initial plot
-	return Map.GetPlotXY( plot:GetX(), plot:GetY(), dx, dy )
-end
---usage: returns number of plots in hexagonal area of specified radius, minus center plot
-function EUI.CountHexPlots( r )
-	return (r+1) * r * 3
-end
-
-function EUI.RadiusHexArea( a )
-	return ( math_sqrt( 1 + 4*a/3 ) - 1 ) / 2
 end
 
 local nilFunction = function() end
@@ -589,8 +595,8 @@ end
 EUI.GreatPeopleIcons = GreatPeopleIcons
 
 function EUI.ResetCache()
-	bnw_mode = civBE_mode or ContentManager.IsActive("6DA07636-4123-4018-B643-6575B4EC336B", ContentType.GAMEPLAY)
-	gk_mode = bnw_mode or ContentManager.IsActive("0E3751A1-F840-4e1b-9706-519BF484E59D", ContentType.GAMEPLAY)
+	bnw_mode = civBE_mode or ContentManager_IsActive("6DA07636-4123-4018-B643-6575B4EC336B", ContentType_GAMEPLAY)
+	gk_mode = bnw_mode or ContentManager_IsActive("0E3751A1-F840-4e1b-9706-519BF484E59D", ContentType_GAMEPLAY)
 	setmetatable( IconTextureAtlases, { __index = AtlasMT } )
 	cleartable( IconTextureAtlases )
 	cleartable( GameInfoCache )

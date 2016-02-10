@@ -1170,7 +1170,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista())
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista() && bInitialFounding)
 	{
 		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
 		if(eReligion != NO_RELIGION)
@@ -13060,7 +13060,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield)
 		iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
 		iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 
-		if(iValidTilesTerrain > 0 && iBaseYieldBuildings > 0)
+		if(iBaseYieldBuildings > 0)
 		{		
 			iYield = (iValidTilesTerrain / iBaseYieldBuildings);
 			SetYieldPerXTerrain(eTerrain, eYield, iYield);

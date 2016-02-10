@@ -1461,6 +1461,34 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		{
 			iScore *= 5;
 		}
+		//Let's get route things on routes, and not elsewhere.
+		bool bRouteBenefit = false;
+		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			
+			if(pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) > 0)
+			{
+				bRouteBenefit = true;
+				break;
+			}
+			else if(pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) > 0)
+			{
+				bRouteBenefit = true;
+				break;
+			}
+		}
+		if(bRouteBenefit && pPlot->IsCityConnection(m_pPlayer->GetID()))
+		{
+			if(pPlot->IsRouteRailroad() || pPlot->IsRouteRoad())
+			{
+				iScore *= 2;
+			}
+			else
+			{
+				iScore /= 10;
+			}
+		}
 
 		//Great improvements are great!
 		if(pImprovement->IsCreatedByGreatPerson())
