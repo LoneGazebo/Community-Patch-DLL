@@ -2671,7 +2671,7 @@ Controls.ThemTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgre
 -----------------------------------------------------------------------------------------------------------------------
 function PocketResourceHandler( isUs, resourceId )
 	
-	local iAmount = 3;
+	local iAmount = 5;
 
 	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
 		iAmount = 1;

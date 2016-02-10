@@ -449,6 +449,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if(pkResource)
 		{
+			//Building uses resources? Not if we're a puppet, thanks!
+			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && m_pCity->IsPuppet())
+			{
+				return 0;
+			}
 			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)
 			{
 				//Decrease value based on # we own.

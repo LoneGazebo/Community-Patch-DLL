@@ -8675,7 +8675,7 @@ void CvGame::updateMoves()
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
 #endif
 							{
-								int iWaitTime = 100;
+								int iWaitTime = 1000;
 								if(!isNetworkMultiPlayer())
 								{
 									iWaitTime = 10;
@@ -9502,16 +9502,6 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	return m_jonRand.get((unsigned long)iNum, pszLog);
 }
 
-#if defined(AUI_BINOM_RNG)
-//	--------------------------------------------------------------------------------
-/// Get a synchronous random number in the range of 0...iNum-1 with binomial distribution
-/// Allows for logging.
-int CvGame::getJonRandNumBinom(int iNum, const char* pszLog)
-{
-	return m_jonRand.getBinom((unsigned long)iNum, pszLog);
-}
-#endif // AUI_BINOM_RNG
-
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
 /// Allows for logging.
@@ -10131,7 +10121,7 @@ void CvGame::SetHighestPotential()
 	// second pass to set the base potential for each city
 	if(m_iLargestBasePotential > 0)
 	{
-		for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
 		{
 			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 

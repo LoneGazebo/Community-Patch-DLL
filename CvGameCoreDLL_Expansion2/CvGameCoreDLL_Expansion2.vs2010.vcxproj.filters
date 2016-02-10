@@ -452,9 +452,6 @@
     <ClCompile Include="CvDllWorldInfo.cpp">
       <Filter>Dll Interface</Filter>
     </ClCompile>
-    <ClCompile Include="Lua\CvLuaArea.cpp">
-      <Filter>Lua</Filter>
-    </ClCompile>
     <ClCompile Include="Lua\CvLuaArgsHandle.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -518,8 +515,11 @@
     <ClCompile Include="CvArmyAI.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Downloads\Community-Patch-DLL-fefe (1)\Community-Patch-DLL-fefe\CvGameCoreDLL_Expansion2\CvAStarNode.cpp">
+    <ClCompile Include="CvAStarNode.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\CvLuaArea.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1059,9 +1059,6 @@
     </ClInclude>
     <ClInclude Include="TContainer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Downloads\Community-Patch-DLL-fefe (1)\Community-Patch-DLL-fefe\CvGameCoreDLL_Expansion2\CvAStarNode.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

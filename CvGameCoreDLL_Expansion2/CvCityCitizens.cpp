@@ -2282,52 +2282,10 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 			{
 				DoValidateForcedWorkingPlots();
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot != NULL)
-			{
-				if(pPlot->getTerrainType() != NO_TERRAIN)
-				{
-					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
-				}
-				if(pPlot->getFeatureType() != NO_FEATURE)
-				{
-					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
-				}
-				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
-				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
-				}
-				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
-				}
-			}
-#endif
 		}
 		else
 		{
 			ChangeNumForcedWorkingPlots(-1);
-#if defined(MOD_BALANCE_CORE)
-			if(pPlot != NULL)
-			{
-				if(pPlot->getTerrainType() != NO_TERRAIN)
-				{
-					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
-				}
-				if(pPlot->getFeatureType() != NO_FEATURE)
-				{
-					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
-				}
-				if(pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
-				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
-				}
-				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), -1);
-				}
-			}
-#endif
 		}
 	}
 }

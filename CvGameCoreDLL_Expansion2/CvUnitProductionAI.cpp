@@ -260,7 +260,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(!kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	if(m_pCity->IsPuppet())
 	{
 		return 0;
 	}
@@ -384,6 +384,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
+
+	//Let's look at what this can build (if a combat unit).
+	for (int i = 0; i < GC.getNumBuildInfos(); i++) 
+	{
+		CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+		if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
+		{
+			if(pkUnitEntry->GetCombat() > 0)
+			{
+				iBonus += 25;
+			}
+		}
+	}
+
 	///////////////
 	//UNIT TYPE CHECKS
 	//////////////////////

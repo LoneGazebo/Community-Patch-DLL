@@ -1032,6 +1032,7 @@ void CvPlayer::init(PlayerTypes eID)
 		setAdvancedActionBuilding(6);
 	}
 	SetBaseLuxuryHappiness(0);
+	GET_TEAM(getTeam()).DoUpdateBestRoute();
 #endif
 
 	m_aiPlots.clear();
@@ -11994,10 +11995,17 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// This is based on the switch in CvEconomicAI::LogMonitor() that calls different methods for culture and faith
 	// I've added this here as a "safe guard"
-	if (eYield == YIELD_CULTURE) {
+	if (eYield == YIELD_CULTURE) 
+	{
 		return GetTotalJONSCulturePerTurn();
-	} else if (eYield == YIELD_FAITH) {
+	} 
+	else if (eYield == YIELD_FAITH) 
+	{
 		return GetTotalFaithPerTurn();
+	}
+	else if(eYield == YIELD_TOURISM)
+	{
+		return GetCulture()->GetTourism();
 	}
 #endif
 

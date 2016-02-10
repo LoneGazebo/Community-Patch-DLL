@@ -8698,10 +8698,31 @@ int CvLuaPlayer::lGetCityByID(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int id = lua_tointeger(L, 2);
-
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pkCity = pkPlayer->getCity(id);
+	if(pkCity != NULL)
+	{
+		CvLuaCity::Push(L, pkCity);
+		return 1;
+	}
+	CvCity* pLoopCity;
+	int iLoop;
+	CvCity* pTargetCity = NULL;
+	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		if(iLoop == id)
+		{
+			pTargetCity = pLoopCity;
+			break;
+		}
+	}
+	CvLuaCity::Push(L, pTargetCity);
+	return 1;
+#else
 	CvCity* pkCity = pkPlayer->getCity(id);
 	CvLuaCity::Push(L, pkCity);
 	return 1;
+#endif
 }
 //------------------------------------------------------------------------------
 // Aux Method used by lUnits.
