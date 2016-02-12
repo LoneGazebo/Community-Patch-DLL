@@ -37449,27 +37449,123 @@ void CvDiplomacyAI::ChangeTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlay
 }
 
 /// Someone made a vassal, figure out what that means
-void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes ePlayer, TeamTypes eTeam)
+void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, TeamTypes eMasterTeam, bool bVoluntary)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
+	
 	PlayerTypes eOtherTeamPlayer; // a player on eTeam
 	for(int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
 	{
 		eOtherTeamPlayer = (PlayerTypes) iOtherPlayerLoop;
 		
 		// OtherPlayer is on eTeam
-		if(GET_PLAYER(eOtherTeamPlayer).getTeam() == eTeam)
+		if(GET_PLAYER(eOtherTeamPlayer).getTeam() == eMasterTeam)
 		{
 			// Only stuff for Major Civs
 			if(!GET_PLAYER(eOtherTeamPlayer).isMinorCiv())
 			{
 				// Is ePlayer the vassal of eOtherTeamPlayer? (just in case we call this function the other way around, and ePlayer is the master)
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(eOtherTeamPlayer))
+				if(GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->IsVassal(eOtherTeamPlayer))
 				{
+					// During capitulation, reset all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
+					if(!bVoluntary) {
+						SetDenouncedPlayer(eOtherTeamPlayer, false);
+						SetDenouncedPlayerCounter(eOtherTeamPlayer, -1);
+
+						// also cancel out denunciation from Master
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayer(eVassalPlayer, false);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayerCounter(eVassalPlayer, -1);
+
+						// Cancel out negative assist value
+						if (GetRecentAssistValue(eOtherTeamPlayer) > 0)
+							ChangeRecentAssistValue(eOtherTeamPlayer, -GetRecentAssistValue(eOtherTeamPlayer));
+
+						m_paiNumTimesCultureBombed[eOtherTeamPlayer] = 0;
+						m_paiNegativeReligiousConversionPoints[eOtherTeamPlayer] = 0;
+						m_paiNegativeArchaeologyPoints[eOtherTeamPlayer] = 0;
+#if defined(MOD_BALANCE_CORE)
+						m_paiNumTimesRazed[eOtherTeamPlayer] = 0;
+						m_paiIntrigueSharedTurn[eOtherTeamPlayer] = 0;
+						m_paiReligiousConversionTurn[eOtherTeamPlayer] = 0;
+						m_paiTimesRobbedTurn[eOtherTeamPlayer] = 0;
+#endif
+						m_paiNumTimesNuked[eOtherTeamPlayer] = 0;
+						m_paiNumTimesRobbedBy[eOtherTeamPlayer] = 0;
+						
+						m_paiBrokenExpansionPromiseValue[eOtherTeamPlayer] = 0;
+						m_paiIgnoredExpansionPromiseValue[eOtherTeamPlayer] = 0;
+						m_paiBrokenBorderPromiseValue[eOtherTeamPlayer] = 0;
+						m_paiIgnoredBorderPromiseValue[eOtherTeamPlayer] = 0;
+						m_paiDeclaredWarOnFriendValue[eOtherTeamPlayer] = 0;
+
+						m_paiOtherPlayerTurnsSinceAttackedProtectedMinor[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerProtectedMinorAttacked[eOtherTeamPlayer] = 0;
+						m_paiOtherPlayerNumProtectedMinorsAttacked[eOtherTeamPlayer] = 0;
+
+						m_paiOtherPlayerTurnsSinceKilledProtectedMinor[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerProtectedMinorKilled[eOtherTeamPlayer] = 0;
+						m_paiOtherPlayerNumProtectedMinorsKilled[eOtherTeamPlayer] = 0;
+
+						m_pabPlayerMadeAttackCityStatePromise[eOtherTeamPlayer] = false;
+						m_pabPlayerBrokenAttackCityStatePromise[eOtherTeamPlayer] = false;
+						m_pabPlayerIgnoredAttackCityStatePromise[eOtherTeamPlayer] = false;
+						
+						m_pabPlayerMadeBullyCityStatePromise[eOtherTeamPlayer] = false;
+						m_pabPlayerBrokenBullyCityStatePromise[eOtherTeamPlayer] = false;
+						m_pabPlayerIgnoredBullyCityStatePromise[eOtherTeamPlayer] = false;
+						
+						m_pabPlayerMadeSpyPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerBrokenSpyPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerIgnoredSpyPromise[eOtherTeamPlayer] = false;
+						
+						m_pabPlayerMadeNoConvertPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerBrokenNoConvertPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerIgnoredNoConvertPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerAskedNotToConvert[eOtherTeamPlayer] = false;
+						m_pabPlayerAgreedNotToConvert[eOtherTeamPlayer] = false;
+						
+						m_pabPlayerMadeNoDiggingPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerBrokenNoDiggingPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerIgnoredNoDiggingPromise[eOtherTeamPlayer] = false;
+						m_pabPlayerAskedNotToDig[eOtherTeamPlayer] = false;
+						m_pabPlayerAgreedNotToDig[eOtherTeamPlayer] = false;
+						
+						m_pabPlayerBrokenCoopWarPromise[eOtherTeamPlayer] = false;
+
+						m_paiOtherPlayerNumProtectedMinorsBullied[eOtherTeamPlayer] = 0;
+
+						m_paiOtherPlayerTurnsSinceSidedWithTheirProtectedMinor[eOtherTeamPlayer] = -1;
+
+						m_paiOtherPlayerNumMinorsAttacked[eOtherTeamPlayer] = 0;
+						m_paiOtherPlayerNumMinorsConquered[eOtherTeamPlayer] = 0;
+						m_paiOtherPlayerNumMajorsAttacked[eOtherTeamPlayer] = 0;
+						m_paiOtherPlayerNumMajorsConquered[eOtherTeamPlayer] = 0;
+#if defined(MOD_API_EXTENSIONS)
+						m_paiOtherPlayerWarmongerAmountTimes100[eOtherTeamPlayer] = 0;
+#else
+						m_paiOtherPlayerWarmongerAmount[eOtherTeamPlayer] = 0;
+#endif
+
+						m_paiOtherPlayerTurnsSinceWeLikedTheirProposal[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerTurnsSinceTheySupportedOurProposal[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerTurnsSinceTheyFoiledOurProposal[eOtherTeamPlayer] = -1;
+						m_paiOtherPlayerTurnsSinceTheySupportedOurHosting[eOtherTeamPlayer] = -1;
+
+#if defined(MOD_BALANCE_CORE)
+						m_pabDemandEverMade[eOtherTeamPlayer] = false;
+						m_pabPlayerNoSettleRequestEverAsked[eOtherTeamPlayer] = false;
+						m_pabPlayerStopSpyingRequestEverAsked[eOtherTeamPlayer] = false;
+#else
+						m_paiDemandCounter[eOtherTeamPlayer] = -1;
+						m_paiPlayerNoSettleRequestCounter[eOtherTeamPlayer] = -1;
+						m_paiPlayerStopSpyingRequestCounter[eOtherTeamPlayer] = -1;
+#endif
+					}
+
 					// In case we had an ongoing operation against our Master, kill it
 					SetMusteringForAttack(eOtherTeamPlayer, false);
 

@@ -975,7 +975,7 @@ public:
 	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange);
 
-	void DoWeMadeVassalageWithSomeone(PlayerTypes ePlayer, TeamTypes eTeam);
+	void DoWeMadeVassalageWithSomeone(PlayerTypes ePlayer, TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
 
 	GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
