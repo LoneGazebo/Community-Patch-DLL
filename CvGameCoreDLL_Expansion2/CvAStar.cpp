@@ -44,6 +44,28 @@
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
+//thread safety
+class CvGuard
+{
+public:
+	CvGuard(CRITICAL_SECTION& cs) : cs(cs)
+	{
+		EnterCriticalSection(&cs);
+	}
+	~CvGuard()
+	{
+		LeaveCriticalSection(&cs);
+	}
+
+private:
+	//overwrite bad defaults
+	CvGuard(const CvGuard&);
+	CvGuard& operator = (const CvGuard&);
+
+protected:
+	CRITICAL_SECTION& cs;
+};
+
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
@@ -210,6 +232,11 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 {
 	if (data.ePathType != m_sData.ePathType)
 		return false;
+
+	//make sure we don't call this from dll and lua at the same time
+	CRITICAL_SECTION cs;
+	InitializeCriticalSection(&cs);
+	CvGuard guard(cs);
 
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;

@@ -2452,13 +2452,9 @@ void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
-	int iI;
-	CvPlot* pPlot;
-
-
-	for(iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
+	for(int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
-		pPlot = GetCityPlotFromIndex(iI);
+		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 
 		DoVerifyWorkingPlot(pPlot);
 	}

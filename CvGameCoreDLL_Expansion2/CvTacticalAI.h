@@ -364,6 +364,8 @@ public:
 	{
 		m_iDominanceZoneID = iZone;
 	};
+
+	int GetCurrentHitpoints(PlayerTypes eAttackingPlayer);
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 
@@ -821,15 +823,8 @@ public:
 	void DropObsoleteZones();
 	bool IsTemporaryZoneCity(CvCity* pCity);
 
-	// Public routines to handle multiple unit attacks
-	void InitializeQueuedAttacks();
-	bool QueueAttack(void* pAttacker, CvTacticalTarget* pTarget, bool bRanged, bool bCityAttack);
-	void LaunchAttack(void* pAttacker, CvTacticalTarget* pTarget, bool bFirstAttack, bool bRanged, bool bCityAttack);
-	void CombatResolved(void* pAttacker, bool bVictorious, bool bCityAttack=false);
-	int PlotAlreadyTargeted(CvPlot* pPlot);
-	bool IsInQueuedAttack(const CvUnit* pAttacker);
-	bool IsCityInQueuedAttack(const CvCity* pAttackCity);
-	int NearXQueuedAttacks(const CvPlot* pPlot, const int iRange);
+	bool PerformAttack(CvCity* pAttacker, CvTacticalTarget* pTarget);
+	bool PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget);
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsUnitHealing(int iUnitID) const;
@@ -1043,10 +1038,6 @@ private:
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL > m_MovePriorityList;
 	int m_MovePriorityTurn;
-
-	// Data for multi-unit attacks - not serialized, cleared out for each turn
-	std::list<CvQueuedAttack> m_QueuedAttacks;
-	int m_iCurrentSeriesID;
 
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;

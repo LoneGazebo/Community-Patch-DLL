@@ -155,8 +155,6 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
-	GetTacticalAI()->InitializeQueuedAttacks();
-
 	if(isHuman())
 	{
 		return;
