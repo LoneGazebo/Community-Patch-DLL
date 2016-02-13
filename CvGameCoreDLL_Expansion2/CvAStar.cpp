@@ -31,9 +31,9 @@
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)
-#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*40)
-#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*90)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided
+#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
+#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
 #define PATH_DO_NOT_USE_WEIGHT									(1000000000)

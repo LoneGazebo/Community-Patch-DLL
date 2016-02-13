@@ -433,8 +433,6 @@ void CvTacticalAI::CommandeerUnits()
 	// Loop through our units
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if(!pLoopUnit)
 		{
 			continue;
@@ -474,17 +472,21 @@ void CvTacticalAI::CommandeerUnits()
 		if (pLoopUnit->GetMissionAIType()==MISSIONAI_ASSAULT)
 			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
 
+		//if we cannot heal in the capital, we can heal nowhere ...
+		CvCity* pCapital = m_pPlayer->getCapitalCity();
+		bool bCanHeal = pCapital ? pLoopUnit->healRate( pCapital->plot() ) > 0 : false;
+
 		// is the unit healing?
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
-			if ( pLoopUnit->getDamage()>30 )
+			if ( pLoopUnit->getDamage()>30 && bCanHeal )
 				//need to continue healing
 				continue;
 			else
 				//done healing
 				m_HealingUnits.erase( pLoopUnit->GetID() );
 		}
-		else
+		else if (bCanHeal)
 		{
 			//does it need healing? unless barbarian or japanese!
 			if ( (pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn() ) && !m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() )
@@ -567,52 +569,6 @@ void CvTacticalAI::CommandeerUnits()
 				}
 			}
 		}
-#else
-		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN ||  pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || !pLoopUnit->canMove() || pLoopUnit->isHuman())
-		{
-			continue;
-		}
-
-		// We want ALL the barbarians and air units (that are combat ready)
-		else if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pLoopUnit.pointer())))
-		{
-			pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-		}
-
-		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
-		else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral())
-		{
-			continue;
-		}
-		else
-		{
-			// Is this one in an operation we can't interrupt?
-			int iArmyID = pLoopUnit->getArmyID();
-			const CvArmyAI* army = m_pPlayer->getArmyAI(iArmyID);
-			if(iArmyID != -1 && NULL != army && !army->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
-			{
-				pLoopUnit->setTacticalMove(NO_TACTICAL_MOVE);
-			}
-			else
-			{
-				// Non-zero danger value, near enemy, or deploying out of an operation?
-				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()));
-				if(iDanger > 0 || NearVisibleEnemy(pLoopUnit, m_iRecruitRange) ||
-				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-				{
-					pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-				}
-				else if (pLoopUnit->canParadrop(pLoopUnit->plot(),false))
-				{
-					pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-				}
-			}
-		}
-#endif
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
