@@ -2295,7 +2295,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 			{
-				fDesirability /= 2;
+				fDesirability /= 15;
 			}
 		}
 	}

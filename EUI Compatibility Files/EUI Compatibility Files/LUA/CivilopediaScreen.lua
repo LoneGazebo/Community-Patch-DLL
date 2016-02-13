@@ -73,11 +73,11 @@ local homePageOfCategoryID = 9999;
 	local g_bResearchAgreementTrading = false;
 	local g_bTechTrading = true;
 	local g_bNoVassalage= false;
-if(Game ~= nil)then
-	g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-	g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
-	g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
-end
+	if(Game ~= nil)then
+		g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+		g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
+		g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+	end
 -- END
 
 -- These projects were more of an implementation detail and not explicit projects
@@ -2428,7 +2428,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield);
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
 			numAbilities = numAbilities + 1;
 		end	
 
@@ -2437,7 +2437,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
 			
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield );
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
 			numAbilities = numAbilities + 1;
 		end	
 
@@ -2445,7 +2445,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield );
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
 			numAbilities = numAbilities + 1;
 		end	
 
@@ -2481,6 +2481,13 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			numAbilities = numAbilities + 1;
 		end
 --CBP
+		if thisTech.Happiness > 0 then
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", thisTech.Happiness );
+			numAbilities = numAbilities + 1
+		end
 		if thisTech.BombardRange > 0 then
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
@@ -2513,7 +2520,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield);
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
 			numAbilities = numAbilities + 1;
 		end	
 -- END	

@@ -4282,8 +4282,9 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 
 	//update player majority
 	if (m_majorityCityReligion!=oldMajority)
+	{
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
-
+	}
 	return (m_majorityCityReligion!=NO_RELIGION);
 #else
 	if ((iMostFollowers * 2) >= iTotalFollowers)

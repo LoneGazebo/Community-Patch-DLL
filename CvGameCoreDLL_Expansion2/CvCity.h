@@ -156,11 +156,14 @@ public:
 	int GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const;
 
-	void UpdateYieldPerXTerrain(YieldTypes eYield);
-	void UpdateYieldPerXTerrainFromReligion(YieldTypes eYield);
+	void UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain = NO_TERRAIN);
+	void UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes eTerrain = NO_TERRAIN);
 
 	void ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange);
 	int GetNumTerrainWorked(TerrainTypes eTerrain);
+
+	void ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChange);
+	int GetNumFeaturelessTerrainWorked(TerrainTypes eTerrain);
 
 	void ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange);
 	int GetNumFeatureWorked(FeatureTypes eFeature);
@@ -180,8 +183,8 @@ public:
 	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 
-	void UpdateYieldPerXFeature(YieldTypes eYield);
-	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield);
+	void UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
+	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
 #endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -871,6 +874,9 @@ public:
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
+
+	void ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange);
+	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -1463,6 +1469,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
+	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
@@ -1534,6 +1541,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeaturelessTerrainWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeatureWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourceWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumImprovementWorked;

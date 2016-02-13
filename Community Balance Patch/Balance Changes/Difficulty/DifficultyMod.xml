@@ -287,7 +287,7 @@
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
 			<AIPerEraModifier>-7</AIPerEraModifier>
 			<AIAdvancedStartPercent>185</AIAdvancedStartPercent>
-			<DifficultyBonus>60</DifficultyBonus>
+			<DifficultyBonus>70</DifficultyBonus>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
@@ -348,7 +348,7 @@
 			<AIPerEraModifier>-8</AIPerEraModifier>
 			<AIAdvancedStartPercent>200</AIAdvancedStartPercent>
 			<AIFreeXP>20</AIFreeXP>
-			<DifficultyBonus>70</DifficultyBonus>
+			<DifficultyBonus>80</DifficultyBonus>
 			<AIFreeXPPercent>66</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
@@ -408,7 +408,7 @@
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<AIAdvancedStartPercent>215</AIAdvancedStartPercent>
 			<AIFreeXP>25</AIFreeXP>
-			<DifficultyBonus>80</DifficultyBonus>
+			<DifficultyBonus>100</DifficultyBonus>
 			<AIFreeXPPercent>75</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
@@ -469,7 +469,7 @@
 			<AIAdvancedStartPercent>230</AIAdvancedStartPercent>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
-			<DifficultyBonus>100</DifficultyBonus>
+			<DifficultyBonus>125</DifficultyBonus>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>

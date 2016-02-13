@@ -424,7 +424,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_EMBASSY</ImprovementType>
-			<TechType>TECH_GLOBALIZATION</TechType>
+			<TechType>TECH_ATOMIC_THEORY</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>

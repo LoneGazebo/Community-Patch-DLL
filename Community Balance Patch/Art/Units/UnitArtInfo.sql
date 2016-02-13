@@ -1,3 +1,20 @@
+-- Writer and Musician
+UPDATE Specialists
+SET IconAtlas = 'WRITER_SPECIALIST_ATLAS'
+WHERE Type = 'SPECIALIST_WRITER';
+
+UPDATE Specialists
+SET PortraitIndex = '0'
+WHERE Type = 'SPECIALIST_WRITER';
+
+UPDATE Specialists
+SET IconAtlas = 'MUSICIAN_SPECIALIST_ATLAS'
+WHERE Type = 'SPECIALIST_MUSICIAN';
+
+UPDATE Specialists
+SET PortraitIndex = '0'
+WHERE Type = 'SPECIALIST_MUSICIAN';
+
 -- Cruiser
 
 INSERT INTO ArtDefine_UnitInfos (Type,DamageStates,Formation)

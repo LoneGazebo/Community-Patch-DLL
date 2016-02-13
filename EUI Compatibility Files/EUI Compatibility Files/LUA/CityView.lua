@@ -247,8 +247,8 @@ local g_slotTexture = {
 	SPECIALIST_SCIENTIST = "CitizenScientist.dds",
 	SPECIALIST_MERCHANT = "CitizenMerchant.dds",
 	SPECIALIST_ARTIST = "CitizenArtist.dds",
-	SPECIALIST_MUSICIAN = "CitizenArtist.dds",
-	SPECIALIST_WRITER = "CitizenArtist.dds",
+	SPECIALIST_MUSICIAN = "citizenmusician.dds",
+	SPECIALIST_WRITER = "citizenwriter.dds",
 	SPECIALIST_ENGINEER = "CitizenEngineer.dds",
 	SPECIALIST_CIVIL_SERVANT = "CitizenCivilServant.dds",	-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
 	SPECIALIST_JFD_MONK = "CitizenMonk.dds", -- Compatibility with JFD's Piety & Prestige for Brave New World
@@ -1923,6 +1923,9 @@ local function UpdateCityViewNow()
 
 					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
 					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
+					-- CBP
+					gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+					--END
 					local gpChangePolicyMod = 0
 					local gpChangeWorldCongressMod = 0
 					local gpChangeGoldenAgeMod = 0

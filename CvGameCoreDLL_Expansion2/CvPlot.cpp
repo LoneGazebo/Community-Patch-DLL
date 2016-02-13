@@ -5281,6 +5281,32 @@ int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovem
 
 	return iRtnValue;
 }
+int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+	{
+		ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+		if(eImprovement != NO_IMPROVEMENT)
+		{
+			if(kImprovement.GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+					if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eImprovement)
+					{
+						iRtnValue += kImprovement.GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					}
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
 #endif
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -6685,8 +6711,8 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
-				pWorkingCity->UpdateYieldPerXTerrain((YieldTypes)iI);
-				pWorkingCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI);
+				pWorkingCity->UpdateYieldPerXTerrain((YieldTypes)iI, getTerrainType());
+				pWorkingCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
 			}
 		}
 #endif
@@ -6752,9 +6778,15 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
-				pWorkingCity->UpdateYieldPerXFeature((YieldTypes)iI);
-				pWorkingCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI);
+				pWorkingCity->UpdateYieldPerXFeature((YieldTypes)iI, getFeatureType());
+				pWorkingCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI, getFeatureType());
 			}
+		}
+
+		GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
+		if(eNewValue != NO_FEATURE)
+		{
+			GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
 		}
 #endif
 
@@ -9255,7 +9287,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
 				if(pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
 				{
-					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0;
+					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
 				}
 			}
 		}
@@ -12475,7 +12507,24 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 #endif
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(ePlayer != NO_PLAYER && eImprovement != NO_IMPROVEMENT && getOwner() == ePlayer)
+	{
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
+			if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+			{
+				CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+				if(pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+				{
+					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+				}
+			}
+		}
+	}
+#endif
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
 	// If we're not changing the route that's here, use the route that's here already
@@ -14414,13 +14463,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		iScore += defenseModifier(eTeam, true);
 
 		//Bonus for nearby owned tiles
-		iScore += (iNearbyOwned * 5);
+		iScore += (iNearbyOwned * 3);
 		
 		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwned * 5);
+		iScore += (iAdjacentOwned * 4);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadAdjacent * 15);
+		iScore += (iBadAdjacent * 16);
 
 		//Big Bonus if adjacent to enemy territory.
 		iScore += (iBadNearby * 10);
@@ -14428,11 +14477,11 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		//Big bonus if chokepoint
 		if(IsChokePoint())
 		{
-			iScore *= 25;
+			iScore *= 33;
 		}
 		if(IsLandbridge(12,54))
 		{
-			iScore *= 25;
+			iScore *= 33;
 		}
 		return iScore;
 	}

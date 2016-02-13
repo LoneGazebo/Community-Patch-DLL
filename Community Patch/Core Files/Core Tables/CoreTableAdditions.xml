@@ -513,6 +513,14 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer" default="0"/>
 	</Table>
+
+	<!-- Make a building specifically improve a GP rate of one specialist type -->
+	<Table name="Building_SpecificGreatPersonRateModifier">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
+	
 	<!-- Tech/Specialists -->
 	<Table name="Tech_SpecialistYieldChanges">
 		<Column name="TechType" type="text" reference="Technologies(Type)"/>

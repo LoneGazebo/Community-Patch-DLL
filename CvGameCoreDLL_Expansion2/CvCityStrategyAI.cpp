@@ -1165,7 +1165,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{	
 		// Make sure this unit can be built now
-		if(m_pCity->canTrain((UnitTypes)iUnitLoop))
+		if(m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
@@ -1177,18 +1177,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			{
 				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
 			}
-		}
-	}
-
-	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
-	int iLoop;
-	for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-	{
-		if(pLoopCity && !pLoopCity->IsPuppet())
-		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
-			for (size_t i=0; i<vBuildings.size(); i++)
-				vTotalBuildingCount[ vBuildings[i] ]++;
 		}
 	}
 	
@@ -1203,7 +1191,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			continue;
 
 		// Make sure this building can be built now
-		if(m_pCity->canConstruct(eLoopBuilding,vTotalBuildingCount))
+		if(m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, YIELD_GOLD))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 			buildable.m_iIndex = iBldgLoop;
@@ -1253,18 +1241,27 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 						if(pThisArmy)
 						{
 							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI));
-							m_Buildables.push_back(selection, iNewWeight);
+							if(iNewWeight > 0)
+							{
+								m_Buildables.push_back(selection, iNewWeight);
+							}
 						}
 						else
 						{
 							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-							m_Buildables.push_back(selection, iNewWeight);
+							if(iNewWeight > 0)
+							{
+								m_Buildables.push_back(selection, iNewWeight);
+							}
 						}
 					}
 					else
 					{
 						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
-						m_Buildables.push_back(selection, iNewWeight);
+						if(iNewWeight > 0)
+						{
+							m_Buildables.push_back(selection, iNewWeight);
+						}
 					}
 					break;
 				}
@@ -4279,19 +4276,23 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//Note: values are weighted based on static per turn values and instant or % values. This is for control.
 	if(pkBuildingInfo->GetYieldChange(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 5);
+		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 10);
 	}
 	if(pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldChangePerPop(eYield) / 3);
+		int iValue = (pCity->getPopulation() / pkBuildingInfo->GetYieldChangePerPop(eYield));
+		if(iValue > 0)
+		{
+			iYieldValue += (iValue * 20);
+		}
 	}
 	if(pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldChangePerReligion(eYield) * 5);
+		iYieldValue += (pkBuildingInfo->GetYieldChangePerReligion(eYield) * (pCity->GetCityReligions()->GetNumReligionsWithFollowers() * 3));
 	}
 	if(pkBuildingInfo->GetYieldFromConstruction(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldFromConstruction(eYield) / 3);
+		iYieldValue += (pkBuildingInfo->GetYieldFromConstruction(eYield) * (pCity->getYieldRate(YIELD_PRODUCTION, false) / 5));
 	}
 	if(pkBuildingInfo->GetYieldFromDeath(eYield) > 0)
 	{
@@ -4299,11 +4300,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldFromGPExpend(eYield) / 10);
+		iYieldValue += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(3, pCity->getGreatPeopleRateModifier()));
 	}
 	if(pkBuildingInfo->GetYieldFromTech(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldFromTech(eYield) / 3);
+		iYieldValue += (pkBuildingInfo->GetYieldFromTech(eYield) * (pCity->getYieldRate(YIELD_SCIENCE, false) / 5));
 	}
 	if(pkBuildingInfo->GetYieldFromVictory(eYield) > 0)
 	{
@@ -4319,19 +4320,33 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetInstantYield(eYield) / 10);
+		iYieldValue += (pkBuildingInfo->GetInstantYield(eYield) / 5);
 	}
 	if(pkBuildingInfo->GetGrowthExtraYield(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetGrowthExtraYield(eYield) / 5);
+		iYieldValue += (pkBuildingInfo->GetGrowthExtraYield(eYield) * (pCity->getYieldRate(YIELD_FOOD, false) / 5));
 	}
 	if(pCity->plot()->isRiver() && pkBuildingInfo->GetRiverPlotYieldChange(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetRiverPlotYieldChange(eYield) * 5);
+		if(pCity->plot()->isFreshWater())
+		{
+			iYieldValue += (pkBuildingInfo->GetRiverPlotYieldChange(eYield) * pCity->getPopulation());
+		}
+		else
+		{
+			iYieldValue += ((pkBuildingInfo->GetRiverPlotYieldChange(eYield) * pCity->getPopulation()) / 3);
+		}
 	}
-	if(pCity->plot()->isCoastalLand() && pkBuildingInfo->GetSeaPlotYieldChange(eYield) > 0)
+	if(pkBuildingInfo->GetSeaPlotYieldChange(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * 5);
+		if(pCity->plot()->isCoastalLand())
+		{
+			iYieldValue += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->getPopulation());
+		}
+		else
+		{
+			iYieldValue += ((pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->getPopulation()) / 3);
+		}
 	}
 	if(pkBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0)
 	{
@@ -4537,11 +4552,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if(pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
 	{
 		iYieldValue += pkBuildingInfo->GetGlobalYieldModifier(eYield);
-	}
-
-	if(MOD_BALANCE_CORE_JFD && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
-	{
-		return iYieldValue;
 	}
 
 	int iYieldPolicyBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
@@ -4801,14 +4811,6 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		{
 			iValue += 25;
 		}
-		if(pkBuildingInfo->GetCultureRateModifier() > 0)
-		{
-			iValue += pkBuildingInfo->GetCultureRateModifier();
-		}
-		if(pkBuildingInfo->GetGlobalCultureRateModifier() > 0)
-		{
-			iValue += pkBuildingInfo->GetGlobalCultureRateModifier();
-		}
 		if(pkBuildingInfo->GetEventTourism() > 0)
 		{
 			iValue += (pkBuildingInfo->GetEventTourism() * 10);
@@ -4952,13 +4954,28 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 		}
 	}
+	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+	{
+		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+		if(pkSpecialistInfo && pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) > 0)
+		{
+			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
+			
+			if (iNumWorkers > 0)
+			{
+				iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * max(2, iNumWorkers));
+			}
+		}
+	}
+
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
-		iValue += (-1 * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
+		iValue += (-5 * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
 	}
 	if(pkBuildingInfo->GetPlotBuyCostModifier() < 0)
 	{
-		iValue += (-1 * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
+		iValue += (-5 * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
 	}
 	if(pkBuildingInfo->GetNumTradeRouteBonus())
 	{
@@ -4966,7 +4983,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	if(pkBuildingInfo->GetPolicyCostModifier() <= 0)
 	{
-		iValue += (-1 * ((kPlayer.GetPolicyCostBuildingModifier() + pkBuildingInfo->GetPolicyCostModifier())));
+		iValue += (-5 * ((kPlayer.GetPolicyCostBuildingModifier() + pkBuildingInfo->GetPolicyCostModifier())));
 	}
 	if(pkBuildingInfo->GetGoldenAgeModifier() > 0 || pkBuildingInfo->IsGoldenAge())
 	{
@@ -5231,9 +5248,17 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		{
 			if(pCity->GetCityBuildings()->GetNumBuilding(eFreeBuildingThisCity) <= 0)
 			{
-				iValue += 25;
+				iValue += 33;
 			}
 		}
+	}
+	if(pkBuildingInfo->GetCultureRateModifier() > 0)
+	{
+		iValue += pkBuildingInfo->GetCultureRateModifier();
+	}
+	if(pkBuildingInfo->GetGlobalCultureRateModifier() > 0)
+	{
+		iValue += pkBuildingInfo->GetGlobalCultureRateModifier();
 	}
 
 	return iValue;

@@ -44,6 +44,28 @@
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
+//thread safety
+class CvGuard
+{
+public:
+	CvGuard(CRITICAL_SECTION& cs) : cs(cs)
+	{
+		EnterCriticalSection(&cs);
+	}
+	~CvGuard()
+	{
+		LeaveCriticalSection(&cs);
+	}
+
+private:
+	//hide bad defaults
+	CvGuard(const CvGuard&);
+	CvGuard& operator=(const CvGuard&);
+
+protected:
+	CRITICAL_SECTION& cs;
+};
+
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
@@ -52,7 +74,6 @@ unsigned int saiRuntimeHistogram[100] = {0};
 
 struct SLogNode
 {
-
 	SLogNode( NodeState _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
 		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves)
 	{
@@ -94,13 +115,13 @@ CvAStar::CvAStar()
 
 	m_iCurrentGenerationID = 0;
 
-#if defined(MOD_BALANCE_CORE)
 	//for debugging
 	m_strName = "AStar";
-#endif
 
 	//this matches the default setting for SPathFinderUserData
 	SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+
+	InitializeCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -108,6 +129,8 @@ CvAStar::CvAStar()
 CvAStar::~CvAStar()
 {
 	DeInit();
+
+	DeleteCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -210,6 +233,9 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 {
 	if (data.ePathType != m_sData.ePathType)
 		return false;
+
+	//make sure we don't call this from dll and lua at the same time
+	CvGuard guard(m_cs);
 
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
