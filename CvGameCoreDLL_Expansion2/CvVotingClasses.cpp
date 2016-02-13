@@ -3760,7 +3760,14 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 		{
 			if (!GET_PLAYER(m_vMembers[i].ePlayer).isMinorCiv())
 			{
-				vChoices.push_back(m_vMembers[i].ePlayer);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if(!GET_TEAM(GET_PLAYER(m_vMembers[i].ePlayer).getTeam()).IsVassalOfSomeone())
+				{
+#endif
+					vChoices.push_back(m_vMembers[i].ePlayer);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				}
+#endif
 			}
 		}
 		break;
@@ -10040,6 +10047,16 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 	{
 		return ALIGNMENT_SELF;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+	{
+		return ALIGNMENT_LIBERATOR;
+	}
+	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+	{
+		return ALIGNMENT_ALLY;
+	}
+#endif
 	if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(ePlayer))
 	{
 		return ALIGNMENT_LIBERATOR;

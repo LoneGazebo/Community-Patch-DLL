@@ -10026,8 +10026,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 						// Players that are the vassal
 						else if(GET_PLAYER(ePlayer).getTeam() == GetID())
 						{
-							summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_NOW_VASSAL_YOU_SUMMARY");
-							summaryString << getName().GetCString();
+							summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_YOU_NOW_VASSAL_SUMMARY");
+							summaryString << GET_TEAM(eTeam).getName().GetCString();
 
 							locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_YOU_NOW_VASSAL");
 							locString << GET_TEAM(eTeam).getName().GetCString();

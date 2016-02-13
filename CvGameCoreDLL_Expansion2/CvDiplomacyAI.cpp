@@ -37472,6 +37472,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 				{
 					// During capitulation, reset all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
 					if(!bVoluntary) {
+						// Cancel denunciation from Vassal
 						SetDenouncedPlayer(eOtherTeamPlayer, false);
 						SetDenouncedPlayerCounter(eOtherTeamPlayer, -1);
 
@@ -37483,87 +37484,73 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 						if (GetRecentAssistValue(eOtherTeamPlayer) > 0)
 							ChangeRecentAssistValue(eOtherTeamPlayer, -GetRecentAssistValue(eOtherTeamPlayer));
 
-						m_paiNumTimesCultureBombed[eOtherTeamPlayer] = 0;
-						m_paiNegativeReligiousConversionPoints[eOtherTeamPlayer] = 0;
-						m_paiNegativeArchaeologyPoints[eOtherTeamPlayer] = 0;
-#if defined(MOD_BALANCE_CORE)
-						m_paiNumTimesRazed[eOtherTeamPlayer] = 0;
-						m_paiIntrigueSharedTurn[eOtherTeamPlayer] = 0;
-						m_paiReligiousConversionTurn[eOtherTeamPlayer] = 0;
-						m_paiTimesRobbedTurn[eOtherTeamPlayer] = 0;
-#endif
-						m_paiNumTimesNuked[eOtherTeamPlayer] = 0;
-						m_paiNumTimesRobbedBy[eOtherTeamPlayer] = 0;
-						
-						m_paiBrokenExpansionPromiseValue[eOtherTeamPlayer] = 0;
-						m_paiIgnoredExpansionPromiseValue[eOtherTeamPlayer] = 0;
-						m_paiBrokenBorderPromiseValue[eOtherTeamPlayer] = 0;
-						m_paiIgnoredBorderPromiseValue[eOtherTeamPlayer] = 0;
-						m_paiDeclaredWarOnFriendValue[eOtherTeamPlayer] = 0;
-
-						m_paiOtherPlayerTurnsSinceAttackedProtectedMinor[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerProtectedMinorAttacked[eOtherTeamPlayer] = 0;
-						m_paiOtherPlayerNumProtectedMinorsAttacked[eOtherTeamPlayer] = 0;
-
-						m_paiOtherPlayerTurnsSinceKilledProtectedMinor[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerProtectedMinorKilled[eOtherTeamPlayer] = 0;
-						m_paiOtherPlayerNumProtectedMinorsKilled[eOtherTeamPlayer] = 0;
-
-						m_pabPlayerMadeAttackCityStatePromise[eOtherTeamPlayer] = false;
-						m_pabPlayerBrokenAttackCityStatePromise[eOtherTeamPlayer] = false;
-						m_pabPlayerIgnoredAttackCityStatePromise[eOtherTeamPlayer] = false;
-						
-						m_pabPlayerMadeBullyCityStatePromise[eOtherTeamPlayer] = false;
-						m_pabPlayerBrokenBullyCityStatePromise[eOtherTeamPlayer] = false;
-						m_pabPlayerIgnoredBullyCityStatePromise[eOtherTeamPlayer] = false;
-						
-						m_pabPlayerMadeSpyPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerBrokenSpyPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerIgnoredSpyPromise[eOtherTeamPlayer] = false;
-						
-						m_pabPlayerMadeNoConvertPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerBrokenNoConvertPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerIgnoredNoConvertPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerAskedNotToConvert[eOtherTeamPlayer] = false;
-						m_pabPlayerAgreedNotToConvert[eOtherTeamPlayer] = false;
-						
-						m_pabPlayerMadeNoDiggingPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerBrokenNoDiggingPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerIgnoredNoDiggingPromise[eOtherTeamPlayer] = false;
-						m_pabPlayerAskedNotToDig[eOtherTeamPlayer] = false;
-						m_pabPlayerAgreedNotToDig[eOtherTeamPlayer] = false;
-						
-						m_pabPlayerBrokenCoopWarPromise[eOtherTeamPlayer] = false;
-
-						m_paiOtherPlayerNumProtectedMinorsBullied[eOtherTeamPlayer] = 0;
-
-						m_paiOtherPlayerTurnsSinceSidedWithTheirProtectedMinor[eOtherTeamPlayer] = -1;
-
-						m_paiOtherPlayerNumMinorsAttacked[eOtherTeamPlayer] = 0;
-						m_paiOtherPlayerNumMinorsConquered[eOtherTeamPlayer] = 0;
-						m_paiOtherPlayerNumMajorsAttacked[eOtherTeamPlayer] = 0;
-						m_paiOtherPlayerNumMajorsConquered[eOtherTeamPlayer] = 0;
-#if defined(MOD_API_EXTENSIONS)
-						m_paiOtherPlayerWarmongerAmountTimes100[eOtherTeamPlayer] = 0;
-#else
-						m_paiOtherPlayerWarmongerAmount[eOtherTeamPlayer] = 0;
-#endif
-
-						m_paiOtherPlayerTurnsSinceWeLikedTheirProposal[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerTurnsSinceTheySupportedOurProposal[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerTurnsSinceTheyFoiledOurProposal[eOtherTeamPlayer] = -1;
-						m_paiOtherPlayerTurnsSinceTheySupportedOurHosting[eOtherTeamPlayer] = -1;
+						// Forget shenanigans
+						SetOtherPlayerTurnsSinceAttackedProtectedMinor(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumProtectedMinorsAttacked(eOtherTeamPlayer, 0);
+						SetOtherPlayerTurnsSinceKilledProtectedMinor(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumProtectedMinorsBullied(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumMinorsAttacked(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumMinorsConquered(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumMajorsAttacked(eOtherTeamPlayer, 0);
+						SetOtherPlayerNumMajorsConquered(eOtherTeamPlayer, 0);
+						SetFriendDenouncedUs(eOtherTeamPlayer, false);
+						SetFriendDeclaredWarOnUs(eOtherTeamPlayer, false);
 
 #if defined(MOD_BALANCE_CORE)
-						m_pabDemandEverMade[eOtherTeamPlayer] = false;
 						m_pabPlayerNoSettleRequestEverAsked[eOtherTeamPlayer] = false;
 						m_pabPlayerStopSpyingRequestEverAsked[eOtherTeamPlayer] = false;
 #else
-						m_paiDemandCounter[eOtherTeamPlayer] = -1;
-						m_paiPlayerNoSettleRequestCounter[eOtherTeamPlayer] = -1;
-						m_paiPlayerStopSpyingRequestCounter[eOtherTeamPlayer] = -1;
+						m_aiPlayerNoSettleRequestCounter[eOtherTeamPlayer] = -1;
+						m_aiPlayerStopSpyingRequestCounter[eOtherTeamPlayer] = -1;
 #endif
+
+						// vassal only definitely - forget promises/betrayals the Master made to them
+						// "Troops too close"
+						SetPlayerMadeMilitaryPromise(eOtherTeamPlayer, false);
+						SetPlayerBrokenMilitaryPromise(eOtherTeamPlayer, false);
+						SetPlayerIgnoredMilitaryPromise(eOtherTeamPlayer, false);
+						SetPlayerMilitaryPromiseCounter(eOtherTeamPlayer, -1);
+
+						// "Don't buy borders near us (?)"
+						SetPlayerMadeBorderPromise(eOtherTeamPlayer, false);
+						SetPlayerBrokenBorderPromise(eOtherTeamPlayer, false);
+						SetPlayerIgnoredBorderPromise(eOtherTeamPlayer, false);
+						m_paiPlayerMadeBorderPromiseTurn[eOtherTeamPlayer] = -1;
+
+						// "Don't convert my cities"
+						SetPlayerMadeNoConvertPromise(eOtherTeamPlayer, false);
+						SetPlayerBrokenNoConvertPromise(eOtherTeamPlayer, false);
+						SetPlayerIgnoredNoConvertPromise(eOtherTeamPlayer, false);
+						SetPlayerAskedNotToConvert(eOtherTeamPlayer, false);
+						SetPlayerAgreeNotToConvert(eOtherTeamPlayer, false);
+
+						// "Don't dig up artifacts in my territory"
+						SetPlayerMadeNoDiggingPromise(eOtherTeamPlayer, false);
+						SetPlayerBrokenNoDiggingPromise(eOtherTeamPlayer, false);
+						SetPlayerIgnoredNoDiggingPromise(eOtherTeamPlayer, false);
+						SetPlayerAskedNotToDig(eOtherTeamPlayer, false);
+						SetPlayerAgreeNotToDig(eOtherTeamPlayer, false);
+
+						SetPlayerBrokenCoopWarPromise(eOtherTeamPlayer, false);
+
+#if defined(MOD_API_EXTENSIONS)
+						ChangeOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer)  * 100);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eVassalPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer) * 100);
+#else
+						ChangeOtherPlayerWarmongerAmount(eOtherTeamPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer));
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(eVassalPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer));
+#endif
+						// Should master forget shenangians too?
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceAttackedProtectedMinor(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsAttacked(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceKilledProtectedMinor(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsBullied(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsAttacked(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsConquered(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsAttacked(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsConquered(eVassalPlayer, 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDenouncedUs(eVassalPlayer, false);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDeclaredWarOnUs(eVassalPlayer, false);
 					}
 
 					// In case we had an ongoing operation against our Master, kill it
