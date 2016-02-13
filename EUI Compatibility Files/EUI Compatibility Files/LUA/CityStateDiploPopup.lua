@@ -666,7 +666,7 @@ function getProtectingPlayers(iMinorCivID)
 		pOtherPlayer = Players[iPlayerLoop];
 
 		if (iPlayerLoop ~= Game.GetActivePlayer()) then
-			if (pOtherPlayer:IsAlive()) then
+			if (pOtherPlayer:IsAlive() and Teams[Game.GetActiveTeam()]:IsHasMet(Players[iPlayerLoop]:GetTeam())) then
 				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
 					if (sProtecting ~= "") then
 						sProtecting = sProtecting .. ", "

@@ -24,12 +24,3 @@ DROP TABLE IDRemapper;
 UPDATE sqlite_sequence
 SET seq = (SELECT COUNT(ID) FROM Units)-1
 WHERE name = 'Units';
-
-CREATE TRIGGER CBP_Civilization_UnitClassOverrides
-AFTER INSERT ON Civilizations
-BEGIN
-INSERT INTO Civilization_UnitClassOverrides
-(CivilizationType, UnitClassType, UnitType)
-SELECT	Type, 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', null
-FROM Civilizations WHERE CivilizationType = NEW.Type;
-END;

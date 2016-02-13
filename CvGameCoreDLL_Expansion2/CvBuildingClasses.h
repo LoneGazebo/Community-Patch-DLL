@@ -483,6 +483,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetBuildingClassLocalYieldChange(int i, int j) const;
 	int GetBuildingClassLocalHappiness(int i) const;
+	int GetSpecificGreatPersonRateModifier(int) const;
 #endif
 	int GetBuildingClassHappiness(int i) const;
 
@@ -832,6 +833,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppiBuildingClassLocalYieldChanges;
 	int* m_paiBuildingClassLocalHappiness;
+	int* m_paiSpecificGreatPersonRateModifier;
 #endif
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)

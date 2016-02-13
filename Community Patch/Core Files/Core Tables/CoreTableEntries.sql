@@ -457,11 +457,15 @@ ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 
+
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
 
 -- Grants obsoletion tech to build (tie to improvement below for function)
 ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
+
+-- Builds only kill civilian units (bugfix for design woes re: double improvement logic)
+ALTER TABLE Builds ADD COLUMN 'KillOnlyCivilian' TEXT DEFAULT NULL;
 
 -- Grants obsoletion tech to improvement (tie to build above for AI)
 ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
@@ -483,6 +487,9 @@ ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
 -- Tech Additions
 ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
 ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
+
+-- Tech adds raw happiness to capital
+ALTER TABLE Technologies ADD COLUMN 'Happiness' INTEGER DEFAULT 0;
 
 --Units
 ALTER TABLE Units ADD 'NumFreeLux' INTEGER DEFAULT 0;
@@ -629,3 +636,17 @@ ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
+
+-- C4DF
+
+-- Insert SQL Rules Here 
+
+ALTER TABLE GameSpeeds		ADD		ShareOpinionDuration			integer;									-- How long do we have to wait after Share Opinion rejection?
+ALTER TABLE GameSpeeds		ADD		TechCostPerTurnMultiplier		float;										-- How much does each turn of research add to tech cost?
+ALTER TABLE GameSpeeds		ADD		MinimumVassalTurns				integer;									-- Minimum turns of vassalage (before we can break it off)
+ALTER TABLE GameSpeeds		ADD		MinimumVoluntaryVassalTurns		integer;
+ALTER TABLE GameSpeeds		ADD		NumTurnsBetweenVassals			integer;									-- How many turns we must wait (after we've revoked vassalage) before they'll sign a new agreement)
+ALTER TABLE Technologies	ADD		VassalageTradingAllowed			boolean;									-- Enables Vassalage (tech)
+ALTER TABLE Eras			ADD		VassalageEnabled				boolean;									-- Enables Vassalage (era)
+ALTER TABLE Resolutions		ADD		VassalMaintenanceGoldPercent	integer	DEFAULT	0;
+ALTER TABLE Resolutions		ADD		EndAllCurrentVassals			boolean	DEFAULT	0;

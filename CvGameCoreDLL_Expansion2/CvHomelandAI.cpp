@@ -1489,13 +1489,6 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	if (MOD_AI_SECONDARY_WORKERS && !m_pPlayer->isMinorCiv()) {
-		// Find any units with a secondary role of worker and see if there is anything close to build
-		PlotWorkerMoves(true);
-	}
-#endif
-	
 	// Do we have any targets of this type?
 	if(!m_TargetedSentryPoints.empty())
 	{
@@ -1676,12 +1669,24 @@ void CvHomelandAI::PlotWorkerMoves()
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			bool bUsePrimaryUnit = (pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_BUILD);
 			bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER) || pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA)) && pUnit->getDomainType() == DOMAIN_LAND);
-			if(pUnit->plot()->getWorkingCity() != NULL)
+			if(m_pPlayer->IsAtWar())
 			{
-				AICityStrategyTypes eNoNavalWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT");
-				if(eNoNavalWorkers != NO_AICITYSTRATEGY && pUnit->plot()->getWorkingCity()->GetCityStrategyAI()->IsUsingCityStrategy(eNoNavalWorkers))
+				bSecondary = false;
+			}
+			if(!bUseSecondaryUnit && bSecondary)
+			{
+				if(pUnit->getUnitInfo().GetCombat() > 0 && pUnit->getDomainType() == DOMAIN_LAND)
 				{
-					bUseSecondaryUnit = false;
+					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
+					{
+						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+						if (pkBuild && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						{
+							bUseSecondaryUnit = true;
+							break;
+						}
+					}
 				}
 			}
 			if((!bSecondary && bUsePrimaryUnit) || (bSecondary && bUseSecondaryUnit))
@@ -1724,6 +1729,31 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
 			}
+#if defined(MOD_AI_SECONDARY_WORKERS)
+			if(!m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
+			{
+				bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA) && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA));
+				if(!bUseSecondaryUnit)
+				{
+					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
+					{
+						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						{
+							bUseSecondaryUnit = true;
+							break;
+						}
+					}
+				}
+				if(bUseSecondaryUnit)
+				{
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+					m_CurrentMoveUnits.push_back(unit);
+				}
+			}
+#endif
 		}
 	}
 
@@ -1743,11 +1773,43 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			if (!pTarget->getArea()==pUnit->getArea())
 				continue;
 
-			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-				continue;
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->IsCivilianUnit())
+			{
+#endif
+				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+					continue;
 
-			if (m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer())>0)
-				continue;
+				if (m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer())>0)
+					continue;
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+			{
+				if(!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+				{
+					BuildTypes eBuildCheck1 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS");
+					if(eBuildCheck1 == (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData())
+					{
+						BuildTypes eBuildCheck2 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS_NO_KILL");
+						if (eBuildCheck2 != NO_BUILD)
+						{
+							m_TargetedNavalResources[iI].SetAuxIntData(eBuildCheck2);
+							if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+								continue;
+						}
+						else
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
+				}
+			}
+#endif
 
 			int iMoves = pUnit->TurnsToReachTarget(pTarget, false, false, iTargetMoves);
 			if (iMoves < iTargetMoves)
@@ -2778,6 +2840,12 @@ void CvHomelandAI::PlotAirliftMoves()
 /// Log that we couldn't find assignments for some units
 void CvHomelandAI::ReviewUnassignedUnits()
 {
+#if defined(MOD_AI_SECONDARY_WORKERS)
+	if (MOD_AI_SECONDARY_WORKERS && !m_pPlayer->isMinorCiv()) {
+		// Find any units with a secondary role of worker and see if there is anything close to build
+		PlotWorkerMoves(true);
+	}
+#endif
 	// Loop through all remaining units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{

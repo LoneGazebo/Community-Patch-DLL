@@ -544,6 +544,7 @@ CvPlayer::CvPlayer() :
 	, m_iMonopolyModFlat("CvPlayer::m_iMonopolyModFlat", m_syncArchive)
 	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
 	, m_iCachedValueOfPeaceWithHuman("CvPlayer::m_iCachedValueOfPeaceWithHuman", m_syncArchive)
+	, m_iCitiesFeatureSurrounded("CvPlayer::m_iCitiesFeatureSurrounded", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -629,6 +630,8 @@ CvPlayer::CvPlayer() :
 	, m_piYieldChangesNaturalWonder(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
 	, m_piYieldFromMinorDemand(NULL)
+	, m_piCityFeatures(NULL)
+	, m_piNumBuildings(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppaaiBuildingClassYieldChange", m_syncArchive)
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1432,6 +1435,7 @@ void CvPlayer::uninit()
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
 	m_iCachedValueOfPeaceWithHuman = 0;
+	m_iCitiesFeatureSurrounded = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -1955,6 +1959,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piYieldFromMinorDemand.clear();
 		m_piYieldFromMinorDemand.resize(NUM_YIELD_TYPES, 0);
+
+		m_piCityFeatures.clear();
+		m_piCityFeatures.resize(GC.getNumFeatureInfos(), 0);
+
+		m_piNumBuildings.clear();
+		m_piNumBuildings.resize(GC.getNumBuildingInfos(), 0);
 
 		m_ppiBuildingClassYieldChange.clear();
 		m_ppiBuildingClassYieldChange.resize(GC.getNumBuildingClassInfos());
@@ -6089,6 +6099,9 @@ void CvPlayer::doTurn()
 		DoFreedomCorp();
 		CalculateCorporateFranchisesWorldwide();
 	}
+	
+	//Reset for reevaluation of citystrategy AI
+	countCitiesFeatureSurrounded(true);
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -7263,11 +7276,19 @@ void CvPlayer::ChangeScoreFromScenario4(int iChange)
 //////////////////////////////////////////////////////////////////////////
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::countCityFeatures(FeatureTypes eFeature, bool bReset) const
+#else
 int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
+#endif
 {
+	int iCount = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(bReset)
+	{
+#endif
 	const CvCity* pLoopCity;
 	const CvPlot* pLoopPlot;
-	int iCount;
 	int iLoop;
 	int iI;
 
@@ -7289,16 +7310,32 @@ int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
 			}
 		}
 	}
-
-	return iCount;
+#if defined(MOD_BALANCE_CORE)
+		GET_PLAYER(GetID()).setCityFeatures(eFeature, iCount);
+		return 0;
+	}
+	else
+	{
+		return getCityFeatures(eFeature);
+	}
+#endif
 }
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::countNumBuildings(BuildingTypes eBuilding, bool bReset) const
+#else
 int CvPlayer::countNumBuildings(BuildingTypes eBuilding) const
+#endif
 {
+	int iCount = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(bReset)
+	{
+#endif
 	const CvCity* pLoopCity;
-	int iCount;
+	
 	int iLoop;
 
 	iCount = 0;
@@ -7310,16 +7347,32 @@ int CvPlayer::countNumBuildings(BuildingTypes eBuilding) const
 			iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		}
 	}
-
-	return iCount;
+#if defined(MOD_BALANCE_CORE)
+		GET_PLAYER(GetID()).setNumBuildings(eBuilding, iCount);
+		return 0;
+	}
+	else
+	{
+		return getNumBuildings(eBuilding);
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 /// How many cities in the empire surrounded by features?
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::countCitiesFeatureSurrounded(bool bReset) const
+#else
 int CvPlayer::countCitiesFeatureSurrounded() const
+#endif
 {
+	int iCount = 0;
+#if defined(MOD_BALANCE_CORE)
+	if(bReset)
+	{
+#endif
 	const CvCity* pLoopCity;
-	int iCount;
+	
 	int iLoop;
 
 	iCount = 0;
@@ -7329,9 +7382,52 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 		if(pLoopCity->IsFeatureSurrounded())
 			iCount ++;
 	}
-
-	return iCount;
+#if defined(MOD_BALANCE_CORE)
+		GET_PLAYER(GetID()).setCitiesFeatureSurrounded(iCount);
+		return 0;
+	}
+	else
+	{
+		return getCitiesFeatureSurrounded();
+	}
+#endif
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayer::setCityFeatures(FeatureTypes eFeature, int iValue)
+{
+	CvAssertMsg(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	
+	m_piCityFeatures[eFeature] = iValue;
+}
+int CvPlayer::getCityFeatures(FeatureTypes eFeature) const
+{
+	CvAssertMsg(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	return m_piCityFeatures[eFeature];
+}
+void CvPlayer::setNumBuildings(BuildingTypes eBuilding, int iValue)
+{
+	CvAssertMsg(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+
+	m_piNumBuildings[eBuilding] = iValue;
+}
+int CvPlayer::getNumBuildings(BuildingTypes eBuilding) const
+{
+	CvAssertMsg(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	return m_piNumBuildings[eBuilding];
+}
+void CvPlayer::setCitiesFeatureSurrounded(int iValue)
+{
+	m_iCitiesFeatureSurrounded = iValue;
+}
+int CvPlayer::getCitiesFeatureSurrounded() const
+{
+	return m_iCitiesFeatureSurrounded;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
@@ -11645,6 +11741,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			}
 		}
 	}
+	//Refresh cache data.
+	countNumBuildings(eBuilding, true);
 #endif
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -11725,12 +11823,14 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 		for(int i = 0; i < pBuildings->GetNumBuildings(); i++)
 		{
 			// Do we have this building anywhere in empire?
-			if(countNumBuildings((BuildingTypes)i) > 0)
+			int iNum = countNumBuildings((BuildingTypes)i);
+
+			if(iNum > 0)
 			{
 				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
 				if(pEntry)
 				{
-					rtnValue += pEntry->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+					rtnValue += (pEntry->GetBuildingClassYieldChange(eBuildingClass, eYieldType) * iNum);
 				}
 			}
 		}
@@ -33504,6 +33604,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity2->GetCityCulture()->CalculateBaseTourism();
+			pLoopCity2->UpdateReligion(pLoopCity2->GetCityReligions()->GetReligiousMajority(), true);
 		}
 	}
 #endif
@@ -33935,6 +34036,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldChangeWorldWonder;
 	kStream >> m_piYieldFromMinorDemand;
 	kStream >> m_ppiBuildingClassYieldChange;
+	kStream >> m_piCityFeatures;
+	kStream >> m_piNumBuildings;
 #endif
 #if defined(MOD_BALANCE_CORE)
 /// MODDED ELEMENTS BELOW
@@ -34114,6 +34217,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldChangeWorldWonder;
 	kStream << m_piYieldFromMinorDemand;
 	kStream << m_ppiBuildingClassYieldChange;
+	kStream << m_piCityFeatures;
+	kStream << m_piNumBuildings;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;

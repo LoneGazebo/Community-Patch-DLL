@@ -14,6 +14,7 @@
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
 #include "CvDiplomacyAI.h"
+#include "CvGrandStrategyAI.h"
 #endif
 // include this after all other headers
 #include "LintFree.h"
@@ -409,11 +410,27 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_SPECIAL, true, true);
 		if(iNum == 0)
 		{
-			return (iTempWeight * 10);
+			return (iTempWeight * 5);
 		}
 		else
 		{
-			iBonus += 100;
+			iBonus += 50;
+		}
+	}
+
+	//Policy unlock or move-on-purchase? These are usually cheap and good, so get em!
+	if(pkUnitEntry->GetPolicyType() != NO_POLICY || pkUnitEntry->CanMoveAfterPurchase())
+	{
+		int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+		if((kPlayer.GetTreasury()->GetGold() - iGoldCost) > 0)
+		{
+			//Bonus based on difference in gold - the more money we have, the more we want this!
+			iBonus += ((kPlayer.GetTreasury()->GetGold() - iGoldCost) * 10);
+		}
+		//Esp if at war!
+		if(kPlayer.IsAtWarAnyMajor())
+		{
+			iBonus += 50;
 		}
 	}
 
@@ -720,6 +737,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
+		//No escorts? No trip.
+		if(kPlayer.getNumMilitaryUnits() <= 3)
+		{
+			iBonus -= 300;
+		}
 		if(kPlayer.isMinorCiv())
 		{
 			return 0;
@@ -828,7 +850,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
+				AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
+				bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+				
 				iBonus += 200;
+				if(bSeekingCultureVictory)
+				{
+					iBonus += 100;
+				}
+
 				if(kPlayer.GetArchaeologicalDigTourism() > 0)
 				{
 					iBonus += 300;
@@ -1039,8 +1069,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -10% bonus
-			iBonus += (iGPT * 10);
+			//Every -1 GPT = -7% bonus
+			iBonus += (iGPT * 7);
 		}
 	}
 	

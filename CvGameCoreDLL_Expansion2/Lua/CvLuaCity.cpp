@@ -490,6 +490,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetSpecialistCount);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetTotalSpecialistCount);
+	Method(GetSpecialistCityModifier);
 #endif
 	Method(GetSpecialistGreatPersonProgress);
 	Method(GetSpecialistGreatPersonProgressTimes100);
@@ -4182,6 +4183,17 @@ int CvLuaCity::lGetTotalSpecialistCount(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iResult = pkCity->GetCityCitizens()->GetTotalSpecialistCount();
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int lGetSpecialistCityModifier(SpecialistTypes eIndex);
+int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iIndex = lua_tointeger(L, 2);
+	const int iResult = pkCity->GetSpecialistRateModifier(toValue<SpecialistTypes>(L, 2));
 
 	lua_pushinteger(L, iResult);
 	return 1;

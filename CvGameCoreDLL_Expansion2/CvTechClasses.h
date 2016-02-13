@@ -110,6 +110,7 @@ public:
 	int GetPrereqAndTechs(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetTechYieldChanges(int i, int j) const;
+	int GetHappiness() const;
 #endif
 private:
 	int m_iAIWeight;
@@ -178,6 +179,7 @@ private:
 	bool* m_pabFreePromotion;
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppiTechYieldChanges;
+	int m_iHappiness;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

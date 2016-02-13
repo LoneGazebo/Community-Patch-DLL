@@ -991,6 +991,10 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int iCityID)
 {
+	//there was a crash when this was called while the map is uninitialized
+	if (GC.getMap().numPlots()==0)
+		return;
+
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(NULL != pCity && pCity->GetCityCitizens())
 	{

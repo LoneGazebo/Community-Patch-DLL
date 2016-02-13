@@ -27,15 +27,30 @@
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
-
+//////////////////////////
 //MULTIPLAYER INSTRUCTIONS:
+/////////////////////////////////////////
 
-// Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
+// FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
-// UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
+// SECOND: UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
 //#define MOD_ACTIVE_DIPLOMACY
 
+/////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS
+////////////////////////////////////////
+
+/////////////////////////
+// INSTRUCTIONS FOR INCREASING THE NUMBER OF CIVS
+/////////////////////////////
+
+// UN-COMMENT out the line below to raise the max number of civilizations to 43.
+//#define MOD_GLOBAL_MAX_MAJOR_CIVS 43
+// WARNING! You will need to use OR include (if making a modpack) the '43 Civs CP MOD' from the CP downloads folder to use this!
+
+////////////////////////////
+//END 43 CIV INSTRUCTIONS
+///////////////////////////////////
 
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
@@ -48,8 +63,6 @@
 
 #define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #define AUI_UNIT_FIX_BAD_BONUS_STACKS
-
-//#define MOD_GLOBAL_MAX_MAJOR_CIVS 43
 
 #define AUI_UNIT_EXTRA_ATTACKS_GETTER
 #define AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP

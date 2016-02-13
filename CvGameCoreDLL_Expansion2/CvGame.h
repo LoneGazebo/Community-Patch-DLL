@@ -139,8 +139,6 @@ public:
 	bool isTeamGame() const;
 
 	void ReviveActivePlayer();
-	bool CanMoveActivePlayerToObserver();
-	void ActivateObserverSlot();
 
 	int getNumHumanPlayers();
 	int GetNumMinorCivsEver();

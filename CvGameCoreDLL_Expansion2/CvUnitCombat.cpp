@@ -627,9 +627,6 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 			}
 		}
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bDefenderDead);
 	}
 
 	BATTLE_FINISHED();
@@ -1105,9 +1102,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 		pkAttacker->setCombatUnit(NULL);
 		pkAttacker->ClearMissionQueue(GetPostCombatDelay());
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bTargetDied);
 	}
 	
 	BATTLE_FINISHED();
@@ -1214,10 +1208,6 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 		}
 	}
 
-	// Report that combat is over in case we want to queue another attack
-	if(pkAttacker)
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved((void*)pkAttacker, bTargetDied, true);
-	
 	BATTLE_FINISHED();
 }
 
@@ -1394,9 +1384,6 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			pkAttacker->finishMoves();
 			GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 		}
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bCityConquered);
 	}
 	
 	BATTLE_FINISHED();
@@ -1959,9 +1946,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pkAttacker->finishMoves();
 			}
 		}
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bTargetDied);
 	}
 	
 	BATTLE_FINISHED();
@@ -2293,9 +2277,6 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		{
 			pkAttacker->finishMoves();
 		}
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, bDefenderDead);
 	}
 	
 	BATTLE_FINISHED();
@@ -2831,9 +2812,6 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 				pkAttacker->finishMoves();
 			}
 		}
-
-		// Report that combat is over in case we want to queue another attack
-		GET_PLAYER(pkAttacker->getOwner()).GetTacticalAI()->CombatResolved(pkAttacker, true);
 	}
 	
 	BATTLE_FINISHED();
@@ -3222,7 +3200,6 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		{
 			pAttacker->setCombatUnit(NULL);
 			pAttacker->ClearMissionQueue(/*iUnitCycleTimer*/ 110);
-			GET_PLAYER(pAttacker->getOwner()).GetTacticalAI()->CombatResolved(pAttacker, false);
 		}
 		
 		if (pDefender)

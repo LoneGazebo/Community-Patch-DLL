@@ -6254,7 +6254,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								// Appropriate Improvement on this Plot?
 #if defined(MOD_BALANCE_CORE)
 							bool bConnect = false;
-							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							if(pLoopPlot->isCity())
+							{
+								bConnect = true;
+							}
+							else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 								if(ImprovementEntry)
@@ -7990,17 +7994,23 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
-			//Free building in capital unlocked via tech?
-			if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
+			if(kPlayer.getCapitalCity() != NULL)
 			{
-				BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
-				if(eFreeCapitalBuilding != NO_BUILDING)
+				//Free Happiness
+				kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+
+				//Free building in capital unlocked via tech?
+				if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
 				{
-					if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+					BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+					if(eFreeCapitalBuilding != NO_BUILDING)
 					{
-						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+						if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+						{
+							kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+						}
+						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 					}
-					kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 				}
 			}
 #endif
@@ -9622,6 +9632,10 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 				}
 			}
 		}
+
+		//Break open borders
+		SetAllowsOpenBordersToTeam(eTeam, false);
+		GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(GetID(), false);
 		
 		setVassal(eTeam, false);
 		setVoluntaryVassal(eTeam, false);

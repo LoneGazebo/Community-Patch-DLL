@@ -1162,6 +1162,7 @@ public:
 	int getTechPrereq() const;
 #if defined(MOD_BALANCE_CORE)
 	int getTechObsolete() const;
+	bool isKillOnlyCivilian() const;
 #endif
 	int getImprovement() const;
 	int getRoute() const;
@@ -1196,6 +1197,7 @@ protected:
 	int m_iCostIncreasePerImprovement;
 	int m_iTechPrereq;
 #if defined(MOD_BALANCE_CORE)
+	bool m_bKillOnlyCivilian;
 	int m_iTechObsolete;
 #endif
 	int m_iImprovement;
