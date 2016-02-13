@@ -759,9 +759,6 @@ enum TacticalAIInfoTypes
 	eMUPOSITION_NAVAL_ESCORT,
 	eMUPOSITION_BOMBARD,
 	eMUPOSITION_FRONT_LINE,
-#if defined(MOD_BALANCE_CORE)
-	eTACTICAL_PARTHIAN_MOVE,
-#endif
 	eNUM_TACTICAL_INFOTYPES
 };
 
@@ -890,9 +887,6 @@ private:
 	void PlotEmergencyPurchases();
 	void PlotDefensiveAirlifts();
 	void PlotEscortEmbarkedMoves();
-#if defined(MOD_BALANCE_CORE)
-	void PlotParthianMoves();
-#endif
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions

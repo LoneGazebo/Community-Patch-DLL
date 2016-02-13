@@ -358,9 +358,6 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_CachedInfoTypes[eMUPOSITION_NAVAL_ESCORT] = GC.getInfoTypeForString("MUPOSITION_NAVAL_ESCORT");
 	m_CachedInfoTypes[eMUPOSITION_BOMBARD] = GC.getInfoTypeForString("MUPOSITION_BOMBARD");
 	m_CachedInfoTypes[eMUPOSITION_FRONT_LINE] = GC.getInfoTypeForString("MUPOSITION_FRONT_LINE");
-#if defined(MOD_BALANCE_CORE)
-	m_CachedInfoTypes[eTACTICAL_PARTHIAN_MOVE] = GC.getInfoTypeForString("TACTICAL_PARTHIAN_MOVE");
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	//needed for better debugging - can't use ID here because it's not set yet!
@@ -818,7 +815,6 @@ bool CvTacticalAI::PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget)
 	int iAttacksLeft = pAttacker->getNumAttacks() - pAttacker->getNumAttacksMadeThisTurn();
 	int iMovesLeft = pAttacker->getMoves();
 
-	// Attack AFTER logging since our attacker could die
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
@@ -843,7 +839,7 @@ bool CvTacticalAI::PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget)
 
 	CvPlot* pTargetPlot = GC.getMap().plot( pTarget->GetTargetX(), pTarget->GetTargetY() );
 
-	while (iMovesLeft>0 && iAttacksLeft>0)
+	while (iMovesLeft>0 && iAttacksLeft>0 && !pAttacker->isDelayedDeath())
 	{
 		//just for inspection in GUI
 		pAttacker->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
@@ -866,11 +862,23 @@ bool CvTacticalAI::PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget)
 	}
 
 	//parthian move. retreat after attacking
-	if (iMovesLeft>0 && iAttacksLeft<1)
+	if (iMovesLeft>0 && iAttacksLeft<1 && !pAttacker->isDelayedDeath())
 	{
 		CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pAttacker,true);
 		if(pBestPlot != NULL)
+		{
 			pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				CvString strTemp = pAttacker->getUnitInfo().GetDescription();
+				int iX = pAttacker->getX();
+				int	iY = pAttacker->getY();
+				strMsg.Format("Retreated after attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
+				LogTacticalMessage(strMsg);
+			}
+		}
 	}
 
 	//we've given our best
@@ -2120,12 +2128,6 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	{
 		PlotWithdrawMoves();
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_PARTHIAN_MOVE])
-	{
-		PlotParthianMoves();
-	}
-#endif
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_POSTURE_SHORE_BOMBARDMENT])
 	{
 		PlotShoreBombardmentMoves();
@@ -3728,59 +3730,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 		ExecuteEscortEmbarkedMoves();
 	}
 }
-#if defined(MOD_BALANCE_CORE)
-void CvTacticalAI::PlotParthianMoves()
-{
-	list<int>::iterator it;
-	m_CurrentMoveUnits.clear();
-	CvTacticalUnit unit;
 
-	CvTacticalDominanceZone* pZone = m_pMap->GetZone(m_iCurrentZoneIndex);
-
-	// Loop through all recruited units
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
-		{
-			// Proper domain of unit?
-			if(pZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA || !pZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND)
-			{
-				//Are we ranged? Can we move after attacking (or have multiple attacks), and have made an attack? Let's back up a bit.
-				if(pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
-				{
-					if(pUnit->getMoves() > 0 && pUnit->getNumAttacksMadeThisTurn() > 0 && pUnit->canMoveAfterAttacking())
-					{
-						//Is this spot dangerous? If so, back up.
-						CvPlot* pPlot = pUnit->plot();
-						if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
-						{
-							if(pUnit->plot()->getOwner() != pUnit->getOwner())
-							{
-								unit.SetID(pUnit->GetID());
-								m_CurrentMoveUnits.push_back(unit);
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									CvString strTemp;
-									strTemp = pUnit->getUnitInfo().GetDescription();
-									strLogString.Format("Found a potential Parthian %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteMovesToSafestPlot();
-	}
-}
-#endif
 // PLOT MOVES FOR ZONE TACTICAL POSTURES
 
 /// Win an attrition campaign with bombardments

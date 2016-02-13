@@ -58,9 +58,9 @@ public:
 	}
 
 private:
-	//overwrite bad defaults
+	//hide bad defaults
 	CvGuard(const CvGuard&);
-	CvGuard& operator = (const CvGuard&);
+	CvGuard& operator=(const CvGuard&);
 
 protected:
 	CRITICAL_SECTION& cs;
@@ -74,7 +74,6 @@ unsigned int saiRuntimeHistogram[100] = {0};
 
 struct SLogNode
 {
-
 	SLogNode( NodeState _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
 		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves)
 	{
