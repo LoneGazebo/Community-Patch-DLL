@@ -7822,6 +7822,15 @@ void CvUnit::DoAttrition()
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetDanger(CvPlot* pAtPlot) const
+{
+	if (!pAtPlot)
+		pAtPlot = plot();
+
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this);
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::canAirlift(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
@@ -26764,7 +26773,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		{
 			int iFromDanger = pFromPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pFromPlot, this) : 0;
 			int iToDanger = pToPlot ? GET_PLAYER(getOwner()).GetPlotDanger(*pToPlot, this) : 0;
-			if (iFromDanger < iToDanger || iToDanger==INT_MAX)
+			if ( ((iFromDanger<iToDanger) && (iToDanger>GetCurrHitPoints())) || iToDanger==INT_MAX)
 				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
 					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
 		}

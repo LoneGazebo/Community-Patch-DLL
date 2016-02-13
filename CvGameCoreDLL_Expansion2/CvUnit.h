@@ -307,6 +307,7 @@ public:
 	int healTurns(const CvPlot* pPlot) const;
 	void doHeal();
 	void DoAttrition();
+	int GetDanger(CvPlot* pAtPlot=NULL) const;
 
 	bool canAirlift(const CvPlot* pPlot) const;
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;

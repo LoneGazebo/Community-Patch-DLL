@@ -6208,15 +6208,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
-#if defined(MOD_BALANCE_CORE)
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
-#else
-			m_pDangerPlots->UpdateDanger();
-#endif
 		}
 		
 		//do this after updating the danger plots
