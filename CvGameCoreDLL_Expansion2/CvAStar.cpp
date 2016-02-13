@@ -115,13 +115,13 @@ CvAStar::CvAStar()
 
 	m_iCurrentGenerationID = 0;
 
-#if defined(MOD_BALANCE_CORE)
 	//for debugging
 	m_strName = "AStar";
-#endif
 
 	//this matches the default setting for SPathFinderUserData
 	SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
+
+	InitializeCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -129,6 +129,8 @@ CvAStar::CvAStar()
 CvAStar::~CvAStar()
 {
 	DeInit();
+
+	DeleteCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -233,9 +235,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		return false;
 
 	//make sure we don't call this from dll and lua at the same time
-	CRITICAL_SECTION cs;
-	InitializeCriticalSection(&cs);
-	CvGuard guard(cs);
+	CvGuard guard(m_cs);
 
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
