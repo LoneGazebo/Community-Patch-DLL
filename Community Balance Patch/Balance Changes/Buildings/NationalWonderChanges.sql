@@ -290,7 +290,7 @@ SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People 
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. A city must have a Colosseum before it can construct a Circus Maximus. Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. A city must have an Arena before it can construct a Circus Maximus. Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -336,7 +336,7 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Conta
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE] Requires a national population of at least 30 before it can be constructed.'
+SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. Reduces [ICON_HAPPINESS_3] Boredom. Must have built an Arena in the city. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE] Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

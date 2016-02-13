@@ -344,6 +344,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	m_piInstantYield(NULL),
 	m_paiBuildingClassLocalHappiness(NULL),
+	m_paiSpecificGreatPersonRateModifier(NULL),
 #endif
 	m_iNumThemingBonuses(0)
 {
@@ -437,6 +438,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassLocalHappiness);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
+	SAFE_DELETE_ARRAY(m_paiSpecificGreatPersonRateModifier);
 #endif
 }
 
@@ -845,6 +847,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededAnywhere, "BuildingClasses", "Building_ClassNeededAnywhere", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededNowhere, "BuildingClasses", "Building_ClassNeededNowhere", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
+	kUtility.PopulateArrayByValue(m_paiSpecificGreatPersonRateModifier, "Specialists", "Building_SpecificGreatPersonRateModifier", "SpecialistType", "BuildingType", szBuildingType, "Modifier");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -3057,6 +3060,13 @@ int CvBuildingEntry::GetBuildingClassLocalHappiness(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassLocalHappiness ? m_paiBuildingClassLocalHappiness[i] : -1;
 }
+
+int CvBuildingEntry::GetSpecificGreatPersonRateModifier(int i) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiSpecificGreatPersonRateModifier ? m_paiSpecificGreatPersonRateModifier[i] : -1;
+}
 #endif
 /// Amount of extra Happiness per turn a BuildingClass provides
 int CvBuildingEntry::GetBuildingClassHappiness(int i) const
@@ -4476,9 +4486,73 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
-	int iYieldPerBuilding = GC.getBASE_CULTURE_PER_GREAT_WORK();
-	int iYieldPerWork = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
-	iYieldPerWork += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+
+	//Simplification - errata yields not worth considering.
+	if(eYield > YIELD_GOLDEN_AGE_POINTS)
+	{
+		return 0;
+	}
+
+	int iWorkCount = 0;
+	int iThemingBonusTotal = 0;
+	int iTypeBonuses = 0;
+	
+	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+
+	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
+	if (pkCivInfo)
+	{
+		for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+		{
+			CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+			if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
+			{
+				if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
+				{
+					iWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
+				}
+				int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
+				if (iThemingBonus > 0)
+				{
+					iThemingBonusTotal += pkInfo->GetThemingYieldBonus(eYield);
+				}
+
+				int iArt = GetNumGreatWorks(eArtClass);
+				if(iArt > 0)
+				{
+					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
+				}
+				int iArtifact = GetNumGreatWorks(eArtifactsClass);
+				if(iArtifact > 0)
+				{
+					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
+				}
+				int iLit = GetNumGreatWorks(eWritingClass);
+				if(iLit > 0)
+				{
+					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
+				}
+				int iMusic = GetNumGreatWorks(eMusicClass);
+				if(iMusic > 0)
+				{
+					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
+				}
+			}
+		}
+	}
+	//No works? Abort!
+	if(iWorkCount <= 0)
+	{
+		return 0;
+	}	
+	
+	//Now grab the base yields.
+	int iBaseYield = GC.getBASE_CULTURE_PER_GREAT_WORK();
+	iBaseYield += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
+	iBaseYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 	if(eMajority >= RELIGION_PANTHEON)
@@ -4486,42 +4560,18 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if(pReligion)
 		{
-			iYieldPerWork += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield);
+			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield);
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				iYieldPerWork += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+				iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
 			}
 		}
 	}
 
-	int iWorkCount = 0;
-	int iBuildingCount = 0;
-
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-	if (pkCivInfo)
-	{
-		for(std::vector<BuildingGreatWork>::const_iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
-		{
-			BuildingClassTypes eBldgClass = (*it).eBuildingClass;
-			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
-			if (pkClassInfo)
-			{
-				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
-				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
-				if (pkInfo)
-				{
-					iWorkCount++;
-					
-					if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
-					{
-						iBuildingCount++;
-					}
-				}
-			}
-		}
-	}
-	int iRtnValue = (iWorkCount * iYieldPerWork) + (iBuildingCount * iYieldPerBuilding);
+	//First add up yields x works in city.
+	int iRtnValue = (iWorkCount * iBaseYield);
+	//Then theming bonuses for the yield.
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	iRtnValue += GetThemingBonuses(eYield);
 #else
@@ -4529,71 +4579,9 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		iRtnValue += GetThemingBonuses();
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
-	{
-		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
-		if (pkInfo)
-		{
-			int iValue = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
-			if (iValue > 0)
-			{
-				iRtnValue += pkInfo->GetThemingYieldBonus(eYield);
-			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
-	if (pkCivInfo)
-	{
-		for(std::vector<BuildingGreatWork>::const_iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
-		{
-			BuildingClassTypes eBldgClass = (*it).eBuildingClass;
-			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
-			if (pkClassInfo)
-			{
-				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
-				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
-				if (pkInfo)
-				{
-					int iNumSlots = pkInfo->GetGreatWorkCount();
-					for (int iI = 0; iI < iNumSlots; iI++)
-					{
-						int iGreatWorkIndex = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
-						if (iGreatWorkIndex != -1)
-						{
-							GreatWorkType eGreatWorkType = GC.getGame().GetGameCulture()->GetGreatWorkType(iGreatWorkIndex);
-							if(eGreatWorkType != NO_GREAT_WORK)
-							{
-								GreatWorkClass eGWClass = CultureHelpers::GetGreatWorkClass(eGreatWorkType);
-								if(eGWClass == eWritingClass)
-								{
-									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield);
-								}
-								if(eGWClass == eArtClass)
-								{
-									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield);
-								}
-								if(eGWClass == eArtifactsClass)
-								{
-									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
-								}
-								if(eGWClass == eMusicClass)
-								{
-									iRtnValue += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
+	//Next add in any UA or extra theming bonuses.
+	iRtnValue += (iTypeBonuses + iThemingBonusTotal);
+
 	return iRtnValue;
 }
 #endif

@@ -4031,10 +4031,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 200;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
-			else if(eWarProjection == WAR_PROJECTION_UNKNOWN)
-				iItemValue += 400;
-			else if(eWarProjection == WAR_PROJECTION_STALEMATE)
-				iItemValue += 600;
 			else
 				return INT_MAX;
 		}
@@ -4045,12 +4041,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
 			else
-				iItemValue += 500;
+				iItemValue += 600;
 		}
 		
 		iItemValue += (GetPlayer()->GetDiplomacyAI()->GetCoopWarScore(eOtherPlayer, eWithPlayer, false) * 2);
 
-		// Add 25 gold per era
+		// Add 50 gold per era
 		int iExtraCost = eOurEra * 50;
 		iItemValue += iExtraCost;
 
@@ -4079,11 +4075,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_COMPETITOR)
 			{
 				iItemValue *= 90;
-				iItemValue /= 100;
-			}
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_NEUTRAL)
-			{
-				iItemValue *= 200;
 				iItemValue /= 100;
 			}
 			else

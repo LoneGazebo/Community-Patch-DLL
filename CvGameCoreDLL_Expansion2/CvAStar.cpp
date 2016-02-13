@@ -235,6 +235,9 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if (data.ePathType != m_sData.ePathType)
 		return false;
 
+	//make sure we don't call this from dll and lua at the same time
+	CvGuard guard(m_cs);
+
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
 	if (m_iCurrentGenerationID==0xFFFF)

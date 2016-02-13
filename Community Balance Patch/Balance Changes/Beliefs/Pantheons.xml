@@ -305,7 +305,13 @@
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
@@ -325,25 +331,25 @@
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_CityYieldPerXFeature>
 </GameData>

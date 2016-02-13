@@ -392,22 +392,22 @@
 		<Row>
 			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
 			<UnitClassType>UNITCLASS_TRIREME</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS_NO_KILL</BuildType>
+			<BuildType>BUILD_FISHING_BOATS</BuildType>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
 			<UnitClassType>UNITCLASS_CARAVEL</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS_NO_KILL</BuildType>
+			<BuildType>BUILD_FISHING_BOATS</BuildType>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
 			<UnitClassType>UNITCLASS_DESTROYER</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS_NO_KILL</BuildType>
+			<BuildType>BUILD_FISHING_BOATS</BuildType>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
 			<UnitClassType>UNITCLASS_PRIVATEER</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS_NO_KILL</BuildType>
+			<BuildType>BUILD_FISHING_BOATS</BuildType>
 		</Row>
 	</Trait_BuildsUnitClasses>
 	<!-- Siam -->
@@ -477,6 +477,21 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_BuildingClassYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MUSICIANS_GUILD</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+	</Building_BuildingClassYieldChanges>
+	<Building_SpecificGreatPersonRateModifier>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<Modifier>33</Modifier>
+		</Row>
+	</Building_SpecificGreatPersonRateModifier>
 	<Building_ClassesNeededInCity>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>

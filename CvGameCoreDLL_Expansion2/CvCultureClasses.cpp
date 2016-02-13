@@ -4757,7 +4757,19 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 /// How strong will a concert tour be right now?
 int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 {
-	int iStrength = iMultiplier * GetTourism();
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	int iStrength = 0;
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		iStrength = iMultiplier * (GetTourism() + (m_pPlayer->GetTotalJONSCulturePerTurn() / 2));
+	}
+	else
+	{
+#endif
+	iStrength = iMultiplier * GetTourism();
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	}
+#endif
 	
 	// Scale by game speed
 	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();

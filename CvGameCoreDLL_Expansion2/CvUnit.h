@@ -1557,12 +1557,12 @@ public:
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
+	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
+	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
+
 protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;
 	MissionQueueNode* HeadMissionQueueNode();
-
-	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
-	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
 
 	void	ClearPathCache();
 	bool	UpdatePathCache(CvPlot* pDestPlot, int iFlags);

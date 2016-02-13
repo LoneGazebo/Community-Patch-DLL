@@ -385,6 +385,27 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
+	-- CBP
+	local function addSmallArtYieldButton(row, icons, toolTip)
+		if row then
+			local button = thisTechButtonInstance["B"..buttonNum]
+			if button then
+				table.insert( g_recentlyAddedUnlocks, row.Description )
+				button:SetToolTipString( toolTip )
+				button:ClearCallback( Mouse.eMouseEnter )
+				g_buttonItemInfo[tostring(button)] = row
+				button:RegisterCallback( Mouse.eRClick, GetTechPedia )
+				IconHookup( row.PortraitIndex, textureSize, row.IconAtlas or "GENERIC_FUNC_ATLAS", button )
+				buttonNum = buttonNum + 1
+				button:GetTextControl():SetOffsetY( textureSize/3 )
+				button:GetTextControl():SetAlpha( 0.8 )
+				button:SetText( icons or "" )
+				return button
+			end
+		end
+	end
+	-- END
+
 	local function addSmallActionButton( build, icons, ... )
 		local button
 		if build then
@@ -585,6 +606,9 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 
 --CBP
+		if tech.Happiness > 0 then
+			addSmallActionButton( GameInfo.Missions.MISSION_GOLDEN_AGE, "", "TXT_KEY_ABLTY_HAPPINESS_BUMP", tech.Happiness )
+		end
 		if tech.BombardRange > 0 then
 			addSmallActionButton( GameInfo.Missions.MISSION_RANGE_ATTACK, "", "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" )
 		end
@@ -599,11 +623,21 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 
 		for row in GameInfo.Tech_SpecialistYieldChanges( thisTechType ) do
-			local yield = GameInfo.Yields[row.YieldType]
-			if yield and not addSmallActionButton( GameInfo.Specialists{ SpecialistType = row.SpecialistType }(), yield.IconString,
-					"TXT_KEY_SPECIALIST_YIELD_CHANGE", (GameInfo.Specialists[row.SpecialistType] or {}).Description or "???", yield.Description, row.Yield )
-			then
-				break
+			local specialist = GameInfo.Specialists[row.SpecialistType]
+			if specialist then
+				local icons = ""
+				local toolTip = ""
+				for row2 in GameInfo.Tech_SpecialistYieldChanges( thisTechType ) do
+					if(row2.SpecialistType == row.SpecialistType) then
+						local yield = GameInfo.Yields[row2.YieldType]
+						if yield and (row2.Yield > 0) then
+							local icon = YieldIcons[row2.YieldType] or "???"
+							icons = icons .. icon
+							toolTip = toolTip .. L("TXT_KEY_SPECIALIST_YIELD_CHANGE", specialist.Description, yield.Description, row2.Yield, Locale.ConvertTextKey(yield.IconString))
+						end
+					end
+				end
+				addSmallArtYieldButton(specialist, icons, toolTip)
 			end
 		end
 -- END	

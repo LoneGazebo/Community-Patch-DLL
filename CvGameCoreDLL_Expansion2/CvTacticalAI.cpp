@@ -1168,6 +1168,13 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	}
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(m_pPlayer->isMinorCiv())
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+		}
+		else
+#endif
 		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyRangedUnitCount() > 1)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
@@ -11024,22 +11031,41 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 		{
 			pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
 #if defined(MOD_BALANCE_CORE)
+			//Since we redefined it above, let's check things.
+			if(pPlot == NULL)
+			{
+				continue;
+			}
 			//Naval unit? Let's get a water plot.
 			if(!pPlot->isWater() && pUnit->getDomainType() == DOMAIN_SEA)
 			{
-				CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
-				//No water plot? Ignore.
-				if(pNewPlot == NULL)
+				if(pUnit->isRanged())
 				{
-					continue;
+					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
+					//No water plot? Ignore.
+					if(pNewPlot == NULL)
+					{
+						continue;
+					}
+					else
+					{
+						pPlot = pNewPlot;
+					}
 				}
 				else
 				{
-					pPlot = pNewPlot;
+					continue;
 				}
 			}
-#endif
+			//Since we redefined it above, let's check things.
+			if(pPlot == NULL)
+			{
+				continue;
+			}
+			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+#else
 			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), target.GetTargetX(), target.GetTargetY());
+#endif
 			if(iDistance == 0)
 			{
 				return pPlot;

@@ -577,7 +577,7 @@
 		
 		<!-- Tech Tree-->
 		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
-			<Text>{1_SpecialistName:textkey} base {2_YieldType:textkey} increased by {3_Num}.</Text>
+			<Text>{1_SpecialistName:textkey}s: +{3_Num} {4_IconString} {2_YieldType:textkey}</Text>
 		</Row>
 		<!-- Trait LUA -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES">
@@ -667,5 +667,75 @@
 		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BLDG_LABEL">
 			<Text>Leads to Buildings:</Text>
 		</Row>
+
+
+		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		
+		<!-- New Musician Text -->
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR">
+			<Text>Your musicians journey across {1_PlayerAdj} lands, introducing your culture to the {1_PlayerAdj} people. Your [ICON_TOURISM] Cultural Influence is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to them!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S">
+			<Text>Tour through {1_PlayerAdj} lands completed!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET">
+			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you by [COLOR_NEGATIVE_TEXT]{2_Num}%[ENDCOLOR]!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S">
+			<Text>Unknown musicians arrive from {1_PlayerAdj!}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Cultural Influence over them, and [COLOR_POSITIVE_TEXT]{3_num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital. All {1_PlayerName} Cities experience 'We Love the King Day' for {4_num} turns!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S">
+			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET">
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], however your cities experience 'We Love the King Day' for [COLOR_POSITVE_TEXT]{3_Num}[ENDCOLOR] turns!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S">
+			<Text>Familiar musicians arrive from {1_PlayerAdj!}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR">
+			<Text>Your musicians were wildly received by the people of {1_PlayerAdj}. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Cultural Influence over them, and [COLOR_POSITIVE_TEXT]{3_num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital. All {1_PlayerName} Cities experience 'We Love the King Day' for {4_num} turns!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_S">
+			<Text>Sell-out concert tour of {1_PlayerAdj} completed!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET">
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and received much praise. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], however your Cities experience 'We Love the King Day' for [COLOR_POSITVE_TEXT]{3_Num}[ENDCOLOR] turns!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET_S">
+			<Text>Popular musicians arrive from {1_PlayerAdj!}</Text>
+		</Row>
+		
 	</Language_en_US>
 </GameData>

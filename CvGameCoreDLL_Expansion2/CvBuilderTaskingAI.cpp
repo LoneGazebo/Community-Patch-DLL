@@ -1126,131 +1126,129 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		}
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if(pkImprovementInfo == NULL || !pkImprovementInfo->IsImprovementResourceTrade(eResource))
-		{
+		if(pkImprovementInfo == NULL)
 			continue;
-		}
 
-		if(eImprovement == eExistingPlotImprovement)
+		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity())
 		{
-			if(pPlot->IsImprovementPillaged())
+
+			if(eImprovement == eExistingPlotImprovement)
 			{
-				eBuild = m_eRepairBuild;
-			}
-			else
-			{
-#if defined(MOD_BALANCE_CORE)
-				if(!pkImprovementInfo->IsAdjacentCity())
+				if(pPlot->IsImprovementPillaged())
 				{
-#endif
-				// this plot already has the appropriate improvement to use the resource
-				break;
-#if defined(MOD_BALANCE_CORE)
+					eBuild = m_eRepairBuild;
 				}
-#endif
-			}
-		}
-		else
-		{
-			// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-			if (eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement())
-				continue;
-		}
-
-		if(!pUnit->canBuild(pPlot, eBuild))
-		{
-			break;
-		}
-
-		BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
-		int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
-		if(eBuild == m_eRepairBuild)
-		{
-			eDirectiveType = BuilderDirective::REPAIR;
-			iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-		}
-
-		iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
-
-		// this is to deal with when the plot is already improved with another improvement that doesn't enable the resource
-		int iInvestedImprovementTime = 0;
-		if(eExistingPlotImprovement != NO_IMPROVEMENT)
-		{
-			BuildTypes eExistingBuild = NO_BUILD;
-			BuildTypes eBuild2 = NO_BUILD;
-			for(int iBuildIndex2 = 0; iBuildIndex2 < GC.getNumBuildInfos(); iBuildIndex2++)
-			{
-				eBuild2 = (BuildTypes)iBuildIndex2;
-				CvBuildInfo* pkBuild2 = GC.getBuildInfo(eBuild2);
-				if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
+				else
 				{
-					eExistingBuild = eBuild2;
+					// this plot already has the appropriate improvement to use the resource
 					break;
 				}
 			}
-
-			if(eExistingBuild != NO_BUILD)
+			else
 			{
-				iInvestedImprovementTime = pPlot->getBuildTime(eExistingBuild, m_pPlayer->GetID());
+				// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
+				if (eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement())
+					continue;
 			}
-		}
-
-		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
-		iWeight += iBuildTimeWeight;
-		iWeight = CorrectWeight(iWeight);
-
-		iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
-#if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
-		iWeight = CorrectWeight(iWeight);
-
-		UpdateProjectedPlotYields(pPlot, eBuild);
-		int iScore = ScorePlot();
-		if(iScore > 0)
-		{
-			iWeight *= iScore;
-			iWeight = CorrectWeight(iWeight);
-		}
-
-		{
-			CvCity* pLogCity = NULL;
-			int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
-			if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
+			if(!pUnit->canBuild(pPlot, eBuild))
 			{
-				iWeight += iProduction; // a nominal benefit for choosing this production
+				continue;
+			}
 
-				if(m_bLogging)
+			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
+			int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
+			if(eBuild == m_eRepairBuild)
+			{
+				eDirectiveType = BuilderDirective::REPAIR;
+				iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
+			}
+
+			iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
+
+			// this is to deal with when the plot is already improved with another improvement that doesn't enable the resource
+			int iInvestedImprovementTime = 0;
+			if(eExistingPlotImprovement != NO_IMPROVEMENT)
+			{
+				BuildTypes eExistingBuild = NO_BUILD;
+				BuildTypes eBuild2 = NO_BUILD;
+				for(int iBuildIndex2 = 0; iBuildIndex2 < GC.getNumBuildInfos(); iBuildIndex2++)
 				{
-					CvString strLog;
-					strLog.Format("Helps rush, %d", iProduction);
-					LogInfo(strLog, m_pPlayer);
+					eBuild2 = (BuildTypes)iBuildIndex2;
+					CvBuildInfo* pkBuild2 = GC.getBuildInfo(eBuild2);
+					if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
+					{
+						eExistingBuild = eBuild2;
+						break;
+					}
+				}
+
+				if(eExistingBuild != NO_BUILD)
+				{
+					iInvestedImprovementTime = pPlot->getBuildTime(eExistingBuild, m_pPlayer->GetID());
 				}
 			}
+
+			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
+			iWeight += iBuildTimeWeight;
+			iWeight = CorrectWeight(iWeight);
+
+			iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+#if defined(MOD_BALANCE_CORE)
+			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+#endif
+			iWeight = CorrectWeight(iWeight);
+
+			UpdateProjectedPlotYields(pPlot, eBuild);
+#if defined(MOD_BALANCE_CORE)
+			int iScore = ScorePlot(eImprovement, eBuild);
+#else
+			int iScore = ScorePlot();
+#endif
+			if(iScore > 0)
+			{
+				iWeight *= iScore;
+				iWeight = CorrectWeight(iWeight);
+			}
+
+			{
+				CvCity* pLogCity = NULL;
+				int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
+				if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
+				{
+					iWeight += iProduction; // a nominal benefit for choosing this production
+
+					if(m_bLogging)
+					{
+						CvString strLog;
+						strLog.Format("Helps rush, %d", iProduction);
+						LogInfo(strLog, m_pPlayer);
+					}
+				}
+			}
+
+			if(iWeight <= 0)
+			{
+				continue;
+			}
+
+			BuilderDirective directive;
+			directive.m_eDirective = eDirectiveType;
+			directive.m_eBuild = eBuild;
+			directive.m_eResource = eResource;
+			directive.m_sX = pPlot->getX();
+			directive.m_sY = pPlot->getY();
+			//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eBuild);
+			directive.m_sMoveTurnsAway = iMoveTurnsAway;
+
+			if(m_bLogging)
+			{
+				CvString strTemp;
+				strTemp.Format("%d, Build Time Weight, %d, Weight, %d", pUnit->GetID(), iBuildTimeWeight, iWeight);
+				LogInfo(strTemp, m_pPlayer);
+			}
+
+			m_aDirectives.push_back(directive, iWeight);
 		}
-
-		if(iWeight <= 0)
-		{
-			continue;
-		}
-
-		BuilderDirective directive;
-		directive.m_eDirective = eDirectiveType;
-		directive.m_eBuild = eBuild;
-		directive.m_eResource = eResource;
-		directive.m_sX = pPlot->getX();
-		directive.m_sY = pPlot->getY();
-		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eBuild);
-		directive.m_sMoveTurnsAway = iMoveTurnsAway;
-
-		if(m_bLogging)
-		{
-			CvString strTemp;
-			strTemp.Format("%d, Build Time Weight, %d, Weight, %d", pUnit->GetID(), iBuildTimeWeight, iWeight);
-			LogInfo(strTemp, m_pPlayer);
-		}
-
-		m_aDirectives.push_back(directive, iWeight);
 	}
 }
 
@@ -1454,154 +1452,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 
 		UpdateProjectedPlotYields(pPlot, eBuild);
-		int iScore = ScorePlot();
 #if defined(MOD_BALANCE_CORE)
-		//Let's push AI to make mines on hills.
-		if(pPlot->isHills() && pImprovement->IsHillsMakesValid())
-		{
-			iScore *= 5;
-		}
-		//Let's get route things on routes, and not elsewhere.
-		bool bRouteBenefit = false;
-		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			
-			if(pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) > 0)
-			{
-				bRouteBenefit = true;
-				break;
-			}
-			else if(pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) > 0)
-			{
-				bRouteBenefit = true;
-				break;
-			}
-		}
-		if(bRouteBenefit && pPlot->IsCityConnection(m_pPlayer->GetID()))
-		{
-			if(pPlot->IsRouteRailroad() || pPlot->IsRouteRoad())
-			{
-				iScore *= 2;
-			}
-			else
-			{
-				iScore /= 10;
-			}
-		}
-
-		//Great improvements are great!
-		if(pImprovement->IsCreatedByGreatPerson())
-		{
-			iScore += 1;
-			iScore *= 5;
-		}
-		//Holy Sites should be built near Holy Cities.
-		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
-		if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
-		{
-			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
-			if(eReligion != NO_RELIGION)
-			{
-				if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
-				{
-					iScore *= 10;
-				}
-			}
-		}
-		//If our plot obsoletes, let's half them, so that the potential replacement is stronger.
-		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-		{
-			CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
-			if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
-			{
-				iScore /= 2;
-			}
-		}
-		int iDefense = 0;
-		bool bBad = false;
-		//Fort test.
-		if(!GET_PLAYER(pUnit->getOwner()).isHuman())
-		{
-			ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-			if (eFort != NO_IMPROVEMENT)
-			{
-				if(eImprovement == eFort)
-				{
-					//Is this a good spot for a defensive building?
-					if(eResource == NO_RESOURCE)
-					{
-						if(pPlot->getOwner() == m_pPlayer->GetID())
-						{
-							for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-							{
-								CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
-								if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
-								{
-									bBad = true;
-									break;
-								}
-							}
-							if(bBad)
-							{
-								continue;
-							}
-							iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-							if(iDefense > iScore)
-							{
-								iScore = iDefense;
-							}
-						}
-					}
-				}
-				//Looking to build something else on top of a fort? It'd better be good.
-				else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
-				{
-					if(pPlot->getImprovementType() == eFort)
-					{
-						iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-					}
-					if(iDefense > iScore)
-					{
-						continue;
-					}
-				}
-			}
-		}
-		//Does this improvement connect a resource? Increase the score!
-		if(eResource != NO_RESOURCE)
-		{
-			if(pImprovement->IsImprovementResourceMakesValid(eResource))
-			{
-				iScore *= 50;
-			}
-		}
-		//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
-		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-		{
-			int iNumUnimprovedPlots = 0;
-			// Look around this Unit to see if there's an adjacent Citadel
-			int iRange = 3;
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-
-					if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && pLoopPlot->isCity())
-					{
-						if(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						{
-							iNumUnimprovedPlots++;
-						}
-					}
-				}
-			}
-			if(iNumUnimprovedPlots > 0)
-			{
-				iScore /= (max((iNumUnimprovedPlots * 5), 1));
-			}
-		}
+		int iScore = ScorePlot(eImprovement, eBuild);
+#else
+		int iScore = ScorePlot();
 #endif
 
 		// if we're going backward, bail out!
@@ -1622,52 +1476,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			eDirectiveType = BuilderDirective::REPAIR;
 			iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
 		}
-#if defined(MOD_API_UNIFIED_YIELDS)
-		else
-		{
-			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes) iI;
-				if(pImprovement->GetYieldChange(iI) > 0)
-				{
-
-					switch(eYield)
-					{
-						case YIELD_FOOD:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-						case YIELD_PRODUCTION:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-						case YIELD_GOLD:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-						case YIELD_SCIENCE:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-						case YIELD_CULTURE:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-						case YIELD_FAITH:
-							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
-							break;
-					}
-
-					int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-					int iAdjacentTwoCulture = pImprovement->GetYieldAdjacentTwoSameType(eYield);
-
-					if(iAdjacentCulture > 0)
-					{
-						iScore *= (1 + pPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
-					}
-					if(iAdjacentTwoCulture > 0)
-					{
-						iScore *= (1 + pPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
-					}
-				}
-			}
-		}
-#else
+#if !defined(MOD_API_UNIFIED_YIELDS)
 		else if(pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
 		{
 			iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(YIELD_CULTURE);
@@ -1680,136 +1489,12 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 #endif
 		iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
+
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
 		iWeight *= iScore;
 #if defined(MOD_BALANCE_CORE)
 		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-		//Improvement grants resource? Let's weight this based on flavors.
-		ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovement->GetResourceFromImprovement();
-		if(eResourceFromImprovement != NO_IMPROVEMENT)
-		{
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			int iResourceFlavor = 0;
-			int iPersonalityFlavorValue = 0;
-			int iResult = 0;
-			if(pkResource != NULL)
-			{
-				for(int i = 0; i < GC.getNumFlavorTypes(); i++)
-				{
-					iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
-					if(iResourceFlavor > 0)
-					{
-						iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
-						if(iPersonalityFlavorValue > 0)
-						{
-							iResult = iResourceFlavor * iPersonalityFlavorValue;
-						}
-					}
-					if(iResult > 0)
-					{
-						iWeight *= iResult;
-					}
-				}
-			}
-		}
-		//Unique improvement? Let's give this a lot of weight!
-		if(pImprovement->IsSpecificCivRequired())
-		{
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			if(pkImprovementInfo)
-			{
-				CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
-				if(eCiv == m_pPlayer->getCivilizationType())
-				{
-					if(!m_bEvaluateAdjacent)
-					{
-						iWeight *= 100;
-					}
-					if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (pPlot->getOwner() != m_pPlayer->GetID()))
-					{
-						bool bAdjacent = false;
-						bool bAdjacentDesire = false;
-						for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-						{
-							if(pkImprovementInfo->GetYieldAdjacentSameType((YieldTypes)ui) > 0)
-							{
-								bAdjacentDesire = true;
-								break;
-							}
-							else if(pkImprovementInfo->GetYieldAdjacentTwoSameType((YieldTypes)ui) > 0)
-							{
-								bAdjacentDesire = true;
-								break;
-							}
-						}
-						//If yield bonus is granted from it being adjacent...
-						CvPlot* pAdjacentPlot;
-						if(bAdjacentDesire)
-						{
-							for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-							{
-								pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
-
-								if(pAdjacentPlot != NULL)
-								{
-									if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
-									{
-										//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
-										iWeight = (iWeight * 4);
-										iWeight /= 3;
-										if(m_bLogging)
-										{
-											CvString strTemp;
-											strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
-											LogInfo(strTemp, m_pPlayer);
-										}
-										bAdjacent = true;
-										break;
-									}
-								}
-							}
-							if(!bAdjacent)
-							{
-								iWeight = (iWeight * 3);
-								iWeight /= 2;
-								if(m_bLogging)
-								{
-									CvString strTemp;
-									strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus, but no adjacent tile yet... %s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
-									LogInfo(strTemp, m_pPlayer);
-								}
-							}
-
-						}
-						else
-						{
-							//Is the plot outside our land, but we can build on it? Let's do this after everything else.
-							iWeight = (iWeight / 2);
-							if(m_bLogging)
-							{
-								CvString strTemp;
-								strTemp.Format("Weight,Found a Tile outside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
-								LogInfo(strTemp, m_pPlayer);
-							}
-						}
-					}
-					else
-					{
-						iWeight = (iWeight * 2);
-						if(m_bLogging)
-						{
-							CvString strTemp;
-							strTemp.Format("Weight,Found a Tile inside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
-							LogInfo(strTemp, m_pPlayer);
-						}
-					}
-				}
-			}
-		}
 #endif
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
@@ -2777,16 +2462,37 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 
 	return true;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvBuilderTaskingAI::ScorePlot(ImprovementTypes eImprovement, BuildTypes eBuild)
+#else
 int CvBuilderTaskingAI::ScorePlot()
+#endif
 {
 	if(!m_pTargetPlot)
 	{
 		return -1;
 	}
 #if defined(MOD_BALANCE_CORE)
-	int iScore = 0;
-	if(MOD_BALANCE_CORE && m_bEvaluateAdjacent)
+	if(eImprovement == NO_IMPROVEMENT)
+	{
+		return -1;
+	}
+	if(eBuild == NO_BUILD)
+	{
+		return -1;
+	}
+
+	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+	if(!pImprovement)
+	{
+		return -1;
+	}
+	ResourceTypes eResource = m_pTargetPlot->getResourceType(m_pPlayer->getTeam());
+
+	//Some base value.
+	int iScore = 10;
+
+	if(m_bEvaluateAdjacent)
 	{
 		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
 		CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
@@ -2841,100 +2547,435 @@ int CvBuilderTaskingAI::ScorePlot()
 			iScore /= 3;
 		}
 	}
-	else
-	{
 #endif
 	CvCity* pCity = m_pTargetPlot->getWorkingCity();
-	if(!pCity)
+	if(pCity)
 	{
-		return -1;
-	}
-
-	CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
-	if(!pCityStrategy)
-	{
-		return -1;
-	}
-#if !defined(MOD_BALANCE_CORE)
-	int iScore = 0;
-#endif
-	bool bAnyNegativeMultiplier = false;
-	YieldTypes eFocusYield = pCityStrategy->GetFocusYield();
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		int iMultiplier = pCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
-		int iAbsMultiplier = abs(iMultiplier);
-		int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
-
-		// the multiplier being lower than zero means that we need more of this resource
-		if(iMultiplier < 0)
+		CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
+		if(!pCityStrategy)
 		{
-			bAnyNegativeMultiplier = true;
-			if(iYieldDelta > 0)  // this would be an improvement to the yield
+			return -1;
+		}
+		bool bAnyNegativeMultiplier = false;
+		YieldTypes eFocusYield = pCityStrategy->GetFocusYield();
+		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
+			int iMultiplier = pCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
+			int iAbsMultiplier = abs(iMultiplier);
+			int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
+
+			// the multiplier being lower than zero means that we need more of this resource
+			if(iMultiplier < 0)
 			{
-				iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
+				bAnyNegativeMultiplier = true;
+				if(iYieldDelta > 0)  // this would be an improvement to the yield
+				{
+					iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
+				}
+				else if(iYieldDelta < 0)  // the yield would go down
+				{
+					iScore += iYieldDelta * iAbsMultiplier;
+				}
 			}
-			else if(iYieldDelta < 0)  // the yield would go down
+			else
 			{
-				iScore += iYieldDelta * iAbsMultiplier;
+				if(iYieldDelta >= 0)
+				{
+					iScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
+				}
+				else if(iYieldDelta < 0)
+				{
+					iScore += iYieldDelta * iAbsMultiplier;
+				}
+			}
+		}
+
+		if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
+		{
+			int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
+			if(iYieldDelta > 0)
+			{
+				iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
+			}
+		}
+
+		if (pCity->isCapital()) // this is our capital and needs emphasis
+		{
+			iScore *= 8;
+		}
+		else if (pCity->IsOriginalCapital()) // this was a particularly good city and needs a little emphasis
+		{
+			iScore *= 2;
+		}
+#if defined(MOD_BALANCE_CORE)
+		//Plots with resources on them need emphasis, especially if they offer happiness.
+		if(m_pTargetPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
+		{
+			iScore *= 2;
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(m_pTargetPlot->getResourceType(pCity->getTeam()));
+			if(pkResourceInfo)
+			{
+				if(pkResourceInfo->getHappiness() > 0)
+				{
+					iScore *= 2;
+				}
+				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					iScore *= 2;
+				}
+			}
+		}
+		if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());
+			if(pkImprovementInfo && (pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
+			{
+				iScore /= 10;
+			}
+		}
+
+		//Improvement grants resource? Let's weight this based on flavors.
+		ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovement->GetResourceFromImprovement();
+		if(eResourceFromImprovement != NO_IMPROVEMENT)
+		{
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResourceFromImprovement);
+			int iResourceFlavor = 0;
+			int iPersonalityFlavorValue = 0;
+			int iResult = 0;
+			if(pkResource != NULL)
+			{
+				for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+				{
+					iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
+					if(iResourceFlavor > 0)
+					{
+						iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
+						if(iPersonalityFlavorValue > 0)
+						{
+							iResult = iResourceFlavor * iPersonalityFlavorValue;
+						}
+					}
+					if(iResult > 0)
+					{
+						iScore += iResult;
+					}
+				}
+			}
+		}
+	}
+	//Unique improvement? Let's give this a lot of weight!
+	if(pImprovement->IsSpecificCivRequired())
+	{
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if(pkImprovementInfo)
+		{
+			CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
+			if(eCiv == m_pPlayer->getCivilizationType())
+			{
+				if(!m_bEvaluateAdjacent || !pkImprovementInfo->IsInAdjacentFriendly())
+				{
+					iScore *= 10;
+				}
+				else if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (m_pTargetPlot->getOwner() != m_pPlayer->GetID()))
+				{
+					bool bAdjacent = false;
+					bool bAdjacentDesire = false;
+					for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+					{
+						if(pkImprovementInfo->GetYieldAdjacentSameType((YieldTypes)ui) > 0)
+						{
+							bAdjacentDesire = true;
+							break;
+						}
+						else if(pkImprovementInfo->GetYieldAdjacentTwoSameType((YieldTypes)ui) > 0)
+						{
+							bAdjacentDesire = true;
+							break;
+						}
+					}
+					//If yield bonus is granted from it being adjacent...
+					CvPlot* pAdjacentPlot;
+					if(bAdjacentDesire)
+					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+						{
+							pAdjacentPlot = plotDirection(m_pTargetPlot->getX(), m_pTargetPlot->getY(), ((DirectionTypes) iDirectionLoop));
+
+							if(pAdjacentPlot != NULL)
+							{
+								if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
+								{
+									//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
+									iScore *= 4;
+									iScore /= 3;
+									if(m_bLogging)
+									{
+										CvString strTemp;
+										strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, m_pTargetPlot->getX(), m_pTargetPlot->getY());
+										LogInfo(strTemp, m_pPlayer);
+									}
+									bAdjacent = true;
+									break;
+								}
+							}
+						}
+						if(!bAdjacent)
+						{
+							iScore *= 3;
+							iScore /= 2;
+							if(m_bLogging)
+							{
+								CvString strTemp;
+								strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus, but no adjacent tile yet... %s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, m_pTargetPlot->getX(), m_pTargetPlot->getY());
+								LogInfo(strTemp, m_pPlayer);
+							}
+						}
+
+					}
+					else
+					{
+						//Is the plot outside our land, but we can build on it? Let's do this after everything else.
+						iScore /= 2;
+						if(m_bLogging)
+						{
+							CvString strTemp;
+							strTemp.Format("Weight,Found a Tile outside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, m_pTargetPlot->getX(), m_pTargetPlot->getY());
+							LogInfo(strTemp, m_pPlayer);
+						}
+					}
+				}
+				else
+				{
+					iScore *= 2;
+					if(m_bLogging)
+					{
+						CvString strTemp;
+						strTemp.Format("Weight,Found a Tile inside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, m_pTargetPlot->getX(), m_pTargetPlot->getY());
+						LogInfo(strTemp, m_pPlayer);
+					}
+				}
+			}
+		}
+	}
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int iTempWeight = 0;
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+		if(pImprovement->GetYieldChange(iI) > 0)
+		{
+
+			switch(eYield)
+			{
+				case YIELD_FOOD:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+				case YIELD_PRODUCTION:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+				case YIELD_GOLD:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+				case YIELD_SCIENCE:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+				case YIELD_CULTURE:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+				case YIELD_FAITH:
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					break;
+			}
+
+			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
+			int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+			int iAdjacentOtherValue = 0;
+			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+			{
+				ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					iAdjacentOtherValue += pImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+				}
+			}
+
+			if(iAdjacentValue > 0)
+			{
+				iScore *= (5 + m_pTargetPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+			}
+			if(iAdjacentTwoValue > 0)
+			{
+				iScore *= (6 + m_pTargetPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
+			}
+			if(iAdjacentOtherValue > 0)
+			{
+				iScore *= (7 + m_pTargetPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
+			}
+		}
+	}
+#endif
+	//Let's push AI to make mines on hills.
+	if(m_pTargetPlot->isHills() && pImprovement->IsHillsMakesValid())
+	{
+		iScore *= 5;
+	}
+	//Let's get route things on routes, and not elsewhere.
+	bool bRouteBenefit = false;
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+			
+		if(pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) > 0)
+		{
+			bRouteBenefit = true;
+			break;
+		}
+		else if(pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) > 0)
+		{
+			bRouteBenefit = true;
+			break;
+		}
+	}
+	if(bRouteBenefit)
+	{
+		if(m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()))
+		{
+			if(m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad())
+			{
+				iScore *= 10;
+			}
+			else
+			{
+				iScore /= 100;
 			}
 		}
 		else
 		{
-			if(iYieldDelta >= 0)
-			{
-				iScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
-			}
-			else if(iYieldDelta < 0)
-			{
-				iScore += iYieldDelta * iAbsMultiplier;
-			}
+			iScore /= 100;
 		}
 	}
 
-	if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
+	//Great improvements are great!
+	if(pImprovement->IsCreatedByGreatPerson())
 	{
-		int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
-		if(iYieldDelta > 0)
-		{
-			iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
-		}
+		iScore *= 5;
 	}
 
-	if (pCity->isCapital()) // this is our capital and needs emphasis
+	//City adjacenct improvment? Ramp it up!
+	if(pImprovement->IsAdjacentCity() && m_pTargetPlot->GetAdjacentCity() != NULL)
 	{
-		iScore *= 8;
+		iScore *= 10;
 	}
-	else if (pCity->IsOriginalCapital()) // this was a particularly good city and needs a little emphasis
+	//Holy Sites should be built near Holy Cities.
+	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+	if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
 	{
-		iScore *= 2;
-	}
-#if defined(MOD_BALANCE_CORE)
-	//Plots with resources on them need emphasis, especially if they offer happiness.
-	if(m_pTargetPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
-	{
-		iScore *= 2;
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(m_pTargetPlot->getResourceType(pCity->getTeam()));
-		if(pkResourceInfo)
+		ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+		if(eReligion != NO_RELIGION)
 		{
-			if(pkResourceInfo->getHappiness() > 0)
+			if(m_pTargetPlot->getWorkingCity() != NULL && m_pTargetPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
-				iScore *= 2;
+				iScore *= 10;
 			}
-			if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			else
 			{
-				iScore *= 2;
+				iScore /= 2;
 			}
 		}
 	}
+	
+	//Does this improvement connect a resource? Increase the score!
+	if(eResource != NO_RESOURCE)
+	{
+		if(pImprovement->IsImprovementResourceMakesValid(eResource))
+		{
+			iScore *= 50;
+		}
+	}
+	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
 	if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT)
 	{
-		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());
-		if(pkImprovementInfo && (pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
+		//If our current improvement is obsolete, let's half it's value, so that the potential replacement is stronger.
+		CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());
+		if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
 		{
-			iScore /= 10;
+			iScore *= 2;
+		}
+		int iNumWorkedPlots = 0;
+		int iNumImprovedPlots = 0;
+		// Look at the city we'll be improving to see how essential another improvement is.
+		if(pCity)
+		{
+			for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+			{
+				ImprovementTypes eWorkingImprovement = (ImprovementTypes) iI;
+				if(eWorkingImprovement != NO_IMPROVEMENT)
+				{
+					iNumImprovedPlots += pCity->GetNumImprovementWorked(eWorkingImprovement);
+				}
+			}
+			iNumWorkedPlots = pCity->getPopulation();
+			//if population is higher than # of plots, increase value. Otherwise, reduce it.
+			if(iNumWorkedPlots > iNumWorkedPlots)
+			{
+				iScore *= (iNumWorkedPlots - iNumWorkedPlots);
+			}
+			else
+			{
+				iScore /= max(2, (iNumWorkedPlots - iNumWorkedPlots));
+			}
 		}
 	}
+
+	int iDefense = 0;
+	bool bBad = false;
+	//Fort test.
+	if(!m_pPlayer->isHuman())
+	{
+		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		if (eFort != NO_IMPROVEMENT)
+		{
+			if(eImprovement == eFort)
+			{
+				//Is this a good spot for a defensive building?
+				if(eResource == NO_RESOURCE)
+				{
+					if(m_pTargetPlot->getOwner() == m_pPlayer->GetID())
+					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(m_pTargetPlot->getX(), m_pTargetPlot->getY(), ((DirectionTypes) iDirectionLoop));
+							if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
+							{
+								bBad = true;
+								break;
+							}
+						}
+						if(bBad)
+						{
+							return -1;
+						}
+						iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+						if(iDefense > iScore)
+						{
+							iScore = iDefense;
+						}
+					}
+				}
+			}
+			//Looking to build something else on top of a fort? It'd better be good.
+			else if((eImprovement != eFort) && (m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT))
+			{
+				if(m_pTargetPlot->getImprovementType() == eFort)
+				{
+					iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+				}
+				if((iDefense * 3) > (iScore * 2))
+				{
+					return -1;
+				}
+			}
+		}
 	}
 #endif
 	return iScore;

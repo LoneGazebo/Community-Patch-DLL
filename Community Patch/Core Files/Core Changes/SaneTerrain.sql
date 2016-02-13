@@ -16,3 +16,7 @@ UPDATE Features
 SET Impassable = '1'
 WHERE Type = 'FEATURE_ICE';
 
+-- Fix Fishing Boats murdering combat units
+UPDATE Builds
+SET KillOnlyCivilian = 'true'
+WHERE Type = 'BUILD_FISHING_BOATS';

@@ -88,6 +88,16 @@
 	SET HurryMultiplier = '25'
 	WHERE Type = 'UNIT_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- Changed how Musician Great Tour Works
+	UPDATE Language_en_US
+	SET Text = 'The value of this action depends on your [ICON_TOURISM] Cultural Influence over the target Civilization.[NEWLINE][NEWLINE][ICON_BULLET]If [COLOR_MAGENTA]Unknown[ENDCOLOR] or [COLOR_MAGENTA]Exotic[ENDCOLOR]: Your [ICON_TOURISM] Tourism with the target Civilization is immediately raised to [COLOR_MAGENTA]Familiar[ENDCOLOR] status.[NEWLINE][NEWLINE][ICON_BULLET]If [COLOR_MAGENTA]Familiar[ENDCOLOR] or [COLOR_MAGENTA]Popular[ENDCOLOR]: Gain large amount of [ICON_TOURISM] Tourism based on your Tourism and Culture output as Cultural Influence over this Civilization (20% of this [ICON_TOURISM] Tourism is also applied to all other known Civs). Additionally, you receive [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital (scaling with Era), and the target Civilization experiences ''We Love the King Day'' in all owned Cities, scaling with your Cultural Influence and Gamespeed. This action consumes the unit.[NEWLINE][NEWLINE]Cannot perform this action if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
+	WHERE Tag = 'TXT_KEY_MISSION_ONE_SHOT_TOURISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'A Great Musician can create a Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR]. The value of this action depends on your [ICON_TOURISM] Cultural Influence over the target Civilization.[NEWLINE][NEWLINE][ICON_BULLET]If [COLOR_MAGENTA]Unknown[ENDCOLOR] or [COLOR_MAGENTA]Exotic[ENDCOLOR]: Your [ICON_TOURISM] Tourism with the target Civilization is immediately raised to [COLOR_MAGENTA]Familiar[ENDCOLOR] status.[NEWLINE][NEWLINE][ICON_BULLET]If [COLOR_MAGENTA]Familiar[ENDCOLOR] or [COLOR_MAGENTA]Popular[ENDCOLOR]: Gain large amount of [ICON_TOURISM] Tourism based on your Tourism and Culture output as Cultural Influence over this Civilization (20% of this [ICON_TOURISM] Tourism is also applied to all other known Civs). Additionally, you receive [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital (scaling with Era), and the target Civilization experiences ''We Love the King Day'' in all owned Cities, scaling with your Cultural Influence and Gamespeed.[NEWLINE][NEWLINE]Great Musicians are expended when used either of these ways. Cannot perform this action if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
+	WHERE Tag = 'TXT_KEY_UNIT_GREAT_MUSICIAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+
 -- MELEE UNITS
 -- LAND
 	-- Samurai
@@ -642,7 +652,7 @@
 
 	-- Indian Elephant (9)
 	UPDATE Units
-	SET Combat = '30'
+	SET Combat = '25'
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -1601,8 +1611,16 @@
 	-- Buff Barbarians
 
 	UPDATE Units
+	SET ShowInPedia = 'false'
+	WHERE Type = 'UNIT_BARBARIAN_AXMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
 	SET Combat = '8'
 	WHERE Type = 'UNIT_BARBARIAN_WARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ShowInPedia = 'false'
+	WHERE Type = 'UNIT_BARBARIAN_AXMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
 	SET Combat = '8'

@@ -1763,6 +1763,35 @@ int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 int CvLuaUnit::lGetBlastTourism(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
+	{
+		CvPlayer &kUnitOwner = GET_PLAYER(pkUnit->getOwner());
+		PlayerTypes eOwner = pkUnit->plot()->getOwner();
+
+		if (eOwner != NO_PLAYER)
+		{
+			InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
+			if(eLevel <= INFLUENCE_LEVEL_EXOTIC)
+			{
+				int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 2;
+				int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
+				int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
+				int iTourismDifference = 0;
+
+				//Get % needed for Familiarity
+				if (iTourismNeededForFamiliar > 0)
+				{
+					iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
+				}
+				//Subtract existing %
+				iTourismDifference -= iInfluenceOn;
+				lua_pushinteger(L, iTourismDifference);
+				return 1;
+			}
+		}
+	}
+#endif
 
 	const int iResult = pkUnit->getBlastTourism();
 	lua_pushinteger(L, iResult);
@@ -5051,6 +5080,35 @@ int CvLuaUnit::lSetSpreadsLeft(lua_State* L)
 int CvLuaUnit::lGetTourismBlastStrength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->GetTourismBlastStrength() > 0)
+	{
+		CvPlayer &kUnitOwner = GET_PLAYER(pkUnit->getOwner());
+		PlayerTypes eOwner = pkUnit->plot()->getOwner();
+
+		if (eOwner != NO_PLAYER)
+		{
+			InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
+			if(eLevel <= INFLUENCE_LEVEL_EXOTIC)
+			{
+				int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 2;
+				int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
+				int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
+				int iTourismDifference = 0;
+
+				//Get % needed for Familiarity
+				if (iTourismNeededForFamiliar > 0)
+				{
+					iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
+				}
+				//Subtract existing %
+				iTourismDifference -= iInfluenceOn;
+				lua_pushinteger(L, iTourismDifference);
+				return 1;
+			}
+		}
+	}
+#endif
 	int iStrength = pkUnit->GetTourismBlastStrength();
 
 	lua_pushinteger(L, iStrength);

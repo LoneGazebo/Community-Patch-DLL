@@ -8701,7 +8701,7 @@ int CvLuaPlayer::lGetCityByID(lua_State* L)
 
 	CvCity* pkCity = pkPlayer->getCity(id);
 
-	//sometimes Lua unit IDs are actually sequential indices
+	//sometimes Lua city IDs are actually sequential indices
 	//global IDs start at 1000
 	if (!pkCity && id<1000)
 	{
@@ -13112,10 +13112,19 @@ int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 {
 	const PlayerTypes eOwner = (PlayerTypes) lua_tointeger(L, 2);
 #if defined(MOD_CONFIG_AI_IN_XML)
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
-	const bool bIsCapital = lua_toboolean(L, 4);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 5);
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, pkCity, eToPlayer));
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
+	if(pkCity)
+	{
+		const bool bIsCapital = luaL_optbool(L, 4, false);
+		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, pkCity, eToPlayer));
+	}
+	else
+	{
+		const bool bIsCapital = luaL_optbool(L, 4, false);
+		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, NULL, eToPlayer));
+	}
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
 #endif
@@ -13127,9 +13136,18 @@ int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 	const PlayerTypes eOriginalOwner = (PlayerTypes) lua_tointeger(L, 2);
 #if defined(MOD_CONFIG_AI_IN_XML)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
-	const bool bIsCapital = lua_toboolean(L, 4);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 5);
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, pkCity, eToPlayer));
+	if(pkCity)
+	{
+		const bool bIsCapital = luaL_optbool(L, 4, false);
+		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, pkCity, eToPlayer));
+	}
+	else
+	{
+		const bool bIsCapital = luaL_optbool(L, 4, false);
+		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, NULL, eToPlayer));
+	}
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
 #endif

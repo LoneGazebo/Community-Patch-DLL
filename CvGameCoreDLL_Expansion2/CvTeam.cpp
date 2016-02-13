@@ -1391,55 +1391,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Meet the team if we haven't already
 	meet(eTeam, false);
 
-	//Check for bad units, and capture them!
-	CvUnit* pLoopUnit;
-	int iLoop;
-	for(int iPlayers = 0; iPlayers < MAX_CIV_PLAYERS; iPlayers++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayers;
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-		{
-			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			{
-				if(pLoopUnit != NULL && pLoopUnit->IsCombatUnit() && pLoopUnit->plot()->getNumUnits() > 1)
-				{
-					for(int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
-					{
-						CvUnit* loopUnit = pLoopUnit->plot()->getUnitByIndex(iUnitLoop);
-
-						if(loopUnit != NULL && !loopUnit->IsCombatUnit() && GET_TEAM(loopUnit->getTeam()).isAtWar(GetID()))
-						{
-							CvUnit* pGiftUnit = kPlayer.initUnit(loopUnit->getUnitType(), loopUnit->getX(), loopUnit->getY(), GC.getUnitInfo(loopUnit->getUnitType())->GetDefaultUnitAIType(), NO_DIRECTION, true /*bNoMove*/);
-							if (!pGiftUnit->jumpToNearestValidPlot())
-							{
-								pGiftUnit->kill(false);
-							}
-							else
-							{
-								pGiftUnit->finishMoves();
-							}
-							Localization::String strMessage;
-							Localization::String strSummary;
-							strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_DETAILED");
-							strMessage << loopUnit->getUnitInfo().GetTextKey() << GET_PLAYER(pLoopUnit->getOwner()).getNameKey();
-							strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED");
-							CvNotifications* pNotification = GET_PLAYER(loopUnit->getOwner()).GetNotifications();
-							if(pNotification)
-							{
-								pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
-							}
-
-							loopUnit->kill(false);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
 #else
 
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
@@ -4416,6 +4367,52 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	//Check for bad units, and capture them!
+	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+	for(int iPlayers = 0; iPlayers < MAX_CIV_PLAYERS; iPlayers++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayers;
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+		{
+			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if(pLoopUnit != NULL && pLoopUnit->IsCombatUnit() && pLoopUnit->plot() != NULL && pLoopUnit->plot()->getNumUnits() > 1)
+				{
+					for(int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
+					{
+						CvUnit* loopUnit = pLoopUnit->plot()->getUnitByIndex(iUnitLoop);
+
+						if(loopUnit != NULL && !loopUnit->IsCombatUnit() && !loopUnit->isEmbarked() && isAtWar(loopUnit->getTeam()))
+						{
+							if(loopUnit->getCaptureUnitType(GET_PLAYER(loopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
+							{
+								CvUnitCaptureDefinition kCaptureDef;
+								if(loopUnit->getCaptureDefinition(&kCaptureDef, ePlayer))
+								kCaptureUnitList.push_back(kCaptureDef);
+								loopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
+							}
+							loopUnit->kill(false, ePlayer);
+						}
+					}
+				}
+			}
+			// Create any units we captured, now that we own the destination
+			for(uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
+			{
+				pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex]);
+			}
+		}
+	}
+
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
+#endif
+
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 
 #ifndef FINAL_RELEASE
@@ -6254,7 +6251,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								// Appropriate Improvement on this Plot?
 #if defined(MOD_BALANCE_CORE)
 							bool bConnect = false;
-							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							if(pLoopPlot->isCity())
+							{
+								bConnect = true;
+							}
+							else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 								if(ImprovementEntry)
@@ -7990,17 +7991,23 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
-			//Free building in capital unlocked via tech?
-			if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
+			if(kPlayer.getCapitalCity() != NULL)
 			{
-				BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
-				if(eFreeCapitalBuilding != NO_BUILDING)
+				//Free Happiness
+				kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+
+				//Free building in capital unlocked via tech?
+				if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
 				{
-					if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+					BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+					if(eFreeCapitalBuilding != NO_BUILDING)
 					{
-						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+						if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+						{
+							kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+						}
+						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 					}
-					kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 				}
 			}
 #endif
@@ -9622,6 +9629,10 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 				}
 			}
 		}
+
+		//Break open borders
+		SetAllowsOpenBordersToTeam(eTeam, false);
+		GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(GetID(), false);
 		
 		setVassal(eTeam, false);
 		setVoluntaryVassal(eTeam, false);

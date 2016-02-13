@@ -664,6 +664,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding);
 
+		//Help with poverty
+		if(eYield == YIELD_GOLD)
+		{
+			int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
+			if(iGPT < 0)
+			{
+				iYieldValue += (iGPT * -5);
+			}
+		}
+
 		iBonus += iYieldValue;
 		iBonus += iYieldTrait;
 	}
@@ -759,8 +769,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -10% bonus
-			iBonus += (iGPT * 10);
+			//Every -1 GPT = -6% bonus
+			iBonus += (iGPT * 6);
 		}
 	}
 	

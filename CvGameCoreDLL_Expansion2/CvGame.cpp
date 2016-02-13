@@ -712,13 +712,16 @@ void CvGame::InitPlayers()
 			if(iI < MAX_MAJOR_CIVS + iNumMinors)
 			{
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
-				CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
-				CvPreGame::setNetID(eMinorPlayer, -1);
-				CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
-				CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-				CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
-				CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
-				CvPreGame::setMinorCiv(eMinorPlayer, true);
+				if(pMinorCivInfo)
+				{
+					CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
+					CvPreGame::setNetID(eMinorPlayer, -1);
+					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
+					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
+					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
+					CvPreGame::setMinorCiv(eMinorPlayer, true);
+				}
 			}
 		}
 	}
