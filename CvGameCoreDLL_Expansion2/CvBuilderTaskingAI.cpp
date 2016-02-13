@@ -1126,140 +1126,129 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		}
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-#if defined(MOD_BALANCE_CORE)
-		if(pkImprovementInfo == NULL || !pkImprovementInfo->IsImprovementResourceTrade(eResource) || !pkImprovementInfo->IsAdjacentCity())
-#else
-		if(pkImprovementInfo == NULL || !pkImprovementInfo->IsImprovementResourceTrade(eResource))
-#endif
-		{
+		if(pkImprovementInfo == NULL)
 			continue;
-		}
 
-		if(eImprovement == eExistingPlotImprovement)
+		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity())
 		{
-			if(pPlot->IsImprovementPillaged())
+
+			if(eImprovement == eExistingPlotImprovement)
 			{
-				eBuild = m_eRepairBuild;
-			}
-#if defined(MOD_BALANCE_CORE)
-			//Kasbah code (really any improvement that's adjacent city  is valued this way.)
-			else if(!pkImprovementInfo->IsAdjacentCity())
-			{
-				break;
-			}
-#else
-			else
-			{
-				// this plot already has the appropriate improvement to use the resource
-				break;
-			}
-#endif
-		}
-		else
-		{
-			// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-			if (eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement())
-				continue;
-		}
-
-		if(!pUnit->canBuild(pPlot, eBuild))
-		{
-			break;
-		}
-
-		BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
-		int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
-		if(eBuild == m_eRepairBuild)
-		{
-			eDirectiveType = BuilderDirective::REPAIR;
-			iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-		}
-
-		iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
-
-		// this is to deal with when the plot is already improved with another improvement that doesn't enable the resource
-		int iInvestedImprovementTime = 0;
-		if(eExistingPlotImprovement != NO_IMPROVEMENT)
-		{
-			BuildTypes eExistingBuild = NO_BUILD;
-			BuildTypes eBuild2 = NO_BUILD;
-			for(int iBuildIndex2 = 0; iBuildIndex2 < GC.getNumBuildInfos(); iBuildIndex2++)
-			{
-				eBuild2 = (BuildTypes)iBuildIndex2;
-				CvBuildInfo* pkBuild2 = GC.getBuildInfo(eBuild2);
-				if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
+				if(pPlot->IsImprovementPillaged())
 				{
-					eExistingBuild = eBuild2;
+					eBuild = m_eRepairBuild;
+				}
+				else
+				{
+					// this plot already has the appropriate improvement to use the resource
 					break;
 				}
 			}
-
-			if(eExistingBuild != NO_BUILD)
+			else
 			{
-				iInvestedImprovementTime = pPlot->getBuildTime(eExistingBuild, m_pPlayer->GetID());
+				// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
+				if (eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement())
+					continue;
 			}
-		}
-
-		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
-		iWeight += iBuildTimeWeight;
-		iWeight = CorrectWeight(iWeight);
-
-		iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
-#if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
-		iWeight = CorrectWeight(iWeight);
-
-		UpdateProjectedPlotYields(pPlot, eBuild);
-#if defined(MOD_BALANCE_CORE)
-		int iScore = ScorePlot(eImprovement, eBuild);
-#else
-		int iScore = ScorePlot();
-#endif
-		if(iScore > 0)
-		{
-			iWeight *= iScore;
-			iWeight = CorrectWeight(iWeight);
-		}
-
-		{
-			CvCity* pLogCity = NULL;
-			int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
-			if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
+			if(!pUnit->canBuild(pPlot, eBuild))
 			{
-				iWeight += iProduction; // a nominal benefit for choosing this production
+				continue;
+			}
 
-				if(m_bLogging)
+			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
+			int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
+			if(eBuild == m_eRepairBuild)
+			{
+				eDirectiveType = BuilderDirective::REPAIR;
+				iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
+			}
+
+			iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
+
+			// this is to deal with when the plot is already improved with another improvement that doesn't enable the resource
+			int iInvestedImprovementTime = 0;
+			if(eExistingPlotImprovement != NO_IMPROVEMENT)
+			{
+				BuildTypes eExistingBuild = NO_BUILD;
+				BuildTypes eBuild2 = NO_BUILD;
+				for(int iBuildIndex2 = 0; iBuildIndex2 < GC.getNumBuildInfos(); iBuildIndex2++)
 				{
-					CvString strLog;
-					strLog.Format("Helps rush, %d", iProduction);
-					LogInfo(strLog, m_pPlayer);
+					eBuild2 = (BuildTypes)iBuildIndex2;
+					CvBuildInfo* pkBuild2 = GC.getBuildInfo(eBuild2);
+					if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
+					{
+						eExistingBuild = eBuild2;
+						break;
+					}
+				}
+
+				if(eExistingBuild != NO_BUILD)
+				{
+					iInvestedImprovementTime = pPlot->getBuildTime(eExistingBuild, m_pPlayer->GetID());
 				}
 			}
+
+			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
+			iWeight += iBuildTimeWeight;
+			iWeight = CorrectWeight(iWeight);
+
+			iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+#if defined(MOD_BALANCE_CORE)
+			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+#endif
+			iWeight = CorrectWeight(iWeight);
+
+			UpdateProjectedPlotYields(pPlot, eBuild);
+#if defined(MOD_BALANCE_CORE)
+			int iScore = ScorePlot(eImprovement, eBuild);
+#else
+			int iScore = ScorePlot();
+#endif
+			if(iScore > 0)
+			{
+				iWeight *= iScore;
+				iWeight = CorrectWeight(iWeight);
+			}
+
+			{
+				CvCity* pLogCity = NULL;
+				int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
+				if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
+				{
+					iWeight += iProduction; // a nominal benefit for choosing this production
+
+					if(m_bLogging)
+					{
+						CvString strLog;
+						strLog.Format("Helps rush, %d", iProduction);
+						LogInfo(strLog, m_pPlayer);
+					}
+				}
+			}
+
+			if(iWeight <= 0)
+			{
+				continue;
+			}
+
+			BuilderDirective directive;
+			directive.m_eDirective = eDirectiveType;
+			directive.m_eBuild = eBuild;
+			directive.m_eResource = eResource;
+			directive.m_sX = pPlot->getX();
+			directive.m_sY = pPlot->getY();
+			//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eBuild);
+			directive.m_sMoveTurnsAway = iMoveTurnsAway;
+
+			if(m_bLogging)
+			{
+				CvString strTemp;
+				strTemp.Format("%d, Build Time Weight, %d, Weight, %d", pUnit->GetID(), iBuildTimeWeight, iWeight);
+				LogInfo(strTemp, m_pPlayer);
+			}
+
+			m_aDirectives.push_back(directive, iWeight);
 		}
-
-		if(iWeight <= 0)
-		{
-			continue;
-		}
-
-		BuilderDirective directive;
-		directive.m_eDirective = eDirectiveType;
-		directive.m_eBuild = eBuild;
-		directive.m_eResource = eResource;
-		directive.m_sX = pPlot->getX();
-		directive.m_sY = pPlot->getY();
-		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eBuild);
-		directive.m_sMoveTurnsAway = iMoveTurnsAway;
-
-		if(m_bLogging)
-		{
-			CvString strTemp;
-			strTemp.Format("%d, Build Time Weight, %d, Weight, %d", pUnit->GetID(), iBuildTimeWeight, iWeight);
-			LogInfo(strTemp, m_pPlayer);
-		}
-
-		m_aDirectives.push_back(directive, iWeight);
 	}
 }
 
