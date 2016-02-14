@@ -452,15 +452,15 @@ public:
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVoluntaryVassal(TeamTypes eIndex) const;
-	void setVoluntaryVassal(TeamTypes eIndex, bool bNewValue);
 	bool IsVassal(TeamTypes eIndex) const;
-	void setVassal(TeamTypes eIndex, bool bNewValue);
+	void setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary = false);
 
 	TeamTypes GetMaster() const;
 
 	bool IsVassalOfSomeone() const;
 
-	bool canBecomeVassal(TeamTypes eTeam) const;
+	bool CanLiberateVassal(TeamTypes eTeam) const;
+	bool canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
 	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
 	bool canEndVassal(TeamTypes eTeam) const;
 	bool canEndAllVassal() const;

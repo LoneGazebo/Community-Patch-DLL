@@ -239,6 +239,9 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsVoluntaryVassal);
 	Method(DoBecomeVassal);
 	Method(DoEndVassal);
+	Method(GetNumCitiesWhenVassalMade);
+	Method(GetTotalPopulationWhenVassalMade);
+	Method(CanLiberateVassal);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1440,13 +1443,13 @@ int CvLuaTeam::lGetMaster(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::GetMaster);
 }
 //------------------------------------------------------------------------------
-// bool IsVoluntaryVassal() const;
+// bool IsVoluntaryVassal(TeamTypes eTeam) const;
 int CvLuaTeam::lIsVoluntaryVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsVoluntaryVassal);
 }
 // ---------------------------------------------------------------------
-// void DoBecomeVassal(TeamTypes eTeam)
+// void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 {
 	CvTeam* pkTeam = GetInstance(L);
@@ -1461,5 +1464,23 @@ int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 int CvLuaTeam::lDoEndVassal(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::DoEndVassal);
+}
+// ---------------------------------------------------------------------
+// int GetNumCitiesWhenVassalMade()
+int CvLuaTeam::lGetNumCitiesWhenVassalMade(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::getNumCitiesWhenVassalMade);
+}
+// ---------------------------------------------------------------------
+// int GetTotalPopulationWhenVassalMade()
+int CvLuaTeam::lGetTotalPopulationWhenVassalMade(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::getTotalPopulationWhenVassalMade);
+}
+// ---------------------------------------------------------------------
+// bool CanLiberateVassal()
+int CvLuaTeam::lCanLiberateVassal(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanLiberateVassal);
 }
 #endif

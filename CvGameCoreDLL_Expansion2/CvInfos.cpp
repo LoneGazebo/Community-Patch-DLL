@@ -3338,6 +3338,14 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMax(0),
 	m_iPietyMin(0),
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_iShareOpinionDuration(0),
+	m_iTechCostPerTurnMultiplier(0),
+	m_iMinimumVoluntaryVassalTurns(0),
+	m_iMinimumVassalTurns(0),
+	m_iNumTurnsBetweenVassals(0),
+	m_iMinimumVassalLiberateTurns(0),
+#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3594,6 +3602,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
 		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
 		m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
+		m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
 	}
 #endif
 
@@ -7529,6 +7538,11 @@ int CvGameSpeedInfo::getMinimumVoluntaryVassalTurns() const
 int CvGameSpeedInfo::getMinimumVassalTurns() const
 {
 	return m_iMinimumVassalTurns;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getMinimumVassalLiberateTurns() const
+{
+	return m_iMinimumVassalLiberateTurns;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getNumTurnsBetweenVassals() const

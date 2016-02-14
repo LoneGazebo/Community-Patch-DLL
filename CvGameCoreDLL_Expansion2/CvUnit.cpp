@@ -3238,27 +3238,40 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				CvCity* pLoopCity;
 				int iCityLoop;
 				bool bNearLoserCity = false;
+				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
 
-				// Loop through loser's cities.
-				for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-				{
-					if(plotDistance(plot()->getX(), plot()->getY(), pLoopCity->getX(), pLoopCity->getY()) <= GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
-					{
-						bNearLoserCity = true;
-						break;
+				TeamTypes eMaster =  GET_TEAM(getTeam()).GetMaster();
+
+				// Check to see if Master failed to protect on of our units...
+				if(eMaster != NO_TEAM) {
+					// Unit killed inside my territory
+					if(plot()->getOwner() == getOwner()) {
+						bInMyTerritory = true;
 					}
-				}
+					// Unit killed near one of my cities
+					else if(plot()->getOwner() != ePlayer) {
+						// Loop through loser's cities.
+						for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+						{
+							if(plotDistance(plot()->getX(), plot()->getY(), pLoopCity->getX(), pLoopCity->getY()) <= GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
+							{
+								bNearLoserCity = true;
+								break;
+							}
+						}
+					}
 
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					// Something actually happened to warrant this check
+					if(bInMyTerritory || bNearLoserCity) {
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-					// Is loser's team the vassal of ePlayer?
-					if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) && bNearLoserCity)
-					{
-						// Master's failed protect score goes up for Vassal
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
+							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
+								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							}
+						}
 					}
 				}
 			}
@@ -9715,6 +9728,21 @@ bool CvUnit::pillage()
 					{
 						iValue *= 2;
 					}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					// Loser a vassal?
+					TeamTypes eMaster = GET_TEAM(pPlot->getTeam()).GetMaster();
+					if(eMaster != NO_TEAM)
+					{
+						// master failing to protect territory
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++) {
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
+								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							}
+						}
+					}
+#endif
 
 					// My viewpoint
 					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pPlot->getOwner(), getOwner(), iValue);

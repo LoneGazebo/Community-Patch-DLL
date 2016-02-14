@@ -245,6 +245,9 @@ protected:
 	LUAAPIEXTN(IsVoluntaryVassal, bool, iTeam);
 	LUAAPIEXTN(DoBecomeVassal, void, iTeam, bVoluntary);
 	LUAAPIEXTN(DoEndVassal, void, iTeam, bPeaceful, bSuppressNotification);
+	LUAAPIEXTN(GetNumCitiesWhenVassalMade, int);
+	LUAAPIEXTN(GetTotalPopulationWhenVassalMade, int);
+	LUAAPIEXTN(CanLiberateVassal, bool, iTeam);
 #endif
 };
 

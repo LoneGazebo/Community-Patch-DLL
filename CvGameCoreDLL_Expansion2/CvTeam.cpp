@@ -9439,25 +9439,19 @@ bool CvTeam::IsVoluntaryVassal(TeamTypes eIndex) const
 	return m_bIsVoluntaryVassal && IsVassal(eIndex);
 }
 //	--------------------------------------------------------------------------------
-void CvTeam::setVoluntaryVassal(TeamTypes eIndex, bool bNewValue)
-{
-	setVassal(eIndex,bNewValue);
-	m_bIsVoluntaryVassal = true;
-}
-//	--------------------------------------------------------------------------------
 bool CvTeam::IsVassal(TeamTypes eIndex) const
 {
 	return eIndex!=NO_TEAM && eIndex==m_eMaster;
 }
 //	--------------------------------------------------------------------------------
-void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue)
+void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary)
 {
 	//can't be our own master
 	if(eIndex==GetID())
 		return;
 
-	m_eMaster = bNewValue ? (TeamTypes)eIndex : NO_TEAM;
-	m_bIsVoluntaryVassal = false;
+	m_eMaster = bNewValue ? (TeamTypes) eIndex : NO_TEAM;
+	m_bIsVoluntaryVassal = bNewValue ? bVoluntary : false;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -9518,10 +9512,8 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	if(!GET_TEAM(eTeam).isAlive())
 		return true;
 
-	int iMinTurns;
-
 	// Too soon to end our vassalage with ePlayer
-	iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+	int iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
 
 	if(GetNumTurnsIsVassal() < iMinTurns)
 	{
@@ -9565,24 +9557,32 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		iCityPercent = getNumCities() * 100 / getNumCitiesWhenVassalMade();
 		iPopPercent = getTotalPopulation() * 100 / getTotalPopulationWhenVassalMade();
 	}
+	// No cities when vassalage was made (what?) - can end vassalage if we have cities and population
 	else
 	{
-		return true;
+		return (getNumCities() > 0 && getTotalPopulation() > 0);
 	}
 
-	// We have more than 100% of our original cities...
-	if(iCityPercent > (/*50*/GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD() * 2))
+	int iMasterCities = GET_TEAM(eTeam).getNumCities();
+	int iMasterPopulation = GET_TEAM(eTeam).getTotalPopulation();
+
+	// Master is dead???
+	if(iMasterCities == 0 || iMasterPopulation == 0)
+		return true;
+
+	// We have lost cities so that we are 75% less than what we started with (Master is not protecting us)
+	if(iCityPercent <= (/*75*/GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD()))
 	{
 		bAbleToEndVassalage = true;
 	}
-	// We have more than 200% of our original population
-	else if(iPopPercent > (/*50*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD() * 4))
+	// We have more than 300% of our original population (We don't need his protection anymore)
+	else if(iPopPercent > (/*300*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD()))
 	{
 		bAbleToEndVassalage = true;
 	}
-	// We have 40% or more of the Master's population OR cities
-	else if((getTotalPopulation() * 100 / GET_TEAM(eTeam).getTotalPopulation() >= (GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD() / 3)) ||
-		getNumCities() * 100 / GET_TEAM(eTeam).getNumCities() >= (GC.getVASSALAGE_VASSAL_CITY_THRESHOLD()/ 4))
+	// We have 60% or more of the Master's population OR cities
+	else if(getNumCities() * 100 / iMasterCities >= /*60*/GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() &&
+			getTotalPopulation() * 100 / iMasterPopulation >= /*60*/GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD())
 	{
 		bAbleToEndVassalage = true;
 	}
@@ -9624,7 +9624,6 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 		
 		setVassal(eTeam, false);
-		setVoluntaryVassal(eTeam, false);
 
 		// reset counters
 		SetNumTurnsSinceVassalEnded(eTeam, 0);
@@ -9802,7 +9801,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 }
 //	----------------------------------------------------------------------------------------------
 // Can eTeam become our vassal?
-bool CvTeam::canBecomeVassal(TeamTypes eTeam) const
+bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 {
 	// Can't become a vassal of nobody
 	if(eTeam == NO_TEAM)
@@ -9850,8 +9849,12 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam) const
 	if(!IsVassalageTradingAllowed())
 		return false;
 
-	// Someone has a vassal
-	if(IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone())
+	// We are a vassal, and we're not ignoring it
+	if(!bIgnoreAlreadyVassal && IsVassalOfSomeone())
+		return false;
+
+	// Master is a vassal, he can't get his own vassals
+	if(GET_TEAM(eTeam).IsVassalOfSomeone())
 		return false;
 
 	// Too early for eTeam to become our vassal
@@ -9887,6 +9890,36 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam) const
 	return true;
 }
 //	-----------------------------------------------------------------------------------------------
+// Can we liberate our vassal eTeam?
+bool CvTeam::CanLiberateVassal(TeamTypes eTeam) const
+{
+	// Must be a valid team
+	if(eTeam == NO_TEAM)
+		return false;
+
+	// nope, can't liberate ourselves
+	if(eTeam == GetID())
+		return false;
+
+	// must be alive
+	if(!GET_TEAM(eTeam).isAlive())
+		return false;
+
+	// Vassalage is disabled...
+	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+		return false;
+
+	// Must be a vassal of ours
+	if(!GET_TEAM(eTeam).IsVassal(GetID()))
+		return false;
+
+	// Must have been our vassal for a certain time
+	if(GET_TEAM(eTeam).GetNumTurnsIsVassal() < GC.getGame().getGameSpeedInfo().getMinimumVassalLiberateTurns())
+		return false;
+
+	return true;
+}
+//	-----------------------------------------------------------------------------------------------
 // We become the new Vassal of eTeam
 void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 {
@@ -9896,20 +9929,9 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	// If we're already eTeam's vassal, then do nothing
-	if(GetMaster() == eTeam)
-	{
+	// they must be able to make us their vassal
+	if(!GET_TEAM(eTeam).canBecomeVassal(GetID(), /*bIgnoreAlreadyVassal*/ true))
 		return;
-	}
-
-	// Become a voluntary vassal?
-	if(bVoluntary)
-	{
-		if(!IsVoluntaryVassal(eTeam))
-		{
-			setVoluntaryVassal(eTeam, true);
-		}
-	}
 
 	// Let's check if we have a vassal already, if so they must become eTeam's vassals as well
 	TeamTypes eOtherTeam;
@@ -9931,7 +9953,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 		}
 	}
 
-	setVassal(eTeam, true);	// We become the vassal of eTeam
+	setVassal(eTeam, true, bVoluntary);	// We become the vassal of eTeam
 	GET_TEAM(eTeam).AcquireMap(GetID(), /*bTerritoryOnly*/ true);	// eTeam acquires our territory map
 
 	// Let's save some stuff

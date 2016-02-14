@@ -2673,28 +2673,35 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				// Vassalage stuff
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					ePlayer = (PlayerTypes) iPlayerLoop;
-
-					// Notify Diplo AI that our master has failed to protect us, the vassal
-					// Is loser's team the vassal of this team?
-					if(GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-					{
-						// Master's failed protect score goes up for Vassal
-						GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
-					}
-
-					// Notify Diplo AI that our master has killed a city in a civ near our empire
-					// Is this civ the vassal of winner's team?
-					if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
-					{
-						// They were neighbors to us
-						if(GET_PLAYER(ePlayer).GetProximityToPlayer(pOldCity->getOwner()) <= PLAYER_PROXIMITY_CLOSE)
+				// Only on conquest
+				if(bConquest) {
+					// Vassalage stuff
+					TeamTypes eMaster = GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).GetMaster();
+					if(eMaster != NO_TEAM) {
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
-							// Master protected us against our enemy!
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
+							ePlayer = (PlayerTypes) iPlayerLoop;
+						
+							if(GET_PLAYER(ePlayer).getTeam() == eMaster) {
+								// This team was the master of the loser's team
+								if(GET_PLAYER(pOldCity->getOwner()).getTeam() == eMaster)
+								{
+									// Master's failed protect score goes up for Vassal
+									GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
+								}
+
+								// Notify Diplo AI that our master has killed a city in a civ near our empire
+								// Conquering team is the master
+								if(getTeam() == eMaster)
+								{
+									// Old city was neighbors to us
+									if(GET_PLAYER(ePlayer).GetProximityToPlayer(pOldCity->getOwner()) <= PLAYER_PROXIMITY_CLOSE)
+									{
+										// Master protected us against our enemy!
+										GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
+									}
+								}
+							}
 						}
 					}
 				}

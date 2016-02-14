@@ -1024,6 +1024,7 @@ public:
 	int getMinimumVoluntaryVassalTurns() const;
 	int getMinimumVassalTurns() const;
 	int getNumTurnsBetweenVassals() const;
+	int getMinimumVassalLiberateTurns() const;
 #endif
 
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
@@ -1079,6 +1080,7 @@ protected:
 	int m_iMinimumVoluntaryVassalTurns;
 	int m_iMinimumVassalTurns;
 	int m_iNumTurnsBetweenVassals;
+	int m_iMinimumVassalLiberateTurns;
 #endif
 
 	int m_iNumTurnIncrements;
