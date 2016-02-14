@@ -13219,7 +13219,6 @@ bool CvPlot::HasWrittenArtifact() const
 
 //	--------------------------------------------------------------------------------
 // Citadel
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 {
 	VALIDATE_OBJECT
@@ -13264,7 +13263,6 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 
 	return false;
 }
-#endif
 
 //	---------------------------------------------------------------------------
 void CvPlot::updateImpassable(TeamTypes eTeam)
@@ -14190,30 +14188,19 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
 	int iNumEnemiesAdjacent = 0;
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-#if defined(MOD_BALANCE_CORE)
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
-		pLoopPlot = aPlotsToCheck[iCount];
-#else
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 		if(pLoopPlot != NULL)
 		{
-			pUnitNode = pLoopPlot->headUnitNode();
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude

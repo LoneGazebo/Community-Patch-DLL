@@ -11176,7 +11176,6 @@ bool CvCity::HasGarrison() const
 
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (m_hGarrisonOverride != -1)
 	{
 		CvUnit* pGarrison = GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
@@ -11185,7 +11184,6 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		else
 			OutputDebugString("warning: invalid garrison override!\n");
 	}
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 	if (m_hGarrison>-1)
 		return  GET_PLAYER(getOwner()).getUnit(m_hGarrison);
@@ -24151,54 +24149,33 @@ CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlot) const
 {
 	if (pInPlot == NULL)
 		pInPlot = pDefender->plot();
-#else
-int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
-{
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+
 	int iDefenderStrength = 0;
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pInPlot->needsEmbarkation(pDefender))
-#else
-	if (pDefender->isEmbarked())
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	{
 		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 	}
-
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot())) > 0)
+	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
 	{
-#else
-	else if(!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false) > 0)
-	{
-		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false);
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-
-		// Ranged units take less damage from one another
-		iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
-		iDefenderStrength /= 100;
+		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot());
+		if (iDefenderStrength==0)
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
 	}
 	else
 	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
-#else
-		iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), NULL, /*bFromRangedAttack*/ true);
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	}
 
 	return iDefenderStrength;
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot) const
 {
 	VALIDATE_OBJECT
@@ -24214,14 +24191,8 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 			pInPlot = pCity->plot();
 		}
 	}
-#else
-int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand) const
-{
-	VALIDATE_OBJECT
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	int iAttackerStrength;
 
-	iAttackerStrength = getStrengthValue(true);
+	int iAttackerStrength = getStrengthValue(true);
 
 #if defined(MOD_BALANCE_CORE)
 	//Cities should deal less raw damage to boats - helps naval siege units greatly.
@@ -24234,49 +24205,22 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		}
 	}
 #endif
-	int iDefenderStrength;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int iDefenderStrength = 1;
 	if (pCity != NULL)
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
 	else if (pDefender != NULL)
-#else
-	// No City
-	if(pCity == NULL)
-#endif
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		if (!pDefender->IsCanDefend(pInPlot))
-#else
-		if(!pDefender->IsCanDefend())
-#endif
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot);
-#else
-		iDefenderStrength = rangeCombatUnitDefense(pDefender);
-#endif
-
 	}
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	// NULL case
-	else
-	{
-		iDefenderStrength = 1;
-	}
-#else
-	// City
-	else
-	{
-		iDefenderStrength = pCity->getStrengthValue();
-	}
-#endif
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
 

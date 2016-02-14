@@ -551,11 +551,7 @@ public:
 	int GetBaseCombatStrength(bool bIgnoreEmbarked = false) const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
-#else
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency) const;
-#endif
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
@@ -569,34 +565,18 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
 	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-#else
-	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack) const;
-
-	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
-#endif
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-#else
-	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
-#endif
-
 	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false, int* piNumPossibleInterceptors = NULL) const;
 	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-#else
-	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
-#endif
+
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 #endif
@@ -1047,29 +1027,17 @@ public:
 	int getExtraRoughDefensePercent() const;
 	void changeExtraRoughDefensePercent(int iChange);
 
-#ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
 	int getNumAttacks() const;
 	int getNumAttacksMadeThisTurn() const;
-#endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
-#else
-	bool IsNearEnemyCitadel(int& iCitadelDamage);
-#endif
 
 	// Great General Stuff
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-#ifdef AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
 	bool IsNearCityAttackOnly(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#else
-	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL) const;
-	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL) const;
-#endif
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(const CvPlot* pAtPlot = NULL) const;
@@ -1077,21 +1045,6 @@ public:
 	int GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifierFromPromotions(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier, const CvPlot* pAtPlot = NULL) const;
-#endif
-
-#else
-	// Great General Stuff
-	bool IsNearGreatGeneral() const;
-	bool IsStackedGreatGeneral() const;
-	int GetGreatGeneralStackMovement() const;
-	int GetReverseGreatGeneralModifier() const;
-	int GetNearbyImprovementModifier() const;
-
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-	int GetNearbyImprovementModifierFromTraits() const;
-	int GetNearbyImprovementModifierFromPromotions() const;
-	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier) const;
-#endif
 #endif
 
 	bool IsGreatGeneral() const;

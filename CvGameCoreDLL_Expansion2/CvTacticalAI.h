@@ -404,76 +404,6 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvQueuedAttack
-//!  \brief		A planned attack waiting to execute
-//
-//!  Key Attributes:
-//!  - Arises during processing of CvTacticalAI::ExecuteAttacks() or ProcessUnit()
-//!  - Created by calling QueueFirstAttack() or QueueSubsequentAttack()
-//!  - Combat animation system calls back into tactical AI when animation completes with call CombatResolved()
-//!  - This callback signals it is time to execute the next attack
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvQueuedAttack
-{
-public:
-	CvQueuedAttack()
-	{
-		m_pAttacker = NULL;
-		m_iSeriesID = 0;
-		m_bRanged = false;
-		m_bCityAttack = false;
-	};
-	CvQueuedAttack(const CvQueuedAttack& rhs) : m_pAttacker(rhs.m_pAttacker), m_kTarget(rhs.m_kTarget), m_iSeriesID(rhs.m_iSeriesID), m_bRanged(rhs.m_bRanged), m_bCityAttack(rhs.m_bCityAttack) {}
-	void* GetAttacker()
-	{
-		return m_pAttacker;
-	}
-	void SetAttacker(void* pAttacker)
-	{
-		m_pAttacker = pAttacker;
-	}
-	CvTacticalTarget* GetTarget()
-	{
-		return &m_kTarget;
-	}
-	void SetTarget(CvTacticalTarget* pTarget)
-	{
-		m_kTarget = *pTarget;
-	}
-	int GetSeriesID()
-	{
-		return m_iSeriesID;
-	}
-	void SetSeriesID(int id)
-	{
-		m_iSeriesID = id;
-	}
-	bool IsRanged()
-	{
-		return m_bRanged;
-	}
-	void SetRanged(bool bRanged)
-	{
-		m_bRanged = bRanged;
-	}
-	bool IsCityAttack()
-	{
-		return m_bCityAttack;
-	}
-	void SetCityAttack(bool bCityAttack)
-	{
-		m_bCityAttack = bCityAttack;
-	}
-
-private:
-	void* m_pAttacker;
-	CvTacticalTarget m_kTarget;  // Needs to be a copy since original CvTacticalTarget is gone before a follow-on attack is made
-	int m_iSeriesID;
-	bool m_bRanged;
-	bool m_bCityAttack;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalPosture
 //!  \brief		The posture an AI has adopted for fighting in a specific dominance zone
 //
@@ -924,7 +854,7 @@ private:
 	void ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
-	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bInflictWhatWeTake=false, bool bPreserveMeleeUnits=true);
+	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
