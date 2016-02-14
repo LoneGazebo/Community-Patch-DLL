@@ -12427,6 +12427,21 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//No tourism while at war!
+	if(GET_TEAM(GET_PLAYER(eOwner).getTeam()).isAtWar(getTeam()))
+	{
+		return false;
+	}
+
+	//No blasts while influential or better!
+	InfluenceLevelTypes eLevel = GET_PLAYER(eOwner).GetCulture()->GetInfluenceLevel(eOwner);
+	if (eLevel >= INFLUENCE_LEVEL_INFLUENTIAL)
+	{
+		return false;
+	}
+#endif
+
 	CvPlayer &kTileOwner = GET_PLAYER(eOwner);
 	if (kTileOwner.isAlive() && !kTileOwner.isMinorCiv() && eOwner != getOwner())
 	{
@@ -12461,6 +12476,204 @@ bool CvUnit::blastTourism()
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	//Let's make the GM a little more flexible.
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		CvPlayer &kUnitOwner = GET_PLAYER(getOwner());
+		PlayerTypes eOwner = pPlot->getOwner();
+		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
+
+		if (eLevel <= INFLUENCE_LEVEL_EXOTIC)
+		{
+			int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 1;
+			int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
+			int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
+			int iTourismDifference = 0;
+
+			//Get % needed for Familiarity
+			if (iTourismNeededForFamiliar > 0)
+			{
+				iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
+			}
+			//Subtract existing %
+			iTourismDifference -= iInfluenceOn;
+
+			kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismDifference);
+
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if (pNotifications) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR");
+				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				localizedText << iTourismDifference;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S");
+				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
+			}
+			CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
+			if (pNotifications2) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET");
+				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				localizedText << iTourismDifference;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S");
+				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
+			}
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Foreign Tour, less than Familiar. Influence gained: %d, GAP: %d", iTourismDifference, (iTourismDifference * 10));
+				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+			//And kill it.
+			if(pPlot->isActiveVisible(false))
+			{
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				gDLL->GameplayUnitActivate(pDllUnit.get());
+			}
+
+			if(IsGreatPerson())
+			{
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
+				kUnitOwner.DoGreatPersonExpended(getUnitType(), this);
+#else
+				kUnitOwner.DoGreatPersonExpended(getUnitType());
+#endif
+			}
+
+			kill(true);
+
+			return true;
+		}
+		else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+		{
+			int iTourismBlast = getBlastTourism();
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra < 2)
+			{
+				iEra = 2;
+			}
+			if(iEra > 6)
+			{
+				iEra = 6;
+			}
+
+			int iCap = 5;
+			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCap /= 100;
+			CvCity* pLoopCity;
+			int iCityLoop;
+
+			// Loop through owner's cities.
+			for(pLoopCity = GET_PLAYER(eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOwner).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iCap);
+				}
+			}
+
+			if(kUnitOwner.getCapitalCity() != NULL)
+			{
+				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iEra);
+			}
+
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if (pNotifications) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR");
+				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				localizedText << iTourismBlast;
+				localizedText << iEra;
+				localizedText << iCap;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S");
+				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
+			}
+			CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
+			if (pNotifications2) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET");
+				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				localizedText << iTourismBlast;
+				localizedText << iCap;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S");
+				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
+			}
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Foreign Tour, Familiar. Tourism gained: %d. Happiness gained: %d", iTourismBlast, iEra);
+				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+		}
+		else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+		{
+			int iTourismBlast = getBlastTourism();
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra < 2)
+			{
+				iEra = 2;
+			}
+			if(iEra > 6)
+			{
+				iEra = 6;
+			}
+
+			int iCap = 10;
+			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCap /= 100;
+			CvCity* pLoopCity;
+			int iCityLoop;
+
+			// Loop through owner's cities.
+			for(pLoopCity = GET_PLAYER(eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOwner).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iCap);
+				}
+			}
+
+			if(kUnitOwner.getCapitalCity() != NULL)
+			{
+				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iEra);
+			}
+
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if (pNotifications) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR");
+				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				localizedText << iTourismBlast;
+				localizedText << iEra;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_S");
+				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
+			}
+			CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
+			if (pNotifications2) 
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET");
+				localizedText << GET_PLAYER(getOwner()).getCivilizationShortDescriptionKey();
+				localizedText << iTourismBlast;
+				localizedText << iCap;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET_S");
+				localizedSummary << GET_PLAYER(getOwner()).getCivilizationShortDescriptionKey();
+				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
+			}
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Foreign Tour, Popular. Tourism gained: %d. Happiness gained: %d", iTourismBlast, (iEra * 2));
+				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+		}
+	}
+#endif
 
 	int iTourismBlast = getBlastTourism();
 
@@ -12551,7 +12764,6 @@ bool CvUnit::blastTourism()
 		}
 	}
 #endif
-
 	return true;
 }
 
@@ -12809,8 +13021,15 @@ bool CvUnit::build(BuildTypes eBuild)
 					kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+				{
+#endif
 
 				kill(true);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 
 			// Add to player's Improvement count, which will increase cost of future Improvements

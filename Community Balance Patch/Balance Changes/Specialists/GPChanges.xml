@@ -70,7 +70,7 @@
 			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<TechType>TECH_GLOBALIZATION</TechType>
+			<TechType>TECH_SATELLITES</TechType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>4</Yield>

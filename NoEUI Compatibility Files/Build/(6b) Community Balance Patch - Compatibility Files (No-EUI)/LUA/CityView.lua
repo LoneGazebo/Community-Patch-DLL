@@ -198,6 +198,8 @@ local scientistTexture = "citizenScientist.dds";
 local unemployedTexture = "citizenUnemployed.dds";
 local workerTexture = "citizenWorker.dds";
 --added by Gazebo
+local writerTexture =  "citizenwriter.dds";
+local musicianTexture = "citizenmusician.dds";
 local civilservantTexture = "citizenCivilServant.dds";
 --end addition
 local emptySlotString = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_EMPTY_SLOT");
@@ -541,13 +543,13 @@ function AddBuildingButton( pCity, building )
 				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
 				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
 			elseif building.SpecialistType == "SPECIALIST_MUSICIAN" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
+				controlTable.BuildingFilledSpecialistSlot1:SetTexture(musicianTexture);
+				controlTable.BuildingFilledSpecialistSlot2:SetTexture(musicianTexture);
+				controlTable.BuildingFilledSpecialistSlot3:SetTexture(musicianTexture);
 			elseif building.SpecialistType == "SPECIALIST_WRITER" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
+				controlTable.BuildingFilledSpecialistSlot1:SetTexture(writerTexture);
+				controlTable.BuildingFilledSpecialistSlot2:SetTexture(writerTexture);
+				controlTable.BuildingFilledSpecialistSlot3:SetTexture(writerTexture);
 			elseif building.SpecialistType == "SPECIALIST_ENGINEER" then
 				controlTable.BuildingFilledSpecialistSlot1:SetTexture(engineerTexture);
 				controlTable.BuildingFilledSpecialistSlot2:SetTexture(engineerTexture);
@@ -1266,6 +1268,9 @@ function OnCityViewUpdate()
 							pWorldCongress = Game.GetActiveLeague();
 						end
 						local iCityMod = pCity:GetGreatPeopleRateModifier();
+						-- CBP
+						iCityMod = iCityMod + pCity:GetSpecialistCityModifier(pSpecialistInfo.ID);
+						--END
 						local iGoldenAgeMod = 0;
 						local bGoldenAge = (pPlayer:GetGoldenAgeTurns() > 0);
 						

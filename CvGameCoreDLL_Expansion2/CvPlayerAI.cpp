@@ -155,8 +155,6 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
-	GetTacticalAI()->InitializeQueuedAttacks();
-
 	if(isHuman())
 	{
 		return;
@@ -1185,6 +1183,19 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		{
+			if(IsEmpireSuperUnhappy())
+			{
+				CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+				if(pTarget)
+				{
+					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+				}
+			}
+		}
+#endif
 		// Create Great Work if there is a slot
 		GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
 		if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
@@ -2364,7 +2375,19 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	CvCity* pBestTargetCity = NULL;
 
 	// Find target civ
-	PlayerTypes eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes eTargetPlayer = NO_PLAYER;
+	if(pMusician->isRivalTerritory())
+	{
+		eTargetPlayer = GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/);
+	}
+	else
+	{
+#endif
+		eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	if (eTargetPlayer == NO_PLAYER)
 		return NULL;
 

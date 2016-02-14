@@ -241,11 +241,25 @@ public:
 	void ChangeScoreFromScenario4(int iChange);
 	// End Civ 5 Score
 
+	
+#if defined(MOD_BALANCE_CORE)
+	int countCityFeatures(FeatureTypes eFeature, bool bReset = false) const;
+	int countNumBuildings(BuildingTypes eBuilding, bool bReset = false) const;
+	int countCitiesFeatureSurrounded(bool bReset = false) const;
+#else
 	int countCityFeatures(FeatureTypes eFeature) const;
 	int countNumBuildings(BuildingTypes eBuilding) const;
 	//int countNumCitiesConnectedToCapital() const;
-
 	int countCitiesFeatureSurrounded() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	void setCityFeatures(FeatureTypes eFeature, int iValue);
+	int getCityFeatures(FeatureTypes eFeature) const;
+	void setNumBuildings(BuildingTypes eBuilding, int iValue);
+	int getNumBuildings(BuildingTypes eBuilding) const;
+	void setCitiesFeatureSurrounded(int iValue);
+	int getCitiesFeatureSurrounded() const;
+#endif
 
 	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
 	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = ROUTE_ANY);
@@ -2804,6 +2818,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
+	std::vector<int> m_piCityFeatures;
+	std::vector<int> m_piNumBuildings;
+	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

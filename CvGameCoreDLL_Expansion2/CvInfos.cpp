@@ -3821,6 +3821,7 @@ CvBuildInfo::CvBuildInfo() :
 	m_iTechPrereq(NO_TECH),
 #if defined(MOD_BALANCE_CORE)
 	m_iTechObsolete(NO_TECH),
+	m_bKillOnlyCivilian(false),
 #endif
 	m_iImprovement(NO_IMPROVEMENT),
 	m_iRoute(NO_ROUTE),
@@ -3915,6 +3916,13 @@ bool CvBuildInfo::isKill() const
 {
 	return m_bKill;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+bool CvBuildInfo::isKillOnlyCivilian() const
+{
+	return m_bKillOnlyCivilian;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvBuildInfo::isRepair() const
 {
@@ -4013,6 +4021,7 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iTechPrereq = GC.getInfoTypeForString(szPrereqTech, true);
 
 #if defined(MOD_BALANCE_CORE)
+	m_bKillOnlyCivilian = kResults.GetBool("KillOnlyCivilian");
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
 #endif

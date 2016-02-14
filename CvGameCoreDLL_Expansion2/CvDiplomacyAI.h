@@ -1993,8 +1993,8 @@ namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital, CvCity* pCity, PlayerTypes eActivePlayer);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity, PlayerTypes eActivePlayer);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity);
 	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 #else

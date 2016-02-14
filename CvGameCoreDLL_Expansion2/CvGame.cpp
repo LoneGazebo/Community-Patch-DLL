@@ -449,6 +449,27 @@ int WorldBuilderMapLoaderRunPostProcessScript(lua_State* L)
 {
 	return CvWorldBuilderMapLoader::RunPostProcessScript(L);
 }
+
+void SetAllPlotsVisible(TeamTypes eTeam)
+{
+	if (eTeam != NO_TEAM)
+	{
+		const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
+		for (int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
+		{
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
+			pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
+
+			for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
+			{
+				pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
+			}
+
+			pLoopPlot->setRevealed(eTeam, true, false);
+		}
+	}
+}
+
 //------------------------------------------------------------------------------
 bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 {
@@ -540,29 +561,27 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 		if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
 		{
 			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-			TeamTypes eTeam = kPlayer.getTeam();
-
-			if (eTeam != NO_TEAM)
-			{
-				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
-				for (int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
-				{
-					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
-					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
-
-					for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
-					{
-						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
-					}
-
-					pLoopPlot->setRevealed(eTeam, true, false);
-				}
-			}
+			SetAllPlotsVisible( kPlayer.getTeam() );
 		}
 	}
 
 	return true;
 }
+
+void PrintPlayerInfo(int iIndex)
+{
+	const char* slotStatus[] = { "open","computer","closed","taken","observer" };
+	const char* slotClaim[] = { "unassigned","reserved","assigned" };
+
+	CvString msg = CvString::format( "Slot %d is %s and %s. Player is %s and %s. Team is %s.\n", 
+		iIndex, slotStatus[ CvPreGame::slotStatus((PlayerTypes)iIndex) ], slotClaim[ CvPreGame::slotClaim((PlayerTypes)iIndex) ],
+		GET_PLAYER((PlayerTypes)iIndex).isMajorCiv() ? "major" : "minor",
+		GET_PLAYER((PlayerTypes)iIndex).isAlive() ? "alive" : "dead",
+		GET_TEAM( GET_PLAYER((PlayerTypes)iIndex).getTeam() ).isObserver() ? "observer" : "player"
+		);
+	OutputDebugString(msg.c_str());
+};
+
 //------------------------------------------------------------------------------
 void CvGame::InitPlayers()
 {
@@ -693,13 +712,16 @@ void CvGame::InitPlayers()
 			if(iI < MAX_MAJOR_CIVS + iNumMinors)
 			{
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
-				CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
-				CvPreGame::setNetID(eMinorPlayer, -1);
-				CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
-				CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-				CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
-				CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
-				CvPreGame::setMinorCiv(eMinorPlayer, true);
+				if(pMinorCivInfo)
+				{
+					CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
+					CvPreGame::setNetID(eMinorPlayer, -1);
+					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
+					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
+					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
+					CvPreGame::setMinorCiv(eMinorPlayer, true);
+				}
 			}
 		}
 	}
@@ -710,6 +732,11 @@ void CvGame::InitPlayers()
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 		kPlayer.init(ePlayer);
+	}
+
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PrintPlayerInfo(iI);
 	}
 }
 
@@ -4538,54 +4565,6 @@ void CvGame::ReviveActivePlayer()
 }
 
 //	--------------------------------------------------------------------------------
-/// Is there an open observer slot that the active player can be assigned to?
-bool CvGame::CanMoveActivePlayerToObserver()
-{
-	int iObserver = -1;
-	PlayerTypes activePlayer = CvPreGame::activePlayer();
-
-	// Is active player already in an observer slot?
-	if(CvPreGame::slotStatus(activePlayer) == SS_OBSERVER)
-	{
-		return false;
-	}
-
-	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		// Found an observer slot
-		if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
-		{
-			iObserver = iI;
-			break;
-		}
-	}
-
-	// Did we find an observer somewhere besides the active player slot?
-	return iObserver != -1 && activePlayer != iObserver;
-}
-
-//	--------------------------------------------------------------------------------
-/// Turn on the observer slot (for use by the human to watch autoplays)
-void CvGame::ActivateObserverSlot()
-{
-	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
-		{
-			// Set current active player to a computer player
-			CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
-
-			// Move the active player to the observer slot
-			CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
-//			CvPreGame::setActivePlayer((PlayerTypes)iI);
-			setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
-
-			break;
-		}
-	}
-}
-
-//	--------------------------------------------------------------------------------
 int CvGame::getNumHumanPlayers()
 {
 	return CvPreGame::numHumans();
@@ -5215,7 +5194,6 @@ int CvGame::getAIAutoPlay()
 	return m_iAIAutoPlay;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 {
@@ -5230,13 +5208,47 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 
 		if((iOldValue == 0) && (getAIAutoPlay() > 0))
 		{
+			int iObserver = NO_PLAYER;
+			PlayerTypes activePlayer = CvPreGame::activePlayer();
 
-			if(CanMoveActivePlayerToObserver())
+			// Is active player already in an observer slot?
+			if(CvPreGame::slotStatus(activePlayer) == SS_OBSERVER)
+				return;
+
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+				PrintPlayerInfo(iI);
+
+			for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				ActivateObserverSlot();
+				//open up a slot if required
+				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
+				{
+					CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
+					GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
+					//make sure the team flags are set correctly 
+					GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
+					//make sure the new player can see everything
+					SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
+				}
+
+				// Found an observer slot
+				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
+				{
+					// Set current active player to a computer player
+					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+
+					// Move the active player to the observer slot
+					iObserver = iI;
+					CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
+					setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+
+					break;
+				}
 			}
 
-			else
+			//if we didn't find a slot, replace the active player
+			//don't know if that makes sense ...
+			if (iObserver==NO_PLAYER)
 			{
 				GET_PLAYER(getActivePlayer()).killUnits();
 				GET_PLAYER(getActivePlayer()).killCities();

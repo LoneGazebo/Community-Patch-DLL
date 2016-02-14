@@ -3126,6 +3126,7 @@ void CvMinorCivAI::DoTurn()
 		}
 		//Let's see if we can launch a military action.
 		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
+		DoTestEndSkirmishes(NO_PLAYER);
 #endif
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
@@ -3721,6 +3722,10 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 /// Are we at war with a minor also allied to our new BFF?
 void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 {
+	if(eNewAlly == NO_PLAYER)
+	{
+		GetPlayer()->GetMinorCivAI()->GetAlly();
+	}
 	if(eNewAlly != NO_PLAYER)
 	{
 		if(!GetPlayer()->isAlive())
@@ -3747,6 +3752,50 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 
 			// New ally IS at war (how???)
 			if(GET_TEAM(GET_PLAYER(eNewAlly).getTeam()).isAtWar(eLoopTeam))
+				continue;
+
+			for(int iOtherMinorLoop = MAX_MAJOR_CIVS; iOtherMinorLoop < MAX_CIV_PLAYERS; iOtherMinorLoop++)
+			{
+				PlayerTypes eOtherMinor = (PlayerTypes) iOtherMinorLoop;
+				CvPlayer& kOtherMinor = GET_PLAYER(eOtherMinor);
+
+				// Other minor is on this team
+				if(kOtherMinor.isAlive() && kOtherMinor.getTeam() == eLoopTeam)
+				{
+					if(kOtherMinor.GetMinorCivAI()->GetAlly() == eNewAlly)
+					{
+						// We are at war with our new ally's ally!
+						CUSTOMLOG("CS %i is at war with CS %i but they share the same ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
+#else
+						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam);
+#endif
+					}
+				}
+			}
+		}
+	}
+	//No ally? End all wars!
+	else
+	{
+		if(!GetPlayer()->isAlive())
+			return;
+
+		for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+			// Another Minor
+			if(!GET_TEAM(eLoopTeam).isMinorCiv())
+				continue;
+
+			// They're not alive!
+			if(!GET_TEAM(eLoopTeam).isAlive())
+				continue;
+
+			// At war with them
+			if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(eLoopTeam))
 				continue;
 
 			for(int iOtherMinorLoop = MAX_MAJOR_CIVS; iOtherMinorLoop < MAX_CIV_PLAYERS; iOtherMinorLoop++)

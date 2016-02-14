@@ -74,6 +74,7 @@ CvTechEntry::CvTechEntry(void):
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_iHappiness(0),
 	m_ppiTechYieldChanges(NULL),
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -154,6 +155,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iHappiness = kResults.GetInt("Happiness");
 #endif
 
 	//References
@@ -608,13 +612,16 @@ int CvTechEntry::GetPrereqAndTechs(int i) const
 //------------------------------------------------------------------------------
 int CvTechEntry::GetTechYieldChanges(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiTechYieldChanges[i][j];
 }
-
+int CvTechEntry::GetHappiness() const
+{
+	return m_iHappiness;
+}
 #endif
 //=====================================
 // CvTechXMLEntries

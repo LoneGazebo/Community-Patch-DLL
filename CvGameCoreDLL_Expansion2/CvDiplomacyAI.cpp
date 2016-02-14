@@ -3469,16 +3469,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*2*/ GC.getAPPROACH_OPINION_COMPETITOR_GUARDED();
 		break;
 	case MAJOR_CIV_OPINION_NEUTRAL:
-#if defined(MOD_BALANCE_CORE)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += -2;
-#endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_OPINION_NEUTRAL_DECEPTIVE();
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY]  += /*2*/ GC.getAPPROACH_OPINION_NEUTRAL_FRIENDLY();
 		break;
 	case MAJOR_CIV_OPINION_FAVORABLE:
 #if defined(MOD_BALANCE_CORE)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += -2;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += -1;
 #endif
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += /*-5*/ GC.getAPPROACH_OPINION_FAVORABLE_HOSTILE();
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_OPINION_FAVORABLE_DECEPTIVE();
@@ -3693,18 +3689,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	switch(GetMilitaryThreat(ePlayer))
 	{
 	case THREAT_CRITICAL:
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 2;
-#endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_CRITICAL();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*4*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_CRITICAL();
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += /*4*/ GC.getAPPROACH_AFRAID_MILITARY_THREAT_CRITICAL();
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getAPPROACH_FRIENDLY_MILITARY_THREAT_CRITICAL();
 		break;
 	case THREAT_SEVERE:
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1;
-#endif
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_SEVERE();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*3*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_SEVERE();
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += /*2*/ GC.getAPPROACH_AFRAID_MILITARY_THREAT_SEVERE();
@@ -3887,12 +3877,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (iGPT >= 0 && (iDeltaGPT < 0))
 		{
 #if defined(MOD_BALANCE_CORE)
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (iDeltaGPT / 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (iDeltaGPT / 5);
-			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (iDeltaGPT / 5);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += ((iDeltaGPT * -1) / 5);
-			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((iDeltaGPT * -1) / 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += ((iDeltaGPT * -1) / 2);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (iDeltaGPT / 5);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (iDeltaGPT / 8);
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (iDeltaGPT / 10);
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += ((iDeltaGPT * -1) / 10);
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((iDeltaGPT * -1) / 10);
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += ((iDeltaGPT * -1) / 10);
 #else
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDeltaGPT;
 #endif
@@ -7479,53 +7469,53 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		// Their Military Strength compared to us
 		switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
-		case STRENGTH_PATHETIC:
-			iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-			break;
-		case STRENGTH_WEAK:
-			iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-			break;
-		case STRENGTH_POOR:
-			iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-			break;
-		case STRENGTH_AVERAGE:
-			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case STRENGTH_STRONG:
-			iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-			break;
-		case STRENGTH_POWERFUL:
-			iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-			break;
-		case STRENGTH_IMMENSE:
-			iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-			break;
+			case STRENGTH_PATHETIC:
+				iWarScore += 50;
+				break;
+			case STRENGTH_WEAK:
+				iWarScore += 25;
+				break;
+			case STRENGTH_POOR:
+				iWarScore += 10;
+				break;
+			case STRENGTH_AVERAGE:
+				iWarScore += 0;
+				break;
+			case STRENGTH_STRONG:
+				iWarScore += -10;
+				break;
+			case STRENGTH_POWERFUL:
+				iWarScore += -25;
+				break;
+			case STRENGTH_IMMENSE:
+				iWarScore += -50;
+				break;
 		}
 
 		// Their Economic Strength compared to us
 		switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
-		case STRENGTH_PATHETIC:
-			iWarScore += /*10*/ GC.getWAR_GOAL_DAMAGE_NONE();
-			break;
-		case STRENGTH_WEAK:
-			iWarScore += /*5*/ GC.getWAR_GOAL_DAMAGE_CRIPPLED();
-			break;
-		case STRENGTH_POOR:
-			iWarScore += /*3*/ GC.getWAR_GOAL_DAMAGE_MINOR();
-			break;
-		case STRENGTH_AVERAGE:
-			iWarScore += /*0*/ GC.getWAR_GOAL_DAMAGE_MAJOR();
-			break;
-		case STRENGTH_STRONG:
-			iWarScore += /*-3*/ GC.getWAR_GOAL_DAMAGE_SERIOUS();
-			break;
-		case STRENGTH_POWERFUL:
-			iWarScore += /*-5*/ GC.getWAR_GOAL_GAME_THREAT_CRITICAL();
-			break;
-		case STRENGTH_IMMENSE:
-			iWarScore += /*-10*/ GC.getWAR_GOAL_GAME_THREAT_SEVERE();
-			break;
+			case STRENGTH_PATHETIC:
+				iWarScore += 50;
+				break;
+			case STRENGTH_WEAK:
+				iWarScore += 25;
+				break;
+			case STRENGTH_POOR:
+				iWarScore += 10;
+				break;
+			case STRENGTH_AVERAGE:
+				iWarScore += 0;
+				break;
+			case STRENGTH_STRONG:
+				iWarScore += -10;
+				break;
+			case STRENGTH_POWERFUL:
+				iWarScore += -25;
+				break;
+			case STRENGTH_IMMENSE:
+				iWarScore += -50;
+				break;
 		}
 
 		// What is our war projection of them?
@@ -7538,22 +7528,22 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 				iWarScore += 15;
 				break;
 			case MAJOR_CIV_OPINION_UNFORGIVABLE:
-				iWarScore += 25;
+				iWarScore += 20;
 				break;
 		}
 		switch(GetPlayer()->GetProximityToPlayer(ePlayer))
 		{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iWarScore += 20;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
 				iWarScore += 10;
 				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWarScore += 5;
+				break;
 			case PLAYER_PROXIMITY_FAR:
-				iWarScore += -10;
+				iWarScore += -5;
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				iWarScore += -25;
+				iWarScore += -10;
 				break;
 		}
 		return iWarScore;
@@ -27347,7 +27337,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 #if defined(MOD_BALANCE_CORE)
-	if(iWeight > 22)
+	if(iWeight >= 20)
 #else
 	if(iWeight >= 18)
 #endif
@@ -35349,8 +35339,81 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwner)
 #endif
 {
-	CvString szRtnValue;
-#if !defined(MOD_BALANCE_CORE)
+	CvString szRtnValue = "";
+#if defined(MOD_BALANCE_CORE)
+	if(pCity != NULL && eActivePlayer != NO_PLAYER && eCurrentOwner != NO_PLAYER)
+	{
+		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_HEADER").toUTF8();
+		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			// Ignore minors
+			if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && (PlayerTypes)iPlayerLoop != eActivePlayer)
+			{
+				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eCurrentOwner, bIsCapital, pCity, (PlayerTypes)iPlayerLoop);
+				if(iWarmongerCare > 0)
+				{
+					veWarmongerWeights.push_back((PlayerTypes)iPlayerLoop, iWarmongerCare);
+				}
+			}
+		}
+		if(veWarmongerWeights.size() > 0)
+		{
+			veWarmongerWeights.SortItems();
+			int iCap = 0;
+			int iMax = 8;
+			for(int iWarmongerCivs = 0; iWarmongerCivs < (int) veWarmongerWeights.size(); iWarmongerCivs++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) veWarmongerWeights.GetElement(iWarmongerCivs);
+				int iWarmongerCare = veWarmongerWeights.GetWeight(iWarmongerCivs);
+				if(iCap >= iMax)
+				{
+					break;
+				}
+				if(eLoopPlayer != NO_PLAYER)
+				{
+					if(iWarmongerCare >= 10000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_1000", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 5000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_800", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 2500)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_600", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 1000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_400", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 500)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_200", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else 
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+				}
+			}
+		}
+		else
+		{
+			szRtnValue = "";
+		}
+		return szRtnValue;
+	}
+	else
+	{
+#endif
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eCurrentOwner, bIsCapital, pCity);
 	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
@@ -35372,69 +35435,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 	{
 		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_EXTREME").toUTF8();
 	}
-#endif
 #if defined(MOD_BALANCE_CORE)
-	szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_HEADER").toUTF8();
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		// Ignore minors
-		if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && (PlayerTypes)iPlayerLoop != eActivePlayer)
-		{
-			int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eCurrentOwner, bIsCapital, pCity, (PlayerTypes)iPlayerLoop);
-			if(iWarmongerCare > 0)
-			{
-				veWarmongerWeights.push_back((PlayerTypes)iPlayerLoop, iWarmongerCare);
-			}
-		}
-	}
-	if(veWarmongerWeights.size() > 0)
-	{
-		veWarmongerWeights.SortItems();
-		int iCap = 0;
-		int iMax = 8;
-		for(int iWarmongerCivs = 0; iWarmongerCivs < (int) veWarmongerWeights.size(); iWarmongerCivs++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veWarmongerWeights.GetElement(iWarmongerCivs);
-			int iWarmongerCare = veWarmongerWeights.GetWeight(iWarmongerCivs);
-			if(iCap >= iMax)
-			{
-				break;
-			}
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				if(iWarmongerCare >= 10000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_1000", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 5000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_800", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 2500)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_600", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 1000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_400", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 500)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_200", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else 
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-			}
-		}
 	}
 #endif
 	return szRtnValue;
@@ -35446,8 +35447,82 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalOwner)
 #endif
 {
-	CvString szRtnValue;
-#if !defined(MOD_BALANCE_CORE)
+	CvString szRtnValue = "";
+#if defined(MOD_BALANCE_CORE)
+	if(pCity != NULL && eActivePlayer != NO_PLAYER && eOriginalOwner != NO_PLAYER)
+	{
+		szRtnValue = Localization::Lookup("TXT_KEY_LIBERATOR_PREVIEW_HEADER").toUTF8();
+		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			// Ignore minors
+			if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && (PlayerTypes)iPlayerLoop != eActivePlayer)
+			{
+				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eOriginalOwner, bIsCapital, pCity, (PlayerTypes)iPlayerLoop, true);
+				if(iWarmongerCare > 0)
+				{
+					veWarmongerWeights.push_back((PlayerTypes)iPlayerLoop, iWarmongerCare);
+				}
+			}
+		}
+		if(veWarmongerWeights.size() > 0)
+		{
+			veWarmongerWeights.SortItems();
+			int iCap = 0;
+			int iMax = 8;
+			for(int iWarmongerCivs = 0; iWarmongerCivs < (int) veWarmongerWeights.size(); iWarmongerCivs++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) veWarmongerWeights.GetElement(iWarmongerCivs);
+				int iWarmongerCare = veWarmongerWeights.GetWeight(iWarmongerCivs);
+				if(iCap >= iMax)
+				{
+					break;
+				}
+				if(eLoopPlayer != NO_PLAYER)
+				{
+					if(iWarmongerCare >= 10000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_1000", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 5000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_800", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 2500)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_600", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 1000)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_400", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else if(iWarmongerCare >= 500)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_200", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					else 
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+					iCap++;
+				}
+			}
+		}
+		else
+		{
+			szRtnValue = "";
+		}
+		return szRtnValue;
+	}
+	else
+	{
+#endif
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eOriginalOwner, bIsCapital, pCity);
 	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
@@ -35457,7 +35532,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities, kPlayer.isMinorCiv());
 	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
 #endif
-	if (iWarmongerOffset < GC.getLIBERATOR_WARMONGER_MINOR_ATTACKED_WEIGHT())
+	if (iWarmongerOffset < GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT())
 	{
 		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_MINOR").toUTF8();
 	}
@@ -35469,70 +35544,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 	{
 		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_EXTREME").toUTF8();
 	}
-#endif
 #if defined(MOD_BALANCE_CORE)
-	szRtnValue = Localization::Lookup("TXT_KEY_LIBERATOR_PREVIEW_HEADER").toUTF8();
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		// Ignore minors
-		if(!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && (PlayerTypes)iPlayerLoop != eActivePlayer)
-		{
-			int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eOriginalOwner, bIsCapital, pCity, (PlayerTypes)iPlayerLoop, true);
-			if(iWarmongerCare > 0)
-			{
-				veWarmongerWeights.push_back((PlayerTypes)iPlayerLoop, iWarmongerCare);
-			}
-		}
-	}
-	if(veWarmongerWeights.size() > 0)
-	{
-		veWarmongerWeights.SortItems();
-		int iCap = 0;
-		int iMax = 8;
-		for(int iWarmongerCivs = 0; iWarmongerCivs < (int) veWarmongerWeights.size(); iWarmongerCivs++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veWarmongerWeights.GetElement(iWarmongerCivs);
-			int iWarmongerCare = veWarmongerWeights.GetWeight(iWarmongerCivs);
-			if(iCap >= iMax)
-			{
-				break;
-			}
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				if(iWarmongerCare >= 10000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_1000", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 5000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_800", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 2500)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_600", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 1000)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_400", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else if(iWarmongerCare >= 500)
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_200", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				else 
-				{
-					szRtnValue += "[NEWLINE]";
-					szRtnValue += GetLocalizedText("TXT_KEY_LIBERATOR_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
-				}
-				iCap++;
-			}
-		}
 	}
 #endif
 	return szRtnValue;
@@ -35580,8 +35592,13 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 			{
 				// The conquered city owner ALWAYS gets the full warmonger value
 			}
+			if (eConqueror == eConquered && bLiberation)
+			{
+				//Our city? Only we should care.
+				return 0;
+			}
 			//At war with the civ that formerly owned the city? No liberation bonuses for this.
-			else if(bLiberation && GET_TEAM(kConqueredPlayer.getTeam()).isAtWar(GET_PLAYER(eConqueror).getTeam()))
+			else if(kConqueredPlayer.isAlive() && bLiberation && GET_TEAM(kConqueredPlayer.getTeam()).isAtWar(GET_PLAYER(eConqueror).getTeam()))
 			{
 				return 0;
 			}
@@ -35590,6 +35607,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 			{
 				return 0;
 			}
+
 			else
 			{
 				if (GC.getWARMONGER_THREAT_DEF_PACT_ENABLED() != 0 && kAffectedTeam.IsHasDefensivePact(kConqueredPlayer.getTeam()))
@@ -35754,10 +35772,10 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 					iWarmongerAggrievedModifier = GC.getWARMONGER_THREAT_AGGRIEVED_PERCENT();
 				}
 
-				// Half penalty if I'm also at war with conquered civ
+				// 1/5 penalty if I'm also at war with conquered civ
 				if (kAffectedTeam.isAtWar(GET_PLAYER(eConquered).getTeam()))
 				{
-					iWarmongerOffset *= 50;
+					iWarmongerOffset *= 20;
 					iWarmongerOffset /= 100;
 				}
 

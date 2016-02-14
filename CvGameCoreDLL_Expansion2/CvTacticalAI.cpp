@@ -128,6 +128,38 @@ void CvTacticalMoveXMLEntries::DeleteArray()
 //=====================================
 // CvTacticalTarget
 //=====================================
+
+int CvTacticalTarget::GetCurrentHitpoints(PlayerTypes eAttackingPlayer)
+{
+	AITacticalTargetType eType = GetTargetType();
+	if(eType == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+	        eType == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+	        eType == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+	{
+		CvPlot* pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
+		CvUnit* pUnit = pPlot->getVisibleEnemyDefender(eAttackingPlayer);
+		if(pUnit != NULL && !pUnit->isDelayedDeath())
+		{
+			return pUnit->GetCurrHitPoints();
+		}
+		else
+			return 0;
+	}
+	else if(eType == AI_TACTICAL_TARGET_CITY)
+	{
+		CvPlot *pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
+		CvCity *pCity = pPlot->getPlotCity();
+		if(pCity != NULL)
+		{
+			return pCity->GetMaxHitPoints() - pCity->getDamage();
+		}
+		else
+			return 0;
+	}
+
+	return 0;
+}
+
 /// Still a living target?
 bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes eAttackingPlayer)
 {
@@ -326,9 +358,6 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_CachedInfoTypes[eMUPOSITION_NAVAL_ESCORT] = GC.getInfoTypeForString("MUPOSITION_NAVAL_ESCORT");
 	m_CachedInfoTypes[eMUPOSITION_BOMBARD] = GC.getInfoTypeForString("MUPOSITION_BOMBARD");
 	m_CachedInfoTypes[eMUPOSITION_FRONT_LINE] = GC.getInfoTypeForString("MUPOSITION_FRONT_LINE");
-#if defined(MOD_BALANCE_CORE)
-	m_CachedInfoTypes[eTACTICAL_PARTHIAN_MOVE] = GC.getInfoTypeForString("TACTICAL_PARTHIAN_MOVE");
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	//needed for better debugging - can't use ID here because it's not set yet!
@@ -761,324 +790,102 @@ bool CvTacticalAI::IsTemporaryZoneCity(CvCity* pCity)
 	return false;
 }
 
-/// Reset all data on queued attacks for a new turn
-void CvTacticalAI::InitializeQueuedAttacks()
-{
-	m_QueuedAttacks.clear();
-	m_iCurrentSeriesID = 0;
-}
-
-/// Queue up the attack - return TRUE if first attack on this target
-bool CvTacticalAI::QueueAttack(void* pAttacker, CvTacticalTarget* pTarget, bool bRanged, bool bCityAttack)
-{
-	bool bRtnValue = true;
-	CvQueuedAttack attack;
-	int iSeriesID;
-	CvPlot* pTargetPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-	CvPlot* pFromPlot;
-
-	// Can we find this target in the queue, if so what is its series ID
-	int iTempSeriesID = PlotAlreadyTargeted(pTargetPlot);
-
-	if(iTempSeriesID == -1)
-	{
-		m_iCurrentSeriesID++;
-		iSeriesID = m_iCurrentSeriesID;
-	}
-	else
-	{
-		iSeriesID = iTempSeriesID;
-		bRtnValue = false;
-	}
-
-	attack.SetAttacker(pAttacker);
-	attack.SetTarget(pTarget);
-	attack.SetSeriesID(iSeriesID);
-	attack.SetRanged(bRanged);
-	attack.SetCityAttack(bCityAttack);
-	m_QueuedAttacks.push_back(attack);
-
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strMsg;
-		CvString strTemp;
-		if(bCityAttack)
-		{
-			strTemp = ((CvCity*)pAttacker)->getName();
-			pFromPlot = ((CvCity*)pAttacker)->plot();
-		}
-		else
-		{
-			CvUnit* pkAttackingUnit = static_cast<CvUnit*>(pAttacker);
-			strTemp = pkAttackingUnit->getUnitInfo().GetDescription();
-			pFromPlot = ((CvUnit*)pAttacker)->plot();
-		}
-		strMsg.Format("Queued attack with %s, To X: %d, To Y: %d, From X: %d, From Y: %d", strTemp.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY(), pFromPlot->getX(), pFromPlot->getY());
-		LogTacticalMessage(strMsg);
-	}
-
-	return bRtnValue;
-}
-
 /// Pushes the mission to launch an attack and logs this activity
-void CvTacticalAI::LaunchAttack(void* pAttacker, CvTacticalTarget* pTarget, bool bFirstAttack, bool bRanged, bool bCityAttack)
+bool CvTacticalAI::PerformAttack(CvCity* pAttacker, CvTacticalTarget* pTarget)
 {
-	CvCity* pCity = NULL;
-	UnitHandle pUnit;
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		CvString strTemp = pAttacker->getName();
+		int iX = pAttacker->getX();
+		int	iY = pAttacker->getY();
+		strMsg.Format("Made ranged attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
 
-	if(bCityAttack)
-	{
-		pCity = (CvCity*)pAttacker;
+		LogTacticalMessage(strMsg);
 	}
-	else
-	{
-		pUnit = UnitHandle((CvUnit*)pAttacker);
-	}
+
+	pAttacker->doTask(TASK_RANGED_ATTACK, pTarget->GetTargetX(), pTarget->GetTargetY(), 0);
+
+	return !pTarget->IsTargetStillAlive(m_pPlayer->GetID());
+}
+
+bool CvTacticalAI::PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget)
+{
+	bool bSuccess = false; //killed the target
+	int iAttacksLeft = pAttacker->getNumAttacks() - pAttacker->getNumAttacksMadeThisTurn();
+	int iMovesLeft = pAttacker->getMoves();
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		CvString strTemp;
-		int iX, iY;
+		CvString strTemp = pAttacker->getUnitInfo().GetDescription();
+		int iX = pAttacker->getX();
+		int	iY = pAttacker->getY();
 
-		if(bCityAttack)
+		if (iAttacksLeft<1 || iMovesLeft<1)
 		{
-			strTemp = pCity->getName();
-			iX = pCity->getX();
-			iY = pCity->getY();
+			strMsg.Format("Cannot attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
 		}
 		else
 		{
-			strTemp = pUnit->getUnitInfo().GetDescription();
-			iX = pUnit->getX();
-			iY = pUnit->getY();
-		}
-
-		if(bRanged)
-		{
-			if(bFirstAttack)
-			{
-				strMsg.Format("Made initial ranged attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
+			if(pAttacker->isRanged())
+				strMsg.Format("Making ranged attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
 			else
-			{
-				strMsg.Format("Made follow-on ranged attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
-		}
-		else
-		{
-			if(bFirstAttack)
-			{
-				strMsg.Format("Made initial attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
-			else
-			{
-				strMsg.Format("Made follow-on attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
+				strMsg.Format("Making melee attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
 		}
 
 		LogTacticalMessage(strMsg);
 	}
 
-	// Attack AFTER logging since our attacker could die
-	if(bCityAttack)
+	CvPlot* pTargetPlot = GC.getMap().plot( pTarget->GetTargetX(), pTarget->GetTargetY() );
+
+	while (iMovesLeft>0 && iAttacksLeft>0 && !pAttacker->isDelayedDeath())
 	{
-		pCity->doTask(TASK_RANGED_ATTACK, pTarget->GetTargetX(), pTarget->GetTargetY(), 0);
-	}
-	else
-	{
-		CvAssertMsg(pUnit->getMoves() > 0, "Tactical AI is going to push a mission on the queue to attack, but the unit is out of moves.");
-		CvAssertMsg(!pUnit->isOutOfAttacks(), "Tactical AI is going to push a mission on the queue to attack, but the unit is out of attacks.");
+		//just for inspection in GUI
+		pAttacker->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
 
-		bool bSendAttack = pUnit->getMoves() > 0 && !pUnit->isOutOfAttacks();
-		if(bSendAttack)
-		{
-			if(bRanged && pUnit->getDomainType() != DOMAIN_AIR)	// Air attack is ranged, but it goes through the 'move to' mission.
-			{
-				pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
-			//else if (pUnit->canNuke(NULL)) // NUKE tactical attack (ouch)
-			//{
-			//	pUnit->PushMission(CvTypes::getMISSION_NUKE(), pTarget->GetTargetX(), pTarget->GetTargetY());
-			//}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->GetTargetX(), pTarget->GetTargetY());
-			}
-		}
-
-		// Make sure we did make an attack, if not we should take out this unit from the queue
-		if(!bSendAttack || (!pUnit->isOutOfAttacks() && !pUnit->isFighting()))
-		{
-			pUnit->SetTurnProcessed(false);
-			CombatResolved(pAttacker, false, bCityAttack);
-		}
-	}
-}
-
-/// Handles notification that an attack has been resolved (so can queue another)
-void CvTacticalAI::CombatResolved(void* pAttacker, bool bVictorious, bool bCityAttack)
-{
-	int iSeriesID = 0;
-	bool bFoundIt = false;
-
-	CvCity* pCity = NULL;
-	UnitHandle pUnit;
-
-	if(bCityAttack)
-	{
-		pCity = (CvCity*)pAttacker;
-	}
-	else
-	{
-		pUnit = UnitHandle((CvUnit*)pAttacker);
-	}
-
-	if(m_QueuedAttacks.size() > 0)
-	{
-		std::list<CvQueuedAttack>::iterator nextToErase, nextInList;
-		nextToErase = m_QueuedAttacks.begin();
-
-		// Find first attack with this unit/city
-		while(nextToErase != m_QueuedAttacks.end())
-		{
-			if(nextToErase->GetAttacker() == pAttacker)
-			{
-				iSeriesID = nextToErase->GetSeriesID();
-				bFoundIt = true;
-				break;
-			}
-			nextToErase++;
-		}
-
-		// Couldn't find it ... could have been an accidental attack moving to deploy near a target
-		// So safe to ignore these
-		if(!bFoundIt)
-		{
-			return;
-		}
-
-		// If this attacker gets multiple attacks, release him to be processed again
-		if(!bCityAttack && (pUnit->canMoveAfterAttacking() || !pUnit->isOutOfAttacks()) && pUnit->getMoves() > 0)
-		{
-			pUnit->SetTurnProcessed(false);
-		}
-
-		// If victorious, dump follow-up attacks
-		if(bVictorious)
-		{
-			bool bFirst = true;
-			while(nextToErase != m_QueuedAttacks.end() && nextToErase->GetSeriesID() == iSeriesID)
-			{
-				// Only the first unit being erased is done for the turn
-				if(!bFirst && !nextToErase->IsCityAttack())
-				{
-					UnitHandle pAbortUnit((CvUnit*)nextToErase->GetAttacker());
-					pAbortUnit->SetTurnProcessed(false);
-				}
-				nextToErase = m_QueuedAttacks.erase(nextToErase);
-				bFirst = false;
-			}
-		}
-
-		// Otherwise look for a follow-up attack
+		// Height of stupidity: Air attack is ranged, but it goes through the 'move to' mission.
+		if(pAttacker->isRanged() && pAttacker->getDomainType() != DOMAIN_AIR)
+			pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pTarget->GetTargetX(), pTarget->GetTargetY());
 		else
-		{
-			nextInList = nextToErase;
-			nextInList++;
+			pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->GetTargetX(), pTarget->GetTargetY());
 
-			// Matching IDs, we have a follow-up attack
-			if(nextInList != m_QueuedAttacks.end() && nextInList->GetSeriesID() == nextToErase->GetSeriesID())
-			{
-				// Calling LaunchAttack can be recursive if the launched combat is resolved immediately.
-				// We'll make a copy of the iterator's contents before erasing.  This is not technically needed because
-				// the current queue is a std::list and iterators don't invalidate on erase, but we'll be safe, in case
-				// the container type changes.
-				CvQueuedAttack kAttack(*nextInList);
-				m_QueuedAttacks.erase(nextToErase);
-				LaunchAttack(kAttack.GetAttacker(), kAttack.GetTarget(), false /*bFirst*/, kAttack.IsRanged(), kAttack.IsCityAttack());
-			}
-			else
-			{
-				m_QueuedAttacks.erase(nextToErase);
-			}
+		iMovesLeft -= pAttacker->canMoveAfterAttacking() ? GC.getMOVE_DENOMINATOR() : iMovesLeft;
+		iAttacksLeft -= 1;
+
+		//a city target can have zero hitpoints and still be "alive", meaning uncaptured
+		if (!pTarget->IsTargetStillAlive(m_pPlayer->GetID()) || pTarget->GetCurrentHitpoints(m_pPlayer->GetID())==0 )
+		{
+			bSuccess = true;
+			break;
 		}
 	}
 
-	return;
-}
-
-/// Do we already have a queued attack running on this plot? Return series ID if yes, -1 if no.
-int CvTacticalAI::PlotAlreadyTargeted(CvPlot* pPlot)
-{
-	if(m_QueuedAttacks.size() > 0)
+	//parthian move. retreat after attacking
+	if (iMovesLeft>0 && iAttacksLeft<1 && !pAttacker->isDelayedDeath())
 	{
-		std::list<CvQueuedAttack>::iterator it;
-		for(it = m_QueuedAttacks.begin(); it != m_QueuedAttacks.end(); it++)
+		CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pAttacker,true);
+		if(pBestPlot != NULL)
 		{
-			if(it->GetTarget()->GetTargetX() == pPlot->getX() &&
-			        it->GetTarget()->GetTargetY() == pPlot->getY())
+			pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				return it->GetSeriesID();
+				CvString strMsg;
+				CvString strTemp = pAttacker->getUnitInfo().GetDescription();
+				int iX = pAttacker->getX();
+				int	iY = pAttacker->getY();
+				strMsg.Format("Retreated after attack with %s, at X: %d, Y: %d, vs. target at X: %d, Y: %d", strTemp.GetCString(), iX, iY, pTarget->GetTargetX(), pTarget->GetTargetY());
+				LogTacticalMessage(strMsg);
 			}
 		}
 	}
-	return -1;
-}
 
-/// Is this unit waiting to get its turn to attack?
-bool CvTacticalAI::IsInQueuedAttack(const CvUnit* pUnit)
-{
-	if(m_QueuedAttacks.size() > 0)
-	{
-		std::list<CvQueuedAttack>::iterator it;
-		for(it = m_QueuedAttacks.begin(); it != m_QueuedAttacks.end(); it++)
-		{
-			if(it->GetAttacker() == pUnit)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
+	//we've given our best
+	if(iMovesLeft<1)
+		UnitProcessed(pAttacker->GetID());
 
-/// Is this unit waiting to get its turn to attack?
-bool CvTacticalAI::IsCityInQueuedAttack(const CvCity* pAttackCity)
-{
-	if(m_QueuedAttacks.size() > 0)
-	{
-		std::list<CvQueuedAttack>::iterator it;
-		for(it = m_QueuedAttacks.begin(); it != m_QueuedAttacks.end(); it++)
-		{
-			if(it->IsCityAttack() && it->GetAttacker() == (void*)pAttackCity)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/// Is this unit waiting to get its turn to attack?
-int CvTacticalAI::NearXQueuedAttacks(const CvPlot* pPlot, const int iRange)
-{
-	int iNearbyAttacks = 0;
-
-	if(m_QueuedAttacks.size() > 0)
-	{
-		std::list<CvQueuedAttack>::iterator it;
-		for(it = m_QueuedAttacks.begin(); it != m_QueuedAttacks.end(); it++)
-		{
-			int iDistance;
-			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), it->GetTarget()->GetTargetX(), it->GetTarget()->GetTargetY());
-			if(iDistance <= iRange)
-			{
-				iNearbyAttacks++;
-			}
-		}
-	}
-	return iNearbyAttacks;
+	return bSuccess;
 }
 
 // PRIVATE METHODS
@@ -1361,6 +1168,13 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	}
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(m_pPlayer->isMinorCiv())
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+		}
+		else
+#endif
 		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyRangedUnitCount() > 1)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
@@ -1651,13 +1465,6 @@ void CvTacticalAI::FindTacticalTargets()
 				if(!pLoopPlot->isOwned())
 				{
 					bValidPlot = true;
-				}
-			}
-			if(bValidPlot)
-			{
-				if(PlotAlreadyTargeted(pLoopPlot) != -1)
-				{
-					bValidPlot = false;
 				}
 			}
 		}
@@ -2328,12 +2135,6 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	{
 		PlotWithdrawMoves();
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_PARTHIAN_MOVE])
-	{
-		PlotParthianMoves();
-	}
-#endif
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_POSTURE_SHORE_BOMBARDMENT])
 	{
 		PlotShoreBombardmentMoves();
@@ -3936,59 +3737,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 		ExecuteEscortEmbarkedMoves();
 	}
 }
-#if defined(MOD_BALANCE_CORE)
-void CvTacticalAI::PlotParthianMoves()
-{
-	list<int>::iterator it;
-	m_CurrentMoveUnits.clear();
-	CvTacticalUnit unit;
 
-	CvTacticalDominanceZone* pZone = m_pMap->GetZone(m_iCurrentZoneIndex);
-
-	// Loop through all recruited units
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
-		{
-			// Proper domain of unit?
-			if(pZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA || !pZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND)
-			{
-				//Are we ranged? Can we move after attacking (or have multiple attacks), and have made an attack? Let's back up a bit.
-				if(pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
-				{
-					if(pUnit->getMoves() > 0 && pUnit->getNumAttacksMadeThisTurn() > 0 && pUnit->canMoveAfterAttacking())
-					{
-						//Is this spot dangerous? If so, back up.
-						CvPlot* pPlot = pUnit->plot();
-						if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
-						{
-							if(pUnit->plot()->getOwner() != pUnit->getOwner())
-							{
-								unit.SetID(pUnit->GetID());
-								m_CurrentMoveUnits.push_back(unit);
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									CvString strTemp;
-									strTemp = pUnit->getUnitInfo().GetDescription();
-									strLogString.Format("Found a potential Parthian %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteMovesToSafestPlot();
-	}
-}
-#endif
 // PLOT MOVES FOR ZONE TACTICAL POSTURES
 
 /// Win an attrition campaign with bombardments
@@ -7249,8 +6998,6 @@ void CvTacticalAI::ExecuteCivilianCapture(CvPlot* pTargetPlot)
 
 		// Delete this unit from those we have to move
 		UnitProcessed(m_CurrentMoveUnits[0].GetID());
-
-		pUnit->SetTacticalAIPlot(NULL);
 	}
 }
 
@@ -7349,18 +7096,6 @@ void CvTacticalAI::MoveUpReliefUnits(CvTacticalTarget& kTarget)
 /// Attack a defended space
 void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot, bool bInflictWhatWeTake, bool bPreserveMeleeUnits)
 {
-	void* pFirstAttacker = NULL;
-	bool bFirstAttackRanged = false;
-	bool bFirstAttackCity = false;
-
-	if(PlotAlreadyTargeted(pTargetPlot) != -1)
-	{
-		return;
-	}
-
-	// How much damage do we still need to inflict?
-	int iDamageRemaining = (pTarget->GetAuxIntData() * (100 + GC.getAI_TACTICAL_OVERKILL_PERCENT())) / 100;
-
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	if (MOD_AI_SMART_AIR_TACTICS) {
 		// Start by sending possible air sweeps
@@ -7391,22 +7126,17 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #endif
 
 	// Start by applying damage from city bombards
-	for(unsigned int iI = 0; iI < m_CurrentMoveCities.size() && iDamageRemaining > 0; iI++)
+	for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
 	{
 		CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
 		if(pCity != NULL)
 		{
-			if(QueueAttack(pCity, pTarget, true /*bRanged*/, true /*bCity*/))
-			{
-				pFirstAttacker = (void*)pCity;
-				bFirstAttackRanged = true;
-				bFirstAttackCity = true;
-			}
-
-			// Subtract off expected damage
-			iDamageRemaining -= m_CurrentMoveCities[iI].GetExpectedTargetDamage();
+			if ( PerformAttack(pCity, pTarget) )
+				//target was killed - must have been a unit, cities cannot attack other cities
+				return;
 		}
 	}
+
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// Make a list of plots adjacent to the target, which are suitable for melee attacks
@@ -7501,83 +7231,55 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #endif
 
 	// First loop is ranged units only
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size() && iDamageRemaining > 0; iI++)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit && pUnit->getMoves() > 0)
-		{
-			// Are we a ranged unit
-			if(pUnit->IsCanAttackRanged() && m_CurrentMoveUnits[iI].GetExpectedTargetDamage()>0)
-			{
-				bool bQueueTryRangedAttack = false;
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if(!pUnit || pUnit->getMoves() == 0)
+			continue;
 
-				// Are we in range and do we have LOS to the target?
-				if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+		// Are we a ranged unit
+		if(pUnit->IsCanAttackRanged() && m_CurrentMoveUnits[iI].GetExpectedTargetDamage()>0)
+		{
+			bool bQueueTryRangedAttack = false;
+
+			// Are we in range and do we have LOS to the target?
+			if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+			{
+				bQueueTryRangedAttack = true;
+			}
+			else
+			{
+				// Not in range/ not LOS: then lets try to reposition unit.
+				CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
+
+				if (repositionPlot != NULL)
 				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), repositionPlot->getX(), repositionPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
 					bQueueTryRangedAttack = true;
 				}
-				else
+			}
+
+			if (bQueueTryRangedAttack)
+			{
+				// Do we have LOS to the target?
+				if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
 				{
-					// Not in range/ not LOS: then lets try to reposition unit.
-					CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
-
-					if (repositionPlot != NULL)
+					// Do we need to set up to make a ranged attack?
+					if(pUnit->canSetUpForRangedAttack(NULL))
 					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), repositionPlot->getX(), repositionPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SAFE_EMBARK );
-						bQueueTryRangedAttack = true;
-					}
-				}
+						pUnit->setSetUpForRangedAttack(true);
 
-				if (bQueueTryRangedAttack)
-				{
-					// Do we have LOS to the target?
-					if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
-					{
-						// Do we need to set up to make a ranged attack?
-						if(pUnit->canSetUpForRangedAttack(NULL))
+						if(!pUnit->canMove())
 						{
-							pUnit->setSetUpForRangedAttack(true);
-
-							if(!pUnit->canMove())
-							{
-								pUnit->SetTacticalAIPlot(NULL);
-								UnitProcessed(pUnit->GetID());
-								continue;
-							}
-						}
-
-						// Can we hit it with a ranged attack?  If so, that gets first priority
-						// some units (cho-ko-nu) might have multiple ranged attacks
-						// we have to keep track of them ourselves, since attacks are just queued here, not executed yet
-						int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
-						int iMovesLeft = pUnit->getMoves();
-						// in a perfect world we would update this after each attack, but it's good enough
-						int iExpectedDamage = m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
-						while (iDamageRemaining>0 && iMovesLeft>0 && iAttacksLeft>0)
-						{
-							// Queue up this attack
-							if(QueueAttack((void*)pUnit.pointer(), pTarget, true /*bRanged*/, false /*bCity*/))
-							{
-								pFirstAttacker = (void*)pUnit.pointer();
-								bFirstAttackRanged = true;
-							}
-
-							//just for inspection in GUI
-							pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
-
-							// Subtract off expected damage etc
-							iDamageRemaining -= iExpectedDamage;
-							iMovesLeft -= GC.getMOVE_DENOMINATOR();
-							iAttacksLeft -= 1;
-						}
-
-						//we've given our best
-						if(iMovesLeft<1 || iAttacksLeft<1)
-						{
-							pUnit->SetTacticalAIPlot(NULL);
-							UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+							UnitProcessed(pUnit->GetID());
+							continue;
 						}
 					}
+
+					// perform this attack
+					if (PerformAttack(pUnit, pTarget))
+						//target killed or down to zero hitpoints (for cities)
+						break;
 				}
 			}
 		}
@@ -7593,18 +7295,16 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		}
 	}
 
-	// If target is city, want to get in one melee attack, so set damage remaining to 1
-	if(pTarget->GetTargetType() == AI_TACTICAL_TARGET_CITY && iDamageRemaining < 1)
-	{
-		iDamageRemaining = 1;
-	}
+	//if the target was a unit, it might be dead by now
+	if (!pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
+		return;
 
 	// Second loop are only melee units
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size() && iDamageRemaining > 0; iI++)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		if(!bInflictWhatWeTake || m_CurrentMoveUnits[iI].GetExpectedTargetDamage() >= m_CurrentMoveUnits[iI].GetExpectedSelfDamage()*0.8)
 		{
-			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 			if(!pUnit || !pUnit->canMove())
 				continue;
 
@@ -7614,12 +7314,12 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 
 			if (!bPreserveMeleeUnits || ((m_CurrentMoveUnits[iI].GetExpectedSelfDamage() + pUnit->getDamage()) < pUnit->GetMaxHitPoints() / 2))
 			{
-				bool bQueueAttackNow = false;
+				bool bAttackNow = false;
 						
 				// Already adjacent?
 				if (plotDistance(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= 1)
 				{
-					bQueueAttackNow = true;
+					bAttackNow = true;
 				}
 				else
 				{
@@ -7645,40 +7345,28 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						}
 
 						if (pUnit->canMove())
-							bQueueAttackNow = true;
+							bAttackNow = true;
 
 						plotList.erase(it);
 						break;
 					}
-
-					// Didn't find an open hex
-					if (!bQueueAttackNow)
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Not enough free hexes next for all melee units to attack (loop 2), Target X: %d, Y: %d", pTargetPlot->getX(), pTargetPlot->getY());
-							LogTacticalMessage(strMsg);
-						}
-					}
 				}
 
-				if (bQueueAttackNow)
+				if (bAttackNow)
 				{
-					// Queue up this attack
-					if(QueueAttack((void*)pUnit.pointer(), pTarget, false /*bRanged*/, false /*bCity*/))
+					// perform this attack
+					if ( PerformAttack(pUnit, pTarget) )
+						//target killed or captured (for cities)
+						return;
+				}
+				else
+				{
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						pFirstAttacker = (void*)pUnit.pointer();
+						CvString strMsg;
+						strMsg.Format("Not enough free hexes next for all melee units to attack (loop 2), Target X: %d, Y: %d", pTargetPlot->getX(), pTargetPlot->getY());
+						LogTacticalMessage(strMsg);
 					}
-
-					//just for inspection in GUI
-					pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTargetPlot,NULL);
-
-					pUnit->SetTacticalAIPlot(NULL);
-					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-					// Subtract off expected damage
-					iDamageRemaining -= m_CurrentMoveUnits[iI].GetExpectedTargetDamage();
 				}
 			}
 			else
@@ -7703,12 +7391,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 				LogTacticalMessage(strMsg);
 			}
 		}
-	}
-
-	// Start up first attack
-	if(pFirstAttacker)
-	{
-		LaunchAttack(pFirstAttacker, pTarget, true /*bFirst*/, bFirstAttackRanged, bFirstAttackCity);
 	}
 }
 
@@ -7957,7 +7639,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pMovePlot->getX(), pMovePlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+						MoveToEmptySpaceNearTarget(pUnit,pMovePlot);
 						pUnit->SetTurnProcessed(true);
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -8135,7 +7817,6 @@ void CvTacticalAI::ExecuteHeals()
 void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 {
 	CvPlot* pBestPlot = NULL;
-	CvPlot* pCurrentDestination;
 	CvString strTemp;
 
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -8230,32 +7911,10 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 
 					AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Naval Move, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-					// Do I still have a destination from a previous turn?
-					pCurrentDestination = pUnit->GetTacticalAIPlot();
-
-					// Compute a new destination if I don't have one or am already there
-					if(pCurrentDestination == NULL ||
-					        pCurrentDestination == pUnit->plot())
-					{
-						pBestPlot = FindBestBarbarianSeaMove(pUnit);
-					}
-
-					// Otherwise just keep moving there (assuming a path is available)
-					else
-					{
-						if(pUnit->TurnsToReachTarget(pCurrentDestination) != MAX_INT)
-						{
-							pBestPlot = pCurrentDestination;
-						}
-						else
-						{
-							pBestPlot = FindBestBarbarianSeaMove(pUnit);
-						}
-					}
+					pBestPlot = FindBestBarbarianSeaMove(pUnit);
 
 					if(pBestPlot != NULL)
 					{
-						pUnit->SetTacticalAIPlot(pBestPlot);
 						ExecuteMoveToPlotIgnoreDanger(pUnit,pBestPlot);
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
@@ -8269,7 +7928,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					}
 					else
 					{
-						pUnit->SetTacticalAIPlot(NULL);
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
@@ -8638,7 +8296,7 @@ void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(UnitHandle pUnit, CvPlot* pTarg
 /// Find an adjacent hex to move a blocking unit to
 bool CvTacticalAI::ExecuteMoveOfBlockingUnit(UnitHandle pBlockingUnit, CvPlot* pPreferredDirection)
 {
-	if(!pBlockingUnit->canMove() || IsInQueuedAttack(pBlockingUnit.pointer()))
+	if(!pBlockingUnit->canMove())
 	{
 		return false;
 	}
@@ -8777,10 +8435,6 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 	int iRequiredDamage = 0;
 
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
-	if(PlotAlreadyTargeted(pTargetPlot) != -1)
-	{
-		return false;
-	}
 
 	// Get required damage on unit target
 	pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
@@ -8803,10 +8457,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			{
 				CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
 				if(pCity != NULL)
-				{
-					if(QueueAttack(pCity, &kTarget, true /*bRanged*/, true /*bCity*/))
-						LaunchAttack(pCity, &kTarget, true /*bFirst*/, true /*bFirstAttackRanged*/, true /*bFirstAttackCity*/);
-				}
+					PerformAttack(pCity, &kTarget);
 			}
 
 			// Need to keep hitting target?
@@ -10212,11 +9863,7 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 	// Loop through all of our cities
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !IsCityInQueuedAttack(pLoopCity) && !pLoopCity->isMadeAttack())
-#else
-		if(pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !IsCityInQueuedAttack(pLoopCity))
-#endif
+		if(pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pLoopCity->isMadeAttack())
 		{
 			CvTacticalCity city;
 			city.SetID(pLoopCity->GetID());
@@ -11384,22 +11031,41 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 		{
 			pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
 #if defined(MOD_BALANCE_CORE)
+			//Since we redefined it above, let's check things.
+			if(pPlot == NULL)
+			{
+				continue;
+			}
 			//Naval unit? Let's get a water plot.
 			if(!pPlot->isWater() && pUnit->getDomainType() == DOMAIN_SEA)
 			{
-				CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
-				//No water plot? Ignore.
-				if(pNewPlot == NULL)
+				if(pUnit->isRanged())
 				{
-					continue;
+					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
+					//No water plot? Ignore.
+					if(pNewPlot == NULL)
+					{
+						continue;
+					}
+					else
+					{
+						pPlot = pNewPlot;
+					}
 				}
 				else
 				{
-					pPlot = pNewPlot;
+					continue;
 				}
 			}
-#endif
+			//Since we redefined it above, let's check things.
+			if(pPlot == NULL)
+			{
+				continue;
+			}
+			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+#else
 			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), target.GetTargetX(), target.GetTargetY());
+#endif
 			if(iDistance == 0)
 			{
 				return pPlot;

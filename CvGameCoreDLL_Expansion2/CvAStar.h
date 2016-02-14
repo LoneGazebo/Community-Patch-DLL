@@ -323,6 +323,8 @@ protected:
 
 	//for debugging
 	CvString m_strName;
+
+	CRITICAL_SECTION m_cs;
 };
 
 // Copy the supplied node and its parent nodes into an array of simpler path nodes for caching purposes.
