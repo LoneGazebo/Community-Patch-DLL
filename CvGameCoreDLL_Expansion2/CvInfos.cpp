@@ -3343,6 +3343,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(0),
 	m_iMinimumVassalTurns(0),
+	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),
 #endif
@@ -3601,6 +3602,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
 		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
 		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
+		m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
 		m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
 		m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
 	}
@@ -7547,6 +7549,11 @@ int CvGameSpeedInfo::getMinimumVoluntaryVassalTurns() const
 int CvGameSpeedInfo::getMinimumVassalTurns() const
 {
 	return m_iMinimumVassalTurns;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getMinimumVassalTaxTurns() const
+{
+	return m_iMinimumVassalTaxTurns;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getMinimumVassalLiberateTurns() const

@@ -242,6 +242,11 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetNumCitiesWhenVassalMade);
 	Method(GetTotalPopulationWhenVassalMade);
 	Method(CanLiberateVassal);
+	Method(DoLiberateVassal);
+	Method(CanSetVassalTax);
+	Method(GetVassalTax);
+	Method(GetNumTurnsSinceVassalTaxSet);
+	Method(DoApplyVassalTax);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1482,5 +1487,35 @@ int CvLuaTeam::lGetTotalPopulationWhenVassalMade(lua_State *L)
 int CvLuaTeam::lCanLiberateVassal(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::CanLiberateVassal);
+}
+// ---------------------------------------------------------------------
+// void DoLiberateVassal()
+int CvLuaTeam::lDoLiberateVassal(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::DoLiberateVassal);
+}
+// ---------------------------------------------------------------------
+// bool CanSetVassalTax(PlayerTypes ePlayer)
+int CvLuaTeam::lCanSetVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanSetVassalTax);
+}
+// ---------------------------------------------------------------------
+// int GetVassalTax(PlayerTypes ePlayer)
+int CvLuaTeam::lGetVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetVassalTax);
+}
+// ---------------------------------------------------------------------
+// void GetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer)
+int CvLuaTeam::lGetNumTurnsSinceVassalTaxSet(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetNumTurnsSinceVassalTaxSet);
+}
+// ---------------------------------------------------------------------
+// void DoApplyVassalTax(PlayerTypes ePlayer, int iAmount)
+int CvLuaTeam::lDoApplyVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::DoApplyVassalTax);
 }
 #endif

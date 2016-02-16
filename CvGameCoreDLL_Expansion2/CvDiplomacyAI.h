@@ -937,6 +937,8 @@ public:
 	int GetVassalScore(PlayerTypes ePlayer);
 	int GetMasterScore(PlayerTypes ePlayer);
 
+	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
+
 	int GetVassalProtectScore(PlayerTypes ePlayer);
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
@@ -975,7 +977,7 @@ public:
 	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange);
 
-	void DoWeMadeVassalageWithSomeone(PlayerTypes ePlayer, TeamTypes eTeam, bool bVoluntary);
+	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
 
 	GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
@@ -1017,6 +1019,10 @@ public:
 	void ChangePlayerMoveTroopsRequestCounter(PlayerTypes ePlayer, int iChange);
 
 	bool IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const;
+
+	bool IsMasterLiberatedMeFromVassalage(PlayerTypes ePlayer) const;
+	void SetMasterLiberatedMeFromVassalage(PlayerTypes ePlayer, bool bValue);
+	void DoLiberatedFromVassalage(TeamTypes eTeam);
 #endif
 
 	/////////////////////////////////////////////////////////
@@ -1690,6 +1696,8 @@ private:
 
 		bool m_abMoveTroopsRequestAccepted[MAX_MAJOR_CIVS];
 		short m_aiMoveTroopsRequestCounter[MAX_MAJOR_CIVS];
+		
+		bool m_abMasterLiberatedMeFromVassalage[MAX_MAJOR_CIVS];
 #endif
 	};
 	DiplomacyAIData* m_pDiploData;
@@ -1716,6 +1724,8 @@ private:
 
 	bool* m_pabMoveTroopsRequestAccepted;
 	short* m_paiMoveTroopsRequestCounter;
+
+	bool* m_pabMasterLiberatedMeFromVassalage;
 #endif
 
 	// Scratch pad to keep track of Diplo Messages we've sent out in the past

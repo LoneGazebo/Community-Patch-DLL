@@ -176,6 +176,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aeGlobalState()
 	, m_abOfferingGift()
 	, m_abOfferedGift()
+	, m_abMasterLiberatedMeFromVassalage()
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	, m_abWantsDefensivePactWithPlayer()
@@ -400,6 +401,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiMoveTroopsRequestCounter(NULL),
 	m_pabOfferingGift(NULL),
 	m_pabOfferedGift(NULL),
+	m_pabMasterLiberatedMeFromVassalage(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDefensivePactWithPlayer(NULL),
@@ -626,6 +628,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiMoveTroopsRequestCounter = &m_pDiploData->m_aiMoveTroopsRequestCounter[0];
 	m_pabOfferingGift = &m_pDiploData->m_abOfferingGift[0];
 	m_pabOfferedGift = &m_pDiploData->m_abOfferedGift[0];
+	m_pabMasterLiberatedMeFromVassalage = &m_pDiploData->m_abMasterLiberatedMeFromVassalage[0];
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDefensivePactWithPlayer = &m_pDiploData->m_abWantsDefensivePactWithPlayer[0];
@@ -931,6 +934,7 @@ void CvDiplomacyAI::Uninit()
 	m_paiMoveTroopsRequestCounter = NULL;
 	m_pabOfferingGift = NULL;
 	m_pabOfferedGift = NULL;
+	m_pabMasterLiberatedMeFromVassalage = NULL;
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDefensivePactWithPlayer = NULL;
@@ -1133,6 +1137,7 @@ void CvDiplomacyAI::Reset()
 		m_paiMoveTroopsRequestCounter[iI] = -1;
 		m_pabOfferingGift[iI] = false;
 		m_pabOfferedGift[iI] = false;
+		m_pabMasterLiberatedMeFromVassalage[iI] = false;
 #endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		m_pabWantsDefensivePactWithPlayer[iI] = false;
@@ -1780,6 +1785,8 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS, -1);
 
+	MOD_SERIALIZE_READ_ARRAY(73, kStream, m_pabMasterLiberatedMeFromVassalage, bool, MAX_MAJOR_CIVS, false);
+
 	ArrayWrapper<bool> wrapm_pabOfferingGift(MAX_MAJOR_CIVS, m_pabOfferingGift);
 	kStream >> wrapm_pabOfferingGift;
 
@@ -2123,6 +2130,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paeGlobalState, char, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS);
+	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMasterLiberatedMeFromVassalage, bool, MAX_MAJOR_CIVS);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabOfferingGift);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabOfferedGift);
 #endif
@@ -22342,6 +22350,9 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_MOVE_TROOPS_REJECT_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_REJECT_HOSTILE");
 		break;
+	case DIPLO_MESSAGE_VASSALAGE_LIBERATED_HUMAN:
+		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_LIBERATED_HUMAN");
+		break;
 #endif
 
 		//////////////////////////////////////////////////////////////
@@ -37172,6 +37183,18 @@ void CvDiplomacyAI::ChangeHelpRequestCounter(PlayerTypes ePlayer, int iChange)
 	SetHelpRequestCounter(ePlayer, GetHelpRequestCounter(ePlayer) + iChange);
 }
 
+int CvDiplomacyAI::GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+
+	if(IsMasterLiberatedMeFromVassalage(ePlayer))
+	{
+		iOpinionWeight += /*-50*/ GC.getOPINION_WEIGHT_MASTER_LIBERATED_ME_FROM_VASSALAGE();
+	}
+
+	return iOpinionWeight;
+}
+
 int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -37466,15 +37489,15 @@ void CvDiplomacyAI::ChangeTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlay
 	SetTurnsSinceVassalageForcefullyRevoked(ePlayer, GetTurnsSinceVassalageForcefullyRevoked(ePlayer) + iChange);
 }
 
-/// Someone made a vassal, figure out what that means
-void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, TeamTypes eMasterTeam, bool bVoluntary)
+// eMasterTeam became our master
+void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVoluntary)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	PlayerTypes eOtherTeamPlayer; // a player on eTeam
+	PlayerTypes eOtherTeamPlayer; // a player on eMasterTeam
 	for(int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
 	{
 		eOtherTeamPlayer = (PlayerTypes) iOtherPlayerLoop;
@@ -37486,7 +37509,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 			if(!GET_PLAYER(eOtherTeamPlayer).isMinorCiv())
 			{
 				// Is ePlayer the vassal of eOtherTeamPlayer? (just in case we call this function the other way around, and ePlayer is the master)
-				if(GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->IsVassal(eOtherTeamPlayer))
+				if(GetPlayer()->GetDiplomacyAI()->IsVassal(eOtherTeamPlayer))
 				{
 					// During capitulation, reset all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
 					if(!bVoluntary) {
@@ -37495,8 +37518,8 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 						SetDenouncedPlayerCounter(eOtherTeamPlayer, -1);
 
 						// also cancel out denunciation from Master
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayer(eVassalPlayer, false);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayerCounter(eVassalPlayer, -1);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetPlayer()->GetID(), false);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayerCounter(GetPlayer()->GetID(), -1);
 
 						// Cancel out negative assist value
 						if (GetRecentAssistValue(eOtherTeamPlayer) > 0)
@@ -37553,22 +37576,22 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 
 #if defined(MOD_API_EXTENSIONS)
 						ChangeOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer)  * 100);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eVassalPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer) * 100);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetPlayer()->GetID(), -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer) * 100);
 #else
 						ChangeOtherPlayerWarmongerAmount(eOtherTeamPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer));
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(eVassalPlayer, -GetOtherPlayerWarmongerAmount(eOtherTeamPlayer));
 #endif
 						// Should master forget shenangians too?
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceAttackedProtectedMinor(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsAttacked(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceKilledProtectedMinor(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsBullied(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsAttacked(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsConquered(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsAttacked(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsConquered(eVassalPlayer, 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDenouncedUs(eVassalPlayer, false);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDeclaredWarOnUs(eVassalPlayer, false);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceAttackedProtectedMinor(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsAttacked(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerTurnsSinceKilledProtectedMinor(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumProtectedMinorsBullied(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsAttacked(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMinorsConquered(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsAttacked(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerNumMajorsConquered(GetPlayer()->GetID(), 0);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDenouncedUs(GetPlayer()->GetID(), false);
+						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetFriendDeclaredWarOnUs(GetPlayer()->GetID(), false);
 					}
 
 					// In case we had an ongoing operation against our Master, kill it
@@ -37587,6 +37610,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(PlayerTypes eVassalPlayer, Team
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestAccepted(GetPlayer()->GetID(), false);
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestCounter(GetPlayer()->GetID(), -666);
 					}
+
+					// Vassal thought they were a liberator, but Master had other plans...
+					SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
 
 					PlayerTypes eThirdPartyPlayer;	// player we were planning with
 					PlayerTypes eThirdPartyTarget;	// player we were targetting
@@ -37618,7 +37644,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	PlayerTypes ePlayer;
-	// Loop this this player, check it's team, and set the number of times demanded to be 0
+	// Loop through players, check it's team, and set the number of times demanded to be 0
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		ePlayer = (PlayerTypes) iPlayerLoop;
@@ -37627,6 +37653,37 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 		{
 			// Set number of times demanded while vassal to be 0, since, y'know, we're not a vassal anymore...
 			SetNumTimesDemandedWhileVassal(ePlayer, 0);
+		}
+	}
+}
+
+// We are liberated by a master
+void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
+{
+	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// Get players from Master's team
+	for(int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
+	{
+		PlayerTypes eMasterPlayer = (PlayerTypes) iMasterPlayer;
+		if(GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
+		{
+			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+			// JdH => deciding whether to send a notification or pop up directy is done in SendRequest
+			{
+				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_LIBERATED_HUMAN, ePlayer);
+				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+			}
+#else
+			if(!CvPreGame::isNetworkMultiplayerGame())
+			{
+				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_LIBERATED_HUMAN, eMasterPlayer);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+			}
+#endif
 		}
 	}
 }
@@ -38511,6 +38568,22 @@ void CvDiplomacyAI::SetPlayerMoveTroopsRequestCounter(PlayerTypes ePlayer, int i
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
 
 	m_paiMoveTroopsRequestCounter[ePlayer] = iValue;
+}
+
+bool CvDiplomacyAI::IsMasterLiberatedMeFromVassalage(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be greater than or equal to 0");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
+
+	return m_pabMasterLiberatedMeFromVassalage[ePlayer];
+}
+
+void CvDiplomacyAI::SetMasterLiberatedMeFromVassalage(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be greater than or equal to 0");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be less than MAX_MAJOR_CIVS");
+
+	m_pabMasterLiberatedMeFromVassalage[ePlayer] = bValue;
 }
 
 void CvDiplomacyAI::ChangePlayerMoveTroopsRequestCounter(PlayerTypes ePlayer, int iChange)

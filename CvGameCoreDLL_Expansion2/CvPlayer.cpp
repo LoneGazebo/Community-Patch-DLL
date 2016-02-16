@@ -37205,6 +37205,7 @@ void CvPlayer::ChangeVassalGoldMaintenanceMod(int iChange)
 		m_iVassalGoldMaintenanceMod = (m_iVassalGoldMaintenanceMod + iChange);
 	}
 }
+
 #endif
 
 #if defined(MOD_API_EXTENSIONS)

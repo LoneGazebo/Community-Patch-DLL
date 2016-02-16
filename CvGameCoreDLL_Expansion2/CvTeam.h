@@ -458,13 +458,15 @@ public:
 	TeamTypes GetMaster() const;
 
 	bool IsVassalOfSomeone() const;
-
-	bool CanLiberateVassal(TeamTypes eTeam) const;
+	
 	bool canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
 	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
 	bool canEndVassal(TeamTypes eTeam) const;
 	bool canEndAllVassal() const;
 	void DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification);
+
+	void DoLiberateVassal(TeamTypes eTeam);
+	bool CanLiberateVassal(TeamTypes eTeam) const;
 
 	void DoUpdateVassalWarPeaceRelationships();
 
@@ -494,6 +496,15 @@ public:
 	void SetTradeTech(TechTypes eTech, bool bValue);
 
 	void AcquireMap(TeamTypes eIndex, bool bTerritoryOnly = false);
+
+	void DoApplyVassalTax(PlayerTypes ePlayer, int iPercent);
+	bool CanSetVassalTax(PlayerTypes ePlayer) const;
+	void SetVassalTax(PlayerTypes ePlayer, int iPercent);
+	int GetVassalTax(PlayerTypes ePlayer) const;
+
+	int GetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer) const;
+	void SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange);
 #endif
 
 	// Wrapper for giving Players on this Team a notification message
@@ -642,6 +653,10 @@ protected:
 	int m_iNumCitiesWhenVassalMade;
 	int m_iTotalPopulationWhenVassalMade;
 	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsSinceVassalEnded;
+
+	// Only major civs can be taxed
+	Firaxis::Array< int, MAX_MAJOR_CIVS > m_aiNumTurnsSinceVassalTaxSet;
+	Firaxis::Array< int, MAX_MAJOR_CIVS > m_aiVassalTax;
 #endif
 
 	bool* m_abCanLaunch;

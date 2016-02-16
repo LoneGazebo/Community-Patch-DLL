@@ -248,6 +248,11 @@ protected:
 	LUAAPIEXTN(GetNumCitiesWhenVassalMade, int);
 	LUAAPIEXTN(GetTotalPopulationWhenVassalMade, int);
 	LUAAPIEXTN(CanLiberateVassal, bool, iTeam);
+	LUAAPIEXTN(DoLiberateVassal, void, iTeam);
+	LUAAPIEXTN(DoApplyVassalTax, void, iPlayer, iAmount);
+	LUAAPIEXTN(CanSetVassalTax, bool, iPlayer);
+	LUAAPIEXTN(GetVassalTax, int, iPlayer);
+	LUAAPIEXTN(GetNumTurnsSinceVassalTaxSet, int, iPlayer);
 #endif
 };
 

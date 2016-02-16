@@ -12000,6 +12000,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiploAI->GetMasterLiberatedMeFromVassalageScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MASTER_LIBERATED_ME_FROM_VASSALAGE");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiploAI->GetHappyAboutVassalagePeacefullyRevokedScore(eWithPlayer);
 		if (iValue != 0)
 		{
