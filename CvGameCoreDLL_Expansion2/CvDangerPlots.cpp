@@ -560,11 +560,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 		bIgnoreVisibility = true;
 #endif // AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MINORS_SEE_MAJORS
 
-#ifdef AUI_DANGER_PLOTS_FIX_SHOULD_IGNORE_UNIT_IGNORE_VISIBILITY_PLOT
 	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()) && !bIgnoreVisibility)
-#else
-	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()))
-#endif // AUI_DANGER_PLOTS_FIX_SHOULD_IGNORE_UNIT_IGNORE_VISIBILITY_PLOT
 	{
 		return true;
 	}
@@ -755,7 +751,6 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 		}
 
 		pAttackerPlot = NULL;
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		if (pUnit->IsCanAttackRanged())
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
@@ -768,7 +763,6 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			}
 		}
 		else
-#endif
 		{
 			if (plotDistance(m_iX, m_iY, pUnit->getX(), pUnit->getY()) == 1)
 			{
@@ -779,16 +773,14 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL),
 				pUnit->GetBaseCombatStrength()*100, 
 				pUnit->getDamage(), false, false, false);
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+
 			if (pUnit->isRangedSupportFire())
 			{
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, pAttackerPlot);
 			}
-#endif
 		}
 	}
 	
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	// Damage from cities
 	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
 	{
@@ -797,7 +789,6 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 		if (pCity && pCity->getTeam() != GET_PLAYER(ePlayer).getTeam())
 			iPlotDamage += pCity->rangeCombatDamage(NULL, NULL, false, m_pPlot);
 	}
-#endif
 
 	// Damage from features
 	iPlotDamage += GetDamageFromFeatures(ePlayer);
@@ -1230,19 +1221,11 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 					// Always assume interception is successful
 					iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
 				}
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetAirCombatDamage(NULL, pCity, false, iInterceptDamage, m_pPlot);
-#else
-				iPlotDamage += pUnit->GetAirCombatDamage(NULL, pCity, false, iInterceptDamage);
-#endif
 			}
 			else
 			{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, m_pPlot);
-#else
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
-#endif
 			}
 		}
 		else if (pUnit->isNoCapture())
@@ -1256,11 +1239,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			
 			if (pUnit->isRangedSupportFire())
 			{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
-#else
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
-#endif
 			}
 		}
 	}
@@ -1275,11 +1254,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			continue;
 		}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		iPlotDamage += pCity->rangeCombatDamage(NULL, pCity, false, pCityPlot);
-#else
-		iPlotDamage += pCity->rangeCombatDamage(NULL, pCity, false);
-#endif
 	}
 
 	// Damage from melee units
@@ -1305,11 +1280,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 
 			if (pUnit->isRangedSupportFire())
 			{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
-#else
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
-#endif
 			}
 		}
 	}

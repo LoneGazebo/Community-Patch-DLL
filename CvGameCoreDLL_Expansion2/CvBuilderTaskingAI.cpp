@@ -1499,7 +1499,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
 		{
-			iWeight = iWeight / 4;
+			iWeight = iWeight / 8;
 		}
 
 		iWeight = CorrectWeight(iWeight);
@@ -1546,6 +1546,19 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	{
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(eBestRouteType == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
+	{
+		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+		{
+			return;
+		}
+		else if(m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+		{
+			return;
+		}
+	}
+#endif
 
 	// find the route build
 	BuildTypes eRouteBuild = NO_BUILD;
@@ -1680,6 +1693,16 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Don't cut down city connections!
+	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
+	{
+		if(pPlot->IsCityConnection(m_pPlayer->GetID()))
+		{
+			return;
+		}
+	}
+#endif
 
 	BuildTypes eChopBuild = NO_BUILD;
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
@@ -2918,11 +2941,11 @@ int CvBuilderTaskingAI::ScorePlot()
 			//if population is higher than # of plots, increase value. Otherwise, reduce it.
 			if(iNumWorkedPlots > iNumWorkedPlots)
 			{
-				iScore *= (iNumWorkedPlots - iNumWorkedPlots);
+				iScore *= (iNumWorkedPlots - iNumImprovedPlots);
 			}
 			else
 			{
-				iScore /= max(2, (iNumWorkedPlots - iNumWorkedPlots));
+				iScore /= max(2, (iNumImprovedPlots - iNumWorkedPlots));
 			}
 		}
 	}

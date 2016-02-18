@@ -1489,6 +1489,9 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
+#if defined(MOD_BALANCE_CORE)
+	PlotWorkerMoves(true);
+#endif
 	// Do we have any targets of this type?
 	if(!m_TargetedSentryPoints.empty())
 	{
@@ -1681,7 +1684,7 @@ void CvHomelandAI::PlotWorkerMoves()
 					{
 						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
-						if (pkBuild && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -2865,6 +2868,9 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						if (pLoopPlotSearch != NULL)
 						{
 							if (m_pPlayer->GetPlotDanger(*pLoopPlotSearch,pUnit.pointer())>20)
+								continue;
+
+							if(pLoopPlotSearch->isWater())
 								continue;
 
 							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch) )

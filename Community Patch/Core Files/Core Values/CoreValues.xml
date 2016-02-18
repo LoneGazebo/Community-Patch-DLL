@@ -253,4 +253,38 @@
 			<Value>0</Value>
 		</Row>
 	</Defines>
+	
+	<!-- Specialists -->
+	<SpecialistFlavors>
+		<Row>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+	</SpecialistFlavors>
 </GameData>

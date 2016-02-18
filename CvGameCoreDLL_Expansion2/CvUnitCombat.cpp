@@ -617,11 +617,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			}
 
 			// If a Unit loses his moves after attacking, do so
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 			if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
-#else
-			if(!pkAttacker->canMoveAfterAttacking())
-#endif
 			{
 				pkAttacker->finishMoves();
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
@@ -1375,11 +1371,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	if(pkAttacker)
 	{
 		pkAttacker->PublishQueuedVisualizationMoves();
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 		if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
-#else
-		if(!pkAttacker->canMoveAfterAttacking())
-#endif
 		{
 			pkAttacker->finishMoves();
 			GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
@@ -1937,11 +1929,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
 
 			// Can't move or attack again
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 			if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
-#else
-			if(!pkAttacker->canMoveAfterAttacking())
-#endif
 			{
 				pkAttacker->finishMoves();
 			}
@@ -2269,11 +2257,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
 
 		// Can't move or attack again
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 		if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
-#else
-		if(!pkAttacker->canMoveAfterAttacking())
-#endif
 		{
 			pkAttacker->finishMoves();
 		}
@@ -2803,11 +2787,7 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
 
 			// Can't move or attack again
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 			if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
-#else
-			if(!pkAttacker->canMoveAfterAttacking())
-#endif
 			{
 				pkAttacker->finishMoves();
 			}
@@ -3482,11 +3462,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	kAttacker.setFortifyTurns(0);
 
 	// New test feature - attacking/range striking uses up all moves for most Units
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 	if(!kAttacker.canMoveAfterAttacking() && !kAttacker.isRangedSupportFire() && kAttacker.isOutOfAttacks())
-#else
-	if(!kAttacker.canMoveAfterAttacking() && !kAttacker.isRangedSupportFire())
-#endif
 	{
 		kAttacker.finishMoves();
 		GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
@@ -3760,11 +3736,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 
 		// Can't move or attack again
-#if defined(AUI_UNIT_EXTRA_ATTACKS_GETTER)
 		if(!kAttacker.canMoveAfterAttacking() && kAttacker.isOutOfAttacks())
-#else
-		if(!kAttacker.canMoveAfterAttacking())
-#endif
 		{
 			kAttacker.finishMoves();
 		}
@@ -4061,11 +4033,7 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 		//Napoleon's Special Achievement
 		if(szUnitType == "UNIT_FRENCH_MUSKETEER")
 		{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
-#else
-			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
-#endif
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_MUSKETEERS);
 			}

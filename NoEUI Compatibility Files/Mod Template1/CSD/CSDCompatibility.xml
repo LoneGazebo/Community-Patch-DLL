@@ -468,15 +468,17 @@
 			<Text>No valid targets for diplomacy at this time.</Text>
 		</Row>
 	</Language_en_US>
-	<Row>
-		<Type>CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_CIVIL_SERVANT</Type>
-		<Topic>TXT_KEY_TOPIC_SPECIALISTSANDGP</Topic>
-		<Description>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE</Description>
-		<Summary>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY</Summary>
-		<AdvisorQuestion>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST</AdvisorQuestion>
-		<Advisor>SCIENCE</Advisor>
-		<CivilopediaHeaderType>HEADER_PEOPLE</CivilopediaHeaderType>
-	</Row>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_CIVIL_SERVANT</Type>
+			<Topic>TXT_KEY_TOPIC_SPECIALISTSANDGP</Topic>
+			<Description>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE</Description>
+			<Summary>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST</AdvisorQuestion>
+			<Advisor>SCIENCE</Advisor>
+			<CivilopediaHeaderType>HEADER_PEOPLE</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
 	<Language_en_US>
 		<!-- Civil Servant Text -->
 		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE">

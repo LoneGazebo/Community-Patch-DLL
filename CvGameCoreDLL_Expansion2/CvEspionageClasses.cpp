@@ -8012,7 +8012,6 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			{
 				iNumRemainingTurns /= 2;
 			}
-
 #endif
 			int iDiploModifier = 1;
 			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
@@ -8080,6 +8079,10 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				{
 					iDiploModifier *= 50;
 				}
+				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+				{
+					iDiploModifier /= 10;
+				}
 				//Spread our spies out a bit.
 				for(uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
 				{
@@ -8088,7 +8091,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					{
 						if(pCity->getOwner() == eTargetPlayer)
 						{
-							iDiploModifier *= 25;
+							iDiploModifier *= 33;
 							break;
 						}
 					}

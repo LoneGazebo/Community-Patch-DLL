@@ -177,8 +177,8 @@ public:
 	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 
-	int GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield) const;
-	void ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
+	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
 	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
@@ -1134,13 +1134,8 @@ public:
 	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL) const;
 	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL) const;
-#else
-	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender) const;
-	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true) const;
-#endif
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
@@ -1411,9 +1406,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iDamage;
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_hGarrison;  // unused
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	int m_hGarrisonOverride;
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int m_hGarrisonOverride; //only temporary, not serialized
 	FAutoVariable<int, CvCity> m_iResourceDemanded;
 	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;
 	FAutoVariable<int, CvCity> m_iLastTurnGarrisonAssigned;

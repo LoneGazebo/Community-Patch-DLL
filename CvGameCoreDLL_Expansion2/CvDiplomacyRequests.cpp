@@ -401,12 +401,6 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
 	if(pkDiploRequests)
 	{
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_DIPLOMACY_NO_LEADERHEADS)
-		if (MOD_DIPLOMACY_NO_LEADERHEADS) {
-			CvPreGame::pushGameType(GAME_NETWORK_MULTIPLAYER);
-		}
-#endif
-
 		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
 		{
 			// Target is the active player, just send it right now

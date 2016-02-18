@@ -638,7 +638,18 @@ void CvDllNetMessageHandler::ResponseMinorCivGiftTileImprovement(PlayerTypes eMa
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMinorCivBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage())
+	{
+		GET_PLAYER(eMinor).GetMinorCivAI()->DoMarriage(eMajor);
+	}
+	else
+	{
+#endif
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(eMajor);
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMinorNoUnitSpawning(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
