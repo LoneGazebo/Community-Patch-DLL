@@ -93,6 +93,7 @@ typedef wchar_t          wchar;
 
 #include "TContainer.h"
 #include "CustomMods.h"
+#include "HHMods.h"
 
 #include "CvGameDatabase.h"
 #include "CvGameCoreDLLUtil.h"
