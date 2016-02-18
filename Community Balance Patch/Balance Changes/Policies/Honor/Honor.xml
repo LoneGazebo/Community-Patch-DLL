@@ -37,9 +37,9 @@
 			<XPValueAttack>3</XPValueAttack>
 			<XPValueDefense>3</XPValueDefense>
 			<Conscription>3</Conscription>
-			<UnitArtInfo>ART_DEF_UNIT_MARINE</UnitArtInfo>
-			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>19</UnitFlagIconOffset>
+			<UnitArtInfo>ART_DEF_UNIT_MERC</UnitArtInfo>
+			<UnitFlagAtlas>MERC_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>52</PortraitIndex>
 		</Row>

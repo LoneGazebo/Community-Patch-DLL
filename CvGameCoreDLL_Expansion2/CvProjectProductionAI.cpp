@@ -187,17 +187,28 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight /= 2;
 		}
 	}
-	EconomicAIStrategyTypes eSpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
-	if(eSpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShip))
+	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
+	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+	if(eVictory != NO_VICTORY && ePrereqVictory == eVictory)
 	{
-		ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-		if(eApolloProgram != NO_PROJECT && eApolloProgram == eProject)
+		if (!GC.getGame().isVictoryValid(ePrereqVictory))
 		{
-			iTempWeight *= 100;
+			return 0;
 		}
-		if(pkProjectInfo->IsSpaceship())
+		else
 		{
-			iTempWeight *= 100;
+			EconomicAIStrategyTypes eSpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
+			if(eSpaceShip != NO_ECONOMICAISTRATEGY)
+			{
+				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShip))
+				{
+					iTempWeight *= 100;
+				}
+				else
+				{
+					iTempWeight *= 10;
+				}
+			}
 		}
 	}
 

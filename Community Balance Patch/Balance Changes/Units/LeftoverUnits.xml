@@ -133,7 +133,7 @@
 			<Class>UNITCLASS_SKI_INFANTRY</Class>
 			<Type>UNIT_DANISH_SKI_INFANTRY</Type>
 			<PrereqTech>TECH_COMBINED_ARMS</PrereqTech>
-			<Combat>65</Combat>
+			<Combat>60</Combat>
 			<Cost>400</Cost>
 			<Moves>2</Moves>
 			<CombatClass>UNITCOMBAT_GUN</CombatClass>
@@ -153,10 +153,10 @@
 			<XPValueAttack>3</XPValueAttack>
 			<XPValueDefense>3</XPValueDefense>
 			<Conscription>5</Conscription>
-			<UnitArtInfo>ART_DEF_UNIT_WW2_INFANTRY</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_GUERILLA</UnitArtInfo>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<UnitFlagAtlas>HARALD_UNIT_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>1</UnitFlagIconOffset>
+			<UnitFlagAtlas>GUERILLA_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
 			<PortraitIndex>62</PortraitIndex>
 		</Row>
 		<!-- Minor Civ Units -->

@@ -88,6 +88,30 @@ void SyncPlayer()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
+#if defined(MOD_BALANCE_CORE)	
+		for(int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			CvPlayer& player = GET_PLAYER(static_cast<PlayerTypes>(i));
+			//If hosting, update AI players first.
+			if(gDLL->IsHost() && !player.isHuman() && player.isAlive())
+			{
+				const FAutoArchive& aiArchive = player.getSyncArchive();
+				FMemoryStream ms;
+				std::vector<std::pair<std::string, std::string> > callStacks;
+				aiArchive.saveDelta(ms, callStacks);
+				gDLL->sendPlayerSyncCheck(static_cast<PlayerTypes>(i), ms, callStacks);
+			}
+			else if(player.isHuman() && player.GetID() == GC.getGame().getActivePlayer())
+			{
+				CvPlayer& authoritativePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+				const FAutoArchive& archive = authoritativePlayer.getSyncArchive();
+				FMemoryStream ms;
+				std::vector<std::pair<std::string, std::string> > callStacks;
+				archive.saveDelta(ms, callStacks);
+				gDLL->sendPlayerSyncCheck(GC.getGame().getActivePlayer(), ms, callStacks);
+			}
+		}
+#else
 		PlayerTypes eAuthoritativePlayerID = GC.getGame().getActivePlayer();
 		CvPlayer& authoritativePlayer = GET_PLAYER(eAuthoritativePlayerID);
 		const FAutoArchive& archive = authoritativePlayer.getSyncArchive();
@@ -116,6 +140,7 @@ void SyncPlayer()
 				}
 			}
 		}
+#endif
 	}
 }
 
@@ -632,7 +657,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldFromMinorDemand(NULL)
 	, m_piCityFeatures(NULL)
 	, m_piNumBuildings(NULL)
-	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppaaiBuildingClassYieldChange", m_syncArchive)
+	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppiBuildingClassYieldChange", m_syncArchive)
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_iVassalGoldMaintenanceMod("CvPlayer::m_iVassalGoldMaintenanceMod", m_syncArchive)
@@ -1139,6 +1164,7 @@ void CvPlayer::uninit()
 	m_piYieldFromKills.clear();
 	m_piYieldFromBarbarianKills.clear();
 	m_ppiBuildingClassYieldChange.clear();
+	m_ppiApproachScratchValue.clear();
 #endif
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
@@ -1987,6 +2013,17 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_ppaaiBuildingClassYieldMod.setAt(i, yield);
 		}
+#if defined(MOD_BALANCE_CORE)
+		m_ppiApproachScratchValue.clear();
+		m_ppiApproachScratchValue.resize(MAX_MAJOR_CIVS);
+		for(unsigned int i = 0; i < m_ppiApproachScratchValue.size(); ++i)
+		{
+			for(int iJ = 0; iJ < NUM_MAJOR_CIV_APPROACHES; ++iJ)
+			{
+				m_ppiApproachScratchValue[i][iJ] = 0;
+			}
+		}
+#endif
 
 		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
@@ -2429,7 +2466,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-								if(pLoopPlot->isValidMovePlot(GetID()))
+								if(pLoopPlot->isValidMovePlot(GetID()) && !pLoopPlot->isMountain())
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -6221,15 +6258,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
-#if defined(MOD_BALANCE_CORE)
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
-#else
-			m_pDangerPlots->UpdateDanger();
-#endif
 		}
 		
 		//do this after updating the danger plots
@@ -14499,7 +14532,7 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 			if(iYieldPerGPT > 0)
 			{
-				int iNetGold = GetTreasury()->CalculateBaseNetGold();
+				int iNetGold = GetTreasury()->CalculateGrossGold();
 				if (iNetGold > 0)
 				{
 					iYieldPerTurn += (iNetGold / iYieldPerGPT);
@@ -14589,7 +14622,7 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 				int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
 				if(iYieldPerGPT > 0)
 				{
-					int iNetGold = GetTreasury()->CalculateBaseNetGold();
+					int iNetGold = GetTreasury()->CalculateGrossGold();
 					if(iNetGold > 0)
 					{
 						iYieldPerTurn += (iNetGold / iYieldPerGPT);
@@ -25940,6 +25973,27 @@ void CvPlayer::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	}
 }
 #if defined(MOD_BALANCE_CORE_POLICIES)
+int CvPlayer::GetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach) const
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer expected to be < MAX_MAJOR_CIVS");
+	CvAssertMsg(eMajorCivApproach >= 0, "eMajorCivApproach expected to be >= 0");
+	CvAssertMsg(eMajorCivApproach < NUM_MAJOR_CIV_APPROACHES, "eMajorCivApproach expected to be < NUM_MAJOR_CIV_APPROACHES");
+	return  m_ppiApproachScratchValue[ePlayer][eMajorCivApproach];
+}
+void CvPlayer::SetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer expected to be < MAX_MAJOR_CIVS");
+	CvAssertMsg(eMajorCivApproach >= 0, "eMajorCivApproach expected to be >= 0");
+	CvAssertMsg(eMajorCivApproach < NUM_MAJOR_CIV_APPROACHES, "eMajorCivApproach expected to be < NUM_MAJOR_CIV_APPROACHES");
+
+	if(iValue != 0)
+	{
+		m_ppiApproachScratchValue[ePlayer][eMajorCivApproach] = iValue;
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetTradeReligionModifier() const
 {
@@ -34038,6 +34092,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ppiBuildingClassYieldChange;
 	kStream >> m_piCityFeatures;
 	kStream >> m_piNumBuildings;
+	kStream >> m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE)
 /// MODDED ELEMENTS BELOW
@@ -34219,6 +34274,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_ppiBuildingClassYieldChange;
 	kStream << m_piCityFeatures;
 	kStream << m_piNumBuildings;
+	kStream << m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;

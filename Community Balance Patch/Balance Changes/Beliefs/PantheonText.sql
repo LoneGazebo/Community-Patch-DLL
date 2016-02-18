@@ -16,7 +16,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- God of Craftsmen (Now God of Wealth)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every +10 [ICON_GOLD] Gold per turn, and +2 [ICON_PRODUCTION] Production and [ICON_PEACE] Faith in Cities with a Specialist'
+SET Text = '+1 [ICON_PEACE] Science for every +20 [ICON_GOLD] Gold produced by owned Cities, and +2 [ICON_PRODUCTION] Production and [ICON_PEACE] Faith in Cities with a Specialist'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_CRAFTSMEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

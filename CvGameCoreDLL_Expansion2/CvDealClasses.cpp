@@ -476,8 +476,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 #if defined(MOD_BALANCE_CORE)
 		//Nothing available, nothing in the deal, nothing to renew?
-		if((iNumInExistingDeal + iNumAvailable + iNumInRenewDeal) == 0)
+		if((iNumInExistingDeal == 0) && (iNumAvailable == 0) && (iNumInRenewDeal == 0))
+		{
 			return false;
+		}
 #endif
 
 		// Must be a Luxury or a Strategic Resource
@@ -1001,6 +1003,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Player that would go to war hasn't yet met the 3rd Team
 		if(!pToTeam->isHasMet(eThirdTeam))
 			return false;
+
 		// Player that wants war not met this team
 		if(!pFromTeam->isHasMet(eThirdTeam))
 			return false;
@@ -1384,16 +1387,6 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 	int iNumInRenewDeal = 0;
 	int iNumInExistingDeal = 0;
 
-#if defined(MOD_BALANCE_CORE)
-	PlayerTypes eOtherPlayer1 = GetOtherPlayer(ePlayer);
-	if (eOtherPlayer1 != NO_PLAYER)
-	{
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-		{
-			return iNumAvailable;
-		}
-	}
-#endif
 	CvDeal* pRenewDeal = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDealToRenew();
 	if (!pRenewDeal)
 	{
@@ -1416,10 +1409,6 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 				iNumInRenewDeal += it->m_iData2;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(iNumInRenewDeal > 0)
-		{
-#endif
 		// remove any that are in this deal
 		for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 		{
@@ -1428,9 +1417,6 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 				iNumInExistingDeal += it->m_iData2;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	return iNumAvailable + iNumInRenewDeal - iNumInExistingDeal;
@@ -2242,10 +2228,23 @@ bool CvDeal::IsPotentiallyRenewable()
 
 	TradedItemList::iterator it;
 	bool bHasValidTradeItem = false;
+#if defined(MOD_BALANCE_CORE)
+	bool bNonRenew = false;
+	bool bSupplement = false;
+#endif
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		switch(GetItemTradeableState(it->m_eItemType))
 		{
+#if defined(MOD_BALANCE_CORE)
+			case DEAL_NONRENEWABLE:
+				bNonRenew = true;
+			case DEAL_RENEWABLE:
+				bHasValidTradeItem = true;
+				break;
+			case DEAL_SUPPLEMENTAL:
+				bSupplement = true;
+#else
 		case DEAL_NONRENEWABLE:
 			return false;
 		case DEAL_RENEWABLE:
@@ -2253,9 +2252,14 @@ bool CvDeal::IsPotentiallyRenewable()
 			break;
 		case DEAL_SUPPLEMENTAL:
 			break;
+#endif
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	return (bHasValidTradeItem && !bSupplement && !bNonRenew);
+#else
 	return bHasValidTradeItem;
+#endif
 }
 
 /// Delete a trade item that can be identified by type alone
@@ -2756,6 +2760,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			bFoundIt = true;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(!bFoundIt)
+	{
+		LogDealFailed(&kDeal, false, false, false, true);
+	}
+#endif
 
 	if(bFoundIt)
 	{
@@ -2772,6 +2782,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			{
 				// mark that the deal is no longer valid. We will still delete the deal but not commit its actions
 				bValid = false;
+#if defined(MOD_BALANCE_CORE)
+				if(!bValid)
+				{
+					LogDealFailed(&kDeal, false, true, false, false);
+				}
+#endif
 				break;
 			}
 		}
@@ -2797,7 +2813,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 		// **** END HACK ****
-
+#if defined(MOD_BALANCE_CORE)
+		if(!bValid || !bAccepted)
+		{
+			LogDealFailed(&kDeal, false, false, true, false);
+		}
+#endif
 
 		if(bValid && bAccepted)
 		{
@@ -2945,6 +2966,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// if the deal is renewed do not start it up
 				if(it->m_bToRenewed)
 				{
+#if defined(MOD_BALANCE_CORE)
+					LogDealFailed(&kDeal, true, false, false, false);
+#endif
 					continue;
 				}
 
@@ -3148,22 +3172,28 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 
 							//If human attacked, send notification with info.
-							if(GET_PLAYER(eLoopPlayer).isHuman())
+							if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetEspionage())
 							{
-								CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-								if(pNotifications)
+								if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 								{
-									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
-									strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-									pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if(pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+										strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
 								}
 							}
 							//If AI, bump down their opinion of the broker a bit.
-							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetEspionage())
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
+								if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
+								{
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
+								}
 							}
 						}
 					}
@@ -3645,10 +3675,6 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	{
 		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
 		{
-#if defined(MOD_BALANCE_CORE)
-			//Historical deals can't be considered for renewal.
-			it->m_bConsideringForRenewal = false;
-#endif
 			m_HistoricalDeals.push_back(*it);
 		}
 		else
@@ -4070,6 +4096,16 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		fromPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eToPlayer);
 		toPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eFromPlayer);
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Deal cancelled? That makes us sad.
+	if(bCancelled)
+	{
+		if(!toPlayer.isHuman())
+		{
+			toPlayer.GetDiplomacyAI()->ChangeRecentTradeValue(fromPlayer.GetID(), 400);
+		}
+	}
+#endif
 }
 
 /// Some trade items require Gold to be spent by both players
@@ -4410,7 +4446,242 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade, bool bNotValid, bool bOther)
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogName;
 
+		CvString strOutBuf;
+		CvString strBaseString;
+
+		CvString playerName;
+		CvString otherPlayerName;
+
+		CvString strTemp;
+
+		// Open the log file
+		if(GC.getPlayerAndCityAILogSplit())
+		{
+			strLogName = "DiplomacyAI_Messages_Log_" + playerName + ".csv";
+		}
+		else
+		{
+			strLogName = "DiplomacyAI_Messages_Log.csv";
+		}
+
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		PlayerTypes eFromPlayer;
+		PlayerTypes eToPlayer;
+
+		// Turn number
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+		if(bNoRenew)
+		{
+			strOutBuf = strBaseString + ", FAILED: NOT RENEWED, ";
+		}
+		else if(bCannotTrade)
+		{
+			strOutBuf = strBaseString + ", FAILED: CANNOT TRADE ITEM, ";
+		}
+		else if(bNotValid)
+		{
+			strOutBuf = strBaseString + ", FAILED: NOT VALID DEAL, ";
+		}
+		else if(bOther)
+		{
+			strOutBuf = strBaseString + ", FAILED: NO DEAL FOUND, ";
+			pLog->Msg(strOutBuf);
+			return;
+		}
+		else
+		{
+			strOutBuf = strBaseString + ", FAILED: UNKNOWN, ";
+		}
+
+		TradedItemList::iterator itemIter;
+		for(itemIter = pDeal->m_TradedItems.begin(); itemIter != pDeal->m_TradedItems.end(); ++itemIter)
+		{
+			
+
+			eFromPlayer = itemIter->m_eFromPlayer;
+			eToPlayer = eFromPlayer == pDeal->m_eFromPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
+
+			playerName = GET_PLAYER(eFromPlayer).getCivilizationShortDescription();
+
+			// Our Name
+			strBaseString += playerName;
+
+			// Their Name
+			otherPlayerName = GET_PLAYER(eToPlayer).getCivilizationShortDescription();
+			strBaseString += ", " + otherPlayerName;
+
+			// Peace Treaty deal?
+			if(pDeal->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+			{
+				switch(pDeal->GetPeaceTreatyType())
+				{
+				case PEACE_TREATY_WHITE_PEACE:
+					strTemp.Format("***** WHITE PEACE *****");
+					break;
+				case PEACE_TREATY_ARMISTICE:
+					strTemp.Format("***** ARMISTICE *****");
+					break;
+				case PEACE_TREATY_SETTLEMENT:
+					strTemp.Format("***** SETTLEMENT *****");
+					break;
+				case PEACE_TREATY_BACKDOWN:
+					strTemp.Format("***** BACKDOWN *****");
+					break;
+				case PEACE_TREATY_SUBMISSION:
+					strTemp.Format("***** SUBMISSION *****");
+					break;
+				case PEACE_TREATY_SURRENDER:
+					strTemp.Format("***** SURRENDER *****");
+					break;
+				case PEACE_TREATY_CESSION:
+					strTemp.Format("***** CESSION *****");
+					break;
+				case PEACE_TREATY_CAPITULATION:
+					strTemp.Format("***** CAPITULATION *****");
+					break;
+				case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
+					strTemp.Format("***** UNCONDITIONAL SURRENDER *****");
+					break;
+				default:
+					strTemp.Format("XXX NO VALID PEACE TREATY!!!");
+					break;
+				}
+				strOutBuf += ", " + strTemp;
+			}
+
+			// Is someone surrendering?
+			if(pDeal->GetSurrenderingPlayer() != NO_PLAYER)
+			{
+				playerName = GET_PLAYER(pDeal->GetSurrenderingPlayer()).getCivilizationShortDescription();
+				int iWarScore = GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetWarScore(eToPlayer);
+				CvString strWarscore;
+				strWarscore.Format("%d", iWarScore);
+				strOutBuf += ", " + playerName + " is giving up" + " at a Warscore of: " + strWarscore;
+			}
+			// White Peace
+			else if(pDeal->GetPeaceTreatyType() == PEACE_TREATY_WHITE_PEACE)
+			{
+				strOutBuf += ", White Peace!";
+			}
+
+			// Is this a demand?
+			if(pDeal->GetDemandingPlayer() != NO_PLAYER)
+			{
+				playerName = GET_PLAYER(pDeal->GetDemandingPlayer()).getCivilizationShortDescription();
+				strOutBuf += ", " + playerName + " has made a demand!";
+			}
+
+			// Is this a request?
+			if(pDeal->GetRequestingPlayer() != NO_PLAYER)
+			{
+				playerName = GET_PLAYER(pDeal->GetRequestingPlayer()).getCivilizationShortDescription();
+				strOutBuf += ", " + playerName + " has made a request!";
+			}
+
+			// What is this particular Trade item?
+			switch(itemIter->m_eItemType)
+			{
+			case TRADE_ITEM_GOLD:
+				strTemp.Format("***** Gold Trade: %d *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_GOLD_PER_TURN:
+				strTemp.Format("***** GPT Trade: %d *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_RESOURCES:
+				strTemp.Format("***** Resource Trade: ID %d *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_CITIES:
+			{
+				CvPlot* pPlot = GC.getMap().plot(itemIter->m_iData1, itemIter->m_iData2);
+				CvCity* pCity = 0;
+				if (pPlot)
+					pCity = pPlot->getPlotCity();
+				strTemp.Format("***** City Trade: ID %s *****", pCity ? pCity->getName().c_str() : "unknown" );
+				break;
+			}
+			case TRADE_ITEM_OPEN_BORDERS:
+				strTemp.Format("Open Borders Trade");
+				break;
+			case TRADE_ITEM_DEFENSIVE_PACT:
+				strTemp.Format("***** Defensive Pact Trade *****");
+				break;
+			case TRADE_ITEM_RESEARCH_AGREEMENT:
+				strTemp.Format("Research Agreement Trade");
+				break;
+			case TRADE_ITEM_PEACE_TREATY:
+				strTemp.Format("***** Peace Treaty Trade *****");
+				break;
+#if defined(MOD_BALANCE_CORE)
+			case TRADE_ITEM_THIRD_PARTY_PEACE:
+				strTemp.Format("***** Third Party Peace Trade versus ID %d *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_THIRD_PARTY_WAR:
+				strTemp.Format("***** Third Party War Trade versus ID %d *****" , itemIter->m_iData1);
+				break;
+#else
+			case TRADE_ITEM_THIRD_PARTY_PEACE:
+				strTemp.Format("***** Third Party Peace Trade *****");
+				break;
+			case TRADE_ITEM_THIRD_PARTY_WAR:
+				strTemp.Format("***** Third Party War Trade *****");
+				break;
+#endif
+			case TRADE_ITEM_VOTE_COMMITMENT:
+				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
+				break;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			case TRADE_ITEM_MAPS:
+				strTemp.Format("***** Map Trade *****");
+				break;
+			case TRADE_ITEM_TECHS:
+				strTemp.Format("***** Tech Trade ***** ID %d", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_VASSALAGE:
+				strTemp.Format("***** Vassalage Trade *****");
+				break;
+			case TRADE_ITEM_VASSALAGE_REVOKE:
+				strTemp.Format("***** Revoke Vassalage Trade *****");
+				break;
+#endif
+#if defined(MOD_BALANCE_CORE)
+			case TRADE_ITEM_ALLOW_EMBASSY:
+				strTemp.Format("***** Embassy Trade *****");
+				break;
+#endif
+			default:
+				strTemp.Format("***** UNKNOWN TRADE!!! *****");
+				break;
+			}
+			strOutBuf += ", " + strTemp;
+
+#if defined(MOD_BALANCE_CORE)
+			if (itemIter->m_iValue != INT_MAX)
+			{
+				strTemp.Format("(value %d - %s)", itemIter->m_iValue, itemIter->m_bValueIsEven ? "equalized" : "raw");
+				strOutBuf += ", " + strTemp;
+			}
+#endif
+
+			pLog->Msg(strOutBuf);
+#if !defined(MOD_BALANCE_CORE)
+			OutputDebugString("\n");
+			OutputDebugString(strOutBuf);
+			OutputDebugString("\n");
+#endif
+		}
+	}
+}
+#endif
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
