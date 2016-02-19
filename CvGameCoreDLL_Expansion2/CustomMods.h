@@ -56,10 +56,8 @@
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
 #define MOD_BALANCE_CORE_GLOBAL_IDS
-/// clean up defines for pathfinder
-#define MOD_BALANCE_CORE_PATHFINDER_FLAGS
-/// allocate memory only for actual players
-#define MOD_CORE_MEM_OPTIMIZATION
+/// ships on land tiles (city, fort) cannot attack
+#define MOD_BALANCE_EMBARKED_SHIPS
 
 #define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MINORS_SEE_MAJORS (5)
 #define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MAJORS_SEE_BARBARIANS_IN_FOG

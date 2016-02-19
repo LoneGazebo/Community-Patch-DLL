@@ -2549,7 +2549,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 						}
 
 						//But not if we're in a city!
-						if(pUnit->plot()->isCity())
+						if(pUnit->IsGarrisoned())
 						{
 							bAddUnit = false;
 						}
@@ -2588,7 +2588,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					int iUnits = 0;
 					if(pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral() || pUnit->IsCityAttackOnly())
 					{
-						if(pUnit->plot()->isCity())
+						if(pUnit->IsGarrisoned())
 						{
 							bAddUnit = false;
 						}
@@ -8460,7 +8460,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		if (pUnit)
 		{
 			//special handling for garrison
-			if (pUnit->plot()->isCity() && pUnit->getDomainType()==DOMAIN_LAND )
+			if (pUnit->IsGarrisoned())
 			{
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 				continue;
@@ -8477,7 +8477,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 				TacticalAIHelpers::GetPlotsForRangedAttack( pTargetPlot, pUnit, pUnit->GetRange(), false, vAttackPlots);
 
 			//get plots we can move into with enough movement left
-			int iMinMovesLeft = pUnit->isSetUpForRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
+			int iMinMovesLeft = pUnit->isMustSetUpToRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
 			TacticalAIHelpers::ReachablePlotSet movePlots;
 			TacticalAIHelpers::GetAllPlotsInReach( pUnit, pUnit->plot(), movePlots, true, true, false, iMinMovesLeft);
 
@@ -8490,13 +8490,9 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 					continue;
 
 				//must be halfway safe
-				int iPlotIndex = (*it)->GetPlotIndex();
-				CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell(iPlotIndex);
-				int iUnitDanger = pCell->IsSubjectToAttack() ? m_pPlayer->GetPlotDanger(*GC.getMap().plotByIndexUnchecked(iPlotIndex),pUnit) : 0;
-				if( iUnitDanger<pUnit->GetCurrHitPoints()/3 && IsExpectedToDamageWithRangedAttack(pUnit, pTargetPlot, 5))
-				{
-					candidates.insert(iPlotIndex);
-				}
+				int iUnitDanger = pUnit->GetDanger(*it); 
+				if( iUnitDanger<pUnit->GetCurrHitPoints()/2 && IsExpectedToDamageWithRangedAttack(pUnit, pTargetPlot, 5))
+					candidates.insert( (*it)->GetPlotIndex() );
 			}
 
 			for (TacticalAIHelpers::ReachablePlotSet::iterator it=movePlots.begin(); it!=movePlots.end(); ++it)
@@ -9240,7 +9236,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 		return NULL;
 
 	//don't pull units out of cities for repositioning
-	if (pUnit->plot()->isCity())
+	if (pUnit->IsGarrisoned())
 		return NULL;
 
 	TacticalAIHelpers::ReachablePlotSet reachablePlots;
@@ -9258,7 +9254,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 	std::vector<SPlotWithTwoScores> vStats;
 	int iHighestAttack = 0;
 	int iLowestDanger = INT_MAX;
-	bool bIsRanged = pUnit->canRangeStrike();
+	bool bIsRanged = pUnit->isRanged();
 	for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 	{
 		CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
@@ -9272,7 +9268,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 		int iCurrentAttack = 0; //these methods take into account embarkation so we don't have to check for it
 		if (bIsRanged && pUnit->canEverRangeStrikeAt(plotTarget->getX(),plotTarget->getY(),pMoveTile))
 			iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, pMoveTile);
-		else if (!bIsRanged)
+		else if (!bIsRanged && (pUnit->GetNumEnemyUnitsAdjacent()>0 || pMoveTile->IsFriendlyUnitAdjacent(pUnit->getTeam(),true)) )
 			iCurrentAttack = pUnit->GetMaxAttackStrength(pMoveTile, plotTarget, pTargetUnit);
 
 		if (iCurrentDanger<=iAcceptableDanger && iCurrentAttack>0)
@@ -9521,7 +9517,7 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 					continue;
 				}
 				//Let's not pull out garrisons to do this.
-				else if(pLoopUnit->plot()->isCity())
+				else if(pLoopUnit->IsGarrisoned())
 				{
 					continue;
 				}

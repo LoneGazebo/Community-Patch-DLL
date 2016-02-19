@@ -7204,6 +7204,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
@@ -7227,64 +7228,37 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 #endif
+
 	if(isWaiting())
 	{
 		return false;
 	}
 
-	if(healRate(pPlot) <= 0)
+#if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
+	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	{
-		return false;
-	}
-	
-	// JON - This should change when one-unit-per-plot city stuff is handled better
-	// Unit Healing in cities
-
-	if(isHuman())
-	{
-		if(plot()->isCity() && getDomainType() != DOMAIN_AIR)
+		// Hovering units can only heal over land
+		if (IsHoveringUnit() && pPlot->isWater())
 		{
-#if defined(MOD_BUGFIX_MINOR)
-			// Civilians can heal in cities
-			if (!IsCivilianUnit())
-			{
-#endif
-
-				CvUnit* pUnit;
-				int iBestDefenderValue = 0;
-				int iBestDefenderID = 0;
-
-				for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-				{
-					pUnit = plot()->getUnitByIndex(iUnitLoop);
-
-					// Only check land Units vs one another, Naval Units vs one another, etc.
-					if(pUnit->getDomainType() == getDomainType())
-					{
-						if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
-						{
-							iBestDefenderValue = pUnit->GetBaseCombatStrength();
-							iBestDefenderID = pUnit->GetID();
-						}
-					}
-				}
-
-				// This is NOT the defending unit, it's in storage, so it can't heal
-				if(iBestDefenderID != GetID())
-				{
-					return false;
-				}
-#if defined(MOD_BUGFIX_MINOR)
-			}
-#endif
+			return false;
 		}
 	}
+#endif
 
+	//no healing on mountains outside of cities (inca)
+	if (pPlot->isMountain() && !pPlot->isCity())
+		return false;
+	
 	// Unit now has to be able to Fortify to Heal (since they're very similar states, and Heal gives a defense bonus)
 	if(!bTestVisible)
 	{
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+		// Embarked Units can't heal - unless it's a ship, then it's in a city/fort
+		if(isEmbarked() && getDomainType()!=DOMAIN_SEA)
+#else
 		// Embarked Units can't heal
 		if(isEmbarked())
+#endif
 		{
 			return false;
 		}
@@ -7297,6 +7271,12 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 				return false;
 			}
 		}
+	}
+
+
+	if(healRate(pPlot) <= 0)
+	{
+		return false;
 	}
 
 	return true;
@@ -7337,27 +7317,6 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 int CvUnit::healRate(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	// Boats can only heal in friendly territory
-	if(getDomainType() == DOMAIN_SEA)
-	{
-		if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
-		{
-			return 0;
-		}
-	}
-	
-#if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
-	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
-		// Hovering units can only heal over land
-		if (IsHoveringUnit() && pPlot->isWater()) {
-			return 0;
-		}
-	}
-#endif
-
-	//no healing on mountains outside of cities (inca)
-	if (pPlot->isMountain() && !pPlot->isCity())
-		return 0;
 
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
@@ -19600,7 +19559,17 @@ if (!bDoEvade)
 			SetGarrisonedCity(-1);
 		}
 	}
-	
+
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+	if (pNewPlot && getDomainType()==DOMAIN_SEA && IsCombatUnit())
+	{
+		if (pNewPlot->isFriendlyCityOrPassableImprovement(getOwner()))
+			setEmbarked(true);
+		else
+			setEmbarked(false);
+	}
+#endif
+
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())

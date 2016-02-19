@@ -19326,12 +19326,13 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
-	UnitHandle pGarrisonedUnit = plot()->getBestDefender(getOwner());
 	int iStrengthFromUnits = 0;
-	if(pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+	if(pGarrisonedUnit)
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY)
 		{
@@ -19449,8 +19450,8 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 		iValue /= 100;
-		UnitHandle pDefender = plot()->getBestDefender(getOwner());
-		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
+
+		if(HasGarrison())
 		{
 			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
 			iValue /= 100;

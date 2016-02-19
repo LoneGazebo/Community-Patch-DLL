@@ -5206,7 +5206,7 @@ void CvPlayer::disbandUnit(bool)
 						iValue += (pLoopUnit->getExperience() * 20);
 						iValue += (pLoopUnit->getLevel() * 100);
 
-						if(pLoopUnit->IsCanDefend() && pLoopUnit->plot()->isCity())
+						if(pLoopUnit->IsGarrisoned())
 						{
 							iValue *= 2;
 						}
