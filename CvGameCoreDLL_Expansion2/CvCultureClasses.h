@@ -270,6 +270,9 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetWarWeariness() const;
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int GetTourismModifierVassal() const;
+#endif
 	CvString GetPublicOpinionUnhappinessTooltip() const;
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
 	int GetTurnIdeologySwitch() const;
