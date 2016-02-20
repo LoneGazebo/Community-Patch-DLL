@@ -935,13 +935,18 @@ public:
 
 	// Vassals
 	int GetVassalScore(PlayerTypes ePlayer);
+	int GetVassalTreatedScore(PlayerTypes ePlayer);
 	int GetMasterScore(PlayerTypes ePlayer);
+
+	int GetVassalDemandScore(PlayerTypes ePlayer);
+	int GetVassalTaxScore(PlayerTypes ePlayer);
 
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
 
 	int GetVassalProtectScore(PlayerTypes ePlayer);
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
+
 	int GetVassalProtectValue(PlayerTypes ePlayer);
 	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
 

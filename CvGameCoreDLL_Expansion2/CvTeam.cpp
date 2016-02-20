@@ -872,9 +872,13 @@ void CvTeam::doTurn()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES)
 			{
+				// We are their vassal
 				if(IsVassal(eTeam)) {
 					ChangeNumTurnsIsVassal(1);
+				}
 
+				// We are their master
+				if(GET_TEAM(eTeam).GetMaster() == GetID()) {
 #if defined(MOD_BALANCE_CORE)
 					// Get players in vassal team
 					for(std::vector<PlayerTypes>::const_iterator iI = GET_TEAM(eTeam).getPlayers().begin(); iI != GET_TEAM(eTeam).getPlayers().end(); ++iI)
@@ -9671,26 +9675,6 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	SetNumTurnsSinceVassalEnded(eTeam, 0);
 	SetNumTurnsIsVassal(-1);
 
-#if defined(MOD_BALANCE_CORE)
-	// reset counters for players in team too
-	for(std::vector<PlayerTypes>::const_iterator it = GET_TEAM(eTeam).getPlayers().begin(); it != GET_TEAM(eTeam).getPlayers().end(); it++)
-	{
-		
-	}
-#else
-	// reset counters for players in team too
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			
-		if(GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
-		{
-			SetVassalTax(eLoopPlayer, 0);
-			SetNumTurnsSinceVassalTaxSet(eLoopPlayer, -1);
-		}
-	}
-#endif
-
 	// Not peaceful end of vassalage? Declare war!
 	if(!bPeaceful)
 	{
@@ -10313,13 +10297,14 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	iPercent = std::min(iPercent, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
 
 	int iCurrentTaxRate = GetVassalTax(ePlayer);
+	
+	SetNumTurnsSinceVassalTaxSet(ePlayer, 0);
+	SetVassalTax(ePlayer, iPercent);
 
+	// notify diplo AI if there was some change		
 	if(iPercent != iCurrentTaxRate)
 	{
-		// notify diplo AI if there was some change
-		// GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));
-		SetNumTurnsSinceVassalTaxSet(ePlayer, 0);
-		SetVassalTax(ePlayer, iPercent);
+		// GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -10358,6 +10343,9 @@ void CvTeam::ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange)
 //	--------------------------------------------------------------------------------
 void CvTeam::SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue)
 {
+	CvAssertMsg(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
 	m_aiNumTurnsSinceVassalTaxSet[ePlayer] = iValue;
 }
 //	--------------------------------------------------------------------------------

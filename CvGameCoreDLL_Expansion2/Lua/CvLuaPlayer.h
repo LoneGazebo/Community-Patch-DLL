@@ -1285,6 +1285,13 @@ protected:
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);
 	LUAAPIEXTN(MoveRequestTooSoon, bool, iOtherPlayer);
 	LUAAPIEXTN(GetPlayerMoveTroopsRequestCounter, int, iOtherPlayer);
+	LUAAPIEXTN(GetExpensePerTurnFromVassalTaxes, int);
+	LUAAPIEXTN(GetMyShareOfVassalTaxes, int);
+	LUAAPIEXTN(GetVassalTaxContribution, int);
+	LUAAPIEXTN(GetVassalScore, int);
+	LUAAPIEXTN(GetVassalDemandScore, int);
+	LUAAPIEXTN(GetVassalTaxScore, int);
+	LUAAPIEXTN(GetVassalProtectScore, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);

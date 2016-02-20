@@ -37195,23 +37195,51 @@ int CvDiplomacyAI::GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
+// Opinion weight change based on being vassal
 int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer)
 {
+	if(!IsVassal(ePlayer)) return 0;
 	int iOpinionWeight = 0;
 
-	// Are we the Vassal of ePlayer?
-	if(IsVassal(ePlayer))
-	{
-		// Voluntary vassal
-		if(GET_TEAM(GetTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
-		{
-			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL();
-		}
-		else
-		{
-			iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL();
-		}
-	}
+	bool bVoluntaryVassal = GET_TEAM(GetTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam());
+	iOpinionWeight += bVoluntaryVassal ? GC.getOPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL() : GC.getOPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL();
+
+	return iOpinionWeight;
+}
+
+// Opinion weight change based on how well we've been treated by our master
+int CvDiplomacyAI::GetVassalTreatedScore(PlayerTypes ePlayer)
+{
+	if(!IsVassal(ePlayer)) return 0;
+	int iOpinionWeight = 0;
+
+	iOpinionWeight += GetVassalDemandScore(ePlayer);
+	iOpinionWeight += GetVassalTaxScore(ePlayer);
+	iOpinionWeight += GetVassalProtectScore(ePlayer);
+
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetVassalDemandScore(PlayerTypes ePlayer)
+{
+	if(!IsVassal(ePlayer)) return 0;
+	int iOpinionWeight = 0;
+
+	bool bVoluntaryVassal = GET_TEAM(GetTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam());
+	iOpinionWeight = GetNumTimesDemandedWhileVassal(ePlayer) * GC.getOPINION_WEIGHT_DEMANDED_WHILE_VASSAL();
+	iOpinionWeight *= (bVoluntaryVassal ? GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD() : 1 );
+
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer)
+{
+	if(!IsVassal(ePlayer)) return 0;
+	int iOpinionWeight = 0;
+	
+	bool bVoluntaryVassal = GET_TEAM(GetTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam());
+	iOpinionWeight = pow(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetVassalTax(GetPlayer()->GetID()), GC.getOPINION_WEIGHT_VASSAL_TAX_EXPONENT()) / std::max(1, GC.getOPINION_WEIGHT_VASSAL_TAX_DIVISOR());
+	iOpinionWeight *= (bVoluntaryVassal ? GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD() : 1 );
 
 	return iOpinionWeight;
 }

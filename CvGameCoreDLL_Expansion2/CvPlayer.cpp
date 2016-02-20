@@ -6322,6 +6322,10 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Gold
 	GetTreasury()->DoGold();
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Tax out from after we've calculated our gold for this turn
+	GetTreasury()->CalculateExpensePerTurnFromVassalTaxes();
+#endif
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
@@ -37061,7 +37065,6 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 /// Special bonus for having a vassal
 int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 {
-	int iNumVassals = 0;
 	int iFreeYield = 0;
 	int iYield = 0;
 	PlayerTypes ePlayer;
@@ -37072,13 +37075,14 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 		// ePlayer vassal of ours?
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 		{
-			iNumVassals++;
+			iFreeYield = 0;
 			switch(eYield)
 			{
+				// We now collect gold from taxes
 				case YIELD_GOLD:
-					iFreeYield = GET_PLAYER(ePlayer).calculateGoldRate();
-					iFreeYield *= /*33*/GC.getVASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT();
-					iFreeYield /= 100;
+					//iFreeYield = GET_PLAYER(ePlayer).calculateGoldRate();
+					//iFreeYield *= /*33*/GC.getVASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT();
+					//iFreeYield /= 100;
 					break;
 
 				case YIELD_CULTURE:
@@ -37115,12 +37119,6 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 			iYield += iFreeYield;
 		}
 	}
-
-	if(iNumVassals == 0) 
-	{
-		return 0;
-	}
-
 	return iYield;
 }
 #if defined(MOD_BALANCE_CORE)
