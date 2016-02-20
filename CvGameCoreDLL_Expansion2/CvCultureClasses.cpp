@@ -4707,10 +4707,10 @@ int CvPlayerCulture::GetTourismModifierOpenBorders() const
 }
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-/// Tourism modifier (base plus policy boost) - vassal
+/// Tourism modifier - vassal
 int CvPlayerCulture::GetTourismModifierVassal() const
 {
-	return GC.getVASSAL_TOURISM_MODIFIER() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_VASSAL_TOURISM_MODIFIER);
+	return GC.getVASSAL_TOURISM_MODIFIER();
 }
 #endif
 

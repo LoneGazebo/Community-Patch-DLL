@@ -777,9 +777,6 @@ enum PolicyModifierType
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
     POLICYMOD_CONVERSION_MODIFIER,
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	POLICYMOD_VASSAL_TOURISM_MODIFIER,
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
