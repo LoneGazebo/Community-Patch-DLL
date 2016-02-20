@@ -1289,9 +1289,11 @@ protected:
 	LUAAPIEXTN(GetMyShareOfVassalTaxes, int);
 	LUAAPIEXTN(GetVassalTaxContribution, int);
 	LUAAPIEXTN(GetVassalScore, int);
+	LUAAPIEXTN(GetVassalTreatedScore, int);
 	LUAAPIEXTN(GetVassalDemandScore, int);
 	LUAAPIEXTN(GetVassalTaxScore, int);
 	LUAAPIEXTN(GetVassalProtectScore, int);
+	LUAAPIEXTN(GetVassalFailedProtectScore, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);

@@ -253,6 +253,7 @@ protected:
 	LUAAPIEXTN(CanSetVassalTax, bool, iPlayer);
 	LUAAPIEXTN(GetVassalTax, int, iPlayer);
 	LUAAPIEXTN(GetNumTurnsSinceVassalTaxSet, int, iPlayer);
+	LUAAPIEXTN(GetNumVassals, int);
 #endif
 };
 

@@ -426,17 +426,11 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				//Vassals give in to demands more often, and give more away.
 				if(MOD_DIPLOMACY_CIV4_FEATURES)
 				{
-					if(GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).IsVassalOfSomeone())
+					TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
+					if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
 					{
-						TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
-						if(eMasterTeam != NO_TEAM)
-						{
-							if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
-							{
-								iOddsOfGivingIn += 100;
-								iValueWillingToGiveUp += 500;
-							}
-						}
+						iOddsOfGivingIn += 100;
+						iValueWillingToGiveUp += 500;
 					}
 				}
 #endif

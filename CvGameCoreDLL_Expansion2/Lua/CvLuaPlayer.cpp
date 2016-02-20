@@ -1220,9 +1220,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetExpensePerTurnFromVassalTaxes);
 	Method(GetVassalTaxContribution);
 	Method(GetVassalScore);
+	Method(GetVassalTreatedScore);
 	Method(GetVassalDemandScore);
 	Method(GetVassalTaxScore);
 	Method(GetVassalProtectScore);
+	Method(GetVassalFailedProtectScore);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	Method(GetScoreFromMinorAllies);
@@ -13325,6 +13327,16 @@ int CvLuaPlayer::lGetVassalScore(lua_State* L)
 	return 1;
 }
 
+// CvDiplomacyAI::GetVassalTreatedScore(PlayerTypes ePlayer)
+int CvLuaPlayer::lGetVassalTreatedScore(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalTreatedScore(eOtherPlayer));
+	return 1;
+}
+
 // CvDiplomacyAI::GetVassalDemandScore(PlayerTypes ePlayer)
 int CvLuaPlayer::lGetVassalDemandScore(lua_State* L)
 {
@@ -13345,13 +13357,23 @@ int CvLuaPlayer::lGetVassalTaxScore(lua_State* L)
 	return 1;
 }
 
-// CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer)
+// CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer)
 int CvLuaPlayer::lGetVassalProtectScore(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	
 	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalProtectScore(eOtherPlayer));
+	return 1;
+}
+
+// CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer)
+int CvLuaPlayer::lGetVassalFailedProtectScore(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalFailedProtectScore(eOtherPlayer));
 	return 1;
 }
 

@@ -934,12 +934,25 @@ public:
 	void ChangeHelpRequestCounter(PlayerTypes ePlayer, int iChange);
 
 	// Vassals
+	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
+
+	bool IsVassalTaxRaised(PlayerTypes ePlayer) const;
+	void SetVassalTaxRaised(PlayerTypes ePlayer, bool bValue);
+	
+	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	bool IsVassalTaxLowered(PlayerTypes ePlayer) const;
+	void SetVassalTaxLowered(PlayerTypes ePlayer, bool bValue);
+
 	int GetVassalScore(PlayerTypes ePlayer);
-	int GetVassalTreatedScore(PlayerTypes ePlayer);
 	int GetMasterScore(PlayerTypes ePlayer);
 
+	int GetVassalTreatedScore(PlayerTypes ePlayer);
 	int GetVassalDemandScore(PlayerTypes ePlayer);
 	int GetVassalTaxScore(PlayerTypes ePlayer);
+	int GetVassalTradeRouteScore(PlayerTypes ePlayer);
+	int GetVassalReligionScore(PlayerTypes ePlayer);
 
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
 
@@ -1706,6 +1719,9 @@ private:
 		short m_aiMoveTroopsRequestCounter[MAX_MAJOR_CIVS];
 		
 		bool m_abMasterLiberatedMeFromVassalage[MAX_MAJOR_CIVS];
+
+		bool m_abVassalTaxRaised[MAX_MAJOR_CIVS];
+		bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];
 #endif
 	};
 	DiplomacyAIData* m_pDiploData;
@@ -1734,6 +1750,9 @@ private:
 	short* m_paiMoveTroopsRequestCounter;
 
 	bool* m_pabMasterLiberatedMeFromVassalage;
+
+	bool* m_pabVassalTaxRaised;
+	bool* m_pabVassalTaxLowered;
 #endif
 
 	// Scratch pad to keep track of Diplo Messages we've sent out in the past

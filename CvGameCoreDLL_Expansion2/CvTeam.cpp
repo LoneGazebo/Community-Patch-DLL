@@ -884,7 +884,17 @@ void CvTeam::doTurn()
 					for(std::vector<PlayerTypes>::const_iterator iI = GET_TEAM(eTeam).getPlayers().begin(); iI != GET_TEAM(eTeam).getPlayers().end(); ++iI)
 					{
 						if(GetNumTurnsSinceVassalTaxSet(*iI) > -1)
+						{
 							ChangeNumTurnsSinceVassalTaxSet(*iI, 1);
+
+							// Push a notification to team members if we can set vassal tax this turn
+							if(CanSetVassalTax(*iI) && GetNumTurnsSinceVassalTaxSet(*iI) == GC.getGame().getGameSpeedInfo().getMinimumVassalTaxTurns())
+							{
+								Localization::String locString = Localization::Lookup("TXT_KEY_VASSAL_TAXES_AVAILABLE");
+								locString << GET_PLAYER(*iI).getName();
+								GET_PLAYER(*iI).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID());
+							}
+						}
 					}
 #else
 					// Get players in vassal team - I hate how inefficient this is
@@ -10304,7 +10314,7 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	// notify diplo AI if there was some change		
 	if(iPercent != iCurrentTaxRate)
 	{
-		// GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
 	}
 }
 //	--------------------------------------------------------------------------------

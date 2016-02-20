@@ -247,6 +247,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetVassalTax);
 	Method(GetNumTurnsSinceVassalTaxSet);
 	Method(DoApplyVassalTax);
+	Method(GetNumVassals);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1517,5 +1518,11 @@ int CvLuaTeam::lGetNumTurnsSinceVassalTaxSet(lua_State *L)
 int CvLuaTeam::lDoApplyVassalTax(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::DoApplyVassalTax);
+}
+// ---------------------------------------------------------------------
+// int GetNumVassals()
+int CvLuaTeam::lGetNumVassals(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetNumVassals);
 }
 #endif

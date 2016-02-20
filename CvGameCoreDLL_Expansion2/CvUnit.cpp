@@ -3263,7 +3263,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 				TeamTypes eMaster =  GET_TEAM(getTeam()).GetMaster();
 
-				// Check to see if Master failed to protect on of our units...
+				// Check to see if Master failed to protect one of our units...
 				if(eMaster != NO_TEAM) {
 					// Unit killed inside my territory
 					if(plot()->getOwner() == getOwner()) {
