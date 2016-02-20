@@ -23,10 +23,9 @@
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
 
 -- Divisor bonus for luxuries.
-
-	INSERT INTO Defines (
-	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '3';
+	UPDATE Defines
+	SET Value = '3'
+	WHERE Name = 'BALANCE_HAPPINESS_LUXURY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
 
 -- REALLY IMPORTANT VALUE
 -- % Increase of luxury pop needed as you research technologies. Set upper/lower limits on the % increase here.

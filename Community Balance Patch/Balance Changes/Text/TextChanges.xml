@@ -681,6 +681,9 @@
 		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
@@ -696,17 +699,17 @@
 		
 		<!-- New Musician Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR">
-			<Text>Your musicians journey across {1_PlayerAdj} lands, introducing your culture to the {1_PlayerAdj} people. Your [ICON_TOURISM] Cultural Influence is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to them!</Text>
+			<Text>Your musicians journey across {1_PlayerAdj} lands, introducing your culture to the {1_PlayerAdj} people. Your [ICON_TOURISM] Cultural Influence is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to them, and you receive {2_Num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S">
 			<Text>Tour through {1_PlayerAdj} lands completed!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET">
-			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you by [COLOR_NEGATIVE_TEXT]{2_Num}%[ENDCOLOR]!</Text>
+			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you to [COLOR_MAGENTA]Familiar[ENDCOLOR] status!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S">
-			<Text>Unknown musicians arrive from {1_PlayerAdj!}</Text>
+			<Text>Unknown musicians arrive from {1_PlayerAdj}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">

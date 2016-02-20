@@ -476,14 +476,14 @@
 			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_YieldPerXTerrain>
+	<Building_YieldPerXTerrainTimes100>
 		<Row>
 			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
 			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>100</Yield>
 		</Row>
-	</Building_YieldPerXTerrain>
+	</Building_YieldPerXTerrainTimes100>
 	<!-- University -->
 	<Building_GrowthExtraYield>
 		<Row>

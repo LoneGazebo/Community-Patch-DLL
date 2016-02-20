@@ -12279,6 +12279,11 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 	if(!GetPlayer()->isAlive())
 		return false;
 
+#if defined(MOD_BALANCE_CORE)
+	if(IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+#endif
+
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/false);
 	return CanMajorBullyGold(ePlayer, iScore);
 }
@@ -12293,6 +12298,11 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
 		return false;
+
+#if defined(MOD_BALANCE_CORE)
+	if(IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+#endif
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -12338,6 +12348,11 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 	if(!GetPlayer()->isAlive())
 		return false;
 
+#if defined(MOD_BALANCE_CORE)
+	if(IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+#endif
+
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/true);
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
@@ -12352,6 +12367,11 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
 		return false;
+
+#if defined(MOD_BALANCE_CORE)
+	if(IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+#endif
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {

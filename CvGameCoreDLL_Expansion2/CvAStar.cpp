@@ -31,9 +31,9 @@
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)
-#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*40)
-#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*90)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided
+#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
+#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
 #define PATH_DO_NOT_USE_WEIGHT									(1000000000)
@@ -228,7 +228,8 @@ void CvAStar::SetFunctionPointers(CvAPointFunc IsPathDestFunc, CvAPointFunc Dest
 }
 
 //	--------------------------------------------------------------------------------
-/// Generates a path from iXstart,iYstart to iXdest,iYdest
+// Generates a path from iXstart,iYstart to iXdest,iYdest
+// this is not threadsafe!
 bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
 	if (data.ePathType != m_sData.ePathType)
@@ -2380,6 +2381,9 @@ bool CvPathFinder::Configure(PathType ePathType)
 /// configure the pathfinder and do the magic
 bool CvPathFinder::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
+	//make sure we don't call this from dll and lua at the same time
+	CvGuard guard(m_cs);
+
 	if (!Configure(data.ePathType))
 		return false;
 
@@ -2398,6 +2402,7 @@ bool CvPathFinder::DoesPathExist(const CvPlot* pStartPlot, const CvPlot* pEndPlo
 
 //	--------------------------------------------------------------------------------
 /// Get the plot X from the end of the step path
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 CvPlot* CvPathFinder::GetXPlotsFromEnd(int iPlotsFromEnd, bool bLeaveEnemyTerritory) const
 {
 	CvPlot* currentPlot = NULL;
@@ -2451,6 +2456,7 @@ CvPlot* CvPathFinder::GetXPlotsFromEnd(int iPlotsFromEnd, bool bLeaveEnemyTerrit
 
 //	--------------------------------------------------------------------------------
 /// Returns the last plot along the step path owned by a specific player
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 int CvPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
 {
 	int iCount = 0;
@@ -2475,6 +2481,7 @@ int CvPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
 }
 //	--------------------------------------------------------------------------------
 /// Returns the last plot along the step path owned by a specific player
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 int CvPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes eExceptPlayer) const
 {
 	int iCount = 0;
@@ -2499,6 +2506,7 @@ int CvPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes eExceptPlayer) const
 
 //	--------------------------------------------------------------------------------
 /// Retrieve first node of path
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 CvPlot* CvPathFinder::GetPathFirstPlot() const
 {
 	CvAStarNode* pNode = GetLastNode();
@@ -2528,6 +2536,7 @@ CvPlot* CvPathFinder::GetPathFirstPlot() const
 
 //	--------------------------------------------------------------------------------
 /// Return the furthest plot we can get to this turn that is on the path
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 CvPlot* CvPathFinder::GetPathEndTurnPlot() const
 {
 	CvAStarNode* pNode = GetLastNode();
@@ -2557,6 +2566,7 @@ CvPlot* CvPathFinder::GetPathEndTurnPlot() const
 
 //	--------------------------------------------------------------------------------
 /// Get the whole path
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 SPath CvPathFinder::GetPath() const
 {
 	SPath ret;
@@ -2585,6 +2595,7 @@ SPath CvPathFinder::GetPath() const
 
 //	--------------------------------------------------------------------------------
 /// check if a stored path is still viable
+/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
 bool CvPathFinder::VerifyPath(const SPath& path)
 {
 	if (path.vPlots.size()<2)

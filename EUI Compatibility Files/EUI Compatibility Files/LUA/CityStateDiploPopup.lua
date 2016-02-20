@@ -781,7 +781,7 @@ function OnMarriageButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorMarry(activePlayerID) then
 		OnCloseButtonClicked()
-		minorPlayer:DoMarriage(activePlayerID)
+		Game.DoMinorBuyout(activePlayerID, g_iMinorCivID);
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked )
@@ -1178,7 +1178,7 @@ function BullyAction( action )
 		pOtherPlayer = Players[iPlayerLoop]
 
 		-- Don't test protection status with active player!
-		if iPlayerLoop ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive() and pOtherPlayer:IsProtectingMinor(g_minorCivID) then
+		if iPlayerLoop ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive() and Teams[Game.GetActiveTeam()]:IsHasMet(pOtherPlayer:GetTeam()) and pOtherPlayer:IsProtectingMinor(g_minorCivID) then
 --todo remove unknowns
 			table.insert( listofProtectingCivs, Players[iPlayerLoop]:GetCivilizationShortDescription() )
 		end

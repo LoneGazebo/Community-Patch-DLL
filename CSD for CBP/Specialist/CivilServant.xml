@@ -31,23 +31,23 @@
 	<SpecialistFlavors>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
-			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>30</Flavor>
-		</Row>
-		<Row>
-			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>2</Flavor>
 		</Row>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>2</Flavor>
 		</Row>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>2</Flavor>
+		</Row>
+		<Row>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>4</Flavor>
 		</Row>
 	</SpecialistFlavors>
 	<Language_en_US>

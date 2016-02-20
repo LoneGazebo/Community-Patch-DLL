@@ -139,8 +139,8 @@ public:
 	int GetBuildingClassTourism(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerXTerrain(int i, int j) const;
-	int GetYieldPerXFeature(int i, int j) const;
+	int GetYieldPerXTerrainTimes100(int i, int j) const;
+	int GetYieldPerXFeatureTimes100(int i, int j) const;
 	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
 	int GetUnimprovedFeatureYieldChange(int i, int j) const;
 	int GetLakePlotYieldChange(int i) const;
@@ -535,8 +535,8 @@ public:
 	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass) const;
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYieldType) const;
-	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
+	int GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+	int GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetLakePlotYieldChange(YieldTypes eYieldType) const;

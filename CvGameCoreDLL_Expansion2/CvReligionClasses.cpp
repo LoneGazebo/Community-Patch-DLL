@@ -8043,7 +8043,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		{
 			int iValidTiles = 0;
 			TerrainTypes eTerrain = (TerrainTypes) iJ;
-			if(eTerrain != NO_TERRAIN && pEntry->GetYieldPerXTerrain(iJ, iI) > 0)
+			if(eTerrain != NO_TERRAIN && pEntry->GetYieldPerXTerrainTimes100(iJ, iI) > 0)
 			{
 				if(eTerrain == TERRAIN_MOUNTAIN)
 				{
@@ -8072,14 +8072,14 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 						}
 					}
 				}
-				iRtnValue += (iValidTiles * pEntry->GetYieldPerXTerrain(iJ, iI));
+				iRtnValue += ((iValidTiles * pEntry->GetYieldPerXTerrainTimes100(iJ, iI)) / 100);
 			}
 		}
 		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 		{
 			int iValidTiles = 0;
 			FeatureTypes eFeature = (FeatureTypes) iJ;
-			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeature(iJ, iI) > 0)
+			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeatureTimes100(iJ, iI) > 0)
 			{
 				const std::vector<int>& vWorkedPlots =  pCity->GetCityCitizens()->GetWorkedPlots();
 				for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
@@ -8098,7 +8098,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 					}
 				}
 
-				iRtnValue += iValidTiles;
+				iRtnValue += ((iValidTiles * pEntry->GetYieldPerXFeatureTimes100(iJ, iI)) / 100);
 			}
 		}
 #endif
@@ -8403,7 +8403,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 		if (pEntry->GetYieldPerGPT(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldPerGPT(iI) * iFlavorGold);
+			iRtnValue += ((m_pPlayer->GetTreasury()->CalculateGrossGold() / pEntry->GetYieldPerGPT(iI)) * 3);
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
 		{
@@ -8423,7 +8423,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 		if (pEntry->GetYieldPerScience(iI) > 0)
 		{
-			iRtnValue += ((pEntry->GetYieldPerScience(iI) * iFlavorScience) / 2);
+			iRtnValue += ((m_pPlayer->GetScience() / pEntry->GetYieldPerScience(iI)) * 3);
 		}
 		if (pEntry->GetMaxYieldPerFollower(iI) > 0)
 		{

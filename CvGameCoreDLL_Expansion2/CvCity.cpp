@@ -62,6 +62,34 @@ void SyncCities()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
+#if defined(MOD_BALANCE_CORE)
+		std::set<CvCity*>::const_iterator i;
+		for(i = citiesToCheck.begin(); i != citiesToCheck.end(); ++i)
+		{
+			const CvCity* city = *i;
+			if(city)
+			{
+				const CvPlayer& player = GET_PLAYER(city->getOwner());
+
+				if(gDLL->IsHost() && !player.isHuman() && player.isAlive())
+				{
+					const FAutoArchive& aiArchive =  city->getSyncArchive();
+					FMemoryStream memoryStream;
+					std::vector<std::pair<std::string, std::string> > callStacks;
+					aiArchive.saveDelta(memoryStream, callStacks);
+					gDLL->sendCitySyncCheck(city->getOwner(), city->GetID(), memoryStream, callStacks);
+				}
+				else if(player.isHuman() && city->getOwner() == GC.getGame().getActivePlayer())
+				{
+					const FAutoArchive& archive = city->getSyncArchive();
+					FMemoryStream memoryStream;
+					std::vector<std::pair<std::string, std::string> > callStacks;
+					archive.saveDelta(memoryStream, callStacks);
+					gDLL->sendCitySyncCheck(city->getOwner(), city->GetID(), memoryStream, callStacks);
+				}
+			}
+		}
+#else
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
 
 		std::set<CvCity*>::const_iterator i;
@@ -85,6 +113,7 @@ void SyncCities()
 				}
 			}
 		}
+#endif
 	}
 }
 
@@ -924,10 +953,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
-		eFeature = (FeatureTypes) iFeatureLoop;
-		if(eFeature != NO_FEATURE)
+		FeatureTypes eFeature2 = (FeatureTypes) iFeatureLoop;
+		if(eFeature2 != NO_FEATURE)
 		{
-			GET_PLAYER(getOwner()).countCityFeatures(eFeature, true);
+			GET_PLAYER(getOwner()).countCityFeatures(eFeature2, true);
 		}
 	}
 #endif
@@ -1171,7 +1200,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 			if (getOwner() == GC.getGame().getActivePlayer())
 			{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetTextKey(), iProduction, getNameKey());
+				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetDescriptionKey(), iProduction, getNameKey());
 					GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
 		}
@@ -1225,8 +1254,11 @@ void CvCity::uninit()
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiResourceYieldChange);
-
+#if defined(MOD_BALANCE_CORE)
+	if(m_ppaiFeatureYieldChange || m_ppaiYieldPerXFeature || m_ppaiYieldPerXUnimprovedFeature)
+#else
 	if(m_ppaiFeatureYieldChange)
+#endif
 	{
 		for(int i=0; i < GC.getNumFeatureInfos(); i++)
 		{
@@ -1253,8 +1285,11 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(m_ppaiTerrainYieldChange || m_ppaiYieldPerXTerrainFromBuildings || m_ppaiYieldPerXTerrainFromReligion || m_ppaiYieldPerXTerrain)
+#else
 	if(m_ppaiTerrainYieldChange)
+#endif
 	{
 		for(int i=0; i < GC.getNumTerrainInfos(); i++)
 		{
@@ -9371,7 +9406,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 #if defined(MOD_BALANCE_CORE)
-				ChangeYieldPerXTerrainFromBuildings(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) * iChange));
+				ChangeYieldPerXTerrainFromBuildingsTimes100(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) * iChange));
 #endif
 			}
 
@@ -11176,7 +11211,6 @@ bool CvCity::HasGarrison() const
 
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (m_hGarrisonOverride != -1)
 	{
 		CvUnit* pGarrison = GET_PLAYER(getOwner()).getUnit(m_hGarrisonOverride);
@@ -11185,7 +11219,6 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		else
 			OutputDebugString("warning: invalid garrison override!\n");
 	}
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 	if (m_hGarrison>-1)
 		return  GET_PLAYER(getOwner()).getUnit(m_hGarrison);
@@ -13091,7 +13124,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 	//Passed in a terrain? Let's only update that.
 	if(eTerrain != NO_TERRAIN)
 	{
-		iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
+		iBaseYieldBuildings = GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield);
 
 		if(iBaseYieldBuildings > 0)
 		{
@@ -13104,7 +13137,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 				iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 			}
 
-			iYield = (iValidTilesTerrain / iBaseYieldBuildings);
+			iYield = (iValidTilesTerrain * iBaseYieldBuildings) / 100;
 
 			//iDifference determines +/- of difference of old value
 			int iDifference = iYield - GetYieldPerXTerrain(eTerrain, eYield);
@@ -13132,7 +13165,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 				continue;
 			}
 		
-			iBaseYieldBuildings = GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
+			iBaseYieldBuildings = GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield);
 
 			if(iBaseYieldBuildings > 0)
 			{
@@ -13145,7 +13178,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 					iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 				}
 
-				iYield = (iValidTilesTerrain / iBaseYieldBuildings);
+				iYield = (iValidTilesTerrain * iBaseYieldBuildings) / 100;
 
 				//iDifference determines +/- of difference of old value
 				int iDifference = iYield - GetYieldPerXTerrain(eTerrain, eYield);
@@ -13182,7 +13215,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			if(eTerrain != NO_TERRAIN)
 			{
 				iYield = 0;
-				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield);
 				if(iBaseYieldReligion > 0)
 				{
 					if(eTerrain == TERRAIN_MOUNTAIN)
@@ -13198,7 +13231,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 						iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 					}
 
-					iYield += (iValidTilesTerrain / iBaseYieldReligion);
+					iYield += ((iValidTilesTerrain * iBaseYieldReligion) / 100);
 
 					SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
 				}
@@ -13217,7 +13250,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 					{
 						continue;
 					}
-					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield);
 					if(iBaseYieldReligion > 0)
 					{
 						if(eTerrain == TERRAIN_MOUNTAIN)
@@ -13233,7 +13266,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 							iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 						}
 
-						iYield += (iValidTilesTerrain / iBaseYieldReligion);
+						iYield += ((iValidTilesTerrain * iBaseYieldReligion) / 100);
 
 						SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
 					}
@@ -13390,7 +13423,7 @@ int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eY
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
-int CvCity::GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield) const
+int CvCity::GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -13400,7 +13433,7 @@ int CvCity::GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes e
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield, int iChange)
+void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -13586,14 +13619,14 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 			if(eFeature != NO_FEATURE)
 			{
 				iYield = 0;
-				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield);
 				if(iBaseYield > 0)
 				{
 					iValidTiles = GetNumFeatureWorked(eFeature);
 					if(iValidTiles > 0)
 					{
 						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-						iYield += (iValidTiles / iBaseYield);
+						iYield = (iValidTiles * iBaseYield) / 100;
 					}
 				}
 				SetYieldPerXFeature(eFeature, eYield, iYield);
@@ -13610,14 +13643,14 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 					iYield = 0;
 					if(pReligion)
 					{
-						iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+						iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield);
 						if(iBaseYield > 0)
 						{
 							iValidTiles = GetNumFeatureWorked(eFeature);
 							if(iValidTiles > 0)
 							{
 								//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-								iYield += (iValidTiles / iBaseYield);
+								iYield = (iValidTiles * iBaseYield) / 100;
 							}
 						}
 					}
@@ -24151,54 +24184,33 @@ CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlot) const
 {
 	if (pInPlot == NULL)
 		pInPlot = pDefender->plot();
-#else
-int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
-{
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+
 	int iDefenderStrength = 0;
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pInPlot->needsEmbarkation(pDefender))
-#else
-	if (pDefender->isEmbarked())
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	{
 		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 	}
-
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot())) > 0)
+	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
 	{
-#else
-	else if(!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false) > 0)
-	{
-		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false);
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-
-		// Ranged units take less damage from one another
-		iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
-		iDefenderStrength /= 100;
+		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot());
+		if (iDefenderStrength==0)
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
 	}
 	else
 	{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
-#else
-		iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), NULL, /*bFromRangedAttack*/ true);
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	}
 
 	return iDefenderStrength;
 }
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot) const
 {
 	VALIDATE_OBJECT
@@ -24214,14 +24226,8 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 			pInPlot = pCity->plot();
 		}
 	}
-#else
-int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand) const
-{
-	VALIDATE_OBJECT
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	int iAttackerStrength;
 
-	iAttackerStrength = getStrengthValue(true);
+	int iAttackerStrength = getStrengthValue(true);
 
 #if defined(MOD_BALANCE_CORE)
 	//Cities should deal less raw damage to boats - helps naval siege units greatly.
@@ -24234,49 +24240,22 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		}
 	}
 #endif
-	int iDefenderStrength;
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int iDefenderStrength = 1;
 	if (pCity != NULL)
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
 	else if (pDefender != NULL)
-#else
-	// No City
-	if(pCity == NULL)
-#endif
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		if (!pDefender->IsCanDefend(pInPlot))
-#else
-		if(!pDefender->IsCanDefend())
-#endif
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot);
-#else
-		iDefenderStrength = rangeCombatUnitDefense(pDefender);
-#endif
-
 	}
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	// NULL case
-	else
-	{
-		iDefenderStrength = 1;
-	}
-#else
-	// City
-	else
-	{
-		iDefenderStrength = pCity->getStrengthValue();
-	}
-#endif
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
 

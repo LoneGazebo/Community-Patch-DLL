@@ -8709,6 +8709,7 @@ int CvLuaPlayer::lGetCityByID(lua_State* L)
 	CvCity* pkCity = pkPlayer->getCity(id);
 
 	//sometimes Lua city IDs are actually sequential indices
+	//global IDs start at 1000
 	if (!pkCity && id<1000)
 	{
 		if (id>0)
@@ -8770,7 +8771,22 @@ int CvLuaPlayer::lGetUnitByID(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int id = lua_tointeger(L, 2);
 
-	CvLuaUnit::Push(L, pkPlayer->getUnit(id));
+	CvUnit* pUnit = pkPlayer->getUnit(id);
+
+	//sometimes Lua unit IDs are actually sequential indices
+	//global IDs start at 1000
+	if (!pUnit && id<1000)
+	{
+		if (id>0)
+		{
+			id--;
+			pUnit = pkPlayer->nextUnit(&id);
+		}
+		else
+			pUnit = pkPlayer->firstUnit(&id);
+	}
+
+	CvLuaUnit::Push(L, pUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -11424,7 +11440,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// Aggressive Posture
 		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
 		{
-			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
+			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 5;
 			if (iValue > 0)
 			{
 				Opinion kOpinion;

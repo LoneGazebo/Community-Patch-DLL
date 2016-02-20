@@ -619,13 +619,6 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	///////
 	// Bonuses
 	//////////
-	ReligionTypes eReligionFounded = m_pCity->GetCityReligions()->GetReligiousMajority();
-	const CvReligion* pReligion = NULL;
-	if(eReligionFounded != NO_RELIGION)
-	{
-		pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
-	}
-
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
@@ -635,62 +628,6 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 
 		int iYield = pPlot->getYield(eYield);
 
-		//Special code for getting to the next level of a yield value for a city.
-		TerrainTypes eTerrain = pPlot->getTerrainType();
-		FeatureTypes eFeature = pPlot->getFeatureType();
-		if(eTerrain != NO_TERRAIN)
-		{
-			int iYieldBump = m_pCity->GetYieldPerXTerrainFromBuildings(eTerrain, eYield);
-			if(iYieldBump > 0)
-			{
-				int iTheory = m_pCity->GetNumTerrainWorked(eTerrain) + 1;
-				//Would working this plot bump us up a notch?
-				if((iTheory % iYieldBump) == 0 )
-				{
-					//Raise our yield by 1!
-					iYield += 1;
-				}
-			}
-			if(pReligion)
-			{
-				iYieldBump = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
-				if(iYieldBump > 0)
-				{
-					int iTheory = 0;
-					if(pReligion->m_Beliefs.RequiresNoImprovementFeature())
-					{
-							iTheory = m_pCity->GetNumFeaturelessTerrainWorked(eTerrain) + 1;
-					}
-					else
-					{
-						iTheory = m_pCity->GetNumTerrainWorked(eTerrain) + 1;
-					}
-					//Would working this plot bump us up a notch?
-					if((iTheory % iYieldBump) == 0 )
-					{
-						//Raise our yield by 1!
-						iYield += 1;
-					}
-				}
-			}
-		}
-		if(eFeature != NO_FEATURE)
-		{
-			if(pReligion)
-			{
-				int iYieldBump = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield) + 1;
-				if(iYieldBump > 0)
-				{
-					int iTheory = m_pCity->GetNumFeatureWorked(eFeature) + 1;
-					//Would working this plot bump us up a notch?
-					if((iTheory % iYieldBump) == 0 )
-					{
-						//Raise our yield by 1!
-						iYield += 1;
-					}
-				}
-			}
-		}
 		if(iYield > 0)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
@@ -1287,9 +1224,41 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		return 0;
 	}
 
-	int iValue = 0;
-
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
+
+	int iFlavorGold = 0;
+	int iFlavorScience = 0;
+	int iFlavorCulture = 0;
+	int iFlavorProduction = 0;
+	int iFlavorFaith = 0;
+	int iFlavorHappiness = 0;
+	int iFlavorGrowth = 0;
+	int iFlavorDiplomacy = 0;
+
+	if(pPlayer->isHuman())
+	{
+		iFlavorGold = 5;
+		iFlavorScience = 5;
+		iFlavorCulture = 5;
+		iFlavorProduction = 5;
+		iFlavorFaith = 5;
+		iFlavorHappiness = 5;
+		iFlavorGrowth = 5;
+		iFlavorDiplomacy = 5;
+	}
+	else
+	{
+		iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		iFlavorFaith = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		iFlavorHappiness = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
+		iFlavorGrowth = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	}
+
+	int iValue = 0;
 
 	// factor in the fact that specialists may need less food
 	int iFoodConsumptionBonus = (pPlayer->isHalfSpecialistFood()) ? 1 : 0;
@@ -1434,6 +1403,53 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			iValue += iYield;
 		}
 	}
+	pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+	if(pSpecialistInfo)
+	{
+		for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+		{
+			int iSpecialistFlavor = pSpecialistInfo->getFlavorValue((FlavorTypes)i);
+			if(iSpecialistFlavor > 0)
+			{
+				if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GOLD")
+				{
+					iValue += (iSpecialistFlavor * iFlavorGold);
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_PRODUCTION")
+				{
+					iValue += iSpecialistFlavor * iFlavorProduction;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_RELIGION")
+				{
+					iValue += iSpecialistFlavor * iFlavorFaith;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_CULTURE")
+				{
+					iValue += iSpecialistFlavor * iFlavorCulture;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GROWTH")
+				{
+					iValue += iSpecialistFlavor * iFlavorGrowth;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_SCIENCE")
+				{
+					iValue += iSpecialistFlavor * iFlavorScience;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_HAPPINESS")
+				{
+					iValue += iSpecialistFlavor * iFlavorHappiness;
+				}
+				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_DIPLOMACY")
+				{
+					iValue += iSpecialistFlavor * iFlavorDiplomacy;
+				}
+				else
+				{
+					iValue += iSpecialistFlavor /= 5;
+				}
+			}
+		}
+	}
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
 	if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
@@ -1471,87 +1487,45 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	iValue -= (iHappinessYieldValue * 5);
 	iValue -= iPenalty;
 
-	pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if(pSpecialistInfo)
+	//Bonus for art-producing specialists
+	UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
+	if(eUnitClass != NO_UNITCLASS)
 	{
-		int iFlavorGold = 0;
-		int iFlavorScience = 0;
-		int iFlavorCulture = 0;
-		int iFlavorProduction = 0;
-		int iFlavorDiplomacy = 0;
-		if(GET_PLAYER(m_pCity->getOwner()).isHuman())
+		if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
-			iFlavorGold = 8;
-			iFlavorScience = 8;
-			iFlavorCulture = 8;
-			iFlavorProduction = 8;
-			iFlavorDiplomacy = 8;
+			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
+			if(iEmptySlots == 0)
+			{
+				iValue /= 2;
+			}
+			else
+			{
+				iValue += (iEmptySlots * 2);
+			}
 		}
-		else
+		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
-			iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-			iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-			iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+			if(iEmptySlots == 0)
+			{
+				iValue /= 2;
+			}
+			else
+			{
+				iValue += (iEmptySlots * 2);
+			}
 		}
-		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
-		if(eUnitClass != NO_UNITCLASS)
+		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
-			if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+			if(iEmptySlots == 0)
 			{
-				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
-				if(iEmptySlots == 0)
-				{
-					iValue /= 2;
-				}
-				else
-				{
-					iValue += (iFlavorCulture * (iEmptySlots + 1));
-				}
+				iValue /= 2;
 			}
-			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+			else
 			{
-				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
-				if(iEmptySlots == 0)
-				{
-					iValue /= 2;
-				}
-				else
-				{
-					iValue += (iFlavorCulture * (iEmptySlots + 1));
-				}
+				iValue += (iEmptySlots * 2);
 			}
-			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-			{
-				int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-				if(iEmptySlots == 0)
-				{
-					iValue /= 2;
-				}
-				else
-				{
-					iValue += (iFlavorCulture * (iEmptySlots + 1));
-				}
-			}
-			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-			{
-				iValue += (iFlavorProduction * 3);
-			}
-			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-			{
-				iValue += (iFlavorGold * 3);
-			}
-			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-			{
-				iValue += (iFlavorScience * 3);
-			}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-			else if(MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-			{
-				iValue += (iFlavorDiplomacy * 3);
-			}
-#endif
 		}
 	}
 	//Every 3 citizens should increase our desire for more specialists slightly.

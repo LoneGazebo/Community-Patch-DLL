@@ -381,6 +381,20 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvGoodyHuts::Reset();
 
 	doUpdateCacheOnTurn();
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		getGlobalAverage();
+	}
+	CorpCheck();
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		SetHighestPotential();
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -8687,7 +8701,7 @@ void CvGame::updateMoves()
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
 #endif
 							{
-								int iWaitTime = 1000;
+								int iWaitTime = 100;
 								if(!isNetworkMultiPlayer())
 								{
 									iWaitTime = 10;

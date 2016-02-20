@@ -100,16 +100,16 @@
 	</Table>
 
 	<!-- PANTHEON: Allows you to define yields gained by working (not just owning!) x type of terrain/feature. Can be modified by 'NoImprovement' and 'NoImprovementFeature elementss
-		Works by taking the 'yield' value below and dividing it against the number of plots being worked. So '1' Yield = +1 yield per worked tile of that type. 2 = +1 per 2, etc.
+		Works by taking the 'yield' value below and multiplying it against the number of plots being worked, then dividing by 100. So '25' Yield = +1 yield per every 4 worked tile of that type. (25 * 4) / 100 = 1;
 	-->
 	<!-- Note: for TERRAIN_MOUNTAIN, plot does not have to be worked to count towards the total)-->
-	<Table name="Belief_CityYieldPerXTerrain">
+	<Table name="Belief_CityYieldPerXTerrainTimes100">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-	<Table name="Belief_CityYieldPerXFeature">
+	<Table name="Belief_CityYieldPerXFeatureTimes100">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
@@ -194,7 +194,7 @@
 	</Table>
 
 	<!-- BUILDING: Allows you to define a building to grant +1 yield based on the # of tiles of terrain type in the city's working radius Yield value = divisor (so 3 = for every 3 tiles, get +1 of a yield) -->
-	<Table name="Building_YieldPerXTerrain">
+	<Table name="Building_YieldPerXTerrainTimes100">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
