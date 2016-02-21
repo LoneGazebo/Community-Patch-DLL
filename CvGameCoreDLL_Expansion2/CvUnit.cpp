@@ -4321,8 +4321,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		return false;
 
 	// Sea units - we can exclude non-water plots right away
+	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
-		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), false))
+		if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), false) && enterPlot.isAdjacentToShallowWater()))
 			return false;
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
@@ -4343,8 +4344,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(canMoveImpassable() || canMoveAllTerrain())
 			return true;
 
-		// if there's a route, anyone can use it
-		if(enterPlot.isValidRoute(this))
+		// if there's a route, anyone can use it (this includes city plots)
+		if(enterPlot.isRoute() && !enterPlot.IsRoutePillaged())
 			return true;
 
 		// Check high seas

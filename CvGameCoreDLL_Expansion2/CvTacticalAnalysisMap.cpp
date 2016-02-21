@@ -150,7 +150,7 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 	}
 	else
 	{
-		//need to take care of wrap-around ...
+		//need to take care of wrap-around ... should probably do all this in hex-space
 		int iHalfWidth = GC.getMap().getGridWidth()*1000/2;
 		int iHalfHeight = GC.getMap().getGridHeight()*1000/2;
 

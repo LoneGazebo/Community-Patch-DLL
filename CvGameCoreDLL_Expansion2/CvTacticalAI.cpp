@@ -2251,7 +2251,8 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					strTemp.Format(", withdrawing, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
 					strLogString += strTemp + strPlayerName;
 				}
-				return bAttackMade;
+				pTarget = GetNextZoneTarget();
+				continue;
 			}
 
 			// Do we have enough firepower to destroy it?
@@ -2306,30 +2307,24 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
 			if(!FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
 			{
-				CvTacticalDominanceZone* pZone;
-				pZone = m_pMap->GetZoneByCity(pCity, false);
-				if (pZone != NULL)
+				CvTacticalDominanceZone* pZone = m_pMap->GetZoneByCity(pCity, false);
+				if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 				{
-					if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strPlayerName, strCityName, strLogString, strTemp;
-							strPlayerName = m_pPlayer->getCivilizationShortDescription();
-							strCityName = pCity->getName();
-							strLogString.Format("Pulling back from City of ");
-							strLogString += strCityName;
-							strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-							strLogString += strTemp + strPlayerName;
-							LogTacticalMessage(strLogString);
-						}
-						return bAttackMade;
+						CvString strPlayerName, strCityName, strLogString, strTemp;
+						strPlayerName = m_pPlayer->getCivilizationShortDescription();
+						strCityName = pCity->getName();
+						strLogString.Format("Pulling back from City of ");
+						strLogString += strCityName;
+						strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+						strLogString += strTemp + strPlayerName;
+						LogTacticalMessage(strLogString);
 					}
 				}
-				else
-				{
-					return bAttackMade;
-				}
+
+				pTarget = GetNextZoneTarget();
+				continue;
 			}
 
 			iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
@@ -6806,13 +6801,10 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 		}
 		else
 		{
-			DomainTypes eDomain = DOMAIN_LAND;
-			if(pZone->IsWater())
-			{
-				eDomain = DOMAIN_SEA;
-			}
+			DomainTypes eDomain = pZone->IsWater() ? DOMAIN_SEA : DOMAIN_LAND;
 			bValid = it->IsTargetValidInThisDomain(eDomain);
 		}
+
 		if(bValid)
 		{
 			if(pZone == NULL || it->GetDominanceZone() == pZone->GetDominanceZoneID())
@@ -6823,8 +6815,7 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 			// Not obviously in this zone, but if within 2 of city we want them anyway
 			else
 			{
-				CvCity* pCity;
-				pCity = pZone->GetZoneCity();
+				CvCity* pCity = pZone->GetZoneCity();
 				if(pCity)
 				{
 					if(plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)

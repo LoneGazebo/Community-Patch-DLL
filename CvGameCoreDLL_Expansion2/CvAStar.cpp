@@ -168,6 +168,7 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 	m_iYstart = -1;
 	m_iXdest = -1;
 	m_iYdest = -1;
+	m_iDestHitCount = 0;
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
@@ -248,6 +249,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
+	m_iDestHitCount = 0;
 	m_pBest = NULL;
 	m_pStackHead = NULL;
 
@@ -328,16 +330,26 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		m_iRounds++;
 
 		m_pBest = GetBest();
-		if (m_pBest==NULL)
-			break;
 
-		CvAStarNode* pRet = CreateChildren(m_pBest);
-		if (pRet)
+		if (m_pBest==NULL)
+			//search exhausted
+			break;
+		else if ( IsPathDest(m_pBest->m_iX,m_pBest->m_iY) )
 		{
-			m_pBest = pRet;
+			//we did it!
 			bSuccess = true;
 			break;
 		}
+		else if (m_iDestHitCount>3)
+		{
+			//touched the target several times, but no success yet?
+			//that's fishy. take what we have and don't waste any more time
+			m_pBest = &(m_ppaaNodes[iXdest][iYdest]);
+			bSuccess = true;
+			break;
+		}
+
+		CreateChildren(m_pBest);
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
@@ -451,14 +463,9 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Creates children for the node
-CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
+void CvAStar::CreateChildren(CvAStarNode* node)
 {
 	CvAStarNode* finalNode = NULL;
-
-	//catch the odd case where start and destination are equal
-	if (IsPathDest(node->m_iX, node->m_iY))
-		return node;
-
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
@@ -466,7 +473,7 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 		newNodes.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
-	for(int i = 0; i < 6 && finalNode==NULL; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
 		if (!check)
@@ -492,16 +499,13 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 				result = LinkChild(node, check);
 			
 				if (result==NS_VALID)
-				{
 					m_iProcessedNodes++;
-
-					//we have found our destination! there is a small chance that we could find a better way 
-					//if we continue searching, but in the interest of speed, let's not do it
-					if (IsPathDest(check->m_iX, check->m_iY))
-						finalNode = check;
-				}
 			}
 		}
+
+		//keep track of how often we've come close to the destination
+		if (IsPathDest(check->m_iX, check->m_iY))
+			m_iDestHitCount++;
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)
@@ -512,7 +516,7 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 	if(udNumExtraChildrenFunc && udGetExtraChildFunc)
 	{
 		int iExtraChildren = udNumExtraChildrenFunc(node, this);
-		for(int i = 0; i < iExtraChildren && finalNode==NULL; i++)
+		for(int i = 0; i < iExtraChildren; i++)
 		{
 			int x, y;
 			udGetExtraChildFunc(node, i, x, y, this);
@@ -530,13 +534,11 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 					result = LinkChild(node, check);
 			
 					if (result==NS_VALID)
-					{
 						m_iProcessedNodes++;
-
-						if (IsPathDest(check->m_iX, check->m_iY))
-							finalNode = check;
-					}
 				}
+
+				if (IsPathDest(check->m_iX, check->m_iY))
+					m_iDestHitCount++;
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 				if (MOD_BALANCE_CORE_DEBUGGING)
@@ -551,8 +553,6 @@ CvAStarNode* CvAStar::CreateChildren(CvAStarNode* node)
 	if (MOD_BALANCE_CORE_DEBUGGING && newNodes.size()>1)
 		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
 #endif
-
-	return finalNode;
 }
 
 //	--------------------------------------------------------------------------------

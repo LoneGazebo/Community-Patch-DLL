@@ -598,8 +598,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void Extend(CvPlot* pPlot);
-	int GetCenterX() const { return m_iAvgX; }
-	int GetCenterY() const { return m_iAvgY; }
+	int GetCenterX() const { return (m_iAvgX+500)/1000; }
+	int GetCenterY() const { return (m_iAvgY+500)/1000; }
 	int GetNumPlots() const { return m_iPlotCount; }
 	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
 	void AddNeighboringZone(int iZoneID);

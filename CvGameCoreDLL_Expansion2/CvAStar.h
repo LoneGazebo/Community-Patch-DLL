@@ -258,7 +258,7 @@ protected:
 
 	CvAStarNode*	GetBest();
 
-	CvAStarNode* CreateChildren(CvAStarNode* node);
+	void CreateChildren(CvAStarNode* node);
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
 	void UpdateOpenNode(CvAStarNode* node);
 	void UpdateParents(CvAStarNode* node);
@@ -299,6 +299,7 @@ protected:
 	int m_iYstart;
 	int m_iXdest;
 	int m_iYdest;
+	int m_iDestHitCount;
 
 	bool m_bWrapX;
 	bool m_bWrapY;
