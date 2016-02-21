@@ -783,7 +783,7 @@ int CvBeliefEntry::GetFeatureYieldChange(int i, int j) const
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvBeliefEntry::GetYieldPerXTerrain(int i, int j) const
+int CvBeliefEntry::GetYieldPerXTerrainTimes100(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
@@ -791,7 +791,7 @@ int CvBeliefEntry::GetYieldPerXTerrain(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiYieldPerXTerrain ? m_ppiYieldPerXTerrain[i][j] : 0;
 }
-int CvBeliefEntry::GetYieldPerXFeature(int i, int j) const
+int CvBeliefEntry::GetYieldPerXFeatureTimes100(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
@@ -1210,11 +1210,11 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	if (MOD_API_UNIFIED_YIELDS) {
 		kUtility.Initialize2DArray(m_ppiYieldPerXTerrain, "Terrains", "Yields");
 
-		std::string strKey("Belief_CityYieldPerXTerrain");
+		std::string strKey("Belief_CityYieldPerXTerrainTimes100");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if(pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXTerrain inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXTerrainTimes100 inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
 		}
 
 		pResults->Bind(1, szBeliefType);
@@ -1232,11 +1232,11 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	if (MOD_API_UNIFIED_YIELDS) {
 		kUtility.Initialize2DArray(m_ppiYieldPerXFeature, "Features", "Yields");
 
-		std::string strKey("Belief_CityYieldPerXFeature");
+		std::string strKey("Belief_CityYieldPerXFeatureTimes100");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if(pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXFeature inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXFeatureTimes100 inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
 		}
 
 		pResults->Bind(1, szBeliefType);
@@ -2205,14 +2205,14 @@ int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes e
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvReligionBeliefs::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYieldType) const
+int CvReligionBeliefs::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 #if defined(MOD_BALANCE_CORE)
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXTerrain(eTerrain, eYieldType);
+		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXTerrainTimes100(eTerrain, eYieldType);
 #else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
@@ -2225,14 +2225,14 @@ int CvReligionBeliefs::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYi
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYieldType) const
+int CvReligionBeliefs::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 #if defined(MOD_BALANCE_CORE)
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFeature(eFeature, eYieldType);
+		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFeatureTimes100(eFeature, eYieldType);
 #else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{

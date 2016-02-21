@@ -144,7 +144,7 @@
 		<Row>
 			<BeliefType>BELIEF_GOD_CRAFTSMEN</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldPerGPT>
 	<Belief_YieldPerLux>
@@ -300,56 +300,56 @@
 		</Row>
 	</Belief_YieldPerXFollowers>
 	<!-- Yields from X Terrain/Feature-->
-	<Belief_CityYieldPerXTerrain>
+	<Belief_CityYieldPerXTerrainTimes100>
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_GRASS</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
 			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ONE_WITH_NATURE</BeliefType>
 			<TerrainType>TERRAIN_MOUNTAIN</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
-	</Belief_CityYieldPerXTerrain>
-	<Belief_CityYieldPerXFeature>
+	</Belief_CityYieldPerXTerrainTimes100>
+	<Belief_CityYieldPerXFeatureTimes100>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>50</Yield>
 		</Row>
-	</Belief_CityYieldPerXFeature>
+	</Belief_CityYieldPerXFeatureTimes100>
 </GameData>

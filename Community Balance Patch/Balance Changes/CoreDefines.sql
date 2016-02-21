@@ -162,7 +162,7 @@
 
 	-- Unit Costs
 	UPDATE Defines
-	SET Value = '10'
+	SET Value = '9'
 	WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
 
 	UPDATE Defines

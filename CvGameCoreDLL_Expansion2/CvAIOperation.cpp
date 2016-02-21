@@ -7231,13 +7231,13 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 											else if (ePlotOwner != NO_PLAYER) // this will trigger a war
 											{
 #if defined(MOD_BALANCE_CORE)
-												if(GET_PLAYER(ePlotOwner).isMajorCiv() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivOpinion(ePlotOwner) == MAJOR_CIV_OPINION_UNFORGIVABLE)
+												if(GET_PLAYER(ePlotOwner).isMajorCiv() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(ePlotOwner, false) == MAJOR_CIV_APPROACH_WAR)
 												{
-													iThisCityValue -= 10;
+													iThisCityValue += 100;
 												}
-												else if(GET_PLAYER(ePlotOwner).isMajorCiv() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivOpinion(ePlotOwner) == MAJOR_CIV_OPINION_ENEMY)
+												else if(GET_PLAYER(ePlotOwner).isMajorCiv() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(ePlotOwner, false) == MAJOR_CIV_APPROACH_HOSTILE)
 												{
-													iThisCityValue -= 100;
+													iThisCityValue += 10;
 												}
 												else
 												{

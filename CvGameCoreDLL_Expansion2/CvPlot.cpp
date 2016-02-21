@@ -7154,6 +7154,31 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 	if(eOldImprovement != eNewValue)
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pWorkingCity = getWorkingCity();
+		if(pWorkingCity != NULL)
+		{
+			//City already working this plot? Adjust improvements being worked as needed.
+			if(pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
+			{
+				//New improvement over old? Remove old, add new.
+				if(eOldImprovement != NO_IMPROVEMENT)
+				{
+					pWorkingCity->ChangeNumImprovementWorked(eOldImprovement, -1);
+					//We added new improvement (wasn't deleted) - add here.
+					if(eNewValue != NO_IMPROVEMENT)
+					{
+						pWorkingCity->ChangeNumImprovementWorked(eNewValue, 1);
+					}
+				}
+				//New improvement over nothing? Add it in.
+				else if(eNewValue != NO_IMPROVEMENT)
+				{
+					pWorkingCity->ChangeNumImprovementWorked(eNewValue, 1);
+				}
+			}
+		}
+#endif
 		PlayerTypes owningPlayerID = getOwner();
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
@@ -7963,6 +7988,12 @@ bool CvPlot::HasSpecialImprovement() const
 #if defined(MOD_BALANCE_CORE)
 		//Works like GP improvement.
 		if (pImprovementInfo && pImprovementInfo->IsAdjacentCity())
+		{
+			return true;
+		}
+		//Don't delete landmarks!
+		ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+		if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
 		{
 			return true;
 		}

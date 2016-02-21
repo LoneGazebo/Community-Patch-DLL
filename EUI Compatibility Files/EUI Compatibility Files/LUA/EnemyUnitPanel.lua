@@ -464,11 +464,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-			end
-
-			-- CBP 
-			-- Half Sapper unit modifier
-			if (pMyUnit:IsHalfNearSapper(pCity)) then
+			elseif(pMyUnit:IsHalfNearSapper(pCity)) then
 				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
 				iModifier = (iModifier / 2);
 				controlTable = g_MyCombatDataIM:GetInstance();
@@ -488,6 +484,16 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+
+			-- COMMUNITY (Bushido)
+			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
+			   iModifier = (pMyUnit:GetDamage() / 10);
+			    if (iModifier ~= 0) then
+				   controlTable = g_MyCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
+				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
 			end
 			-- END
 						
@@ -2177,11 +2183,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-		end
-
-		-- CBP 
-		-- Half Sapper unit modifier
-		if (theirUnit:IsHalfNearSapper(myCity)) then
+		elseif(theirUnit:IsHalfNearSapper(myCity)) then
 			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
 			iModifier = (iModifier / 2);
 			controlTable = g_TheirCombatDataIM:GetInstance();

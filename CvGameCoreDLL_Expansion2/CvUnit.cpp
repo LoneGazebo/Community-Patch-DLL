@@ -81,6 +81,25 @@ void SyncUnits()
 
 			if(unit)
 			{
+#if defined(MOD_BALANCE_CORE)
+				const CvPlayer& player = GET_PLAYER(unit->getOwner());
+				if(gDLL->IsHost() && !player.isHuman() && player.isAlive())
+				{
+					const FAutoArchive& aiArchive = unit->getSyncArchive();
+					FMemoryStream memoryStream;
+					std::vector<std::pair<std::string, std::string> > callStacks;
+					aiArchive.saveDelta(memoryStream, callStacks);
+					gDLL->sendUnitSyncCheck(unit->getOwner(), unit->GetID(), memoryStream, callStacks);
+				}
+				else if(player.isHuman() && unit->getOwner() == authoritativePlayer)
+				{
+					const FAutoArchive& archive = unit->getSyncArchive();
+					FMemoryStream memoryStream;
+					std::vector<std::pair<std::string, std::string> > callStacks;
+					archive.saveDelta(memoryStream, callStacks);
+					gDLL->sendUnitSyncCheck(unit->getOwner(), unit->GetID(), memoryStream, callStacks);
+				}
+#else
 				const CvPlayer& player = GET_PLAYER(unit->getOwner());
 				if(unit->getOwner() == authoritativePlayer || (gDLL->IsHost() && !player.isHuman() && player.isAlive()))
 				{
@@ -93,6 +112,7 @@ void SyncUnits()
 						gDLL->sendUnitSyncCheck(unit->getOwner(), unit->GetID(), memoryStream, callStacks);
 					}
 				}
+#endif
 			}
 		}
 	}
@@ -11439,10 +11459,10 @@ bool CvUnit::trade()
 	{
 		if (eMinor != NO_PLAYER && (m_pUnitInfo->GetNumInfPerEra() > 0))
 		{
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isObserver() && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -12442,12 +12462,18 @@ bool CvUnit::blastTourism()
 
 			kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismDifference);
 
+			int iHappiness = 2;
+			if(kUnitOwner.getCapitalCity() != NULL)
+			{
+				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iHappiness);
+			}
+
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 			if (pNotifications) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR");
 				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
-				localizedText << iTourismDifference;
+				localizedText << iHappiness;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S");
 				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -12457,7 +12483,6 @@ bool CvUnit::blastTourism()
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET");
 				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
-				localizedText << iTourismDifference;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S");
 				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
@@ -22030,14 +22055,9 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 			if(pLoopPlot != NULL)
 			{
 				// Units in our plot do not count
-#if defined(MOD_BALANCE_CORE)
-				if(IsCombatUnit())
-				{
-#endif
+#if !defined(MOD_BALANCE_CORE)
 				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
 					continue;
-#if defined(MOD_BALANCE_CORE)
-				}
 #endif
 
 				// If there are Units here, loop through them
@@ -22099,17 +22119,6 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 
 			if(pLoopPlot != NULL)
 			{
-				// Units in our plot do not count
-#if defined(MOD_BALANCE_CORE)
-				if(IsCombatUnit())
-				{
-#endif
-				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
-					continue;
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
-
 				// If there are Units here, loop through them
 				if(pLoopPlot->getNumUnits() > 0)
 				{

@@ -153,21 +153,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	EconomicAIStrategyTypes eGrowCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
 	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
 
-	//Help Venice use processes more rationally.
-	if(kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
-	{
-		CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)eProcess);
-		for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-		{
-			YieldTypes eYield = (YieldTypes)iYield;
-			if(pProcess->getProductionToYieldModifier(eYield) > 0)
-			{
-				iModifier += m_pCity->GetCityStrategyAI()->GetProcessProductionAI()->GetWeight(eProcess);
-				iModifier /= 100;
-			}
-		}
-	}
-
 	//Yield value.
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{

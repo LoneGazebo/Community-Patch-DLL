@@ -42,11 +42,7 @@ public:
 #else
 	int GetDealPercentLeewayWithAI() const;
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
-	int GetDealPercentLeewayWithHuman(PlayerTypes eOtherPlayer) const;
-#else
 	int GetDealPercentLeewayWithHuman() const;
-#endif
 
 	// Offer deal to this AI player and see what his response is
 

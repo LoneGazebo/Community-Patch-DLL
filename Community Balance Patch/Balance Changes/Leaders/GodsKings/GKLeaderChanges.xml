@@ -91,12 +91,12 @@
 		<Row>
 			<BeliefType>BELIEF_NUADA</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>6</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Belief_YieldPerGPT>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 6 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 12 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 15 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 12 [ICON_RESEARCH] Science per turn</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>

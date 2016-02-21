@@ -1607,7 +1607,8 @@ public:
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-
+	int GetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach) const;
+	void SetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach, int iValue);
 
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
@@ -3005,6 +3006,7 @@ protected:
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiUnimprovedFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
+	std::vector< Firaxis::Array<int, NUM_MAJOR_CIV_APPROACHES > > m_ppiApproachScratchValue;
 	std::vector<int> m_piYieldFromKills;
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;

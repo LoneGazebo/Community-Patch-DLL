@@ -468,4 +468,27 @@
 			<Text>No valid targets for diplomacy at this time.</Text>
 		</Row>
 	</Language_en_US>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_CIVIL_SERVANT</Type>
+			<Topic>TXT_KEY_TOPIC_SPECIALISTSANDGP</Topic>
+			<Description>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE</Description>
+			<Summary>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST</AdvisorQuestion>
+			<Advisor>SCIENCE</Advisor>
+			<CivilopediaHeaderType>HEADER_PEOPLE</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<!-- Civil Servant Text -->
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE">
+			<Text>Civil Servant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY">
+			<Text>Civil Servants generate a variety of yields as well as points towards Great Diplomats. These units are essential if you are trying to win a Diplomatic Victory, or would like to earn a few more City-State alliances.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST">
+			<Text>What do Civil Servants do?</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

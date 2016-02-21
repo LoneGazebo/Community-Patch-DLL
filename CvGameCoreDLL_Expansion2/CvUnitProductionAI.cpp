@@ -319,6 +319,35 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		else // this should never happen, but...
 			return 0;
 	}
+	//Are we alone?
+	if(pkUnitEntry->GetCombat() > 0)
+	{
+		bool bAlone = true;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+			{
+				if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(kPlayer.GetID()) >= PLAYER_PROXIMITY_CLOSE)
+				{
+					bAlone = false;
+				}
+			}
+		}
+		if(bAlone)
+		{
+			if(eDomain == DOMAIN_LAND)
+			{
+				iBonus -= 50;
+			}
+			else
+			{
+				iBonus += 25;
+			}
+		}
+	}
+				
 	//Building land units on a tiny island? Only if we lack a garrison.
 	if(pkUnitEntry->GetCombat() > 0)
 	{
@@ -788,21 +817,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 				{
-					iBonus += 75;
+					iBonus += 100;
 				}
 			}
 			else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
 				{
-					iBonus += 150;
+					iBonus += 200;
 				}
 			}
 			if(eFeederCity != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
 				{
-					iBonus += 75;
+					iBonus += 100;
 				}
 			}
 			
@@ -878,6 +907,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
 	{
+		if(kPlayer.getNumMilitaryUnits() <= 3)
+		{
+			iBonus -= 300;
+		}
 		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
 		if(eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))
 		{
@@ -897,9 +930,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//////////////////
 	//WAR BOOSTERS
 	////////////////////////
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
+		if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+		{
+			if(kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE)
+			{
+				iBonus += 100;
+			}
+		}
+	}
 	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
+		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity)
+		{
+			iBonus += 100;
+		}
 		if(pkUnitEntry->GetCombat() > 0)
 		{
 			iBonus += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 50);

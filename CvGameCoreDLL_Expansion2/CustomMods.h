@@ -302,8 +302,6 @@
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
 // Human players will auto-denounce AI players before going to war with them (v39)
 #define MOD_DIPLOMACY_AUTO_DENOUNCE                 gCustomMods.isDIPLOMACY_AUTO_DENOUNCE()
-// Don't display leader heads (behaves more like multi-player diplomacy) (v67)
-#define MOD_DIPLOMACY_NO_LEADERHEADS                gCustomMods.isDIPLOMACY_NO_LEADERHEADS()
 // Changes for the City State Diplomacy mod by Gazebo - AFFECTS SAVE GAME DATA FORMAT (v35)
 #define MOD_DIPLOMACY_CITYSTATES                    gCustomMods.isDIPLOMACY_CITYSTATES()
 #if defined(MOD_DIPLOMACY_CITYSTATES)

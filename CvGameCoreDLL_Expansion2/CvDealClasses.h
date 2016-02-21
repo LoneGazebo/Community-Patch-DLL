@@ -307,6 +307,9 @@ public:
 
 protected:
 	void LogDealComplete(CvDeal* pDeal);
+#if defined(MOD_BALANCE_CORE)
+	void LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade, bool bNotValid, bool bOther);
+#endif
 
 	CvDeal m_TempDeal;
 

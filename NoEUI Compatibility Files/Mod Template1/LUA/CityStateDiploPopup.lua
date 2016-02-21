@@ -659,12 +659,14 @@ function getProtectingPlayers(iMinorCivID)
 
 		if (iPlayerLoop ~= Game.GetActivePlayer()) then
 			if (pOtherPlayer:IsAlive()) then
-				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
-					if (sProtecting ~= "") then
-						sProtecting = sProtecting .. ", "
-					end
+				if(Teams[Game.GetActiveTeam()]:IsHasMet(pOtherPlayer:GetTeam())) then
+					if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
+						if (sProtecting ~= "") then
+							sProtecting = sProtecting .. ", "
+						end
 
-					sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+						sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+					end
 				end
 			end
 		end
@@ -773,7 +775,7 @@ function OnMarriageButtonClicked()
 
 	if (pMinor:CanMajorMarry(iActivePlayer)) then
 		UIManager:DequeuePopup( ContextPtr );
-		pMinor:DoMarriage(iActivePlayer);
+		Game.DoMinorBuyout(iActivePlayer, g_iMinorCivID);
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked );
@@ -1149,8 +1151,10 @@ function OnBullyButtonClicked ()
 		-- Don't test protection status with active player!
 		if (iPlayerLoop ~= Game.GetActivePlayer()) then
 			if (pOtherPlayer:IsAlive()) then
-				if (pOtherPlayer:IsProtectingMinor(g_iMinorCivID)) then
-					table.insert(listofProtectingCivs, Players[iPlayerLoop]:GetCivilizationShortDescriptionKey()); 
+				if(Teams[Game.GetActiveTeam()]:IsHasMet(pOtherPlayer:GetTeam())) then
+					if (pOtherPlayer:IsProtectingMinor(g_iMinorCivID)) then
+						table.insert(listofProtectingCivs, Players[iPlayerLoop]:GetCivilizationShortDescriptionKey()); 
+					end
 				end
 			end
 		end

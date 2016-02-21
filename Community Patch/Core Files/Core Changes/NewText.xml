@@ -3688,7 +3688,7 @@
 		
 		<!-- Text for 3rd Party Brokering -->
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME">
-			<Text>Your diplomats have learned that {1_CivName:textkey} bribed {2_CivName:textkey} to go to war with you!</Text>
+			<Text>Your intelligence service reports that {1_CivName:textkey} bribed {2_CivName:textkey} to go to war with you!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S">
 			<Text>{1_CivName:textkey} brokered war against you!</Text>

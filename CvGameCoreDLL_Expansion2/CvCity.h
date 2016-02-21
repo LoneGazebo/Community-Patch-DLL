@@ -177,8 +177,8 @@ public:
 	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 
-	int GetYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield) const;
-	void ChangeYieldPerXTerrainFromBuildings(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
+	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
 	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);

@@ -488,11 +488,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 	loadFrom >> writeTo.iOneTimeGold;
 	loadFrom >> writeTo.iOneTimeGoldPercent;
 	loadFrom >> writeTo.bRaiseCityStateInfluenceToNeutral;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bOpenDoor, false);
-	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bSphereOfInfluence, false);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.bDecolonization, false);
-#endif
 	if (uiVersion >= 3)
 	{
 		loadFrom >> writeTo.eLeagueProjectEnabled;
@@ -526,10 +521,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 	{
 		writeTo.bNoTrainingNuclearWeapons = false;
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipProduction, 0);
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipPurchase, 0);
-#endif
 	if (uiVersion >= 6)
 	{
 		loadFrom >> writeTo.iVotesForFollowingReligion;
@@ -568,14 +559,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 		writeTo.iArtsyGreatPersonRateMod = 0;
 		writeTo.iScienceyGreatPersonRateMod = 0;
 	}
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iIsWorldWar, 0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, loadFrom, writeTo.iChangeTourism, 0);
-#endif
-
 	if (uiVersion >= 8)
 	{
 		loadFrom >> writeTo.iGreatPersonTileImprovementCulture;
@@ -586,6 +569,17 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 		writeTo.iGreatPersonTileImprovementCulture = 0;
 		writeTo.iLandmarkCulture = 0;
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bOpenDoor, false);
+	MOD_SERIALIZE_READ(35, loadFrom, writeTo.bSphereOfInfluence, false);
+	MOD_SERIALIZE_READ(49, loadFrom, writeTo.bDecolonization, false);
+	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipProduction, 0);
+	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipPurchase, 0);
+	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iIsWorldWar, 0);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, loadFrom, writeTo.iChangeTourism, 0);
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_READ(36, loadFrom, writeTo.iVassalMaintenanceGoldPercent, 0);
 	MOD_SERIALIZE_READ(36, loadFrom, writeTo.bEndAllCurrentVassals, 0);
@@ -606,11 +600,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iOneTimeGold;
 	saveTo << readFrom.iOneTimeGoldPercent;
 	saveTo << readFrom.bRaiseCityStateInfluenceToNeutral;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bOpenDoor);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bSphereOfInfluence);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.bDecolonization);
-#endif
 	saveTo << readFrom.eLeagueProjectEnabled;
 	saveTo << readFrom.iGoldPerTurn;
 	saveTo << readFrom.iResourceQuantity;
@@ -622,10 +611,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iCulturePerWonder;
 	saveTo << readFrom.iCulturePerNaturalWonder;
 	saveTo << readFrom.bNoTrainingNuclearWeapons;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipProduction);
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipPurchase);
-#endif
 	saveTo << readFrom.iVotesForFollowingReligion;
 	saveTo << readFrom.iHolyCityTourism;
 	saveTo << readFrom.iReligionSpreadStrengthMod;
@@ -633,14 +618,19 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iOtherIdeologyRebellionMod;
 	saveTo << readFrom.iArtsyGreatPersonRateMod;
 	saveTo << readFrom.iScienceyGreatPersonRateMod;
+	saveTo << readFrom.iGreatPersonTileImprovementCulture;
+	saveTo << readFrom.iLandmarkCulture;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.bOpenDoor);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.bSphereOfInfluence);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.bDecolonization);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipProduction);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipPurchase);
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iIsWorldWar);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iChangeTourism);
 #endif
-	saveTo << readFrom.iGreatPersonTileImprovementCulture;
-	saveTo << readFrom.iLandmarkCulture;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iVassalMaintenanceGoldPercent);
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.bEndAllCurrentVassals);
@@ -11146,12 +11136,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bSeekingDiploVictory)
 			{
-				iScore += 1000;
+				iScore += 5000;
 			}
 
 			if (bSeekingDiploVictory && bStrongProduction)
 			{
-				iScore += 2000;
+				iScore += 10000;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -11162,7 +11152,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if((iFlavorDiplo - 6) > 0)
 			{
-				iScore += 20 * (iVotes);
+				iScore += 40 * (iVotes);
 			}
 			if(iNeededVotes > 0)
 			{
@@ -11177,11 +11167,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 				if(iVoteRatio >= 50)
 				{
-					iScore += 250;
+					iScore += 500;
 				}
 				if(iVoteRatio >= 75)
 				{
-					iScore += 500;
+					iScore += 1000;
 				}
 			}
 			else
