@@ -19254,7 +19254,7 @@ if (!bDoEvade)
 		if(GC.IsGraphicsInitialized())
 		{
 			//override bShow if check plot visible
-			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || pOldPlot->isVisibleToWatchingHuman()))
+			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || (pOldPlot && pOldPlot->isVisibleToWatchingHuman())))
 				bShow = true;
 
 			if(CvPreGame::quickMovement())
