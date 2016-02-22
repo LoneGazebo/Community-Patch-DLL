@@ -15741,6 +15741,12 @@ int CvPlayer::GetHappinessFromPolicies() const
 	int iHappiness = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS);
 	iHappiness += (getNumCities() * m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY));
 
+#ifdef HH_MOD_NATURAL_WONDER_MODULARITY
+	/*
+	see CvPlayer::GetHappinessFromNaturalWonders()
+	*/
+#endif
+
 	int iHappinessPerXPopulation;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
@@ -16076,6 +16082,11 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 	int iNumWonders = GET_TEAM(getTeam()).GetNumNaturalWondersDiscovered();
 
 	int iHappiness = iNumWonders* /*1*/ GC.getHAPPINESS_PER_NATURAL_WONDER();
+	
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	int iBonusHappiness = iNumWonders* (m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS));
+	iHappiness += iBonusHappiness;
+#endif
 
 	// Trait boosts this further?
 	if(m_pTraits->GetNaturalWonderHappinessModifier() > 0)
@@ -16083,6 +16094,7 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness *= (100 + m_pTraits->GetNaturalWonderHappinessModifier());
 		iHappiness /= 100;
 	}
+
 
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
