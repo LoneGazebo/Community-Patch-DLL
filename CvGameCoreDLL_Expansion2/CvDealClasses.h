@@ -265,6 +265,9 @@ public:
 	void Init();
 
 	void AddProposedDeal(CvDeal kDeal);
+#if defined(MOD_BALANCE_CORE)
+	void EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+#endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void DoTurn();
 

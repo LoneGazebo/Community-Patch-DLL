@@ -115,6 +115,10 @@ public:
 	void SetBrokenBorderPromise(bool bValue);
 	bool IsBrokenCityStatePromise() const;
 	void SetBrokenCityStatePromise(bool bValue);
+#if defined(MOD_BALANCE_CORE)
+	bool IsCivilianKiller() const;
+	void SetCivilianKiller(bool bValue);
+#endif
 
 	PlayerTypes getLeaderID() const;
 	PlayerTypes getSecretaryID() const;
@@ -562,6 +566,9 @@ protected:
 	bool m_bBrokenExpansionPromise;
 	bool m_bBrokenBorderPromise;
 	bool m_bBrokenCityStatePromise;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bCivilianKiller;
+#endif
 
 	EraTypes m_eCurrentEra;
 

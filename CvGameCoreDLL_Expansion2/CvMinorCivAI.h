@@ -79,6 +79,13 @@ enum MinorCivQuestTypes
 	MINOR_CIV_QUEST_HORDE,
 	MINOR_CIV_QUEST_REBELLION,
 #endif
+#if defined(MOD_BALANCE_CORE)
+	MINOR_CIV_QUEST_DISCOVER_PLOT,
+	MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
+	MINOR_CIV_QUEST_UNIT_STEAL_FROM,
+	MINOR_CIV_QUEST_UNIT_COUP_CITY,
+	MINOR_CIV_QUEST_UNIT_GET_CITY,
+#endif
 
     NUM_MINOR_CIV_QUEST_TYPES,
 };
@@ -123,6 +130,43 @@ public:
 	int GetPrimaryData() const;
 	int GetSecondaryData() const;
 	int GetInfluenceReward() const;
+#if defined(MOD_BALANCE_CORE)
+	void DoRewards(PlayerTypes ePlayer);
+	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
+	void CalculateRewards(PlayerTypes ePlayer);
+
+	void SetInfluence(int iValue);
+	void SetGPGlobal(int iValue);
+	void SetGP(int iValue);
+	void SetCulture(int iValue);
+	void SetExperience(int iValue);
+	void SetFaith(int iValue);
+	void SetScience(int iValue);
+	void SetFood(int iValue);
+	void SetProduction(int iValue);
+	void SetGold(int iValue);
+	void SetGoldenAgePoints(int iValue);
+	void SetHappiness(int iValue);
+	void SetTourism(int iValue);
+	void SetGeneralPoints(int iValue);
+	void SetAdmiralPoints(int iValue);
+
+	int GetInfluence() const;
+	int GetGPGlobal() const;
+	int GetGP() const;
+	int GetCulture() const;
+	int GetExperience() const;
+	int GetFaith() const;
+	int GetGold() const;
+	int GetScience() const;
+	int GetFood() const;
+	int GetProduction() const;
+	int GetGoldenAgePoints() const;
+	int GetHappiness() const;
+	int GetTourism() const;
+	int GetGeneralPoints() const;
+	int GetAdmiralPoints() const;
+#endif
 
 	// Contest helper functions
 	int GetContestValueForPlayer(PlayerTypes ePlayer);
@@ -139,13 +183,13 @@ public:
 	void SetHandled(bool bValue);
 
 	// Starting and finishing
-	void DoStartQuest(int iStartTurn);
-	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
 #if defined(MOD_BALANCE_CORE)
-	bool DoFinishQuest(bool bGlobal);
+void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 #else
-	bool DoFinishQuest();
+	void DoStartQuest(int iStartTurn);
 #endif
+	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
+	bool DoFinishQuest();
 	bool DoCancelQuest();
 
 	// Public data
@@ -156,6 +200,24 @@ public:
 	int m_iData1;
 	int m_iData2;
 	bool m_bHandled;
+#if defined(MOD_BALANCE_CORE)
+	int m_iData3;
+	int m_iInfluence;
+	int m_iGPGlobal;
+	int m_iGP;
+	int m_iCulture;
+	int m_iExperience;
+	int m_iFaith;
+	int m_iGold;
+	int m_iScience;
+	int m_iFood;
+	int m_iProduction;
+	int m_iGoldenAgePoints;
+	int m_iHappiness;
+	int m_iTourism;
+	int m_iGeneralPoints;
+	int m_iAdmiralPoints;
+#endif
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
@@ -276,7 +338,11 @@ public:
 
 	void DoTestStartGlobalQuest();
 	void DoTestStartPersonalQuest(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	void AddQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
+#else
 	void AddQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iStartTurn);
+#endif
 	void AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 
@@ -290,6 +356,10 @@ public:
 	void DoQuestsCleanup();
 	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsTargetQuest(MinorCivQuestTypes eQuest);
+	bool PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
+#endif
 	bool IsEnabledQuest(MinorCivQuestTypes eQuest);
 	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 	bool IsValidQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
@@ -303,6 +373,9 @@ public:
 	int GetNumActivePersonalQuestsForPlayer(PlayerTypes ePlayer) const;
 	bool IsActiveQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 	void EndAllActiveQuestsForPlayer(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	void DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType);
+#endif
 
 	int GetNumDisplayedQuestsForPlayer(PlayerTypes ePlayer);
 	bool IsDisplayedQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);
@@ -323,6 +396,10 @@ public:
 
 	int GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 	int GetQuestData2(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
+#if defined(MOD_BALANCE_CORE)
+	CvString GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
+	CvString GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
+#endif
 	int GetQuestTurnsRemaining(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iGameTurn) const;
 	bool IsContestLeader(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 	int GetContestValueForLeader(MinorCivQuestTypes eType);
@@ -363,10 +440,19 @@ public:
 	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer);
 #endif
 	UnitTypes GetBestGreatPersonForQuest(PlayerTypes ePlayer);
-	PlayerTypes GetBestCityStateTarget(PlayerTypes eForPlayer);
+	PlayerTypes GetBestCityStateTarget(PlayerTypes eForPlayer, bool bNoRandom = false);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	PlayerTypes GetBestCityStateLiberate(PlayerTypes eForPlayer);
 	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes eForPlayer);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CvCity* GetBestCityForQuest(PlayerTypes ePlayer);
+	CvPlot* GetTargetPlot(PlayerTypes ePlayer);
+	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
+	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer);
+	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
+	void SetCoupAttempted(PlayerTypes ePlayer, bool bValue);
+	bool IsCoupAttempted(PlayerTypes ePlayer);
 #endif
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
@@ -673,6 +759,7 @@ public:
 	bool IsDisableNotifications() const;
 	void SetDisableNotifications(bool bDisableNotifications);
 
+	QuestListForAllPlayers m_QuestsGiven;
 private:
 	CvPlayer* m_pPlayer;
 	MinorCivTypes m_minorCivType;
@@ -707,6 +794,7 @@ private:
 	bool m_bNoAlly;
 	int m_iCoup;
 	bool m_abSiphoned[MAX_MAJOR_CIVS];
+	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;
@@ -731,7 +819,6 @@ private:
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];
 	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
-	QuestListForAllPlayers m_QuestsGiven;
 
 	int m_aiMajorScratchPad[MAX_MAJOR_CIVS];
 	bool m_bDisableNotifications;

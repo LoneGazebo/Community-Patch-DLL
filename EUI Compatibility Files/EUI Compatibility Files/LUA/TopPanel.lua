@@ -143,7 +143,7 @@ local Game = Game
 local OptionsManager = OptionsManager
 local Events = Events
 local Mouse = Mouse
-local IsGameCoreBusy = IsGameCoreBusy
+--local IsGameCoreBusy = IsGameCoreBusy
 --local MouseEvents = MouseEvents
 --local MouseOverStrategicViewResource = MouseOverStrategicViewResource
 local Locale = Locale
@@ -2186,7 +2186,7 @@ local function ResourcesToolTip( control )
 			( g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechReveal ] ) and
 			g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechCityTrade ] ) )
 		then
-			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
+--			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
 			local numResourceImport = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
@@ -2623,9 +2623,9 @@ Controls.TopPanelMask:SetHide( true )
 
 ContextPtr:SetUpdate(
 function()
-	if IsGameCoreBusy() then
-		return
-	end
+--	if IsGameCoreBusy() then
+--		return
+--	end
 
 	if g_alarmTime and os_time() >= g_alarmTime then
 		g_alarmTime = nil

@@ -95,7 +95,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Fight the [ICON_OCCUPIED] Oppressors!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RESISTANCE">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Viva la [ICON_RESISTANCE] Revolution!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "[ICON_RESISTANCE] Viva la Revolucion!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>

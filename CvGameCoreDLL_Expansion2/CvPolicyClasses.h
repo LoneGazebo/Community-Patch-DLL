@@ -257,7 +257,7 @@ public:
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGA() const;
-	bool GetIncreasedQuestInfluence() const;
+	int GetIncreasedQuestInfluence() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -571,7 +571,7 @@ private:
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
-	bool m_bIncreasedQuestInfluence;
+	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
 	int m_iCitadelBoost;

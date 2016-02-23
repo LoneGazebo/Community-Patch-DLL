@@ -169,11 +169,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 -- Monopoly Information
 	
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_AMBER';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_COFFEE';
 
 	UPDATE Resources
@@ -181,11 +181,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_COFFEE';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_CORAL';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
@@ -193,11 +193,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_JADE';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_LAPIS';
 
 	UPDATE Resources
@@ -205,11 +205,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_LAPIS';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_OLIVE';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_PERFUME';
 
 	UPDATE Resources
@@ -217,11 +217,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * F
 	WHERE Type = 'RESOURCE_PERFUME';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_TEA';
 
 	UPDATE Resources
-	SET IsMonopoly = 'true'
+	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_TOBACCO';
 
 	UPDATE Resources

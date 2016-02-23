@@ -899,6 +899,13 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(MINOR_CIV_QUEST_HORDE);
 	RegisterEnum(MINOR_CIV_QUEST_REBELLION);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	RegisterEnum(MINOR_CIV_QUEST_DISCOVER_PLOT);
+	RegisterEnum(MINOR_CIV_QUEST_BUILD_X_BUILDINGS);
+	RegisterEnum(MINOR_CIV_QUEST_UNIT_STEAL_FROM);
+	RegisterEnum(MINOR_CIV_QUEST_UNIT_COUP_CITY);
+	RegisterEnum(MINOR_CIV_QUEST_UNIT_GET_CITY);
+#endif
 	RegisterEnum(NUM_MINOR_CIV_QUEST_TYPES);
 	EnumEnd(L);
 

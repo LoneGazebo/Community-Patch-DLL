@@ -5243,7 +5243,7 @@ void CvPlayer::disbandUnit(bool)
 						iValue += (pLoopUnit->getExperience() * 20);
 						iValue += (pLoopUnit->getLevel() * 100);
 
-						if(pLoopUnit->IsCanDefend() && pLoopUnit->plot()->isCity())
+						if(pLoopUnit->IsGarrisoned())
 						{
 							iValue *= 2;
 						}
@@ -6178,15 +6178,7 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				// JdH => do diplomacy
-				// Note: There is no need for DIPLO_AI_PLAYERS in Multiplayer anymore.
-				// AI to AI diplomacy is handled first, then the AI to human diplomacy is processed.
-				// If an AI has a request for a human, it sends a notification. The request is processed as the human wishes.
-				// IMPORTANT: this changes singleplayer and hotseat behavior (and obviously mp):
-				// An AI in hotseat can now only send one request to a single player a turn.
-				// An AI in singleplayer will not have it's requests processed "in turn" anymore.
 				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
-				// JdH <=
 #else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
@@ -14679,6 +14671,11 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// If we're in anarchy, then no Faith is generated!
 	if(IsAnarchy())
 		return 0;
+#if defined(MOD_BALANCE_CORE)
+	//No barbs or minors, please!
+	if(isBarbarian() || isMinorCiv())
+		return 0;
+#endif
 
 	// Faith per turn from Cities
 	iFaithPerTurn += GetFaithPerTurnFromCities();
@@ -32700,7 +32697,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_FIRST");
 								localizedText << pLoopCity->getNameKey() << pUnit->getNameKey();
 								Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-								localizedSummary << getNameKey() << pUnit->getNameKey();
+								localizedSummary << pLoopCity->getNameKey() << pUnit->getNameKey();
 								pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
 							}
 							if(GC.getLogging() && GC.getAILogging())

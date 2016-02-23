@@ -29,7 +29,19 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 -- minor lua optimizations
 -------------------------------
 
-local math = math
+--local math = math
+local math_floor = math.floor
+local math_ceil = math.ceil
+--local math_min = math.min
+local math_max = math.max
+--local math_abs = math.abs
+--local math_modf = math.modf
+--local math_sqrt = math.sqrt
+--local math_pi = math.pi
+--local math_sin = math.sin
+--local math_cos = math.cos
+--local math_huge = math.huge
+
 --local os = os
 local pairs = pairs
 local ipairs = ipairs
@@ -38,12 +50,19 @@ local pcall = pcall
 local select = select
 --local string = string
 --local table = table
+local table_insert = table.insert
+--local table_remove = table.remove
+local table_concat = table.concat
 local tonumber = tonumber
 local tostring = tostring
 --local type = type
 --local unpack = unpack
 
-local UI = UI
+--local UI = UI
+local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
+local UI_GetNumCurrentDeals = UI.GetNumCurrentDeals
+local UI_LoadCurrentDeal = UI.LoadCurrentDeal
+
 --local UIManager = UIManager
 --local Controls = Controls
 --local ContextPtr = ContextPtr
@@ -112,12 +131,12 @@ local OptionsManager = OptionsManager
 --local Mouse = Mouse
 --local MouseEvents = MouseEvents
 --local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
+local Locale_ToLower = Locale.ToLower
+local Locale_ToUpper = Locale.ToUpper
 local _L = Locale.ConvertTextKey
 local function L( text, ...)
 	return _L( tostring(text), ... )
 end
---getmetatable("").__index.L = L
 
 local S = string.format
 
@@ -251,20 +270,20 @@ end
 -- How much does it cost to upgrade a Unit to a shiny new eUnit?
 local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgradeProductionCost )
 	local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
-		+ math.max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
+		+ math_max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
 	-- Upgrades for later units are more expensive
 	local tech = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
 	if tech then
-		upgradePrice = math.floor( upgradePrice * ( GameInfo.Eras[ tech.Era ].ID * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
+		upgradePrice = math_floor( upgradePrice * ( GameInfo.Eras[ tech.Era ].ID * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
 	end
 	-- Discount
-	-- upgradePrice = upgradePrice - math.floor( upgradePrice * unit:UpgradeDiscount() / 100)
+	-- upgradePrice = upgradePrice - math_floor( upgradePrice * unit:UpgradeDiscount() / 100)
 	-- Mod (Policies, etc.)
-	-- upgradePrice = math.floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
+	-- upgradePrice = math_floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
 	-- Apply exponent
-	upgradePrice = math.floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
+	upgradePrice = math_floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
 	-- Make the number not be funky
-	return math.floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
+	return math_floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
 end
 
 local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
@@ -288,7 +307,7 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	for row in GameInfo.Unit_FreePromotions( thisUnitType ) do
 		local promotion = GameInfo.UnitPromotions[ row.PromotionType ]
 		if promotion then
-			freePromotions:insert( L(promotion.Description) )
+			freePromotions:insertLocalized( promotion.Description )
 			unitRange = unitRange + (promotion.RangeChange or 0)
 			unitMoves = unitMoves + (promotion.MovesChange or 0)
 		end
@@ -312,7 +331,7 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	if activePlayer then
 		productionCost = activePlayer:GetUnitProductionNeeded( unitID )
 		activeCivilizationType = (GameInfo.Civilizations[ activePlayer:GetCivilizationType() ] or {}).Type
-		city = UI.GetHeadSelectedCity()
+		city = UI_GetHeadSelectedCity()
 		if city and city:GetOwner() ~= activePlayerID then
 			city = nil
 		end
@@ -321,7 +340,7 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 
 	-- Name
 	local combatClass = unit.CombatClass and GameInfo.UnitCombatInfos[ unit.CombatClass ]
-	local tips = table( UnitColor( Locale.ToUpper( unitName ) ) .. (combatClass and " ("..L(combatClass.Description)..")" or "") )
+	local tips = table( UnitColor( Locale_ToUpper( unitName ) ) .. (combatClass and " ("..L(combatClass.Description)..")" or "") )
 	local item
 
 	if orbitalInfo then
@@ -329,7 +348,7 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 		-- Orbital Duration
 		tips:insertIf( activePlayer and L("TXT_KEY_PRODUCTION_ORBITAL_DURATION", activePlayer:GetTurnsUnitAllowedInOrbit(unit.ID, true) ) ) --todo xml
 		-- Orbital Effect Range
-		tips:insert( L("TXT_KEY_PRODUCTION_ORBITAL_EFFECT_RANGE", orbitalInfo.EffectRange or 0) )
+		tips:insertLocalized( "TXT_KEY_PRODUCTION_ORBITAL_EFFECT_RANGE", orbitalInfo.EffectRange or 0 )
 	else
 		-- Movement:
 		tips:insertIf( unitDomainType ~= "DOMAIN_AIR" and L"TXT_KEY_PEDIA_MOVEMENT_LABEL" .. " " .. unitMoves .. "[ICON_MOVES]" )
@@ -602,7 +621,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local buildingClassID = buildingClass and buildingClass.ID
 	local activePlayerID = Game and Game.GetActivePlayer()
 	local activePlayer = activePlayerID and Players[ activePlayerID ]
-	local isWorldWonder = (buildingClass and tonumber(buildingClass.MaxGlobalInstances) or 0) > 0
+	local maxGlobalInstances = buildingClass and tonumber(buildingClass.MaxGlobalInstances) or 0
 	local thisBuildingType = { BuildingType = buildingType }
 	local thisBuildingAndResourceTypes =  { BuildingType = buildingType }
 	local thisBuildingClassType = { BuildingClassType = buildingClassType }
@@ -668,7 +687,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 	if activePlayer then
 		activeCivilizationType = (GameInfo.Civilizations[ activePlayer:GetCivilizationType() ] or {}).Type
-		city = city or UI.GetHeadSelectedCity()
+		city = city or UI_GetHeadSelectedCity()
 		city = (city and city:GetOwner() == activePlayerID and city) or activePlayer:GetCapitalCity() or activePlayer:Cities()(activePlayer)
 
 		-- player production cost
@@ -698,7 +717,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 	local tip, tipKey, items, item
 	-- Name
-	local tips = table( BuildingColor( Locale.ToUpper( building.Description ) ) )
+	local tips = table( BuildingColor( Locale_ToUpper( building.Description ) ) )
 -- CBP
 	if (city ~= nil) then
 		if(city:GetBuildingInvestment(buildingID) > 0) then
@@ -971,7 +990,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		tips:insertIf( ( building.GreatPeopleRateChange or 0 ) ~= 0 and S("%s %+i%s", L( specialist.GreatPeopleTitle ), building.GreatPeopleRateChange, GreatPeopleIcon( specialistType ) ) )
 		if (building.SpecialistCount or 0) ~= 0 then
 			if civ5_mode then
-				local numSpecialistsInBuilding = UI.GetHeadSelectedCity() and city:GetNumSpecialistsInBuilding( buildingID ) or building.SpecialistCount
+				local numSpecialistsInBuilding = UI_GetHeadSelectedCity() and city:GetNumSpecialistsInBuilding( buildingID ) or building.SpecialistCount
 				if numSpecialistsInBuilding ~= building.SpecialistCount then
 					numSpecialistsInBuilding = numSpecialistsInBuilding.."/"..building.SpecialistCount
 				end
@@ -1226,7 +1245,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 					items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.YieldChange, tostring(YieldIcons[row.YieldType]) )
 				end
 			end
-			if isWorldWonder then
+			if maxGlobalInstances > 0 then -- world wonder
 				for row in GameInfo.Belief_YieldChangeWorldWonder() do
 					if row.BeliefType and (row.Yield or 0)~=0 then
 						items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.Yield, tostring(YieldIcons[row.YieldType]) )
@@ -1480,16 +1499,40 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	tips:insertIf( #buildings > 0 and L"TXT_KEY_PEDIA_BLDG_UNLOCK_LABEL" .. " " .. buildings:concat(", ") )
 
 	-- Limited number can be built
-	if  isWorldWonder then
-		tips:append( L( "TXT_KEY_NO_ACTION_GAME_COUNT_MAX", buildingClass.MaxGlobalInstances ) )
+	local function InsertBuiltLimit( count, text, id, activeTeamID )
+		if (count or 0) > 0 then
+			if activePlayer then
+				for playerID = id or 0, id or (GameDefines.MAX_MAJOR_CIVS - 1) do
+					local player = Players[playerID]
+					if player and player:IsAlive() and (not activeTeamID or player:GetTeam() == activeTeamID) then
+						for city in player:Cities() do
+							local n = city:GetNumBuilding( buildingID )
+							if n > 0 then
+								count = count - n
+								local builderID = city:GetBuildingOriginalOwner( buildingID )
+								local builder = Players[ builderID ] or player
+								tips:insert( (playerID == activePlayerID and "[COLOR_POSITIVE_TEXT]" or "[COLOR_WARNING_TEXT]")..L( "TXT_KEY_EUI_WONDER_BUILT_BY", builderID == activePlayerID and "TXT_KEY_YOU" or (activeTeam:IsHasMet(builder:GetTeam()) and builder:GetName()) or "TXT_KEY_UNMET_PLAYER", city:Plot():IsRevealed( activeTeamID ) and city:GetName() or "TXT_KEY_EUI_UNKNOWN_CITY" ).."[ENDCOLOR]" )
+							end
+							if count < 1 then return true end
+						end
+					end
+				end
+			end
+			if id==false and Game and Game.GetBuildingClassCreatedCount( buildingClassID ) >= maxGlobalInstances then
+				tips:insert( "[COLOR_WARNING_TEXT]"..L"TXT_KEY_RAZED_CITY".."[ENDCOLOR]" )
+			else
+				tips:append( L( text, count ) )
+			end
+			return true
+		end
 	end
-	if (buildingClass.MaxTeamInstances or 0) > 0 then
-		tips:append( L( "TXT_KEY_NO_ACTION_TEAM_COUNT_MAX", buildingClass.MaxTeamInstances ) )
+	if not ( InsertBuiltLimit( maxGlobalInstances, "TXT_KEY_NO_ACTION_GAME_COUNT_MAX", false )
+		or InsertBuiltLimit( buildingClass.MaxTeamInstances, "TXT_KEY_NO_ACTION_TEAM_COUNT_MAX", nil, activeTeamID )
+		or InsertBuiltLimit( buildingClass.MaxPlayerInstances, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", activePlayerID ) )
+		and activePlayer
+	then
+		tips:insertLocalized( "TXT_KEY_EUI_BUILT_IN_X_CITIES", activePlayer:GetBuildingClassCount( buildingClassID ), activePlayer:GetBuildingClassMaking( buildingClassID ) )    --CountNumBuildings( buildingID ) )
 	end
-	if (buildingClass.MaxPlayerInstances or 0) > 0 then
-		tips:append( L( "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", buildingClass.MaxPlayerInstances ) )
-	end
-
 	-- Pre-written Help text
 -- CBP
 	if (city ~= nil) then
@@ -1521,7 +1564,7 @@ local function GetHelpTextForImprovement( improvementID )
 	local tip, items, item, condition
 
 	-- Name
-	local tips = table( TextColor( "[COLOR_GREEN]", Locale.ToUpper( improvement.Description ) ) )
+	local tips = table( TextColor( "[COLOR_GREEN]", Locale_ToUpper( improvement.Description ) ) )
 
 	-- Maintenance:
 	tips:insertIf( (improvement[g_maintenanceCurrency] or 0) ~= 0 and S( "%s %+i%s", L"TXT_KEY_PEDIA_MAINT_LABEL", -improvement[g_maintenanceCurrency], g_currencyIcon) )
@@ -1701,7 +1744,7 @@ local function GetHelpTextForProject( projectID )
 
 	-- Name & Cost
 	local productionCost = (Game and Players[Game.GetActivePlayer()]:GetProjectProductionNeeded(projectID)) or project.Cost
-	local tips = table( Locale.ToUpper( project.Description ), "----------------", L"TXT_KEY_PEDIA_COST_LABEL" .. " " .. productionCost .. "[ICON_PRODUCTION]" )
+	local tips = table( Locale_ToUpper( project.Description ), "----------------", L"TXT_KEY_PEDIA_COST_LABEL" .. " " .. productionCost .. "[ICON_PRODUCTION]" )
 
 	if civBE_mode then
 		-- Affinity Level Requirement
@@ -1725,7 +1768,7 @@ local function GetHelpTextForProcess( processID )
 	local process = GameInfo.Processes[ processID ]
 
 	-- Name
-	local tips = table( Locale.ToUpper( process.Description ), "----------------" )
+	local tips = table( Locale_ToUpper( process.Description ), "----------------" )
 	for row in GameInfo.Process_ProductionYields{ ProcessType = process.Type } do
 		local yield = GameInfo.Yields[ row.YieldType ]
 		local percent = yield and tonumber( row.Yield ) or 0
@@ -1757,7 +1800,7 @@ function TT.GetHelpTextForPlayerPerk( perkID )
 	local perkInfo = GameInfo.PlayerPerks[ perkID ]
 
 	-- Name
-	local tips = table( Locale.ToUpper( perkInfo.Description ), "----------------" )
+	local tips = table( Locale_ToUpper( perkInfo.Description ), "----------------" )
 
 	-- Yield from Buildings
 	for playerPerkBuildingYieldEffect in GameInfo.PlayerPerks_BuildingYieldEffects{ PlayerPerkType = perkInfo.Type } do
@@ -1894,7 +1937,7 @@ local function GetFoodTooltip( city )
 
 	if foodPerTurnTimes100 < 0 then
 		foodThreshold = 0
-		turnsToCityGrowth = math.floor( foodStoredTimes100 / -foodPerTurnTimes100 ) + 1
+		turnsToCityGrowth = math_floor( foodStoredTimes100 / -foodPerTurnTimes100 ) + 1
 		tipText = "[COLOR_WARNING_TEXT]" .. cityPopulation - 1 .. "[ENDCOLOR][ICON_CITIZEN]"
 		if isNoob then
 			tipText = L( "TXT_KEY_CITYVIEW_STARVATION_TEXT" ) .. "[NEWLINE]"
@@ -1929,7 +1972,7 @@ local function GetFoodTooltip( city )
 		if turnsToCityGrowth > 1 then
 			tipText = S( "%s%s %+g[ICON_FOOD]  ", tipText, L( "TXT_KEY_STR_TURNS", turnsToCityGrowth -1 ), ( foodOverflowTimes100 - foodPerTurnTimes100 ) / 100 )
 		end
-		tipText =  S( "%s%s%s[ENDCOLOR] %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ), foodOverflowTimes100 / 100 )
+		tipText =  S( "%s%s%s[ENDCOLOR] %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ), foodOverflowTimes100 / 100 )
 	end
 
 	if isNoob then
@@ -2012,7 +2055,7 @@ local function GetProductionTooltip( city )
 	if productionColor then
 		productionNeeded = city:GetProductionNeeded()
 		productionTurnsLeft = city:GetProductionTurnsLeft()
-		tipText = productionColor( Locale.ToUpper( cityProductionName ) )
+		tipText = productionColor( Locale_ToUpper( cityProductionName ) )
 		if isNoob then
 			tipText = L( "TXT_KEY_PROGRESS_TOWARDS", tipText )
 		end
@@ -2025,7 +2068,7 @@ local function GetProductionTooltip( city )
 			if productionTurnsLeft > 1 then
 				tipText =  S( "%s%s %+g[ICON_PRODUCTION]  ", tipText, L( "TXT_KEY_STR_TURNS", productionTurnsLeft -1 ), ( productionOverflow100 - productionPerTurn100 ) / 100 )
 			end
-			tipText = S( "%s%s %+g[ICON_PRODUCTION]", tipText, productionColor( Locale.ToUpper( L( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ) ), productionOverflow100 / 100 )
+			tipText = S( "%s%s %+g[ICON_PRODUCTION]", tipText, productionColor( Locale_ToUpper( L( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ) ), productionOverflow100 / 100 )
 		end
 	end
 	local strModifiersString = city:GetYieldModifierTooltip( YieldTypes.YIELD_PRODUCTION )
@@ -2214,20 +2257,16 @@ local function GetCultureTooltip( city )
 	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
 	if culturePerTurn > 0 then
 		local tipText = ""
-		local turnsRemaining =  math.max(math.ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
+		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
 		local overflow = culturePerTurn * turnsRemaining + cultureStored - cultureNeeded
 		if turnsRemaining > 1 then
 			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurn )
 		end
-		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
+		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
 	end
 	return tips:concat( "[NEWLINE]" )
 end
 
--- TOURISM
-local function GetTourismTooltip(city)
-	return city:GetTourismTooltip()
-end
 -- CBP
 local function GetCityHappinessTooltip(city)
 	
@@ -2405,6 +2444,144 @@ local function GetCityHappinessTooltip(city)
 	return strHappinessBreakdown;
 end
 -- END
+
+-------------------------------------------------
+-- Helper function to build religion tooltip string
+-------------------------------------------------
+local function GetReligionTooltip(city)
+
+	if g_isReligionEnabled then
+
+		local tips = table()
+		local majorityReligionID = city:GetReligiousMajority()
+		local pressureMultiplier = GameDefines.RELIGION_MISSIONARY_PRESSURE_MULTIPLIER or 1
+
+		for religion in GameInfo.Religions() do
+			local religionID = religion.ID
+
+			if religionID >= 0 then
+				local pressureLevel, numTradeRoutesAddingPressure = city:GetPressurePerTurn(religionID)
+				local numFollowers = city:GetNumFollowers(religionID)
+				local religion = GameInfo.Religions[religionID]
+				local religionName = L( Game.GetReligionName(religionID) )
+				local religionIcon = tostring(religion.IconString)
+
+				if pressureLevel > 0 or numFollowers > 0 then
+
+					local religionTip = ""
+					if pressureLevel > 0 then
+						religionTip = L( "TXT_KEY_RELIGIOUS_PRESSURE_STRING", math_floor(pressureLevel/pressureMultiplier))
+					end
+
+					if numTradeRoutesAddingPressure and numTradeRoutesAddingPressure > 0 then
+						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", religionIcon, numFollowers, religionTip, numTradeRoutesAddingPressure)
+					else
+						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE", religionIcon, numFollowers, religionTip)
+					end
+
+					if religionID == majorityReligionID then
+						local beliefs
+						if religionID > 0 then
+							beliefs = Game.GetBeliefsInReligion( religionID )
+						else
+							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
+						end
+						for _,beliefID in pairs( beliefs or {} ) do
+							religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].Description)
+						end
+						tips:insert( 1, religionTip )
+					else
+						tips:insert( religionTip )
+					end
+				end
+
+				if city:IsHolyCityForReligion( religionID ) then
+					tips:insert( 1, L( "TXT_KEY_HOLY_CITY_TOOLTIP_LINE", religionIcon, religionName) )
+				end
+			end
+		end
+		return tips:concat( "[NEWLINE]" )
+	else
+		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
+	end
+end
+
+--------
+-- FAITH
+--------
+
+local function GetFaithTooltip( city )
+
+	if g_isReligionEnabled then
+		local tips = table()
+
+		if civBE_mode or not OptionsManager.IsNoBasicHelp() then
+			tips:insertLocalized( "TXT_KEY_FAITH_HELP_INFO" )
+			tips:insert( "" )
+		end
+
+		-- Faith from Buildings
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_BUILDINGS", city:GetFaithPerTurnFromBuildings() )
+
+-- CBP
+		-- Faith from Pop
+		local iYieldPerPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
+		if (iYieldPerPop ~= 0) then
+			iYieldPerPop = iYieldPerPop * city:GetPopulation();
+			iYieldPerPop = iYieldPerPop / 100;
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POP", iYieldPerPop)
+		end
+
+		-- Faith from Specialists
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
+		
+		-- Faith from Traits (EDITED BY CBP)
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", (city:GetFaithPerTurnFromTraits() + city:GetYieldPerTurnFromTraits( YieldTypes.YIELD_FAITH )))
+
+		-- Yield Increase from Piety
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))
+	
+		-- Yield Increase from CS Alliance
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
+	
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
+				
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
+	
+		-- Yield from Great Works
+		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
+-- END
+		-- Faith from Terrain
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TERRAIN", city:GetBaseYieldRateFromTerrain( YieldTypes.YIELD_FAITH ) )
+
+		-- Faith from Policies
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POLICIES", city:GetFaithPerTurnFromPolicies() )
+
+		-- Faith from Religion
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
+
+		-- Puppet modifier
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+
+		-- Citizens breakdown
+		tips:insert( "----------------")
+		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", city:GetFaithPerTurn(), "[ICON_PEACE]" )
+		tips:insert( "" )
+		tips:insert( GetReligionTooltip( city ) )
+
+		return tips:concat( "[NEWLINE]" )
+	else
+		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
+	end
+end
+
+-- TOURISM
+local function GetTourismTooltip(city)
+	return city:GetTourismTooltip()
+end
+
 ----------------------------------------------------------------
 -- MAJOR PLAYER MOOD INFO
 ----------------------------------------------------------------
@@ -2487,7 +2664,7 @@ local function GetMoodInfo( playerID )
 	end
 
 	-- Techs Known
-	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale.ToLower("TXT_KEY_VP_TECH") ) )
+	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale_ToLower("TXT_KEY_VP_TECH") ) )
 	-- Policies
 	for policyBranch in GameInfo.PolicyBranchTypes() do
 		local policyCount = 0
@@ -2498,7 +2675,7 @@ local function GetMoodInfo( playerID )
 			end
 		end
 
-		tips:insertIf( policyCount > 0 and policyCount .. " " .. PolicyColor( Locale.ToLower(policyBranch.Description) ) )
+		tips:insertIf( policyCount > 0 and policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) )
 	end
 	-- Religion Founded
 	tips:insertIf( gk_mode and player:HasCreatedReligion() and BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( player:GetReligionCreatedByPlayer() ) ) ) )
@@ -2517,9 +2694,9 @@ local function GetMoodInfo( playerID )
 	-- Population
 	tips:insert( player:GetTotalPopulation() .. "[ICON_CITIZEN]"
 			.. ", "
-			.. player:GetNumCities() .. " " .. Locale.ToLower("TXT_KEY_VP_CITIES")
+			.. player:GetNumCities() .. " " .. Locale_ToLower("TXT_KEY_VP_CITIES")
 			.. ", "
-			.. player:GetNumWorldWonders() .. " " .. Locale.ToLower("TXT_KEY_VP_WONDERS")
+			.. player:GetNumWorldWonders() .. " " .. Locale_ToLower("TXT_KEY_VP_WONDERS")
 			.. (#wonders>0 and ": " .. wonders:concat( ", " ) or "") )
 --[[ too much info
 	local cities = table()
@@ -2584,8 +2761,8 @@ local function GetMoodInfo( playerID )
 	local dealItems = {}
 	local finalTurns = table()
 	PushScratchDeal()
-	for i = 0, UI.GetNumCurrentDeals( activePlayerID ) - 1 do
-		UI.LoadCurrentDeal( activePlayerID, i )
+	for i = 0, UI_GetNumCurrentDeals( activePlayerID ) - 1 do
+		UI_LoadCurrentDeal( activePlayerID, i )
 		local toPlayerID = g_deal:GetOtherPlayer( activePlayerID )
 		g_deal:ResetIterator()
 		repeat
@@ -2914,7 +3091,7 @@ local function GetMoodInfo( playerID )
 	tips:insertIf( #deals > 0 and L"TXT_KEY_DO_CURRENT_DEALS" .. "[NEWLINE]" .. deals:concat( ", " ) )
 	tips:insertIf( #tradeRoutes > 0 and tradeRoutes:concat( "[NEWLINE]" ) )
 	tips:insertIf( #treaties > 0 and treaties:concat( ", " ) .. "[ENDCOLOR]" )
-	tips:insertIf( #opinions > 0 and "[ICON_BULLET]" .. table.concat( opinions, "[NEWLINE][ICON_BULLET]" ) .. "[ENDCOLOR]" )
+	tips:insertIf( #opinions > 0 and "[ICON_BULLET]" .. table_concat( opinions, "[NEWLINE][ICON_BULLET]" ) .. "[ENDCOLOR]" )
 
 	local allied = table()
 	local friends = table()
@@ -2947,6 +3124,9 @@ local function GetMoodInfo( playerID )
 				end
 				-- Protections
 				if player:IsProtectingMinor(otherPlayerID) then
+-- CBP
+					protected:insert( otherPlayerName .. inParentheses( gk_mode and isUs and ( otherPlayer:GetTurnLastPledgedProtectionByMajor(playerID) - Game.GetGameTurn() + GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION ) ) )  -- todo check scaling % game speed
+-- END
 					protected:insert( otherPlayerName .. inParentheses( gk_mode and isUs and ( otherPlayer:GetTurnLastPledgedProtectionByMajor(playerID) - Game.GetGameTurn() + 10 ) ) )  -- todo check scaling % game speed
 				end
 			else
@@ -2980,137 +3160,6 @@ local function GetMoodInfo( playerID )
 	return tips:concat( "[NEWLINE]" )
 end
 
--------------------------------------------------
--- Helper function to build religion tooltip string
--------------------------------------------------
-local function GetReligionTooltip(city)
-
-	if g_isReligionEnabled then
-
-		local tips = table()
-		local majorityReligionID = city:GetReligiousMajority()
-		local pressureMultiplier = GameDefines.RELIGION_MISSIONARY_PRESSURE_MULTIPLIER or 1
-
-		for religion in GameInfo.Religions() do
-			local religionID = religion.ID
-
-			if religionID >= 0 then
-				local pressureLevel, numTradeRoutesAddingPressure = city:GetPressurePerTurn(religionID)
-				local numFollowers = city:GetNumFollowers(religionID)
-				local religion = GameInfo.Religions[religionID]
-				local religionName = L( Game.GetReligionName(religionID) )
-				local religionIcon = tostring(religion.IconString)
-
-				if pressureLevel > 0 or numFollowers > 0 then
-
-					local religionTip = ""
-					if pressureLevel > 0 then
-						religionTip = L( "TXT_KEY_RELIGIOUS_PRESSURE_STRING", math.floor(pressureLevel/pressureMultiplier))
-					end
-
-					if numTradeRoutesAddingPressure and numTradeRoutesAddingPressure > 0 then
-						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", religionIcon, numFollowers, religionTip, numTradeRoutesAddingPressure)
-					else
-						religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_LINE", religionIcon, numFollowers, religionTip)
-					end
-
-					if religionID == majorityReligionID then
-						local beliefs
-						if religionID > 0 then
-							beliefs = Game.GetBeliefsInReligion( religionID )
-						else
-							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
-						end
-						for _,beliefID in pairs( beliefs or {} ) do
-							religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].Description)
-						end
-						tips:insert( 1, religionTip )
-					else
-						tips:insert( religionTip )
-					end
-				end
-
-				if city:IsHolyCityForReligion( religionID ) then
-					tips:insert( 1, L( "TXT_KEY_HOLY_CITY_TOOLTIP_LINE", religionIcon, religionName) )
-				end
-			end
-		end
-		return tips:concat( "[NEWLINE]" )
-	else
-		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
-	end
-end
-
---------
--- FAITH
---------
-local function GetFaithTooltip( city )
-
-	if g_isReligionEnabled then
-		local tips = table()
-
-		if civBE_mode or not OptionsManager.IsNoBasicHelp() then
-			tips:insertLocalized( "TXT_KEY_FAITH_HELP_INFO" )
-			tips:insert( "" )
-		end
-
-		-- Faith from Buildings
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_BUILDINGS", city:GetFaithPerTurnFromBuildings() )
-
-		-- Faith from Terrain
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TERRAIN", city:GetBaseYieldRateFromTerrain( YieldTypes.YIELD_FAITH ) )
-
-		-- Faith from Policies
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POLICIES", city:GetFaithPerTurnFromPolicies() )
-
-		-- Faith from Religion
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
-
--- CBP
-		-- Faith from Pop
-		local iYieldPerPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPop ~= 0) then
-			iYieldPerPop = iYieldPerPop * city:GetPopulation();
-			iYieldPerPop = iYieldPerPop / 100;
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POP", iYieldPerPop)
-		end
-
-		-- Faith from Specialists
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
-		
-		-- Faith from Traits (EDITED BY CBP)
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", (city:GetFaithPerTurnFromTraits() + city:GetYieldPerTurnFromTraits( YieldTypes.YIELD_FAITH )))
-
-		-- Yield Increase from Piety
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))
-	
-		-- Yield Increase from CS Alliance
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
-	
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
-				
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
-	
-		-- Yield from Great Works
-		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))
-
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
--- END
-
-		-- Puppet modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
-
-		-- Citizens breakdown
-		tips:insert( "----------------")
-		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", city:GetFaithPerTurn(), "[ICON_PEACE]" )
-		tips:insert( "" )
-		tips:insert( GetReligionTooltip( city ) )
-
-		return tips:concat( "[NEWLINE]" )
-	else
-		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
-	end
-end
 -------------------------------------------------
 -- Expose functions
 -------------------------------------------------
@@ -3182,7 +3231,7 @@ if civBE_mode then
 			local allPerks = player:GetPerksForUnit(unit:GetUnitType());
 			local tempPerks = player:GetFreePerksForUnit(unit:GetUnitType());
 			for _, perk in ipairs(tempPerks) do
-				table.insert(allPerks, perk);
+				table_insert(allPerks, perk);
 			end
 			local ignoreCoreStats = true;
 			temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, "[ICON_BULLET]");
@@ -3231,7 +3280,7 @@ if civBE_mode then
 			local allPerks = player:GetPerksForUnit(unitType);
 			local tempPerks = player:GetFreePerksForUnit(unitType);
 			for _, perk in ipairs(tempPerks) do
-				table.insert(allPerks, perk);
+				table_insert(allPerks, perk);
 			end
 			local ignoreCoreStats = true;
 			local temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, nil);
@@ -3466,7 +3515,7 @@ if civBE_mode then
 					end
 					s = s .. L(perkInfo.Help);
 				else
-					table.insert(filteredPerkIDTable, perkID);
+					table_insert(filteredPerkIDTable, perkID);
 				end
 			end
 		end
@@ -3760,7 +3809,7 @@ if civBE_mode then
 				gameSpeedResearchMod = Game.GetResearchPercent() / 100;
 			end
 			number = number * gameSpeedResearchMod;
-			number = math.floor(number); -- for display, truncate trailing decimals
+			number = math_floor(number); -- for display, truncate trailing decimals
 			return number;
 		end;
 

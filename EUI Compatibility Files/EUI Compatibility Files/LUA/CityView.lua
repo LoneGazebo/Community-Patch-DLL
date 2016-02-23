@@ -111,7 +111,7 @@ local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 
 local ToHexFromGrid = ToHexFromGrid
 local HexToWorld = HexToWorld
-local IsGameCoreBusy = IsGameCoreBusy
+--local IsGameCoreBusy = IsGameCoreBusy
 
 local Controls = Controls
 local ContextPtr = ContextPtr
@@ -237,7 +237,6 @@ local g_queuedItemNumber = false
 local g_isViewingMode = true
 local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchase" ) == 0 )
 local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
-local g_toolTipHandler, g_toolTipControl, RequestToolTip
 
 local g_isButtonPopupChooseProduction = false
 local g_isAutoClose
@@ -409,7 +408,6 @@ local function ExitCityButNotScreen()
 	-- clear any rogue leftover tooltip
 	g_leftTipControls.Box:SetHide( true )
 	g_rightTipControls.Box:SetHide( true )
-	g_toolTipHandler = nil
 	g_isButtonPopupChooseProduction = false
 	Controls.RightScrollPanel:SetScrollValue(0)
 	return CancelBuildingSale()
@@ -498,20 +496,22 @@ local function GetSpecialistYields( city, specialist )
 		local specialistID = specialist.ID
 		local cityOwner = Players[ city:GetOwner() ]
 		-- Culture
-		local cultureFromSpecialist, specialistYield = city:GetCultureFromSpecialist( specialistID )
-		local specialistCultureModifier, specialistYieldModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 ) or 0 ) )
+		local specialistYield = 0
+		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
+		local specialistYieldModifier = 0
+		local specialistCultureModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 ) or 0 ) )
 		-- Yield
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
 			specialistYield = city:GetSpecialistYield( specialistID, yieldID )
+			-- COMMUNITY PATCH BEGINS
+			if(specialistYield > 0) then
+				local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
+				specialistYield = (specialistYield + extraYield)
+			end
+			-- COMMUNITY PATCH ENDS
 			specialistYieldModifier = city:GetBaseYieldRateModifier( yieldID )
 			if yieldID == YieldTypes.YIELD_CULTURE then
 				specialistYield = specialistYield + cultureFromSpecialist
-				-- COMMUNITY PATCH BEGINS
-					if(specialistYield > 0) then
-						local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
-						specialistYield = (specialistYield + extraYield)
-					end
-				-- COMMUNITY PATCH ENDS
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
 				cultureFromSpecialist = 0
 			end
@@ -523,7 +523,7 @@ local function GetSpecialistYields( city, specialist )
 	return yieldTips:concat(" ")
 end
 
-local function SpecialistTooltipNow( control )
+local function SpecialistTooltip( control )
 	local buildingID = control:GetVoid1()
 	local building = buildingID and GameInfo.Buildings[ buildingID ]
 	local specialistType = building and building.SpecialistType
@@ -539,11 +539,8 @@ local function SpecialistTooltipNow( control )
 	g_rightTipControls.Box:SetHide( false )
 	return g_rightTipControls.Box:DoAutoSize()
 end
-local function SpecialistTooltip( control )
-	return RequestToolTip( SpecialistTooltipNow, control )
-end
 
-local function BuildingToolTipNow( control )
+local function BuildingToolTip( control )
 	local buildingID = control:GetVoid1()
 	local building = GameInfo.Buildings[ buildingID ]
 	local city = UI_GetHeadSelectedCity()
@@ -554,9 +551,6 @@ local function BuildingToolTipNow( control )
 		g_rightTipControls.Box:SetHide( false )
 		return g_rightTipControls.Box:DoAutoSize()
 	end
-end
-local function BuildingToolTip( control )
-	return RequestToolTip( BuildingToolTipNow, control )
 end
 
 local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID, _, isRepeat )
@@ -633,22 +627,16 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 	return g_leftTipControls.Box:SetHide( not strToolTip )
 end
 
-local function ProductionToolTipNow( control )
+local function ProductionToolTip( control )
 	local city = UI_GetHeadSelectedCity()
 	local queuedItemNumber = control:GetVoid1()
 	if city and queuedItemNumber and not Controls.QueueSlider:IsTrackingLeftMouseButton() then
 		return OrderItemTooltip( city, false, false, city:GetOrderFromQueue( queuedItemNumber ) )
 	end
 end
-local function ProductionToolTip( control )
-	return RequestToolTip( ProductionToolTipNow, control )
-end
 
-local function SelectionToolTipNow( control )
-	return OrderItemTooltip( UI_GetHeadSelectedCity(), true, false, control:GetVoid1(), control:GetVoid2() )
-end
 local function SelectionToolTip( control )
-	return RequestToolTip( SelectionToolTipNow, control )
+	return OrderItemTooltip( UI_GetHeadSelectedCity(), true, false, control:GetVoid1(), control:GetVoid2() )
 end
 
 -------------------------------
@@ -1438,6 +1426,19 @@ local function BuyPlotAnchorButtonClicked( plotIndex )
 		Network.SendUpdateCityCitizens( city:GetID() )
 		UI.UpdateCityScreen()
 		Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
+	--CBP
+	elseif g_activePlayer:MayNotAnnex() then
+		local puppet = GetSelectedCity()
+		if(puppet) then
+			local plot = puppet:GetCityIndexPlot( plotIndex )
+			local plotX = plot:GetX()
+			local plotY = plot:GetY()
+			Network.SendCityBuyPlot(puppet:GetID(), plotX, plotY)
+			Network.SendUpdateCityCitizens( puppet:GetID() )
+			UI.UpdateCityScreen()
+			Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
+		end
+	--END
 	end
 	return true
 end
@@ -1566,46 +1567,51 @@ local function UpdateWorkingHexesNow()
 		end --loop
 
 		-- display buy plot buttons
-		if g_BuyPlotMode and not g_isViewingMode then
-			local cash = g_activePlayer:GetGold()
-			for cityPlotIndex = 0, cityArea do
-				local plot = city:GetCityIndexPlot( cityPlotIndex )
-				if plot then
-					local x, y = plot:GetX(), plot:GetY()
-					local hexPos = ToHexFromGrid{ x=x, y=y }
-					local worldPos = HexToWorld( hexPos )
-					if city:CanBuyPlotAt( x, y, true ) then
-						local instance = g_BuyPlotButtonIM.GetInstance()
-						local button = instance.BuyPlotAnchoredButton
-						instance.BuyPlotButtonAnchor:SetWorldPositionVal( worldPos.x + g_worldPositionOffset2.x, worldPos.y + g_worldPositionOffset2.y, worldPos.z + g_worldPositionOffset2.z ) --todo: improve code
-						local plotCost = city:GetBuyPlotCost( x, y )
-						local tip, txt, alpha
-						local canBuy = city:CanBuyPlotAt( x, y, false )
-						if canBuy then
-							tip = L( "TXT_KEY_CITYVIEW_CLAIM_NEW_LAND", plotCost )
-							txt = plotCost
-							alpha = 1
-							button:SetVoid1( cityPlotIndex )
-							button:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked )
-							if notInStrategicView then
-								Events_SerialEventHexHighlight( hexPos , true, nil, "BuyFill" )
-								if not purchasablePlots[ plot ] then
-									Events_SerialEventHexHighlight( hexPos , true, nil, "BuyOutline" )
+		-- Venice Edit (CBP)
+		local bAnnex = g_activePlayer:MayNotAnnex();
+		if g_BuyPlotMode then 
+			if not g_isViewingMode or bAnnex then
+		--END
+				local cash = g_activePlayer:GetGold()
+				for cityPlotIndex = 0, cityArea do
+					local plot = city:GetCityIndexPlot( cityPlotIndex )
+					if plot then
+						local x, y = plot:GetX(), plot:GetY()
+						local hexPos = ToHexFromGrid{ x=x, y=y }
+						local worldPos = HexToWorld( hexPos )
+						if city:CanBuyPlotAt( x, y, true ) then
+							local instance = g_BuyPlotButtonIM.GetInstance()
+							local button = instance.BuyPlotAnchoredButton
+							instance.BuyPlotButtonAnchor:SetWorldPositionVal( worldPos.x + g_worldPositionOffset2.x, worldPos.y + g_worldPositionOffset2.y, worldPos.z + g_worldPositionOffset2.z ) --todo: improve code
+							local plotCost = city:GetBuyPlotCost( x, y )
+							local tip, txt, alpha
+							local canBuy = city:CanBuyPlotAt( x, y, false )
+							if canBuy then
+								tip = L( "TXT_KEY_CITYVIEW_CLAIM_NEW_LAND", plotCost )
+								txt = plotCost
+								alpha = 1
+								button:SetVoid1( cityPlotIndex )
+								button:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked )
+								if notInStrategicView then
+									Events_SerialEventHexHighlight( hexPos , true, nil, "BuyFill" )
+									if not purchasablePlots[ plot ] then
+										Events_SerialEventHexHighlight( hexPos , true, nil, "BuyOutline" )
+									end
 								end
+							else
+								tip = L( "TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE", plotCost )
+								txt = "[COLOR_WARNING_TEXT]"..(plotCost-cash).."[ENDCOLOR]"
+								alpha = 0.5
 							end
-						else
-							tip = L( "TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE", plotCost )
-							txt = "[COLOR_WARNING_TEXT]"..(plotCost-cash).."[ENDCOLOR]"
-							alpha = 0.5
+							button:SetDisabled( not canBuy )
+							instance.BuyPlotButtonAnchor:SetAlpha( alpha )
+	--todo
+							button:SetToolTipString( tip )
+							instance.BuyPlotAnchoredButtonLabel:SetText( txt )
 						end
-						button:SetDisabled( not canBuy )
-						instance.BuyPlotButtonAnchor:SetAlpha( alpha )
---todo
-						button:SetToolTipString( tip )
-						instance.BuyPlotAnchoredButtonLabel:SetText( txt )
 					end
-				end
-			end --loop
+				end --loop
+			end
 		end
 		g_PlotButtonIM.Commit()
 		g_BuyPlotButtonIM.Commit()
@@ -2305,9 +2311,9 @@ local function UpdateCityViewNow()
 end
 
 local function UpdateStuffNow()
-	if IsGameCoreBusy() then
-		return
-	end
+--	if IsGameCoreBusy() then
+--		return
+--	end
 	ContextPtr:ClearUpdate()
 	if g_isCityViewDirty then
 		UpdateCityViewNow()
@@ -2315,18 +2321,6 @@ local function UpdateStuffNow()
 	if g_isCityHexesDirty then
 		UpdateWorkingHexesNow()
 	end
-	if g_toolTipHandler then
-		if g_toolTipControl:HasMouseOver() then
-			g_toolTipHandler( g_toolTipControl )
-		else
-print( g_toolTipControl:GetID(), "does not have  mouse over" )
-		end
-		g_toolTipHandler = nil
-	end
-end
-RequestToolTip = function( ... )
-	g_toolTipHandler, g_toolTipControl = ...
-	return ContextPtr:SetUpdate( UpdateStuffNow )
 end
 local function UpdateCityView()
 	g_isCityViewDirty = true
@@ -2359,41 +2353,38 @@ g_ProcessSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Control
 g_FocusSelectIM		= StackInstanceManager( "", "", Controls.WorkerManagementBox, Controls.WorkerHeader, function(self, collapsed) g_workerHeadingOpen = not collapsed ResizeRightStack() UpdateWorkingHexes() end, true, not g_workerHeadingOpen )
 local g_toolTipFunc
 
-local function SetToolTipStringNow()
-	g_leftTipControls.Text:SetText( g_toolTipFunc( UI_GetHeadSelectedCity() ) )
+local function SetToolTipString( toolTipFunc )
+	g_leftTipControls.Text:SetText( toolTipFunc( UI_GetHeadSelectedCity() ) )
 	g_leftTipControls.PortraitFrame:SetHide( true )
 	return g_leftTipControls.Box:DoAutoSize()
 end
-local function SetToolTipString( control, toolTipFunc )
-	g_toolTipFunc = toolTipFunc
-	return RequestToolTip( SetToolTipStringNow, control )
-end
 
 local g_toolTips = {
-	ProdBox = function( control )
-		return SetToolTipString( control, GetProductionTooltip )
+	ProdBox = function()
+		return SetToolTipString( GetProductionTooltip )
 	end,
-	FoodBox = function( control )
-		return SetToolTipString( control, GetFoodTooltip )
+	FoodBox = function()
+		return SetToolTipString( GetFoodTooltip )
 	end,
-	GoldBox = function( control )
-		return SetToolTipString( control, GetGoldTooltip )
+	GoldBox = function()
+		return SetToolTipString( GetGoldTooltip )
 	end,
-	ScienceBox = function( control )
-		return SetToolTipString( control, GetScienceTooltip )
+	ScienceBox = function()
+		return SetToolTipString( GetScienceTooltip )
 	end,
-	CultureBox = function( control )
-		return SetToolTipString( control, GetCultureTooltip )
+	CultureBox = function()
+		return SetToolTipString( GetCultureTooltip )
 	end,
-	FaithBox = function( control )
-		return SetToolTipString( control, GetFaithTooltip )
+	FaithBox = function()
+		return SetToolTipString( GetFaithTooltip )
 	end,
-	TourismBox = function( control )
-		return SetToolTipString( control, GetTourismTooltip )
+	TourismBox = function()
+		return SetToolTipString( GetTourismTooltip )
 	end,
+
 -- CBP
-	HappinessBox = function( control )
-		return SetToolTipString( control, GetCityHappinessTooltip )
+	HappinessBox = function()
+		return SetToolTipString( GetCityHappinessTooltip )
 	end,
 -- END
 	ProductionPortraitButton = ProductionToolTip

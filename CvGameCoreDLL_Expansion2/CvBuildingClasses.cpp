@@ -3535,7 +3535,24 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 		return (GetNumRealBuilding(eIndex) + GetNumFreeBuilding(eIndex));
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Accessor: How many of these building classes in the city?
+int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
+{
+	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
+	int iValue = 0;
+	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if(pkInfo && pkInfo->GetBuildingClassType() == eIndex)
+		{
+			iValue++;
+		}
+	}
+	return iValue;
+}
+#endif
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 {

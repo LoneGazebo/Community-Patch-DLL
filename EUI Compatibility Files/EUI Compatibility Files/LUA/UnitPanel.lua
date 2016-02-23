@@ -77,7 +77,7 @@ local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
 --local UIManager = UIManager
 local ToHexFromGrid = ToHexFromGrid
-local IsGameCoreBusy = IsGameCoreBusy
+--local IsGameCoreBusy = IsGameCoreBusy
 
 local Controls = Controls
 local ContextPtr = ContextPtr
@@ -1952,9 +1952,9 @@ end)
 local g_unitUpdateRequired, g_cityUpdateRequired, g_isUpdateRequired
 
 local function UpdateDisplayNow()
-	if IsGameCoreBusy() then
-		return
-	end
+--	if IsGameCoreBusy() then
+--		return
+--	end
 
 	g_isUpdateRequired = false
 	ContextPtr:ClearUpdate()
