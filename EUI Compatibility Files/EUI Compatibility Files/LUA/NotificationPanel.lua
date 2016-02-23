@@ -819,6 +819,12 @@ local isQuestKillCamp
 -- CBP
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local isQuestDig
+
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT
+local isQuestPlot
+
+local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY
+local isQuestCity
 -- END
 if bnw_mode then
 	function isQuestKillCamp( minorPlayer )
@@ -827,6 +833,12 @@ if bnw_mode then
 -- CBP
 	function isQuestDig( minorPlayer )
 		return minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questDig )
+	end
+	isQuestPlot = function( minorPlayer )
+		return minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questPlot )
+	end
+	isQuestCity = function( minorPlayer )
+		return minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questCity )
 	end
 -- END
 elseif gk_mode then
@@ -928,7 +940,10 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			if minorPlayer:CanMajorWithdrawProtection( g_activePlayerID ) then
 				toolTip = toolTip .. "[NEWLINE][NEWLINE]" .. L"TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_TT"
 			else
-				toolTip = toolTip .. L("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_DISABLED_COMMITTED_TT", minorPlayer:GetTurnLastPledgedProtectionByMajor( g_activePlayerID ) + 10 - Game.GetGameTurn() )
+-- CBP
+				toolTip = toolTip .. L("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_DISABLED_COMMITTED_TT", minorPlayer:GetTurnLastPledgedProtectionByMajor( g_activePlayerID ) + GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION - Game.GetGameTurn() )
+				--toolTip = toolTip .. L("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_DISABLED_COMMITTED_TT", minorPlayer:GetTurnLastPledgedProtectionByMajor( g_activePlayerID ) + 10 - Game.GetGameTurn() )
+-- END
 			end
 		end
 		ShowSimpleTip( toolTip )
@@ -1138,7 +1153,7 @@ local g_civListInstanceCallBacks = {-- the callback function table names need to
 		[Mouse.eLClick] = function( playerID )
 			local player = playerID and Players[playerID]
 			local teamID = player:GetTeam()
-			if player and playerID ~= g_leaderID and ( not g_leaderMode or UI.GetLeaderHeadRootUp() ) then
+			if player and playerID ~= g_leaderID and ( not g_leaderMode or UI.GetLeaderHeadRootUp() ) and not IsGameCoreBusy() then
 				-- player
 				if playerID == g_activePlayerID then
 					if not g_leaderMode then
@@ -1217,6 +1232,24 @@ local g_civListInstanceCallBacks = {-- the callback function table names need to
 				if isQuestDig( minorPlayer ) then
 					local plot = Map.GetPlot( minorPlayer:GetQuestData1( g_activePlayerID, questDig ),
 								  minorPlayer:GetQuestData2( g_activePlayerID, questDig ) )
+					if plot then
+						UI.LookAt( plot, 0 )
+						local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+						Events.GameplayFX( hex.x, hex.y, -1 )
+					end
+				end
+				if isQuestPlot( minorPlayer ) then
+					local plot = Map.GetPlot( minorPlayer:GetQuestData1( g_activePlayerID, questPlot ),
+								  minorPlayer:GetQuestData2( g_activePlayerID, questPlot ) )
+					if plot then
+						UI.LookAt( plot, 0 )
+						local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+						Events.GameplayFX( hex.x, hex.y, -1 )
+					end
+				end
+				if isQuestCity( minorPlayer ) then
+					local plot = Map.GetPlot( minorPlayer:GetQuestData1( g_activePlayerID, questCity ),
+								  minorPlayer:GetQuestData2( g_activePlayerID, questCity ) )
 					if plot then
 						UI.LookAt( plot, 0 )
 						local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }

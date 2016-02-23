@@ -656,6 +656,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CountNumWorkedImprovement);
 	Method(CountNumWorkedResource);
 	Method(CountNumImprovement);
+	Method(CountNumWorkedRiverTiles);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -5212,6 +5213,17 @@ int CvLuaCity::lCountNumImprovement(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
 	const int iValue = pkCity->CountNumImprovement(eImprovement);
+
+	lua_pushinteger(L, iValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCountNumWorkedRiverTiles(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const TerrainTypes eTerrain = (TerrainTypes)luaL_optint(L, 2, NO_TERRAIN);
+	const int iValue = pkCity->CountNumWorkedRiverTiles(eTerrain);
 
 	lua_pushinteger(L, iValue);
 

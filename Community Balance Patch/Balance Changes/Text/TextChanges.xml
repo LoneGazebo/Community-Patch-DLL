@@ -36,7 +36,7 @@
 			<Text>Historic Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
-			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Complete a Global City-State [ICON_INFLUENCE] Quest[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
@@ -668,34 +668,6 @@
 			<Text>Leads to Buildings:</Text>
 		</Row>
 
-
-		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
 		
 		<!-- New Musician Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR">

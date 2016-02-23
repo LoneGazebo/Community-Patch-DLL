@@ -949,6 +949,15 @@ public:
 	int getExtraWithdrawal() const;
 	void changeExtraWithdrawal(int iChange);
 
+#if defined(MOD_BALANCE_CORE_JFD)
+	int getPlagueChance() const;
+	void changePlagueChance(int iChange);
+
+	int getPlaguedCount() const;
+	void changePlagued(int iChange);
+	bool isPlagued() const;
+#endif
+
 	int getExtraEnemyHeal() const;
 	void changeExtraEnemyHeal(int iChange);
 
@@ -1593,6 +1602,10 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraFirstStrikes;
 	FAutoVariable<int, CvUnit> m_iExtraChanceFirstStrikes;
 	FAutoVariable<int, CvUnit> m_iExtraWithdrawal;
+#if defined(MOD_BALANCE_CORE_JFD)
+	FAutoVariable<int, CvUnit> m_iPlagueChance;
+	FAutoVariable<int, CvUnit> m_iIsPlagued;
+#endif
 	FAutoVariable<int, CvUnit> m_iExtraEnemyHeal;
 	FAutoVariable<int, CvUnit> m_iExtraNeutralHeal;
 	FAutoVariable<int, CvUnit> m_iExtraFriendlyHeal;
@@ -1819,6 +1832,9 @@ protected:
 
 	bool CanWithdrawFromMelee(CvUnit& pAttacker);
 	bool DoWithdrawFromMelee(CvUnit& pAttacker);
+#if defined(MOD_BALANCE_CORE)
+	void DoPlagueTransfer(CvUnit& defender);
+#endif
 
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);

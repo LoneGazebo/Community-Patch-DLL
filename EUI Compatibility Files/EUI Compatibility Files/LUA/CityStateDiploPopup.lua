@@ -687,10 +687,7 @@ function OnQuestInfoClicked()
 	local activePlayerID = Game.GetActivePlayer()
 	local minorPlayer = Players[ g_minorCivID ]
 	if minorPlayer then
-		if ( bnw_mode and minorPlayer:IsMinorCivDisplayedQuestForPlayer( activePlayerID, questKillCamp ) )
-		or ( gk_mode and not bnw_mode and minorPlayer:IsMinorCivActiveQuestForPlayer( activePlayerID, questKillCamp ) )
-		or ( not gk_mode and minorPlayer:GetActiveQuestForPlayer( activePlayerID ) == questKillCamp )
-		then
+		if ( bnw_mode and minorPlayer:IsMinorCivDisplayedQuestForPlayer( activePlayerID, questKillCamp ) ) or ( gk_mode and not bnw_mode and minorPlayer:IsMinorCivActiveQuestForPlayer( activePlayerID, questKillCamp ) ) or ( not gk_mode and minorPlayer:GetActiveQuestForPlayer( activePlayerID ) == questKillCamp ) then
 			local questData1 = minorPlayer:GetQuestData1( activePlayerID, questKillCamp )
 			local questData2 = minorPlayer:GetQuestData2( activePlayerID, questKillCamp )
 			local plot = Map.GetPlot( questData1, questData2 )
@@ -699,19 +696,37 @@ function OnQuestInfoClicked()
 				local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
 				Events.GameplayFX( hex.x, hex.y, -1 )
 			end
-		end
 		-- CSD
-		if (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
+		elseif (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
 			local iQuestData1 = minorPlayer:GetQuestData1(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
 			local iQuestData2 = minorPlayer:GetQuestData2(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
-			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
-			if (pPlot) then
-				UI.LookAt(pPlot, 0);
-				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
-				Events.GameplayFX(hex.x, hex.y, -1);
+			local plot = Map.GetPlot( questData1, questData2 )
+			if plot then
+				UI.LookAt( plot, 0 )
+				local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+				Events.GameplayFX( hex.x, hex.y, -1 )
+			end
+		--END
+		--CBP
+		elseif (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT)) then
+			local iQuestData1 = minorPlayer:GetQuestData1(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local iQuestData2 = minorPlayer:GetQuestData2(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local plot = Map.GetPlot( iQuestData1, iQuestData2 )
+			if plot then
+				UI.LookAt( plot, 0 )
+				local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+				Events.GameplayFX( hex.x, hex.y, -1 )
+			end
+		elseif (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
+			local iQuestData1 = minorPlayer:GetQuestData1(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+			local iQuestData2 = minorPlayer:GetQuestData2(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+			local plot = Map.GetPlot( iQuestData1, iQuestData2 )
+			if plot then
+				UI.LookAt( plot, 0 )
+				local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+				Events.GameplayFX( hex.x, hex.y, -1 )
 			end
 		end
-		-- END
 	end
 end
 Controls.QuestInfo:RegisterCallback( Mouse.eLClick, OnQuestInfoClicked )
@@ -767,7 +782,7 @@ function OnBuyoutButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorBuyout(activePlayerID) then
 		OnCloseButtonClicked()
-		Game.DoMinorBuyout(activePlayerID, g_minorCivID)
+		Game.DoMinorBuyout(activePlayerID, minorPlayer:GetID())
 	end
 end
 Controls.BuyoutButton:RegisterCallback( Mouse.eLClick, OnBuyoutButtonClicked )
@@ -781,7 +796,7 @@ function OnMarriageButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorMarry(activePlayerID) then
 		OnCloseButtonClicked()
-		Game.DoMinorBuyout(activePlayerID, g_iMinorCivID);
+		Game.DoMinorMarriage(activePlayerID, minorPlayer:GetID())
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked )

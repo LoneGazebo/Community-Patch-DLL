@@ -52,7 +52,7 @@ WHERE Type = 'POLICY_MANDATE_OF_HEAVEN' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 -- Theocracy (Now Divine Right)
 UPDATE Policies
-SET DoubleBorderGA = 'true'
+SET DoubleBorderGA = '1'
 WHERE Type = 'POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policy_BuildingClassYieldModifiers

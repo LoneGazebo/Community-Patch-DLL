@@ -1492,8 +1492,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			if(bFromMe)
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 5 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 5;
+				//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 10;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1506,8 +1506,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			else
 			{
 				int iGPT = iCurrentNetGoldOfReceivingPlayer;
-				//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-				iGPT /= 10;
+				//Every 20 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+				iGPT /= 20;
 				if((iGPT > 0) && (iGPT > iItemValue))
 				{
 					iGPT = iItemValue;
@@ -1563,7 +1563,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
 				{
 					case MAJOR_CIV_APPROACH_FRIENDLY:
-						iItemValue *= 100;
+						iItemValue *= 95;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_AFRAID:
@@ -1571,7 +1571,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_NEUTRAL:
-						iItemValue *= 110;
+						iItemValue *= 100;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_GUARDED:
@@ -1587,7 +1587,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_WAR:
-						return INT_MAX;
+						iItemValue *= 350;
+						iItemValue /= 100;
 						break;
 				}
 			}
@@ -1598,7 +1599,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
 				{
 					case MAJOR_CIV_APPROACH_FRIENDLY:
-						iItemValue *= 95;
+						iItemValue *= 90;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_AFRAID:
@@ -1606,7 +1607,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_NEUTRAL:
-						iItemValue *= 105;
+						iItemValue *= 100;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_GUARDED:
@@ -1622,7 +1623,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_WAR:
-						return INT_MAX;
+						iItemValue *= 350;
+						iItemValue /= 100;
 						break;
 				}
 			}
@@ -1669,7 +1671,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
 				{
 					case MAJOR_CIV_APPROACH_FRIENDLY:
-						iItemValue *= 110;
+						iItemValue *= 105;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_AFRAID:
@@ -1705,7 +1707,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
 				{
 					case MAJOR_CIV_APPROACH_FRIENDLY:
-						iItemValue *= 115;
+						iItemValue *= 110;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_APPROACH_AFRAID:
@@ -1746,7 +1748,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);
+				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -1899,7 +1901,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 30 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
 				//We have it (domestic and/or trade) and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 				{

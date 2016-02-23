@@ -139,11 +139,14 @@ void CvDiplomacyRequests::Write(FDataStream& kStream) const
 void CvDiplomacyRequests::Update(void)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-if (HasActiveRequest()) return;
+	if (HasActiveRequest()) 
+	{
+		return;
+	}
 
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 	// If we are active, send out the requests
-	if (m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
+	if (m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive() && GET_PLAYER(eActivePlayer).isAlive())
 	{
 		// JdH => handle requests from one player first...
 		if (m_eRequestActiveFromPlayer != NO_PLAYER)
@@ -197,7 +200,16 @@ if (HasActiveRequest()) return;
 	}
 #endif
 }
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+// JdH => new request functions
+/// helper function, to determine diplo types that coop with deals
+inline bool isDealDiploType(DiploUIStateTypes eDiploType)
+{
+	return eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
+		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
+		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST;
+}
+#endif
 //	----------------------------------------------------------------------------
 //	Called from within CvPlayer at the beginning of the turn
 void CvDiplomacyRequests::BeginTurn(void)
@@ -212,9 +224,38 @@ void CvDiplomacyRequests::BeginTurn(void)
 		{
 			if (iter->m_iLookupIndex < 0)
 			{
-				CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
-				CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
-				iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
+				if (isDealDiploType(iter->m_eDiploType))
+				{
+					CvDeal* kDeal = GC.getGame().GetGameDeals()->GetProposedDeal(iter->m_eFromPlayer, m_ePlayer);
+					if (kDeal)
+					{
+						bool bBad = false;
+						TradedItemList::iterator iter2;
+						for(iter2 = kDeal->m_TradedItems.begin(); iter2 != kDeal->m_TradedItems.end(); ++iter2)
+						{
+							if(iter2->m_bToRenewed)  // slewis - added exception in case of something that was renewed
+							{
+								continue;
+							}
+
+							if(!kDeal->IsPossibleToTradeItem(iter2->m_eFromPlayer, kDeal->GetOtherPlayer(iter2->m_eFromPlayer), iter2->m_eItemType, iter2->m_iData1, iter2->m_iData2, iter2->m_iData3, iter2->m_bFlag1, false, true))
+							{
+								bBad = true;
+								break;
+							}
+						}
+						if(bBad)
+						{
+							continue;
+						}
+						else
+						{
+							CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
+							CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
+							iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -255,13 +296,43 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 	return true;
 }
 #if defined(MOD_ACTIVE_DIPLOMACY)
-// JdH => new request functions
-/// helper function, to determine diplo types that coop with deals
-inline bool isDealDiploType(DiploUIStateTypes eDiploType)
+//	----------------------------------------------------------------------------
+void CvDiplomacyRequests::CheckValidity()
 {
-	return eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
-		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
-		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST;
+	CvPlayer& kTo = GET_PLAYER(m_ePlayer);
+	CvNotifications* pNotifications = kTo.GetNotifications();
+	for(RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	{
+		if(iter->m_iLookupIndex < 0)
+		{
+			if(isDealDiploType(iter->m_eDiploType))
+			{
+				CvDeal* kDeal = GC.getGame().GetGameDeals()->GetProposedDeal(iter->m_eFromPlayer, m_ePlayer);
+				if (kDeal)
+				{
+					bool bBad = false;
+					TradedItemList::iterator iter2;
+					for(iter2 = kDeal->m_TradedItems.begin(); iter2 != kDeal->m_TradedItems.end(); ++iter2)
+					{
+						if(iter2->m_bToRenewed)  // slewis - added exception in case of something that was renewed
+						{
+							continue;
+						}
+
+						if(!kDeal->IsPossibleToTradeItem(iter2->m_eFromPlayer, kDeal->GetOtherPlayer(iter2->m_eFromPlayer), iter2->m_eItemType, iter2->m_iData1, iter2->m_iData2, iter2->m_iData3, iter2->m_bFlag1, false, true))
+						{
+							bBad = true;
+							break;
+						}
+					}
+					if(bBad && pNotifications)
+					{
+						pNotifications->Dismiss(iter->m_iLookupIndex, false);
+					}
+				}
+			}
+		}
+	}
 }
 //	----------------------------------------------------------------------------
 //	remove a request. Used by CvNotifications::Dismiss()
@@ -273,7 +344,7 @@ void CvDiplomacyRequests::Remove(int iLookupIndex)
 		{
 			// remove potential deals...
 			if (isDealDiploType(iter->m_eDiploType))
-				GC.getGame().GetGameDeals()->FinalizeDeal(iter->m_eFromPlayer, m_ePlayer, false);
+				GC.getGame().GetGameDeals()->EraseDeal(iter->m_eFromPlayer, m_ePlayer);
 			m_aRequests.erase(iter);
 			break;
 		}
@@ -289,7 +360,7 @@ void CvDiplomacyRequests::Activate(CvDiplomacyRequests::Request& kRequest)
 			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			DLLUI->SetScratchDeal(pDeal.get());
 			// we are using the scratch deal from now on, delete the proposed deal...
-			GC.getGame().GetGameDeals()->FinalizeDeal(kRequest.m_eFromPlayer, m_ePlayer, false);
+			GC.getGame().GetGameDeals()->EraseDeal(kRequest.m_eFromPlayer, m_ePlayer);
 		}
 		else
 		{

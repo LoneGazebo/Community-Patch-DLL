@@ -1286,9 +1286,9 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 	}
 
 	//if we have a garrison, split the damage
-	if (pCity->HasGarrison())
+	CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+	if (pGarrison)
 	{
-		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		int iUnitShare = (iPlotDamage*2*pGarrison->GetMaxHitPoints())/(pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
 		iPlotDamage -= iUnitShare;
 	}

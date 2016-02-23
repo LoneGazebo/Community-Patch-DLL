@@ -1,7 +1,7 @@
 -- Insert SQL Rules Here 
 
 UPDATE Buildings
-SET VassalLevyEra = 'true'
+SET VassalLevyEra = '1'
 WHERE Type = 'BUILDING_PALACE';
 
 UPDATE Language_en_US

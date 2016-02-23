@@ -2,6 +2,10 @@ UPDATE Projects
 Set FreeBuildingClassIfFirst = 'BUILDINGCLASS_LABORATORY'
 WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
 
+UPDATE Projects
+Set FreePolicyIfFirst = 'POLICY_MANHATTAN_PROJECT'
+WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
+
 UPDATE Language_en_US
 SET Text = 'Allows your Cities to build Atomic Bombs and Nuclear Missiles.[NEWLINE][NEWLINE]If you are the [COLOR_POSITIVE_TEXT]first[ENDCOLOR] to complete this, receive a free Research Lab and Atomic Bomb in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_PROJECT_MANHATTAN_PROJECT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

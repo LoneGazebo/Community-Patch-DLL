@@ -41,7 +41,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. +5% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODCUTION] Production.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. +5% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODUCTION] Production.</Text>
 		</Row>
 
 

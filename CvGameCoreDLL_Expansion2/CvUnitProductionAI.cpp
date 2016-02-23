@@ -339,11 +339,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(eDomain == DOMAIN_LAND)
 			{
-				iBonus -= 50;
+				iBonus -= 33;
 			}
 			else
 			{
-				iBonus += 25;
+				iBonus += 33;
 			}
 		}
 	}
@@ -950,35 +950,35 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(pkUnitEntry->GetCombat() > 0)
 		{
-			iBonus += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 50);
+			iBonus += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 66);
 		}
 		else
 		{
-			iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
+			iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 33);
 		}
 	}
 	if(pkUnitEntry->GetCombat() > 0)
 	{
 		if(!kPlayer.isMinorCiv() && kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() > 0)
 		{
-			iBonus += (kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() * 10);
+			iBonus += (kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() * 25);
 		}
 
 		if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 		{
-			iBonus += 25;
+			iBonus += 33;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 		{
-			iBonus -= 10;
+			iBonus -= 25;
 		}
-		else if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 		{
-			iBonus += 25;
+			iBonus += 33;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 		{
-			iBonus -= 10;
+			iBonus -= 25;
 		}
 	}
 	

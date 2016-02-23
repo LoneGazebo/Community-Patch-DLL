@@ -2299,6 +2299,55 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
+	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if(eMinor != NO_PLAYER)
+		{
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if(pMinor)
+			{
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				TeamTypes eConquerorTeam = GET_TEAM(pMinor->getTeam()).GetKilledByTeam();
+
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
+				{
+					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == target.m_pTargetCity->getOwner())
+					{
+						fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+						fDesirability /= 100;
+					}
+				}
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION))
+				{
+					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
+					{
+						if(eConquerorTeam == target.m_pTargetCity->getTeam())
+						{
+							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+							fDesirability /= 100;
+						}
+					}
+				}
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
+				{
+					int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+					int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+
+					CvPlot* pPlot = GC.getMap().plot(iX, iY);
+					if(pPlot != NULL && pPlot->isCity())
+					{
+						if(pPlot->getOwner() == target.m_pTargetCity->getOwner())
+						{
+							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+							fDesirability /= 100;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// Within 8 hexes? This is a real good target for a sneak attack.
 	CvCity* pEnemyCity = NULL;
@@ -6014,7 +6063,7 @@ CvString CvMilitaryAI::GetLogFileName(CvString& playerName, bool bSummary) const
 //Let's run a test to get minor civs to send assaults at nearby cities.
 void CvMilitaryAI::MinorAttackTest()
 {
-	if(m_pPlayer->IsAtWarAnyMajor() && m_pPlayer->isMinorCiv())
+	if(m_pPlayer->IsAtWar() && m_pPlayer->isMinorCiv())
 	{
 		CvMilitaryTarget target;
 		int iOperationID;
@@ -6028,7 +6077,7 @@ void CvMilitaryAI::MinorAttackTest()
 			return;
 		}
 		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if(GET_PLAYER(eLoopPlayer).GetID() != m_pPlayer->GetID())

@@ -117,6 +117,10 @@ public:
 	int GetHPHealedIfDefeatEnemy() const;
 	int GetGoldenAgeValueFromKills() const;
 	int GetExtraWithdrawal() const;
+#if defined(MOD_BALANCE_CORE_JFD)
+	int GetPlagueChance() const;
+	bool IsPlague() const;
+#endif
 	int GetEmbarkExtraVisibility() const;
 	int GetEmbarkDefenseModifier() const;
 	int GetCapitalDefenseModifier() const;
@@ -324,6 +328,10 @@ protected:
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
 	int m_iExtraWithdrawal;
+#if defined(MOD_BALANCE_CORE_JFD)
+	int m_iPlagueChance;
+	bool m_bIsPlague;
+#endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefenseModifier;
 	int m_iCapitalDefenseModifier;

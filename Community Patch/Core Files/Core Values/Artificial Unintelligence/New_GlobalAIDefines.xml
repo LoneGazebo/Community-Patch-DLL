@@ -117,7 +117,7 @@
 		<!-- Religion -->
 		<Update>
 			<!-- Unowned but in range more valuable than before to make sure AI knows it's in a good position -->
-			<Set Value="3" />
+			<Set Value="2" />
 			<Where Name="RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>

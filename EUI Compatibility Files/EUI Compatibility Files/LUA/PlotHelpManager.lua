@@ -1234,7 +1234,6 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		elseif csd_mode and revealedImprovementID == GameInfoTypes.IMPROVEMENT_ARCHAEOLOGICAL_DIG then
 			insertCityStateQuest( tips, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY, "TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG" )
 		end
-
 	end
 	return tips:concat( "[NEWLINE]" )
 end

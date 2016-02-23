@@ -75,9 +75,10 @@ local math_modf = math.modf
 --local math_huge = math.huge
 
 local UI = UI
+local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 --local UIManager = UIManager
 local ToHexFromGrid = ToHexFromGrid
-local IsGameCoreBusy = IsGameCoreBusy
+--local IsGameCoreBusy = IsGameCoreBusy
 
 local Controls = Controls
 local ContextPtr = ContextPtr
@@ -678,6 +679,12 @@ local IsActiveQuestKillCamp
 -- CPB
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local IsActiveQuestDig
+
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT
+local IsActiveQuestPlot
+
+local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY
+local IsActiveQuestCity
 -- END
 if bnw_mode then
 	IsActiveQuestKillCamp = function( minorPlayer )
@@ -686,6 +693,12 @@ if bnw_mode then
 -- CBP
 	IsActiveQuestDig = function( minorPlayer )
 		return minorPlayer and minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questDig )
+	end
+	IsActiveQuestPlot = function( minorPlayer )
+		return minorPlayer and minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questPlot )
+	end
+	IsActiveQuestCity = function( minorPlayer )
+		return minorPlayer and minorPlayer:IsMinorCivDisplayedQuestForPlayer( g_activePlayerID, questCity )
 	end
 -- END
 elseif gk_mode then
@@ -716,6 +729,27 @@ local function OnQuestInfoClicked( plotIndex )
 	if cityOwner and cityOwner:IsMinorCiv() and IsActiveQuestDig( cityOwner ) then
 		local questData1 = cityOwner:GetQuestData1( g_activePlayerID, questDig )
 		local questData2 = cityOwner:GetQuestData2( g_activePlayerID, questDig )
+		local plot = Map.GetPlot( questData1, questData2 )
+		if plot then
+			UI.LookAt( plot, 0 )
+			local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+			Events.GameplayFX( hex.x, hex.y, -1 )
+		end
+	end
+
+	if cityOwner and cityOwner:IsMinorCiv() and IsActiveQuestPlot( cityOwner ) then
+		local questData1 = cityOwner:GetQuestData1( g_activePlayerID, questPlot )
+		local questData2 = cityOwner:GetQuestData2( g_activePlayerID, questPlot )
+		local plot = Map.GetPlot( questData1, questData2 )
+		if plot then
+			UI.LookAt( plot, 0 )
+			local hex = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+			Events.GameplayFX( hex.x, hex.y, -1 )
+		end
+	end
+	if cityOwner and cityOwner:IsMinorCiv() and IsActiveQuestCity( cityOwner ) then
+		local questData1 = cityOwner:GetQuestData1( g_activePlayerID, questCity )
+		local questData2 = cityOwner:GetQuestData2( g_activePlayerID, questCity )
 		local plot = Map.GetPlot( questData1, questData2 )
 		if plot then
 			UI.LookAt( plot, 0 )
@@ -869,10 +903,10 @@ end
 
 local function OnBannerMouseEnter( ... )
 	local plot = Map_GetPlotByIndex( (...) )
-	--local city = plot and plot:GetPlotCity()
-	--if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
-	--	Network_SendUpdateCityCitizens( city:GetID() )
-	--end
+	local city = plot and plot:GetPlotCity()
+	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
+		Network_SendUpdateCityCitizens( city:GetID() )
+	end
 	g_cityHexHighlight = (...)
 	return RefreshCityBanner( ... )
 end
@@ -924,9 +958,9 @@ end
 -- Update banners to reflect latest city info
 -------------------------------------------------
 local function RefreshCityBannersNow()
-	if IsGameCoreBusy() then
-		return
-	end
+--	if IsGameCoreBusy() then
+--		return
+--	end
 	ContextPtr:ClearUpdate()
 	local isDebug = isDebug or g_activePlayer:IsObserver()
 	------------------------------
@@ -1124,10 +1158,12 @@ local function RefreshCityBannersNow()
 				local buildingProductionID = city:GetProductionBuilding()
 				local projectProductionID = city:GetProductionProject()
 				local processProductionID = city:GetProductionProcess()
+				local portraitIndex, portraitAtlas
 				local item = nil
 
 				if unitProductionID ~= -1 then
 					item = GameInfo.Units[unitProductionID]
+					portraitIndex, portraitAtlas = UI_GetUnitPortraitIcon( (item or {}).ID or -1, cityOwnerID )
 				elseif buildingProductionID ~= -1 then
 					item = GameInfo.Buildings[buildingProductionID]
 				elseif projectProductionID ~= -1 then
@@ -1138,7 +1174,7 @@ local function RefreshCityBannersNow()
 				-- really should have an error texture
 
 				cityBanner.CityBannerProductionImage:SetHide( not( item and
-					IconHookup( item.PortraitIndex, 45, item.IconAtlas, cityBanner.CityBannerProductionImage )))
+					IconHookup( portraitIndex or item.PortraitIndex, 45, portraitAtlas or item.IconAtlas, cityBanner.CityBannerProductionImage )))
 
 				-- Focus?
 				local cityFocus = g_CityFocus[city:GetFocusType()]

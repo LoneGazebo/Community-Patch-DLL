@@ -48,6 +48,7 @@ public:
 	void Remove(int iLookupIndex);
 	void Activate(int iLookupIndex);
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
+	void CheckValidity();
 #else
 	bool  Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 #endif

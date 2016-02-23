@@ -14,10 +14,17 @@ UPDATE Defines
 SET Value = '15'
 WHERE Name = 'EXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- CP Unitclass
+INSERT INTO Defines (Name, Value)
+SELECT 'UNITCLASS_FOR_CS_BULLY', '-1';
 
 -- Divisor for CBP
 INSERT INTO Defines (Name, Value)
 SELECT 'BALANCE_HAPPINESS_LUXURY_BASE', '1';
+
+-- New CBP Quests
+INSERT INTO Defines (Name, Value)
+SELECT 'QUEST_DISABLED_CP_QUESTS', '1';
 
 -- Settler stuff
 
@@ -321,35 +328,35 @@ SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '0';
 -- AI Military Strategies - no CSs
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_RANGED';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_RANGED';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_MOBILE';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_MOBILE';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_ANTIAIR';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_ANTIAIR';
 
 UPDATE AIMilitaryStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
 
 UPDATE AIMilitaryStrategy_City_Flavors
