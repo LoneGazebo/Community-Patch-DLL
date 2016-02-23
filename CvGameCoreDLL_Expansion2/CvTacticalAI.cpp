@@ -2713,7 +2713,7 @@ void CvTacticalAI::PlotBarbarianCivilianEscortMove()
 			UnitHandle pUnit = m_pPlayer->getUnit(*it);
 
 			// Find any civilians we may have "acquired" from the civs
-			if(!pUnit->IsCanAttack())
+			if(!pUnit->IsCombatUnit())
 			{
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -7612,7 +7612,6 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 /// Heal chosen units
 void CvTacticalAI::ExecuteHeals()
 {
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> killedUnits;
 	for (std::set<int>::iterator it=m_HealingUnits.begin(); it!=m_HealingUnits.end(); ++it)
 	{
@@ -7652,7 +7651,7 @@ void CvTacticalAI::ExecuteHeals()
 							ExecuteMoveToPlotIgnoreDanger( pUnit, pBetterPlot );
 					}
 				}
-				else if (pUnit->isEmbarked())
+				else if (pUnit->isEmbarked() || !pUnit->canHeal(pUnit->plot()))
 				{
 					//need to find land to heal
 					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,false);
@@ -7729,25 +7728,6 @@ void CvTacticalAI::ExecuteHeals()
 	//erase the zombies
 	for (std::vector<int>::iterator i2=killedUnits.begin(); i2!=killedUnits.end(); ++i2)
 		m_HealingUnits.erase(*i2);
-#else
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
-		{
-			if(pUnit->isFortifyable())
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			}
-			UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-		}
-	}
-#endif
 }
 
 /// Move barbarian to a new location

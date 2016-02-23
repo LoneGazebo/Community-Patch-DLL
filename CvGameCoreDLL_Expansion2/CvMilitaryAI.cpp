@@ -6943,6 +6943,10 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 	int iWillBeFilled = 0;
 	int iLandReservesUsed = 0;
 	int iRequiredSlots = 0;
+	if (piNumberSlotsRequired) 
+		*piNumberSlotsRequired = INT_MAX;
+	if (piNumberLandReservesUsed) 
+		*piNumberLandReservesUsed = 0;
 
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
@@ -6961,7 +6965,6 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			{
 				if(!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMuster->getPlotCity(),pTarget->getPlotCity(),DOMAIN_SEA))
 				{
-					*piNumberSlotsRequired = 100;
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strTemp;
@@ -6978,7 +6981,6 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>4 ? PT_GENERIC_SAME_AREA_WIDE : PT_GENERIC_SAME_AREA, eEnemy );
 			if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 			{
-				*piNumberSlotsRequired = 100;
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp;
@@ -7038,15 +7040,11 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 	}
 
 	// Now go back through remaining slots and see how many were required, we'll need that many more units
-	if(piNumberSlotsRequired != NULL)
-	{
+	if(piNumberSlotsRequired)
 		(*piNumberSlotsRequired) = iWillBeFilled + iOpenRequiredSlots;
-	}
 
-	if(piNumberLandReservesUsed != NULL)
-	{
+	if(piNumberLandReservesUsed)
 		*piNumberLandReservesUsed = iLandReservesUsed;
-	}
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
