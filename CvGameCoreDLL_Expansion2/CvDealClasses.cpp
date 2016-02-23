@@ -14,6 +14,7 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvMilitaryAI.h"
 #include "CvDiplomacyRequests.h"
+#include "CvCitySpecializationAI.h"
 #endif
 
 // must be included after all other headers
@@ -3189,7 +3190,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #else
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
-#if defined(MOD_BALANCE_CORE)				
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(eAcceptedFromPlayer).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 					PlayerTypes eLoopPlayer;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{

@@ -265,10 +265,10 @@
 
 		<!-- Construction -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_X_BUILDING">
-			<Text>Builders from {@3_Civ} are eager to study the value of the {@1_Building}. {@3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{@2_Num}[ENDCOLOR] of these buildings across your empire!</Text>
+			<Text>Builders from {3_Civ} are eager to study the value of the {1_Building}. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING">
-			<Text>Construction projected presented by {@1_Civ}</Text>
+			<Text>Construction project from {@1_Civ}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_COMPLETE">

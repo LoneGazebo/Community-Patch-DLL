@@ -3254,12 +3254,32 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
 				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (5 * iEra));
+				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
+				{
+					if(IsGreatPerson())
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (6 * iEra));
+					}
+					else
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
+					}
+				}
 			}
 			else if(IsCivilianUnit() && pPlot && pPlot->isCity())
 			{
 				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 4;
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (1 * iEra));
+				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
+				{
+					if(IsGreatPerson())
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
+					}
+					else
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iEra);
+					}
+				}
 			}
 #endif
 
@@ -3655,7 +3675,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 							{
 #if defined(MOD_BALANCE_CORE)
-								if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
+								if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 								{
 									MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
 									MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
@@ -3695,9 +3715,24 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 						{
 #if defined(MOD_BALANCE_CORE)
-							if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+							if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
 							{
-								if(!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+								MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
+								MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+								if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
+								{
+									eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+								}
+								else
+								{
+									eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+								}
+
+								if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+								{	
+									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+								else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
 								{
 									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 								}
@@ -6726,7 +6761,6 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
-
 	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain() && !isCargo() );
 }
 
@@ -7303,13 +7337,8 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	// Unit now has to be able to Fortify to Heal (since they're very similar states, and Heal gives a defense bonus)
 	if(!bTestVisible)
 	{
-#if defined(MOD_BALANCE_EMBARKED_SHIPS)
-		// Embarked Units can't heal - unless it's a ship, then it's in a city/fort
-		if(isEmbarked() && getDomainType()!=DOMAIN_SEA)
-#else
 		// Embarked Units can't heal
 		if(isEmbarked())
-#endif
 		{
 			return false;
 		}
@@ -19284,7 +19313,7 @@ if (!bDoEvade)
 		if(GC.IsGraphicsInitialized())
 		{
 			//override bShow if check plot visible
-			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || pOldPlot->isVisibleToWatchingHuman()))
+			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || (pOldPlot && pOldPlot->isVisibleToWatchingHuman())))
 				bShow = true;
 
 			if(CvPreGame::quickMovement())
@@ -19615,16 +19644,6 @@ if (!bDoEvade)
 			SetGarrisonedCity(-1);
 		}
 	}
-
-#if defined(MOD_BALANCE_EMBARKED_SHIPS)
-	if (pNewPlot && getDomainType()==DOMAIN_SEA && IsCombatUnit())
-	{
-		if (pNewPlot->isFriendlyCityOrPassableImprovement(getOwner()))
-			setEmbarked(true);
-		else
-			setEmbarked(false);
-	}
-#endif
 
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
@@ -24647,6 +24666,12 @@ bool CvUnit::canRangeStrike() const
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+    if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
+    {
+        return false;
+    }
+#endif
 
 #if defined(MOD_BUGFIX_CITY_STACKING)
 	// Can't attack out of Cities if there are more units of the same domain type than the stacking limit permits
@@ -26664,13 +26689,21 @@ CvUnit* CvUnit::GetMissionAIUnit()
 /// Is this unit able to ground attack?
 bool CvUnit::IsCanAttackWithMove() const
 {
-	VALIDATE_OBJECT
-	if(!IsCombatUnit())
-	{
-		return false;
-	}
-
-	return !isOnlyDefensive();
+    VALIDATE_OBJECT
+    if(!IsCombatUnit())
+    {
+        return false;
+    }
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+    else if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
+    {
+        return false;
+    }
+#endif
+    else
+    {
+        return !isOnlyDefensive();
+    }
 }
 
 //	--------------------------------------------------------------------------------

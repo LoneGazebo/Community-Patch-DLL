@@ -795,9 +795,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
 		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
-		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity)
+		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
 		{
-			iBonus -= 100;
+			iBonus -= 300;
+		}
+		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(1) == m_pCity)
+		{
+			iBonus -= 200;
+		}
+		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(2) == m_pCity)
+		{
+			iBonus -= 200;
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
