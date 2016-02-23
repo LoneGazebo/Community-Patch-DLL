@@ -1479,7 +1479,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 				// ... undefended camp?
-				else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !m_pPlayer->isMinorCiv())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
@@ -1794,7 +1794,11 @@ void CvTacticalAI::ProcessDominanceZones()
 
 						// Is this move of the right type for this zone?
 						bool bMatch = false;
+#if defined(MOD_BALANCE_CORE)
+						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET" && pZone->GetTerritoryType() != TACTICAL_TERRITORY_FRIENDLY)
+#else
 						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET")    // This one okay for all zones
+#endif
 						{
 							bMatch = true;
 						}

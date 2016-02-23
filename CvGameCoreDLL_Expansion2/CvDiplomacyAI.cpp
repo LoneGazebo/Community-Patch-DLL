@@ -32607,7 +32607,7 @@ int CvDiplomacyAI::GetCitiesRazedScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumTimesRazed(ePlayer) > 0)
 	{
-		iOpinionWeight += max((GetNumTimesRazed(ePlayer) / 2), /*100*/ GC.getOPINION_WEIGHT_NUKED_MAX());
+		iOpinionWeight += max((GetNumTimesRazed(ePlayer) / 4), /*100*/ GC.getOPINION_WEIGHT_NUKED_MAX());
 		//We high enough up to incur a global penalty?
 		if((iOpinionWeight >= (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 2)) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
 		{
@@ -32618,7 +32618,13 @@ int CvDiplomacyAI::GetCitiesRazedScore(PlayerTypes ePlayer)
 			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetCivilianKiller(false);
 		}
 	}
-	else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
+
+	return iOpinionWeight;
+}
+int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
 	{
 		iOpinionWeight += (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 3);
 	}

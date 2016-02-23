@@ -1109,7 +1109,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 		{
 			if(pAdjacentPlot->isWater())
 			{
-				if(iMinWaterSize <= 0)
+				if(iMinWaterSize <= 1)
 				{
 					return true;
 				}
@@ -3921,9 +3921,7 @@ bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToWatchingHuman() const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
+	for(int iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
 	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
 		if( (thisPlayer.isAlive() && thisPlayer.isHuman()) || ( CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_ASSIGNED) )

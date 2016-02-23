@@ -236,9 +236,6 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if (data.ePathType != m_sData.ePathType)
 		return false;
 
-	//make sure we don't call this from dll and lua at the same time
-	CvGuard guard(m_cs);
-
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
 	if (m_iCurrentGenerationID==0xFFFF)
@@ -340,7 +337,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 			bSuccess = true;
 			break;
 		}
-		else if (m_iDestHitCount>3)
+		else if (m_iDestHitCount>2 && !HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 		{
 			//touched the target several times, but no success yet?
 			//that's fishy. take what we have and don't waste any more time
@@ -465,8 +462,6 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
-	//CvAStarNode* finalNode = NULL; //Not needed? GAZEBO
-
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
 	if (MOD_BALANCE_CORE_DEBUGGING)
@@ -1904,10 +1899,6 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	if(pNewPlot->IsRoutePillaged())
 		ePlotRoute = NO_ROUTE;
 
-	// City plots implicitly have the best available route (failsafe: should be set anyway)
-	if(pNewPlot->isCity())
-		ePlotRoute = kPlayer.getBestRoute();
-
 	if(ePlotRoute == NO_ROUTE)
 	{
 		//what else can count as road depends on the player type
@@ -1961,8 +1952,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	//which route types are allowed?
 	if ( eRoute == ROUTE_ANY )
 	{
-		//if the player can build any route, it's good
-		return (kPlayer.getBestRoute() != NO_ROUTE);
+		return TRUE;
 	}
 	else
 	{
@@ -3027,15 +3017,8 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 		return TRUE;
 
 	//check passable improvements
-	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
-	{
-		//not allowed to build chains of passable improvements
-		CvPlot* pParentPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-		if(pParentPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
-			return FALSE;
-
+	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false) && pNewPlot->isAdjacentToShallowWater() )
 		return TRUE;
-	}
 
 	return FALSE;
 }

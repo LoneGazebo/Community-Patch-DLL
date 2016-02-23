@@ -3343,7 +3343,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		strMessage << strBuildingName;
 		strMessage << iActionAmount;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING");
-		strSummary << strBuildingName;
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
 	{

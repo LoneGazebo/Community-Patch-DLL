@@ -3799,8 +3799,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 200;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
-			else
-				return INT_MAX;
+			else if(eWarProjection <= WAR_PROJECTION_UNKNOWN)
+				return INT_MAX;			
 		}
 		else
 		{
@@ -3808,9 +3808,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 200;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
-			else if(eWarProjection == WAR_PROJECTION_STALEMATE)
+			else if(eWarProjection >= WAR_PROJECTION_STALEMATE)
 				iItemValue += 400;
-			else if(eWarProjection <= WAR_PROJECTION_UNKNOWN)
+			else if(eWarProjection < WAR_PROJECTION_STALEMATE)
 				return INT_MAX;
 		}
 		
@@ -3837,12 +3837,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 75;
 				iItemValue /= 100;
 			}
-			else if(eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
+			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
 			{
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
-			else if(eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -3968,7 +3968,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					case PLAYER_PROXIMITY_DISTANT:
 						return INT_MAX;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 500;
+						iItemValue *= 400;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
 						iItemValue *= 300;
@@ -4069,12 +4069,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
-		//Are we already at war with the team? Don't do it!
+		//Are they already at war with the team? Don't do it!
 		if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(eWithTeam))
 		{
 			return INT_MAX;
 		}
-		//Can we declare war?
+		//Can they declare war?
 		if(!GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			return INT_MAX;
@@ -4082,10 +4082,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		//Don't care if we're not upset with the third party.
 		if(GET_PLAYER(eWithPlayer).isMajorCiv())
 		{
-			if(eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_GUARDED)
-			{
-				return INT_MAX;
-			}
 			//Are we already at war with the player? Let's lower our standards a bit.
 			if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 			{
@@ -4094,7 +4090,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					return INT_MAX;
 				}
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE)
+			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
 				if(eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE)
 				{
@@ -4162,35 +4158,30 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					iItemValue *= 175;
 					iItemValue /= 100;
 				}
-				else if(eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_AFRAID)
-				{
-					iItemValue *= 150;
-					iItemValue /= 100;
-				}
-				else if(eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_AFRAID)
+				else if(eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_GUARDED)
 				{
 					return INT_MAX;
 				}
 			}
+			else
+			{
+				iItemValue *= 300;
+				iItemValue /= 100;
+			}
 		}
-		// Modify for our feelings towards the asking player
-		if(eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_GUARDED)
+		if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
 		{
-			return INT_MAX;
-		}
-		else if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
-		{
-			iItemValue *= 90;
+			iItemValue *= 150;
 			iItemValue /= 100;
 		}
 		else if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_NEUTRAL)
 		{
-			iItemValue *= 125;
+			iItemValue *= 90;
 			iItemValue /= 100;
 		}
 		else if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 		{
-			iItemValue *= 90;
+			iItemValue *= 150;
 			iItemValue /= 100;
 		}
 
@@ -4287,7 +4278,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						case PLAYER_PROXIMITY_DISTANT:
 						case PLAYER_PROXIMITY_FAR:
-							return INT_MAX;
+							iItemValue *= 50;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 200;
 							break;
@@ -4306,7 +4297,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 					{
 						case PLAYER_PROXIMITY_DISTANT:
-							return INT_MAX;
+							iItemValue *= 25;
 						case PLAYER_PROXIMITY_FAR:
 							iItemValue *= 50;
 							break;

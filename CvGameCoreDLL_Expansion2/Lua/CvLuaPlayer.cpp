@@ -12280,6 +12280,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 #if defined(MOD_BALANCE_CORE)
 	iValue = pDiploAI->GetCitiesRazedScore(eWithPlayer);
+	int iValue2 = pDiploAI->GetCitiesRazedGlobalScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
@@ -12287,16 +12288,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 		aOpinions.push_back(kOpinion);
 	}
-	else
+	else if(iValue2 != 0)
 	{
-		iValue = pDiploAI->GetCitiesRazedScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED_OTHER");
-			aOpinions.push_back(kOpinion);
-		}
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue2;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED_OTHER");
+		aOpinions.push_back(kOpinion);
 	}
 #endif
 

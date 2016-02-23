@@ -959,20 +959,23 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 		return pTargetPlot;
 
 	//check early termination if we ran into the enemy
-	CvPlot*	pEnemyPlot = DetectNearbyEnemy(eEnemy, bNavalOp);
-	if(pEnemyPlot != NULL)
+	if(GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
-		CvCity* pCity = pEnemyPlot->getWorkingCity();
-		if(pCity != NULL)
+		CvPlot*	pEnemyPlot = DetectNearbyEnemy(eEnemy, bNavalOp);
+		if(pEnemyPlot != NULL)
 		{
-			if (bNavalOp && pCity->isCoastal() && pCity->waterArea()==pTargetPlot->area())
-				pEnemyPlot = pCity->plot();
+			CvCity* pCity = pEnemyPlot->getWorkingCity();
+			if(pCity != NULL)
+			{
+				if (bNavalOp && pCity->isCoastal() && pCity->waterArea()==pTargetPlot->area())
+					pEnemyPlot = pCity->plot();
 
-			if (!bNavalOp && pCity->area()==pTargetPlot->area())
-				pEnemyPlot = pCity->plot();
+				if (!bNavalOp && pCity->area()==pTargetPlot->area())
+					pEnemyPlot = pCity->plot();
+			}
+
+			return pEnemyPlot;
 		}
-
-		return pEnemyPlot;
 	}
 
 	return NULL;

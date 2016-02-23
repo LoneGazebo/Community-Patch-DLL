@@ -1272,6 +1272,7 @@ public:
 	int GetNukedByScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	int GetCitiesRazedScore(PlayerTypes ePlayer);
+	int GetCitiesRazedGlobalScore(PlayerTypes ePlayer);
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetGaveAssistanceToScore(PlayerTypes ePlayer);

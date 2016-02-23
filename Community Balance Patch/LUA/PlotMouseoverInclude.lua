@@ -380,7 +380,7 @@ function GetUnitsString(plot)
 			end
 			
 			-- Embarked?
-			if (unit:IsEmbarked()) then
+			if(unit:IsEmbarked()) then
 				strUnitText = strUnitText .. ", " .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_EMBARKED" );
 			end
 			

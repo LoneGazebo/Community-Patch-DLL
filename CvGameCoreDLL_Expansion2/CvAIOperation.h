@@ -1241,7 +1241,7 @@ namespace OperationalAIHelpers
 	int GetGatherRangeForXUnits(int iTotalUnits);
 #if defined(MOD_BALANCE_CORE)
 	CvPlot* FindBestBarbarianBombardmentTarget(PlayerTypes ePlayer);
-	bool FindBestBarbCamp(PlayerTypes ePlayer);
+	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
 	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance);
 	bool NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot);

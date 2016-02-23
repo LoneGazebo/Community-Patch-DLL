@@ -3098,6 +3098,12 @@
 		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_4">
 			<Text>My advisors tell me that you have a Strategic Resource of some value. Will you share it with me?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_5">
+			<Text>Does this exchange suit you? It doesn't look like you are using this Strategic Resource, and I need it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_6">
+			<Text>You have a plentiful supply of Strategic Resources in your territory. Would you like to share them?</Text>
+		</Row>
 	
 		<!-- Denounce Notifications -->
 		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_IDEOLOGY">

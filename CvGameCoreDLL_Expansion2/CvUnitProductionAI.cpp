@@ -332,6 +332,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(kPlayer.GetID()) >= PLAYER_PROXIMITY_CLOSE)
 				{
 					bAlone = false;
+					break;
 				}
 			}
 		}
@@ -339,11 +340,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(eDomain == DOMAIN_LAND)
 			{
-				iBonus -= 33;
+				iBonus -= 50;
 			}
-			else
+			else if(eDomain == DOMAIN_SEA)
 			{
-				iBonus += 33;
+				iBonus += 100;
 			}
 		}
 	}
@@ -362,6 +363,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					{
 						return 0;
 					}
+				}
+			}
+		}
+		EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
+		if(eStrategyIslandStart != NO_ECONOMICAISTRATEGY)
+		{
+			if(kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
+			{
+				if(eDomain == DOMAIN_LAND)
+				{
+					iBonus -= 50;
+				}
+				else if(eDomain == DOMAIN_SEA)
+				{
+					iBonus += 100;
 				}
 			}
 		}
