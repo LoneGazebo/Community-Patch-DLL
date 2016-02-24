@@ -773,9 +773,9 @@ bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int iOperationID;
 	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID);
-	if (!bHasOperationUnderway)
+	if (!bHasOperationUnderway && GET_PLAYER(eEnemy).getCapitalCity() != NULL)
 	{
-		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_FAST_PILLAGERS, false, false, NULL, NULL, &iNumRequiredSlots, &iLandReservesUsed);
+		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_FAST_PILLAGERS, false, false, GET_PLAYER(eEnemy).getCapitalCity()->plot(), GET_PLAYER(eEnemy).getCapitalCity()->plot(), &iNumRequiredSlots, &iLandReservesUsed);
 #else
 	iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, &iNumRequiredSlots, &iLandReservesUsed);
 #endif
@@ -2296,6 +2296,55 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 			{
 				fDesirability /= 15;
+			}
+		}
+	}
+	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if(eMinor != NO_PLAYER)
+		{
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if(pMinor)
+			{
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				TeamTypes eConquerorTeam = GET_TEAM(pMinor->getTeam()).GetKilledByTeam();
+
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
+				{
+					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == target.m_pTargetCity->getOwner())
+					{
+						fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+						fDesirability /= 100;
+					}
+				}
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION))
+				{
+					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
+					{
+						if(eConquerorTeam == target.m_pTargetCity->getTeam())
+						{
+							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+							fDesirability /= 100;
+						}
+					}
+				}
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
+				{
+					int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+					int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+
+					CvPlot* pPlot = GC.getMap().plot(iX, iY);
+					if(pPlot != NULL && pPlot->isCity())
+					{
+						if(pPlot->getOwner() == target.m_pTargetCity->getOwner())
+						{
+							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+							fDesirability /= 100;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -4612,7 +4661,7 @@ void CvMilitaryAI::UpdateOperations()
 							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
 							if (!bHasOperationUnderway)
 							{
-								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
 								if (iFilledSlots >= iNumRequiredSlots)
 								{
 									m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
@@ -4623,7 +4672,7 @@ void CvMilitaryAI::UpdateOperations()
 								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID);
 								if (!bHasOperationUnderway)
 								{
-									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, NULL, NULL, &iNumRequiredSlots);
+									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
 
 									// Not willing to build units to get this off the ground
 									if (iFilledSlots >= iNumRequiredSlots)
@@ -4694,7 +4743,7 @@ void CvMilitaryAI::UpdateOperations()
 							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
 							if (!bHasOperationUnderway)
 							{
-								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
 								if (iFilledSlots >= iNumRequiredSlots)
 								{
 									m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
@@ -4705,7 +4754,7 @@ void CvMilitaryAI::UpdateOperations()
 								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID);
 								if (!bHasOperationUnderway)
 								{
-									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, NULL, NULL, &iNumRequiredSlots);
+									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
 
 									// Not willing to build units to get this off the ground
 									if (iFilledSlots >= iNumRequiredSlots)
@@ -4806,9 +4855,10 @@ void CvMilitaryAI::UpdateOperations()
 			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP, &iOperationID);
 			if (!bHasOperationUnderway)
 			{
-				if(OperationalAIHelpers::FindBestBarbCamp(m_pPlayer->GetID()))
+				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbCamp(m_pPlayer->GetID());
+				if(pTarget != NULL)
 				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, NO_PLAYER, MUFORMATION_ANTI_BARBARIAN_TEAM, false, false, NULL, NULL, &iNumRequiredSlots);
+					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, NO_PLAYER, MUFORMATION_ANTI_BARBARIAN_TEAM, false, false, pTarget, pTarget, &iNumRequiredSlots);
 
 					// Not willing to build units to get this off the ground
 					if(iFilledSlots >= iNumRequiredSlots)
@@ -4824,7 +4874,7 @@ void CvMilitaryAI::UpdateOperations()
 				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbarianBombardmentTarget(m_pPlayer->GetID());
 				if(pTarget != NULL)
 				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, BARBARIAN_PLAYER, MUFORMATION_NAVAL_BOMBARDMENT, true, false, NULL, NULL, &iNumRequiredSlots);
+					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, BARBARIAN_PLAYER, MUFORMATION_NAVAL_BOMBARDMENT, true, false, pTarget, pTarget, &iNumRequiredSlots);
 
 					// Not willing to build units to get this off the ground
 					if(iFilledSlots >= iNumRequiredSlots)
@@ -6014,7 +6064,7 @@ CvString CvMilitaryAI::GetLogFileName(CvString& playerName, bool bSummary) const
 //Let's run a test to get minor civs to send assaults at nearby cities.
 void CvMilitaryAI::MinorAttackTest()
 {
-	if(m_pPlayer->IsAtWarAnyMajor() && m_pPlayer->isMinorCiv())
+	if(m_pPlayer->IsAtWar() && m_pPlayer->isMinorCiv())
 	{
 		CvMilitaryTarget target;
 		int iOperationID;
@@ -6028,7 +6078,7 @@ void CvMilitaryAI::MinorAttackTest()
 			return;
 		}
 		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if(GET_PLAYER(eLoopPlayer).GetID() != m_pPlayer->GetID())
@@ -6957,7 +7007,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			iRequiredSlots++;
 	}
 
-	if(pPlayer && eEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL)
+	if(pPlayer && eEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL && (pTarget != pMuster))
 	{
 		if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
 		{
@@ -6988,6 +7038,34 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					strLogString.Format("FAILED PATHFINDER - Tallying up land units for %s formation.", thisFormation->GetType());
 					pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
+				return 0;
+			}
+		}
+	}
+	if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
+	{
+		CvPlot* pAdjacentPlot = NULL;
+		if(pMuster->isCoastalLand())
+		{
+			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pMuster, NULL);
+			if(pAdjacentPlot != NULL)
+			{
+				pMuster = pAdjacentPlot;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		if(pTarget->isCoastalLand())
+		{
+			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pTarget, NULL);
+			if(pAdjacentPlot != NULL)
+			{
+				pTarget = pAdjacentPlot;
+			}
+			else
+			{
 				return 0;
 			}
 		}

@@ -1024,11 +1024,10 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 		}
-		// Temporary zone: want Steamroll of Surgical Strike so we close in on city
+		// Temporary zone: want Steamroll or Surgical Strike so we close in on city
 		else if (bTemporaryZone)
 		{
-			if (pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_ENEMY)
-
+			if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 			{
 				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 			}
@@ -1480,7 +1479,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 				// ... undefended camp?
-				else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !m_pPlayer->isMinorCiv())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
@@ -1795,7 +1794,11 @@ void CvTacticalAI::ProcessDominanceZones()
 
 						// Is this move of the right type for this zone?
 						bool bMatch = false;
+#if defined(MOD_BALANCE_CORE)
+						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET" && pZone->GetTerritoryType() != TACTICAL_TERRITORY_FRIENDLY)
+#else
 						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET")    // This one okay for all zones
+#endif
 						{
 							bMatch = true;
 						}
@@ -6516,6 +6519,10 @@ void CvTacticalAI::IdentifyPriorityTargets()
 	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Compile a list of units that can attack it this turn and what their expected damage is
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopCity == NULL)
+			continue;
+#endif
 		possibleAttackers.clear();
 		iExpectedTotalDamage = 0;
 

@@ -10,6 +10,9 @@
 #include "CvTechAI.h"
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvEconomicAI.h"
+#endif
 
 #include "LintFree.h"
 
@@ -133,6 +136,18 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 #if defined(MOD_BALANCE_CORE)
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking grand strategy stuff)
 			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
+
+			if(entry->IsAllowsEmbarking())
+			{
+				EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
+				if(eStrategyIslandStart != NO_ECONOMICAISTRATEGY)
+				{
+					if(m_pCurrentTechs->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
+					{
+						paiTempWeights[iTech] += 1000;
+					}
+				}
+			}
 #endif
 		}
 	}

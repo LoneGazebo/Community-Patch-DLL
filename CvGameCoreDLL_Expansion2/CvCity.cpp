@@ -1200,7 +1200,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 			if (getOwner() == GC.getGame().getActivePlayer())
 			{
-				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetDescriptionKey(), iProduction, getNameKey());
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetTextKey(), iProduction, getNameKey());
 					GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
 		}
@@ -4087,6 +4087,18 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 		{
 			ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
+
+#if defined(MOD_BALANCE_CORE)
+			//Exception for new Rome UA, because civ type doesn't help you here.
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+			{
+				if(0 == m_pCityBuildings->GetNumBuildingClass((BuildingClassTypes)iI))
+				{
+					return false;
+				}
+			}
+			else
+#endif
 
 			if(ePrereqBuilding != NO_BUILDING)
 			{
@@ -14586,7 +14598,7 @@ bool CvCity::DoRazingTurn()
 		}
 		if(!GET_PLAYER(getOwner()).isMinorCiv())
 		{
-			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (3 * iEra));
+			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
 		}
 
 		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
@@ -25904,6 +25916,44 @@ int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
 		}
 
 		if (pLoopPlot->getImprovementType() == eImprovement) 
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+	int iNum = 0;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		// Does not belong to this city
+		if (pLoopPlot->getWorkingCity() != this) 
+		{
+			continue;
+		}
+
+		if(!GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+		{
+			continue;
+		}
+
+		if(eTerrain == NO_TERRAIN)
+		{
+			iNum++;
+		}
+		else if(eTerrain == pLoopPlot->getTerrainType())
 		{
 			iNum++;
 		}

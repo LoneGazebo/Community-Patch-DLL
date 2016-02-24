@@ -1892,6 +1892,14 @@ function OnCityViewUpdate()
 			Controls.UnrazeCityButton:SetDisabled( true );
 			
 			Controls.BuyPlotButton:SetDisabled( true );
+			-- Venice Edit (CBP)
+			if(pCity:GetOwner() == Game.GetActivePlayer())then
+				local bAnnex = Players[pCity:GetOwner()]:MayNotAnnex();
+				if bAnnex then 
+					Controls.BuyPlotButton:SetDisabled( false );
+				end
+			end
+			--END
 			
 		else
 			

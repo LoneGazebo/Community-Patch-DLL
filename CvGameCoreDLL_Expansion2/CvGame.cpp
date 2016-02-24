@@ -11275,7 +11275,11 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	UnitTypes eUnitType = GET_PLAYER(eBully).GetSpecificUnitType("UNITCLASS_WORKER");
+	UnitTypes eUnitType = (UnitTypes) GC.getUNITCLASS_FOR_CS_BULLY();
+	if(eUnitType == NO_UNITCLASS)
+	{
+		eUnitType = GET_PLAYER(eBully).GetSpecificUnitType("UNITCLASS_WORKER");
+	}
 #else
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
 #endif
@@ -11294,6 +11298,19 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Do the action of a major buying out a minor and marrying it
+void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+
+	GET_PLAYER(eMinor).GetMinorCivAI()->DoMarriage(eMajor);
+}
+#endif
 
 
 

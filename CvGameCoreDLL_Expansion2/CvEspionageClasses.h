@@ -153,6 +153,9 @@ typedef FStaticVector<CvEspionageSpy, 8, false, c_eCiv5GameplayDLL > SpyList;
 typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
 typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
+#if defined(MOD_BALANCE_CORE)
+typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumSpyActionsDone;
+#endif
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
 typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
 
@@ -228,6 +231,9 @@ public:
 	bool IsTechStealable(PlayerTypes ePlayer, TechTypes eTech);
 
 	int GetNumTechsToSteal(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumSpyActionsDone(PlayerTypes ePlayer);
+#endif
 
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
@@ -261,7 +267,9 @@ public:
 	HeistLocationList m_aHeistLocations;
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player
 	std::vector<IntrigueNotificationMessage> m_aIntrigueNotificationMessages; // cleared only between games
-
+#if defined(MOD_BALANCE_CORE)
+	NumSpyActionsDone m_aiNumSpyActionsDone;
+#endif
 private:
 	CvPlayer* m_pPlayer;
 };

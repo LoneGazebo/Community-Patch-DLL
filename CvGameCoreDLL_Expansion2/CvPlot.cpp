@@ -6766,12 +6766,34 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 #endif
 
 		m_eFeatureType = eNewValue;
-
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pWorkingCity = getWorkingCity();
+		if(pWorkingCity != NULL)
+		{
+			//City already working this plot? Adjust features being worked as needed.
+			if(pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
+			{
+				//New feature over old? Remove old, add new.
+				if(eOldFeature != NO_FEATURE)
+				{
+					pWorkingCity->ChangeNumFeatureWorked(eOldFeature, -1);
+					//We added new improvement (wasn't deleted) - add here.
+					if(eNewValue != NO_FEATURE)
+					{
+						pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
+					}
+				}
+				//New improvement over nothing? Add it in.
+				else if(eNewValue != NO_FEATURE)
+				{
+					pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
+				}
+			}
+		}
+#endif
 		updateYield();
 		updateImpassable();
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pWorkingCity = getWorkingCity();
-
 		if(pWorkingCity != NULL)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
@@ -9292,7 +9314,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 				}
 			}
-			else
+			else if(!MOD_BALANCE_YIELD_SCALE_ERA)
 			{
 #endif
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);

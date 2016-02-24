@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>72</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(2-17b) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(2-22b) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -464,6 +464,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/SaneTerrain.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/MinorCivQuestRewards.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -496,6 +501,7 @@
     <Folder Include="Core Files\Core Tables\" />
     <Folder Include="Core Files\Core Values\" />
     <Folder Include="Core Files\Core Values\Artificial Unintelligence" />
+    <Folder Include="Core Files\Core Modules" />
     <Folder Include="Core Files\PNM Mods DB" />
     <Folder Include="Core Files\PNM Mods DB\API\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
@@ -817,6 +823,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\Automates.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Values\MinorCivQuestRewards.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

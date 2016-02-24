@@ -233,6 +233,12 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	{
 		m_aiNumTechsToStealList.push_back(0);
 	}
+#if defined(MOD_BALANCE_CORE)
+	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		m_aiNumSpyActionsDone.push_back(0);
+	}
+#endif
 }
 
 /// Uninit
@@ -248,12 +254,18 @@ void CvPlayerEspionage::Reset()
 	m_aiSpyListNameOrder.clear();
 	m_iSpyListNameOrderIndex = -1;
 	m_aiNumTechsToStealList.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_aiNumSpyActionsDone.clear();
+#endif
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		m_aiMaxTechCost[ui] = -1;
 		m_aHeistLocations[ui].clear();
+#if defined(MOD_BALANCE_CORE)
+		m_aiNumSpyActionsDone[ui] = 0;
+#endif
 	}
 }
 
@@ -1162,16 +1174,16 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			}
 		}
 		//Only possible if very unhappy
-		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
+		if(GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 		{
-			if(iCityRank > 7 && pCity->GetBlockRebellion() <= 0)
+			if(iCityRank > 6 && pCity->GetBlockRebellion() <= 0)
 			{
 				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
 				{
 					aiAdvancedAction.push_back(5);
 				}
 			}
-			else if(iCityRank > 5 && pCity->GetBlockUnrest() <= 0)
+			else if(iCityRank > 4 && pCity->GetBlockUnrest() <= 0)
 			{	
 				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
 				{
@@ -1355,6 +1367,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				}
 
 				pSpy->ChangeAdvancedActions(1);
+#if defined(MOD_BALANCE_CORE)
+				m_aiNumSpyActionsDone[pCity->getOwner()]++;
+#endif
 				
 				int iTest = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
 				int iSpyResult = aiAdvancedAction[iTest];
@@ -2161,6 +2176,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				}
 				else if(iSpyResult == 9)
 				{
+#if defined(MOD_BALANCE_CORE)
+					m_aiNumSpyActionsDone[pCity->getOwner()]--;
+#endif
 					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 					if(pDefendingPlayerEspionage)
 					{
@@ -3900,7 +3918,10 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 #endif
 		LogEspionageMsg(strMsg);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//Used for minor civ quests
+	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
+#endif
 	bool bAttemptSuccess = false;
 	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
@@ -4342,6 +4363,18 @@ int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 
 	return m_aiNumTechsToStealList[ePlayer];
 }
+#if defined(MOD_BALANCE_CORE)
+int CvPlayerEspionage::GetNumSpyActionsDone(PlayerTypes ePlayer)
+{
+	CvAssertMsg((uint)ePlayer < m_aiNumSpyActionsDone.size(), "ePlayer out of bounds");
+	if((uint)ePlayer >= m_aiNumSpyActionsDone.size())
+	{
+		return -1;
+	}
+
+	return m_aiNumSpyActionsDone[ePlayer];
+}
+#endif
 
 bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling)
 {
@@ -6614,6 +6647,15 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
+#if defined(MOD_BALANCE_CORE)
+	loadFrom >> uiNumCivs;
+	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
+	{
+		int iNumSpyActionsDone;
+		loadFrom >> iNumSpyActionsDone;
+		writeTo.m_aiNumSpyActionsDone.push_back(iNumSpyActionsDone);
+	}
+#endif
 
 	int iMaxTechCostEntries;
 	loadFrom >> iMaxTechCostEntries;
@@ -6721,6 +6763,13 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aiNumTechsToStealList[uiCiv];
 	}
+#if defined(MOD_BALANCE_CORE)
+	saveTo << readFrom.m_aiNumSpyActionsDone.size();
+	for(uint uiCiv = 0; uiCiv < readFrom.m_aiNumSpyActionsDone.size(); uiCiv++)
+	{
+		saveTo << readFrom.m_aiNumSpyActionsDone[uiCiv];
+	}
+#endif
 
 	saveTo << MAX_MAJOR_CIVS;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
@@ -7470,6 +7519,9 @@ void CvEspionageAI::StealTechnology()
 			TechTypes eStolenTech = pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer][0];
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
 			GET_TEAM(eTeam).GetTeamTechs()->SetNoTradeTech(eStolenTech, true);
+#if defined(MOD_BALANCE_CORE)
+			pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
+#endif
 
 			// send out notifications to the parties that were stolen from
 			CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iX, pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iY);
@@ -8028,6 +8080,34 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			{
 				// raise our diplo modifier by a scale of 10 so that we're less likely to target those we aren't at war with
 				iDiploModifier = 10;
+#if defined(MOD_BALANCE_CORE)
+				for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+					if(eMinor != NO_PLAYER)
+					{
+						CvPlayer* pMinor = &GET_PLAYER(eMinor);
+						if(pMinor)
+						{
+							CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM))
+							{
+								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM) == eTargetPlayer)
+								{
+									iDiploModifier /= 2;
+								}
+							}
+							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY))
+							{
+								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY) == eTargetPlayer)
+								{
+									iDiploModifier /= 2;
+								}
+							}
+						}
+					}
+				}
+#endif
 				// if we promised not to spy, make it less likely that we will spy
 				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
 				{

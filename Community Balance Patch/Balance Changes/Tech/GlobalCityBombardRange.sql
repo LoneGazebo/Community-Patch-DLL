@@ -1,6 +1,3 @@
-ALTER TABLE Technologies ADD BombardRange INTEGER DEFAULT 0;
-ALTER TABLE Technologies ADD BombardIndirect INTEGER DEFAULT 0;
-
 UPDATE Technologies SET BombardRange=1 WHERE Type='TECH_AGRICULTURE';
 UPDATE Technologies SET BombardRange=2 WHERE Type='TECH_MATHEMATICS';
 UPDATE Technologies SET BombardRange=2, BombardIndirect=1 WHERE Type='TECH_GUNPOWDER';

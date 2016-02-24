@@ -2,7 +2,7 @@
 
 -- note: +2 will be added to see from and see through values for the plot type. influence cost also handled via plot type
 UPDATE Terrains
-SET Movement = '3', Defense = '25', Impassable = '1', SeeFrom = '1', SeeThrough = '1', Water = 'false', Found = '1'
+SET Movement = '3', Defense = '25', Impassable = '1', SeeFrom = '1', SeeThrough = '1', Water = '0', Found = '1'
 WHERE Type = 'TERRAIN_MOUNTAIN';
 
 -- yields will only be realized if the plot is passable for the owner
@@ -18,5 +18,5 @@ WHERE Type = 'FEATURE_ICE';
 
 -- Fix Fishing Boats murdering combat units
 UPDATE Builds
-SET KillOnlyCivilian = 'true'
+SET KillOnlyCivilian = '1'
 WHERE Type = 'BUILD_FISHING_BOATS';

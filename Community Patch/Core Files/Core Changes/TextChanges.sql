@@ -525,5 +525,97 @@ DELETE FROM Concepts_RelatedConcept
 WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 
 
+-- Fixed quest text - transitioned to new 'quest rewards' panel
+UPDATE Language_en_US
+SET Text = 'You have successfully destroyed the Barbarian Encampment as requested by {1_MinorCivName:textkey}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CAMP';
 
+UPDATE Language_en_US
+SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Assist {3_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {1_CivName:textkey}, or [COLOR_POSITIVE_TEXT]ally[ENDCOLOR] both City-States to pacify them. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE';
+
+UPDATE Language_en_US
+SET Text = 'War breaks out between {2_CivName:textkey} and {1_TargetName:textkey}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CITY_STATE';
+
+UPDATE Language_en_US
+SET Text = 'The war between {2_CivName:textkey} and {1_TargetName:textkey} has ended, with {2_CivName:textkey} emerging as the clear victor. Your advisors worry that this outcome may lead to future conflict.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CITY_STATE';
+
+UPDATE Language_en_US
+SET Text = '{1_TargetName:textkey} defeated by {2_CivName:textkey}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_KILL_CITY_STATE';
+
+UPDATE Language_en_US
+SET Text = 'Conquer {1_CityStateName:textkey}, or Ally both {1_CityStateName:textkey} and this City-State.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL';
+
+
+UPDATE Language_en_US
+SET Text = 'As {2_MinorCivName:textkey} requested, you have successfully connected {1_ResourceName} to your trade network! Their merchants are quite pleased!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONNECT_RESOURCE';
+
+UPDATE Language_en_US
+SET Text = 'As {2_MinorCivName:textkey} requested, you have successfully constructed {1_WonderName}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONSTRUCT_WONDER';
+
+UPDATE Language_en_US
+SET Text = 'As {2_MinorCivName:textkey} requested, you have successfully created a {1_UnitName}! Their scholars are in awe.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_GREAT_PERSON';
+
+UPDATE Language_en_US
+SET Text = 'Your discovery of a new Natural Wonder has inspired the citizens of {1_MinorCivName:textkey}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_NATURAL_WONDER';
+
+UPDATE Language_en_US
+SET Text = 'Your discovery of {1_TargetName:textkey} has greatly pleased the merchants of {2_MinorCivName:textkey}.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_PLAYER';
+
+UPDATE Language_en_US
+SET Text = 'Your gift of gold has helped {2_MinorCivName:textkey} recover from the tribute paid to {1_BullyName:textkey}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_GIVE_GOLD';
+
+UPDATE Language_en_US
+SET Text = 'Your promise to protect {2_MinorCivName:textkey} has helped them recover from the tribute paid to {1_BullyName:textkey}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_PLEDGE_TO_PROTECT';
+
+UPDATE Language_en_US
+SET Text = 'You have impressed {1_MinorCivName:textkey} with your culture!  They turn a blind eye to the culture of other civilizations. Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_CULTURE';
+
+UPDATE Language_en_US
+SET Text = 'Another civilization has impressed {1_MinorCivName:textkey} with its culture.  Your cultural growth was not enough. Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_CULTURE';
+
+UPDATE Language_en_US
+SET Text = 'The priesthood of {1_MinorCivName:textkey} are moved by your piety.  They shun the inferior faith of other civilizations. Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_FAITH';
+
+UPDATE Language_en_US
+SET Text = 'Another civilization has impressed {1_MinorCivName:textkey} with its faith.  Your faith growth was not enough.  Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_FAITH';
+
+UPDATE Language_en_US
+SET Text = '{1_MinorCivName:textkey} is amazed by your swift technological advancements!  Their scientists and intellectuals dismiss other civilizations as stagnant. Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_TECHS';
+
+UPDATE Language_en_US
+SET Text = 'Another civilization has impressed {1_MinorCivName:textkey} with its technological advancement.  Your scientific discoveries were not enough. Civilizations that succeeded (ties are allowed):[NEWLINE]'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TECHS';
+
+UPDATE Language_en_US
+SET Text = '{2_MinorCivName:textkey} enjoyed seeing its rival {1_TargetName:textkey} squirm and give up hard earned resources.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_BULLY_CITY_STATE';
+
+UPDATE Language_en_US
+SET Text = '{2_MinorCivName:textkey} is relieved that the injustice they suffered at the hands of {1_TargetName:textkey} is now known by major world powers.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_DENOUNCE_MAJOR';
+
+UPDATE Language_en_US
+SET Text = 'Citizens of {@2_MinorCivName} are glad to see {@1_ReligionName} come to their city and become the dominant religion.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_SPREAD_RELIGION';
+
+UPDATE Language_en_US
+SET Text = 'Citizens of {@1_MinorCivName} are glad to see a connected trade route.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_TRADE_ROUTE';
 

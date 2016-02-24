@@ -1312,6 +1312,7 @@ public:
 	int CountNumWorkedImprovement(ImprovementTypes eImprovement);
 	int CountNumWorkedResource(ResourceTypes eResource);
 	int CountNumImprovement(ImprovementTypes eImprovement);
+	int CountNumWorkedRiverTiles(TerrainTypes eTerrain = NO_TERRAIN);
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)

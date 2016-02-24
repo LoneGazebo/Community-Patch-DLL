@@ -188,7 +188,7 @@
 			<Water>true</Water>
 			<Defense>800</Defense>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>
-			<BorderObstacleCity>1</BorderObstacleCity>
+			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>

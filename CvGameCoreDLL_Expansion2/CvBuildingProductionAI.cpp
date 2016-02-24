@@ -290,8 +290,44 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		return iValue;
 	}
 
+	
 	//Bonus % additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
+
+
+	////////////////
+	////QUESTS
+	////////////////
+
+	//Minor Check
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if(eMinor != NO_PLAYER)
+		{
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if(pMinor)
+			{
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
+				{
+					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
+					{
+						iBonus += 50;
+					}
+					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
+					{
+						iBonus += 50;
+					}
+					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
+					{
+						iBonus += 50;
+					}
+				}
+			}
+		}
+	}
+
 
 	////////////
 	///GEOGRAPHY
@@ -759,9 +795,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
 	{
 		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
-		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity)
+		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
 		{
-			iBonus -= 100;
+			iBonus -= 300;
+		}
+		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(1) == m_pCity)
+		{
+			iBonus -= 200;
+		}
+		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(2) == m_pCity)
+		{
+			iBonus -= 200;
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

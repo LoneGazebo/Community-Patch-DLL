@@ -759,6 +759,25 @@ public:
 
 	int GetNumCities() const;
 	int GetCityPopulation() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetInfluence() const;
+	int GetDuration() const;
+	int GetGPPointsGlobal() const;
+	int GetGPPoints() const;
+	int GetExperience() const;
+	int GetGold() const;
+	int GetCulture() const;
+	int GetFaith() const;
+	int GetScience() const;
+	int GetFood() const;
+	int GetProduction() const;
+	int GetGAP() const;
+	int GetHappiness() const;
+	int GetTourism() const;
+	int GetGeneralPoints() const;
+	int GetAdmiralPoints() const;
+	int GetRandom() const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -770,6 +789,26 @@ protected:
 
 	int m_iNumCities;
 	int m_iCityPopulation;
+
+#if defined(MOD_BALANCE_CORE)
+	int m_iCSInfluence;
+	int m_iDuration;
+	int m_iGPPoints;
+	int m_iGPPointsGlobal;
+	int m_iExperience;
+	int m_iGold;
+	int m_iCulture;
+	int m_iFaith;
+	int m_iScience;
+	int m_iFood;
+	int m_iProduction;
+	int m_iGAP;
+	int m_iHappiness;
+	int m_iGeneralPoints;
+	int m_iAdmiralPoints;
+	int m_iTourism;
+	int m_iRand;
+#endif
 
 private:
 	CvSmallAwardInfo(const CvSmallAwardInfo&);

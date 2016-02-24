@@ -664,6 +664,7 @@ protected:
 	static int lCountNumWorkedImprovement(lua_State* L);
 	static int lCountNumWorkedResource(lua_State* L);
 	static int lCountNumImprovement(lua_State* L);
+	static int lCountNumWorkedRiverTiles(lua_State* L);
 #endif
 };
 

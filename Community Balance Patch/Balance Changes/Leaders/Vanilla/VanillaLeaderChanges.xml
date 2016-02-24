@@ -10,7 +10,7 @@
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Trait_YieldFromHistoricEvent>
 	<!-- Aztec -->

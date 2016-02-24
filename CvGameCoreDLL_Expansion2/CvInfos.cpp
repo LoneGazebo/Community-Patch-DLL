@@ -2673,7 +2673,26 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_szTeamNotification(""),
 	m_iNumVictoryPoints(0),
 	m_iNumCities(0),
-	m_iCityPopulation(0)
+	m_iCityPopulation(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iCSInfluence(0),
+	m_iDuration(0),
+	m_iGPPointsGlobal(0),
+	m_iGPPoints(0),
+	m_iExperience(0),
+	m_iGold(0),
+	m_iCulture(0),
+	m_iFaith(0),
+	m_iScience(0),
+	m_iFood(0),
+	m_iProduction(0),
+	m_iGAP(0),
+	m_iTourism(0),
+	m_iHappiness(0),
+	m_iGeneralPoints(0),
+	m_iAdmiralPoints(0),
+	m_iRand(0)
+#endif
 {
 }
 //------------------------------------------------------------------------------
@@ -2705,6 +2724,92 @@ int CvSmallAwardInfo::GetCityPopulation() const
 {
 	return m_iCityPopulation;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetInfluence() const
+{
+	return m_iCSInfluence;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetDuration() const
+{
+	return m_iDuration;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetGPPointsGlobal() const
+{
+	return m_iGPPointsGlobal;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetGPPoints() const
+{
+	return m_iGPPoints;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetExperience() const
+{
+	return m_iExperience;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetGold() const
+{
+	return m_iGold;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetCulture() const
+{
+	return m_iCulture;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetFaith() const
+{
+	return m_iFaith;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetScience() const
+{
+	return m_iScience;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetFood() const
+{
+	return m_iFood;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetProduction() const
+{
+	return m_iProduction;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetGAP() const
+{
+	return m_iGAP;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetHappiness() const
+{
+	return m_iHappiness;
+}
+int CvSmallAwardInfo::GetTourism() const
+{
+	return m_iTourism;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetGeneralPoints() const
+{
+	return m_iGeneralPoints;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetAdmiralPoints() const
+{
+	return m_iAdmiralPoints;
+}
+//------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetRandom() const
+{
+	return m_iRand;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -2718,6 +2823,26 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	m_iNumCities = kResults.GetInt("NumCities");
 	m_iCityPopulation = kResults.GetInt("CityPopulation");
+
+#if defined(MOD_BALANCE_CORE)
+	m_iCSInfluence = kResults.GetInt("Influence");
+	m_iDuration = kResults.GetInt("QuestDuration");
+	m_iGPPointsGlobal = kResults.GetInt("GlobalGPPoints");
+	m_iGPPoints = kResults.GetInt("CapitalGPPoints");
+	m_iExperience = kResults.GetInt("GlobalExperience");
+	m_iGold = kResults.GetInt("Gold");
+	m_iCulture = kResults.GetInt("Culture");
+	m_iFaith = kResults.GetInt("Faith");
+	m_iScience = kResults.GetInt("Science");
+	m_iFood = kResults.GetInt("Food");
+	m_iProduction = kResults.GetInt("Production");
+	m_iGAP = kResults.GetInt("GoldenAgePoints");
+	m_iHappiness = kResults.GetInt("Happiness");
+	m_iGeneralPoints = kResults.GetInt("GeneralPoints");
+	m_iAdmiralPoints = kResults.GetInt("AdmiralPoints");
+	m_iTourism = kResults.GetInt("Tourism");
+	m_iRand = kResults.GetInt("RandomMod");
+#endif
 
 	return true;
 }

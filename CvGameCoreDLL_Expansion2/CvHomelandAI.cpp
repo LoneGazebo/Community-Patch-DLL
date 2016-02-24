@@ -1733,7 +1733,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				m_CurrentMoveUnits.push_back(unit);
 			}
 #if defined(MOD_AI_SECONDARY_WORKERS)
-			if(!m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
+			else if(!m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
 			{
 				bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA) && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA));
 				if(!bUseSecondaryUnit)
@@ -1777,7 +1777,8 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				continue;
 
 #if defined(MOD_BALANCE_CORE)
-			if(pUnit->IsCivilianUnit())
+			if(pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA  ||
+			   pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD)
 			{
 #endif
 				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))

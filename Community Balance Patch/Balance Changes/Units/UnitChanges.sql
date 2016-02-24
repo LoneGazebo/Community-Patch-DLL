@@ -374,7 +374,7 @@
 	-- XCOM
 
 	UPDATE Units
-	SET IgnoreBuildingDefense = 'true'
+	SET IgnoreBuildingDefense = '1'
 	WHERE Type = 'UNIT_XCOM_SQUAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
@@ -541,10 +541,6 @@
 
 	UPDATE Units
 	SET Combat = '45'
-	WHERE Type = 'UNIT_RUSSIAN_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Units
-	SET ObsoleteTech = 'TECH_COMBINED_ARMS'
 	WHERE Type = 'UNIT_RUSSIAN_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -771,7 +767,7 @@
 	WHERE Type = 'UNIT_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET IgnoreBuildingDefense = 'true'
+	SET IgnoreBuildingDefense = '1'
 	WHERE Type = 'UNIT_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -925,7 +921,7 @@
 	-- Ranged mounted units should have mounted trait in spite of not being in mounted combatclass
 
 	UPDATE Units
-	SET IsMounted = 'true'
+	SET IsMounted = '1'
 	WHERE CombatClass = 'UNITCOMBAT_ARCHER' AND Moves >= 3 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 
@@ -1595,7 +1591,7 @@
 
 	-- Maintenance
 	UPDATE Units
-	SET NoMaintenance = 'false'
+	SET NoMaintenance = '0'
 	WHERE Type = 'UNIT_GUIDED_MISSILE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -1615,7 +1611,7 @@
 	-- Buff Barbarians
 
 	UPDATE Units
-	SET ShowInPedia = 'false'
+	SET ShowInPedia = '0'
 	WHERE Type = 'UNIT_BARBARIAN_AXMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -1623,7 +1619,7 @@
 	WHERE Type = 'UNIT_BARBARIAN_WARRIOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET ShowInPedia = 'false'
+	SET ShowInPedia = '0'
 	WHERE Type = 'UNIT_BARBARIAN_AXMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units

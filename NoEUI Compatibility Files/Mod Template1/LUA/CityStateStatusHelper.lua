@@ -38,6 +38,11 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_WAR,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION,
 	-- Then other pesonal quests
+	MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE,
@@ -314,6 +319,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY");
 	end
+
 -- CBP
 	local iJerk = pMinor:GetJerk(iMajor);
 	if(iJerk > 0) then
@@ -518,7 +524,7 @@ function GetActiveQuestText(iMajor, iMinor)
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON) then
 				sIconText = sIconText .. GetGreatPersonQuestIconText(iQuestData1);
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE) then
-				sIconText = sIconText .. "[ICON_RAZING]";
+				sIconText = sIconText .. "[ICON_IDEOLOGY_AUTOCRACY]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER) then
 				if (Players[iQuestData1]:IsMinorCiv()) then
 					sIconText = sIconText .. "[ICON_CITY_STATE]";
@@ -567,6 +573,16 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_HAPPINESS_3]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION) then
 				sIconText = sIconText .. "[ICON_HAPPINESS_4]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT) then
+				sIconText = sIconText .. "[ICON_RANGE_STRENGTH]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
+				sIconText = sIconText .. "[ICON_PRODUCTION]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM) then
+				sIconText = sIconText .. "[ICON_VIEW_CITY]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY) then
+				sIconText = sIconText .. "[ICON_INQUISITOR]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
+				sIconText = sIconText .. "[ICON_VICTORY_DOMINATION]";
 			end
 		end
 	end
@@ -735,12 +751,26 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL" );
-
-			end
-			
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_PLOT_FORMAL", pMinor:GetExplorePercent(iMajor , eType));
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1));
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_STEAL_FROM_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:QuestSpyActionsRemaining(iMajor, eType) );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL", Players[iQuestData1]:GetNameKey());
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ));
+			end	
 			if (iTurnsRemaining >= 0) then
 				sToolTipText = sToolTipText .. " " .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", iTurnsRemaining );
 			end
+--CBP
+			local sQuestreward = pMinor:GetRewardString(iMajor, eType);
+			if(questreward ~= "")then
+				sToolTipText = sToolTipText .. "[NEWLINE]" .. sQuestreward;
+			end
+--END
 		end
 	end
 	

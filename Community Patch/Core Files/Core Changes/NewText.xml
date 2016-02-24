@@ -3042,7 +3042,7 @@
 			<Text>The only thing worse than a tyrant is a scheming one. If you are incapable of speaking the truth, then I will have to do it for you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_2">
-			<Text>Your behavior is beyond despicable. May this denouncement teach you that dishonesty and avaracie are poor examples of foreign policy. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+			<Text>Your behavior is beyond despicable. May this denouncement teach you that dishonesty and avarice are poor examples of foreign policy. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_3">
 			<Text>You have proven to be a danger to my people, and you must be admonished for this. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
@@ -3097,6 +3097,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_4">
 			<Text>My advisors tell me that you have a Strategic Resource of some value. Will you share it with me?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_5">
+			<Text>Does this exchange suit you? It doesn't look like you are using this Strategic Resource, and I need it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_6">
+			<Text>You have a plentiful supply of Strategic Resources in your territory. Would you like to share them?</Text>
 		</Row>
 	
 		<!-- Denounce Notifications -->
@@ -3414,7 +3420,10 @@
 
 		<!-- Razing -->
 		<Row Tag="TXT_KEY_DIPLO_RAZED">
-			<Text>[COLOR_NEGATIVE_TEXT]You razed their Cities![ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured our civilians![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
+			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured civilians during war![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Tooltip for 'You'll Pay' Text -->
@@ -3578,67 +3587,67 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_INFLUENCE_US_1">
-			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}! A great start!</Text>
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_2">
-			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}! Keep up the pressure!</Text>
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_3">
-			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}! Almost there!</Text>
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_4">
-			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}! We did it!</Text>
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_5">
-			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}! They didn't stand a chance.</Text>
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_INFLUENCE_US_1_BAD">
-			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}! We are but a memory...</Text>
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_2_BAD">
-			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}! Oh no!</Text>
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_3_BAD">
-			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}! Our influence fades...</Text>
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_4_BAD">
-			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}! We must reverse this trend!</Text>
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_US_5_BAD">
-			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}! This is not good!</Text>
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_1">
-			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to us! Uh oh.</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_2">
-			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to us! This is not good.</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_3">
-			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to us! Be careful!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_4">
-			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to us! Dang!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_5">
-			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to us! Tragic.</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_1_BAD">
-			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to us! Good riddance!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_2_BAD">
-			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to us! Wonderful!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_3_BAD">
-			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to us! Thank goodness!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_4_BAD">
-			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to us! Whew!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INFLUENCE_THEM_5_BAD">
-			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to us! Keep it up!</Text>
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
 		</Row>		
 		
 		<!-- Anarchy -->
@@ -3693,10 +3702,10 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S">
 			<Text>{1_CivName:textkey} brokered war against you!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_PEACE_BROKER_NAME">
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME">
 			<Text>Your diplomats have learned that {1_CivName:textkey} paid {2_CivName:textkey} to make peace with you!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_PEACE_BROKER_NAME_S">
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME_S">
 			<Text>{1_CivName:textkey} brokered peace on your behalf!</Text>
 		</Row>
 		
@@ -3811,6 +3820,56 @@
 		</Row>
 		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender!</Text>
+		</Row>
+
+
+
+		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		
+		
+		<!-- Plague for JFD-->
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER">
+			<Text>A virulent plague was spread from your {1_Unit} to their {2_Unit} during combat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_S">
+			<Text>Your {1_Unit} is spreading plague!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM">
+			<Text>A virulent plague was spread to our {1_Unit} from their {2_Unit} during combat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S">
+			<Text>Plague spreads to your {1_Unit}!</Text>
+		</Row>
+
+		<!-- Team Tourism -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">
+			<Text>+{1_Num}% Bonus for Same Team[NEWLINE]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

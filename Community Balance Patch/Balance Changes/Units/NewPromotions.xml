@@ -348,26 +348,26 @@
 		<Row>
 			<PromotionType>PROMOTION_KNOCKOUT_II</PromotionType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<Modifier>50</Modifier>
+			<Modifier>25</Modifier>
 		</Row>
 		<Row>
 			<PromotionType>PROMOTION_KNOCKOUT_I</PromotionType>
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-			<Modifier>50</Modifier>
+			<Modifier>25</Modifier>
 		</Row>
 	</UnitPromotions_UnitCombatMods>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
-			<Text>Bonus v. Gun (20)</Text>
+			<Text>Bonus v. Gun (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I_HELP">
 			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II">
-			<Text>Bonus v. Siege (25)</Text>
+			<Text>Bonus v. Gun (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units</Text>
+			<Text>+25% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">

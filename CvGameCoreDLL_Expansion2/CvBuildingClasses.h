@@ -901,6 +901,9 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
+#endif
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 
 	bool IsBuildingSellable(const CvBuildingEntry& kBuilding) const;

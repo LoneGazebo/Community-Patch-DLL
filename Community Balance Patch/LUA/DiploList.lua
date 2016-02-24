@@ -202,10 +202,6 @@ function UpdateDisplay()
 		return;
 	end
 	
-	if (IsGameCoreBusy()) then
-		return;
-	end
-	
 	local bScenario = PreGame.GetLoadWBScenario();
 
 	-- Clear buttons
@@ -668,6 +664,26 @@ function OnQuestIconClicked( PlayerID )
 		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP)) then
 			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
 			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT)) then
+			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
+			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
 			if (pPlot) then
 				UI.LookAt(pPlot, 0);
