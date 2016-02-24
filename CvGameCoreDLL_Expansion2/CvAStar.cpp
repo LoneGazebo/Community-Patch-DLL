@@ -2128,11 +2128,9 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 	//this is independent of any team!
 	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable() != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable())
-	{
 		return FALSE;
-	}
 
-	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
 
@@ -2159,7 +2157,7 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, int, const
 	}
 
 	CvMap& kMap = GC.getMap();
-	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
 

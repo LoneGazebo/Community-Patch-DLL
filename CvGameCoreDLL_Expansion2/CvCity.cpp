@@ -15886,27 +15886,18 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 		return 0;
 	}
 
-	//if we have an internal traderoute to our capital, whether in or out, it's just as good as a route
-	CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
-	if(pCapitalCity != NULL)
-	{
-		if(HasTradeRouteTo(pCapitalCity) || HasTradeRouteFrom(pCapitalCity))
-		{
-			return 0;
-		}
-	}
-	//Daisy chain to capital - only chains once
+	//if we have a traderoute to our capital or to another city which has a route to the capital, it's just as good as a route
 	int iLoop = 0;
 	for(CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
+		if(!pLoopCity)
+			continue;
+
+		if(pLoopCity->isCapital() || pLoopCity->IsConnectedToCapital())
 		{
-			if(pLoopCity->IsConnectedToCapital() || pLoopCity->HasTradeRouteTo(pCapitalCity) || pLoopCity->HasTradeRouteFrom(pCapitalCity))
+			if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
 			{
-				if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
-				{
-					return 0;
-				}
+				return 0;
 			}
 		}
 	}
