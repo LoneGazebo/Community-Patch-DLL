@@ -400,8 +400,20 @@ void CvTacticalAI::Read(FDataStream& kStream)
 		kStream >> iTemp;
 		m_HealingUnits.insert(iTemp);
 	}
-#endif
 
+	//kStream >> iCount;
+	//for (int i=0; i<iCount; i++)
+	//{
+	//	int iPlayer, iCityID, iPosture;
+	//	bool bWater;
+	//	kStream >> iPlayer;
+	//	kStream >> iCityID;
+	//	kStream >> iPosture;
+	//	kStream >> bWater;
+	//	CvTacticalPosture temp( (PlayerTypes)iPlayer, bWater, iCityID, (AITacticalPosture)iPosture );
+	//	m_Postures.push_back(temp);
+	//}
+#endif
 }
 
 /// Serialization write
@@ -419,8 +431,16 @@ void CvTacticalAI::Write(FDataStream& kStream)
 	kStream << m_HealingUnits.size();
 	for (std::set<int>::iterator it=m_HealingUnits.begin(); it!=m_HealingUnits.end(); ++it)
 		kStream << *it;
-#endif
 
+	kStream << m_Postures.size();
+	for(unsigned int iI = 0; iI < m_Postures.size(); iI++)
+	{
+		kStream << m_Postures[iI].GetPlayer();
+		kStream << m_Postures[iI].GetCityID();
+		kStream << m_Postures[iI].GetPosture();
+		kStream << m_Postures[iI].IsWater();
+	}
+#endif
 }
 
 /// Mark all the units that will be under tactical AI control this turn
@@ -852,7 +872,7 @@ void CvTacticalAI::UpdatePostures()
 	CvTacticalDominanceZone* pZone;
 	AITacticalPosture eLastPosture, eNewPosture;
 
-	m_NewPostures.clear();
+	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> newPostures;
 
 	// Loop through all the zones we have this turn
 	for(int iI = 0; iI < m_pMap->GetNumZones(); iI++)
@@ -870,7 +890,7 @@ void CvTacticalAI::UpdatePostures()
 
 			eLastPosture = FindPosture(pZone);
 			eNewPosture = SelectPosture(pZone, eLastPosture);
-			m_NewPostures.push_back(CvTacticalPosture(pZone->GetOwner(), pZone->IsWater(), iCityID, eNewPosture));
+			newPostures.push_back(CvTacticalPosture(pZone->GetOwner(), pZone->IsWater(), iCityID, eNewPosture));
 
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
@@ -953,7 +973,7 @@ void CvTacticalAI::UpdatePostures()
 
 	// New postures become current ones
 	m_Postures.clear();
-	m_Postures = m_NewPostures;
+	m_Postures = newPostures;
 }
 
 /// Select a posture for a specific zone
@@ -1794,11 +1814,7 @@ void CvTacticalAI::ProcessDominanceZones()
 
 						// Is this move of the right type for this zone?
 						bool bMatch = false;
-#if defined(MOD_BALANCE_CORE)
-						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET" && pZone->GetTerritoryType() != TACTICAL_TERRITORY_FRIENDLY)
-#else
-						if(strMoveName == "TACTICAL_CLOSE_ON_TARGET")    // This one okay for all zones
-#endif
+						if(ePosture != AI_TACTICAL_POSTURE_WITHDRAW && strMoveName == "TACTICAL_CLOSE_ON_TARGET")
 						{
 							bMatch = true;
 						}
@@ -1877,8 +1893,8 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Using move %s for zone %d (city %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
-									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", GC.getGame().getTurnSlice() );
+								strLogString.Format("Using move %s for zone %d (city %s - posture %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
+									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture], GC.getGame().getTurnSlice() );
 								LogTacticalMessage(strLogString);
 								
 							}
@@ -7230,8 +7246,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			{
 				CvString strMsg;
 				CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-				strMsg.Format("Not attacking with %s. Can't generate a good damage ratio. (target %d, self %d)", 
-					strTemp.c_str(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), m_CurrentMoveUnits[iI].GetExpectedSelfDamage() );
+				strMsg.Format("Not attacking %d,%d with %s. Cannot damage target.", 
+					pTarget->GetTargetX(), pTarget->GetTargetY(), strTemp.c_str() );
 				LogTacticalMessage(strMsg);
 			}
 		}
@@ -7258,8 +7274,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
-				strMsg.Format("Not attacking with unit. Can't generate a good damage ratio. (target %d, self %d)", 
-					m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), m_CurrentMoveUnits[iI].GetExpectedSelfDamage() );
+				strMsg.Format("Not attacking %d,%d with %s. Can't generate a good damage ratio. (target %d, self %d)", 
+					pTarget->GetTargetX(), pTarget->GetTargetY(), pUnit->getName().c_str(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), m_CurrentMoveUnits[iI].GetExpectedSelfDamage() );
 				LogTacticalMessage(strMsg);
 			}
 			continue;
@@ -7329,8 +7345,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
-				strMsg.Format("Not attacking with unit. We'll destroy ourself, %s, %d hitpoints, %d for target, %d for us, X: %d, Y: %d", 
-					pUnit->getName().GetCString(), pUnit->GetCurrHitPoints(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), 
+				strMsg.Format("Not attacking %d,%d with %s. Low on health: %d hitpoints, damage %d for target, %d for us, X: %d, Y: %d", 
+					pTarget->GetTargetX(), pTarget->GetTargetY(), pUnit->getName().GetCString(), pUnit->GetCurrHitPoints(), m_CurrentMoveUnits[iI].GetExpectedTargetDamage(), 
 					m_CurrentMoveUnits[iI].GetExpectedSelfDamage(), pUnit->getX(), pUnit->getY());
 				LogTacticalMessage(strMsg);
 			}
@@ -13356,25 +13372,37 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 
 const char* barbarianMoveNames[] =
 {
-	"AI_TACTICAL_BARBARIAN_CAPTURE_CITY",
-	"AI_TACTICAL_BARBARIAN_DAMAGE_CITY",
-	"AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY",
-	"AI_TACTICAL_BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT", //6
-	"AI_TACTICAL_BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_PILLAGE",
-	"AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
-	"AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK",
-	"AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE", //12
-	"AI_TACTICAL_BARBARIAN_PASSIVE_MOVE",
-	"AI_TACTICAL_BARBARIAN_CAMP_DEFENSE",
-	"AI_TACTICAL_BARBARIAN_DESPERATE_ATTACK",
-	"AI_TACTICAL_BARBARIAN_ESCORT_CIVILIAN",
-	"AI_TACTICAL_BARBARIAN_PLUNDER_TRADE_UNIT",
-	"AI_TACTICAL_BARBARIAN_PILLAGE_CITADEL",
-	"AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN",
+	"BARBARIAN_CAPTURE_CITY",
+	"BARBARIAN_DAMAGE_CITY",
+	"BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
+	"BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
+	"BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
+	"BARBARIAN_MOVE_TO_SAFETY",
+	"BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT", //6
+	"BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
+	"BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
+	"BARBARIAN_PILLAGE",
+	"BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
+	"BARBARIAN_CIVILIAN_ATTACK",
+	"BARBARIAN_AGGRESSIVE_MOVE", //12
+	"BARBARIAN_PASSIVE_MOVE",
+	"BARBARIAN_CAMP_DEFENSE",
+	"BARBARIAN_DESPERATE_ATTACK",
+	"BARBARIAN_ESCORT_CIVILIAN",
+	"BARBARIAN_PLUNDER_TRADE_UNIT",
+	"BARBARIAN_PILLAGE_CITADEL",
+	"BARBARIAN_PILLAGE_NEXT_TURN",
 };
 
+const char* postureNames[] =
+{
+    "POSTURE_WITHDRAW",
+    "POSTURE_SIT_AND_BOMBARD",
+    "POSTURE_ATTRIT_FROM_RANGE",
+    "POSTURE_EXPLOIT_FLANKS",
+    "POSTURE_STEAMROLL",
+    "POSTURE_SURGICAL_CITY_STRIKE",
+    "POSTURE_HEDGEHOG",
+    "POSTURE_COUNTERATTACK",
+    "POSTURE_SHORE_BOMBARDMENT",
+};
