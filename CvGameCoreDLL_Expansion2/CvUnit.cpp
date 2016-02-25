@@ -13945,7 +13945,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater();
+		return !pPlot->isWater() && !isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -26876,18 +26876,18 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		TeamTypes eTeam = getTeam();
 
 		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		// KWG: Have the path finder do this for us?
-		for (uint uiIndex = m_kLastPath.size(); uiIndex--; )
+		// Watch out for overflow/underflow with the indices here, it's tricky
+		for (int iIndex = m_kLastPath.size()-1; iIndex>=0; iIndex--)
 		{
-			CvPathNode& kNode = m_kLastPath[uiIndex];
+			CvPathNode& kNode = m_kLastPath[iIndex];
 			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
 			if (pkPlot)
 			{
 				if (!pkPlot->isVisible(eTeam))
 				{
 					kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
-					if (uiIndex < (m_kLastPath.size() - 2))
-						m_kLastPath[uiIndex + 1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
+					if (iIndex + 1 < (int)m_kLastPath.size())
+						m_kLastPath[iIndex + 1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
 
 					// Also determine the destination visibility.  This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
 					// This will help a unit to stop early in its pathing if the destination is blocked.
