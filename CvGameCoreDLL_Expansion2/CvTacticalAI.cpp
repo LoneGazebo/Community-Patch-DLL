@@ -391,8 +391,8 @@ void CvTacticalAI::Read(FDataStream& kStream)
 	kStream >> m_TempZones;
 
 #if defined(MOD_BALANCE_CORE)
-	m_HealingUnits.clear();
 	int iCount;
+	m_HealingUnits.clear();
 	kStream >> iCount;
 	for (int i=0; i<iCount; i++)
 	{
@@ -400,19 +400,19 @@ void CvTacticalAI::Read(FDataStream& kStream)
 		kStream >> iTemp;
 		m_HealingUnits.insert(iTemp);
 	}
-
-	//kStream >> iCount;
-	//for (int i=0; i<iCount; i++)
-	//{
-	//	int iPlayer, iCityID, iPosture;
-	//	bool bWater;
-	//	kStream >> iPlayer;
-	//	kStream >> iCityID;
-	//	kStream >> iPosture;
-	//	kStream >> bWater;
-	//	CvTacticalPosture temp( (PlayerTypes)iPlayer, bWater, iCityID, (AITacticalPosture)iPosture );
-	//	m_Postures.push_back(temp);
-	//}
+	m_Postures.clear();
+	kStream >> iCount;
+	for (int i=0; i<iCount; i++)
+	{
+		int iPlayer, iCityID, iPosture;
+		bool bWater;
+		kStream >> iPlayer;
+		kStream >> iCityID;
+		kStream >> iPosture;
+		kStream >> bWater;
+		CvTacticalPosture temp( (PlayerTypes)iPlayer, bWater, iCityID, (AITacticalPosture)iPosture );
+		m_Postures.push_back(temp);
+	}
 #endif
 }
 
@@ -1276,11 +1276,12 @@ void CvTacticalAI::EstablishTacticalPriorities()
 		{
 			for (size_t i=0; i<m_MovePriorityList.size(); i++)
 			{
-				OutputDebugString( CvString::format("Turn %03d - Player %02d - Move %02d: %s - Prio %d%s\n", 
+				OutputDebugString( CvString::format("Turn %03d - Player %02d - Move %02d: %s - Prio %d%s - %s\n", 
 					GC.getGame().getGameTurn(), m_pPlayer->GetID(), 
 					m_MovePriorityList[i].m_eMoveType, GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), 
 					m_MovePriorityList[i].m_iPriority,
-					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->CanRecruitForOperations() ? "" : " (not interruptible)" ).c_str() );
+					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->CanRecruitForOperations() ? "" : " (not interruptible)",
+					GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->IsDominanceZoneMove() ? "dominance zone move" : "" ).c_str() );
 			}
 		}
 	}
@@ -1893,7 +1894,7 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Using move %s for zone %d (city %s - posture %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
+								strLogString.Format("Using move %s for zone %d (city %s - %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
 									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture], GC.getGame().getTurnSlice() );
 								LogTacticalMessage(strLogString);
 								
@@ -2246,8 +2247,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 	bool bAttackMade = false;
 
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
@@ -2255,8 +2255,27 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 		if(pPlot != NULL && pPlot->isCity())
 		{
 			m_CurrentMoveCities.clear();
-
 			CvCity* pCity = pPlot->getPlotCity();
+
+			CvTacticalDominanceZone* pZone = m_pMap->GetZoneByCity(pCity, false);
+			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strPlayerName, strCityName, strLogString, strTemp;
+					strPlayerName = m_pPlayer->getCivilizationShortDescription();
+					strCityName = pCity->getName();
+					strLogString.Format("City of ");
+					strLogString += strCityName;
+					strTemp.Format(", is in enemy dominated zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strLogString += strTemp + strPlayerName;
+					LogTacticalMessage(strLogString);
+				}
+
+				pTarget = GetNextZoneTarget();
+				continue;
+			}
+
 			//If don't have units to actually conquer, get out.
 			if(!FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
 			{
@@ -2312,8 +2331,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 	bool bAttackMade = false;
 
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
@@ -2323,23 +2341,38 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			m_CurrentMoveCities.clear();
 			CvCity* pCity = pPlot->getPlotCity();
 
+			CvTacticalDominanceZone* pZone = m_pMap->GetZoneByCity(pCity, false);
+			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strPlayerName, strCityName, strLogString, strTemp;
+					strPlayerName = m_pPlayer->getCivilizationShortDescription();
+					strCityName = pCity->getName();
+					strLogString.Format("City of ");
+					strLogString += strCityName;
+					strTemp.Format(", is in enemy dominated zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strLogString += strTemp + strPlayerName;
+					LogTacticalMessage(strLogString);
+				}
+
+				pTarget = GetNextZoneTarget();
+				continue;
+			}
+
 			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
 			if(!FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
 			{
-				CvTacticalDominanceZone* pZone = m_pMap->GetZoneByCity(pCity, false);
-				if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strPlayerName, strCityName, strLogString, strTemp;
-						strPlayerName = m_pPlayer->getCivilizationShortDescription();
-						strCityName = pCity->getName();
-						strLogString.Format("Pulling back from City of ");
-						strLogString += strCityName;
-						strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-						strLogString += strTemp + strPlayerName;
-						LogTacticalMessage(strLogString);
-					}
+					CvString strPlayerName, strCityName, strLogString, strTemp;
+					strPlayerName = m_pPlayer->getCivilizationShortDescription();
+					strCityName = pCity->getName();
+					strLogString.Format("Pulling back from City of ");
+					strLogString += strCityName;
+					strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strLogString += strTemp + strPlayerName;
+					LogTacticalMessage(strLogString);
 				}
 
 				pTarget = GetNextZoneTarget();
@@ -2383,8 +2416,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 void CvTacticalAI::PlotBarbarianCampMoves()
 {
 	bool bLog = GC.getLogging() && GC.getAILogging();
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
@@ -7238,17 +7270,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						//target killed or down to zero hitpoints (for cities)
 						break;
 				}
-			}
-		}
-		else
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-				strMsg.Format("Not attacking %d,%d with %s. Cannot damage target.", 
-					pTarget->GetTargetX(), pTarget->GetTargetY(), strTemp.c_str() );
-				LogTacticalMessage(strMsg);
 			}
 		}
 	}
