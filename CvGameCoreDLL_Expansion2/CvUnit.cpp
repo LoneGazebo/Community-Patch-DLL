@@ -18379,7 +18379,11 @@ if (!bDoEvade)
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(isEnemy(pNewCity->getTeam()))
+#else
 			if(isEnemy(pNewCity->getTeam()) && !canCoexistWithEnemyUnit(pNewCity->getTeam()))
+#endif
 			{
 				PlayerTypes eNewOwner = GET_PLAYER(getOwner()).pickConqueredCityOwner(*pNewCity);
 
