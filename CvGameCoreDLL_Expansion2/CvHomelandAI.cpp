@@ -3437,14 +3437,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 				LogHomelandMessage(strLogString);
 			}
-			if(bSecondPass)
-			{
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
-			}
-			continue;
 		}
-		else
+		else //no target
 		{
 			if(pUnit->isHuman())
 			{
@@ -3470,24 +3464,39 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					LogHomelandMessage(strLogString);
 				}
 
-				CvCity* pLoopCity;
-				int iLoop;
-				bool bFoundWayHome = false;
-				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+				//in case it was non-native scout, reset the unit AI
+				pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
+
+				//nothing to explore and at home?
+				bool bDisband = false;
+				if (pUnit->plot()->getOwner()==pUnit->getOwner())
+					bDisband = (pUnit->AI_getUnitAIType()==UNITAI_EXPLORE);
+
+				if (!bDisband)
 				{
-					if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING))
+					CvCity* pLoopCity = NULL;
+					int iLoop;
+					bool bFoundWayHome = false;
+					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						bFoundWayHome = true;
-						break;
+						if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING))
+						{
+							bFoundWayHome = true;
+							break;
+						}
 					}
+
+					if(bFoundWayHome)
+					{
+						MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot());
+						pUnit->finishMoves();
+						UnitProcessed(pUnit->GetID());
+					}
+					else
+						bDisband = true;
 				}
 
-				if(bFoundWayHome)
-				{
-					pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
-					MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot());
-				}
-				else
+				if (bDisband)
 				{
 					//don't disband in the beginning of the game ...  
 					if (GC.getGame().getGameTurn()<50)
@@ -3503,11 +3512,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
 					}
 				}
-
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
 			}
 		}
+
 		if(bSecondPass)
 		{
 			pUnit->finishMoves();

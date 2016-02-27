@@ -4030,7 +4030,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 					if(plotDistance(pZone->GetZoneCity()->getX(), pZone->GetZoneCity()->getY(), pUnit->getX(), pUnit->getY()) <= m_iRecruitRange)
 					{
 						CvPlot* pPlot = pUnit->plot();
-						if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
+						if(m_pPlayer->GetPlotDanger(*pPlot) > pUnit->GetCurrHitPoints()/2)
 						{
 							if(pUnit->plot()->getOwner() != pUnit->getOwner())
 							{
@@ -4045,7 +4045,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 				else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER)
 				{
 					CvPlot* pPlot = pUnit->plot();
-					if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
+					if(m_pPlayer->GetPlotDanger(*pPlot) > pUnit->GetCurrHitPoints()/2)
 					{
 						if(pUnit->plot()->getOwner() != pUnit->getOwner())
 						{

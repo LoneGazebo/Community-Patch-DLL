@@ -9511,6 +9511,7 @@ bool CvPlayer::canFound(int iX, int iY) const
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
+
 #if defined(MOD_EVENTS_CITY_FOUNDING)
 	if (MOD_EVENTS_CITY_FOUNDING) {
 		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanFoundCityRegardless, GetID(), iX, iY) == GAMEEVENTRETURN_TRUE) {
@@ -9518,6 +9519,15 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 		}
 	}
 #endif
+
+#if defined(MOD_EVENTS_CITY_FOUNDING)
+	if (MOD_EVENTS_CITY_FOUNDING) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanFoundCity, GetID(), iX, iY) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
+
 	// Has the AI agreed to not settle here?
 	if(IsNoSettling(pPlot->GetPlotIndex()))
 		return false;
