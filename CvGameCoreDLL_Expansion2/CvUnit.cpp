@@ -192,6 +192,10 @@ CvUnit::CvUnit() :
 	, m_iExtraFirstStrikes("CvUnit::m_iExtraFirstStrikes", m_syncArchive)
 	, m_iExtraChanceFirstStrikes("CvUnit::m_iExtraChanceFirstStrikes", m_syncArchive)
 	, m_iExtraWithdrawal("CvUnit::m_iExtraWithdrawal", m_syncArchive)
+#if defined(MOD_BALANCE_CORE_JFD)
+	, m_iPlagueChance("CvUnit::m_iPlagueChance", m_syncArchive)
+	, m_iIsPlagued("CvUnit::m_iIsPlagued", m_syncArchive)
+#endif
 	, m_iExtraEnemyHeal("CvUnit::m_iExtraEnemyHeal", m_syncArchive)
 	, m_iExtraNeutralHeal("CvUnit::m_iExtraNeutralHeal", m_syncArchive)
 	, m_iExtraFriendlyHeal("CvUnit::m_iExtraFriendlyHeal", m_syncArchive)
@@ -2575,6 +2579,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraFirstStrikes = 0;
 	m_iExtraChanceFirstStrikes = 0;
 	m_iExtraWithdrawal = 0;
+#if defined(MOD_BALANCE_CORE_JFD)
+	m_iPlagueChance = 0;
+	m_iIsPlagued = 0;
+#endif
 	m_iExtraEnemyHeal = 0;
 	m_iExtraNeutralHeal = 0;
 	m_iExtraFriendlyHeal = 0;
@@ -3238,13 +3246,40 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 			}
 #if defined(MOD_BALANCE_CORE)
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
 			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
 				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
+				{
+					if(IsGreatPerson())
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (6 * iEra));
+					}
+					else
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
+					}
+				}
 			}
 			else if(IsCivilianUnit() && pPlot && pPlot->isCity())
 			{
 				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 4;
+				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
+				{
+					if(IsGreatPerson())
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
+					}
+					else
+					{
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iEra);
+					}
+				}
 			}
 #endif
 
@@ -3653,9 +3688,24 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 							{
 #if defined(MOD_BALANCE_CORE)
-								if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+								if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 								{
-									if(!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+									MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
+									MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+									if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
+									{
+										eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+									}
+									else
+									{
+										eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+									}
+
+									if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+									{	
+										kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+									}
+									else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
 									{
 										kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 									}
@@ -3678,9 +3728,24 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 						{
 #if defined(MOD_BALANCE_CORE)
-							if(kCaptureDef.eOriginalOwner != NO_PLAYER)
+							if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
 							{
-								if(!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+								MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
+								MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+								if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
+								{
+									eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+								}
+								else
+								{
+									eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+								}
+
+								if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+								{	
+									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+								}
+								else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
 								{
 									kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 								}
@@ -4354,8 +4419,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		return false;
 
 	// Sea units - we can exclude non-water plots right away
+	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
-		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), false))
+		if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), false) && enterPlot.isAdjacentToShallowWater()))
 			return false;
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
@@ -4376,8 +4442,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(canMoveImpassable() || canMoveAllTerrain())
 			return true;
 
-		// if there's a route, anyone can use it
-		if(enterPlot.isValidRoute(this))
+		// if there's a route, anyone can use it (this includes city plots)
+		if(enterPlot.isRoute() && !enterPlot.IsRoutePillaged())
 			return true;
 
 		// Check high seas
@@ -6708,7 +6774,6 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
-
 	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain() && !isCargo() );
 }
 
@@ -7237,6 +7302,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
@@ -7260,59 +7326,27 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 #endif
+
 	if(isWaiting())
 	{
 		return false;
 	}
 
-	if(healRate(pPlot) <= 0)
+#if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
+	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	{
-		return false;
-	}
-	
-	// JON - This should change when one-unit-per-plot city stuff is handled better
-	// Unit Healing in cities
-
-	if(isHuman())
-	{
-		if(plot()->isCity() && getDomainType() != DOMAIN_AIR)
+		// Hovering units can only heal over land
+		if (IsHoveringUnit() && pPlot->isWater())
 		{
-#if defined(MOD_BUGFIX_MINOR)
-			// Civilians can heal in cities
-			if (!IsCivilianUnit())
-			{
-#endif
-
-				CvUnit* pUnit;
-				int iBestDefenderValue = 0;
-				int iBestDefenderID = 0;
-
-				for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-				{
-					pUnit = plot()->getUnitByIndex(iUnitLoop);
-
-					// Only check land Units vs one another, Naval Units vs one another, etc.
-					if(pUnit->getDomainType() == getDomainType())
-					{
-						if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
-						{
-							iBestDefenderValue = pUnit->GetBaseCombatStrength();
-							iBestDefenderID = pUnit->GetID();
-						}
-					}
-				}
-
-				// This is NOT the defending unit, it's in storage, so it can't heal
-				if(iBestDefenderID != GetID())
-				{
-					return false;
-				}
-#if defined(MOD_BUGFIX_MINOR)
-			}
-#endif
+			return false;
 		}
 	}
+#endif
 
+	//no healing on mountains outside of cities (inca)
+	if (pPlot->isMountain() && !pPlot->isCity())
+		return false;
+	
 	// Unit now has to be able to Fortify to Heal (since they're very similar states, and Heal gives a defense bonus)
 	if(!bTestVisible)
 	{
@@ -7330,6 +7364,12 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 				return false;
 			}
 		}
+	}
+
+
+	if(healRate(pPlot) <= 0)
+	{
+		return false;
 	}
 
 	return true;
@@ -7370,27 +7410,6 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 int CvUnit::healRate(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	// Boats can only heal in friendly territory
-	if(getDomainType() == DOMAIN_SEA)
-	{
-		if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
-		{
-			return 0;
-		}
-	}
-	
-#if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
-	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
-		// Hovering units can only heal over land
-		if (IsHoveringUnit() && pPlot->isWater()) {
-			return 0;
-		}
-	}
-#endif
-
-	//no healing on mountains outside of cities (inca)
-	if (pPlot->isMountain() && !pPlot->isCity())
-		return 0;
 
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
@@ -19322,7 +19341,7 @@ if (!bDoEvade)
 		if(GC.IsGraphicsInitialized())
 		{
 			//override bShow if check plot visible
-			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || pOldPlot->isVisibleToWatchingHuman()))
+			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || (pOldPlot && pOldPlot->isVisibleToWatchingHuman())))
 				bShow = true;
 
 			if(CvPreGame::quickMovement())
@@ -19653,7 +19672,7 @@ if (!bDoEvade)
 			SetGarrisonedCity(-1);
 		}
 	}
-	
+
 #if !defined(NO_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())
@@ -21054,7 +21073,40 @@ void CvUnit::changeExtraWithdrawal(int iChange)
 	CvAssert(getExtraWithdrawal() >= 0);
 }
 
-
+#if defined(MOD_BALANCE_CORE_JFD)
+//	--------------------------------------------------------------------------------
+int CvUnit::getPlagueChance() const
+{
+	VALIDATE_OBJECT
+	return m_iPlagueChance;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changePlagueChance(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iPlagueChance = (m_iPlagueChance + iChange);
+	CvAssert(getPlagueChance() >= 0);
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::isPlagued() const
+{
+	VALIDATE_OBJECT
+	return getPlaguedCount() > 0;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changePlagued(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iIsPlagued = (m_iIsPlagued + iChange);
+	CvAssert(getPlaguedCount() >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getPlaguedCount() const
+{
+	VALIDATE_OBJECT
+	return m_iIsPlagued;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraEnemyHeal() const
 {
@@ -22113,9 +22165,14 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 			if(pLoopPlot != NULL)
 			{
 				// Units in our plot do not count
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
 				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
 					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
 #endif
 
 				// If there are Units here, loop through them
@@ -22177,6 +22234,17 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 
 			if(pLoopPlot != NULL)
 			{
+				// Units in our plot do not count
+#if defined(MOD_BALANCE_CORE)
+				if(IsCombatUnit())
+				{
+#endif
+				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
+					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
+
 				// If there are Units here, loop through them
 				if(pLoopPlot->getNumUnits() > 0)
 				{
@@ -24135,6 +24203,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeHPHealedIfDefeatEnemy(thisPromotion.GetHPHealedIfDefeatEnemy() * iChange);
 		ChangeGoldenAgeValueFromKills(thisPromotion.GetGoldenAgeValueFromKills() * iChange);
 		changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
+#if defined(MOD_BALANCE_CORE_JFD)
+		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
+		changePlagued((thisPromotion.IsPlague()) ? iChange: 0);
+#endif
 		changeExtraRange(thisPromotion.GetRangeChange() * iChange);
 		ChangeRangedAttackModifier(thisPromotion.GetRangedAttackModifier() * iChange);
 		ChangeInterceptionCombatModifier(thisPromotion.GetInterceptionCombatModifier() * iChange);
@@ -24622,6 +24694,12 @@ bool CvUnit::canRangeStrike() const
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+    if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
+    {
+        return false;
+    }
+#endif
 
 #if defined(MOD_BUGFIX_CITY_STACKING)
 	// Can't attack out of Cities if there are more units of the same domain type than the stacking limit permits
@@ -26639,13 +26717,21 @@ CvUnit* CvUnit::GetMissionAIUnit()
 /// Is this unit able to ground attack?
 bool CvUnit::IsCanAttackWithMove() const
 {
-	VALIDATE_OBJECT
-	if(!IsCombatUnit())
-	{
-		return false;
-	}
-
-	return !isOnlyDefensive();
+    VALIDATE_OBJECT
+    if(!IsCombatUnit())
+    {
+        return false;
+    }
+#if defined(MOD_BALANCE_EMBARKED_SHIPS)
+    else if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
+    {
+        return false;
+    }
+#endif
+    else
+    {
+        return !isOnlyDefensive();
+    }
 }
 
 //	--------------------------------------------------------------------------------
@@ -27086,6 +27172,83 @@ bool CvUnit::DoWithdrawFromMelee(CvUnit& attacker)
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::DoPlagueTransfer(CvUnit& defender)
+{
+	//We got here without being able to plague someone? Abort!
+	if(getPlagueChance() <= 0)
+	{
+		return;
+	}
+
+	int iPlagueChance = getPlagueChance();
+
+	int iRoll = GC.getGame().getJonRandNum(100, "Plague Transfer from Melee attempt");
+
+	if(iRoll > iPlagueChance)
+	{
+		return;
+	}
+
+	//Next let's grab the promotion.
+	int iI;
+	bool bTransferred = false;
+	PromotionTypes ePlague = NO_PROMOTION;
+	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
+		if(ePromotion != NO_PROMOTION && HasPromotion(ePromotion))
+		{
+			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
+			if(pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
+			{
+				if(!defender.HasPromotion(ePromotion))
+				{
+					defender.setHasPromotion(ePromotion, true);
+					ePlague = ePromotion;
+					bTransferred = true;
+					break;
+				}
+			}
+		}
+	}
+	if(bTransferred && ePlague != NO_PROMOTION)
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePlague);
+			const char* szPromotionDesc = (pkPromotionEntry != NULL)? pkPromotionEntry->GetDescription() : "Unknown Promotion";
+
+			CvString szMsg;
+			szMsg.Format("JFD: Plague, %s, Transferred by %s to %s in melee",
+							szPromotionDesc, getName().GetCString(), defender.getName().GetCString());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+		}
+		
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if(pNotifications)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER");
+			strMessage << getUnitInfo().GetTextKey();
+			strMessage << defender.getUnitInfo().GetTextKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_S");
+			strSummary << getUnitInfo().GetTextKey();
+			pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
+		}
+		CvNotifications* pNotificationsOther = GET_PLAYER(defender.getOwner()).GetNotifications();
+		if(pNotificationsOther)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM");
+			strMessage << getUnitInfo().GetTextKey();
+			strMessage << defender.getUnitInfo().GetTextKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S");
+			strSummary << defender.getUnitInfo().GetTextKey();
+
+			pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanFallBackFromMelee(CvUnit& attacker)

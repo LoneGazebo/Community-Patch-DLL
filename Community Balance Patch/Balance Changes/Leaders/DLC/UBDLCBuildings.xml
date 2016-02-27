@@ -136,6 +136,11 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_SeaPlotYieldChanges>
 	<Building_YieldFromVictory>
 		<Row>
@@ -153,7 +158,7 @@
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_SeaResourceYieldChanges>
 	<Building_InstantYield>
@@ -187,7 +192,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, and an instant boost of 25 [ICON_CULTURE] Culture. Whenever you defeat a Unit, gain +5 [ICON_PRODUCTION] Production and +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +2 [ICON_PRODUCTION] Production from Sea Resources worked by this City.</Text>
+			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, and an instant boost of 25 [ICON_CULTURE] Culture. Whenever you defeat a Unit, gain +5 [ICON_PRODUCTION] Production and +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
 			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Jelling Stones produce [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you defeat a Unit, and increase the Great Person rate for the city where it is built by 15%. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>

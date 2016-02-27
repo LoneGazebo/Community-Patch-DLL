@@ -29,7 +29,7 @@ SET Value = '120'
 WHERE Name = 'MINOR_CIV_GOLD_PERCENT';
 
 UPDATE AIEconomicStrategies
-SET NoMinorCivs = 'true'
+SET NoMinorCivs = '1'
 WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
 
 -- AI Spam message reduction
@@ -884,11 +884,11 @@ WHERE Name = 'DOF_TURN_BUFFER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 
 -- Operational AI changes
 UPDATE MultiUnitFormations
-SET RequiresNavalUnitConsistency = 'false'
+SET RequiresNavalUnitConsistency = '0'
 WHERE Type = 'MUFORMATION_NAVAL_INVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE MultiUnitFormations
-SET RequiresNavalUnitConsistency = 'false'
+SET RequiresNavalUnitConsistency = '0'
 WHERE Type = 'MUFORMATION_CITY_STATE_INVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- Workboat buff for Oil

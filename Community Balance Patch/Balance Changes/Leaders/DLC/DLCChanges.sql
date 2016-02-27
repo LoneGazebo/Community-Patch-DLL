@@ -76,7 +76,7 @@ WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMM
 
 -- Mongols
 UPDATE Traits
-SET BullyAnnex = 'true'
+SET BullyAnnex = '1'
 WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -218,7 +218,7 @@ SET NaturalWonderYieldModifier = '50'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET CombatBoostNearNaturalWonder = 'true'
+SET CombatBoostNearNaturalWonder = '1'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -280,11 +280,11 @@ DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-Set Reconquista = 'true'
+Set Reconquista = '1'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-Set NoSpread = 'true'
+Set NoSpread = '1'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -313,7 +313,7 @@ Set ImprovementMaintenanceModifier = '0'
 WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-Set NoHillsImprovementMaintenance = 'false'
+Set NoHillsImprovementMaintenance = '0'
 WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -383,7 +383,7 @@ SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is 
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] science for all Specialists and Great Person tile improvements. Receive a tech boost each time a scientific building/Wonder is built in the your [ICON_CAPITAL] Capital. Bonus scales with Era.'
+SET Text = '+2 [ICON_RESEARCH] science from all Specialists and Great Person tile improvements. Receive a tech boost each time a scientific building/Wonder is built in your [ICON_CAPITAL] Capital. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Units
@@ -395,7 +395,7 @@ SET Cost = '-1'
 WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Units
-SET MinorCivGift = 'true'
+SET MinorCivGift = '1'
 WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Units

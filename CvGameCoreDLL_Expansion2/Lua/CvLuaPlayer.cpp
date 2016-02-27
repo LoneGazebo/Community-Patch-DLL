@@ -653,6 +653,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetQuestData1);
 	Method(GetQuestData2);
 	Method(GetQuestTurnsRemaining);
+#if defined(MOD_BALANCE_CORE)
+	Method(QuestSpyActionsRemaining);
+	Method(GetXQuestBuildingRemaining);
+	Method(GetExplorePercent);
+	Method(GetXQuestBuildingRemaining);
+	Method(GetRewardString);
+	Method(GetExplorePercent);
+	Method(GetTargetCityString);
+#endif
 	Method(IsMinorCivContestLeader);
 	Method(GetMinorCivContestValueForLeader);
 	Method(GetMinorCivContestValueForPlayer);
@@ -7309,6 +7318,65 @@ int CvLuaPlayer::lGetQuestTurnsRemaining(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetRewardString(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+
+	CvString sResult = pkPlayer->GetMinorCivAI()->GetRewardString(ePlayer, eType);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+int CvLuaPlayer::lGetTargetCityString(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+
+	CvString sResult = pkPlayer->GetMinorCivAI()->GetTargetCityString(ePlayer, eType);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+int CvLuaPlayer::lGetExplorePercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetExplorePercent(ePlayer, eType);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetXQuestBuildingRemaining(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 4);
+	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
+	int iBuilt = GET_PLAYER(ePlayer).getNumBuildings(eBuilding);
+
+	const int iResult = (iNeeded - iBuilt);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+	const PlayerTypes eTargetPlayer = (PlayerTypes)pkPlayer->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
+	int iDone = GET_PLAYER(ePlayer).GetEspionage()->GetNumSpyActionsDone(eTargetPlayer);
+
+	const int iResult = (iNeeded - iDone);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsMinorCivContestLeader(lua_State* L)
 {
@@ -12260,11 +12328,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 #if defined(MOD_BALANCE_CORE)
 	iValue = pDiploAI->GetCitiesRazedScore(eWithPlayer);
+	int iValue2 = pDiploAI->GetCitiesRazedGlobalScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
+		aOpinions.push_back(kOpinion);
+	}
+	else if(iValue2 != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue2;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED_OTHER");
 		aOpinions.push_back(kOpinion);
 	}
 #endif

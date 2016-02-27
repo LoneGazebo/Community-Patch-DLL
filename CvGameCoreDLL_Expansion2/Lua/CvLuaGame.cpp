@@ -273,6 +273,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoMinorBullyGold);
 	Method(DoMinorBullyUnit);
 	Method(DoMinorBuyout);
+#if defined(MOD_BALANCE_CORE)
+	Method(DoMinorMarriage);
+#endif
 
 	Method(GetBestWondersPlayer);
 	Method(GetBestPoliciesPlayer);
@@ -1877,6 +1880,16 @@ int CvLuaGame::lDoMinorBuyout(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaGame::lDoMinorMarriage(lua_State* L)
+{
+	const int iMajor = lua_tointeger(L, 1);
+	const int iMinor = lua_tointeger(L, 2);
+	GC.getGame().DoMinorMarriage((PlayerTypes)iMajor, (PlayerTypes)iMinor);
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void GetBestWondersPlayer();
 int CvLuaGame::lGetBestWondersPlayer(lua_State* L)

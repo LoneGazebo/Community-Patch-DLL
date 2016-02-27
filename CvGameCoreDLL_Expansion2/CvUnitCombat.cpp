@@ -258,6 +258,15 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
 		}
+		//Chance to spread promotion?
+		if(kAttacker.getPlagueChance() > 0)
+		{
+			kAttacker.DoPlagueTransfer(*pkDefender);
+		}
+		if(kAttacker.getPlagueChance() > 0)
+		{
+			pkDefender->DoPlagueTransfer(kAttacker);
+		}
 #endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();

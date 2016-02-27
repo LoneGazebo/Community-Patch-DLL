@@ -242,7 +242,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGA(false),
-	m_bIncreasedQuestInfluence(false),
+	m_iIncreasedQuestInfluence(0),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
 	m_iPuppetProdMod(0),
@@ -578,7 +578,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
-	m_bIncreasedQuestInfluence = kResults.GetBool("IncreasedQuestInfluence");
+	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
@@ -2445,9 +2445,9 @@ bool CvPolicyEntry::GetDoubleBorderGA() const
 	return m_bDoubleBorderGA;
 }
 /// Increased influence from quests?
-bool CvPolicyEntry::GetIncreasedQuestInfluence() const
+int CvPolicyEntry::GetIncreasedQuestInfluence() const
 {
-	return m_bIncreasedQuestInfluence;
+	return m_iIncreasedQuestInfluence;
 }
 /// Citadel Boost?
 int CvPolicyEntry::GetCitadelBoost() const

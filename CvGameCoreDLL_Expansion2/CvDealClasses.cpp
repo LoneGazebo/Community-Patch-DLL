@@ -13,6 +13,8 @@
 #include "CvMinorCivAI.h"
 #if defined(MOD_BALANCE_CORE)
 #include "CvMilitaryAI.h"
+#include "CvDiplomacyRequests.h"
+#include "CvCitySpecializationAI.h"
 #endif
 
 // must be included after all other headers
@@ -858,6 +860,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!GET_TEAM(eThirdTeam).isAlive())
 			return false;
 
+		//Embassy?
+		if (!GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+			return false;
+
 		// Player that wants Peace hasn't yet met the 3rd Team
 		if(!pToTeam->isHasMet(eThirdTeam))
 			return false;
@@ -872,7 +878,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 #if defined(MOD_BALANCE_CORE)
 		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
@@ -986,7 +992,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		//Need embassy.
-		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+		if (!GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
 			return false;
 
 		//Not allowed in peace deals.
@@ -1044,15 +1050,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
 			{
 				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
-
-				if(!pOtherPlayer)
-					continue;
 				
 				// Major civ
 				if(pOtherPlayer->isMajorCiv())
@@ -2742,7 +2745,24 @@ void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvGameDeals::EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+{
+	DealList::iterator dealIt;
+	CvDeal kDeal;
 
+	// Find the deal in the list of proposed deals
+	for(dealIt = m_ProposedDeals.begin(); dealIt != m_ProposedDeals.end(); ++dealIt)
+	{
+		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
+		{
+			kDeal = *dealIt;
+			m_ProposedDeals.erase(dealIt);
+			--dealIt;
+		}
+	}
+}
+#endif
 
 /// Moves a deal from the proposed list to the active one (returns FALSE if deal not found)
 bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
@@ -2759,10 +2779,20 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
 		{
 			kDeal = *dealIt;
+#if defined(MOD_BALANCE_CORE)
+			// JdH => slight perfomance improvement
+			m_ProposedDeals.erase(dealIt); // we can use this function, if we reduce the iterator (as it gets increased again)
+			--dealIt; // the iterator is a plain data pointer, so we can just decrease it.
+			// JdH <=
+			bFoundIt = true;
 
+			// how about we break here? If we want the last deal in here (why should there be more than one?) we could just reverse iterate. --- JdH
+			// Update: No break here, because PvP deals can cause multiple deals and we need to pick the latest.
+#else
 // EFB: once we can use list containers in AutoVariables, go back to this way of deleting
 //			m_ProposedDeals.erase(dealIt);
 			bFoundIt = true;
+#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -2770,9 +2800,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 	{
 		LogDealFailed(&kDeal, false, false, false, true);
 	}
-#endif
-
+	if(bFoundIt && bAccepted)
+#else
 	if(bFoundIt)
+#endif
 	{
 
 		TradedItemList::iterator iter;
@@ -2797,7 +2828,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 
-
+#if !defined(MOD_BALANCE_CORE)
 		// **** START HACK ****
 		// EFB: temporary delete method; recopy vector without this element
 		//
@@ -2818,6 +2849,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 		// **** END HACK ****
+#endif
 #if defined(MOD_BALANCE_CORE)
 		if(!bValid || !bAccepted)
 		{
@@ -3138,7 +3170,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								if(pNotifications)
 								{
 									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME");
-									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
 									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME_S");
 									strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
 									pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -3162,7 +3195,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #else
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
-#if defined(MOD_BALANCE_CORE)				
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(eAcceptedFromPlayer).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 					PlayerTypes eLoopPlayer;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -3185,7 +3219,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									if(pNotifications)
 									{
 										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey(), GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
 										strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
 										pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -3274,41 +3309,48 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
 						{
 							int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							// Player modifier
-							int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
+							if(iTurns > 0)
+							{
+								if(iTurns < GC.getGame().goldenAgeLength())
+								{
+									iTurns = GC.getGame().goldenAgeLength();
+								}
+								// Player modifier
+								int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
 
-							// Trait modifier
-							iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+								// Trait modifier
+								iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-							// Do we get increased Golden Ages from a resource monopoly?
-							if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-							{
-								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								// Do we get increased Golden Ages from a resource monopoly?
+								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								{
-									ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-									if(eResourceLoop != NO_RESOURCE)
+									for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 									{
-										CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-										if (pInfo && pInfo->isMonopoly())
+										ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+										if(eResourceLoop != NO_RESOURCE)
 										{
-											if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+											CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+											if (pInfo && pInfo->isMonopoly())
 											{
-												int iTemp = pInfo->getMonopolyGALength();
-												iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
-												iLengthModifier += iTemp;
+												if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+												{
+													int iTemp = pInfo->getMonopolyGALength();
+													iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
+													iLengthModifier += iTemp;
+												}
 											}
 										}
 									}
 								}
-							}
 #endif
-							if(iLengthModifier != 0)
-							{
-								iTurns = iTurns * (100 + iLengthModifier) / 100;
+								if(iLengthModifier != 0)
+								{
+									iTurns = iTurns * (100 + iLengthModifier) / 100;
+								}
+								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
+								bDone = true;
 							}
-							GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
-							bDone = true;
 
 							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
 							GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(1);
@@ -3346,41 +3388,48 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
 							int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							// Player modifier
-							int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
+							if(iTurns > 0)
+							{
+								if(iTurns < GC.getGame().goldenAgeLength())
+								{
+									iTurns = GC.getGame().goldenAgeLength();
+								}
+								// Player modifier
+								int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
 
-							// Trait modifier
-							iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+								// Trait modifier
+								iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-							// Do we get increased Golden Ages from a resource monopoly?
-							if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-							{
-								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								// Do we get increased Golden Ages from a resource monopoly?
+								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								{
-									ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-									if(eResourceLoop != NO_RESOURCE)
+									for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 									{
-										CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-										if (pInfo && pInfo->isMonopoly())
+										ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+										if(eResourceLoop != NO_RESOURCE)
 										{
-											if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+											CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+											if (pInfo && pInfo->isMonopoly())
 											{
-												int iTemp = pInfo->getMonopolyGALength();
-												iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
-												iLengthModifier += iTemp;
+												if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+												{
+													int iTemp = pInfo->getMonopolyGALength();
+													iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
+													iLengthModifier += iTemp;
+												}
 											}
 										}
 									}
 								}
-							}
 #endif
-							if(iLengthModifier != 0)
-							{
-								iTurns = iTurns * (100 + iLengthModifier) / 100;
+								if(iLengthModifier != 0)
+								{
+									iTurns = iTurns * (100 + iLengthModifier) / 100;
+								}
+								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
+								bDone = true;
 							}
-							GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
-							bDone = true;
 
 							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
 							GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(1);
@@ -3486,6 +3535,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 	}
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	GET_PLAYER(dealIt->m_eFromPlayer).GetDiplomacyRequests()->CheckValidity();
+	GET_PLAYER(dealIt->m_eToPlayer).GetDiplomacyRequests()->CheckValidity();
+#endif
 
 	return bFoundIt && bValid;
 }
@@ -4368,7 +4421,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** GPT Trade: %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_RESOURCES:
-				strTemp.Format("***** Resource Trade: ID %d *****", itemIter->m_iData1);
+				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo((ResourceTypes)itemIter->m_iData1)->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_CITIES:
 			{
@@ -4393,10 +4446,10 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				break;
 #if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade versus ID %d *****", itemIter->m_iData1);
+				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade versus ID %d *****" , itemIter->m_iData1);
+				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 #else
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
@@ -4414,7 +4467,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade ***** ID %d", itemIter->m_iData1);
+				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo((TechTypes)itemIter->m_iData1)->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
@@ -4511,7 +4564,8 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 		TradedItemList::iterator itemIter;
 		for(itemIter = pDeal->m_TradedItems.begin(); itemIter != pDeal->m_TradedItems.end(); ++itemIter)
 		{
-			
+			// Turn number
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 
 			eFromPlayer = itemIter->m_eFromPlayer;
 			eToPlayer = eFromPlayer == pDeal->m_eFromPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
@@ -4524,6 +4578,8 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 			// Their Name
 			otherPlayerName = GET_PLAYER(eToPlayer).getCivilizationShortDescription();
 			strBaseString += ", " + otherPlayerName;
+
+			strOutBuf = strBaseString + ", , ";
 
 			// Peace Treaty deal?
 			if(pDeal->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
@@ -4603,7 +4659,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 				strTemp.Format("***** GPT Trade: %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_RESOURCES:
-				strTemp.Format("***** Resource Trade: ID %d *****", itemIter->m_iData1);
+				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo((ResourceTypes)itemIter->m_iData1)->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_CITIES:
 			{
@@ -4628,10 +4684,10 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 				break;
 #if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade versus ID %d *****", itemIter->m_iData1);
+				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade versus ID %d *****" , itemIter->m_iData1);
+				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 #else
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
@@ -4649,7 +4705,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade ***** ID %d", itemIter->m_iData1);
+				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo((TechTypes)itemIter->m_iData1)->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");

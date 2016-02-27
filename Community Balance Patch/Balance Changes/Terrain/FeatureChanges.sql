@@ -90,7 +90,7 @@ UPDATE BuildFeatures SET Production = 20 WHERE FeatureType = 'FEATURE_JUNGLE' AN
 
 -- Additive Nature of Features
 UPDATE Features
-SET YieldNotAdditive = 'false'
+SET YieldNotAdditive = '0'
 WHERE Type = 'FEATURE_FOREST';
 
 -- Lake Buff

@@ -232,6 +232,14 @@
 			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
+	<Building_BuildingClassYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+	</Building_BuildingClassYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON">
 			<Text>Great Cothon</Text>
@@ -242,10 +250,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
-			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city, and have a National Population of at least 25. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, provides two additional trade routes. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
+			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city, and have a National Population of at least 25. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, and two additional trade routes. All Harbors in your empire also gain +3 Production. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
-			<Text>Must have built a Market in the city, and have a National Population of at least 25.[NEWLINE][NEWLINE]Trade routes other players make to a city with the Great Cothon will generate an extra 5 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes. Receive a free copy of all Luxury Resources around the City. Reduces [ICON_HAPPINESS_3] Poverty.</Text>
+			<Text>Must have built a Market in the city, and have a National Population of at least 25.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold for outgoing [ICON_INTERNATIONAL_TRADE] Trade Routes, +3 [ICON_GOLD] Gold for incoming [ICON_INTERNATIONAL_TRADE] Trade Routes. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes, and all Harbors gain +3 [ICON_PRODUCTION] Production. Receive a free copy of all Luxury Resources around the City. Reduces [ICON_HAPPINESS_3] Poverty.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

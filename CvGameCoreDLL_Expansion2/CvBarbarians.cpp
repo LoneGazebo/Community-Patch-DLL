@@ -919,7 +919,8 @@ void CvBarbarians::DoUnits()
 				if(pCity != NULL)
 				{ 
 					pCity->changePopulation(1);
-					pCity->setFood((pCity->growthThreshold() - 1));				}
+					pCity->setFood((pCity->growthThreshold() - 10));				
+				}
 				if(pCity != NULL && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;

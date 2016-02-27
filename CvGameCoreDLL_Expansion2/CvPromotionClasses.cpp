@@ -90,6 +90,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iHPHealedIfDefeatEnemy(0),
 	m_iGoldenAgeValueFromKills(0),
 	m_iExtraWithdrawal(0),
+#if defined(MOD_BALANCE_CORE_JFD)
+	m_iPlagueChance(0),
+	m_bIsPlague(false),
+#endif
 	m_iEmbarkExtraVisibility(0),
 	m_iEmbarkDefenseModifier(0),
 	m_iCapitalDefenseModifier(0),
@@ -411,6 +415,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHPHealedIfDefeatEnemy = kResults.GetInt("HPHealedIfDestroyEnemy");
 	m_iGoldenAgeValueFromKills = kResults.GetInt("GoldenAgeValueFromKills");
 	m_iExtraWithdrawal = kResults.GetInt("ExtraWithdrawal");
+#if defined(MOD_BALANCE_CORE_JFD)
+	m_iPlagueChance = kResults.GetInt("PlagueChance");
+	m_bIsPlague = kResults.GetBool("IsPlague");
+#endif
 	m_iEmbarkExtraVisibility = kResults.GetInt("EmbarkExtraVisibility");
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
 	m_iCapitalDefenseModifier = kResults.GetInt("CapitalDefenseModifier");
@@ -1326,6 +1334,18 @@ int CvPromotionEntry::GetExtraWithdrawal() const
 {
 	return m_iExtraWithdrawal;
 }
+#if defined(MOD_BALANCE_CORE_JFD)
+/// Chance to transmit a promotion on melee (heyo)
+int CvPromotionEntry::GetPlagueChance() const
+{
+	return m_iPlagueChance;
+}
+/// Transmittable promotions
+bool CvPromotionEntry::IsPlague() const
+{
+	return m_bIsPlague;
+}
+#endif
 
 /// Accessor: extra sight range when embarked
 int CvPromotionEntry::GetEmbarkExtraVisibility() const

@@ -6593,6 +6593,13 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 	{
 		return;
 	}
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
+
+	if(!pMyReligion->m_bEnhanced)
+	{
+		return;
+	}
 
 	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion);
 
@@ -7933,7 +7940,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	}
 	iRtnValue += (-pEntry->GetPlotCultureCostModifier() * 2) / 10;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 20) * MAX(iFlavorDefense,iFlavorCityDefense);
+	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 25) * MAX(iFlavorDefense,iFlavorCityDefense);
 #else
 	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 10) * MAX(iFlavorDefense,iFlavorCityDefense);
 #endif

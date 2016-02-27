@@ -17,14 +17,6 @@
 	WHERE Type = 'UNIT_ARCHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET Cost = '70'
-	WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Units
-	SET FaithCost = '200'
-	WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Units
 	SET Cost = '90'
 	WHERE Type = 'UNIT_CARAVAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
@@ -795,45 +787,45 @@
 
 -- Faith Purchase Enablers
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_HELICOPTER_GUNSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_JET_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_STEALTH_BOMBER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_BOMBER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_TRIPLANE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_WWI_BOMBER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_AUSTRIAN_HUSSAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
+	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_SWEDISH_CAROLEAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

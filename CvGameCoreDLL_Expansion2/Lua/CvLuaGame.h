@@ -266,6 +266,9 @@ protected:
 	static int lDoMinorBullyGold(lua_State* L);
 	static int lDoMinorBullyUnit(lua_State* L);
 	static int lDoMinorBuyout(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lDoMinorMarriage(lua_State* L);
+#endif
 
 	static int lGetBestWondersPlayer(lua_State* L);
 	static int lGetBestPoliciesPlayer(lua_State* L);

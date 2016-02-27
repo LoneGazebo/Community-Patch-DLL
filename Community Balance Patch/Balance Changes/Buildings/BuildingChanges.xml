@@ -268,11 +268,18 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HARBOR</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
 	<!-- Seaport -->
 	<Building_SeaPlotYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -493,6 +500,14 @@
 		</Row>
 	</Building_GrowthExtraYield>
 
+	<!-- Lighthouse -->
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_LIGHTHOUSE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
 	<!-- Water Mill -->
 	<Building_YieldChangesPerPop>
 		<Row>

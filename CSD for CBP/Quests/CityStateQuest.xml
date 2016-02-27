@@ -13,7 +13,7 @@
 			<Text>{@2_MinorCivName} seeks war against {1_TargetName:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_WAR">
-			<Text>Citizens of {@1_MinorCivName} are glad to see that you have gone to war on their behalf. Your [ICON_INFLUENCE] Influence over them has increased by [COLOR_POSITIVE_TEXT]{2_InfluenceReward}[ENDCOLOR]!</Text>
+			<Text>Citizens of {@1_MinorCivName} are glad to see that you have gone to war on their behalf.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_WAR">
 			<Text>War started for {@1_MinorCivName}!</Text>
@@ -34,7 +34,7 @@
 			<Text>{@2_CivName} longs for the {@1_NationalWonderName}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER">
-			<Text>As {@2_CivName} hoped, you constructed the {@1_NationalWonderName}! Your [ICON_INFLUENCE] Influence over them has increased by [COLOR_POSITIVE_TEXT]{3_InfluenceReward}[ENDCOLOR]!</Text>
+			<Text>As {@2_CivName} hoped, you constructed the {@1_NationalWonderName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER">
 			<Text>{@1_NationalWonderName} built for {@2_CivName}!</Text>
@@ -54,7 +54,7 @@
 			<Text>{2_CivName:textkey} wants to discover {1_TargetName:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_CITY_STATE">
-			<Text>As {2_CivName:textkey} hoped, you found the city of {1_TargetName:textkey}! They are thrilled by this discovery, and your [ICON_INFLUENCE] Influence over them has increased by [COLOR_POSITIVE_TEXT]{3_InfluenceReward}[ENDCOLOR]!</Text>
+			<Text>As {2_CivName:textkey} hoped, you found the city of {1_TargetName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_FIND_CITY_STATE">
 			<Text>{1_TargetName:textkey} found for {2_CivName:textkey}!</Text>
@@ -95,10 +95,10 @@
 			<Text>{1_MinorCivName:textkey} is preparing for a festival of nations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_TOURISM">
-			<Text>You have impressed {1_MinorCivName:textkey} with your civilization's [ICON_TOURISM] Tourism!  They were underwhelmed by the other civilizations, and your [ICON_INFLUENCE] Influence over them has increased by [COLOR_POSITIVE_TEXT]{2_InfluenceReward}[ENDCOLOR].  Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+			<Text>You have impressed {1_MinorCivName:textkey} with your civilization's [ICON_TOURISM] Tourism!  They were underwhelmed by the other civilizations. Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TOURISM">
-			<Text>Another civilization has awed {1_MinorCivName:textkey} with its [ICON_TOURISM] Tourism.  Your [ICON_TOURISM] Tourism was not enough, and your [ICON_INFLUENCE] Influence remains the same as before.  Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+			<Text>Another civilization has awed {1_MinorCivName:textkey} with its [ICON_TOURISM] Tourism.  Your [ICON_TOURISM] Tourism was not enough. Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_TOURISM">
 			<Text>{1_MinorCivName:textkey} was impressed by your Tourism!</Text>
@@ -127,7 +127,7 @@
 			<Text>{1_MinorCivName:textkey} seeks an archaeologist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARCHAEOLOGY">
-			<Text>The professor from {1_MinorCivName:textkey} is excited about the results of your excavation, and asserts that whatever you found most definitely belongs in a museum. Your [ICON_INFLUENCE] Influence with {1_MinorCivName:textkey} has increased by [COLOR_POSITIVE_TEXT]{2_InfluenceReward}[ENDCOLOR].</Text>
+			<Text>The professor from {1_MinorCivName:textkey} is excited about the results of your excavation, and asserts that whatever you found most definitely belongs in a museum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_ARCHAEOLOGY">
 			<Text>Archaeological excavation completed for {1_MinorCivName:textkey}!</Text>
@@ -156,7 +156,7 @@
 			<Text>{1_MinorCivName:textkey} requests intrepid navigators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CIRCUMNAVIGATION">
-			<Text>The sailors of {1_MinorCivName:textkey} are in awe of your adept navigators, and are thrilled to learn that the world is neither flat nor a disc. Your [ICON_INFLUENCE] Influence with them has increased by [COLOR_POSITIVE_TEXT]{2_InfluenceReward}[ENDCOLOR].</Text>
+			<Text>The sailors of {1_MinorCivName:textkey} are in awe of your adept navigators, and are thrilled to learn that the world is neither flat nor a disc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CIRCUMNAVIGATION">
 			<Text>Circumnavigation achieved for {1_MinorCivName:textkey}!</Text>
@@ -182,7 +182,7 @@
 			<Text>{2_MinorCivName:textkey} calls for the liberation of {1_MinorCivName:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_LIBERATION">
-			<Text>The leaders of {2_MinorCivName:textkey} praise your heroic deeds, and thank you for liberating {1_MinorCivName:textkey}. Your [ICON_INFLUENCE] Influence with them has increased by [COLOR_POSITIVE_TEXT]{3_InfluenceReward}[ENDCOLOR].</Text>
+			<Text>The leaders of {2_MinorCivName:textkey} praise your heroic deeds, and thank you for liberating {1_MinorCivName:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_LIBERATION">
 			<Text>Liberation of {1_MinorCivName:textkey} achieved for {2_MinorCivName:textkey}!</Text>

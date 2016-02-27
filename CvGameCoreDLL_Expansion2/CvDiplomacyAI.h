@@ -809,6 +809,13 @@ public:
 	void SetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	short GetPlayerBackstabCounter(PlayerTypes ePlayer) const;
+	void SetPlayerBackstabCounter(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerBackstabCounter(PlayerTypes ePlayer, int iChange);
+#endif
+
+
 	// Working With Player
 	bool IsDoFAcceptable(PlayerTypes ePlayer);
 	bool IsTooEarlyForDoF(PlayerTypes ePlayer);
@@ -1308,6 +1315,7 @@ public:
 	int GetNukedByScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	int GetCitiesRazedScore(PlayerTypes ePlayer);
+	int GetCitiesRazedGlobalScore(PlayerTypes ePlayer);
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
@@ -1542,6 +1550,9 @@ private:
 
 		bool m_abPlayerStopSpyingRequest[MAX_MAJOR_CIVS];
 		short m_aiPlayerStopSpyingRequestCounter[MAX_MAJOR_CIVS];
+#if defined(MOD_BALANCE_CORE)
+		short m_aiPlayerBackstabCounter[MAX_MAJOR_CIVS];
+#endif
 
 		short m_aiDemandCounter[MAX_MAJOR_CIVS];
 		short m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
@@ -1866,6 +1877,10 @@ private:
 
 	bool* m_pabPlayerStopSpyingRequestAccepted;
 	short* m_paiPlayerStopSpyingRequestCounter;
+
+#if defined(MOD_BALANCE_CORE)
+	short* m_paiPlayerBackstabCounter;
+#endif
 
 	short* m_paiDemandCounter;
 	short* m_paiDemandTooSoonNumTurns;

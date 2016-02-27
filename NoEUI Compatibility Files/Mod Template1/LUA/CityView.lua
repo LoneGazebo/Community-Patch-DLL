@@ -1880,6 +1880,7 @@ function OnCityViewUpdate()
 		local fGrowthProgressPercent = iCurrentFood / iFoodNeeded;			
 		
 		-- Viewing mode only
+
 		if (UI.IsCityScreenViewingMode()) then
 			
 			-- City Cycling
@@ -1907,7 +1908,15 @@ function OnCityViewUpdate()
 			Controls.UnrazeCityButton:SetDisabled( true );
 			
 			Controls.BuyPlotButton:SetDisabled( true );
-			
+			-- display buy plot buttons
+			-- Venice Edit (CBP)
+			if(pCity:GetOwner() == Game.GetActivePlayer())then
+				local bAnnex = Players[pCity:GetOwner()]:MayNotAnnex();
+				if bAnnex then 
+					Controls.BuyPlotButton:SetDisabled( false );
+				end
+			end
+			--END
 		else
 			
 			-- City Cycling

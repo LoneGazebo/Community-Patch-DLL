@@ -208,13 +208,6 @@
 			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
-	<Building_FreeUnits>
-		<Row>
-			<BuildingType>BUILDING_HANGING_GARDEN</BuildingType>
-			<UnitType>UNIT_WRITER</UnitType>
-			<NumUnits>1</NumUnits>
-		</Row>
-	</Building_FreeUnits>
 	<Building_ThemingBonuses>
 		<Row>
 			<BuildingType>BUILDING_PARTHENON</BuildingType>

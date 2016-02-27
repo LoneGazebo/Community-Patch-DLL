@@ -775,7 +775,6 @@ int CvGameCulture::GetNumCivsInfluentialForWin() const
 			iAliveMajors++;
 		}
 	}
-
 	return iAliveMajors - 1;  // Don't have to be influential over yourself
 }
 
@@ -3943,7 +3942,6 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 int CvPlayerCulture::GetNumCivsInfluentialOn() const
 {
 	int iRtnValue = 0;
-
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
@@ -3955,7 +3953,6 @@ int CvPlayerCulture::GetNumCivsInfluentialOn() const
 			}
 		}
 	}
-
 	return iRtnValue;
 }
 
@@ -4392,6 +4389,12 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	{
 		iMultiplier += GetTourismModifierOpenBorders();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->getTeam() == kPlayer.getTeam())
+	{
+		iMultiplier += 200;
+	}
+#endif
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
@@ -4534,6 +4537,13 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GetTourismModifierOpenBorders()) + "[ENDCOLOR]";
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Trade route to one of this player's cities from here
+	if (m_pPlayer->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM", 200) + "[ENDCOLOR]";
+	}
+#endif
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))

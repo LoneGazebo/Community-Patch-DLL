@@ -735,6 +735,13 @@ protected:
 	static int lGetQuestData1(lua_State* L);
 	static int lGetQuestData2(lua_State* L);
 	static int lGetQuestTurnsRemaining(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetRewardString(lua_State* L);
+	static int lGetTargetCityString(lua_State* L);
+	static int lGetExplorePercent(lua_State* L);
+	static int lGetXQuestBuildingRemaining(lua_State* L);
+	static int lQuestSpyActionsRemaining(lua_State* L);
+#endif
 	static int lIsMinorCivContestLeader(lua_State* L);
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
 	static int lGetMinorCivContestValueForPlayer(lua_State* L);

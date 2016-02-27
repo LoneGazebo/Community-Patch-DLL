@@ -539,6 +539,9 @@ public:
 	void DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor);
 	void DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor);
 	void DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor);
+#if defined(MOD_BALANCE_CORE)
+	void DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor);
+#endif
 
 	void DoResearchAgreementNotification(TeamTypes eTeam1, TeamTypes eTeam2);
 

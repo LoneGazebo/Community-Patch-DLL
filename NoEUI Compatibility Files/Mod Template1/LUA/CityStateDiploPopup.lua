@@ -712,6 +712,26 @@ function OnQuestInfoClicked()
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT)) then
+			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
+		if (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
+			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
+			if (pPlot) then
+				UI.LookAt(pPlot, 0);
+				local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+				Events.GameplayFX(hex.x, hex.y, -1);
+			end
+		end
 	end
 end
 Controls.QuestInfo:RegisterCallback( Mouse.eLClick, OnQuestInfoClicked );
@@ -761,7 +781,7 @@ function OnBuyoutButtonClicked()
 	
 	if (pMinor:CanMajorBuyout(iActivePlayer)) then
 		UIManager:DequeuePopup( ContextPtr );
-		Game.DoMinorBuyout(iActivePlayer, g_iMinorCivID);
+		Game.DoMinorBuyout(iActivePlayer, pMinor:GetID());
 	end
 end
 Controls.BuyoutButton:RegisterCallback( Mouse.eLClick, OnBuyoutButtonClicked );
@@ -775,7 +795,7 @@ function OnMarriageButtonClicked()
 
 	if (pMinor:CanMajorMarry(iActivePlayer)) then
 		UIManager:DequeuePopup( ContextPtr );
-		Game.DoMinorBuyout(iActivePlayer, g_iMinorCivID);
+		Game.DoMinorMarriage(iActivePlayer, pMinor:GetID());
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked );

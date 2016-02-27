@@ -528,7 +528,7 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>51</PortraitIndex>
+			<PortraitIndex>36</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>

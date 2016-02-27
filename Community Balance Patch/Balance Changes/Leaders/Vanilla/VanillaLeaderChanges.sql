@@ -58,7 +58,7 @@ SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When you complete a Historic Event, your [ICON_CAPITAL] Capital gains +2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture, and 20% towards the progress of a random [ICON_GREAT_PEOPLE] Great Person. [ICON_TOURISM] Tourism from Historic Events increased by 20%.'
+SET Text = 'When you complete a Historic Event, your [ICON_CAPITAL] Capital gains +3 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture, and 20% towards the progress of a random [ICON_GREAT_PEOPLE] Great Person. [ICON_TOURISM] Tourism from Historic Events increased by 20%.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -91,7 +91,7 @@ WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Aztec -- Set Floating Garden to +1 Food per 3 citizens instead of +15%
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.[NEWLINE][NEWLINE]City must be built next to a River or Lake.'
+SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -100,6 +100,10 @@ WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS' AND EXISTS (SELECT * FROM COMMUNI
 
 UPDATE Buildings
 SET MutuallyExclusiveGroup = '3'
+WHERE Type = 'BUILDING_FLOATING_GARDENS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET FreshWater = '0'
 WHERE Type = 'BUILDING_FLOATING_GARDENS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -144,7 +148,7 @@ SET BuildingProductionModifier = '10'
 WHERE Type = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET AllowsProductionTradeRoutes = 'true'
+SET AllowsProductionTradeRoutes = '1'
 WHERE Type = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_ClassesNeededInCity
@@ -175,11 +179,11 @@ SET Text = 'Adobe, the Spanish word for mud brick, is a natural building materia
 WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET RiverTradeRoad = 'true'
+SET RiverTradeRoad = '1'
 WHERE Type = 'TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET FasterAlongRiver = 'true'
+SET FasterAlongRiver = '1'
 WHERE Type = 'TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -253,7 +257,7 @@ SET BuildingClass = 'BUILDINGCLASS_COURTHOUSE'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET BuildAnywhere = 'true'
+SET BuildAnywhere = '1'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -269,7 +273,7 @@ SET NumCityCostMod = '5'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET NoOccupiedUnhappiness = 'true'
+SET NoOccupiedUnhappiness = '1'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_ClassesNeededInCity
@@ -371,7 +375,7 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+20% Production towards Wonder construction. Artifacts gain +2 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture. +4 [ICON_GOLD] Gold, [ICON_GOLDEN_AGE] Golden Age Points, and [ICON_TOURISM] Tourism from Landmarks.'
+SET Text = '+20% Production towards Wonder construction. Artifacts gain +2 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture, and Landmarks gain +4 [ICON_GOLD] Gold, [ICON_GOLDEN_AGE] Golden Age Points, and [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Elizabeth -- Replace Longbowman with a unique Factory
@@ -519,11 +523,11 @@ SET CityUnhappinessModifier = '0'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET PopulationBoostReligion = 'true'
+SET PopulationBoostReligion = '1'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET IsNoReligiousStrife = 'true'
+SET IsNoReligiousStrife = '1'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -558,7 +562,7 @@ WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY' AND EXISTS (SELECT * FROM
 
 -- Iroquois -- All units receive Woodsman promotion
 UPDATE Language_en_US
-SET Text = 'Units move through Forest and Jungle in friendly territory as if it is Road. These tiles can be used to establish [ICON_CONNECTED] City Connections. Land military units start with the Woodsman promotion.'
+SET Text = 'Units move through Forest and Jungle in as if it is Road, and can be used to establish [ICON_CONNECTED] City Connections. Land military units start with the Woodsman promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_YieldChanges
@@ -642,7 +646,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_SAMURAI' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 -- Napoleon -- Plunders artwork!
 UPDATE Traits
-SET FreeGreatWorkOnConquest = 'true'
+SET FreeGreatWorkOnConquest = '1'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -782,7 +786,7 @@ SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_WAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET Espionage = 'true'
+SET Espionage = '1'
 WHERE Type = 'BUILDING_WAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -885,7 +889,7 @@ SET GreatGeneralExtraBonus = '0'
 WHERE Type = 'TRAIT_ART_OF_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET GPWLTKD = 'true'
+SET GPWLTKD = '1'
 WHERE Type = 'TRAIT_ART_OF_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits

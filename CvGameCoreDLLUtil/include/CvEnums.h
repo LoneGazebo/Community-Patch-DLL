@@ -3486,7 +3486,6 @@ enum DiplomacyPlayerType
 	DIPLO_ALL_PLAYERS		= -1,
 	DIPLO_AI_PLAYERS		= -2
 };
-
 #endif
 
 #endif //CVENUMS_H

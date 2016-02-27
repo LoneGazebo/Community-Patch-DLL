@@ -3,6 +3,30 @@ CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
 BuildingType TEXT, YieldType TEXT, Yield INTEGER
 );
 
+
+-- Smallaward Info table used for CS quests - does not allow you to add new quests - simply makes it so that you can more easily tweak/define the quest rewards/timers
+ALTER TABLE SmallAwards ADD 'Influence' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'GlobalGPPoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'CapitalGPPoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'GlobalExperience' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'QuestDuration' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Food' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Gold' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Culture' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Faith' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Science' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Production' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'GoldenAgePoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Happiness' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Tourism' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'GeneralPoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'AdmiralPoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'RandomMod' INTEGER DEFAULT 0;
+
+-- Bombard Ranges for cities increase/decrease over default
+ALTER TABLE Technologies ADD BombardRange INTEGER DEFAULT 0;
+ALTER TABLE Technologies ADD BombardIndirect INTEGER DEFAULT 0;
+
 -- Create Era Value for Great Works creators that makes them spawn in the appropriate era.
 ALTER TABLE Unit_UniqueNames ADD COLUMN 'EraType' TEXT DEFAULT NULL;
 
@@ -322,7 +346,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
 
 -- Increased Quest Influence
-ALTER TABLE Policies ADD COLUMN 'IncreasedQuestInfluence' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'IncreasedQuestRewards' INTEGER DEFAULT 0;
 
 -- Free Votes in WC
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
@@ -631,6 +655,10 @@ ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
+
+-- Plague Stuff for JFD
+ALTER TABLE UnitPromotions ADD COLUMN 'PlagueChance' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
 
 
 -- Worlds

@@ -1109,7 +1109,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 		{
 			if(pAdjacentPlot->isWater())
 			{
-				if(iMinWaterSize <= 0)
+				if(iMinWaterSize <= 1)
 				{
 					return true;
 				}
@@ -3921,9 +3921,7 @@ bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleToWatchingHuman() const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
+	for(int iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
 	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
 		if( (thisPlayer.isAlive() && thisPlayer.isHuman()) || ( CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_ASSIGNED) )
@@ -6768,12 +6766,34 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 #endif
 
 		m_eFeatureType = eNewValue;
-
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pWorkingCity = getWorkingCity();
+		if(pWorkingCity != NULL)
+		{
+			//City already working this plot? Adjust features being worked as needed.
+			if(pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
+			{
+				//New feature over old? Remove old, add new.
+				if(eOldFeature != NO_FEATURE)
+				{
+					pWorkingCity->ChangeNumFeatureWorked(eOldFeature, -1);
+					//We added new improvement (wasn't deleted) - add here.
+					if(eNewValue != NO_FEATURE)
+					{
+						pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
+					}
+				}
+				//New improvement over nothing? Add it in.
+				else if(eNewValue != NO_FEATURE)
+				{
+					pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
+				}
+			}
+		}
+#endif
 		updateYield();
 		updateImpassable();
 #if defined(MOD_BALANCE_CORE)
-		CvCity* pWorkingCity = getWorkingCity();
-
 		if(pWorkingCity != NULL)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
@@ -9294,7 +9314,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 				}
 			}
-			else
+			else if(!MOD_BALANCE_YIELD_SCALE_ERA)
 			{
 #endif
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
