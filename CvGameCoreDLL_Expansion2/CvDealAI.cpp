@@ -6344,20 +6344,18 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bVassalageOK = ((iWarScore <= -85) && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() <= 0);
-	bool bBecomeMyVassal = false;
-	bool bEndVassalage = false;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
+	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
+	bool bRevokeMyVassals = false;
+	// Reduce war score if losing player wants to become winning player's vassal
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
 	{
-		bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
 		iWarScore /= 2;
 	}
+	// Is losing player willing to revoke his vassals?
 	if(MOD_DIPLOMACY_CIV4_FEATURES && iWarScore <= -85 && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() > 0)
 	{
 		//If we're willing to do this, give less below.
-		bEndVassalage = true;
+		bRevokeMyVassals = true;
 		iWarScore /= max(2, GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals());
 	}
 	if(iWarScore < 0)
@@ -6666,7 +6664,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			pDeal->AddVassalageTrade(eLosingPlayer);
 		}
 	}
-	if(MOD_DIPLOMACY_CIV4_FEATURES && bEndVassalage)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bRevokeMyVassals)
 	{
 		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE_REVOKE))
 		{
@@ -8745,8 +8743,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 	if(bFromMe)						
 	{
-		// Don't want to capitulate
-		if(!bWar && !m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
+		if(!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
 		{
 			return INT_MAX;
 		}
@@ -8758,6 +8755,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		{
 			return iItemValue;
 		}
+
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
@@ -8825,10 +8823,10 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 				iItemValue *= 130;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
-				iItemValue *= 80;
+				iItemValue *= 75;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iItemValue *= 90;
+				iItemValue *= 85;
 				break;
 			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iItemValue *= 100;

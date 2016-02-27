@@ -380,6 +380,19 @@ inline FDataStream& operator>>(FDataStream& loadFrom, GlobalStateTypes& writeTo)
 	writeTo = static_cast<GlobalStateTypes>(v);
 	return loadFrom;
 }
+
+enum VassalTreatmentTypes
+{
+	NO_VASSAL_TREATMENT = -1,
+
+	VASSAL_TREATMENT_CONTENT,
+	VASSAL_TREATMENT_DISAGREE,
+	VASSAL_TREATMENT_MISTREATED,
+	VASSAL_TREATMENT_UNHAPPY,
+	VASSAL_TREATMENT_ENSLAVED,
+
+	NUM_VASSAL_TREATMENT_TYPES
+};
 //----------------------
 #endif
 

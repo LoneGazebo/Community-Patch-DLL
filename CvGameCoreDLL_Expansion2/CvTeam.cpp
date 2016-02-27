@@ -875,6 +875,44 @@ void CvTeam::doTurn()
 				// We are their vassal
 				if(IsVassal(eTeam)) {
 					ChangeNumTurnsIsVassal(1);
+
+#if defined(MOD_BALANCE_CORE)
+					// Get players in vassal team
+					for(std::vector<PlayerTypes>::const_iterator vassal = getPlayers().begin(); vassal != getPlayers().end(); ++vassal)
+					{
+						int iGrossGold = GET_PLAYER(*vassal).GetTreasury()->CalculateGrossGoldTimes100();
+						int iTaxedGold = GET_PLAYER(*vassal).GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();
+					
+						// Need master players too
+						for(std::vector<PlayerTypes>::const_iterator master = GET_TEAM(eTeam).getPlayers().begin(); master != GET_TEAM(eTeam).getPlayers().end(); ++master)
+						{
+							GET_PLAYER(*vassal).GetDiplomacyAI()->ChangeVassalGoldPerTurnTaxedSinceVassalStarted(*master, iTaxedGold);
+							GET_PLAYER(*vassal).GetDiplomacyAI()->ChangeVassalGoldPerTurnCollectedSinceVassalStarted(*master, iGrossGold);
+						}
+					}
+#else
+					// Get players in vassal team - I hate how inefficient this is
+					for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+					{
+						PlayerTypes eVassal = (PlayerTypes) iI;
+						if(GET_PLAYER(eVassal).getTeam() == GetID())
+						{
+							int iGrossGold = GET_PLAYER(eVassal).GetTreasury()->CalculateGrossGoldTimes100();
+							int iTaxedGold = GET_PLAYER(eVassal).GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();
+
+							// also need master players
+							for(int jJ = 0; jJ < MAX_MAJOR_CIVS; jJ++)
+							{
+								PlayerTypes eMaster = (PlayerTypes) jJ;
+								if(GET_PLAYER(eMaster).getTeam() == eTeam)
+								{
+									GET_PLAYER(eVassal).GetDiplomacyAI()->ChangeVassalGoldPerTurnTaxedSinceVassalStarted(eMaster, iTaxedGold);
+									GET_PLAYER(eVassal).GetDiplomacyAI()->ChangeVassalGoldPerTurnCollectedSinceVassalStarted(eMaster, iGrossGold);
+								}
+							}
+						}
+					}
+#endif
 				}
 
 				// We are their master
@@ -883,6 +921,7 @@ void CvTeam::doTurn()
 					// Get players in vassal team
 					for(std::vector<PlayerTypes>::const_iterator iI = GET_TEAM(eTeam).getPlayers().begin(); iI != GET_TEAM(eTeam).getPlayers().end(); ++iI)
 					{
+						// We set a vassal tax sometime
 						if(GetNumTurnsSinceVassalTaxSet(*iI) > -1)
 						{
 							ChangeNumTurnsSinceVassalTaxSet(*iI, 1);
@@ -890,9 +929,9 @@ void CvTeam::doTurn()
 							// Push a notification to team members if we can set vassal tax this turn
 							if(CanSetVassalTax(*iI) && GetNumTurnsSinceVassalTaxSet(*iI) == GC.getGame().getGameSpeedInfo().getMinimumVassalTaxTurns())
 							{
-								Localization::String locString = Localization::Lookup("TXT_KEY_VASSAL_TAXES_AVAILABLE");
+								Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
 								locString << GET_PLAYER(*iI).getName();
-								GET_PLAYER(*iI).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID());
+								AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, *iI);
 							}
 						}
 					}
@@ -903,15 +942,27 @@ void CvTeam::doTurn()
 						PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 						if(GET_PLAYER(ePlayerLoop).getTeam() == eTeam)
 						{
+							// We set a vassal tax sometime
 							if(GetNumTurnsSinceVassalTaxSet(ePlayerLoop) > -1)
+							{
 								ChangeNumTurnsSinceVassalTaxSet(iPlayerLoop, 1);
+
+								// Push a notification to team members if we can set vassal tax this turn
+								if(CanSetVassalTax(*iI) && GetNumTurnsSinceVassalTaxSet(*iI) == GC.getGame().getGameSpeedInfo().getMinimumVassalTaxTurns())
+								{
+									Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
+									locString << GET_PLAYER(*iI).getName();
+									AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID());
+								}
+							}
 						}
 					}
 #endif
 				}
 
+				// increment vassal ended if we're not a vassal of eTeam
 				if(GetNumTurnsSinceVassalEnded(eTeam) > -1)
-					ChangeNumTurnsSinceVassalEnded(eTeam,1);
+					ChangeNumTurnsSinceVassalEnded(eTeam, 1);
 			}
 #endif
 		}
@@ -1185,7 +1236,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 		return false;
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eTeam).IsVassalOfSomeone() && (GET_TEAM(eTeam).GetMaster() != GetID()))
 	{
 		return false;
 	}
@@ -10088,6 +10139,19 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 			}
 		}
 	}
+	
+	// Notify eTeam to set taxes
+	PlayerTypes eVassal;
+	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		eVassal = (PlayerTypes) iI;
+		if(GET_PLAYER(eVassal).getTeam() == GetID())
+		{
+			Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
+			locString << GET_PLAYER(eVassal).getName();
+			GET_TEAM(eTeam).AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, eVassal);
+		}
+	}
 
 	if(GC.getGame().isFinalInitialized())
 	{
@@ -10298,6 +10362,7 @@ bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 	return true;
 }
 //	--------------------------------------------------------------------------------
+// We apply a vassal tax to ePlayer
 void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 {
 	if(!CanSetVassalTax(ePlayer))
@@ -10315,6 +10380,23 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	if(iPercent != iCurrentTaxRate)
 	{
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
+
+		// send a notification if there was some change
+		Localization::String locString, summaryString;
+		if(iPercent > iCurrentTaxRate)
+		{
+			locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED");
+			summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED_SUMMARY");
+		}
+		else
+		{
+			locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED");
+			summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED_SUMMARY");
+		}
+
+		locString << getName().GetCString() << iCurrentTaxRate << iPercent;
+
+		GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_GENERIC, locString.toUTF8(), summaryString.toUTF8(), -1, -1, this->getLeaderID());
 	}
 }
 //	--------------------------------------------------------------------------------

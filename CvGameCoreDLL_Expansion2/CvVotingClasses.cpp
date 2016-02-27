@@ -10037,16 +10037,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 	{
 		return ALIGNMENT_SELF;
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
-	{
-		return ALIGNMENT_LIBERATOR;
-	}
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-	{
-		return ALIGNMENT_ALLY;
-	}
-#endif
 	if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(ePlayer))
 	{
 		return ALIGNMENT_LIBERATOR;
@@ -10111,6 +10101,20 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 	{
 		iAlignment += -1;
 	}
+
+	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+	{
+		if(GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+		{
+			iAlignment += 3;
+		}
+		else
+		{
+			iAlignment += 1;
+		}
+	}
+#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)

@@ -1225,6 +1225,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetVassalTaxScore);
 	Method(GetVassalProtectScore);
 	Method(GetVassalFailedProtectScore);
+	Method(GetVassalTreatmentLevel);
+	Method(GetVassalTreatmentToolTip);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	Method(GetScoreFromMinorAllies);
@@ -12021,21 +12023,24 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			iValue = pDiploAI->GetVassalTreatedScore(eWithPlayer);
 			kOpinion.m_iValue = iValue;
 
-			// TODO: should not be hard-coded
-			if(iValue <= 0) {
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_CONTENT");
-			}
-			else if(iValue <= 10) {
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_DISAGREE");
-			}
-			else if(iValue <= 25) {
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_MISTREATED");
-			}
-			else if(iValue <= 50) {
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_UNHAPPY");
-			}
-			else {
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED");
+			VassalTreatmentTypes eTreatment = pDiploAI->GetVassalTreatmentLevel(eWithPlayer);
+			switch(eTreatment)
+			{
+				case VASSAL_TREATMENT_CONTENT:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_CONTENT");
+					break;
+				case VASSAL_TREATMENT_DISAGREE:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_DISAGREE");
+					break;
+				case VASSAL_TREATMENT_MISTREATED:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_MISTREATED");
+					break;
+				case VASSAL_TREATMENT_UNHAPPY:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_UNHAPPY");
+					break;
+				case VASSAL_TREATMENT_ENSLAVED:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED");
+					break;
 			}
 			aOpinions.push_back(kOpinion);
 		}
@@ -13374,6 +13379,26 @@ int CvLuaPlayer::lGetVassalFailedProtectScore(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	
 	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalFailedProtectScore(eOtherPlayer));
+	return 1;
+}
+
+// CvDiplomacyAI::GetVassalTreatmentLevel(PlayerTypes ePlayer)
+int CvLuaPlayer::lGetVassalTreatmentLevel(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	VassalTreatmentTypes eResult = pkPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(eOtherPlayer);
+	lua_pushinteger(L, (int)eResult);
+	return 1;
+}
+
+// CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer)
+int CvLuaPlayer::lGetVassalTreatmentToolTip(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushstring(L, pkPlayer->GetDiplomacyAI()->GetVassalTreatmentToolTip(ePlayer));
 	return 1;
 }
 

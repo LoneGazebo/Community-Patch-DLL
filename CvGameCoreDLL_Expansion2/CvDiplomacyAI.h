@@ -938,47 +938,66 @@ public:
 
 	bool IsVassalTaxRaised(PlayerTypes ePlayer) const;
 	void SetVassalTaxRaised(PlayerTypes ePlayer, bool bValue);
+
+	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer) const;
+	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer) const;
 	
-	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	// How much gold has our vassal collected since we've known him?
+	int GetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer) const;
+	void SetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer, int iValue);
+	void ChangeVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer, int iChange);
+	
+	// How much gold have we taxed from him since we've known him?
+	int GetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer) const;
+	void SetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iValue);
+	void ChangeVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iChange);
 
 	bool IsVassalTaxLowered(PlayerTypes ePlayer) const;
 	void SetVassalTaxLowered(PlayerTypes ePlayer, bool bValue);
 
-	int GetVassalScore(PlayerTypes ePlayer);
-	int GetMasterScore(PlayerTypes ePlayer);
+	int GetVassalScore(PlayerTypes ePlayer) const;
+	int GetMasterScore(PlayerTypes ePlayer) const;
 
-	int GetVassalTreatedScore(PlayerTypes ePlayer);
-	int GetVassalDemandScore(PlayerTypes ePlayer);
-	int GetVassalTaxScore(PlayerTypes ePlayer);
-	int GetVassalTradeRouteScore(PlayerTypes ePlayer);
-	int GetVassalReligionScore(PlayerTypes ePlayer);
+	int GetVassalTreatedScore(PlayerTypes ePlayer) const;
+	int GetVassalDemandScore(PlayerTypes ePlayer) const;
+	int GetVassalTaxScore(PlayerTypes ePlayer) const;
+	int GetVassalTradeRouteScore(PlayerTypes ePlayer) const;
+	int GetVassalReligionScore(PlayerTypes ePlayer) const;
 
-	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
+	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
+	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
-	int GetVassalProtectScore(PlayerTypes ePlayer);
-	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
-	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
+	int GetVassalProtectScore(PlayerTypes ePlayer) const;
+	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer) const;
+	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer) const;
 
-	int GetVassalProtectValue(PlayerTypes ePlayer);
+	int GetVassalProtectValue(PlayerTypes ePlayer) const;
 	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
 
-	int GetTooManyVassalsScore(PlayerTypes ePlayer);
+	int GetTooManyVassalsScore(PlayerTypes ePlayer) const;
 
-	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer);
+	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
 	void SetBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer);
+	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
 	
-	int GetVassalFailedProtectScore(PlayerTypes ePlayer);
-	int GetVassalFailedProtectValue(PlayerTypes ePlayer);
+	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
+	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;
 	void ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange);
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar = false);
+
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
 	bool IsHumanEndVassalageAcceptable(PlayerTypes eHuman);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
+	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoDetermineTaxRateForVassals();
+	void DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer);
+
+	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	int GetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer) const;
 	void SetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer, int iValue);
@@ -988,8 +1007,8 @@ public:
 	void SetTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlayer, int iValue);
 	void ChangeTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlayer, int iChange);
 
-	bool IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer);
-	bool IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer);
+	bool IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer) const;
+	bool IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer) const;
 
 	int GetNumTimesDemandedWhileVassal(PlayerTypes ePlayer) const;
 	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
@@ -998,11 +1017,11 @@ public:
 	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
 
-	GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
-	void SetGlobalState(PlayerTypes ePlayer, GlobalStateTypes eGlobalState);
+	//GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
+	//void SetGlobalState(PlayerTypes ePlayer, GlobalStateTypes eGlobalState);
 
-	void DoUpdateGlobalStates();
-	void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
+	//void DoUpdateGlobalStates();
+	//void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
 #endif
 
 	// Working Against Player
@@ -1443,10 +1462,13 @@ private:
 	CvPlayer* m_pPlayer;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool IsVassal(PlayerTypes eOtherPlayer);
-	int GetNumVassals(PlayerTypes eOtherPlayer);
+	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
+	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
+
+	bool IsVassal(PlayerTypes eOtherPlayer) const;
+	int GetNumVassals(PlayerTypes eOtherPlayer) const;
 	
-	void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
+	//void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
 #endif
 
 	// Need a string member so that it doesn't go out of scope after translation
@@ -1722,6 +1744,9 @@ private:
 
 		bool m_abVassalTaxRaised[MAX_MAJOR_CIVS];
 		bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];
+
+		int m_aiVassalGoldPerTurnTaxedSinceVassalStarted[MAX_MAJOR_CIVS];
+		int m_aiVassalGoldPerTurnCollectedSinceVassalStarted[MAX_MAJOR_CIVS];
 #endif
 	};
 	DiplomacyAIData* m_pDiploData;
@@ -1753,6 +1778,10 @@ private:
 
 	bool* m_pabVassalTaxRaised;
 	bool* m_pabVassalTaxLowered;
+
+	int* m_paiVassalGoldPerTurnTaxedSinceVassalStarted;
+	int* m_paiVassalGoldPerTurnCollectedSinceVassalStarted;
+
 #endif
 
 	// Scratch pad to keep track of Diplo Messages we've sent out in the past

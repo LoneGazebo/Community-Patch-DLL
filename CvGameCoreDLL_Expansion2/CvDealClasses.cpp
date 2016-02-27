@@ -684,6 +684,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		// If we're a vassal, can't
+		if(pFromTeam->IsVassalOfSomeone())
+			return false;
+#endif
 
 		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
 		if(bCheckOtherPlayerValidity)

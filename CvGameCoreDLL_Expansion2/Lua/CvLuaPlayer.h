@@ -1294,6 +1294,8 @@ protected:
 	LUAAPIEXTN(GetVassalTaxScore, int);
 	LUAAPIEXTN(GetVassalProtectScore, int);
 	LUAAPIEXTN(GetVassalFailedProtectScore, int);
+	LUAAPIEXTN(GetVassalTreatmentLevel, int);
+	LUAAPIEXTN(GetVassalTreatmentToolTip, CvString, iOtherPlayer);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);
