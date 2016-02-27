@@ -464,6 +464,7 @@ public:
 	bool IsVassalOfSomeone() const;
 	
 	bool canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
+	bool CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
 	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
 	bool canEndVassal(TeamTypes eTeam) const;
 	bool canEndAllVassal() const;

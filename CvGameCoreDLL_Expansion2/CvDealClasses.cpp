@@ -1293,7 +1293,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// Can we become the vassal of eToTeam?
-		if(!pToTeam->canBecomeVassal(eFromTeam))
+		if(!pFromTeam->canBecomeVassal(eToTeam))
 			return false;
 
 		//Does the offering team have a vassal?

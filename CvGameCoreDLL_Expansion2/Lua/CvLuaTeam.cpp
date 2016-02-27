@@ -227,8 +227,9 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(IsVassal);
 	Method(CanBecomeVassal);
-	Method(canEndVassal);
-	Method(canEndAllVassal);
+	Method(CanMakeVassal);
+	Method(CanEndVassal);
+	Method(CanEndAllVassal);
 	Method(IsVassalageTradingAllowed);
 	Method(GetNumTurnsIsVassal);
 	Method(GetNumTurnsSinceVassalEnded);
@@ -1408,19 +1409,25 @@ int CvLuaTeam::lIsVassal(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::IsVassal);
 }
 //------------------------------------------------------------------------------
-// bool CanMakeVassal(TeamTypes eIndex) const;
+// bool CanBecomeVassal(TeamTypes eIndex, bool bIgnoreAlreadyVassal) const;
 int CvLuaTeam::lCanBecomeVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canBecomeVassal);
 }
 //------------------------------------------------------------------------------
+// bool CanMakeVassal(TeamTypes eIndex, bool bIgnoreAlreadyVassal) const;
+int CvLuaTeam::lCanMakeVassal(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanMakeVassal);
+}
+//------------------------------------------------------------------------------
 // bool canEndVassal(TeamTypes eIndex) const;
-int CvLuaTeam::lcanEndVassal(lua_State* L)
+int CvLuaTeam::lCanEndVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canEndVassal);
 }
 // bool canEndVassal(TeamTypes eIndex) const;
-int CvLuaTeam::lcanEndAllVassal(lua_State* L)
+int CvLuaTeam::lCanEndAllVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canEndAllVassal);
 }

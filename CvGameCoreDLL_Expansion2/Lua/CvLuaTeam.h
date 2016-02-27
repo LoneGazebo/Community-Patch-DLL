@@ -233,8 +233,9 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	LUAAPIEXTN(IsVassal, bool, iteam);
 	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);
-	LUAAPIEXTN(canEndVassal, bool, iTeam);
-	LUAAPIEXTN(canEndAllVassal, bool, iTeam);
+	LUAAPIEXTN(CanMakeVassal, bool, iTeam);
+	LUAAPIEXTN(CanEndVassal, bool, iTeam);
+	LUAAPIEXTN(CanEndAllVassal, bool, iTeam);
 	LUAAPIEXTN(IsVassalageTradingAllowed, bool);
 	LUAAPIEXTN(GetNumTurnsIsVassal, int, iTeam);
 	LUAAPIEXTN(GetNumTurnsSinceVassalEnded, int, iTeam);

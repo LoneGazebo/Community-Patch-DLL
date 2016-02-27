@@ -9961,7 +9961,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 	}
 }
 //	----------------------------------------------------------------------------------------------
-// Can eTeam become our vassal?
+// Can we become eTeam's vassal?
 bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 {
 	// Can't become a vassal of nobody
@@ -9983,7 +9983,7 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 	}
 
 	// Human Vassalage isn't enabled...
-	if(!GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS) && GET_TEAM(eTeam).isHuman())
+	if(!GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS) && isHuman())
 	{
 		return false;
 	}
@@ -10006,11 +10006,11 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 		return false;
 	}
 
-	// We need vassalage enabled
-	if(!IsVassalageTradingAllowed())
+	// Master civ needs to be able to create vassals
+	if(!GET_TEAM(eTeam).IsVassalageTradingAllowed())
 		return false;
 
-	// We are a vassal, and we're not ignoring it
+	// We are a vassal, and not ignoring it
 	if(!bIgnoreAlreadyVassal && IsVassalOfSomeone())
 		return false;
 
@@ -10018,13 +10018,16 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 	if(GET_TEAM(eTeam).IsVassalOfSomeone())
 		return false;
 
-	// Too early for eTeam to become our vassal
-	if(GET_TEAM(eTeam).IsTooSoonForVassal(GetID()))
+	// Too early for us to become eTeam's vassal
+	if(IsTooSoonForVassal(eTeam))
 		return false;
 
 	// I don't have cities or population (prevents crash)
 	if(getNumCities() <= 0 || getTotalPopulation() <= 0)
 		return false;
+
+	// Check Lua to see if an event has been registered to prevent vassals
+	// Create an event like follows: GameEvents.CanMakeVassal.Add(function(eMasterTeam, eVassalTeam) ...)
 
 	// First, obtain the Lua script system.
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -10032,8 +10035,8 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 	{
 		// Construct and push in some event arguments.
 		CvLuaArgsHandle args(2);
-		args->Push(GetID());
 		args->Push(eTeam);
+		args->Push(GetID());
 
 		// Attempt to execute the game events.
 		// Will return false if there are no registered listeners.
@@ -10081,6 +10084,11 @@ bool CvTeam::CanLiberateVassal(TeamTypes eTeam) const
 	return true;
 }
 //	-----------------------------------------------------------------------------------------------
+bool CvTeam::CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
+{
+	return GET_TEAM(eTeam).canBecomeVassal(GetID(), bIgnoreAlreadyVassal);
+}
+//	-----------------------------------------------------------------------------------------------
 // We become the new Vassal of eTeam
 void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 {
@@ -10090,8 +10098,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	// they must be able to make us their vassal
-	if(!GET_TEAM(eTeam).canBecomeVassal(GetID(), /*bIgnoreAlreadyVassal*/ true))
+	// we must be able to become heir vassal
+	if(!canBecomeVassal(eTeam, /*bIgnoreAlreadyVassal*/ true))
 		return;
 
 	// Let's check if we have a vassal already, if so they must become eTeam's vassals as well
