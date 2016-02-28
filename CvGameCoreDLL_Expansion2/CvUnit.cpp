@@ -24666,7 +24666,7 @@ bool CvUnit::canRangeStrike() const
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_ATTACK_ONLY_IN_NATIVE_DOMAIN)
+#if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
     if(!isNativeDomain(plot()))
     {
         return false;
@@ -24770,6 +24770,13 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 			return false;
 		}
 	}
+
+#if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
+    if(!isNativeDomain(plot()))
+    {
+        return false;
+    }
+#endif
 
 	return true;
 }
@@ -26694,12 +26701,6 @@ bool CvUnit::IsCanAttackWithMove() const
     {
         return false;
     }
-#if defined(MOD_BALANCE_ATTACK_ONLY_IN_NATIVE_DOMAIN)
-    else if(!isNativeDomain(plot()))
-    {
-        return false;
-    }
-#endif
     else
     {
         return !isOnlyDefensive();

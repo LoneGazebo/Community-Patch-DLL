@@ -3368,7 +3368,6 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		m_eAbortReason = AI_ABORT_NO_TARGET;
 		return false;
 	}
-#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
 	// If this is a new target, switch to it
 	else if(pBetterTarget && pBetterTarget != GetTargetPlot())
 	{
@@ -3393,18 +3392,9 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		}
 		else
 		{
-#else
-	// If this is a new target, switch to it
-	else if(pBetterTarget != GetTargetPlot())
-	{
-#endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
-		SetTargetPlot(pBetterTarget);
-		pArmy->SetGoalPlot(pBetterTarget);
-#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
+			SetTargetPlot(pBetterTarget);
+			pArmy->SetGoalPlot(pBetterTarget);
 		}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	}
 	else if(GetTargetPlot() == NULL)
 	{
@@ -3412,14 +3402,7 @@ bool CvAIOperationEscorted::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		m_eAbortReason = AI_ABORT_LOST_TARGET;
 		return false;
 	}
-#else
-	}
-	else
-	{
-		SetToAbort(AI_ABORT_REPEAT_TARGET);
-		return false;
-	}
-#endif
+
 	pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
 	m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 

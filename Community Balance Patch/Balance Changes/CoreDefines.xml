@@ -227,7 +227,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="550" />
+			<Set Value="200" />
 			<!-- 500 -->
 		</Update>
 		<Update>
@@ -247,7 +247,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_HILL_CHANGE" />
-			<Set Value="300" />
+			<Set Value="200" />
 			<!-- 500 -->
 		</Update>
 		<Update>

@@ -2985,6 +2985,10 @@ int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SP
 	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand_Cached())
 		iCost += PATH_BASE_COST/4;
 
+	// avoid cities (just for the looks)
+	if (pToPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
+		iCost += PATH_BASE_COST/4;
+
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();
 	if (pCacheData->GetTeam()!=NO_TEAM && eToPlotTeam!=NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
