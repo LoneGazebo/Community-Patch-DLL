@@ -37257,6 +37257,123 @@ void CvPlayer::ChangeVassalGoldMaintenanceMod(int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+// Generate tooltip displayed for whether or not our vassal can declare independence from us
+CvString CvPlayer::GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const
+{
+	CvTeam& kVassalTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
+
+	TeamTypes eMaster = kVassalTeam.GetMaster();
+	if(eMaster != getTeam())
+		return "";
+
+	CvTeam& kMasterTeam = GET_TEAM(eMaster);
+	
+	CvString szTooltip = "";
+	
+	szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TT") + "[NEWLINE][NEWLINE]";
+
+	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(getTeam());
+	bool bSatisfied = false;
+
+	int iMinimumVassalTurns = bVoluntary ? GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+
+	int iNumTurnsIsVassal = kVassalTeam.GetNumTurnsIsVassal();
+
+	bSatisfied = (iNumTurnsIsVassal >= iMinimumVassalTurns);
+	szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT", iMinimumVassalTurns) + "[ENDCOLOR][NEWLINE]";
+	
+	// Rules only for capitulated vassals
+	if(!bVoluntary)
+	{
+		szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_OR_HEADER_TT") + "[NEWLINE]";
+
+		int iNumCitiesWhenVassalMade = kVassalTeam.getNumCitiesWhenVassalMade();
+		int iPopulationWhenVassalMade = kVassalTeam.getTotalPopulationWhenVassalMade();
+
+		int iCityPercent = 0;
+		int iPopPercent = 0;
+
+		iCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, iNumCitiesWhenVassalMade);
+		iPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, iPopulationWhenVassalMade);
+
+		bSatisfied = iCityPercent <= GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD(),iCityPercent) + "[ENDCOLOR][NEWLINE]";
+
+		bSatisfied = iPopPercent >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
+		
+		int iMasterCityPercent = 0;
+		int iMasterPopPercent = 0;
+
+		iMasterCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, kMasterTeam.getNumCities());
+		iMasterPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, kMasterTeam.getTotalPopulation());
+
+		bSatisfied = iMasterCityPercent >= GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() && iMasterPopPercent >= GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_PERCENT_TT", GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD(), GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD(), iMasterCityPercent, iMasterPopPercent) + "[ENDCOLOR][NEWLINE]";
+	}
+
+	return szTooltip;
+}
+
+// Generate tooltip displayed for whether or not we can declare independence from master
+CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
+{
+	CvTeam& kVassalTeam = GET_TEAM(getTeam());
+
+	TeamTypes eMaster = kVassalTeam.GetMaster();
+	if(eMaster == NO_TEAM)
+		return "";
+
+	CvTeam& kMasterTeam = GET_TEAM(eMaster);
+	
+	CvString szTooltip = "";
+	
+	szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_TT") + "[NEWLINE][NEWLINE]";
+
+	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(getTeam());
+	bool bSatisfied = false;
+
+	int iMinimumVassalTurns = bVoluntary ? GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+
+	int iNumTurnsIsVassal = kVassalTeam.GetNumTurnsIsVassal();
+
+	bSatisfied = (iNumTurnsIsVassal >= iMinimumVassalTurns);
+	szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT", iMinimumVassalTurns) + "[ENDCOLOR][NEWLINE]";
+	
+	// Rules only for capitulated vassals
+	if(!bVoluntary)
+	{
+		szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_OR_HEADER_TT") + "[NEWLINE]";
+
+		int iNumCitiesWhenVassalMade = kVassalTeam.getNumCitiesWhenVassalMade();
+		int iPopulationWhenVassalMade = kVassalTeam.getTotalPopulationWhenVassalMade();
+
+		int iCityPercent = 0;
+		int iPopPercent = 0;
+
+		iCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, iNumCitiesWhenVassalMade);
+		iPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, iPopulationWhenVassalMade);
+
+		bSatisfied = iCityPercent <= GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD(),iCityPercent) + "[ENDCOLOR][NEWLINE]";
+
+		bSatisfied = iPopPercent >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
+		
+		int iMasterCityPercent = 0;
+		int iMasterPopPercent = 0;
+
+		iMasterCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, kMasterTeam.getNumCities());
+		iMasterPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, kMasterTeam.getTotalPopulation());
+
+		bSatisfied = iMasterCityPercent >= GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() && iMasterPopPercent >= GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_PERCENT_TT", GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD(), GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD(), iMasterCityPercent, iMasterPopPercent) + "[ENDCOLOR][NEWLINE]";
+	}
+
+	return szTooltip;
+}
+
 #endif
 
 #if defined(MOD_API_EXTENSIONS)

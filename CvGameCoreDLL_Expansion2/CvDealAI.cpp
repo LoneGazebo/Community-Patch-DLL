@@ -9244,7 +9244,7 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	else
 	{
-		CvAssertMsg(false, "Don't ask a human to become a vassal!");
+		CvAssertMsg(false, "Don't ask humans for vassalage!");
 	}
 
 	return bDealAcceptable;
@@ -9309,7 +9309,9 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't ask a human to become a vassal!");
+			bool bUselessReferenceVariable;
+			bool bCantMatchOffer;
+			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 	}
 

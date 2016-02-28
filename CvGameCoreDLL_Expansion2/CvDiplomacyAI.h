@@ -994,7 +994,7 @@ public:
 	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar = false);
 
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
-	bool IsHumanEndVassalageAcceptable(PlayerTypes eHuman);
+	bool IsEndVassalageRequestAcceptable(PlayerTypes eHuman);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);

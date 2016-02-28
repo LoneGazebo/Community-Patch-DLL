@@ -1303,6 +1303,8 @@ protected:
 	LUAAPIEXTN(GetVassalFailedProtectScore, int);
 	LUAAPIEXTN(GetVassalTreatmentLevel, int);
 	LUAAPIEXTN(GetVassalTreatmentToolTip, CvString, iOtherPlayer);
+	LUAAPIEXTN(GetVassalIndependenceTooltipAsMaster, CvString, iOtherPlayer);
+	LUAAPIEXTN(GetVassalIndependenceTooltipAsVassal, CvString);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);

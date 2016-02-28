@@ -1236,6 +1236,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetVassalFailedProtectScore);
 	Method(GetVassalTreatmentLevel);
 	Method(GetVassalTreatmentToolTip);
+	Method(GetVassalIndependenceTooltipAsMaster);
+	Method(GetVassalIndependenceTooltipAsVassal);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	Method(GetScoreFromMinorAllies);
@@ -13475,6 +13477,22 @@ int CvLuaPlayer::lGetVassalTreatmentToolTip(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
 	lua_pushstring(L, pkPlayer->GetDiplomacyAI()->GetVassalTreatmentToolTip(ePlayer));
+	return 1;
+}
+
+
+int CvLuaPlayer::lGetVassalIndependenceTooltipAsMaster(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushstring(L, pkPlayer->GetVassalIndependenceTooltipAsMaster(ePlayer));
+	return 1;
+}
+
+int CvLuaPlayer::lGetVassalIndependenceTooltipAsVassal(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetVassalIndependenceTooltipAsVassal());
 	return 1;
 }
 

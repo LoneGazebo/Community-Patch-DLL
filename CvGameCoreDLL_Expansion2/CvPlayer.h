@@ -2418,6 +2418,9 @@ public:
 	int GetScoreFromMilitarySize() const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	CvString GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const;
+	CvString GetVassalIndependenceTooltipAsVassal() const;
+
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;
 

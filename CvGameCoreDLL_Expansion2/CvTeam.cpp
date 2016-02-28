@@ -9659,24 +9659,24 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	}
 	
 	// After an ideology is unlocked, we don't care about 50% rules anymore.
-	PlayerTypes ePlayer;
-	PolicyBranchTypes eBranch;
-	for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		ePlayer = (PlayerTypes) iI;
-		// Find the ideology
-		for(int jJ=0; jJ < GC.getNumPolicyBranchInfos(); jJ++)
-		{
-			eBranch = (PolicyBranchTypes) jJ;
-			if(GC.getPolicyBranchInfo(eBranch)->IsPurchaseByLevel())
-			{
-				if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch) > 0)
-				{
-					return true;
-				}
-			}
-		}
-	}
+	//PlayerTypes ePlayer;
+	//PolicyBranchTypes eBranch;
+	//for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
+	//{
+	//	ePlayer = (PlayerTypes) iI;
+	//	// Find the ideology
+	//	for(int jJ=0; jJ < GC.getNumPolicyBranchInfos(); jJ++)
+	//	{
+	//		eBranch = (PolicyBranchTypes) jJ;
+	//		if(GC.getPolicyBranchInfo(eBranch)->IsPurchaseByLevel())
+	//		{
+	//			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch) > 0)
+	//			{
+	//				return true;
+	//			}
+	//		}
+	//	}
+	//}
 
 	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the 50% rules
 	if(IsVoluntaryVassal(eTeam))
@@ -10441,6 +10441,7 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 		GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_GENERIC, locString.toUTF8(), summaryString.toUTF8(), -1, -1, this->getLeaderID());
 	}
 }
+
 //	--------------------------------------------------------------------------------
 void CvTeam::SetVassalTax(PlayerTypes ePlayer, int iPercent)
 {
