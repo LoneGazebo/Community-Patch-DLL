@@ -694,8 +694,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... naval resource?
-			else if(pLoopPlot->isWater() &&
-			        pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+			else if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
 #if defined(MOD_BALANCE_CORE)
 				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
@@ -716,20 +715,17 @@ void CvHomelandAI::FindHomelandTargets()
 						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
+							// we've already checked for pLoopPlot is water and builds on sea tiles are a Resource Trade no need for an additional check, we just need to know if we can build it or not - Iamblichos
 							eBuild = ((BuildTypes)iJ);
-							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-							if(pkBuildInfo && pkBuildInfo->getImprovement() != NO_IMPROVEMENT && pkBuildInfo->IsWater())
+							if(eBuild != NO_BUILD)
 							{
-								if(GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild)->getImprovement())->IsImprovementResourceTrade(eNonObsoleteResource))
-								{
-									newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
-									newTarget.SetTargetX(pLoopPlot->getX());
-									newTarget.SetTargetY(pLoopPlot->getY());
-									newTarget.SetAuxData(pLoopPlot);
-									newTarget.SetAuxIntData((int)eBuild);
-									m_TargetedNavalResources.push_back(newTarget);
-									break;
-								}
+								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
+								newTarget.SetTargetX(pLoopPlot->getX());
+								newTarget.SetTargetY(pLoopPlot->getY());
+								newTarget.SetAuxData(pLoopPlot);
+								newTarget.SetAuxIntData(eBuild);
+								m_TargetedNavalResources.push_back(newTarget);								
+								//why break, just build all builds available that we can.
 							}
 						}
 					}
