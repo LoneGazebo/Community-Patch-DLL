@@ -22,7 +22,7 @@ UPDATE	GameSpeeds	SET	'TechCostPerTurnMultiplier'		= 30	WHERE Type = 'GAMESPEED_
 UPDATE	GameSpeeds	SET	'MinimumVoluntaryVassalTurns'	= 10	WHERE Type = 'GAMESPEED_STANDARD';
 UPDATE	GameSpeeds	SET	'MinimumVassalTurns'			= 50	WHERE Type = 'GAMESPEED_STANDARD';
 UPDATE	GameSpeeds	SET	'NumTurnsBetweenVassals'		= 100	WHERE Type = 'GAMESPEED_STANDARD';
-UPDATE	GameSpeeds	SET	'MinimumVassalLiberateTurns'	= 10	WHERE Type = 'GAMESPEED_STANDARD';
+UPDATE	GameSpeeds	SET	'MinimumVassalLiberateTurns'	= 50	WHERE Type = 'GAMESPEED_STANDARD';
 UPDATE	GameSpeeds	SET	'MinimumVassalTaxTurns'			= 25	WHERE Type = 'GAMESPEED_STANDARD';
 
 UPDATE	GameSpeeds	SET	'ShareOpinionDuration'			= 15	WHERE Type = 'GAMESPEED_EPIC';
