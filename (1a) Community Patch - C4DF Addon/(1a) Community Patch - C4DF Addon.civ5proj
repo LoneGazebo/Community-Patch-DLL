@@ -7,8 +7,8 @@
     <Guid>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Alpha</Stability>
-    <Teaser>This is a custom addon for Civilization IV Diplomatic Features for the Community Patch ONLY. It will not work for Community Bal</Teaser>
-    <Description>This is a custom addon for Civilization IV Diplomatic Features for the Community Patch ONLY. It will not work for Community Balance Patch - it was designed to be played without it.</Description>
+    <Teaser>C4DF for Community Patch Only</Teaser>
+    <Description>This is C4DF for Community Patch only. It will not work with Community Balance Patch nor is it intended to. Please use the C4DF for Community Balance Patch mod.</Description>
     <Authors>Michael "Putmalk"</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -127,11 +127,6 @@
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/ru_RU/ru_RU_Text_UIC4DF.xml</FileName>
       </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Extra/FromCBP.xml</FileName>
-      </Action>
     </ModActions>
     <ModDependencies>
       <Association xmlns="">
@@ -173,7 +168,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="LUA\" />
-    <Folder Include="Extra" />
     <Folder Include="SQL\" />
     <Folder Include="XML\" />
     <Folder Include="XML\Gameplay\" />
@@ -185,10 +179,6 @@
     <Folder Include="XML\Text\ru_RU\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Extra\FromCBP.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="LUA\DeclareWarPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>

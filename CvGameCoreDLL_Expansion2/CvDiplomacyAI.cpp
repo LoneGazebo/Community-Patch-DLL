@@ -39192,10 +39192,23 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if(GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() > 0)
 		return false;
 
+	
 	// Don't become vassal if we're diplo and UN is available
-	if(GC.getGame().GetGameLeagues()->GetActiveLeague()->IsUnitedNations() &&
-		IsGoingForDiploVictory())
-		return false;
+	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+	{
+		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
+			{
+				if (pLeague->IsUnitedNations())
+				{
+					if(IsGoingForDiploVictory())
+						return false;
+				}
+			}
+		}
+	}
 
 	std::vector<PlayerTypes> aOurTeam;
 	std::vector<PlayerTypes> aTheirTeam;
@@ -39463,10 +39476,22 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if(m_pPlayer->IsAnarchy())
 		return false;
 
-	// If we're going for diplo victory and united nations is on, declare independence
-	if(GC.getGame().GetGameLeagues()->GetActiveLeague()->IsUnitedNations() &&
-		IsGoingForDiploVictory())
-		return true;
+	// If UN is in session, end vassalage ASAP if going for diplo
+	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+	{
+		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
+			{
+				if (pLeague->IsUnitedNations())
+				{
+					if(IsGoingForDiploVictory())
+						return true;
+				}
+			}
+		}
+	}
 
 	int iChance = 0;
 

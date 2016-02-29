@@ -519,10 +519,10 @@ function VassalSelected( ePlayer )
 	local tooltipStr = Locale.ConvertTextKey("TXT_KEY_VO_LIBERATE_VASSAL_TT", pVassalTeam:GetName());
 	if( not g_pTeam:CanLiberateVassal( iVassalTeam ) ) then
 		Controls.LiberateCiv:SetDisabled( true );
-		tooltipStr = tooltipStr .. Locale.ConvertTextKey("TXT_KEY_VO_LIBERATE_VASSAL_TOO_SOON", Game.GetMinimumVassalLiberateTurns(), Game.GetMinimumVassalLiberateTurns() - pVassalTeam:GetNumTurnsIsVassal( g_iTeam ));
+		tooltipStr = tooltipStr .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_VO_LIBERATE_VASSAL_TOO_SOON", Game.GetMinimumVassalLiberateTurns(), Game.GetMinimumVassalLiberateTurns() - pVassalTeam:GetNumTurnsIsVassal( g_iTeam ));
 	else
 		Controls.LiberateCiv:SetDisabled( false );
-	 end
+	end
 
 	Controls.LiberateCiv:SetToolTipString( tooltipStr );
 	Controls.LiberateCiv:SetVoid1( iVassalTeam );
